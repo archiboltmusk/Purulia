@@ -219,7 +219,7 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .gt-intro h2{font-family:'EB Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:1rem;}
 .gt-intro h2 em{color:var(--amber);font-style:italic;}
 .gt-intro p{font-size:1.12rem;font-style:italic;color:rgba(240,230,208,.5);line-height:1.75;}
-.gt-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:3rem;}
+.gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:3rem;}
 .gt-card{background:rgba(240,230,208,.03);border:1px solid var(--border2);padding:2rem 1.8rem;transition:all .3s;}
 .gt-card:hover{background:rgba(212,136,42,.06);border-color:var(--border);}
 .gt-card-label{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.28em;color:rgba(240,230,208,.35);text-transform:uppercase;margin-bottom:.7rem;}
@@ -388,7 +388,6 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
   .tlc::before{display:none;}
   .tlc{margin-top:0;}
   #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto{padding:5rem 2rem;}
-  #reality{padding:5rem 2rem;}
   footer{grid-template-columns:1fr;text-align:center;}
   .ft-links{justify-content:center;}
 }
@@ -424,10 +423,9 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
   <div class="nav-logo">Purulia 2040</div>
   <ul class="nav-links">
     <li><a href="#reframe">The Case</a></li>
-    <li><a href="#reality">Reality</a></li>
     <li><a href="#pillars">Six Pillars</a></li>
     <li><a href="#audience">For You</a></li>
-    <li><a href="#groundtruth">Data</a></li>
+    <li><a href="#groundtruth">The Numbers</a></li>
     <li><a href="#timeline">Roadmap</a></li>
     <li><a href="#economics">Numbers</a></li>
     <li><a href="#fivepeople">Five People</a></li>
@@ -517,46 +515,6 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
       <li><span class="ic">🌿</span><span><strong>A forest economy leaving money on the table.</strong> Mahua, sal seeds, tamarind, millets — all leave raw. Processing happens in Kolkata. The margin stays there too.</span></li>
       <li><span class="ic">💧</span><span><strong>Drought is engineering, not fate.</strong> 1,200mm rain annually. 80% in 90 days. The fix is storage. Jharkhand built 5,000 check dams under MGNREGS. Purulia can replicate it.</span></li>
     </ul>
-  </div>
-</section>
-
-<!-- ══ REALITY CHECK ══ -->
-<section id="reality">
-  <div class="rv"><div class="sl">// The Honest Numbers — 2024</div><h2 class="sh">Where Purulia <em>Actually</em> Stands.</h2><p class="ss">Every figure below is verifiable. No rounding up, no best-case framing. Most Indian district development blueprints hide these numbers in footnotes. This one leads with them — because the only way to fix a problem is to name it accurately.</p></div>
-  <div class="reality-grid rv">
-    <div class="rc bad"><div class="rc-label">Per Capita Income</div><div class="rc-val">₹50,074</div><div class="rc-desc">Annual, 2021–22. WB state average: ₹1,41,373. Purulia earns 35 paise per rupee earned by the state. Ranked among WB's poorest districts. Not improving fast enough.</div><div class="rc-src">Source: IndiaSTAT District Factbook 2023–24</div></div>
-    <div class="rc bad"><div class="rc-label">Female Literacy</div><div class="rc-val">50.5%</div><div class="rc-desc">Half of Purulia's women cannot read. Overall literacy 64.5% — 3rd lowest in WB, 483rd out of 632 Indian districts. Every policy, every scheme, every document reaches only half the intended audience.</div><div class="rc-src">Source: Census 2011 / IndiaGraphy 2024</div></div>
-    <div class="rc bad"><div class="rc-label">Households with Sanitation</div><div class="rc-val">29.2%</div><div class="rc-desc">Lowest sanitation coverage of any district in West Bengal. Among the worst in India. This is not 1980. This is 2024. Open defecation is daily reality for 70%+ of the district.</div><div class="rc-src">Source: NFHS-5 2019–21 / PMC 2022</div></div>
-    <div class="rc bad"><div class="rc-label">BPL Households</div><div class="rc-val">79%</div><div class="rc-desc">79% of households hold Below Poverty Line cards. 50% report at least one adult seeking work and failing to find it. Unemployment here is not frictional — it is structural and generational.</div><div class="rc-src">Source: Multidimensional Poverty Study, 2019</div></div>
-    <div class="rc bad"><div class="rc-label">Power Transmission Loss</div><div class="rc-val">~18%</div><div class="rc-desc">Nearly 1 in 5 units generated is lost before reaching a consumer. Gujarat benchmark: 2%. This single figure adds ₹8–12/unit to every industrial operation and makes large-scale manufacturing uncompetitive before it begins.</div><div class="rc-src">Source: WBSEDCL Annual Report</div></div>
-    <div class="rc bad"><div class="rc-label">Irrigated Crop Area</div><div class="rc-val">21.6%</div><div class="rc-desc">Only 87,816 of 407,000 cultivable hectares are irrigated. The remaining 78% depend entirely on 90 days of monsoon. Every drought year, agriculture collapses. This is not bad luck. It is a solvable engineering problem.</div><div class="rc-src">Source: District Profile, purulia.gov.in</div></div>
-    <div class="rc good"><div class="rc-label">Solar Irradiance (GHI)</div><div class="rc-val">5.4 kWh/m²</div><div class="rc-desc">Daily average — highest in eastern India. Comparable to Rajasthan's solar belt. On the same land that can't grow crops reliably, you can generate electricity 300+ days/year with no irrigation, no rainfall, no uncertainty.</div><div class="rc-src">Source: NREL / MNRE Solar Atlas 2024</div></div>
-    <div class="rc mid"><div class="rc-label">Land Cost (Industrial)</div><div class="rc-val">₹5–15L/ac</div><div class="rc-desc">A fraction of any comparable WB location. The cheapest viable solar manufacturing site east of Gujarat. Low land cost is not a consolation prize — it is a structural competitive advantage for capital-intensive industry.</div><div class="rc-src">Source: WBIDC Land Bank, 2024</div></div>
-  </div>
-  <div class="honest-box rv">
-    <div class="honest-box-title">⚠ The Five Things Most Likely to Make This Fail — And the Answers</div>
-    <div class="honest-grid">
-      <div>
-        <div class="honest-col-t">The Risks — Unvarnished</div>
-        <ul class="honest-list risks">
-          <li><strong>PESA land constraints:</strong> Schedule V tribal land cannot be sold to non-tribals without complex Gram Sabha process. Every industrial zone faces this friction.</li>
-          <li><strong>Political transfer cycles:</strong> The District Collector who starts this will be transferred in 2 years. Continuity of vision is the single hardest thing to maintain.</li>
-          <li><strong>Contractor capture:</strong> Infrastructure funds in WB historically leak through substandard work with no accountability. Roads built, washed away. Substations upgraded on paper.</li>
-          <li><strong>Power distribution monopoly:</strong> WBSEDCL moves slowly. Industrial connection in 8 months means no factory can start on schedule. This alone kills manufacturing.</li>
-          <li><strong>Brain drain self-reinforces:</strong> Every good person who leaves makes the next good person more likely to leave. Reversing network effects takes longer than any other change.</li>
-        </ul>
-      </div>
-      <div>
-        <div class="honest-col-t">The Specific Answers</div>
-        <ul class="honest-list answers">
-          <li><strong>PESA solution:</strong> Land leasing model — 30-year leases instead of acquisition. Tribal landowners keep title, receive annual income. No acquisition law triggered. Gujarat solar projects use this model today.</li>
-          <li><strong>Transfer solution:</strong> Written 3-year tenure commitment for the Collector. Joint district vision document signed by MP, MLA, and DC — harder to abandon when political leadership changes.</li>
-          <li><strong>Contractor solution:</strong> Third-party quality audits, geo-tagged photo documentation at every construction stage, public blacklisting with actual enforcement. Already piloted in PMGSY — expand to all infrastructure.</li>
-          <li><strong>Power solution:</strong> Captive solar microgrids for industrial zones — independent of WBSEDCL grid. Companies generate their own power. State grid becomes backup, not dependency.</li>
-          <li><strong>Brain drain solution:</strong> The fellowship cohort creates the peer group before the ecosystem exists. 20 talented people deliberately placed together generates its own social gravity.</li>
-        </ul>
-      </div>
-    </div>
   </div>
 </section>
 
@@ -666,64 +624,76 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 <!-- ══ GROUND TRUTH ══ -->
 <section id="groundtruth">
   <div class="gt-intro rv">
-    <div class="sl">// Ground Truth — Verified Data, 2024</div>
+    <div class="sl">// The Honest Numbers — Verified Data, 2024</div>
     <h2>The Numbers Are <em>Worse Than You Think.</em> That Is Exactly Why This Matters.</h2>
-    <p>Every figure below is sourced. None is estimated. This is Purulia as it actually stands — not as it is described in government press releases. The gap between these numbers and what they could be is the entire argument for this blueprint.</p>
+    <p>Every figure below is sourced. None is estimated. Most development blueprints hide these numbers in footnotes. This one leads with them — because the only way to fix a problem is to name it accurately.</p>
   </div>
   <div class="gt-grid rv">
     <div class="gt-card">
       <div class="gt-card-label">Per Capita Income</div>
       <div class="gt-card-val bad">₹50,074</div>
-      <div class="gt-card-desc">Annual per capita income (2021–22). West Bengal state average: ₹1,41,373. Purulia earns 35 paise for every rupee the state earns. This is not a gap. It is a chasm.</div>
+      <div class="gt-card-desc">Annual, 2021–22. WB state average: ₹1,41,373. Purulia earns 35 paise for every rupee the state earns. Ranked among WB's poorest districts. Not improving fast enough.</div>
       <div class="gt-card-src">Source: District Factbook, IndiaSTAT 2023–24</div>
     </div>
     <div class="gt-card">
-      <div class="gt-card-label">Literacy Rate</div>
-      <div class="gt-card-val bad">64.5%</div>
-      <div class="gt-card-desc">3rd lowest among all 24 WB districts. Female literacy: 50.5% — meaning half of Purulia's women cannot read this document. National average: 77.7%.</div>
+      <div class="gt-card-label">Female Literacy</div>
+      <div class="gt-card-val bad">50.5%</div>
+      <div class="gt-card-desc">Half of Purulia's women cannot read. Overall literacy: 64.5% — 3rd lowest in WB, 483rd out of 632 Indian districts. Every policy, every scheme, every document reaches only half the intended audience. National average: 77.7%.</div>
       <div class="gt-card-src">Source: Census 2011 / IndiaGraphy 2024</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">Sanitation Coverage</div>
       <div class="gt-card-val bad">29.2%</div>
-      <div class="gt-card-desc">Lowest of any district in West Bengal. Among the worst in India. One in three households has no toilet. This is a public health emergency, not a development gap.</div>
+      <div class="gt-card-desc">Lowest of any district in West Bengal. Among the worst in India. This is not 1980 — this is 2024. Open defecation is daily reality for 70%+ of the district. A public health emergency, not a development gap.</div>
       <div class="gt-card-src">Source: NFHS-5, 2019–21 / PMC Study 2022</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">BPL Households</div>
       <div class="gt-card-val bad">79%</div>
-      <div class="gt-card-desc">79% of surveyed households hold BPL (Below Poverty Line) cards. Half report at least one adult actively seeking work. Unemployment is not hidden here — it is pervasive.</div>
+      <div class="gt-card-desc">79% of households hold Below Poverty Line cards. Half report at least one adult seeking work and failing to find it. Unemployment here is not frictional — it is structural and generational.</div>
       <div class="gt-card-src">Source: Multidimensional Poverty Study, ResearchGate 2019</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">Child Labour & School Dropout</div>
       <div class="gt-card-val bad">10% / 8%</div>
-      <div class="gt-card-desc">10% of households send children to work. 8% don't send children to school at all. These are not statistics. Each percentage point represents thousands of children whose futures are being foreclosed right now.</div>
+      <div class="gt-card-desc">10% of households send children to work. 8% don't send children to school at all. Each percentage point represents thousands of children whose futures are being foreclosed right now.</div>
       <div class="gt-card-src">Source: Multidimensional Poverty Study, ResearchGate 2019</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">Banking Access</div>
       <div class="gt-card-val bad">31%</div>
-      <div class="gt-card-desc">31% of households have no bank account. No account means no credit, no savings, no insurance, no digital economy participation. These people are structurally excluded from every growth story.</div>
+      <div class="gt-card-desc">31% of households have no bank account. No account means no credit, no savings, no insurance, no digital economy participation. Structurally excluded from every growth story.</div>
       <div class="gt-card-src">Source: Multidimensional Poverty Study, ResearchGate 2019</div>
+    </div>
+    <div class="gt-card">
+      <div class="gt-card-label">Power Transmission Loss</div>
+      <div class="gt-card-val bad">~18%</div>
+      <div class="gt-card-desc">Nearly 1 in 5 units generated is lost before reaching a consumer. Gujarat benchmark: 2%. This adds ₹8–12/unit to every industrial operation and makes large-scale manufacturing uncompetitive before it begins.</div>
+      <div class="gt-card-src">Source: WBSEDCL Annual Report</div>
+    </div>
+    <div class="gt-card">
+      <div class="gt-card-label">Irrigation Coverage</div>
+      <div class="gt-card-val bad">21.6%</div>
+      <div class="gt-card-desc">Only 87,816 of 407,000 cultivable hectares are irrigated. The remaining land depends entirely on 90 days of monsoon. Every drought year, agriculture collapses. A solvable engineering problem — not bad luck.</div>
+      <div class="gt-card-src">Source: District Profile, purulia.gov.in</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">Solar Irradiance (GHI)</div>
       <div class="gt-card-val good">5.4 kWh/m²</div>
-      <div class="gt-card-desc">Daily average Global Horizontal Irradiance — highest in eastern India. Comparable to Rajasthan's solar belt. The same geography that makes Purulia drought-prone makes it a solar manufacturing powerhouse.</div>
+      <div class="gt-card-desc">Daily average — highest in eastern India, comparable to Rajasthan's solar belt. The same geography that makes Purulia drought-prone makes it a solar manufacturing powerhouse. 300+ reliable generation days a year.</div>
       <div class="gt-card-src">Source: NREL / MNRE Solar Atlas 2024</div>
     </div>
     <div class="gt-card">
       <div class="gt-card-label">Forest Cover</div>
       <div class="gt-card-val ok">14.7%</div>
-      <div class="gt-card-desc">Above WB average. Home to sal, mahua, palash, tendu leaf. The entire forest economy — worth hundreds of crores in raw material annually — leaves the district as commodity. Zero processing happens here.</div>
+      <div class="gt-card-desc">Above WB average. Home to sal, mahua, palash, tendu. The entire forest economy — worth hundreds of crores in raw material — leaves as unprocessed commodity. Zero value addition happens here today.</div>
       <div class="gt-card-src">Source: District Profile, purulia.gov.in 2021</div>
     </div>
     <div class="gt-card">
-      <div class="gt-card-label">Irrigation Coverage</div>
-      <div class="gt-card-val bad">21.6%</div>
-      <div class="gt-card-desc">Only 21.6% of gross cropped area is irrigated. 87,816 hectares net irrigated out of 407,000 hectares cultivable. The remaining land is entirely dependent on a 90-day monsoon. This is why agriculture fails here every drought year.</div>
-      <div class="gt-card-src">Source: District Profile, purulia.gov.in</div>
+      <div class="gt-card-label">Industrial Land Cost</div>
+      <div class="gt-card-val good">₹5–15L/ac</div>
+      <div class="gt-card-desc">A fraction of any comparable WB location. The cheapest viable solar manufacturing site east of Gujarat. Low land cost is not a consolation prize — it is a structural competitive advantage for capital-intensive industry.</div>
+      <div class="gt-card-src">Source: WBIDC Land Bank, 2024</div>
     </div>
   </div>
   <div class="gt-compare rv">
