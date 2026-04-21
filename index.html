@@ -1017,17 +1017,15 @@ async function submitForm(){
   btn.textContent='Sending…';
 
   try{
-    /* GET + URL params: avoids the POST→redirect→GET conversion that Google
-       Apps Script's 302 redirect causes, which strips the request body and
-       prevents doPost from receiving any data. doGet reads e.parameter directly. */
-    const params=new URLSearchParams({
-      name,
-      role,
-      location:location||'Not provided',
-      contact,
-      message:message||'(none)'
+    /* POST with text/plain (CORS-safelisted): body is always sent as-is.
+       Apps Script executes doPost before returning its redirect response,
+       so the sheet is written before any redirect happens. */
+    await fetch(SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'text/plain'},
+      body:JSON.stringify({name,role,location:location||'Not provided',contact,message:message||'(none)'})
     });
-    await fetch(SCRIPT_URL+'?'+params.toString(),{method:'GET',mode:'no-cors'});
     document.getElementById('formWrap').style.display='none';
     document.getElementById('formSuccess').style.display='block';
     showToast('Thank you, '+name+'. We\'ll be in touch personally.');
