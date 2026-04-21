@@ -283,6 +283,29 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
   #cta{padding:6rem 2rem;}
   footer{flex-direction:column;gap:1rem;padding:2rem;text-align:center;}
 }
+
+/* Back to top */
+#btt{position:fixed;bottom:2.5rem;right:2.5rem;width:44px;height:44px;background:var(--ink2);border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;cursor:pointer;z-index:700;opacity:0;transform:translateY(12px);transition:opacity .35s,transform .35s,background .3s,border-color .3s;pointer-events:none;}
+#btt.vis{opacity:1;transform:translateY(0);pointer-events:auto;}
+#btt:hover{background:var(--amber);border-color:var(--amber);}
+#btt svg{width:16px;height:16px;stroke:var(--cream);transition:stroke .3s;}
+#btt:hover svg{stroke:var(--ink);}
+
+/* Section nav dots */
+#snav{position:fixed;right:1.6rem;top:50%;transform:translateY(-50%);z-index:700;display:flex;flex-direction:column;gap:.9rem;}
+.snd{position:relative;display:flex;align-items:center;justify-content:flex-end;gap:.65rem;cursor:pointer;}
+.snd-dot{width:6px;height:6px;border-radius:50%;background:rgba(240,230,208,.15);border:1px solid rgba(240,230,208,.1);transition:background .3s,border-color .3s,transform .3s,box-shadow .3s;flex-shrink:0;}
+.snd.active .snd-dot{background:var(--amber);border-color:var(--amber);transform:scale(1.6);box-shadow:0 0 8px rgba(212,136,42,.5);}
+.snd-lbl{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.18em;color:rgba(240,230,208,.45);text-transform:uppercase;opacity:0;transform:translateX(6px);transition:opacity .2s,transform .2s;white-space:nowrap;pointer-events:none;}
+.snd:hover .snd-lbl,.snd.active .snd-lbl{opacity:1;transform:translateX(0);}
+.snd.active .snd-lbl{color:var(--amber);}
+
+/* Pillar deep-dive link */
+.pill-dd{display:inline-flex;align-items:center;gap:.4rem;margin-top:1rem;font-family:'DM Mono',monospace;font-size:.53rem;letter-spacing:.18em;color:var(--amber);text-decoration:none;opacity:.5;transition:opacity .3s,gap .3s;background:none;border:none;cursor:pointer;padding:0;}
+.pill-dd:hover{opacity:1;gap:.6rem;}
+.pill-dd::after{content:'→';}
+
+@media(max-width:900px){#snav,#btt{display:none;}}
 </style>
 </head>
 <body>
@@ -406,12 +429,12 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     <div class="rv"><p class="ss">Each pillar is a standalone intervention. Together they form a flywheel — each enabling and accelerating the others. The sequence matters: power before roads, roads before industry, industry before talent retention.</p></div>
   </div>
   <div class="pgrid">
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">01</div><div class="pill-ico">💧</div><div class="pill-t">Water & Geography</div><p class="pill-b">Harvest the monsoon. Store it. Purulia gets enough rain — it loses all of it in 90 days. Check dams, farm ponds, and watershed treatment convert a drought-prone plateau into a water-secure district.</p><div class="chips"><span class="chip">Check Dams</span><span class="chip">Pukhur Restoration</span><span class="chip">Drip Irrigation</span><span class="chip">Millet Shift</span></div></div>
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">02</div><div class="pill-ico">⚡</div><div class="pill-t">Economic Base</div><p class="pill-b">Three engines: solar manufacturing hub on India's best irradiance. GI-tagged craft exports capturing local value. Agro-processing of mahua, sal seeds, millets — turning raw produce into branded goods.</p><div class="chips"><span class="chip">1000MW Solar</span><span class="chip">Dokra GI Tag</span><span class="chip">Mahua Spirits</span><span class="chip">Sal Oil</span></div></div>
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">03</div><div class="pill-ico">🏗️</div><div class="pill-t">Infrastructure</div><p class="pill-b">Sequenced investment — power first, then roads, water, broadband. ₹3,500 crore mostly fundable through existing central schemes. The money is there. Execution is what's missing.</p><div class="chips"><span class="chip">RDSS Power</span><span class="chip">NH-32 4-lane</span><span class="chip">BharatNet</span><span class="chip">AMRUT Water</span></div></div>
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">04</div><div class="pill-ico">🎓</div><div class="pill-t">Brain Drain</div><p class="pill-b">One anchor institution changes a town's identity for a generation. Medical college first. NIT satellite second. Return migration program targeting 5,000 diaspora professionals. Co-working + fellowship cohort.</p><div class="chips"><span class="chip">Medical College</span><span class="chip">NIT Satellite</span><span class="chip">Pravasi Program</span><span class="chip">Fellows Cohort</span></div></div>
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">05</div><div class="pill-ico">📋</div><div class="pill-t">Investment Climate</div><p class="pill-b">Today: 37 clearances, 12 departments, 6–18 months. Target: one portal, one manager, 30-day deemed approval. Three purpose-built zones with pre-cleared land, pre-laid utilities, tax holidays for early movers.</p><div class="chips"><span class="chip">Land Bank</span><span class="chip">PIFC Portal</span><span class="chip">Tax Holiday</span><span class="chip">3 Zones</span></div></div>
-    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">06</div><div class="pill-ico">🚂</div><div class="pill-t">Connectivity</div><p class="pill-b">Direct Howrah–Purulia express. Adra–Ranchi rail doubling. NH-32 4-laned. Regional airport under UDAN. Multimodal logistics park. Brand identity: eastern India's green economy frontier.</p><div class="chips"><span class="chip">Rail Express</span><span class="chip">UDAN Airport</span><span class="chip">Freight Spur</span><span class="chip">Brand Story</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">01</div><div class="pill-ico">💧</div><div class="pill-t">Water & Geography</div><p class="pill-b">Harvest the monsoon. Store it. Purulia gets enough rain — it loses all of it in 90 days. Check dams, farm ponds, and watershed treatment convert a drought-prone plateau into a water-secure district.</p><div class="chips"><span class="chip">Check Dams</span><span class="chip">Pukhur Restoration</span><span class="chip">Drip Irrigation</span><span class="chip">Millet Shift</span></div><button class="pill-dd" onclick="tog('dd1');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">02</div><div class="pill-ico">⚡</div><div class="pill-t">Economic Base</div><p class="pill-b">Three engines: solar manufacturing hub on India's best irradiance. GI-tagged craft exports capturing local value. Agro-processing of mahua, sal seeds, millets — turning raw produce into branded goods.</p><div class="chips"><span class="chip">1000MW Solar</span><span class="chip">Dokra GI Tag</span><span class="chip">Mahua Spirits</span><span class="chip">Sal Oil</span></div><button class="pill-dd" onclick="tog('dd2');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">03</div><div class="pill-ico">🏗️</div><div class="pill-t">Infrastructure</div><p class="pill-b">Sequenced investment — power first, then roads, water, broadband. ₹3,500 crore mostly fundable through existing central schemes. The money is there. Execution is what's missing.</p><div class="chips"><span class="chip">RDSS Power</span><span class="chip">NH-32 4-lane</span><span class="chip">BharatNet</span><span class="chip">AMRUT Water</span></div><button class="pill-dd" onclick="tog('dd3');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">04</div><div class="pill-ico">🎓</div><div class="pill-t">Brain Drain</div><p class="pill-b">One anchor institution changes a town's identity for a generation. Medical college first. NIT satellite second. Return migration program targeting 5,000 diaspora professionals. Co-working + fellowship cohort.</p><div class="chips"><span class="chip">Medical College</span><span class="chip">NIT Satellite</span><span class="chip">Pravasi Program</span><span class="chip">Fellows Cohort</span></div><button class="pill-dd" onclick="tog('dd4');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">05</div><div class="pill-ico">📋</div><div class="pill-t">Investment Climate</div><p class="pill-b">Today: 37 clearances, 12 departments, 6–18 months. Target: one portal, one manager, 30-day deemed approval. Three purpose-built zones with pre-cleared land, pre-laid utilities, tax holidays for early movers.</p><div class="chips"><span class="chip">Land Bank</span><span class="chip">PIFC Portal</span><span class="chip">Tax Holiday</span><span class="chip">3 Zones</span></div><button class="pill-dd" onclick="tog('dd5');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">06</div><div class="pill-ico">🚂</div><div class="pill-t">Connectivity</div><p class="pill-b">Direct Howrah–Purulia express. Adra–Ranchi rail doubling. NH-32 4-laned. Regional airport under UDAN. Multimodal logistics park. Brand identity: eastern India's green economy frontier.</p><div class="chips"><span class="chip">Rail Express</span><span class="chip">UDAN Airport</span><span class="chip">Freight Spur</span><span class="chip">Brand Story</span></div><button class="pill-dd" onclick="tog('dd6');document.getElementById('deepdives').scrollIntoView({behavior:'smooth'})">Dive deeper</button></div>
   </div>
 </section>
 
@@ -1126,6 +1149,57 @@ window.addEventListener('scroll',()=>{
   secs.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id;});
   nas.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+cur?'var(--amber)':'';});
 },{passive:true});
+
+/* Back to top */
+const bttBtn=document.getElementById('btt');
+window.addEventListener('scroll',()=>{bttBtn.classList.toggle('vis',window.scrollY>500);},{passive:true});
+
+/* Section nav dots */
+const snavEl=document.getElementById('snav');
+const snavData=[['hero','Intro'],['reframe','The Case'],['pillars','Six Pillars'],['deepdives','Deep Dives'],['audience','Your Role'],['timeline','Timeline'],['economics','Numbers'],['sprint','First Steps'],['manifesto','Manifesto'],['cta','Get Involved']];
+snavData.forEach(([id,lbl])=>{
+  const sec=document.getElementById(id);
+  if(!sec)return;
+  const d=document.createElement('div');
+  d.className='snd';d.dataset.sec=id;
+  d.innerHTML='<span class="snd-lbl">'+lbl+'</span><div class="snd-dot"></div>';
+  d.addEventListener('click',()=>sec.scrollIntoView({behavior:'smooth'}));
+  snavEl.appendChild(d);
+});
+const sndAll=snavEl.querySelectorAll('.snd');
+function updateSnav(){
+  let cur=0;
+  snavData.forEach(([id],i)=>{const s=document.getElementById(id);if(s&&window.scrollY>=s.offsetTop-320)cur=i;});
+  sndAll.forEach((d,i)=>d.classList.toggle('active',i===cur));
+}
+window.addEventListener('scroll',updateSnav,{passive:true});
+updateSnav();
+
+/* Animated counters */
+function animCount(el){
+  if(el.dataset.counted)return;
+  el.dataset.counted='1';
+  const orig=el.textContent.trim();
+  const m=orig.match(/^([^0-9]*)([0-9,]+)(.*)/);
+  if(!m)return;
+  const pre=m[1],target=parseInt(m[2].replace(/,/g,'')),suf=m[3];
+  const dur=1500,start=performance.now();
+  const fmt=v=>v>=1000?v.toLocaleString('en-IN'):String(v);
+  const tick=now=>{
+    const p=Math.min((now-start)/dur,1);
+    const ease=1-Math.pow(1-p,3);
+    el.textContent=pre+fmt(Math.round(ease*target))+suf;
+    if(p<1)requestAnimationFrame(tick);
+  };
+  requestAnimationFrame(tick);
+}
+const ctrObs=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)animCount(e.target);});},{threshold:.6});
+document.querySelectorAll('.hb-n,.ec-v').forEach(el=>ctrObs.observe(el));
 </script>
+
+<button id="btt" onclick="window.scrollTo({top:0,behavior:'smooth'})" aria-label="Back to top">
+  <svg viewBox="0 0 24 24" fill="none" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="18 15 12 9 6 15"/></svg>
+</button>
+<nav id="snav" aria-label="Page sections"></nav>
 </body>
 </html>
