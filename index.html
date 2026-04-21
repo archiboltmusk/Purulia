@@ -1017,7 +1017,7 @@ async function submitForm(){
     await fetch(SCRIPT_URL,{
       method:'POST',
       mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
+      headers:{'Content-Type':'text/plain'},
       body:JSON.stringify({name,role,location:location||'Not provided',contact,message:message||'(none)'})
     });
     document.getElementById('formWrap').style.display='none';

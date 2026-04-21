@@ -29,7 +29,7 @@ function doPost(e) {
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) {
       sheet = ss.insertSheet(SHEET_NAME);
-      sheet.appendRow(['Timestamp', 'Name', 'Role', 'Location', 'Contact', 'Message']);
+      sheet.appendRow(['Timestamp', 'Name', 'Role', 'Location', 'Message', 'Contact']);
       sheet.setFrozenRows(1);
     }
     sheet.appendRow([
@@ -37,8 +37,8 @@ function doPost(e) {
       data.name    || '',
       data.role    || '',
       data.location|| '',
-      data.contact || '',
-      data.message || ''
+      data.message || '',
+      data.contact || ''
     ]);
 
     // ── Send email notification ──
