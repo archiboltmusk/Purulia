@@ -4,7 +4,6 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Purulia 2040 — A District Reborn</title>
-<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
 <meta name="description" content="A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.">
 <meta property="og:title" content="Purulia 2040 — A District Reborn">
 <meta property="og:description" content="From drought-prone plateau to eastern India's green economy capital. A complete blueprint for everyone who wants to play a part.">
@@ -1051,10 +1050,10 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ── EmailJS init — replace the three placeholders after setup ── */
-emailjs.init({publicKey:'YOUR_EMAILJS_PUBLIC_KEY'});
+/* ── Form submit — Google Sheets + email via Apps Script ── */
+/* Paste your deployed Apps Script URL below (see google-apps-script.js) */
+const SCRIPT_URL='YOUR_GOOGLE_APPS_SCRIPT_URL';
 
-/* ── Form submit — sends to thelosthillproject@gmail.com via EmailJS ── */
 async function submitForm(){
   const name=document.getElementById('f-name').value.trim();
   const role=document.getElementById('f-role').value;
@@ -1068,18 +1067,14 @@ async function submitForm(){
   btn.textContent='Sending…';
 
   try{
-    await emailjs.send(
-      'YOUR_EMAILJS_SERVICE_ID',
-      'YOUR_EMAILJS_TEMPLATE_ID',
-      {
-        from_name:name,
-        role:role,
-        location:location||'Not provided',
-        contact:contact,
-        message:message||'(no message)',
-        reply_to:contact.includes('@')?contact:'noreply@purulia2040.in'
-      }
-    );
+    /* no-cors: Apps Script redirects cause CORS headers to be stripped,
+       so we send fire-and-forget and treat the opaque response as success */
+    await fetch(SCRIPT_URL,{
+      method:'POST',
+      mode:'no-cors',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({name,role,location:location||'Not provided',contact,message:message||'(none)'})
+    });
     document.getElementById('formWrap').style.display='none';
     document.getElementById('formSuccess').style.display='block';
     showToast('Thank you, '+name+'. We\'ll be in touch personally.');
@@ -1087,7 +1082,6 @@ async function submitForm(){
     btn.disabled=false;
     btn.textContent='I Want to Be Part of This →';
     showToast('Could not send — please email thelosthillproject@gmail.com directly.');
-    console.error('EmailJS error:',err);
   }
 }
 
