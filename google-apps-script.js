@@ -28,7 +28,7 @@
 
 const TO_EMAIL       = 'thelosthillproject@gmail.com';
 const SHEET_NAME     = 'Submissions';
-const SPREADSHEET_ID = 'YOUR_SPREADSHEET_ID'; // ← paste your Sheet ID here
+const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; // ← paste your Sheet ID here
 
 // ── Handlers ─────────────────────────────────────────────────────────────────
 
