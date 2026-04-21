@@ -1,5 +1,7 @@
 # Purulia 2040
 
+[![Live Site](https://img.shields.io/badge/live-site-brightgreen)](https://mahatoanupam002-lang.github.io/Purulia/)
+
 > *A district reborn. A blueprint for transformation.*
 
 ---
