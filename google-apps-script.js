@@ -100,7 +100,7 @@ function processSubmission(data) {
 function openSheet() {
   // Use the explicit ID if provided; otherwise assume this script is bound
   // to the spreadsheet (opened via Extensions → Apps Script inside the sheet).
-  if (SPREADSHEET_ID && SPREADSHEET_ID !== 'YOUR_SPREADSHEET_ID') {
+  if (SPREADSHEET_ID && SPREADSHEET_ID !== '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ') {
     return SpreadsheetApp.openById(SPREADSHEET_ID);
   }
   const ss = SpreadsheetApp.getActiveSpreadsheet();
