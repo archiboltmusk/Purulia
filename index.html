@@ -997,7 +997,7 @@ function showToast(msg){
 
 /* ── Form submit — Google Sheets + email via Apps Script ── */
 /* Paste your deployed Apps Script URL below (see google-apps-script.js) */
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbznSul6ffVqQKi5PeKOZ-TStgiuWKq2j7jFQ46HoSayPQjXA1LkZebQbc-hmolW86g/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyAPgecdfvIqdahOkoojBGovqmg3498LOWLO-Lbm3TGZ3yjY7wrvMHobDqEtSUWlv9U/exec';
 
 async function submitForm(){
   if(!SCRIPT_URL||SCRIPT_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL'){
@@ -1017,15 +1017,15 @@ async function submitForm(){
   btn.textContent='Sending…';
 
   try{
-    /* POST with text/plain (CORS-safelisted): body is always sent as-is.
-       Apps Script executes doPost before returning its redirect response,
-       so the sheet is written before any redirect happens. */
-    await fetch(SCRIPT_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'text/plain'},
-      body:JSON.stringify({name,role,location:location||'Not provided',contact,message:message||'(none)'})
+    /* GET + URLSearchParams: simple CORS-safe request, no preflight, no body.
+       doGet reads e.parameter directly — avoids all redirect/body-stripping issues. */
+    const params=new URLSearchParams({
+      name,role,
+      location:location||'Not provided',
+      contact,
+      message:message||'(none)'
     });
+    await fetch(SCRIPT_URL+'?'+params.toString(),{method:'GET',mode:'no-cors'});
     document.getElementById('formWrap').style.display='none';
     document.getElementById('formSuccess').style.display='block';
     showToast('Thank you, '+name+'. We\'ll be in touch personally.');
