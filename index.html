@@ -997,10 +997,10 @@ function showToast(msg){
 
 /* ── Form submit — Google Sheets + email via Apps Script ── */
 /* Paste your deployed Apps Script URL below (see google-apps-script.js) */
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyAPgecdfvIqdahOkoojBGovqmg3498LOWLO-Lbm3TGZ3yjY7wrvMHobDqEtSUWlv9U/exec';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz0El39Aez8YzP__cg3ioFFfjeCs0VgDQ-J3RQ_AmrJTAZ6_-H50yDc7KK998W93W0a/exec';
 
 async function submitForm(){
-  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL'){
+  if(!SCRIPT_URL||SCRIPT_URL==='https://script.google.com/macros/s/AKfycbz0El39Aez8YzP__cg3ioFFfjeCs0VgDQ-J3RQ_AmrJTAZ6_-H50yDc7KK998W93W0a/exec'){
     showToast('Form not configured — please email thelosthillproject@gmail.com directly.');
     return;
   }
