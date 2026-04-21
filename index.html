@@ -997,9 +997,14 @@ function showToast(msg){
 
 /* ── Form submit — Google Sheets + email via Apps Script ── */
 /* Paste your deployed Apps Script URL below (see google-apps-script.js) */
-const SCRIPT_URL='YOUR_GOOGLE_APPS_SCRIPT_URL';
+const SCRIPT_URL='https://script.google.com/macros/s/AKfycbyAPgecdfvIqdahOkoojBGovqmg3498LOWLO-Lbm3TGZ3yjY7wrvMHobDqEtSUWlv9U/exec';
 
 async function submitForm(){
+  if(!SCRIPT_URL||SCRIPT_URL==='YOUR_GOOGLE_APPS_SCRIPT_URL'){
+    showToast('Form not configured — please email thelosthillproject@gmail.com directly.');
+    return;
+  }
+
   const name=document.getElementById('f-name').value.trim();
   const role=document.getElementById('f-role').value;
   const location=document.getElementById('f-location').value.trim();
@@ -1012,14 +1017,15 @@ async function submitForm(){
   btn.textContent='Sending…';
 
   try{
-    /* no-cors: Apps Script redirects cause CORS headers to be stripped,
-       so we send fire-and-forget and treat the opaque response as success */
-    await fetch(SCRIPT_URL,{
-      method:'POST',
-      mode:'no-cors',
-      headers:{'Content-Type':'application/json'},
-      body:JSON.stringify({name,role,location:location||'Not provided',contact,message:message||'(none)'})
+    /* GET + URLSearchParams: simple CORS-safe request, no preflight, no body.
+       doGet reads e.parameter directly — avoids all redirect/body-stripping issues. */
+    const params=new URLSearchParams({
+      name,role,
+      location:location||'Not provided',
+      contact,
+      message:message||'(none)'
     });
+    await fetch(SCRIPT_URL+'?'+params.toString(),{method:'GET',mode:'no-cors'});
     document.getElementById('formWrap').style.display='none';
     document.getElementById('formSuccess').style.display='block';
     showToast('Thank you, '+name+'. We\'ll be in touch personally.');

@@ -20,16 +20,28 @@
 const TO_EMAIL = 'thelosthillproject@gmail.com';
 const SHEET_NAME = 'Submissions';
 
+// Called by the frontend GET request (most reliable cross-origin approach)
+function doGet(e) {
+  return processSubmission(e.parameter);
+}
+
+// Kept as fallback for direct API / server-side calls
 function doPost(e) {
   try {
-    const data = JSON.parse(e.postData.contents);
+    return processSubmission(JSON.parse(e.postData.contents));
+  } catch (err) {
+    return jsonResponse({success: false, error: err.toString()});
+  }
+}
 
+function processSubmission(data) {
+  try {
     // ── Write to Google Sheet ──
     const ss = SpreadsheetApp.getActiveSpreadsheet();
     let sheet = ss.getSheetByName(SHEET_NAME);
     if (!sheet) {
       sheet = ss.insertSheet(SHEET_NAME);
-      sheet.appendRow(['Timestamp', 'Name', 'Role', 'Location', 'Contact', 'Message']);
+      sheet.appendRow(['Timestamp', 'Name', 'Role', 'Location', 'Message', 'Contact']);
       sheet.setFrozenRows(1);
     }
     sheet.appendRow([
@@ -37,8 +49,8 @@ function doPost(e) {
       data.name    || '',
       data.role    || '',
       data.location|| '',
-      data.contact || '',
-      data.message || ''
+      data.message || '',
+      data.contact || ''
     ]);
 
     // ── Send email notification ──
@@ -59,13 +71,15 @@ function doPost(e) {
       ].join('\n')
     });
 
-    return ContentService
-      .createTextOutput(JSON.stringify({success: true}))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({success: true});
 
   } catch (err) {
-    return ContentService
-      .createTextOutput(JSON.stringify({success: false, error: err.toString()}))
-      .setMimeType(ContentService.MimeType.JSON);
+    return jsonResponse({success: false, error: err.toString()});
   }
+}
+
+function jsonResponse(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
