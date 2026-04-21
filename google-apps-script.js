@@ -1,34 +1,11 @@
 /**
  * Purulia 2040 — Form Handler
  * Google Apps Script — deploys as a web app endpoint
- *
- * ── SETUP (one time) ─────────────────────────────────────────────────────────
- *
- *  STEP 1 — Get your Spreadsheet ID
- *    Open your Google Sheet. The URL looks like:
- *      https://docs.google.com/spreadsheets/d/XXXXXXXXXXXXXXXX/edit
- *    Copy the XXXXXXXXXXXXXXXX part and paste it as SPREADSHEET_ID below.
- *
- *  STEP 2 — Paste this code into Apps Script
- *    In your Google Sheet: Extensions → Apps Script → replace all code → Save.
- *    OR go to script.google.com → New project → replace all code → Save.
- *
- *  STEP 3 — Deploy
- *    Click Deploy → New Deployment (or Manage Deployments → edit existing)
- *      Type:            Web App
- *      Execute as:      Me
- *      Who has access:  Anyone
- *    Click Deploy → copy the Web App URL.
- *
- *  STEP 4 — Wire up the URL
- *    Paste that URL as SCRIPT_URL in index.html.
- *
- * ─────────────────────────────────────────────────────────────────────────────
  */
 
 const TO_EMAIL       = 'thelosthillproject@gmail.com';
 const SHEET_NAME     = 'Submissions';
-const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; // ← paste your Sheet ID here
+const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; 
 
 // ── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -98,9 +75,8 @@ function processSubmission(data) {
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function openSheet() {
-  // Use the explicit ID if provided; otherwise assume this script is bound
-  // to the spreadsheet (opened via Extensions → Apps Script inside the sheet).
-  if (SPREADSHEET_ID && SPREADSHEET_ID !== '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ') {
+  // Now it just checks if an ID is provided, without blocking your specific ID
+  if (SPREADSHEET_ID) {
     return SpreadsheetApp.openById(SPREADSHEET_ID);
   }
   const ss = SpreadsheetApp.getActiveSpreadsheet();
@@ -115,7 +91,6 @@ function openSheet() {
 }
 
 function jsonResponse(obj) {
-  // Simple text output is more reliable for 'no-cors' requests
   return ContentService
     .createTextOutput(obj.success ? "Success" : "Error: " + obj.error)
     .setMimeType(ContentService.MimeType.TEXT);
