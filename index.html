@@ -1066,11 +1066,17 @@ function submitForm(){
     'Message:\n'+(message||'(no message)')
   );
 
-  window.location.href='mailto:thelosthillproject@gmail.com?subject='+subject+'&body='+body;
-
+  /* Show success immediately — don't wait on email client */
   document.getElementById('formWrap').style.display='none';
   document.getElementById('formSuccess').style.display='block';
-  showToast('Thank you, '+name+'. Opening your email to send.');
+  showToast('Thank you, '+name+'. Opening your email now.');
+
+  /* Trigger mailto via link click — more reliable than window.location.href */
+  const a=document.createElement('a');
+  a.href='mailto:thelosthillproject@gmail.com?subject='+subject+'&body='+body;
+  document.body.appendChild(a);
+  a.click();
+  document.body.removeChild(a);
 }
 
 /* ── Active nav ── */
