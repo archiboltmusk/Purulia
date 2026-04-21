@@ -139,7 +139,7 @@ h1 .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:transpar
 .ddl{display:flex;flex-direction:column;gap:2px;margin-top:4rem;}
 .ddc{background:var(--ink2);border:1px solid var(--border2);overflow:hidden;transition:border-color .3s;}
 .ddc.open{border-color:var(--border);}
-.ddt{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:2rem;padding:1.9rem 2.4rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .3s;}
+.ddt{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:2rem;padding:1.9rem 2.4rem;cursor:pointer;touch-action:manipulation;-webkit-tap-highlight-color:transparent;transition:background .3s;background:none;border:none;width:100%;text-align:left;font:inherit;color:inherit;}
 .ddt:hover{background:rgba(212,136,42,.05);}
 .ddc.open .ddt{background:rgba(212,136,42,.08);}
 .dd-num{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--amber);}
@@ -421,7 +421,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
   <div class="ddl">
 
     <div class="ddc rv" id="dd1">
-      <div class="ddt" onclick="tog('dd1')"><span class="dd-num">01</span><span class="dd-name">Water & Geography</span><span class="dd-tag">Years 1–7</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd1')"><span class="dd-num">01</span><span class="dd-name">Water & Geography</span><span class="dd-tag">Years 1–7</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div><div class="dds-t">Phased Actions</div><ul class="ddpts">
           <li>Check dams on every nala — Jharkhand's 5,000+ under MGNREGS is the direct model to replicate</li>
@@ -442,7 +442,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     </div>
 
     <div class="ddc rv" id="dd2">
-      <div class="ddt" onclick="tog('dd2')"><span class="dd-num">02</span><span class="dd-name">Economic Base — Three Engines</span><span class="dd-tag">Years 1–12</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd2')"><span class="dd-num">02</span><span class="dd-name">Economic Base — Three Engines</span><span class="dd-tag">Years 1–12</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div>
           <div class="dds-t">Engine A — Solar Hub</div><ul class="ddpts">
@@ -474,7 +474,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     </div>
 
     <div class="ddc rv" id="dd3">
-      <div class="ddt" onclick="tog('dd3')"><span class="dd-num">03</span><span class="dd-name">Infrastructure — The Sequence</span><span class="dd-tag">₹3,500 Crore</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd3')"><span class="dd-num">03</span><span class="dd-name">Infrastructure — The Sequence</span><span class="dd-tag">₹3,500 Crore</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div>
           <div class="dds-t">Power First — Non-Negotiable</div><ul class="ddpts">
@@ -505,7 +505,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     </div>
 
     <div class="ddc rv" id="dd4">
-      <div class="ddt" onclick="tog('dd4')"><span class="dd-num">04</span><span class="dd-name">Stopping Brain Drain</span><span class="dd-tag">The Hardest Problem</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd4')"><span class="dd-num">04</span><span class="dd-name">Stopping Brain Drain</span><span class="dd-tag">The Hardest Problem</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div>
           <div class="dds-t">The Anchor Institution Strategy</div><ul class="ddpts">
@@ -531,7 +531,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     </div>
 
     <div class="ddc rv" id="dd5">
-      <div class="ddt" onclick="tog('dd5')"><span class="dd-num">05</span><span class="dd-name">Investment Climate Reform</span><span class="dd-tag">37 → 1 Clearance</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd5')"><span class="dd-num">05</span><span class="dd-name">Investment Climate Reform</span><span class="dd-tag">37 → 1 Clearance</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div>
           <div class="dds-t">Three Industrial Zones</div><ul class="ddpts">
@@ -557,7 +557,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;just
     </div>
 
     <div class="ddc rv" id="dd6">
-      <div class="ddt" onclick="tog('dd6')"><span class="dd-num">06</span><span class="dd-name">Connectivity & Positioning</span><span class="dd-tag">Rail · Road · Air · Digital</span><span class="dd-arr">↓</span></div>
+      <button class="ddt" onclick="tog('dd6')"><span class="dd-num">06</span><span class="dd-name">Connectivity & Positioning</span><span class="dd-tag">Rail · Road · Air · Digital</span><span class="dd-arr">↓</span></button>
       <div class="ddb"><div class="ddi">
         <div>
           <div class="dds-t">Rail — The Spine</div><ul class="ddpts">
