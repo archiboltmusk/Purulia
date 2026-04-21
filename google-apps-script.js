@@ -115,7 +115,8 @@ function openSheet() {
 }
 
 function jsonResponse(obj) {
+  // Simple text output is more reliable for 'no-cors' requests
   return ContentService
-    .createTextOutput(JSON.stringify(obj))
-    .setMimeType(ContentService.MimeType.JSON);
+    .createTextOutput(obj.success ? "Success" : "Error: " + obj.error)
+    .setMimeType(ContentService.MimeType.TEXT);
 }
