@@ -138,8 +138,7 @@ h1 .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:transpar
 .dd-tag{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.2em;color:rgba(240,230,208,.28);text-transform:uppercase;padding:.28rem .75rem;border:1px solid var(--border2);}
 .dd-arr{color:var(--amber);font-size:1.1rem;transition:transform .4s;}
 .ddc.open .dd-arr{transform:rotate(180deg);}
-.ddb{max-height:0;overflow:hidden;transition:max-height .65s cubic-bezier(.4,0,.2,1);}
-.ddc.open .ddb{max-height:900px;}
+.ddb{overflow:hidden;transition:max-height .65s cubic-bezier(.4,0,.2,1);max-height:0;}
 .ddi{padding:0 2.4rem 2.4rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;}
 .dds-t{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.32em;color:var(--amber);text-transform:uppercase;margin-bottom:.9rem;padding-bottom:.45rem;border-bottom:1px solid var(--border2);}
 .ddpts{list-style:none;display:flex;flex-direction:column;gap:.65rem;}
@@ -1094,11 +1093,20 @@ const rvs=document.querySelectorAll('.rv');
 const rvo=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');rvo.unobserve(e.target);}});},{threshold:.07});
 rvs.forEach((el,i)=>{el.style.transitionDelay=(i%5)*.06+'s';rvo.observe(el);});
 
-/* Deep dive accordion */
+/* Deep dive accordion — scrollHeight so content never clips */
 function tog(id){
-  const c=document.getElementById(id),was=c.classList.contains('open');
-  document.querySelectorAll('.ddc').forEach(x=>x.classList.remove('open'));
-  if(!was)c.classList.add('open');
+  const card=document.getElementById(id);
+  const body=card.querySelector('.ddb');
+  const isOpen=card.classList.contains('open');
+  document.querySelectorAll('.ddc').forEach(c=>{
+    c.classList.remove('open');
+    c.querySelector('.ddb').style.maxHeight='0';
+  });
+  if(!isOpen){
+    card.classList.add('open');
+    body.style.maxHeight=body.scrollHeight+'px';
+    setTimeout(()=>{if(card.classList.contains('open'))body.style.maxHeight=body.scrollHeight+'px';},400);
+  }
 }
 
 /* Audience selector */
