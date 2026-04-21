@@ -408,9 +408,6 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 .sp-li:hover{background:rgba(10,102,194,.1) !important;border-color:rgba(10,102,194,.7) !important;}
 .sp-close{position:absolute;top:.6rem;right:.75rem;background:none;border:none;color:var(--cream2);font-size:1rem;cursor:none;opacity:.45;padding:.25rem;}
 .sp-close:hover{opacity:1;}
-/* ── Form states ── */
-.form-submit:disabled{opacity:.5;cursor:not-allowed;}
-.form-submit.loading::after{content:' …';}
 </style>
 </head>
 <body>
@@ -1051,8 +1048,8 @@ function showToast(msg){
   toastTimer=setTimeout(()=>t.classList.remove('show'),2800);
 }
 
-/* ── Form submit — routes to thelosthillproject@gmail.com via Web3Forms ── */
-async function submitForm(){
+/* ── Form submit — direct email to thelosthillproject@gmail.com ── */
+function submitForm(){
   const name=document.getElementById('f-name').value.trim();
   const role=document.getElementById('f-role').value;
   const location=document.getElementById('f-location').value.trim();
@@ -1060,42 +1057,20 @@ async function submitForm(){
   const contact=document.getElementById('f-contact').value.trim();
   if(!name||!role||!contact){showToast('Please fill in your name, role, and contact');return;}
 
-  const btn=document.querySelector('.form-submit');
-  btn.disabled=true;
-  btn.classList.add('loading');
-  btn.textContent='Sending';
+  const subject=encodeURIComponent('Purulia 2040 — '+name+' ('+role+')');
+  const body=encodeURIComponent(
+    'Name: '+name+'\n'+
+    'Role: '+role+'\n'+
+    'Location: '+(location||'Not provided')+'\n'+
+    'Contact: '+contact+'\n\n'+
+    'Message:\n'+(message||'(no message)')
+  );
 
-  try{
-    const res=await fetch('https://api.web3forms.com/submit',{
-      method:'POST',
-      headers:{'Content-Type':'application/json','Accept':'application/json'},
-      body:JSON.stringify({
-        access_key:'YOUR_WEB3FORMS_KEY',
-        subject:'Purulia 2040 — New Submission: '+name+' ('+role+')',
-        from_name:'Purulia 2040 Form',
-        replyto:contact.includes('@')?contact:'',
-        name:name,
-        role:role,
-        location:location||'Not provided',
-        message:message||'No message',
-        contact:contact,
-        botcheck:''
-      })
-    });
-    const data=await res.json();
-    if(data.success){
-      document.getElementById('formWrap').style.display='none';
-      document.getElementById('formSuccess').style.display='block';
-      showToast('Thank you, '+name+'. We\'ll be in touch personally.');
-    }else{
-      throw new Error(data.message||'Submission failed');
-    }
-  }catch(err){
-    btn.disabled=false;
-    btn.classList.remove('loading');
-    btn.textContent='I Want to Be Part of This →';
-    showToast('Something went wrong. Please try again or email thelosthillproject@gmail.com directly.');
-  }
+  window.location.href='mailto:thelosthillproject@gmail.com?subject='+subject+'&body='+body;
+
+  document.getElementById('formWrap').style.display='none';
+  document.getElementById('formSuccess').style.display='block';
+  showToast('Thank you, '+name+'. Opening your email to send.');
 }
 
 /* ── Active nav ── */
