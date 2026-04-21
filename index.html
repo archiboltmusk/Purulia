@@ -1,0 +1,1122 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purulia 2040 — A District Reborn</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Tenor+Sans&display=swap" rel="stylesheet">
+<style>
+:root {
+  --ink:       #0C0A05;
+  --ink2:      #181208;
+  --ink3:      #221A0C;
+  --amber:     #D4882A;
+  --amber2:    #E8A94A;
+  --amber3:    #8C5810;
+  --crimson:   #8B2525;
+  --forest:    #243D1C;
+  --sky:       #1E4A6A;
+  --cream:     #F0E6D0;
+  --cream2:    #D8CAA8;
+  --cream3:    #FAF5EC;
+  --ghost:     rgba(240,230,208,0.05);
+  --ghost2:    rgba(212,136,42,0.07);
+  --border:    rgba(212,136,42,0.2);
+  --border2:   rgba(212,136,42,0.08);
+  --border3:   rgba(240,230,208,0.08);
+}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
+html{scroll-behavior:smooth;}
+body{background:var(--ink);color:var(--cream);font-family:'EB Garamond',serif;overflow-x:hidden;cursor:none;}
+
+/* GRAIN */
+body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9000;opacity:.5;}
+
+/* CURSOR */
+#cur{position:fixed;width:7px;height:7px;background:var(--amber);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);transition:transform .1s;}
+#curR{position:fixed;width:28px;height:28px;border:1px solid rgba(212,136,42,.45);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s;}
+::-webkit-scrollbar{width:3px;}::-webkit-scrollbar-track{background:var(--ink);}::-webkit-scrollbar-thumb{background:var(--amber);}
+
+/* PROGRESS */
+#pbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));z-index:8999;width:0%;transition:width .08s;}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.3rem 3.5rem;background:linear-gradient(to bottom,rgba(12,10,5,.97),transparent);backdrop-filter:blur(4px);border-bottom:1px solid var(--border2);}
+.nav-logo{font-family:'Tenor Sans',sans-serif;font-size:.75rem;letter-spacing:.45em;color:var(--amber);text-transform:uppercase;}
+.nav-links{display:flex;gap:2.2rem;list-style:none;}
+.nav-links a{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.22em;color:rgba(240,230,208,.4);text-decoration:none;text-transform:uppercase;transition:color .3s;position:relative;}
+.nav-links a::after{content:'';position:absolute;left:0;bottom:-3px;width:0;height:1px;background:var(--amber);transition:width .3s;}
+.nav-links a:hover{color:var(--amber);}
+.nav-links a:hover::after{width:100%;}
+
+/* HERO */
+#hero{min-height:100vh;display:grid;grid-template-rows:1fr auto;position:relative;overflow:hidden;}
+.h-bg{position:absolute;inset:0;background:radial-gradient(ellipse 90% 70% at 65% 35%,rgba(212,136,42,.13) 0%,transparent 55%),radial-gradient(ellipse 50% 80% at 8% 75%,rgba(36,61,28,.22) 0%,transparent 50%),radial-gradient(ellipse 35% 50% at 92% 85%,rgba(30,74,106,.12) 0%,transparent 50%),var(--ink);}
+.h-mandala{position:absolute;right:-80px;top:50%;transform:translateY(-50%);width:640px;height:640px;opacity:.1;animation:spin 90s linear infinite;}
+@keyframes spin{to{transform:translateY(-50%) rotate(360deg);}}
+.h-mandala svg{width:100%;height:100%;}
+.h-main{position:relative;z-index:10;padding:11rem 5rem 4rem;max-width:880px;}
+.h-kicker{font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.45em;color:var(--amber);text-transform:uppercase;margin-bottom:2rem;opacity:0;animation:rise .9s ease .3s forwards;display:flex;gap:.8rem;flex-wrap:wrap;}
+.h-kicker span{padding:.28rem .8rem;border:1px solid rgba(212,136,42,.3);}
+h1{font-family:'EB Garamond',serif;font-size:clamp(4.5rem,10vw,10rem);font-weight:800;line-height:.86;letter-spacing:-.03em;margin-bottom:2.5rem;opacity:0;animation:rise 1s ease .5s forwards;}
+h1 .l1{display:block;color:var(--cream);}
+h1 .l2{display:block;color:var(--amber);}
+h1 .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:transparent;font-style:italic;}
+.h-lead{font-size:1.3rem;font-style:italic;line-height:1.8;color:rgba(240,230,208,.6);max-width:540px;margin-bottom:3.5rem;opacity:0;animation:rise 1s ease .7s forwards;}
+.h-lead strong{color:var(--cream);font-style:normal;}
+.h-btns{display:flex;gap:1.2rem;flex-wrap:wrap;opacity:0;animation:rise 1s ease .9s forwards;}
+.btn{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:.95rem 2.2rem;transition:all .3s;cursor:none;display:inline-block;}
+.btn-a{background:var(--amber);color:var(--ink);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.btn-a:hover{background:var(--amber2);transform:translateY(-2px);}
+.btn-b{border:1px solid rgba(240,230,208,.22);color:rgba(240,230,208,.7);}
+.btn-b:hover{border-color:var(--amber);color:var(--amber);}
+.h-bar{position:relative;z-index:10;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);opacity:0;animation:rise 1s ease 1.1s forwards;}
+.hb{padding:1.7rem 2.2rem;border-right:1px solid var(--border);}
+.hb:last-child{border-right:none;}
+.hb-n{font-family:'EB Garamond',serif;font-size:2rem;font-weight:700;color:var(--amber);line-height:1;}
+.hb-l{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.18em;color:rgba(240,230,208,.3);text-transform:uppercase;margin-top:.25rem;}
+
+/* TICKER */
+.ticker{background:var(--amber);padding:.6rem 0;overflow:hidden;white-space:nowrap;}
+.ticker-t{display:inline-block;animation:tick 40s linear infinite;}
+.ti{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--ink);text-transform:uppercase;margin-right:3rem;}
+.ti::before{content:'◆  ';}
+@keyframes tick{to{transform:translateX(-50%);}}
+
+/* REVEAL */
+.rv{opacity:0;transform:translateY(32px);transition:opacity .85s ease,transform .85s ease;}
+.rv.on{opacity:1;transform:translateY(0);}
+
+/* SECTION COMMONS */
+.sl{font-family:'DM Mono',monospace;font-size:.57rem;letter-spacing:.4em;color:var(--amber);text-transform:uppercase;margin-bottom:.8rem;}
+.sh{font-family:'EB Garamond',serif;font-size:clamp(2.2rem,4vw,3.8rem);font-weight:700;color:var(--cream);line-height:1.1;}
+.sh em{color:var(--amber);font-style:italic;}
+.ss{font-size:1.12rem;font-style:italic;color:rgba(240,230,208,.5);line-height:1.75;max-width:600px;margin-top:.9rem;}
+
+/* REFRAME */
+#reframe{padding:8rem 5rem;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start;border-bottom:1px solid var(--border2);}
+.rf-map-wrap{aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
+.rf-map-wrap svg{width:92%;height:92%;}
+.rf-text h2{font-family:'EB Garamond',serif;font-size:clamp(1.9rem,3.2vw,3rem);font-weight:600;font-style:italic;line-height:1.25;color:var(--cream);margin-bottom:1.8rem;}
+.rf-text h2 span{color:var(--amber);font-style:normal;}
+.rf-text p{font-size:1.12rem;line-height:1.9;color:rgba(240,230,208,.6);margin-bottom:1.3rem;}
+.insights{list-style:none;display:flex;flex-direction:column;gap:.9rem;margin-top:1.8rem;}
+.insights li{display:flex;gap:1rem;align-items:flex-start;font-size:1.05rem;color:rgba(240,230,208,.65);line-height:1.65;padding:1rem 1.2rem;border:1px solid var(--border2);background:var(--ghost);transition:all .3s;}
+.insights li:hover{border-color:var(--border);background:var(--ghost2);transform:translateX(7px);}
+.insights li .ic{font-size:1rem;flex-shrink:0;margin-top:.2rem;}
+.insights li strong{color:var(--cream);}
+
+/* PILLARS */
+#pillars{padding:8rem 5rem;background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 50%,var(--ink) 100%);}
+.ph{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:5rem;}
+.pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
+.pill{background:var(--ink3);padding:2.8rem 2.4rem;position:relative;overflow:hidden;cursor:none;transition:all .4s;}
+.pill::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(212,136,42,.09) 0%,transparent 60%);opacity:0;transition:opacity .4s;}
+.pill:hover{background:#231B0D;transform:translateY(-7px);z-index:2;box-shadow:0 30px 80px rgba(0,0,0,.65);}
+.pill:hover::before{opacity:1;}
+.pill-bar{position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .5s;}
+.pill:hover .pill-bar{transform:scaleX(1);}
+.pill-n{font-family:'EB Garamond',serif;font-size:5.5rem;font-weight:800;line-height:1;color:rgba(212,136,42,.09);margin-bottom:.4rem;transition:color .4s;}
+.pill:hover .pill-n{color:rgba(212,136,42,.18);}
+.pill-ico{font-size:1.8rem;margin-bottom:.7rem;}
+.pill-t{font-family:'EB Garamond',serif;font-size:1.5rem;font-weight:700;color:var(--cream);margin-bottom:.75rem;line-height:1.2;}
+.pill-b{font-size:.97rem;line-height:1.75;color:rgba(240,230,208,.48);margin-bottom:1.4rem;}
+.chips{display:flex;flex-wrap:wrap;gap:.4rem;}
+.chip{font-family:'DM Mono',monospace;font-size:.49rem;letter-spacing:.14em;color:rgba(212,136,42,.75);border:1px solid rgba(212,136,42,.28);padding:.22rem .55rem;text-transform:uppercase;}
+
+/* DEEP DIVES */
+#deepdives{padding:8rem 5rem;border-top:1px solid var(--border2);}
+.ddl{display:flex;flex-direction:column;gap:2px;margin-top:4rem;}
+.ddc{background:var(--ink2);border:1px solid var(--border2);overflow:hidden;transition:border-color .3s;}
+.ddc.open{border-color:var(--border);}
+.ddt{display:grid;grid-template-columns:auto 1fr auto auto;align-items:center;gap:2rem;padding:1.9rem 2.4rem;cursor:none;transition:background .3s;}
+.ddt:hover{background:rgba(212,136,42,.05);}
+.ddc.open .ddt{background:rgba(212,136,42,.08);}
+.dd-num{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.3em;color:var(--amber);}
+.dd-name{font-family:'EB Garamond',serif;font-size:1.45rem;font-weight:600;color:var(--cream);}
+.dd-tag{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.2em;color:rgba(240,230,208,.28);text-transform:uppercase;padding:.28rem .75rem;border:1px solid var(--border2);}
+.dd-arr{color:var(--amber);font-size:1.1rem;transition:transform .4s;}
+.ddc.open .dd-arr{transform:rotate(180deg);}
+.ddb{max-height:0;overflow:hidden;transition:max-height .65s cubic-bezier(.4,0,.2,1);}
+.ddc.open .ddb{max-height:900px;}
+.ddi{padding:0 2.4rem 2.4rem;display:grid;grid-template-columns:1fr 1fr;gap:3rem;}
+.dds-t{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.32em;color:var(--amber);text-transform:uppercase;margin-bottom:.9rem;padding-bottom:.45rem;border-bottom:1px solid var(--border2);}
+.ddpts{list-style:none;display:flex;flex-direction:column;gap:.65rem;}
+.ddpts li{font-size:.97rem;line-height:1.65;color:rgba(240,230,208,.6);padding-left:1.1rem;position:relative;}
+.ddpts li::before{content:'→';position:absolute;left:0;color:var(--amber);font-size:.75rem;top:.2rem;}
+.ddpts li strong{color:var(--cream);}
+.ddmets{display:flex;flex-direction:column;gap:.9rem;}
+.ddmet{padding:.9rem 1.1rem;background:var(--ghost);border-left:2px solid var(--amber);}
+.ddmet-v{font-family:'EB Garamond',serif;font-size:1.75rem;font-weight:700;color:var(--amber);line-height:1;}
+.ddmet-l{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.18em;color:rgba(240,230,208,.38);text-transform:uppercase;margin-top:.18rem;}
+
+/* AUDIENCE NOTES — the main new section */
+#audience{padding:8rem 5rem;background:var(--ink2);border-top:1px solid var(--border2);}
+.aud-header{margin-bottom:5rem;}
+.aud-selector{display:flex;flex-wrap:wrap;gap:.6rem;margin:2.5rem 0 0;}
+.aud-btn{font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.2em;text-transform:uppercase;padding:.7rem 1.4rem;border:1px solid var(--border2);color:rgba(240,230,208,.45);background:transparent;cursor:none;transition:all .3s;}
+.aud-btn:hover,.aud-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+.aud-panels{margin-top:4rem;}
+.aud-panel{display:none;}
+.aud-panel.active{display:grid;grid-template-columns:1fr 1.6fr;gap:5rem;align-items:start;animation:fadePan .5s ease;}
+@keyframes fadePan{from{opacity:0;transform:translateY(16px);}to{opacity:1;transform:translateY(0);}}
+.aud-left{}
+.aud-badge{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.35em;color:var(--amber);text-transform:uppercase;padding:.35rem .9rem;border:1px solid rgba(212,136,42,.35);display:inline-block;margin-bottom:1.5rem;}
+.aud-ico{font-size:3rem;margin-bottom:1.2rem;display:block;}
+.aud-title{font-family:'EB Garamond',serif;font-size:clamp(1.8rem,3vw,2.8rem);font-weight:700;color:var(--cream);line-height:1.15;margin-bottom:1.2rem;}
+.aud-hook{font-size:1.15rem;font-style:italic;color:rgba(240,230,208,.55);line-height:1.75;margin-bottom:1.5rem;}
+.aud-quote{padding:1.5rem 1.8rem;border-left:3px solid var(--amber);background:rgba(212,136,42,.06);font-size:1.05rem;font-style:italic;color:rgba(240,230,208,.7);line-height:1.75;}
+.aud-right{}
+.aud-section{margin-bottom:2.5rem;}
+.aud-section-t{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;padding-bottom:.5rem;border-bottom:1px solid var(--border2);}
+.aud-points{list-style:none;display:flex;flex-direction:column;gap:.8rem;}
+.aud-points li{font-size:1.05rem;line-height:1.7;color:rgba(240,230,208,.65);padding-left:1.3rem;position:relative;}
+.aud-points li::before{content:'→';position:absolute;left:0;color:var(--amber);font-size:.8rem;top:.22rem;}
+.aud-points li strong{color:var(--cream);}
+.aud-cta-box{margin-top:2rem;padding:1.8rem;border:1px solid var(--border);background:var(--ghost2);}
+.aud-cta-t{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.28em;color:var(--amber);text-transform:uppercase;margin-bottom:.8rem;}
+.aud-cta-text{font-size:1rem;line-height:1.65;color:rgba(240,230,208,.65);}
+
+/* TIMELINE */
+#timeline{padding:8rem 5rem;border-top:1px solid var(--border2);}
+.tl-wrap{margin-top:4.5rem;position:relative;}
+.tl-spine{position:absolute;left:0;right:0;top:2.2rem;height:1px;background:linear-gradient(to right,transparent,var(--border) 8%,var(--border) 92%,transparent);}
+.tl-row{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;}
+.tlc{background:var(--ink3);padding:2rem;border-top:2px solid var(--border2);transition:all .35s;cursor:none;position:relative;margin-top:4.5rem;}
+.tlc::before{content:'';position:absolute;width:14px;height:14px;border-radius:50%;background:var(--ink);border:2px solid var(--amber);box-shadow:0 0 0 3px rgba(212,136,42,.18);top:-5rem;left:50%;transform:translateX(-50%);}
+.tlc:hover{background:#1E1508;border-top-color:var(--amber);}
+.tlc-yr{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.28em;color:var(--amber);text-transform:uppercase;margin-bottom:.5rem;}
+.tlc-ph{font-family:'EB Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--cream);margin-bottom:1.1rem;line-height:1.2;}
+.tlc-items{list-style:none;display:flex;flex-direction:column;gap:.45rem;}
+.tlc-items li{font-size:.92rem;line-height:1.5;color:rgba(240,230,208,.48);padding-left:.9rem;position:relative;}
+.tlc-items li::before{content:'·';position:absolute;left:0;color:var(--amber);font-size:1.1rem;line-height:.9;}
+.tlc-out{margin-top:1.1rem;padding-top:.9rem;border-top:1px solid var(--border2);font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.14em;color:rgba(212,136,42,.65);text-transform:uppercase;}
+
+/* ECONOMICS */
+#economics{padding:8rem 5rem;border-top:1px solid var(--border2);}
+.econ-g{display:grid;grid-template-columns:repeat(4,1fr);gap:2px;margin:4rem 0 3.5rem;}
+.ec{background:var(--ink3);padding:2.4rem 1.8rem;text-align:center;position:relative;overflow:hidden;transition:all .3s;cursor:none;}
+.ec::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:linear-gradient(90deg,transparent,var(--amber),transparent);transform:scaleX(0);transition:transform .5s;}
+.ec:hover{background:#201808;}
+.ec:hover::before{transform:scaleX(1);}
+.ec-v{font-family:'EB Garamond',serif;font-size:2.6rem;font-weight:800;color:var(--amber);line-height:1;margin-bottom:.28rem;}
+.ec-u{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.2em;color:rgba(212,136,42,.55);text-transform:uppercase;margin-bottom:.7rem;}
+.ec-d{font-size:.9rem;line-height:1.5;color:rgba(240,230,208,.42);}
+.etable{width:100%;border-collapse:collapse;}
+.etable th{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.25em;color:rgba(212,136,42,.65);text-transform:uppercase;padding:1rem 1.4rem;text-align:left;border-bottom:1px solid var(--border);}
+.etable td{padding:1.1rem 1.4rem;font-size:.97rem;color:rgba(240,230,208,.65);border-bottom:1px solid var(--border2);vertical-align:top;}
+.etable tr:hover td{background:var(--ghost);color:var(--cream);}
+.etable td:first-child{color:var(--cream);font-weight:600;}
+.g{color:#6DB88A !important;}.am{color:var(--amber2) !important;}
+
+/* SPRINT */
+#sprint{padding:8rem 5rem;background:var(--ink2);border-top:1px solid var(--border2);display:grid;grid-template-columns:1fr 1.5fr;gap:6rem;align-items:start;}
+.sp-intro h2{font-family:'EB Garamond',serif;font-size:clamp(1.9rem,3vw,2.8rem);font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:1.4rem;}
+.sp-intro p{font-size:1.08rem;line-height:1.85;color:rgba(240,230,208,.55);margin-bottom:1.1rem;}
+.sp-list{display:flex;flex-direction:column;gap:2px;}
+.spi{display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center;padding:1.5rem 2rem;background:var(--ink3);border:1px solid var(--border2);transition:all .3s;cursor:none;}
+.spi:hover{border-color:var(--border);background:#1E1508;transform:translateX(6px);}
+.spi-n{font-family:'EB Garamond',serif;font-size:1.9rem;font-weight:800;color:rgba(212,136,42,.22);line-height:1;width:2.2rem;text-align:center;}
+.spi-t{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--cream);margin-bottom:.18rem;}
+.spi-d{font-size:.9rem;color:rgba(240,230,208,.42);line-height:1.4;}
+.badge{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.15em;text-transform:uppercase;padding:.28rem .65rem;border:1px solid;white-space:nowrap;}
+.bn{color:#6DB88A;border-color:rgba(109,184,138,.4);}
+.bq{color:var(--amber2);border-color:rgba(232,169,74,.4);}
+.by{color:rgba(240,230,208,.35);border-color:rgba(240,230,208,.15);}
+
+/* MANIFESTO */
+#manifesto{padding:10rem 5rem;text-align:center;position:relative;overflow:hidden;}
+.mf-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 50%,rgba(212,136,42,.07) 0%,transparent 60%);}
+.mf-orn{font-family:'EB Garamond',serif;font-size:clamp(14rem,28vw,26rem);font-weight:800;line-height:1;color:rgba(212,136,42,.035);position:absolute;top:50%;left:50%;transform:translate(-50%,-55%);pointer-events:none;white-space:nowrap;}
+.mf-inner{position:relative;z-index:1;max-width:840px;margin:0 auto;}
+.mf-inner blockquote{font-family:'EB Garamond',serif;font-size:clamp(1.6rem,3vw,2.65rem);font-weight:500;font-style:italic;line-height:1.6;color:var(--cream);margin-bottom:2.5rem;}
+.mf-inner blockquote em{color:var(--amber);font-style:normal;font-weight:700;}
+.mf-div{width:50px;height:1px;background:var(--amber);margin:2rem auto;}
+.mf-coda{font-family:'EB Garamond',serif;font-size:1.05rem;font-style:italic;color:rgba(240,230,208,.38);line-height:1.8;max-width:680px;margin:0 auto;}
+.mf-src{font-family:'DM Mono',monospace;font-size:.56rem;letter-spacing:.38em;color:rgba(240,230,208,.22);text-transform:uppercase;margin-top:2rem;}
+
+/* CTA */
+#cta{padding:9rem 5rem;background:linear-gradient(135deg,var(--forest) 0%,#162518 40%,var(--ink) 100%);text-align:center;position:relative;overflow:hidden;}
+#cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(212,136,42,.09) 0%,transparent 60%);}
+.cta-in{position:relative;z-index:1;max-width:720px;margin:0 auto;}
+.cta-in h2{font-family:'EB Garamond',serif;font-size:clamp(2.4rem,5vw,4.5rem);font-weight:800;line-height:1.1;color:var(--cream);margin-bottom:1.4rem;}
+.cta-in h2 em{color:var(--amber);font-style:italic;}
+.cta-in p{font-size:1.15rem;font-style:italic;color:rgba(240,230,208,.55);line-height:1.75;margin-bottom:3rem;}
+.cta-btns{display:flex;gap:1.1rem;justify-content:center;flex-wrap:wrap;}
+.cta-note{margin-top:3rem;font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.3em;color:rgba(240,230,208,.2);text-transform:uppercase;}
+
+/* FOOTER */
+footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:flex;justify-content:space-between;align-items:center;}
+.ft-brand{font-family:'EB Garamond',serif;font-size:1.35rem;font-weight:700;color:var(--amber);}
+.ft-mid{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.28em;color:rgba(240,230,208,.18);text-transform:uppercase;text-align:center;}
+.ft-r{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.18em;color:rgba(240,230,208,.18);}
+
+@keyframes rise{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+
+@media(max-width:900px){
+  nav{padding:1.2rem 2rem;}
+  .nav-links{display:none;}
+  .h-main{padding:9rem 2rem 3rem;}
+  .h-bar{grid-template-columns:repeat(3,1fr);}
+  .hb{padding:1.2rem 1.5rem;}
+  #reframe{grid-template-columns:1fr;padding:5rem 2rem;gap:3rem;}
+  .rf-map-wrap{display:none;}
+  #pillars,#deepdives,#audience,#timeline,#economics,#manifesto{padding:5rem 2rem;}
+  .ph,.pgrid{grid-template-columns:1fr;}
+  .ddi,.aud-panel.active{grid-template-columns:1fr;}
+  .tl-row{grid-template-columns:1fr;}
+  .tl-spine{display:none;}
+  .tlc::before{display:none;}
+  .tlc{margin-top:0;}
+  .econ-g{grid-template-columns:repeat(2,1fr);}
+  #sprint{grid-template-columns:1fr;padding:5rem 2rem;}
+  #cta{padding:6rem 2rem;}
+  footer{flex-direction:column;gap:1rem;padding:2rem;text-align:center;}
+}
+</style>
+</head>
+<body>
+
+<div id="cur"></div>
+<div id="curR"></div>
+<div id="pbar"></div>
+
+<!-- NAV -->
+<nav>
+  <div class="nav-logo">Purulia 2040</div>
+  <ul class="nav-links">
+    <li><a href="#reframe">The Case</a></li>
+    <li><a href="#pillars">Six Pillars</a></li>
+    <li><a href="#deepdives">Deep Dives</a></li>
+    <li><a href="#audience">For You</a></li>
+    <li><a href="#timeline">Roadmap</a></li>
+    <li><a href="#economics">Numbers</a></li>
+    <li><a href="#sprint">First Move</a></li>
+  </ul>
+</nav>
+
+<!-- ══════════════════════ HERO ══════════════════════ -->
+<section id="hero">
+  <div class="h-bg"></div>
+  <div class="h-mandala">
+    <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="250" cy="250" r="240" stroke="#D4882A" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="195" stroke="#D4882A" stroke-width=".3" stroke-dasharray="3 9"/>
+      <circle cx="250" cy="250" r="155" stroke="#D4882A" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="115" stroke="#D4882A" stroke-width=".3" stroke-dasharray="2 7"/>
+      <circle cx="250" cy="250" r="75" stroke="#D4882A" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="35" stroke="#D4882A" stroke-width="1"/>
+      <circle cx="250" cy="250" r="8" fill="#D4882A" opacity=".4"/>
+      <g stroke="#D4882A" stroke-width=".35" opacity=".7">
+        <line x1="250" y1="10" x2="250" y2="490"/>
+        <line x1="10" y1="250" x2="490" y2="250"/>
+        <line x1="74" y1="74" x2="426" y2="426"/>
+        <line x1="426" y1="74" x2="74" y2="426"/>
+        <line x1="145" y1="10" x2="355" y2="490"/>
+        <line x1="355" y1="10" x2="145" y2="490"/>
+        <line x1="10" y1="145" x2="490" y2="355"/>
+        <line x1="490" y1="145" x2="10" y2="355"/>
+      </g>
+      <polygon points="250,215 285,250 250,285 215,250" stroke="#D4882A" stroke-width="1.2" fill="none"/>
+      <polygon points="250,200 300,250 250,300 200,250" stroke="#D4882A" stroke-width=".5" fill="none" stroke-dasharray="4 4"/>
+    </svg>
+  </div>
+  <div class="h-main">
+    <div class="h-kicker"><span>West Bengal, India</span><span>District Transformation Blueprint</span><span>2026 → 2040</span></div>
+    <h1><span class="l1">A District</span><span class="l2">Reborn.</span><span class="l3">Purulia 2040</span></h1>
+    <p class="h-lead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
+    <div class="h-btns">
+      <a href="#pillars" class="btn btn-a">Read the Blueprint</a>
+      <a href="#audience" class="btn btn-b">Find Your Role</a>
+    </div>
+  </div>
+  <div class="h-bar">
+    <div class="hb"><div class="hb-n">300</div><div class="hb-l">Sunny days / yr</div></div>
+    <div class="hb"><div class="hb-n">4,000</div><div class="hb-l">Years of Dokra craft</div></div>
+    <div class="hb"><div class="hb-n">6</div><div class="hb-l">Transformation levers</div></div>
+    <div class="hb"><div class="hb-n">₹3,500Cr</div><div class="hb-l">Investment needed</div></div>
+    <div class="hb"><div class="hb-n">2040</div><div class="hb-l">Target horizon</div></div>
+  </div>
+</section>
+
+<!-- TICKER -->
+<div class="ticker" aria-hidden="true">
+  <div class="ticker-t">
+    <span class="ti">Solar Manufacturing Hub</span><span class="ti">Tribal Crafts Export Economy</span><span class="ti">Agro-Processing Clusters</span><span class="ti">Medical College Anchor</span><span class="ti">Single Window Clearance</span><span class="ti">Howrah–Purulia Direct Train</span><span class="ti">Brain Drain Reversal</span><span class="ti">Eastern India Green Capital</span><span class="ti">Dokra GI Tag</span><span class="ti">UNESCO Chhau Dance</span><span class="ti">Watershed Management</span><span class="ti">BharatNet Fibre</span><span class="ti">Return Migration Program</span><span class="ti">Green Hydrogen Pilot</span><span class="ti">UDAN Regional Airport</span><span class="ti">Dedicated Freight Corridor</span><span class="ti">Solar Manufacturing Hub</span><span class="ti">Tribal Crafts Export Economy</span><span class="ti">Agro-Processing Clusters</span><span class="ti">Medical College Anchor</span><span class="ti">Single Window Clearance</span><span class="ti">Howrah–Purulia Direct Train</span><span class="ti">Brain Drain Reversal</span><span class="ti">Eastern India Green Capital</span><span class="ti">Dokra GI Tag</span><span class="ti">UNESCO Chhau Dance</span><span class="ti">Watershed Management</span><span class="ti">BharatNet Fibre</span><span class="ti">Return Migration Program</span><span class="ti">Green Hydrogen Pilot</span><span class="ti">UDAN Regional Airport</span><span class="ti">Dedicated Freight Corridor</span>
+  </div>
+</div>
+
+<!-- ══════════════════════ REFRAME ══════════════════════ -->
+<section id="reframe">
+  <div class="rf-map-wrap rv">
+    <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="200" cy="200" r="185" stroke="rgba(212,136,42,.14)" stroke-width="1"/>
+      <circle cx="200" cy="200" r="145" stroke="rgba(212,136,42,.09)" stroke-width="1" stroke-dasharray="4 9"/>
+      <circle cx="200" cy="200" r="105" stroke="rgba(212,136,42,.11)" stroke-width="1"/>
+      <line x1="200" y1="200" x2="328" y2="48"  stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="58"  y2="125" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="275" y2="358" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="95"  y2="338" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <circle cx="328" cy="48"  r="5" fill="rgba(212,136,42,.6)"/>
+      <circle cx="58"  cy="125" r="5" fill="rgba(212,136,42,.6)"/>
+      <circle cx="275" cy="358" r="5" fill="rgba(212,136,42,.6)"/>
+      <circle cx="95"  cy="338" r="5" fill="rgba(212,136,42,.6)"/>
+      <text x="334" y="44"  font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Kolkata</text>
+      <text x="14"  y="123" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Dhanbad</text>
+      <text x="280" y="372" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Bhubaneswar</text>
+      <text x="26"  y="354" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Ranchi</text>
+      <circle cx="200" cy="200" r="22" fill="rgba(212,136,42,.12)" stroke="var(--amber)" stroke-width="1.5"/>
+      <circle cx="200" cy="200" r="7"  fill="var(--amber)"/>
+      <circle cx="200" cy="200" r="34" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="3 6"/>
+      <text x="160" y="240" font-family="'EB Garamond',serif" font-size="13.5" font-weight="bold" fill="rgba(240,230,208,.9)">PURULIA</text>
+      <text x="169" y="254" font-family="'DM Mono',monospace" font-size="8" fill="rgba(212,136,42,.7)">THE CENTER</text>
+      <text x="152" y="83" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(240,230,208,.22)">250 km</text>
+      <text x="86"  y="175" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(240,230,208,.22)">130 km</text>
+      <text x="290" y="288" font-family="'DM Mono',monospace" font-size="8.5" fill="rgba(240,230,208,.22)">300 km</text>
+    </svg>
+  </div>
+  <div class="rf-text rv">
+    <div class="sl">The Geographic Truth</div>
+    <h2>The map has been read <span>upside down.</span></h2>
+    <p>Purulia is not peripheral. It sits at the exact centre of a quadrilateral — Kolkata, Ranchi, Dhanbad, Bhubaneswar — four cities within 300 km. No other district in eastern India has this geometry.</p>
+    <p>The problem has never been location. It has been the absence of infrastructure to activate that location. That is a solvable problem — and this blueprint solves it.</p>
+    <ul class="insights">
+      <li><span class="ic">☀️</span><span><strong>Highest solar irradiance in eastern India.</strong> 300 sunny days/year on flat laterite land that grows nothing — the same land that makes farming impossible makes it India's best solar site east of Gujarat.</span></li>
+      <li><span class="ic">🎭</span><span><strong>UNESCO-listed, irreplaceable cultural assets.</strong> Chhau dance. 4,000-year-old Dokra metalwork. Patachitra scroll painting. These exist nowhere else. Purulia captures 1% of their value today.</span></li>
+      <li><span class="ic">🌿</span><span><strong>A forest economy leaving money on the table.</strong> Mahua, sal seeds, tamarind, millets — all leave raw. Processing happens in Kolkata or Mumbai. The margin stays there too.</span></li>
+      <li><span class="ic">💧</span><span><strong>Drought is engineering, not fate.</strong> 1,200mm of rain falls annually. 80% in 90 days. The fix is storage. Jharkhand built 5,000 check dams under MGNREGS. Purulia can replicate it.</span></li>
+    </ul>
+  </div>
+</section>
+
+<!-- ══════════════════════ SIX PILLARS ══════════════════════ -->
+<section id="pillars">
+  <div class="ph">
+    <div class="rv"><div class="sl">// 01 — Framework</div><h2 class="sh">Six Pillars.<br><em>One Transformation.</em></h2></div>
+    <div class="rv"><p class="ss">Each pillar is a standalone intervention. Together they form a flywheel — each enabling and accelerating the others. The sequence matters: power before roads, roads before industry, industry before talent retention.</p></div>
+  </div>
+  <div class="pgrid">
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">01</div><div class="pill-ico">💧</div><div class="pill-t">Water & Geography</div><p class="pill-b">Harvest the monsoon. Store it. Purulia gets enough rain — it loses all of it in 90 days. Check dams, farm ponds, and watershed treatment convert a drought-prone plateau into a water-secure district.</p><div class="chips"><span class="chip">Check Dams</span><span class="chip">Pukhur Restoration</span><span class="chip">Drip Irrigation</span><span class="chip">Millet Shift</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">02</div><div class="pill-ico">⚡</div><div class="pill-t">Economic Base</div><p class="pill-b">Three engines: solar manufacturing hub on India's best irradiance. GI-tagged craft exports capturing local value. Agro-processing of mahua, sal seeds, millets — turning raw produce into branded goods.</p><div class="chips"><span class="chip">1000MW Solar</span><span class="chip">Dokra GI Tag</span><span class="chip">Mahua Spirits</span><span class="chip">Sal Oil</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">03</div><div class="pill-ico">🏗️</div><div class="pill-t">Infrastructure</div><p class="pill-b">Sequenced investment — power first, then roads, water, broadband. ₹3,500 crore mostly fundable through existing central schemes. The money is there. Execution is what's missing.</p><div class="chips"><span class="chip">RDSS Power</span><span class="chip">NH-32 4-lane</span><span class="chip">BharatNet</span><span class="chip">AMRUT Water</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">04</div><div class="pill-ico">🎓</div><div class="pill-t">Brain Drain</div><p class="pill-b">One anchor institution changes a town's identity for a generation. Medical college first. NIT satellite second. Return migration program targeting 5,000 diaspora professionals. Co-working + fellowship cohort.</p><div class="chips"><span class="chip">Medical College</span><span class="chip">NIT Satellite</span><span class="chip">Pravasi Program</span><span class="chip">Fellows Cohort</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">05</div><div class="pill-ico">📋</div><div class="pill-t">Investment Climate</div><p class="pill-b">Today: 37 clearances, 12 departments, 6–18 months. Target: one portal, one manager, 30-day deemed approval. Three purpose-built zones with pre-cleared land, pre-laid utilities, tax holidays for early movers.</p><div class="chips"><span class="chip">Land Bank</span><span class="chip">PIFC Portal</span><span class="chip">Tax Holiday</span><span class="chip">3 Zones</span></div></div>
+    <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">06</div><div class="pill-ico">🚂</div><div class="pill-t">Connectivity</div><p class="pill-b">Direct Howrah–Purulia express. Adra–Ranchi rail doubling. NH-32 4-laned. Regional airport under UDAN. Multimodal logistics park. Brand identity: eastern India's green economy frontier.</p><div class="chips"><span class="chip">Rail Express</span><span class="chip">UDAN Airport</span><span class="chip">Freight Spur</span><span class="chip">Brand Story</span></div></div>
+  </div>
+</section>
+
+<!-- ══════════════════════ DEEP DIVES ══════════════════════ -->
+<section id="deepdives">
+  <div class="rv"><div class="sl">// 02 — Full Detail</div><h2 class="sh">The Deep Dives</h2><p class="ss">Each pillar unpacked — actions, sequencing, targets, funding, constraints. Click any to expand.</p></div>
+  <div class="ddl">
+
+    <div class="ddc rv" id="dd1">
+      <div class="ddt" onclick="tog('dd1')"><span class="dd-num">01</span><span class="dd-name">Water & Geography</span><span class="dd-tag">Years 1–7</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div><div class="dds-t">Phased Actions</div><ul class="ddpts">
+          <li>Check dams on every nala — Jharkhand's 5,000+ under MGNREGS is the direct model to replicate</li>
+          <li>Desilting 500+ abandoned pukhurs — doubles storage capacity at minimal cost, existing structures</li>
+          <li>Farm ponds under Krishak Bandhu expansion — every eligible farm within 3 years</li>
+          <li>Reforest catchments with sal, palash, mahua — native species that improve soil permeability</li>
+          <li>Shift from paddy (needs 1,500mm water) to bajra, ragi, pulses — drought-resilient alternatives</li>
+          <li>Drip and sprinkler irrigation mandated for horticulture receiving government subsidy</li>
+          <li>Village Jal Shakti committees — maintenance ownership at GP level, not district office</li>
+        </ul></div>
+        <div><div class="dds-t">Targets by 2035</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">0</div><div class="ddmet-l">Villages with seasonal water scarcity</div></div>
+          <div class="ddmet"><div class="ddmet-v">+2 ft</div><div class="ddmet-l">Groundwater table rise per year</div></div>
+          <div class="ddmet"><div class="ddmet-v">3×</div><div class="ddmet-l">Cropping seasons — from 1 today</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹200Cr</div><div class="ddmet-l">MGNREGS + watershed funding available</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <div class="ddc rv" id="dd2">
+      <div class="ddt" onclick="tog('dd2')"><span class="dd-num">02</span><span class="dd-name">Economic Base — Three Engines</span><span class="dd-tag">Years 1–12</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div>
+          <div class="dds-t">Engine A — Solar Hub</div><ul class="ddpts">
+            <li>500–1,000MW installed; land leasing at ₹25–40k/acre/year on barren laterite</li>
+            <li>"Purulia Solar Zone" designation — fast-track environmental clearance</li>
+            <li>Solar module assembly park: 500MW/year capacity, 2,000+ direct manufacturing jobs</li>
+            <li>Green hydrogen pilot (Years 6–12): excess solar → export to Kolkata industrial belt and Bangladesh</li>
+          </ul>
+          <br><div class="dds-t">Engine B — Crafts Export</div><ul class="ddpts">
+            <li>GI tags for Dokra metalwork and Chhau masks — legal protection + global premium pricing</li>
+            <li>Artisan producer companies (FPO model): collectives own the brand, negotiate bulk orders</li>
+            <li>Amazon Handmade, Etsy, Jaypore storefronts — artisan income target ₹20–25k/month</li>
+            <li>Flagship experience centre: showroom + workshop + boutique stay in Purulia town</li>
+          </ul>
+          <br><div class="dds-t">Engine C — Agro-Processing</div><ul class="ddpts">
+            <li>Mahua distillery cooperatives — tribal women as owners; craft spirits export market is real</li>
+            <li>Sal seed cold-press: ₹40/kg raw → ₹200–400/kg refined as cocoa butter equivalent</li>
+            <li>Brand ragi + bajra as "Chota Nagpur Heritage Grains" for national health food market</li>
+            <li>3–4 clusters with cold storage, FSSAI lab, packaging — end-to-end value chain locally</li>
+          </ul>
+        </div>
+        <div><div class="dds-t">Revenue Potential by 2032</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">₹1,200Cr</div><div class="ddmet-l">Solar land lease + manufacturing revenue/yr</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹500Cr</div><div class="ddmet-l">Annual crafts export revenue at scale</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹600Cr</div><div class="ddmet-l">Processed forest produce exports/yr</div></div>
+          <div class="ddmet"><div class="ddmet-v">5,000+</div><div class="ddmet-l">Direct solar manufacturing jobs</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <div class="ddc rv" id="dd3">
+      <div class="ddt" onclick="tog('dd3')"><span class="dd-num">03</span><span class="dd-name">Infrastructure — The Sequence</span><span class="dd-tag">₹3,500 Crore</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div>
+          <div class="dds-t">Power First — Non-Negotiable</div><ul class="ddpts">
+            <li>Upgrade 33kV and 11kV substations in all block HQs; replace 20–30yr old transformers</li>
+            <li>Feeder separation: agriculture vs industrial — Gujarat did this in 2003, transformed manufacturing overnight</li>
+            <li>Target &lt;2% transmission loss (currently ~18% in rural WB)</li>
+            <li>Captive solar microgrids for industrial clusters — 24/7 reliable power by Year 3</li>
+          </ul>
+          <br><div class="dds-t">Roads — Strategic Connections</div><ul class="ddpts">
+            <li>NH-32 complete 4-laning: Purulia–Asansol to Grand Trunk Road spine</li>
+            <li>Purulia–Ranchi expressway (130km): 90-minute journey, opens Jharkhand market</li>
+            <li>Multimodal logistics park at NH-32 junction: 1 lakh sq ft warehouse, 10,000MT cold storage</li>
+            <li>PMGSY last-mile: all blocks connected with all-weather roads, no seasonal cutoffs</li>
+          </ul>
+          <br><div class="dds-t">Broadband — The Equaliser</div><ul class="ddpts">
+            <li>BharatNet Phase 3 to every GP — the money exists, execution is the gap</li>
+            <li>Village Wi-Fi hotspots: local entrepreneur model, ₹10–20/day, self-sustaining</li>
+            <li>4 co-working centres with fibre + reliable power — enables remote workers to choose to stay</li>
+          </ul>
+        </div>
+        <div><div class="dds-t">Investment by Source</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">₹600Cr</div><div class="ddmet-l">Power — RDSS (Centre 60%)</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹1,500Cr</div><div class="ddmet-l">Roads — NHAI / Bharatmala</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹500Cr</div><div class="ddmet-l">Water — AMRUT 2.0 + JJM</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹150Cr</div><div class="ddmet-l">Broadband — BharatNet Phase 3</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <div class="ddc rv" id="dd4">
+      <div class="ddt" onclick="tog('dd4')"><span class="dd-num">04</span><span class="dd-name">Stopping Brain Drain</span><span class="dd-tag">The Hardest Problem</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div>
+          <div class="dds-t">The Anchor Institution Strategy</div><ul class="ddpts">
+            <li><strong>Medical college (first):</strong> 300-bed hospital + 25 acres = NMC eligibility. 500 MBBS + 200 PG = 2,000+ educated residents permanently. Doctors trained here practice here.</li>
+            <li><strong>NIT satellite (second):</strong> Renewable energy engineering focus — perfectly positioned. 1,000 students = permanent young educated population who build careers locally.</li>
+            <li><strong>Craft University (third, 20yr play):</strong> India has no institution for traditional craft + contemporary design. A Purulia NID satellite is globally unique.</li>
+          </ul>
+          <br><div class="dds-t">Purulia Roots — Return Migration</div><ul class="ddpts">
+            <li>Map 5,000 Purulia-origin professionals globally — LinkedIn, GP surveys, NRI networks</li>
+            <li>Annual Pravasi Sammelan: investment pitches, land allocation, startup matching event</li>
+            <li>Land at subsidised rates + 5-year tax holiday for diaspora-founded enterprises</li>
+            <li>Young Leaders Fellowship: 20 people/year, 2-year paid positions on district development projects</li>
+            <li>Co-working centres: Bengaluru salary, Purulia cost of living — remote work makes this real</li>
+          </ul>
+        </div>
+        <div><div class="dds-t">The Tipping Point</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">200</div><div class="ddmet-l">High-calibre people needed to flip the narrative</div></div>
+          <div class="ddmet"><div class="ddmet-v">10–15 yr</div><div class="ddmet-l">Timeline for net migration reversal</div></div>
+          <div class="ddmet"><div class="ddmet-v">20/yr</div><div class="ddmet-l">Young Leaders Fellowship cohort size</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹3Cr</div><div class="ddmet-l">Cost per co-working centre — 4 planned</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <div class="ddc rv" id="dd5">
+      <div class="ddt" onclick="tog('dd5')"><span class="dd-num">05</span><span class="dd-name">Investment Climate Reform</span><span class="dd-tag">37 → 1 Clearance</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div>
+          <div class="dds-t">Three Industrial Zones</div><ul class="ddpts">
+            <li><strong>Solar & Green Energy Park (Hura/Kashipur):</strong> Pre-laid 33kV feeder, fibre, water. Land at ₹5L/acre. 5yr GST reimbursement. Target: 25 units, 8,000 jobs, ₹3,000Cr by 2030.</li>
+            <li><strong>Tribal Crafts Cluster (near Purulia town):</strong> Shared kilns, looms, casting furnaces. APEDA + customs agent on-site. Artisan-owned IP — no corporate extraction of heritage.</li>
+            <li><strong>Agro-Processing Park (Manbazar):</strong> 5,000MT cold storage, FSSAI lab. Mixed cooperative + private model. ₹500Cr annual revenue target by 2032.</li>
+          </ul>
+          <br><div class="dds-t">PIFC — Single Window System</div><ul class="ddpts">
+            <li>One office + one mobile portal: submit once, all 12 departments notified simultaneously</li>
+            <li>30-day deemed approval: no response = clearance granted automatically by law</li>
+            <li>Relationship manager for every investment above ₹5 crore</li>
+            <li>Department KPIs include clearance turnaround — measured and published publicly</li>
+            <li>Anti-corruption: mystery shopping, face-less processing, officer rotation every 3 years</li>
+          </ul>
+        </div>
+        <div><div class="dds-t">Scorecard Targets</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">7 days</div><div class="ddmet-l">Business registration (from 90+ today)</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹2,000Cr</div><div class="ddmet-l">Private investment per year by 2032</div></div>
+          <div class="ddmet"><div class="ddmet-v">3,000 ac</div><div class="ddmet-l">Titled industrial land in bank by 2030</div></div>
+          <div class="ddmet"><div class="ddmet-v">#1</div><div class="ddmet-l">WB Ease of Doing Business — from bottom quartile</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+    <div class="ddc rv" id="dd6">
+      <div class="ddt" onclick="tog('dd6')"><span class="dd-num">06</span><span class="dd-name">Connectivity & Positioning</span><span class="dd-tag">Rail · Road · Air · Digital</span><span class="dd-arr">↓</span></div>
+      <div class="ddb"><div class="ddi">
+        <div>
+          <div class="dds-t">Rail — The Spine</div><ul class="ddpts">
+            <li>Direct Howrah–Purulia Intercity Express: 3.5hrs, enables executive day trips from Kolkata</li>
+            <li>Adra–Ranchi doubling + electrification: Ranchi in 2 hours — already in Railway Board pipeline</li>
+            <li>Purulia–Bhubaneswar new link via Baripada (~120km): opens Odisha's port economy</li>
+            <li>DFC spur: cargo from industrial zones reaches Kolkata port in 4 hours</li>
+            <li>Station redevelopment: craft market, Chhau art, co-working lounge — gateway experience</li>
+          </ul>
+          <br><div class="dds-t">Air + Digital</div><ul class="ddpts">
+            <li>Upgrade Purulia airstrip to ATR-72 standard (₹80–120Cr) under UDAN scheme</li>
+            <li>Routes: Purulia–Kolkata (40 min) and Purulia–Ranchi (25 min) — day trips viable</li>
+            <li>BharatNet → GP Wi-Fi → 5G corridor on NH-32 by 2030</li>
+            <li>"India's first intentional remote work district" — 500 digital nomads by 2030</li>
+            <li>Brand: "Eastern India's Green Economy Frontier" — differentiated from every competitor</li>
+          </ul>
+        </div>
+        <div><div class="dds-t">Connectivity Investment</div><div class="ddmets">
+          <div class="ddmet"><div class="ddmet-v">₹1,500Cr</div><div class="ddmet-l">Rail doubling + electrification</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹2,500Cr</div><div class="ddmet-l">Purulia–Ranchi expressway</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹120Cr</div><div class="ddmet-l">Regional airport — UDAN eligible</div></div>
+          <div class="ddmet"><div class="ddmet-v">₹200Cr</div><div class="ddmet-l">Multimodal logistics park — private</div></div>
+        </div></div>
+      </div></div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════ AUDIENCE NOTES ══════════════════════ -->
+<section id="audience">
+  <div class="aud-header rv">
+    <div class="sl">// 03 — Notes for Everyone</div>
+    <h2 class="sh">This Calls <em>Everyone.</em></h2>
+    <p class="ss">Transformation doesn't happen from one office. It happens when every kind of person finds their entry point. Select who you are.</p>
+    <div class="aud-selector">
+      <button class="aud-btn active" onclick="showAud('doctors')">Doctors</button>
+      <button class="aud-btn" onclick="showAud('engineers')">Engineers</button>
+      <button class="aud-btn" onclick="showAud('architects')">Architects</button>
+      <button class="aud-btn" onclick="showAud('politicians')">Politicians</button>
+      <button class="aud-btn" onclick="showAud('students')">Students</button>
+      <button class="aud-btn" onclick="showAud('entrepreneurs')">Entrepreneurs</button>
+      <button class="aud-btn" onclick="showAud('business')">Business Leaders</button>
+      <button class="aud-btn" onclick="showAud('artists')">Artists & Craftspeople</button>
+      <button class="aud-btn" onclick="showAud('diaspora')">Diaspora</button>
+      <button class="aud-btn" onclick="showAud('impact')">Impact Investors</button>
+    </div>
+  </div>
+  <div class="aud-panels">
+
+    <!-- DOCTORS -->
+    <div class="aud-panel active" id="aud-doctors">
+      <div class="aud-left">
+        <div class="aud-badge">For Doctors</div>
+        <span class="aud-ico">🩺</span>
+        <div class="aud-title">You Were Trained to Heal. Purulia Needs Healers — Not Just Visitors.</div>
+        <p class="aud-hook">The nearest oncologist to most of Purulia is in Kolkata — 250 km away. The nearest psychiatrist may be further. This is not a statistic. It is a daily reality for 3.5 million people.</p>
+        <div class="aud-quote">"A district without doctors doesn't just suffer poor health. It loses its best young people — because no family with ambition stays somewhere their children can't get a doctor."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">The Healthcare Gap Today</div>
+          <ul class="aud-points">
+            <li>Purulia Sadar Hospital is the only district hospital — chronically understaffed, missing specialists</li>
+            <li>Most PHCs (Primary Health Centres) function without a resident doctor — nurse-led by default</li>
+            <li>Maternal mortality, infant mortality, and TB rates significantly above state average</li>
+            <li>Tribal populations in Bagmundi, Balarampur, Jhalda — among the most medically underserved in India</li>
+            <li>Mental health infrastructure: virtually zero. Substance use (mahua, country liquor) is a serious local issue with no formal response</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">What Doctors Can Do Here</div>
+          <ul class="aud-points">
+            <li><strong>Specialists who establish private practice:</strong> Orthopaedics, gynaecology, paediatrics, internal medicine — all are undersupplied. First-mover advantage is extraordinary. The patient base is large and underserved.</li>
+            <li><strong>Telemedicine hubs:</strong> Set up Purulia as a model telemedicine district — link PHCs to Kolkata specialists via video. This is technically simple and life-saving at scale.</li>
+            <li><strong>Medical college advocacy:</strong> A doctor from Purulia advocating for a medical college here carries far more weight than any bureaucrat. Join the lobby. Push NMC. Partner with private investors.</li>
+            <li><strong>Community health workers:</strong> Train ASHA workers in expanded protocols — tribal health, mental health first aid, nutrition. This multiplies impact beyond any single clinic.</li>
+            <li><strong>Research base:</strong> Tribal disease patterns, traditional medicinal plants, nutritional anthropology in Santali and Munda communities — this is genuinely novel research territory. Publish from here.</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">One specialist who sets up practice in Purulia instead of Kolkata changes the calculus for every family in the district who was planning to leave. One doctor who trains 10 community health workers multiplies themselves tenfold. The medical college needs doctors to advocate for it — before it exists.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENGINEERS -->
+    <div class="aud-panel" id="aud-engineers">
+      <div class="aud-left">
+        <div class="aud-badge">For Engineers</div>
+        <span class="aud-ico">⚙️</span>
+        <div class="aud-title">The Problems Here Are Real. The Infrastructure Does Not Exist Yet. That Is the Opportunity.</div>
+        <p class="aud-hook">In Bengaluru, you optimise a feature for a product used by millions who don't need it. In Purulia, you design a water harvesting system for villages that have been waiting for one for decades.</p>
+        <div class="aud-quote">"The laterite plateau, the monsoon hydrology, the solar geometry, the agro-processing needs — these are genuine engineering challenges that haven't been solved yet. First-principles work. Not incremental improvement."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">Engineering Challenges That Need You</div>
+          <ul class="aud-points">
+            <li><strong>Civil / Water engineers:</strong> Check dam design for laterite geology, watershed modelling, farm pond siting optimisation — the Chota Nagpur Plateau has specific hydrological characteristics that generic designs don't account for</li>
+            <li><strong>Electrical engineers:</strong> Grid stabilisation for a district with 18% transmission loss, feeder separation design, distributed solar microgrid architecture for tribal hamlets with no road access</li>
+            <li><strong>Mechanical / Process engineers:</strong> Mahua distillation process optimisation, sal seed cold-press line design, millet processing for premium market standards — none of this equipment is locally available</li>
+            <li><strong>Solar / Renewable engineers:</strong> 1,000MW project commissioning, O&M systems for large-scale deployment in high-dust laterite environment, green hydrogen pilot design</li>
+            <li><strong>Software engineers:</strong> District infrastructure dashboard, BharatNet last-mile monitoring, digital land records integration, single-window clearance portal, telemedicine platform</li>
+            <li><strong>Transport / Logistics engineers:</strong> Multimodal hub design, cold chain network optimisation, freight corridor connection planning</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">Career Paths That Open Here</div>
+          <ul class="aud-points">
+            <li>Solar companies entering Purulia need project engineers who understand the local context — this is a 5-year career, not a posting</li>
+            <li>Government departments (PWD, WBSEDCL, PHE) desperately need technical capacity — contract roles, consulting, or permanent positions</li>
+            <li>NIT satellite campus (once established) needs faculty — an engineer with field experience in Purulia's specific problems is exactly what it needs</li>
+            <li>Start a local engineering firm: no one currently serves the district's agro-processing + solar + water needs in an integrated way</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">The Young Leaders Fellowship specifically seeks engineers. Two years working on a real infrastructure problem — with a stipend, with resources, with the full plan behind you — is better experience than five years building dashboards for a unicorn that doesn't need them.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARCHITECTS -->
+    <div class="aud-panel" id="aud-architects">
+      <div class="aud-left">
+        <div class="aud-badge">For Architects</div>
+        <span class="aud-ico">🏛️</span>
+        <div class="aud-title">A District Being Built From Scratch. Every Public Building, Every School, Every Town Centre — Designed Now.</div>
+        <p class="aud-hook">Most of Purulia's public infrastructure was either never built, built cheaply in the 1970s, or damaged beyond use. What gets designed and built in the next decade will define the district's physical identity for a century.</p>
+        <div class="aud-quote">"Bilbao had the Guggenheim. What will Purulia have? The answer is being determined right now by who shows up to design it."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">Design Opportunities That Exist Now</div>
+          <ul class="aud-points">
+            <li><strong>Medical college campus:</strong> A new 25-acre medical campus will be designed from scratch. This is a once-in-a-generation brief — a teaching hospital in a tribal landscape, drawing on local material traditions</li>
+            <li><strong>Purulia railway station redevelopment:</strong> The gateway experience. Chhau and Dokra as architectural language. A public building that makes arriving in Purulia feel like arriving somewhere significant</li>
+            <li><strong>Solar manufacturing park master plan:</strong> Industrial design that doesn't look industrial. Green industrial architecture — the visual contrast of solar arrays on a tribal plateau is inherently powerful</li>
+            <li><strong>Tribal Crafts Cluster:</strong> Workshop, gallery, boutique stay — a built environment that honours Dokra and Chhau without being a museum. Living, working, beautiful</li>
+            <li><strong>Co-working and co-living centres:</strong> Remote workers need spaces that are architecturally compelling, not just functional. Mud, bamboo, laterite — Purulia's materials are extraordinary</li>
+            <li><strong>Village-level infrastructure:</strong> Anganwadi centres, PHC upgrades, community halls, water storage structures — thousands of small buildings across 170 gram panchayats</li>
+            <li><strong>The Duarsini Lake waterfront:</strong> The single highest-value public space intervention in Purulia town. A world-class park that becomes the town's living room</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">The Design Language of Purulia</div>
+          <ul class="aud-points">
+            <li>Laterite — the local stone, warm orange-red, used since antiquity — almost entirely absent from modern Purulia buildings. Extraordinary material waiting to be used</li>
+            <li>Chhau aesthetic — geometric, bold, primary colour masks — translatable into tile, facade, public art without being kitsch</li>
+            <li>Santali and Munda vernacular: low-lying mud homes with intricate geometric painted walls (similar to Warli) — a tradition being lost as cement replaces it</li>
+            <li>Bamboo: abundant, extraordinary structural material — used only informally, never architecturally seriously</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">Set up a practice in Purulia for three years. Take on the railway station brief. Design one school beautifully. The next decade of building in this district will be defined by the architects who arrive early. That legacy is worth more than any project in any Indian metro.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- POLITICIANS -->
+    <div class="aud-panel" id="aud-politicians">
+      <div class="aud-left">
+        <div class="aud-badge">For Politicians & Administrators</div>
+        <span class="aud-ico">🏛️</span>
+        <div class="aud-title">The Money Is Already in Central Schemes. What's Missing Is Someone Who Executes.</div>
+        <p class="aud-hook">No new legislation is needed. No new budget is required. Every scheme cited in this blueprint is funded, notified, and active. The gap between Purulia now and Purulia transformed is entirely a gap in execution and political will.</p>
+        <div class="aud-quote">"₹3,500 crore of central scheme money sits undrawn because no one in the district has the capacity and the mandate to absorb it. The champion who changes that gets to own the story."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">The Political Case — Why This Wins Elections</div>
+          <ul class="aud-points">
+            <li><strong>Visible jobs before the next election cycle:</strong> 3 solar farms signed + construction started = visible cranes, land lease payments to farmers, local labour employment — all within 18 months</li>
+            <li><strong>Tribal welfare embedded throughout:</strong> Mahua cooperatives owned by tribal women. Forest produce value staying local. Water security for villages that have suffered drought for decades. Every central priority addressed.</li>
+            <li><strong>National story:</strong> The MP or MLA who enables this transformation becomes a national figure. This is the kind of constituency-building that survives electoral cycles.</li>
+            <li><strong>No budget ask:</strong> The pitch to Delhi is not "give us money." It is "we will absorb and execute schemes that are already funded and sitting idle." This is a uniquely easy political sell.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">The Five Political Decisions That Unlock Everything</div>
+          <ul class="aud-points">
+            <li><strong>Designate Purulia Solar Zone</strong> — single state government notification, unlocks fast-track clearance for all solar projects</li>
+            <li><strong>Appoint a dedicated District Collector for minimum 3 years</strong> — transfers are the single biggest killer of district-level progress. Guarantee tenure.</li>
+            <li><strong>Lobby Railway Ministry for Howrah–Purulia direct express</strong> — operational cost subsidy, enormous symbolic and practical impact</li>
+            <li><strong>Commission medical college partnership</strong> — identify private partner, begin NMC process, announce publicly. The announcement alone changes the district's narrative.</li>
+            <li><strong>Launch PIFC on a specific date and hold a public ceremony</strong> — symbolism matters. Make it the moment Purulia became open for business.</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">The Hard Truth</div>
+          <div class="aud-cta-text">The investment climate will not reform itself. Concentrated losers — officers who lose bribe income, contractors who lose monopolies — will resist. The champion who succeeds absorbs that cost and stays long enough to see results. That person gets to be the one who transformed Purulia. That is not a small thing.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- STUDENTS -->
+    <div class="aud-panel" id="aud-students">
+      <div class="aud-left">
+        <div class="aud-badge">For Students</div>
+        <span class="aud-ico">📚</span>
+        <div class="aud-title">You Are Being Asked to Leave. This Is the Counter-Argument.</div>
+        <p class="aud-hook">Every system around you — coaching centres, relatives, career advisers — is telling you that success means leaving. Kolkata. Pune. Bengaluru. Abroad. The implicit message is that Purulia has nothing to offer someone with ambition.</p>
+        <div class="aud-quote">"That sentence is becoming past tense. The question is whether you're here when it changes — or whether you read about it from somewhere else."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">Why Staying (or Returning) Is Now Rational</div>
+          <ul class="aud-points">
+            <li><strong>Remote work is real:</strong> A software developer, designer, writer, or data analyst working for a company in Bengaluru can now do that work from Purulia — if broadband is reliable. BharatNet is being laid now.</li>
+            <li><strong>First-mover advantage is extraordinary:</strong> In Bengaluru you are employee #847. In Purulia in 2026, you are a founder of something that didn't exist before you arrived. There is no competition in agro-processing, solar O&M, craft export, or digital services here.</li>
+            <li><strong>The Young Leaders Fellowship:</strong> 2-year paid programme working on real district challenges. Not an internship. Not a stipend. A fellowship with resources, mentorship, and the full blueprint behind you.</li>
+            <li><strong>Medical and engineering colleges are coming:</strong> If you want to study medicine — advocate for the college that will serve your district. If it opens, you may be able to study where you grew up for the first time.</li>
+            <li><strong>Cost of living vs. income:</strong> ₹30,000/month in Purulia is a comfortable life. ₹30,000/month in Bengaluru is survival. The gap is larger than most people calculate honestly.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">Specific Career Paths Opening Here</div>
+          <ul class="aud-points">
+            <li><strong>Solar technician → site supervisor → project manager:</strong> ITI cert + 3 years = ₹50–80k/month. Entire career achievable in Purulia. Skills transferable globally.</li>
+            <li><strong>Craft entrepreneur:</strong> Dokra, Chhau, Patachitra — learn from masters, own a brand, sell on Etsy. ₹25–50k/month is achievable within 3 years for someone serious.</li>
+            <li><strong>Digital services:</strong> Graphic design, video editing, freelance writing, data work — platforms pay in dollars, you spend in rupees. Geography-independent income from a laptop.</li>
+            <li><strong>Healthcare pathway:</strong> ANM → GNM → BSc Nursing → (with medical college) MBBS — every step can happen locally if the college is built.</li>
+            <li><strong>Agro-entrepreneur:</strong> Mahua processing, millet branding, sal oil — the supply chain exists, no one is doing it well yet. That is the definition of opportunity.</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">What You Can Do Right Now</div>
+          <div class="aud-cta-text">Share this blueprint. Talk about it in your school, your college, your family. The transformation of Purulia starts when enough young people believe it is possible — before it is proven. Belief precedes evidence. That is how every comeback city has ever started.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ENTREPRENEURS -->
+    <div class="aud-panel" id="aud-entrepreneurs">
+      <div class="aud-left">
+        <div class="aud-badge">For Entrepreneurs</div>
+        <span class="aud-ico">🚀</span>
+        <div class="aud-title">Open Market. Zero Competition. Massive Underserved Demand. This Is What Early Looks Like.</div>
+        <p class="aud-hook">Every sector in this blueprint is at zero or near-zero in terms of organised, quality supply. Agro-processing, solar O&M, craft export, digital services, healthcare, logistics — all undersupplied, all large markets, all waiting.</p>
+        <div class="aud-quote">"The risk of being first in Purulia is real. The upside of being first in Purulia is also real — and the competition for that position will not exist for long."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">Specific Business Opportunities — Now</div>
+          <ul class="aud-points">
+            <li><strong>Mahua craft spirits brand:</strong> Legal, culturally authentic, globally unique. "India's oldest indigenous spirit." No organised player exists. The raw material supply is massive. The brand story writes itself.</li>
+            <li><strong>Sal seed oil processing:</strong> Currently exported raw at ₹40/kg. Cold-pressed, refined = ₹200–400/kg as cocoa butter equivalent. One unit = ₹50Cr+ revenue. Supply chain is in place. No processor exists locally.</li>
+            <li><strong>Dokra export business:</strong> Artisans produce at ₹200. Sells in Delhi at ₹2,000–20,000. The margin gap is the business. Build artisan collectives, brand, photograph, sell globally. This is a ₹100Cr business waiting.</li>
+            <li><strong>Solar O&M company:</strong> 1,000MW of solar coming online = massive ongoing O&M demand. No local company exists. Start now, before the panels are up.</li>
+            <li><strong>Cold chain and logistics:</strong> Agro-processing requires cold storage, refrigerated transport. None exists at the right scale. Build it before the demand is visible and you capture the whole market.</li>
+            <li><strong>EdTech for competitive exams:</strong> UPSC, WBCS, engineering entrance — coaching demand is enormous, quality supply is near zero. A good hybrid coaching centre in Purulia town is a serious business.</li>
+            <li><strong>Eco-tourism and cultural tourism:</strong> Ajodhya Hills, Baranti Lake, Garpanchkot fort — zero organised tourism infrastructure. One boutique resort near Ajodhya Hills at ₹3,000–5,000/night is viable today.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">Structural Advantages for Early Movers</div>
+          <ul class="aud-points">
+            <li>Land at a fraction of any other city in India — capital costs are a fraction of urban equivalent</li>
+            <li>Tax holiday + GST reimbursement in designated zones for first 5 years</li>
+            <li>SIDBI MSME loans up to ₹2Cr collateral-free — underutilised in Purulia currently</li>
+            <li>Mudra Yojana, NABARD, Startup India — all applicable, all underused here</li>
+            <li>Labour costs 40–60% below Kolkata or Bengaluru equivalent</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">The Honest Risk Assessment</div>
+          <div class="aud-cta-text">Infrastructure is still being built. Power is still unreliable in places. The investment climate is improving but not there yet. These are real constraints. The question is whether the upside — first-mover position in a large, underserved market with structural advantages — justifies the friction. For the right entrepreneur, it does.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- BUSINESS LEADERS -->
+    <div class="aud-panel" id="aud-business">
+      <div class="aud-left">
+        <div class="aud-badge">For Business Leaders & Corporates</div>
+        <span class="aud-ico">💼</span>
+        <div class="aud-title">This Is What Gujarat Looked Like in 1995. The Question Is Whether You Recognise It This Time.</div>
+        <p class="aud-hook">Land at ₹5 lakh/acre. 300 sunny days. Pre-cleared industrial zones. Skilled tribal labour. A government actively building single-window clearance. This profile does not stay available for long once it becomes well-known.</p>
+        <div class="aud-quote">"The companies that arrived in Gujarat before the GIDC was famous are now the companies that define India's manufacturing landscape. First-mover advantage in a pre-inflection district is a different class of investment."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">The Investment Case by Sector</div>
+          <ul class="aud-points">
+            <li><strong>Solar manufacturing:</strong> Best irradiance in eastern India + cheapest land + Labour cost advantage + pre-cleared zone + state GST reimbursement = lowest LCOE site east of Gujarat. The numbers work now.</li>
+            <li><strong>Agro-processing and food:</strong> ITC, Britannia, Marico, Dabur all source forest produce. Secure your supply chain by processing at source — lower cost, traceability, carbon credentials, tribal welfare story for ESG reporting.</li>
+            <li><strong>Luxury / conscious consumer brands:</strong> Good Earth, Forest Essentials, Fabindia, Aman — Purulia's craft and ingredient supply has the most authentic India provenance story available. GI-tagged. UNESCO-listed. 4,000-year heritage.</li>
+            <li><strong>Logistics and warehousing:</strong> The multimodal logistics park is being built. An anchor logistics company gets first-mover positioning in a triangle connecting Kolkata, Ranchi, and Bhubaneswar — a geography no competitor serves well today.</li>
+            <li><strong>Data centres:</strong> Solar power + land + improving connectivity = viable edge data centre location. Serves eastern India latency needs at a fraction of Kolkata cost.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">The ESG Argument</div>
+          <ul class="aud-points">
+            <li>Tribal community ownership in supply chains — not charity, genuine cooperative structures with legal backing</li>
+            <li>Solar manufacturing powered by solar energy — the carbon narrative is built-in</li>
+            <li>Forest economy preservation through value addition — keeps communities in forests rather than migrating</li>
+            <li>Gender: tribal women as cooperative owners in mahua and forest produce processing — measurable impact, documentable for reporting</li>
+            <li>District-level SDG contribution: jobs, education, healthcare, clean energy — all in one investment geography</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">Meet the District Collector. See the land. Run the numbers on the solar zone. Talk to the artisan cooperatives about a supply agreement. The Purulia Investment Facilitation Centre is being built specifically to make this conversation fast, clear, and followed through. The window of first-mover advantage is not permanently open.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ARTISTS -->
+    <div class="aud-panel" id="aud-artists">
+      <div class="aud-left">
+        <div class="aud-badge">For Artists, Craftspeople & Cultural Workers</div>
+        <span class="aud-ico">🎭</span>
+        <div class="aud-title">The World Wants What Purulia Has. It Just Doesn't Know Where to Find It Yet.</div>
+        <p class="aud-hook">Chhau is UNESCO-listed. Dokra is 4,000 years old and found nowhere else. Patachitra tells stories in scroll form that predate printing. Tussar silk comes from wild cocoons in sal forests. These are not crafts in decline — they are crafts awaiting their global moment.</p>
+        <div class="aud-quote">"Every city that found its identity in the 21st century did so through cultural economy. Purulia already has the culture. What it needs is the economy to be built around it."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">What the Crafts Economy Needs Now</div>
+          <ul class="aud-points">
+            <li><strong>Artisan collectives (FPO model):</strong> Move from selling to middlemen at ₹200 to owning the brand and selling globally at ₹2,000–20,000. The cooperative structure is fundable through NABARD.</li>
+            <li><strong>GI tag applications:</strong> Dokra and Chhau masks need Geographical Indication protection — like Darjeeling tea. This is bureaucratic but straightforward, and it changes pricing globally.</li>
+            <li><strong>Direct digital channels:</strong> Etsy, Amazon Handmade, Instagram, WhatsApp Business. One good photographer and one good copywriter changes an artisan's income permanently.</li>
+            <li><strong>Licensing income:</strong> Chhau mask designs are visually extraordinary. Fashion brands, home decor, digital art collections, film — the IP is there, unused. A licensing agreement with one major brand is a new income stream for every artisan in the collective.</li>
+            <li><strong>Contemporary collaboration:</strong> Dokra + industrial design. Chhau + contemporary performance. Patachitra + graphic novel. The best preservation of a craft tradition is its evolution — artists from outside who collaborate, not extract.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">For Artists Coming to Purulia from Outside</div>
+          <ul class="aud-points">
+            <li>Residency programmes are being designed into the Crafts Cluster — workspace, accommodation, access to masters</li>
+            <li>The visual language of Purulia — Chhau masks, Dokra forms, the laterite landscape, the Chhau performer in full costume — is one of the most powerful uncontested aesthetic territories in Indian art</li>
+            <li>Documentary filmmakers: the story of Purulia's transformation, if it happens, is one of the great Indian stories of the next decade. Start documenting now.</li>
+            <li>Musicians: Chhau music, Baul traditions, tribal folk forms — all present, all under-recorded, all globally curious audiences waiting</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">Come for three months. Work with a Dokra master. Perform Chhau. Photograph the plateau in monsoon. Write about what you find. The world's attention follows artists who go to places before the world is watching. Purulia is still before.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- DIASPORA -->
+    <div class="aud-panel" id="aud-diaspora">
+      <div class="aud-left">
+        <div class="aud-badge">For the Diaspora</div>
+        <span class="aud-ico">🌍</span>
+        <div class="aud-title">You Left Because There Was Nothing Here for Someone With Your Ambition. That Sentence Is Becoming Past Tense.</div>
+        <p class="aud-hook">Thousands of Purulia-origin people are in Kolkata, Mumbai, Bengaluru, the Gulf, the UK, the US. Many carry a complicated relationship with their home district — pride in roots, frustration at what it couldn't offer. This blueprint is partly an invitation back.</p>
+        <div class="aud-quote">"The most powerful thing a Purulia-origin person in Bengaluru can do right now is come home for three days, meet five people building something here, and decide whether to be one of them."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">What the Diaspora Can Do</div>
+          <ul class="aud-points">
+            <li><strong>Invest, not donate:</strong> The difference between charity and investment is returns — both financial and social. A ₹50L investment in a Dokra cooperative or a mahua processing unit is a real investment with real returns and real impact.</li>
+            <li><strong>Return with skills:</strong> A software engineer who lived 10 years in Bengaluru has skills that don't exist in Purulia. Remote work means the salary doesn't have to change. The cost of living does — dramatically.</li>
+            <li><strong>Use your networks:</strong> A Purulia-origin person in a Kolkata corporate has access to procurement decisions. A Purulia-origin person in a luxury brand can open a supplier conversation that changes an artisan collective's trajectory.</li>
+            <li><strong>Annual Pravasi Sammelan:</strong> One weekend per year in Purulia — structured around investment pitches, not just nostalgia. This is being built. Your presence is what makes it real.</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">Incentives for Returning</div>
+          <ul class="aud-points">
+            <li>Land allocation at subsidised rates for Purulia-origin entrepreneurs</li>
+            <li>5-year state tax holiday for diaspora-founded enterprises registered in the district</li>
+            <li>Fast-track PIFC clearance — 7-day registration for returning entrepreneurs</li>
+            <li>Housing plot reservation in new townships</li>
+            <li>Co-working centres: community of returning talent, not isolation</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">The Honest Conversation About Coming Back</div>
+          <ul class="aud-points">
+            <li>Infrastructure is still improving — power is better but not perfect, roads are better but not complete</li>
+            <li>The peer group is still thin — you may be one of the first returnees in your circle. That is uncomfortable and important.</li>
+            <li>The tipping point needs 200 high-calibre people. If you are one of them, you are not sacrificing. You are investing in a position that will be obvious in retrospect.</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">Your Entry Point</div>
+          <div class="aud-cta-text">Come home once. Not for a festival. For a purpose. Meet the people building here. Look at the land. Run the numbers on a business that only works in Purulia. The diaspora has always known what was special about this place. The work now is converting that knowledge into action.</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- IMPACT INVESTORS -->
+    <div class="aud-panel" id="aud-impact">
+      <div class="aud-left">
+        <div class="aud-badge">For Impact Investors & NGOs</div>
+        <span class="aud-ico">🌱</span>
+        <div class="aud-title">If This Works in Purulia, It Works Everywhere.</div>
+        <p class="aud-hook">Schedule V tribal area. Laterite plateau. Historical underfunding. Agricultural fragmentation. Brain drain. All the constraints that define India's hardest development contexts are present here. If the model works here, it is replicable across 200 similar districts.</p>
+        <div class="aud-quote">"The most valuable thing impact capital can do right now is not fund a project in Purulia. It is fund the proof of concept that changes policy for every district that looks like Purulia."</div>
+      </div>
+      <div class="aud-right">
+        <div class="aud-section">
+          <div class="aud-section-t">Where Impact Capital Belongs in This Blueprint</div>
+          <ul class="aud-points">
+            <li><strong>Artisan cooperative seed capital:</strong> ₹2–5Cr per collective — NABARD will co-fund, but needs a lead patient investor. Returns: 10–15% IRR + measurable income improvement for 200+ households per collective</li>
+            <li><strong>Mahua distillery cooperatives:</strong> Tribal women as owners. Patient capital for the first 3 years while licencing and distribution are established. The market is real; the timeline is 3–5 years to profitability.</li>
+            <li><strong>Young Leaders Fellowship fund:</strong> ₹50–100Cr corpus funds 20 fellows/year indefinitely. This single investment builds human capital that multiplies across every sector.</li>
+            <li><strong>School quality endowment:</strong> One endowed school in each block — ₹2–3Cr to establish, ₹50L/year to maintain. 20 schools = ₹80Cr investment, permanent quality education in the district.</li>
+            <li><strong>First-loss guarantee for MSME lending:</strong> ₹30Cr guarantee corpus unlocks ₹300Cr in MSME credit from nationalised banks — a 10x leverage on impact capital</li>
+          </ul>
+        </div>
+        <div class="aud-section">
+          <div class="aud-section-t">The SDG Stack — What This Addresses</div>
+          <ul class="aud-points">
+            <li><strong>SDG 1 (No Poverty):</strong> Artisan income 3× by 2032. 50,000 forest-dependent households with doubled income. Land lease payments to tribal landowners.</li>
+            <li><strong>SDG 3 (Good Health):</strong> Medical college, telemedicine network, community health worker expansion, zero water-scarce villages by 2035</li>
+            <li><strong>SDG 4 (Quality Education):</strong> School quality programme, anchor institution, fellowship cohort</li>
+            <li><strong>SDG 5 (Gender Equality):</strong> Tribal women as cooperative owners, healthcare career pathways, girls' education emphasis</li>
+            <li><strong>SDG 7 (Clean Energy):</strong> 1,000MW solar, green hydrogen pilot, displacement of kerosene in tribal hamlets</li>
+            <li><strong>SDG 8 (Decent Work):</strong> 40,000 formal jobs/year, ITI skills pathways, career ladders in every sector</li>
+            <li><strong>SDG 15 (Life on Land):</strong> Watershed restoration, native reforestation, forest economy preservation keeping communities in forests</li>
+          </ul>
+        </div>
+        <div class="aud-cta-box">
+          <div class="aud-cta-t">The Replication Argument</div>
+          <div class="aud-cta-text">Invest in Purulia as a model, not just a project. Document rigorously. Build a replication playbook. When this works — and it will work if executed — the model applies to Bastar, to Rayagada, to every tribal district with solar potential and suppressed cultural assets. The multiplier on impact capital invested here is not 10×. It is 200×.</div>
+        </div>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<!-- ══════════════════════ TIMELINE ══════════════════════ -->
+<section id="timeline">
+  <div class="rv"><div class="sl">// 04 — The Roadmap</div><h2 class="sh">2026 to <em>2040.</em></h2><p class="ss">Four phases. Each builds the conditions for the next. The flywheel starts when visible results create momentum that no longer needs a champion to sustain it.</p></div>
+  <div class="tl-wrap rv">
+    <div class="tl-spine"></div>
+    <div class="tl-row">
+      <div class="tlc"><div class="tlc-yr">Phase 01 · 2026–2028</div><div class="tlc-ph">The Foundation Sprint</div><ul class="tlc-items"><li>Digitise all land records — unblocks everything</li><li>Launch PIFC single-window clearance</li><li>Sign first 3 solar farm developers</li><li>Begin medical college application</li><li>Repair top 3 schools per block</li><li>Map 5,000 diaspora professionals</li><li>First Young Leaders Fellowship cohort</li></ul><div class="tlc-out">→ Foundation laid, first investors visible</div></div>
+      <div class="tlc"><div class="tlc-yr">Phase 02 · 2028–2031</div><div class="tlc-ph">First Engines Running</div><ul class="tlc-items"><li>500MW solar capacity online</li><li>Dokra + Chhau GI tags secured</li><li>Agro-processing cluster operational</li><li>BharatNet to every GP</li><li>Direct Howrah–Purulia express launched</li><li>Regional airport open (UDAN)</li><li>Annual Pravasi Sammelan — first deals</li></ul><div class="tlc-out">→ Economic activity visible, narrative shifting</div></div>
+      <div class="tlc"><div class="tlc-yr">Phase 03 · 2031–2036</div><div class="tlc-ph">The Tipping Point</div><ul class="tlc-items"><li>Medical college open, first batch enrolled</li><li>Solar park: 25 units, 8,000 jobs</li><li>Net migration slows for first time</li><li>Purulia–Ranchi expressway operational</li><li>₹500Cr/yr in craft + forest exports</li><li>200 high-calibre people thriving locally</li><li>National media: "the comeback city"</li></ul><div class="tlc-out">→ Net migration begins reversing</div></div>
+      <div class="tlc"><div class="tlc-yr">Phase 04 · 2036–2040</div><div class="tlc-ph">The Flywheel Era</div><ul class="tlc-items"><li>NIT satellite campus operational</li><li>1,000MW+ solar, green hydrogen live</li><li>Net in-migration — people choosing here</li><li>DFC spur connects to Kolkata port</li><li>Harvard case study written</li><li>TED talk delivered from Purulia</li><li>Self-sustaining — momentum owns itself</li></ul><div class="tlc-out">→ Purulia is a proof of concept for India</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ══════════════════════ ECONOMICS ══════════════════════ -->
+<section id="economics">
+  <div class="rv"><div class="sl">// 05 — The Numbers</div><h2 class="sh">Economic Horizon <em>2032.</em></h2><p class="ss">Conservative projections based on comparable district transformations across India.</p></div>
+  <div class="econ-g">
+    <div class="ec rv"><div class="ec-v">1,000</div><div class="ec-u">MW Solar</div><div class="ec-d">Installed renewable capacity — eastern India's largest</div></div>
+    <div class="ec rv"><div class="ec-v">₹500Cr</div><div class="ec-u">Craft Exports/yr</div><div class="ec-d">GI-tagged Dokra, Chhau, Patachitra, Tussar</div></div>
+    <div class="ec rv"><div class="ec-v">40,000</div><div class="ec-u">Jobs / Year</div><div class="ec-d">Formal employment across all three engines</div></div>
+    <div class="ec rv"><div class="ec-v">3×</div><div class="ec-u">Artisan Income</div><div class="ec-d">₹5,000 → ₹20,000/month per household</div></div>
+    <div class="ec rv"><div class="ec-v">₹600Cr</div><div class="ec-u">Forest Produce/yr</div><div class="ec-d">Processed mahua, sal, millets, tamarind</div></div>
+    <div class="ec rv"><div class="ec-v">0</div><div class="ec-u">Water-Scarce Villages</div><div class="ec-d">Target by 2035 through watershed network</div></div>
+    <div class="ec rv"><div class="ec-v">7 days</div><div class="ec-u">To Start Business</div><div class="ec-d">Single window — from 90+ days today</div></div>
+    <div class="ec rv"><div class="ec-v">#1</div><div class="ec-u">WB District</div><div class="ec-d">Ease of Doing Business — from bottom quartile</div></div>
+  </div>
+  <table class="etable rv">
+    <thead><tr><th>Component</th><th>Cost</th><th>Funding Source</th><th>Timeline</th><th>Status</th></tr></thead>
+    <tbody>
+      <tr><td>Power grid (RDSS)</td><td>₹600 Cr</td><td>Centre 60% + State</td><td>Yrs 1–3</td><td class="g">Scheme active</td></tr>
+      <tr><td>NH-32 4-laning</td><td>₹1,500 Cr</td><td>NHAI / Bharatmala</td><td>Yrs 1–4</td><td class="am">In pipeline</td></tr>
+      <tr><td>Rural roads (PMGSY)</td><td>₹400 Cr</td><td>Centre 90%</td><td>Yrs 1–6</td><td class="g">Scheme active</td></tr>
+      <tr><td>Water supply (AMRUT + JJM)</td><td>₹500 Cr</td><td>Centre 50% + State</td><td>Yrs 2–5</td><td class="g">Scheme active</td></tr>
+      <tr><td>BharatNet Phase 3</td><td>₹150 Cr</td><td>Centre 100%</td><td>Yrs 1–3</td><td class="am">Execution gap</td></tr>
+      <tr><td>Purulia–Ranchi Expressway</td><td>₹2,500 Cr</td><td>Bharatmala / WB–JH joint</td><td>Yrs 3–8</td><td class="am">Lobbying needed</td></tr>
+      <tr><td>Regional airport (UDAN)</td><td>₹120 Cr</td><td>Centre subsidy + AAI</td><td>Yrs 2–5</td><td class="am">Application needed</td></tr>
+      <tr><td>Industrial zones (3)</td><td>₹300 Cr</td><td>State + WBIDC</td><td>Yrs 1–4</td><td class="am">Policy push needed</td></tr>
+    </tbody>
+  </table>
+</section>
+
+<!-- ══════════════════════ SPRINT ══════════════════════ -->
+<section id="sprint">
+  <div class="sp-intro rv">
+    <div class="sl">// 06 — The First Move</div>
+    <h2>18 months. One desk in the Collectorate.</h2>
+    <p>These five actions unlock everything else. Sequenced deliberately. Each creates conditions for the next. Nothing requires new money — only will and follow-through.</p>
+    <p style="font-style:italic;color:rgba(240,230,208,.35);margin-top:1.5rem;">"The entire system depends on getting the first 3–5 anchor investors. Everything before that is preparation. Everything after that is momentum."</p>
+  </div>
+  <div class="sp-list rv">
+    <div class="spi"><div class="spi-n">1</div><div><div class="spi-t">Digitise every land record in the district</div><div class="spi-d">Banglar Bhumi completion. Unblocks investment, infrastructure, acquisition. 12 months, no new money needed — only execution.</div></div><span class="badge bn">Start Now</span></div>
+    <div class="spi"><div class="spi-n">2</div><div><div class="spi-t">Open the Purulia Investment Facilitation Centre</div><div class="spi-d">One office, one portal, all 12 departments. 30-day deemed approval. Signals to every investor that things have changed. Cost: ₹3–5 crore.</div></div><span class="badge bq">Month 1–6</span></div>
+    <div class="spi"><div class="spi-n">3</div><div><div class="spi-t">Sign three anchor solar developers</div><div class="spi-d">Visible cranes. Land lease income for farmers within 18 months. Economic activity that creates its own momentum before the next election.</div></div><span class="badge bq">Month 3–12</span></div>
+    <div class="spi"><div class="spi-n">4</div><div><div class="spi-t">Begin the medical college application</div><div class="spi-d">NMC approval takes 2–3 years from application. Start now for the college to open by 2030. Identify private partner. Commission hospital upgrade.</div></div><span class="badge bq">Month 1–3</span></div>
+    <div class="spi"><div class="spi-n">5</div><div><div class="spi-t">Repair and reopen the five best government schools</div><div class="spi-d">Reliable power, clean toilets, library, teacher attendance monitoring. ₹15–25L per school. Signals to families that staying is viable. The most human ROI in the plan.</div></div><span class="badge by">Month 1–6</span></div>
+  </div>
+</section>
+
+<!-- ══════════════════════ MANIFESTO ══════════════════════ -->
+<section id="manifesto">
+  <div class="mf-bg"></div>
+  <div class="mf-orn">2040</div>
+  <div class="mf-inner rv">
+    <blockquote>"Every city that transformed has a turning point story. Bilbao had the Guggenheim. Medellín had the cable cars. Detroit had the artists who arrived when rent was nothing.<br><br>Purulia's turning point story <em>is not written yet.</em><br>That is not a problem.<br><em>That is the opportunity.</em>"</blockquote>
+    <div class="mf-div"></div>
+    <p class="mf-coda">The solar farms going up on laterite land no one wanted. The Dokra artist getting her first Etsy order from Copenhagen. The engineer who came back from Bengaluru to start an O&M company. The child in a government school in Bagmundi who will one day run the medical college. The architect designing a railway station that makes people feel something when they arrive.<br><br>Document all of it. In 2040, this documentation becomes the Purulia Story — told at Harvard, at TED, at every policy conference in India. That story starts with what happens in the next eighteen months.</p>
+    <div class="mf-div"></div>
+    <div class="mf-src">Purulia 2040 — A District Transformation Blueprint · West Bengal, India</div>
+  </div>
+</section>
+
+<!-- ══════════════════════ CTA ══════════════════════ -->
+<section id="cta">
+  <div class="cta-in rv">
+    <h2>The money exists.<br>The land is ready.<br><em>The moment is now.</em></h2>
+    <p>Every central scheme in this blueprint is funded and active. Every geographic advantage already exists. Every cultural asset is waiting. What transforms a district is the decision to begin — and one generation willing to stay long enough to see it through.</p>
+    <div class="cta-btns">
+      <a href="#pillars" class="btn btn-a">Read the Six Pillars</a>
+      <a href="#audience" class="btn btn-b">Find Your Role</a>
+    </div>
+    <div class="cta-note">Purulia · West Bengal · India · 23.33°N 86.37°E · 2026–2040</div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-brand">Purulia 2040</div>
+  <div class="ft-mid">Eastern India's Green Economy Frontier<br>A Complete District Transformation Blueprint</div>
+  <div class="ft-r">Built with ambition.<br>Grounded in evidence.</div>
+</footer>
+
+<script>
+/* Cursor */
+const cur=document.getElementById('cur'),curR=document.getElementById('curR');
+let mx=0,my=0,rx=0,ry=0;
+document.addEventListener('mousemove',e=>{mx=e.clientX;my=e.clientY;cur.style.left=mx+'px';cur.style.top=my+'px';});
+(function animR(){rx+=(mx-rx)*.11;ry+=(my-ry)*.11;curR.style.left=rx+'px';curR.style.top=ry+'px';requestAnimationFrame(animR);})();
+document.querySelectorAll('a,button,[onclick]').forEach(el=>{
+  el.addEventListener('mouseenter',()=>{curR.style.width='48px';curR.style.height='48px';curR.style.borderColor='rgba(212,136,42,.9)';});
+  el.addEventListener('mouseleave',()=>{curR.style.width='28px';curR.style.height='28px';curR.style.borderColor='rgba(212,136,42,.45)';});
+});
+
+/* Progress bar */
+const pb=document.getElementById('pbar');
+window.addEventListener('scroll',()=>{pb.style.width=(window.scrollY/(document.body.scrollHeight-window.innerHeight)*100)+'%';});
+
+/* Reveal */
+const rvs=document.querySelectorAll('.rv');
+const rvo=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('on');rvo.unobserve(e.target);}});},{threshold:.07});
+rvs.forEach((el,i)=>{el.style.transitionDelay=(i%5)*.06+'s';rvo.observe(el);});
+
+/* Deep dive accordion */
+function tog(id){
+  const c=document.getElementById(id),was=c.classList.contains('open');
+  document.querySelectorAll('.ddc').forEach(x=>x.classList.remove('open'));
+  if(!was)c.classList.add('open');
+}
+
+/* Audience selector */
+function showAud(id){
+  document.querySelectorAll('.aud-panel').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('.aud-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('aud-'+id).classList.add('active');
+  event.currentTarget.classList.add('active');
+}
+
+/* Active nav */
+const secs=document.querySelectorAll('section[id]');
+const nas=document.querySelectorAll('.nav-links a');
+window.addEventListener('scroll',()=>{
+  let cur='';
+  secs.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur=s.id;});
+  nas.forEach(a=>{a.style.color=a.getAttribute('href')==='#'+cur?'var(--amber)':'';});
+},{passive:true});
+</script>
+</body>
+</html>
