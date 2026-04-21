@@ -999,7 +999,6 @@ function showToast(msg){
 const SCRIPT_URL='https://script.google.com/macros/s/AKfycbz0El39Aez8YzP__cg3ioFFfjeCs0VgDQ-J3RQ_AmrJTAZ6_-H50yDc7KK998W93W0a/exec';
 
 async function submitForm(){
-  // Now it only checks if the URL is empty
   if(!SCRIPT_URL){
     showToast('Form not configured — please email thelosthillproject@gmail.com directly.');
     return;
@@ -1021,14 +1020,25 @@ async function submitForm(){
   btn.textContent='Sending…';
 
   try{
-    const params=new URLSearchParams({
-      name,role,
-      location:location||'Not provided',
+    // Package the data as a JSON string instead of URL parameters
+    const payload = JSON.stringify({
+      name, 
+      role,
+      location: location || 'Not provided',
       contact,
-      message:message||'(none)'
+      message: message || '(none)'
     });
 
-    await fetch(SCRIPT_URL+'?'+params.toString(),{method:'GET',mode:'no-cors'});
+    // Send a POST request. text/plain is used to bypass complex CORS preflight checks.
+    await fetch(SCRIPT_URL, {
+      method: 'POST',
+      mode: 'no-cors',
+      headers: {
+        'Content-Type': 'text/plain;charset=utf-8',
+      },
+      body: payload
+    });
+
     document.getElementById('formWrap').style.display='none';
     document.getElementById('formSuccess').style.display='block';
     showToast('Thank you, '+name+'. We\'ll be in touch personally.');
