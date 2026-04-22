@@ -319,6 +319,17 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .mf-coda{font-family:'EB Garamond',serif;font-size:1.05rem;font-style:italic;color:rgba(240,230,208,.38);line-height:1.8;max-width:680px;margin:0 auto;}
 .mf-src{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.38em;color:rgba(240,230,208,.2);text-transform:uppercase;margin-top:2rem;}
 
+/* ── VOICES ── */
+#voices{border-top:1px solid var(--border2);}
+.voices-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1.2rem;margin-top:3.5rem;}
+.vc{background:var(--ghost2);border:1px solid var(--border2);padding:1.8rem 1.8rem 1.6rem;position:relative;transition:border-color .3s;}
+.vc:hover{border-color:var(--border);}
+.vc::before{content:'\275D';position:absolute;top:1.1rem;right:1.4rem;font-size:1.8rem;color:var(--amber3);font-family:'EB Garamond',serif;line-height:1;}
+.vc-name{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;margin-bottom:.9rem;}
+.vc-msg{font-style:italic;color:rgba(240,230,208,.7);line-height:1.8;font-size:.98rem;}
+.voices-empty{font-style:italic;color:rgba(240,230,208,.25);font-size:1rem;text-align:center;padding:3rem 0;grid-column:1/-1;}
+@media(max-width:960px){.voices-grid{grid-template-columns:1fr;}}
+
 /* ── CTA ── */
 #cta{padding:9rem 5rem;background:linear-gradient(135deg,var(--forest) 0%,#162518 40%,var(--ink) 100%);text-align:center;position:relative;overflow:hidden;}
 #cta::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 70% 70% at 50% 50%,rgba(212,136,42,.09) 0%,transparent 60%);}
@@ -851,6 +862,16 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
   </div>
 </section>
 
+<!-- ══ VOICES ══ -->
+<section id="voices" class="pad">
+  <div class="rv">
+    <div class="sl">People joining</div>
+    <h2 class="sh">Voices from the <em>Blueprint</em></h2>
+    <p class="ss">Those who've read this and said yes.</p>
+  </div>
+  <div id="voices-grid" class="voices-grid"></div>
+</section>
+
 <!-- ══ CTA ══ -->
 <section id="cta">
   <div class="cta-in rv">
@@ -1092,6 +1113,24 @@ window.addEventListener('load',()=>{
   const el=document.querySelector(hash);
   if(el)el.scrollIntoView();
 });
+
+/* ── Voices feed ── */
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');}
+(async function loadVoices(){
+  const grid=document.getElementById('voices-grid');
+  if(!grid)return;
+  try{
+    const res=await fetch(SCRIPT_URL+'?action=voices');
+    const data=await res.json();
+    const voices=data.voices||[];
+    if(!voices.length){
+      grid.innerHTML='<p class="voices-empty">Be the first to leave your mark.</p>';
+      return;
+    }
+    grid.innerHTML=voices.map(v=>`<div class="vc rv"><div class="vc-name">${escHtml(v.name)}</div><p class="vc-msg">${escHtml(v.message)}</p></div>`).join('');
+    grid.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%5)*.06+'s';rvo.observe(el);});
+  }catch(e){}
+})();
 </script>
 </body>
 </html>

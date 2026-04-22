@@ -10,7 +10,37 @@ const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ';
 // ── Handlers ─────────────────────────────────────────────────────────────────
 
 function doGet(e) {
+  if (e && e.parameter && e.parameter.action === 'voices') {
+    return getVoices();
+  }
   return processSubmission(e.parameter);
+}
+
+function getVoices() {
+  try {
+    const ss = openSheet();
+    const sheet = ss.getSheetByName(SHEET_NAME);
+    if (!sheet) return jsonFeed([]);
+
+    const rows = sheet.getDataRange().getValues();
+    // columns: Timestamp, Name, Role, Location, Message, Contact
+    const voices = rows.slice(1)
+      .filter(row => row[1] && row[4])
+      .reverse()
+      .slice(0, 50)
+      .map(row => ({ name: String(row[1]), message: String(row[4]) }));
+
+    return jsonFeed(voices);
+  } catch (err) {
+    Logger.log('getVoices error: ' + err);
+    return jsonFeed([]);
+  }
+}
+
+function jsonFeed(voices) {
+  return ContentService
+    .createTextOutput(JSON.stringify({ voices }))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
