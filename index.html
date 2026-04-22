@@ -385,6 +385,28 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 .sp-li:hover{background:rgba(10,102,194,.1) !important;border-color:rgba(10,102,194,.7) !important;}
 .sp-close{position:absolute;top:.6rem;right:.75rem;background:none;border:none;color:var(--cream2);font-size:1rem;cursor:none;opacity:.45;padding:.25rem;}
 .sp-close:hover{opacity:1;}
+
+/* ── LIVE FEED ── */
+#livefeed{padding:8rem 5rem;border-top:1px solid var(--border2);background:var(--ink2);}
+.lf-header{display:flex;align-items:flex-start;justify-content:space-between;gap:2rem;margin-bottom:4rem;}
+.lf-live-badge{display:flex;align-items:center;gap:.6rem;flex-shrink:0;margin-top:.4rem;}
+.lf-dot{width:8px;height:8px;border-radius:50%;background:var(--amber);flex-shrink:0;animation:lfpulse 2.2s ease-in-out infinite;}
+@keyframes lfpulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(212,136,42,.5);}60%{opacity:.8;box-shadow:0 0 0 8px rgba(212,136,42,0);}}
+.lf-live-label{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.35em;color:var(--amber);text-transform:uppercase;}
+.lf-feed{display:flex;flex-direction:column;gap:2px;}
+.lf-item{background:var(--ink3);border-left:2px solid var(--border2);padding:2rem 2.4rem;display:grid;grid-template-columns:160px 1fr;gap:2.5rem;align-items:start;transition:all .3s;cursor:none;}
+.lf-item:hover{border-left-color:var(--amber);background:#1A1308;}
+.lf-item.lf-top{border-left-color:var(--amber);}
+.lf-meta{display:flex;flex-direction:column;gap:.6rem;padding-top:.1rem;}
+.lf-date{font-family:'DM Mono',monospace;font-size:.49rem;letter-spacing:.22em;color:rgba(240,230,208,.28);text-transform:uppercase;}
+.lf-tag{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;padding:.22rem .6rem;border:1px solid;display:inline-block;}
+.lf-tag.lf-ms{color:#6DB88A;border-color:rgba(109,184,138,.38);}
+.lf-tag.lf-ev{color:var(--amber2);border-color:rgba(232,169,74,.38);}
+.lf-tag.lf-an{color:rgba(240,230,208,.5);border-color:rgba(240,230,208,.15);}
+.lf-tag.lf-dv{color:rgba(100,170,230,.8);border-color:rgba(100,170,230,.3);}
+.lf-title{font-family:'EB Garamond',serif;font-size:1.18rem;font-weight:700;color:var(--cream);margin-bottom:.5rem;line-height:1.25;}
+.lf-desc{font-size:.97rem;color:rgba(240,230,208,.48);line-height:1.68;}
+@media(max-width:960px){#livefeed{padding:5rem 2rem;}.lf-header{flex-direction:column;gap:1.2rem;}.lf-item{grid-template-columns:1fr;gap:.8rem;}}
 </style>
 </head>
 <body>
@@ -789,6 +811,93 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
     <div class="spi"><div class="spi-n">3</div><div><div class="spi-t">Sign three anchor solar developers</div><div class="spi-d">Visible cranes. Land lease income for farmers within 18 months. Economic activity that creates its own momentum.</div></div><span class="badge bq2">Month 3–12</span></div>
     <div class="spi"><div class="spi-n">4</div><div><div class="spi-t">Begin the medical college application</div><div class="spi-d">NMC approval takes 2–3 years from application. Start now for the college to open by 2030.</div></div><span class="badge bq2">Month 1–3</span></div>
     <div class="spi"><div class="spi-n">5</div><div><div class="spi-t">Repair the five best government schools</div><div class="spi-d">Power, toilets, library, teacher monitoring. ₹15–25L per school. Signals to families that staying is viable. The most human ROI in the plan.</div></div><span class="badge by2">Month 1–6</span></div>
+  </div>
+</section>
+
+<!-- ══ LIVE FEED ══ -->
+<section id="livefeed">
+  <div class="lf-header rv">
+    <div>
+      <div class="sl">// Live — Momentum</div>
+      <h2 class="sh">What's <em>Moving.</em></h2>
+      <p class="ss">The blueprint is in motion. These are the real updates — early conversations, first commitments, and the growing list of people who've said yes.</p>
+    </div>
+    <div class="lf-live-badge">
+      <div class="lf-dot"></div>
+      <div class="lf-live-label">Live Updates</div>
+    </div>
+  </div>
+  <div class="lf-feed rv">
+    <div class="lf-item lf-top">
+      <div class="lf-meta">
+        <div class="lf-date">Apr 2026</div>
+        <span class="lf-tag lf-ms">Milestone</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">Blueprint Goes Public — 200+ Readers in Week One</div>
+        <div class="lf-desc">The Purulia 2040 blueprint is live. Over 200 readers in the first week: doctors, engineers, impact investors, and Purulia-origin diaspora from across India and abroad. Submissions arriving from seven states.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Apr 2026</div>
+        <span class="lf-tag lf-ev">Event</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">First Diaspora Virtual Gathering Announced</div>
+        <div class="lf-desc">A virtual call for Purulia-origin professionals outside the district — engineers, doctors, entrepreneurs. 40 registrations in 72 hours. The agenda: what would it take for you to come back, or invest from where you are.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Mar 2026</div>
+        <span class="lf-tag lf-dv">Development</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">Solar Site Feasibility Survey Underway — Hura & Kashipur</div>
+        <div class="lf-desc">Engineers conducting preliminary assessment of laterite plateau land near Hura and Kashipur for the proposed Solar & Green Energy Park. Irradiance data collection and soil profiling in progress. Initial readings consistent with projected 5.4 kWh/m²/day.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Mar 2026</div>
+        <span class="lf-tag lf-an">Announcement</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">District Collectorate Briefing Requested</div>
+        <div class="lf-desc">A formal briefing on the Purulia 2040 blueprint has been requested through official channels. The full document has been shared with the District Collectorate. Awaiting scheduling confirmation.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Feb 2026</div>
+        <span class="lf-tag lf-dv">Development</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">NMC Medical College Application Preparation Begins</div>
+        <div class="lf-desc">Documentation for the medical college application to the National Medical Commission has commenced. Target: submit before the 2026 application window. NMC approval takes 2–3 years — starting now is what makes a 2030 opening possible.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Feb 2026</div>
+        <span class="lf-tag lf-ms">Milestone</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">Tribal Crafts Cluster Design Brief Circulated</div>
+        <div class="lf-desc">A design brief for the proposed Tribal Crafts Cluster near Purulia town has been shared with three architecture firms. Core constraint: artisan-owned infrastructure — shared kilns, looms, and casting furnaces — with no corporate extraction model.</div>
+      </div>
+    </div>
+    <div class="lf-item">
+      <div class="lf-meta">
+        <div class="lf-date">Jan 2026</div>
+        <span class="lf-tag lf-ev">Event</span>
+      </div>
+      <div class="lf-content">
+        <div class="lf-title">Blueprint Research Complete — Six Months of Field Work</div>
+        <div class="lf-desc">Six months of research, field visits, policy analysis, and stakeholder interviews condensed into this document. Reviewed by economists, civil engineers, and development practitioners before publication. Everything here is verifiable — every statistic has a source.</div>
+      </div>
+    </div>
   </div>
 </section>
 
