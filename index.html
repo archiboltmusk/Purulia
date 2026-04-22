@@ -29,16 +29,21 @@
 <div id="pbar"></div>
 <div id="toast"></div>
 <nav>
+  <div class="nav-left">
+    <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+      <div class="ntg-icon"><span></span><span></span><span></span></div>
+      <span>Menu</span>
+    </button>
+    <div class="nav-dropdown" id="navDropdown">
+      <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+      <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
+      <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
+      <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+      <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
+    </div>
+  </div>
   <div class="nav-logo">PURULIA 2040</div>
-  <ul class="nav-links">
-    <li><a href="index.html#reframe">The Case</a></li>
-    <li><a href="index.html#pillars">Six Pillars</a></li>
-    <li><a href="audience.html">For You</a></li>
-    <li><a href="data.html">Ground Truth</a></li>
-    <li><a href="blueprint.html#timeline">Roadmap</a></li>
-    <li><a href="blueprint.html#economics">Economics</a></li>
-    <li><a href="join.html">Join</a></li>
-  </ul>
+  <div class="nav-spacer"></div>
 </nav>
 <!-- ══ HERO ══ -->
 <section id="hero">
