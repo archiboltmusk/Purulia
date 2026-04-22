@@ -1,0 +1,19 @@
+{
+  "name": "purulia-vision-2040",
+  "version": "1.0.0",
+  "description": "A complete transformation blueprint for Purulia, West Bengal",
+  "type": "module",
+  "scripts": {
+    "build": "echo 'Static site - no build needed'"
+  },
+  "keywords": [
+    "purulia",
+    "transformation",
+    "blueprint"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/speed-insights": "^1.0.0"
+  }
+}
