@@ -346,6 +346,46 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 @keyframes rise{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 
+/* ── PURULIA TODAY — DAILY NEWS ── */
+#newstoday{padding:8rem 5rem;background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 60%,var(--ink) 100%);border-top:1px solid var(--border2);}
+.nt-top{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:end;margin-bottom:4rem;}
+.news-filters{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1.8rem;}
+.news-filter-btn{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;padding:.48rem 1.1rem;border:1px solid var(--border2);color:rgba(240,230,208,.38);background:transparent;cursor:none;transition:all .35s cubic-bezier(.25,.46,.45,.94);}
+.news-filter-btn.active,.news-filter-btn:hover{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+.news-hero{background:var(--ink3);border:1px solid var(--border2);padding:3rem 3.5rem;margin-bottom:2px;display:grid;grid-template-columns:1.4fr 1fr;gap:4rem;align-items:center;cursor:none;position:relative;overflow:hidden;transition:background .4s cubic-bezier(.25,.46,.45,.94),border-color .35s,box-shadow .5s;}
+.news-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber4));transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.25,.46,.45,.94);}
+.news-hero:hover{background:#1B1308;border-color:var(--border);box-shadow:0 24px 60px rgba(0,0,0,.45);}
+.news-hero:hover::before{transform:scaleX(1);}
+.news-hero-tag{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.28em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;padding:.28rem .75rem;border:1px solid rgba(212,136,42,.35);display:inline-block;}
+.news-hero-title{font-family:'EB Garamond',serif;font-size:clamp(1.6rem,2.5vw,2.4rem);font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:1.1rem;}
+.news-hero-body{font-size:1.05rem;line-height:1.75;color:rgba(240,230,208,.55);}
+.news-hero-body strong{color:rgba(240,230,208,.82);}
+.news-hero-footer{margin-top:1.5rem;display:flex;align-items:center;gap:1.5rem;}
+.news-hero-visual{display:flex;align-items:center;justify-content:center;opacity:.16;}
+.news-hero-visual svg{width:200px;height:200px;}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:2px;}
+.news-card{background:var(--ink3);border:1px solid var(--border2);border-top:2px solid transparent;padding:2.2rem;position:relative;overflow:hidden;cursor:none;transition:transform .5s cubic-bezier(.25,.46,.45,.94),background .4s,border-color .35s,box-shadow .5s;}
+.news-card:hover{transform:translateY(-8px);background:#1B1308;border-top-color:var(--amber);border-color:var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 28px rgba(212,136,42,.07);}
+.news-cat{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.22em;text-transform:uppercase;padding:.22rem .65rem;border:1px solid;display:inline-block;margin-bottom:1.1rem;}
+.cat-culture{color:#D4A62A;border-color:rgba(212,166,42,.38);}
+.cat-infra{color:rgba(100,170,230,.8);border-color:rgba(100,170,230,.3);}
+.cat-economy{color:#6DB88A;border-color:rgba(109,184,138,.38);}
+.cat-environment{color:#7CB87A;border-color:rgba(124,184,122,.35);}
+.cat-energy{color:var(--amber2);border-color:rgba(232,169,74,.38);}
+.cat-tourism{color:#B88ADB;border-color:rgba(184,138,219,.38);}
+.news-card-title{font-family:'EB Garamond',serif;font-size:1.18rem;font-weight:700;color:var(--cream);line-height:1.3;margin-bottom:.7rem;}
+.news-card-body{font-size:.93rem;line-height:1.72;color:rgba(240,230,208,.5);}
+.news-card-body strong{color:rgba(240,230,208,.75);}
+.news-card-body em{color:rgba(240,230,208,.65);font-style:italic;}
+.news-card-foot{margin-top:1.2rem;padding-top:.9rem;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:.3rem;}
+.news-src{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;color:rgba(240,230,208,.18);text-transform:uppercase;}
+.news-verified{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;color:rgba(109,184,138,.55);text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
+.news-verified::before{content:'✓ ';color:#6DB88A;}
+.news-src-sm{font-family:'DM Mono',monospace;font-size:.45rem;letter-spacing:.18em;color:rgba(240,230,208,.2);text-transform:uppercase;}
+.news-ver-badge{font-family:'DM Mono',monospace;font-size:.45rem;letter-spacing:.18em;color:rgba(109,184,138,.6);text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
+.news-ver-badge::before{content:'✓';color:#6DB88A;font-size:.5rem;}
+.news-card.hidden{display:none;}
+
 /* ── MOBILE ── */
 @media(max-width:960px){
   nav{padding:1.2rem 2rem;}
@@ -364,7 +404,11 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
   .tl-spine{display:none;}
   .tlc::before{display:none;}
   .tlc{margin-top:0;}
-  #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto{padding:5rem 2rem;}
+  #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto,#newstoday{padding:5rem 2rem;}
+  .nt-top{grid-template-columns:1fr;gap:2rem;}
+  .news-grid{grid-template-columns:1fr;}
+  .news-hero{grid-template-columns:1fr;gap:2rem;padding:2.2rem;}
+  .news-hero-visual{display:none;}
   footer{grid-template-columns:1fr;text-align:center;}
   .ft-links{justify-content:center;}
 }
@@ -425,6 +469,7 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
     <li><a href="#pillars">Six Pillars</a></li>
     <li><a href="#audience">For You</a></li>
     <li><a href="#groundtruth">Ground Truth</a></li>
+    <li><a href="#newstoday">News</a></li>
     <li><a href="#timeline">Roadmap</a></li>
     <li><a href="#economics">Economics</a></li>
     <li><a href="#respond">Join</a></li>
@@ -811,6 +856,28 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
     <div class="spi"><div class="spi-n">3</div><div><div class="spi-t">Sign three anchor solar developers</div><div class="spi-d">Visible cranes. Land lease income for farmers within 18 months. Economic activity that creates its own momentum.</div></div><span class="badge bq2">Month 3–12</span></div>
     <div class="spi"><div class="spi-n">4</div><div><div class="spi-t">Begin the medical college application</div><div class="spi-d">NMC approval takes 2–3 years from application. Start now for the college to open by 2030.</div></div><span class="badge bq2">Month 1–3</span></div>
     <div class="spi"><div class="spi-n">5</div><div><div class="spi-t">Repair the five best government schools</div><div class="spi-d">Power, toilets, library, teacher monitoring. ₹15–25L per school. Signals to families that staying is viable. The most human ROI in the plan.</div></div><span class="badge by2">Month 1–6</span></div>
+  </div>
+</section>
+
+<!-- ══ PURULIA TODAY — DAILY NEWS ══ -->
+<section id="newstoday">
+  <div class="nt-top rv">
+    <div>
+      <div class="sl">// Real &amp; Verified</div>
+      <h2 class="sh">Purulia <em>Today.</em></h2>
+      <p class="ss">Verified facts and ongoing ground realities from across the district. Nothing speculative. Every item sourced and truthful.</p>
+    </div>
+    <div>
+      <div class="news-filters">
+        <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
+        <button class="news-filter-btn" onclick="filterNews('culture',this)">🎭 Culture</button>
+        <button class="news-filter-btn" onclick="filterNews('infra',this)">🏗️ Infrastructure</button>
+        <button class="news-filter-btn" onclick="filterNews('economy',this)">💰 Economy</button>
+        <button class="news-filter-btn" onclick="filterNews('tourism',this)">🌄 Tourism</button>
+        <button class="news-filter-btn" onclick="filterNews('environment',this)">🌿 Environment</button>
+        <button class="news-filter-btn" onclick="filterNews('energy',this)">⚡ Energy</button>
+      </div>
+    </div>
   </div>
 
   <!-- Hero item: UNESCO Chhau -->
@@ -1350,6 +1417,21 @@ window.addEventListener('load',()=>{
   const el=document.querySelector(hash);
   if(el)el.scrollIntoView();
 });
+
+/* ── News filter ── */
+function filterNews(cat,btn){
+  document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const hero=document.querySelector('.news-hero');
+  if(hero){
+    const heroMatch=cat==='all'||cat==='culture';
+    hero.style.display=heroMatch?'':'none';
+  }
+  document.querySelectorAll('#newsGrid .news-card').forEach(card=>{
+    const match=cat==='all'||card.dataset.cat===cat;
+    card.classList.toggle('hidden',!match);
+  });
+}
 
 /* ── News card stagger animation on scroll ── */
 const newsObs=new IntersectionObserver(entries=>{
