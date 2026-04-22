@@ -1,0 +1,308 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>District Map — Purulia 2040</title>
+<meta name="description" content="Interactive map of Purulia district — landmarks, proposed projects, infrastructure corridors, and transformation zones.">
+<meta property="og:title" content="District Map — Purulia 2040">
+<meta property="og:description" content="Interactive map of Purulia district — landmarks, proposed projects, infrastructure corridors, and transformation zones.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="District Map — Purulia 2040">
+<meta name="twitter:description" content="Interactive map of Purulia district — landmarks, proposed projects, infrastructure corridors, and transformation zones.">
+<meta name="twitter:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<script defer src="https://cdn.vercel-insights.com/v1/script.js"></script>
+<script>window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<link rel="stylesheet" href="styles.css">
+<style>
+/* ── MAP PAGE OVERRIDES ── */
+body{overflow:hidden;}
+#map-wrap{position:fixed;top:0;left:0;right:0;bottom:0;z-index:0;}
+#map{width:100%;height:100%;}
+
+/* Leaflet popup — match site design */
+.leaflet-popup-content-wrapper{
+  background:rgba(12,10,5,.97)!important;
+  border:1px solid rgba(212,136,42,.22)!important;
+  border-radius:0!important;
+  box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 0 1px rgba(212,136,42,.08)!important;
+  padding:0!important;
+}
+.leaflet-popup-content{
+  margin:0!important;
+  width:280px!important;
+}
+.leaflet-popup-tip-container{display:none!important;}
+.leaflet-popup-close-button{
+  color:rgba(240,230,208,.3)!important;
+  font-size:18px!important;
+  top:10px!important;right:12px!important;
+  transition:color .2s!important;
+}
+.leaflet-popup-close-button:hover{color:var(--amber)!important;}
+
+/* Leaflet zoom controls */
+.leaflet-control-zoom{border:1px solid rgba(212,136,42,.2)!important;border-radius:0!important;}
+.leaflet-control-zoom a{
+  background:rgba(12,10,5,.95)!important;
+  color:rgba(240,230,208,.5)!important;
+  border-bottom:1px solid rgba(212,136,42,.15)!important;
+  font-family:'DM Mono',monospace!important;
+  transition:color .2s,background .2s!important;
+  border-radius:0!important;
+}
+.leaflet-control-zoom a:hover{background:rgba(212,136,42,.1)!important;color:var(--amber)!important;}
+.leaflet-control-attribution{background:rgba(12,10,5,.8)!important;color:rgba(240,230,208,.2)!important;font-size:.55rem!important;font-family:'DM Mono',monospace!important;}
+.leaflet-control-attribution a{color:rgba(212,136,42,.4)!important;}
+
+/* ── MAP OVERLAY PANELS ── */
+#map-filters{
+  position:fixed;top:80px;left:50%;transform:translateX(-50%);
+  z-index:810;display:flex;gap:.3rem;
+  background:rgba(12,10,5,.92);
+  border:1px solid rgba(212,136,42,.18);
+  backdrop-filter:blur(20px);
+  padding:.45rem;
+}
+.mf-btn{
+  font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.22em;text-transform:uppercase;
+  padding:.5rem 1.1rem;border:1px solid transparent;background:transparent;
+  color:rgba(240,230,208,.35);cursor:pointer;transition:all .3s cubic-bezier(.25,.46,.45,.94);
+}
+.mf-btn:hover{color:rgba(240,230,208,.7);border-color:rgba(212,136,42,.25);}
+.mf-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+.mf-btn .mf-dot{display:inline-block;width:6px;height:6px;border-radius:50%;margin-right:.5rem;vertical-align:middle;}
+
+#map-legend{
+  position:fixed;bottom:2rem;left:2rem;
+  z-index:810;
+  background:rgba(12,10,5,.95);
+  border:1px solid rgba(212,136,42,.15);
+  backdrop-filter:blur(20px);
+  padding:1.4rem 1.6rem;
+  min-width:190px;
+}
+.ml-title{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;padding-bottom:.6rem;border-bottom:1px solid rgba(212,136,42,.12);}
+.ml-item{display:flex;align-items:center;gap:.75rem;margin-bottom:.65rem;font-family:'DM Mono',monospace;font-size:.43rem;letter-spacing:.15em;color:rgba(240,230,208,.38);text-transform:uppercase;}
+.ml-item:last-child{margin-bottom:0;}
+.ml-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+
+#map-info{
+  position:fixed;bottom:2rem;right:2rem;
+  z-index:810;
+  font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.15em;
+  color:rgba(240,230,208,.2);text-transform:uppercase;
+  text-align:right;
+}
+
+/* Popup inner styles */
+.p-tag{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.25em;color:var(--amber);text-transform:uppercase;padding:.7rem 1.2rem .4rem;border-bottom:1px solid rgba(212,136,42,.1);display:block;}
+.p-name{font-family:'EB Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--cream);padding:.6rem 1.2rem .3rem;line-height:1.2;}
+.p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
+.p-desc strong{color:rgba(240,230,208,.75);}
+
+@media(max-width:640px){
+  #map-legend{display:none;}
+  #map-filters{top:70px;left:.5rem;right:.5rem;transform:none;overflow-x:auto;gap:.2rem;}
+  .mf-btn{padding:.45rem .7rem;font-size:.38rem;white-space:nowrap;}
+}
+</style>
+</head>
+<body>
+<div id="cur"></div>
+<div id="curR"></div>
+<div id="pbar"></div>
+<div id="toast"></div>
+
+<nav>
+  <div class="nav-left">
+    <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+      <div class="ntg-icon"><span></span><span></span><span></span></div>
+      <span>Menu</span>
+    </button>
+    <div class="nav-dropdown" id="navDropdown">
+      <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+      <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
+      <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
+      <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+      <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
+      <a href="map.html" class="nd-item nd-active">District Map <span class="nd-arrow">→</span></a>
+    </div>
+  </div>
+  <div class="nav-logo">PURULIA 2040</div>
+  <div class="nav-spacer"></div>
+</nav>
+
+<!-- Filter bar -->
+<div id="map-filters">
+  <button class="mf-btn active" data-layer="all" onclick="filterLayer('all',this)">
+    <span class="mf-dot" style="background:rgba(240,230,208,.4)"></span>All
+  </button>
+  <button class="mf-btn" data-layer="landmark" onclick="filterLayer('landmark',this)">
+    <span class="mf-dot" style="background:#D4882A"></span>Landmarks
+  </button>
+  <button class="mf-btn" data-layer="project" onclick="filterLayer('project',this)">
+    <span class="mf-dot" style="background:#E8A94A"></span>Projects
+  </button>
+  <button class="mf-btn" data-layer="infra" onclick="filterLayer('infra',this)">
+    <span class="mf-dot" style="background:#6DB88A"></span>Infrastructure
+  </button>
+  <button class="mf-btn" data-layer="heritage" onclick="filterLayer('heritage',this)">
+    <span class="mf-dot" style="background:#B88ADB"></span>Heritage &amp; Nature
+  </button>
+</div>
+
+<!-- Map container -->
+<div id="map-wrap">
+  <div id="map"></div>
+</div>
+
+<!-- Legend -->
+<div id="map-legend">
+  <div class="ml-title">Map Legend</div>
+  <div class="ml-item"><div class="ml-dot" style="background:#D4882A"></div>District Centre</div>
+  <div class="ml-item"><div class="ml-dot" style="background:#E8A94A"></div>Projects</div>
+  <div class="ml-item"><div class="ml-dot" style="background:#6DB88A"></div>Infrastructure</div>
+  <div class="ml-item"><div class="ml-dot" style="background:#B88ADB"></div>Heritage &amp; Nature</div>
+  <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Water</div>
+</div>
+
+<div id="map-info">Purulia District · 23.33°N 86.37°E<br>West Bengal, India</div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+<script>
+// ── Map init ──────────────────────────────────────────────────────────────────
+const map = L.map('map', {
+  center: [23.33, 86.55],
+  zoom: 10,
+  zoomControl: false,
+  attributionControl: true,
+});
+
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+  subdomains: 'abcd',
+  maxZoom: 19,
+}).addTo(map);
+
+L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+// ── Marker factory ────────────────────────────────────────────────────────────
+function mkIcon(color, size=12, pulse=false) {
+  const p = pulse ? `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${size*2.5}px;height:${size*2.5}px;border-radius:50%;border:1px solid ${color};opacity:.3;animation:ripple 2s infinite;"></div>` : '';
+  return L.divIcon({
+    className: '',
+    html: `<div style="position:relative;width:${size}px;height:${size}px;">${p}<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:${color};box-shadow:0 0 14px ${color}77;border:1.5px solid rgba(255,255,255,.15);"></div></div>`,
+    iconSize: [size, size],
+    iconAnchor: [size/2, size/2],
+    popupAnchor: [0, -size/2 - 8],
+  });
+}
+
+function popup(tag, name, desc) {
+  return `<span class="p-tag">${tag}</span><div class="p-name">${name}</div><div class="p-desc">${desc}</div>`;
+}
+
+// ── Layer groups ──────────────────────────────────────────────────────────────
+const layers = { landmark: L.layerGroup(), project: L.layerGroup(), infra: L.layerGroup(), heritage: L.layerGroup() };
+Object.values(layers).forEach(lg => lg.addTo(map));
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+const pts = [
+  // LANDMARKS
+  { layer:'landmark', coords:[23.3325,86.3636], color:'#D4882A', size:14, pulse:true,
+    tag:'District Headquarters', name:'Purulia Town',
+    desc:'Administrative and commercial centre of Purulia district. Population ~120,000. Junction of NH-32 and the district\'s main rail corridor.' },
+
+  // PROJECTS
+  { layer:'project', coords:[23.2700,86.0600], color:'#E8A94A', size:12, pulse:true,
+    tag:'Priority Project · Solar Energy',name:'Solar &amp; Green Energy Park',
+    desc:'Hura–Kashipur area. Target <strong>500–1,000MW</strong> installed. Pre-laid 33kV feeder. Land at ₹5L/acre. 5yr GST reimbursement. Target: 8,000 direct jobs, ₹3,000Cr investment.' },
+  { layer:'project', coords:[23.3100,86.3300], color:'#E8A94A', size:11,
+    tag:'Project · Crafts Economy', name:'Tribal Crafts Cluster',
+    desc:'Near Purulia town. Shared kilns, looms, casting furnaces. APEDA + customs on-site. GI-tagged <strong>Dokra metalwork</strong> and <strong>Chhau masks</strong>. Artisan-owned IP.' },
+  { layer:'project', coords:[23.0650,86.6550], color:'#E8A94A', size:11,
+    tag:'Project · Agro-Processing', name:'Agro-Processing Park',
+    desc:'Manbazar. 5,000MT cold storage, FSSAI lab. Mahua distillery cooperatives, sal seed oil, heritage grain branding. ₹500Cr annual revenue target by 2032.' },
+  { layer:'project', coords:[23.3340,86.3600], color:'#E8A94A', size:10,
+    tag:'Project · Governance', name:'PIFC — Single Window Centre',
+    desc:'Purulia Investment Facilitation Centre. One portal, 12 departments. <strong>30-day deemed approval</strong>. Relationship manager for every investment above ₹5Cr. Cost: ₹3–5Cr.' },
+  { layer:'project', coords:[23.3480,86.3480], color:'#E8A94A', size:10,
+    tag:'Project · Healthcare', name:'Deben Mahata Govt. Medical College',
+    desc:'Established ~2018. <strong>100 MBBS seats</strong>. Purulia\'s first government medical college. Next milestone: NMC approval for postgraduate seats and specialist faculty retention.' },
+  { layer:'project', coords:[23.3200,86.3750], color:'#E8A94A', size:10,
+    tag:'Project · Healthcare', name:'Bharat Medical College',
+    desc:'Established <strong>2024</strong>. 150 MBBS seats. Together with Deben Mahata GMC, Purulia now has 250 MBBS seats annually. Building the private specialist ecosystem.' },
+  { layer:'project', coords:[23.3640,86.4250], color:'#E8A94A', size:11,
+    tag:'Project · Aviation · UDAN', name:'Purulia Regional Airport',
+    desc:'Upgrade existing airstrip to <strong>ATR-72 standard</strong> (₹80–120Cr). Proposed routes: Purulia–Kolkata (40 min) and Purulia–Ranchi (25 min). UDAN scheme eligible.' },
+  { layer:'project', coords:[23.5050,86.6800], color:'#6DB88A', size:11,
+    tag:'Infrastructure · Rail', name:'Adra Junction',
+    desc:'Key South Eastern Railway junction. <strong>Adra–Ranchi doubling + electrification</strong> in Railway Board pipeline — Ranchi in 2 hours. Howrah–Purulia Express runs through here.' },
+  { layer:'infra', coords:[23.3370,86.3700], color:'#6DB88A', size:11,
+    tag:'Infrastructure · Rail', name:'Purulia Junction',
+    desc:'South Eastern Railway, Chakradharpur Division. <strong>Purulia Express</strong> (12827/12828) to Howrah. Electrification and station redevelopment with Chhau art and craft market planned.' },
+
+  // HERITAGE & NATURE
+  { layer:'heritage', coords:[23.1170,85.9340], color:'#B88ADB', size:13, pulse:true,
+    tag:'Heritage · Nature · Eco-Tourism', name:'Ajodhya Hills',
+    desc:'<strong>Chamtaburu peak at ~720m</strong> — West Bengal\'s highest terrain outside the sub-Himalayan foothills. Bamni Falls, Turga Dam, Matha Dam viewpoint. Priority eco-tourism zone.' },
+  { layer:'heritage', coords:[23.4900,86.8900], color:'#64AACC', size:11,
+    tag:'Nature · Eco-Tourism', name:'Baranti Reservoir',
+    desc:'Santuri block. Eco-tourism destination within Sal forests. Migratory birds in winter months. Government-managed tourist lodge. One of West Bengal\'s established eco-tourism sites.' },
+  { layer:'heritage', coords:[23.5100,86.9100], color:'#B88ADB', size:11,
+    tag:'Heritage · Nature', name:'Garpanchkot',
+    desc:'Ancient ruined fort overlooking the plateau. Panchkot Hill. Heritage eco-lodge. One of West Bengal\'s finest heritage tourism sites — currently almost entirely undiscovered nationally.' },
+  { layer:'heritage', coords:[23.0500,86.5000], color:'#B88ADB', size:10,
+    tag:'Cultural · Heritage', name:'Manbazar — Crafts Belt',
+    desc:'Heart of the <strong>Dokra metalwork</strong> tradition. Artisan villages producing lost-wax cast brass figures. GI tag application in progress. ₹200 farm-gate price vs ₹2,000–20,000 retail.' },
+  { layer:'heritage', coords:[23.1600,85.9800], color:'#B88ADB', size:10,
+    tag:'Heritage · Culture', name:'Bagmundi — Chhau Country',
+    desc:'UNESCO-listed <strong>Purulia Chhau dance</strong> heartland. Inscribed on the Representative List of Intangible Cultural Heritage of Humanity in 2010. Chaitra Parva festival in March–April.' },
+];
+
+// ── Plot markers ──────────────────────────────────────────────────────────────
+const markers = [];
+pts.forEach(pt => {
+  const m = L.marker(pt.coords, { icon: mkIcon(pt.color, pt.size, pt.pulse||false) })
+    .bindPopup(popup(pt.tag, pt.name, pt.desc), { className:'p2040-popup', maxWidth:300 });
+  m._layer = pt.layer;
+  layers[pt.layer].addLayer(m);
+  markers.push(m);
+});
+
+// ── Infrastructure polylines ──────────────────────────────────────────────────
+const nh32 = L.polyline([
+  [23.60,86.72],[23.505,86.68],[23.40,86.55],[23.33,86.36],[23.22,86.12],[23.05,85.92]
+], { color:'#6DB88A', weight:2.5, opacity:.55, dashArray:'6 4' }).addTo(layers.infra);
+nh32.bindPopup(popup('Infrastructure · Road','NH-32 Corridor','National Highway 32 running through Purulia district. <strong>4-laning to Grand Trunk Road</strong> spine planned. Backbone of the district\'s connectivity and industrial access.'));
+
+const expr = L.polyline([
+  [23.33,86.36],[23.28,86.22],[23.20,86.05],[23.12,85.92],[23.00,85.75]
+], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6' }).addTo(layers.infra);
+expr.bindPopup(popup('Proposed · Road','Purulia–Ranchi Expressway','<strong>130km proposed corridor</strong>. Journey time: Ranchi in 90 minutes. Opens Jharkhand\'s industrial market. ₹2,500Cr — Bharatmala eligible. Transforms Purulia\'s economic geography.'));
+
+// ── Layer filter ──────────────────────────────────────────────────────────────
+function filterLayer(type, btn) {
+  document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  Object.entries(layers).forEach(([key, lg]) => {
+    if (type === 'all' || type === key) { if (!map.hasLayer(lg)) map.addLayer(lg); }
+    else { if (map.hasLayer(lg)) map.removeLayer(lg); }
+  });
+}
+
+// ── Pulse animation keyframe ──────────────────────────────────────────────────
+const style = document.createElement('style');
+style.textContent = '@keyframes ripple{0%{transform:translate(-50%,-50%) scale(.5);opacity:.5;}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0;}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>
