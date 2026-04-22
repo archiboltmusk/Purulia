@@ -1351,21 +1351,6 @@ window.addEventListener('load',()=>{
   if(el)el.scrollIntoView();
 });
 
-/* ── News filter ── */
-function filterNews(cat,btn){
-  document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  const hero=document.querySelector('.news-hero');
-  if(hero){
-    const heroMatch=cat==='all'||cat==='culture';
-    hero.style.display=heroMatch?'':'none';
-  }
-  document.querySelectorAll('#newsGrid .news-card').forEach(card=>{
-    const match=cat==='all'||card.dataset.cat===cat;
-    card.classList.toggle('hidden',!match);
-  });
-}
-
 /* ── News card stagger animation on scroll ── */
 const newsObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
