@@ -1351,6 +1351,14 @@ window.addEventListener('load',()=>{
   if(el)el.scrollIntoView();
 });
 
+/* ── News card stagger animation on scroll ── */
+const newsObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.animation='cardIn .6s cubic-bezier(.25,.46,.45,.94) both';
+      newsObs.unobserve(e.target);
+    }
+  });
 },{threshold:.08,rootMargin:'0px 0px -40px 0px'});
 document.querySelectorAll('.news-card').forEach((c,i)=>{
   c.style.animationDelay=(i%3)*.08+'s';
