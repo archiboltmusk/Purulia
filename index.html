@@ -385,6 +385,12 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 .news-ver-badge{font-family:'DM Mono',monospace;font-size:.45rem;letter-spacing:.18em;color:rgba(109,184,138,.6);text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
 .news-ver-badge::before{content:'✓';color:#6DB88A;font-size:.5rem;}
 .news-card.hidden{display:none;}
+.news-loading{grid-column:1/-1;text-align:center;padding:4rem 2rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.32em;color:rgba(240,230,208,.25);text-transform:uppercase;display:flex;align-items:center;justify-content:center;gap:.8rem;}
+.news-loading::after{content:'';display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);animation:lfpulse 1.5s ease-in-out infinite;}
+.news-error{grid-column:1/-1;text-align:center;padding:3rem 2rem;font-size:1rem;color:rgba(240,230,208,.32);font-style:italic;font-family:'EB Garamond',serif;}
+.news-read-more{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.2em;color:rgba(212,136,42,.55);text-transform:uppercase;text-decoration:none;transition:color .3s;margin-top:.35rem;display:inline-block;cursor:pointer;}
+.news-read-more:hover{color:var(--amber);}
+.cat-live{color:rgba(120,200,255,.85);border-color:rgba(120,200,255,.3);}
 
 /* ── MOBILE ── */
 @media(max-width:960px){
@@ -863,32 +869,32 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 <section id="newstoday">
   <div class="nt-top rv">
     <div>
-      <div class="sl">// Real &amp; Verified</div>
+      <div class="sl">// Live · Google News</div>
       <h2 class="sh">Purulia <em>Today.</em></h2>
-      <p class="ss">Verified facts and ongoing ground realities from across the district. Nothing speculative. Every item sourced and truthful.</p>
+      <p class="ss">Live news from Google News — updated every time you visit. Select a topic to filter.</p>
     </div>
     <div>
       <div class="news-filters">
-        <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
-        <button class="news-filter-btn" onclick="filterNews('culture',this)">🎭 Culture</button>
-        <button class="news-filter-btn" onclick="filterNews('infra',this)">🏗️ Infrastructure</button>
-        <button class="news-filter-btn" onclick="filterNews('economy',this)">💰 Economy</button>
-        <button class="news-filter-btn" onclick="filterNews('tourism',this)">🌄 Tourism</button>
-        <button class="news-filter-btn" onclick="filterNews('environment',this)">🌿 Environment</button>
-        <button class="news-filter-btn" onclick="filterNews('energy',this)">⚡ Energy</button>
+        <button class="news-filter-btn active" onclick="loadNews('Purulia West Bengal',this)">All</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia development',this)">🏗️ Development</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia Chhau culture festival',this)">🎭 Culture</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia economy industry investment',this)">💰 Economy</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia tourism Ajodhya',this)">🌄 Tourism</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia environment forest water',this)">🌿 Environment</button>
+        <button class="news-filter-btn" onclick="loadNews('Purulia solar energy power',this)">⚡ Energy</button>
       </div>
     </div>
   </div>
 
-  <!-- Hero item: UNESCO Chhau -->
-  <div class="news-hero rv" data-cat="culture">
+  <!-- Pinned fact: UNESCO Chhau (permanent) -->
+  <div class="news-hero rv">
     <div class="news-hero-content">
-      <span class="news-hero-tag">Confirmed · UNESCO 2010</span>
+      <span class="news-hero-tag">Pinned · UNESCO 2010 · Verified</span>
       <div class="news-hero-title">Purulia Chhau — Inscribed on UNESCO Intangible Cultural Heritage List</div>
-      <div class="news-hero-body">Purulia Chhau was inscribed on UNESCO's Representative List of the Intangible Cultural Heritage of Humanity in <strong>November 2010</strong> — alongside Chhau traditions from Seraikella (Jharkhand) and Mayurbhanj (Odisha). The <strong>Chaitra Parva festival</strong>, held each year in March–April during the full moon, is Purulia's largest annual cultural event: performers from dozens of villages present the warrior mask-dance tradition across three nights. The Chhau mask itself — shaped in clay and paper, painted in vivid natural colours — is a recognised craft tradition and heritage artefact.</div>
+      <div class="news-hero-body">Purulia Chhau was inscribed on UNESCO's Representative List of the Intangible Cultural Heritage of Humanity in <strong>November 2010</strong>. The annual <strong>Chaitra Parva festival</strong> (March–April, full moon) is Purulia's largest cultural event — mask-dancers from dozens of villages perform the warrior dance tradition across three nights. The Chhau mask itself, made in clay and natural colours, is a recognised craft tradition and heritage artefact.</div>
       <div class="news-hero-footer">
-        <div class="news-src-sm">Source: UNESCO · ICH Inscription Ref. 00337</div>
-        <div class="news-ver-badge">Verified fact</div>
+        <div class="news-src-sm">UNESCO · ICH Inscription Ref. 00337</div>
+        <div class="news-ver-badge">Confirmed fact</div>
       </div>
     </div>
     <div class="news-hero-visual">
@@ -904,129 +910,15 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
         <circle cx="100" cy="16" r="4" fill="#D4882A" opacity=".6"/>
         <circle cx="55" cy="40" r="3" fill="#D4882A" opacity=".4"/>
         <circle cx="145" cy="40" r="3" fill="#D4882A" opacity=".4"/>
-        <line x1="100" y1="16" x2="100" y2="26" stroke="#D4882A" stroke-width=".8" opacity=".5"/>
         <path d="M28 110 Q18 78 38 54" stroke="#D4882A" stroke-width=".7" fill="none" opacity=".4"/>
         <path d="M172 110 Q182 78 162 54" stroke="#D4882A" stroke-width=".7" fill="none" opacity=".4"/>
-        <circle cx="28" cy="110" r="3" fill="#D4882A" opacity=".3"/>
-        <circle cx="172" cy="110" r="3" fill="#D4882A" opacity=".3"/>
-        <path d="M70 60 Q100 50 130 60" stroke="#D4882A" stroke-width=".6" fill="none" opacity=".5" stroke-dasharray="3 4"/>
       </svg>
     </div>
   </div>
 
-  <!-- News grid: 11 verified facts -->
+  <!-- Live Google News grid -->
   <div class="news-grid" id="newsGrid">
-
-    <div class="news-card rv" data-cat="tourism">
-      <span class="news-cat cat-tourism">Tourism</span>
-      <div class="news-card-title">Ajodhya Hills — West Bengal's Highest Plateau Outside Darjeeling</div>
-      <div class="news-card-body">The Ajodhya Hill range in western Purulia reaches approximately <strong>677 metres</strong> at its highest point — West Bengal's tallest terrain outside the sub-Himalayan foothills. Key sites include Bamni Falls, Turga Dam reservoir, and Matha Dam viewpoint. West Bengal Tourism designates it a priority eco-tourism zone.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: West Bengal Tourism Dept · Geological Survey of India</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="tourism">
-      <span class="news-cat cat-tourism">Tourism</span>
-      <div class="news-card-title">Baranti Lake — Established Eco-Tourism Destination</div>
-      <div class="news-card-body">Baranti reservoir in Kashipur block, set within <strong>Sal forests</strong> near Susunia Hill, is one of West Bengal's established eco-tourism sites. The lake attracts migratory birds in winter months. Government-managed tourist lodge accommodation exists at the site.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: West Bengal Forest Department · Kashipur Block</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="infra">
-      <span class="news-cat cat-infra">Infrastructure</span>
-      <div class="news-card-title">BharatNet Phase 2 — Optical Fibre to Every Gram Panchayat</div>
-      <div class="news-card-body">The Government of India's BharatNet program is extending optical fibre broadband to Gram Panchayat offices across Purulia. Phase 2 targets every GP headquarters with a minimum <strong>100 Mbps</strong> connection, enabling digital health, e-governance, and online education at village level.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: Dept of Telecommunications · BharatNet Portal</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="infra">
-      <span class="news-cat cat-infra">Infrastructure</span>
-      <div class="news-card-title">Jal Jeevan Mission — Piped Water to Every Rural Home</div>
-      <div class="news-card-body">Under the Jal Jeevan Mission (<em>Har Ghar Jal</em>), functional household tap connections are being extended to rural homes across Purulia district. The national mission targets <strong>100% piped drinking water</strong> coverage, reducing the burden on women who walk distances to water sources.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: National Jal Jeevan Mission · Govt of India</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="economy">
-      <span class="news-cat cat-economy">Economy</span>
-      <div class="news-card-title">Mahua Season — Tribal Communities' Most Vital Forest Produce</div>
-      <div class="news-card-body">From <strong>February to April</strong> each year, tribal communities collect Mahua (<em>Madhuca longifolia</em>) flowers — Purulia's most economically significant minor forest produce. The Forest Rights Act 2006 grants tribal households legal rights to collect and sell Mahua. The flowers are used in food, traditional beverages, and health product markets.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: Ministry of Tribal Affairs · Forest Rights Act 2006</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="economy">
-      <span class="news-cat cat-economy">Economy · Craft</span>
-      <div class="news-card-title">Dokra Metalwork — 4,000 Years of Lost-Wax Casting</div>
-      <div class="news-card-body">Dokra metalwork using the <em>cire perdue</em> (lost-wax) casting technique has been practiced for at least <strong>4,000 years</strong> — some of humanity's oldest known metal castings come from this tradition. Artisan communities in Purulia and Bankura create figurines, jewellery, and lamps. Growing online and export markets offer income well above local prices.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: Crafts Council of India · APEDA · National Museum</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="energy">
-      <span class="news-cat cat-energy">Energy</span>
-      <div class="news-card-title">Solar Irradiance — 5.4 kWh/m²/day, Eastern India's Highest</div>
-      <div class="news-card-body">Scientific assessments confirm Purulia receives approximately <strong>5.4 kWh/m²/day</strong> of Global Horizontal Irradiance — among the highest in eastern India. With 300+ sunny days annually and large tracts of underutilised laterite plateau, the district has exceptional conditions for utility-scale solar power generation.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: National Institute of Solar Energy (NISE) · India Solar Resource Atlas</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="infra">
-      <span class="news-cat cat-infra">Infrastructure</span>
-      <div class="news-card-title">PMGSY — All-Weather Roads Reaching Remote Villages</div>
-      <div class="news-card-body">The Pradhan Mantri Gram Sadak Yojana (PMGSY) has constructed all-weather rural roads connecting Purulia's villages to block headquarters and markets. Improved access reduces post-harvest losses, enables ambulance services in remote areas, and connects artisans to urban buyers — <strong>critical for western blocks</strong> where tribal forest produce originates.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: Ministry of Rural Development · NRRDA</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="environment">
-      <span class="news-cat cat-environment">Environment</span>
-      <div class="news-card-title">Sal Forests — Purulia's Green Canopy and Tribal Livelihood Base</div>
-      <div class="news-card-body">Purulia's Sal (<em>Shorea robusta</em>) forests — concentrated in Bagmundi, Balarampur, and Jhalda — are both an ecological resource and a tribal livelihood base. Sal leaves, seeds, and timber support daily income. The forest canopy maintains groundwater recharge. <strong>Joint Forest Management (JFM) committees</strong> oversee community conservation across forest villages.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: West Bengal Forest Department · JFM Programme</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="culture">
-      <span class="news-cat cat-culture">Culture · Heritage</span>
-      <div class="news-card-title">Garpanchkot Fort — Purulia's Hidden Historical Site</div>
-      <div class="news-card-body">The ruins of Garpanchkot Fort in Kashipur block are associated with the ancient Panchet royal dynasty and are one of Purulia's most significant historical sites. Located near the Damodar River and <strong>Panchet Dam</strong> reservoir, the site combines heritage value with riverside natural beauty — currently undervisited and largely undeveloped for tourism.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: Archaeological Survey of India · District Gazetteer</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
-    <div class="news-card rv" data-cat="infra">
-      <span class="news-cat cat-infra">Infrastructure · Rail</span>
-      <div class="news-card-title">Purulia Junction — Rail Gateway to Eastern India</div>
-      <div class="news-card-body">Purulia Junction, under South Eastern Railway's Chakradharpur Division, connects the district to Howrah, Asansol, Ranchi, and Chakradharpur. <strong>The Purulia Express</strong> (Train 12827/12828) runs between Purulia and Howrah Junction. Railway modernisation programmes have been allocating funds for track electrification, station upgrades, and speed improvements across this network.</div>
-      <div class="news-card-foot">
-        <div class="news-src">Source: South Eastern Railway (SER) · Indian Railways</div>
-        <div class="news-verified">Verified fact</div>
-      </div>
-    </div>
-
+    <div class="news-loading">Fetching latest Purulia news</div>
   </div>
 </section>
 
@@ -1399,8 +1291,12 @@ const barObs=new IntersectionObserver(entries=>{
 },{threshold:.3});
 document.querySelectorAll('.chart-wrap').forEach(c=>barObs.observe(c));
 
-/* ── Handle hash on load ── */
+/* ── Handle hash on load + boot news feed ── */
 window.addEventListener('load',()=>{
+  /* Boot live news */
+  if(document.getElementById('newsGrid'))loadNews('Purulia West Bengal');
+
+  /* Hash routing */
   const hash=window.location.hash;
   if(!hash)return;
   if(hash==='#groundtruth'){document.getElementById('groundtruth').scrollIntoView();return;}
@@ -1418,34 +1314,53 @@ window.addEventListener('load',()=>{
   if(el)el.scrollIntoView();
 });
 
-/* ── News filter ── */
-function filterNews(cat,btn){
+/* ── Google News live feed ── */
+async function loadNews(query,btn){
   document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
   if(btn)btn.classList.add('active');
-  const hero=document.querySelector('.news-hero');
-  if(hero){
-    const heroMatch=cat==='all'||cat==='culture';
-    hero.style.display=heroMatch?'':'none';
+
+  const grid=document.getElementById('newsGrid');
+  grid.innerHTML='<div class="news-loading">Fetching latest Purulia news</div>';
+
+  try{
+    const rssUrl=`https://news.google.com/rss/search?q=${encodeURIComponent(query)}&hl=en-IN&gl=IN&ceid=IN:en`;
+    const apiUrl=`https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}&count=12`;
+    const res=await fetch(apiUrl);
+    const data=await res.json();
+
+    if(data.status==='ok'&&data.items&&data.items.length>0){
+      grid.innerHTML='';
+      data.items.forEach((item,i)=>{
+        const d=new Date(item.pubDate);
+        const dateStr=isNaN(d)?'':d.toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'});
+        let desc=(item.description||item.content||'').replace(/<[^>]+>/g,'').replace(/\s+/g,' ').trim();
+        if(desc.length>200)desc=desc.substring(0,200)+'…';
+        const src=item.author?item.author.replace(/^https?:\/\//,'').split('/')[0]:'Google News';
+        const card=document.createElement('div');
+        card.className='news-card rv';
+        card.innerHTML=`
+          <span class="news-cat cat-live">Live News</span>
+          <div class="news-card-title">${escHtml(item.title)}</div>
+          ${desc?`<div class="news-card-body">${escHtml(desc)}</div>`:''}
+          <div class="news-card-foot">
+            <div class="news-src">${escHtml(src)}${dateStr?' · '+dateStr:''}</div>
+            <a href="${item.link}" target="_blank" rel="noopener noreferrer" class="news-read-more">Read full story →</a>
+          </div>`;
+        grid.appendChild(card);
+        setTimeout(()=>card.classList.add('on'),60+i*55);
+      });
+    }else{
+      grid.innerHTML='<div class="news-error">No recent news found for this topic. Try another category.</div>';
+    }
+  }catch(e){
+    grid.innerHTML='<div class="news-error">Could not load live news — check your connection and try again.</div>';
   }
-  document.querySelectorAll('#newsGrid .news-card').forEach(card=>{
-    const match=cat==='all'||card.dataset.cat===cat;
-    card.classList.toggle('hidden',!match);
-  });
 }
 
-/* ── News card stagger animation on scroll ── */
-const newsObs=new IntersectionObserver(entries=>{
-  entries.forEach(e=>{
-    if(e.isIntersecting){
-      e.target.style.animation='cardIn .6s cubic-bezier(.25,.46,.45,.94) both';
-      newsObs.unobserve(e.target);
-    }
-  });
-},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
-document.querySelectorAll('.news-card').forEach((c,i)=>{
-  c.style.animationDelay=(i%3)*.08+'s';
-  newsObs.observe(c);
-});
+function escHtml(str){
+  return String(str).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
 </script>
 </body>
 </html>
