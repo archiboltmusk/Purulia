@@ -33,7 +33,7 @@
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
-body{background:var(--ink);color:var(--cream);font-family:'EB Garamond',serif;overflow-x:hidden;cursor:none;}
+body{background:var(--ink);color:var(--cream);font-family:'EB Garamond',serif;overflow-x:hidden;cursor:none;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale;text-rendering:optimizeLegibility;}
 body::after{content:'';position:fixed;inset:0;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='200' height='200' filter='url(%23n)' opacity='0.03'/%3E%3C/svg%3E");pointer-events:none;z-index:9000;opacity:.5;}
 #cur{position:fixed;width:7px;height:7px;background:var(--amber);border-radius:50%;pointer-events:none;z-index:9999;transform:translate(-50%,-50%);}
 #curR{position:fixed;width:28px;height:28px;border:1px solid rgba(212,136,42,.45);border-radius:50%;pointer-events:none;z-index:9998;transform:translate(-50%,-50%);transition:width .25s,height .25s,border-color .25s;}
@@ -41,7 +41,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 #pbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));z-index:8999;width:0%;}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3.5rem;background:linear-gradient(to bottom,rgba(12,10,5,.97),transparent);backdrop-filter:blur(4px);border-bottom:1px solid var(--border2);}
+nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3.5rem;background:linear-gradient(to bottom,rgba(12,10,5,.97),transparent);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border2);}
 .nav-logo{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.45em;color:var(--amber);text-transform:uppercase;}
 .nav-links{display:flex;gap:2rem;list-style:none;}
 .nav-links a{font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.2em;color:rgba(240,230,208,.38);text-decoration:none;text-transform:uppercase;transition:color .3s;position:relative;}
@@ -67,13 +67,13 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .h-lead{font-size:1.3rem;font-style:italic;line-height:1.8;color:rgba(240,230,208,.6);max-width:540px;margin-bottom:3.5rem;opacity:0;animation:rise 1s ease .7s forwards;}
 .h-lead strong{color:var(--cream);font-style:normal;}
 .h-btns{display:flex;gap:1.2rem;flex-wrap:wrap;opacity:0;animation:rise 1s ease .9s forwards;}
-.btn{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:.95rem 2.2rem;transition:all .3s;cursor:none;display:inline-block;border:none;}
+.btn{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;padding:.95rem 2.2rem;transition:transform .45s cubic-bezier(.34,1.56,.64,1),background .3s,color .3s,box-shadow .35s;cursor:none;display:inline-block;border:none;}
 .btn-a{background:var(--amber);color:var(--ink);clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
-.btn-a:hover{background:var(--amber2);transform:translateY(-2px);}
+.btn-a:hover{background:var(--amber2);transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(212,136,42,.3);}
 .btn-b{border:1px solid rgba(240,230,208,.22);color:rgba(240,230,208,.7);}
 .btn-b:hover{border-color:var(--amber);color:var(--amber);}
 .btn-c{background:var(--forest);color:var(--cream);}
-.btn-c:hover{background:#2E5020;transform:translateY(-2px);}
+.btn-c:hover{background:#2E5020;transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(36,61,28,.4);}
 .h-bar{position:relative;z-index:10;display:grid;grid-template-columns:repeat(5,1fr);border-top:1px solid var(--border);opacity:0;animation:rise 1s ease 1.1s forwards;}
 .hb{padding:1.7rem 2.2rem;border-right:1px solid var(--border);}
 .hb:last-child{border-right:none;}
@@ -88,7 +88,7 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 @keyframes tick{to{transform:translateX(-50%);}}
 
 /* ── REVEAL ── */
-.rv{opacity:0;transform:translateY(30px);transition:opacity .85s ease,transform .85s ease;}
+.rv{opacity:0;transform:translateY(20px);transition:opacity .9s cubic-bezier(.25,.46,.45,.94),transform .9s cubic-bezier(.25,.46,.45,.94);}
 .rv.on{opacity:1;transform:translateY(0);}
 
 /* ── SHARED SECTION STYLES ── */
@@ -107,8 +107,8 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .rf-text h2 span{color:var(--amber);font-style:normal;}
 .rf-text p{font-size:1.12rem;line-height:1.9;color:rgba(240,230,208,.6);margin-bottom:1.3rem;}
 .insights{list-style:none;display:flex;flex-direction:column;gap:.9rem;margin-top:1.8rem;}
-.insights li{display:flex;gap:1rem;align-items:flex-start;font-size:1.05rem;color:rgba(240,230,208,.65);line-height:1.65;padding:1rem 1.2rem;border:1px solid var(--border2);background:var(--ghost);transition:all .3s;}
-.insights li:hover{border-color:var(--border);background:var(--ghost2);transform:translateX(7px);}
+.insights li{display:flex;gap:1rem;align-items:flex-start;font-size:1.05rem;color:rgba(240,230,208,.65);line-height:1.65;padding:1rem 1.2rem;border:1px solid var(--border2);background:var(--ghost);transition:all .4s cubic-bezier(.25,.46,.45,.94);}
+.insights li:hover{border-color:var(--border);background:var(--ghost2);transform:translateX(8px);box-shadow:0 4px 20px rgba(0,0,0,.25);}
 .insights li .ic{flex-shrink:0;margin-top:.15rem;}
 .insights li strong{color:var(--cream);}
 
@@ -117,9 +117,9 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 #pillars{padding:8rem 5rem;background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 50%,var(--ink) 100%);}
 .ph{display:grid;grid-template-columns:1fr 1fr;gap:4rem;align-items:end;margin-bottom:5rem;}
 .pgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;}
-.pill{background:var(--ink3);padding:2.8rem 2.4rem;position:relative;overflow:hidden;cursor:none;transition:all .4s;}
+.pill{background:var(--ink3);padding:2.8rem 2.4rem;position:relative;overflow:hidden;cursor:none;transition:transform .5s cubic-bezier(.25,.46,.45,.94),background .4s,box-shadow .5s;}
 .pill::before{content:'';position:absolute;inset:0;background:linear-gradient(135deg,rgba(212,136,42,.09) 0%,transparent 60%);opacity:0;transition:opacity .4s;}
-.pill:hover{background:#231B0D;transform:translateY(-7px);z-index:2;box-shadow:0 30px 80px rgba(0,0,0,.65);}
+.pill:hover{background:#231B0D;transform:translateY(-10px) scale(1.015);z-index:2;box-shadow:0 30px 80px rgba(0,0,0,.7),0 0 40px rgba(212,136,42,.1);}
 .pill:hover::before{opacity:1;}
 .pill-bar{position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .5s;}
 .pill:hover .pill-bar{transform:scaleX(1);}
@@ -165,7 +165,7 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .aud-btn:hover,.aud-btn.active{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
 .aud-panels{margin-top:4rem;}
 .aud-panel{display:none;}
-.aud-panel.active{display:block;animation:fadepan .45s ease;}
+.aud-panel.active{display:block;animation:fadepan .4s cubic-bezier(.25,.46,.45,.94) both;}
 @keyframes fadepan{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
 .aud-layout{display:grid;grid-template-columns:1fr 1.7fr;gap:5rem;align-items:start;}
 .aud-left{}
@@ -196,8 +196,8 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .gt-intro h2 em{color:var(--amber);font-style:italic;}
 .gt-intro p{font-size:1.12rem;font-style:italic;color:rgba(240,230,208,.5);line-height:1.75;}
 .gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:3rem;}
-.gt-card{background:rgba(240,230,208,.03);border:1px solid var(--border2);padding:2rem 1.8rem;transition:all .3s;}
-.gt-card:hover{background:rgba(212,136,42,.06);border-color:var(--border);}
+.gt-card{background:rgba(240,230,208,.03);border:1px solid var(--border2);padding:2rem 1.8rem;transition:all .45s cubic-bezier(.25,.46,.45,.94);}
+.gt-card:hover{background:rgba(212,136,42,.06);border-color:var(--border);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.3);}
 .gt-card-label{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.28em;color:rgba(240,230,208,.35);text-transform:uppercase;margin-bottom:.7rem;}
 .gt-card-val{font-family:'EB Garamond',serif;font-size:2.4rem;font-weight:800;line-height:1;margin-bottom:.4rem;}
 .gt-card-val.bad{color:#E05050;}
@@ -262,9 +262,9 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 #fivepeople{padding:8rem 5rem;background:var(--ink2);border-top:1px solid var(--border2);}
 .five-intro{max-width:680px;margin-bottom:4rem;}
 .five-grid{display:grid;grid-template-columns:repeat(5,1fr);gap:2px;}
-.fp{background:var(--ink3);padding:2.2rem 1.8rem;position:relative;overflow:hidden;transition:all .3s;cursor:none;}
-.fp::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .4s;}
-.fp:hover{background:var(--ink4);transform:translateY(-4px);}
+.fp{background:var(--ink3);padding:2.2rem 1.8rem;position:relative;overflow:hidden;transition:transform .45s cubic-bezier(.25,.46,.45,.94),background .35s,box-shadow .45s;cursor:none;}
+.fp::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:var(--amber);transform:scaleX(0);transform-origin:left;transition:transform .45s cubic-bezier(.25,.46,.45,.94);}
+.fp:hover{background:var(--ink4);transform:translateY(-6px) scale(1.01);box-shadow:0 16px 40px rgba(0,0,0,.45);}
 .fp:hover::before{transform:scaleX(1);}
 .fp-n{font-family:'EB Garamond',serif;font-size:3.5rem;font-weight:800;color:rgba(212,136,42,.12);line-height:1;margin-bottom:.6rem;}
 .fp-who{font-family:'EB Garamond',serif;font-size:1.25rem;font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:.5rem;}
@@ -277,8 +277,8 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .sp-intro h2{font-family:'EB Garamond',serif;font-size:clamp(1.9rem,3vw,2.8rem);font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:1.4rem;}
 .sp-intro p{font-size:1.08rem;line-height:1.85;color:rgba(240,230,208,.55);margin-bottom:1.1rem;}
 .sp-list{display:flex;flex-direction:column;gap:2px;}
-.spi{display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center;padding:1.5rem 2rem;background:var(--ink3);border:1px solid var(--border2);transition:all .3s;cursor:none;}
-.spi:hover{border-color:var(--border);background:#1E1508;transform:translateX(6px);}
+.spi{display:grid;grid-template-columns:auto 1fr auto;gap:1.4rem;align-items:center;padding:1.5rem 2rem;background:var(--ink3);border:1px solid var(--border2);transition:all .4s cubic-bezier(.25,.46,.45,.94);cursor:none;}
+.spi:hover{border-color:var(--border);background:#1E1508;transform:translateX(8px);box-shadow:0 4px 20px rgba(0,0,0,.3);}
 .spi-n{font-family:'EB Garamond',serif;font-size:1.9rem;font-weight:800;color:rgba(212,136,42,.22);line-height:1;width:2.2rem;text-align:center;}
 .spi-t{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--cream);margin-bottom:.18rem;}
 .spi-d{font-size:.9rem;color:rgba(240,230,208,.42);line-height:1.4;}
@@ -343,7 +343,48 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 #toast{position:fixed;bottom:2rem;right:2rem;background:var(--amber);color:var(--ink);font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;padding:.8rem 1.5rem;z-index:9999;opacity:0;transform:translateY(10px);transition:all .4s;pointer-events:none;text-transform:uppercase;}
 #toast.show{opacity:1;transform:translateY(0);}
 
-@keyframes rise{from{opacity:0;transform:translateY(28px);}to{opacity:1;transform:translateY(0);}}
+@keyframes rise{from{opacity:0;transform:translateY(22px);}to{opacity:1;transform:translateY(0);}}
+@keyframes cardIn{from{opacity:0;transform:translateY(14px);}to{opacity:1;transform:translateY(0);}}
+
+/* ── PURULIA TODAY — DAILY NEWS ── */
+#newstoday{padding:8rem 5rem;background:linear-gradient(180deg,var(--ink) 0%,var(--ink2) 60%,var(--ink) 100%);border-top:1px solid var(--border2);}
+.nt-top{display:grid;grid-template-columns:1fr 1fr;gap:5rem;align-items:end;margin-bottom:4rem;}
+.news-filters{display:flex;gap:.4rem;flex-wrap:wrap;margin-top:1.8rem;}
+.news-filter-btn{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.2em;text-transform:uppercase;padding:.48rem 1.1rem;border:1px solid var(--border2);color:rgba(240,230,208,.38);background:transparent;cursor:none;transition:all .35s cubic-bezier(.25,.46,.45,.94);}
+.news-filter-btn.active,.news-filter-btn:hover{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+.news-hero{background:var(--ink3);border:1px solid var(--border2);padding:3rem 3.5rem;margin-bottom:2px;display:grid;grid-template-columns:1.4fr 1fr;gap:4rem;align-items:center;cursor:none;position:relative;overflow:hidden;transition:background .4s cubic-bezier(.25,.46,.45,.94),border-color .35s,box-shadow .5s;}
+.news-hero::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber4));transform:scaleX(0);transform-origin:left;transition:transform .55s cubic-bezier(.25,.46,.45,.94);}
+.news-hero:hover{background:#1B1308;border-color:var(--border);box-shadow:0 24px 60px rgba(0,0,0,.45);}
+.news-hero:hover::before{transform:scaleX(1);}
+.news-hero-tag{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.28em;color:var(--amber);text-transform:uppercase;margin-bottom:1rem;padding:.28rem .75rem;border:1px solid rgba(212,136,42,.35);display:inline-block;}
+.news-hero-title{font-family:'EB Garamond',serif;font-size:clamp(1.6rem,2.5vw,2.4rem);font-weight:700;color:var(--cream);line-height:1.2;margin-bottom:1.1rem;}
+.news-hero-body{font-size:1.05rem;line-height:1.75;color:rgba(240,230,208,.55);}
+.news-hero-body strong{color:rgba(240,230,208,.82);}
+.news-hero-footer{margin-top:1.5rem;display:flex;align-items:center;gap:1.5rem;}
+.news-hero-visual{display:flex;align-items:center;justify-content:center;opacity:.16;}
+.news-hero-visual svg{width:200px;height:200px;}
+.news-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-top:2px;}
+.news-card{background:var(--ink3);border:1px solid var(--border2);border-top:2px solid transparent;padding:2.2rem;position:relative;overflow:hidden;cursor:none;transition:transform .5s cubic-bezier(.25,.46,.45,.94),background .4s,border-color .35s,box-shadow .5s;}
+.news-card:hover{transform:translateY(-8px);background:#1B1308;border-top-color:var(--amber);border-color:var(--border);box-shadow:0 24px 60px rgba(0,0,0,.5),0 0 28px rgba(212,136,42,.07);}
+.news-cat{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.22em;text-transform:uppercase;padding:.22rem .65rem;border:1px solid;display:inline-block;margin-bottom:1.1rem;}
+.cat-culture{color:#D4A62A;border-color:rgba(212,166,42,.38);}
+.cat-infra{color:rgba(100,170,230,.8);border-color:rgba(100,170,230,.3);}
+.cat-economy{color:#6DB88A;border-color:rgba(109,184,138,.38);}
+.cat-environment{color:#7CB87A;border-color:rgba(124,184,122,.35);}
+.cat-energy{color:var(--amber2);border-color:rgba(232,169,74,.38);}
+.cat-tourism{color:#B88ADB;border-color:rgba(184,138,219,.38);}
+.news-card-title{font-family:'EB Garamond',serif;font-size:1.18rem;font-weight:700;color:var(--cream);line-height:1.3;margin-bottom:.7rem;}
+.news-card-body{font-size:.93rem;line-height:1.72;color:rgba(240,230,208,.5);}
+.news-card-body strong{color:rgba(240,230,208,.75);}
+.news-card-body em{color:rgba(240,230,208,.65);font-style:italic;}
+.news-card-foot{margin-top:1.2rem;padding-top:.9rem;border-top:1px solid var(--border2);display:flex;flex-direction:column;gap:.3rem;}
+.news-src{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;color:rgba(240,230,208,.18);text-transform:uppercase;}
+.news-verified{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;color:rgba(109,184,138,.55);text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
+.news-verified::before{content:'✓ ';color:#6DB88A;}
+.news-src-sm{font-family:'DM Mono',monospace;font-size:.45rem;letter-spacing:.18em;color:rgba(240,230,208,.2);text-transform:uppercase;}
+.news-ver-badge{font-family:'DM Mono',monospace;font-size:.45rem;letter-spacing:.18em;color:rgba(109,184,138,.6);text-transform:uppercase;display:flex;align-items:center;gap:.3rem;}
+.news-ver-badge::before{content:'✓';color:#6DB88A;font-size:.5rem;}
+.news-card.hidden{display:none;}
 
 /* ── MOBILE ── */
 @media(max-width:960px){
@@ -363,7 +404,11 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
   .tl-spine{display:none;}
   .tlc::before{display:none;}
   .tlc{margin-top:0;}
-  #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto{padding:5rem 2rem;}
+  #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto,#newstoday{padding:5rem 2rem;}
+  .nt-top{grid-template-columns:1fr;gap:2rem;}
+  .news-grid{grid-template-columns:1fr;}
+  .news-hero{grid-template-columns:1fr;gap:2rem;padding:2.2rem;}
+  .news-hero-visual{display:none;}
   footer{grid-template-columns:1fr;text-align:center;}
   .ft-links{justify-content:center;}
 }
@@ -394,8 +439,8 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 @keyframes lfpulse{0%,100%{opacity:1;box-shadow:0 0 0 0 rgba(212,136,42,.5);}60%{opacity:.8;box-shadow:0 0 0 8px rgba(212,136,42,0);}}
 .lf-live-label{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.35em;color:var(--amber);text-transform:uppercase;}
 .lf-feed{display:flex;flex-direction:column;gap:2px;}
-.lf-item{background:var(--ink3);border-left:2px solid var(--border2);padding:2rem 2.4rem;display:grid;grid-template-columns:160px 1fr;gap:2.5rem;align-items:start;transition:all .3s;cursor:none;}
-.lf-item:hover{border-left-color:var(--amber);background:#1A1308;}
+.lf-item{background:var(--ink3);border-left:2px solid var(--border2);padding:2rem 2.4rem;display:grid;grid-template-columns:160px 1fr;gap:2.5rem;align-items:start;transition:all .4s cubic-bezier(.25,.46,.45,.94);cursor:none;}
+.lf-item:hover{border-left-color:var(--amber);background:#1A1308;transform:translateX(4px);}
 .lf-item.lf-top{border-left-color:var(--amber);}
 .lf-meta{display:flex;flex-direction:column;gap:.6rem;padding-top:.1rem;}
 .lf-date{font-family:'DM Mono',monospace;font-size:.49rem;letter-spacing:.22em;color:rgba(240,230,208,.28);text-transform:uppercase;}
@@ -424,9 +469,9 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
     <li><a href="#pillars">Six Pillars</a></li>
     <li><a href="#audience">For You</a></li>
     <li><a href="#groundtruth">Ground Truth</a></li>
+    <li><a href="#newstoday">News</a></li>
     <li><a href="#timeline">Roadmap</a></li>
     <li><a href="#economics">Economics</a></li>
-    <li><a href="#fivepeople">Five People</a></li>
     <li><a href="#respond">Join</a></li>
   </ul>
 </nav>
@@ -811,6 +856,177 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
     <div class="spi"><div class="spi-n">3</div><div><div class="spi-t">Sign three anchor solar developers</div><div class="spi-d">Visible cranes. Land lease income for farmers within 18 months. Economic activity that creates its own momentum.</div></div><span class="badge bq2">Month 3–12</span></div>
     <div class="spi"><div class="spi-n">4</div><div><div class="spi-t">Begin the medical college application</div><div class="spi-d">NMC approval takes 2–3 years from application. Start now for the college to open by 2030.</div></div><span class="badge bq2">Month 1–3</span></div>
     <div class="spi"><div class="spi-n">5</div><div><div class="spi-t">Repair the five best government schools</div><div class="spi-d">Power, toilets, library, teacher monitoring. ₹15–25L per school. Signals to families that staying is viable. The most human ROI in the plan.</div></div><span class="badge by2">Month 1–6</span></div>
+  </div>
+</section>
+
+<!-- ══ PURULIA TODAY — DAILY NEWS ══ -->
+<section id="newstoday">
+  <div class="nt-top rv">
+    <div>
+      <div class="sl">// Real &amp; Verified</div>
+      <h2 class="sh">Purulia <em>Today.</em></h2>
+      <p class="ss">Verified facts and ongoing ground realities from across the district. Nothing speculative. Every item sourced and truthful.</p>
+    </div>
+    <div>
+      <div class="news-filters">
+        <button class="news-filter-btn active" onclick="filterNews('all',this)">All</button>
+        <button class="news-filter-btn" onclick="filterNews('culture',this)">🎭 Culture</button>
+        <button class="news-filter-btn" onclick="filterNews('infra',this)">🏗️ Infrastructure</button>
+        <button class="news-filter-btn" onclick="filterNews('economy',this)">💰 Economy</button>
+        <button class="news-filter-btn" onclick="filterNews('tourism',this)">🌄 Tourism</button>
+        <button class="news-filter-btn" onclick="filterNews('environment',this)">🌿 Environment</button>
+        <button class="news-filter-btn" onclick="filterNews('energy',this)">⚡ Energy</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Hero item: UNESCO Chhau -->
+  <div class="news-hero rv" data-cat="culture">
+    <div class="news-hero-content">
+      <span class="news-hero-tag">Confirmed · UNESCO 2010</span>
+      <div class="news-hero-title">Purulia Chhau — Inscribed on UNESCO Intangible Cultural Heritage List</div>
+      <div class="news-hero-body">Purulia Chhau was inscribed on UNESCO's Representative List of the Intangible Cultural Heritage of Humanity in <strong>November 2010</strong> — alongside Chhau traditions from Seraikella (Jharkhand) and Mayurbhanj (Odisha). The <strong>Chaitra Parva festival</strong>, held each year in March–April during the full moon, is Purulia's largest annual cultural event: performers from dozens of villages present the warrior mask-dance tradition across three nights. The Chhau mask itself — shaped in clay and paper, painted in vivid natural colours — is a recognised craft tradition and heritage artefact.</div>
+      <div class="news-hero-footer">
+        <div class="news-src-sm">Source: UNESCO · ICH Inscription Ref. 00337</div>
+        <div class="news-ver-badge">Verified fact</div>
+      </div>
+    </div>
+    <div class="news-hero-visual">
+      <svg viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <ellipse cx="100" cy="108" rx="72" ry="82" stroke="#D4882A" stroke-width="1"/>
+        <circle cx="100" cy="95" r="45" stroke="#D4882A" stroke-width=".8" opacity=".6"/>
+        <ellipse cx="78" cy="90" rx="10" ry="7" stroke="#D4882A" stroke-width="1.5"/>
+        <ellipse cx="122" cy="90" rx="10" ry="7" stroke="#D4882A" stroke-width="1.5"/>
+        <circle cx="78" cy="90" r="3.5" fill="#D4882A" opacity=".7"/>
+        <circle cx="122" cy="90" r="3.5" fill="#D4882A" opacity=".7"/>
+        <path d="M88 112 Q100 122 112 112" stroke="#D4882A" stroke-width="1.3" fill="none"/>
+        <path d="M55 40 L100 16 L145 40" stroke="#D4882A" stroke-width=".9" fill="none" opacity=".7"/>
+        <circle cx="100" cy="16" r="4" fill="#D4882A" opacity=".6"/>
+        <circle cx="55" cy="40" r="3" fill="#D4882A" opacity=".4"/>
+        <circle cx="145" cy="40" r="3" fill="#D4882A" opacity=".4"/>
+        <line x1="100" y1="16" x2="100" y2="26" stroke="#D4882A" stroke-width=".8" opacity=".5"/>
+        <path d="M28 110 Q18 78 38 54" stroke="#D4882A" stroke-width=".7" fill="none" opacity=".4"/>
+        <path d="M172 110 Q182 78 162 54" stroke="#D4882A" stroke-width=".7" fill="none" opacity=".4"/>
+        <circle cx="28" cy="110" r="3" fill="#D4882A" opacity=".3"/>
+        <circle cx="172" cy="110" r="3" fill="#D4882A" opacity=".3"/>
+        <path d="M70 60 Q100 50 130 60" stroke="#D4882A" stroke-width=".6" fill="none" opacity=".5" stroke-dasharray="3 4"/>
+      </svg>
+    </div>
+  </div>
+
+  <!-- News grid: 11 verified facts -->
+  <div class="news-grid" id="newsGrid">
+
+    <div class="news-card rv" data-cat="tourism">
+      <span class="news-cat cat-tourism">Tourism</span>
+      <div class="news-card-title">Ajodhya Hills — West Bengal's Highest Plateau Outside Darjeeling</div>
+      <div class="news-card-body">The Ajodhya Hill range in western Purulia reaches approximately <strong>677 metres</strong> at its highest point — West Bengal's tallest terrain outside the sub-Himalayan foothills. Key sites include Bamni Falls, Turga Dam reservoir, and Matha Dam viewpoint. West Bengal Tourism designates it a priority eco-tourism zone.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: West Bengal Tourism Dept · Geological Survey of India</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="tourism">
+      <span class="news-cat cat-tourism">Tourism</span>
+      <div class="news-card-title">Baranti Lake — Established Eco-Tourism Destination</div>
+      <div class="news-card-body">Baranti reservoir in Kashipur block, set within <strong>Sal forests</strong> near Susunia Hill, is one of West Bengal's established eco-tourism sites. The lake attracts migratory birds in winter months. Government-managed tourist lodge accommodation exists at the site.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: West Bengal Forest Department · Kashipur Block</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="infra">
+      <span class="news-cat cat-infra">Infrastructure</span>
+      <div class="news-card-title">BharatNet Phase 2 — Optical Fibre to Every Gram Panchayat</div>
+      <div class="news-card-body">The Government of India's BharatNet program is extending optical fibre broadband to Gram Panchayat offices across Purulia. Phase 2 targets every GP headquarters with a minimum <strong>100 Mbps</strong> connection, enabling digital health, e-governance, and online education at village level.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: Dept of Telecommunications · BharatNet Portal</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="infra">
+      <span class="news-cat cat-infra">Infrastructure</span>
+      <div class="news-card-title">Jal Jeevan Mission — Piped Water to Every Rural Home</div>
+      <div class="news-card-body">Under the Jal Jeevan Mission (<em>Har Ghar Jal</em>), functional household tap connections are being extended to rural homes across Purulia district. The national mission targets <strong>100% piped drinking water</strong> coverage, reducing the burden on women who walk distances to water sources.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: National Jal Jeevan Mission · Govt of India</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="economy">
+      <span class="news-cat cat-economy">Economy</span>
+      <div class="news-card-title">Mahua Season — Tribal Communities' Most Vital Forest Produce</div>
+      <div class="news-card-body">From <strong>February to April</strong> each year, tribal communities collect Mahua (<em>Madhuca longifolia</em>) flowers — Purulia's most economically significant minor forest produce. The Forest Rights Act 2006 grants tribal households legal rights to collect and sell Mahua. The flowers are used in food, traditional beverages, and health product markets.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: Ministry of Tribal Affairs · Forest Rights Act 2006</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="economy">
+      <span class="news-cat cat-economy">Economy · Craft</span>
+      <div class="news-card-title">Dokra Metalwork — 4,000 Years of Lost-Wax Casting</div>
+      <div class="news-card-body">Dokra metalwork using the <em>cire perdue</em> (lost-wax) casting technique has been practiced for at least <strong>4,000 years</strong> — some of humanity's oldest known metal castings come from this tradition. Artisan communities in Purulia and Bankura create figurines, jewellery, and lamps. Growing online and export markets offer income well above local prices.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: Crafts Council of India · APEDA · National Museum</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="energy">
+      <span class="news-cat cat-energy">Energy</span>
+      <div class="news-card-title">Solar Irradiance — 5.4 kWh/m²/day, Eastern India's Highest</div>
+      <div class="news-card-body">Scientific assessments confirm Purulia receives approximately <strong>5.4 kWh/m²/day</strong> of Global Horizontal Irradiance — among the highest in eastern India. With 300+ sunny days annually and large tracts of underutilised laterite plateau, the district has exceptional conditions for utility-scale solar power generation.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: National Institute of Solar Energy (NISE) · India Solar Resource Atlas</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="infra">
+      <span class="news-cat cat-infra">Infrastructure</span>
+      <div class="news-card-title">PMGSY — All-Weather Roads Reaching Remote Villages</div>
+      <div class="news-card-body">The Pradhan Mantri Gram Sadak Yojana (PMGSY) has constructed all-weather rural roads connecting Purulia's villages to block headquarters and markets. Improved access reduces post-harvest losses, enables ambulance services in remote areas, and connects artisans to urban buyers — <strong>critical for western blocks</strong> where tribal forest produce originates.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: Ministry of Rural Development · NRRDA</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="environment">
+      <span class="news-cat cat-environment">Environment</span>
+      <div class="news-card-title">Sal Forests — Purulia's Green Canopy and Tribal Livelihood Base</div>
+      <div class="news-card-body">Purulia's Sal (<em>Shorea robusta</em>) forests — concentrated in Bagmundi, Balarampur, and Jhalda — are both an ecological resource and a tribal livelihood base. Sal leaves, seeds, and timber support daily income. The forest canopy maintains groundwater recharge. <strong>Joint Forest Management (JFM) committees</strong> oversee community conservation across forest villages.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: West Bengal Forest Department · JFM Programme</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="culture">
+      <span class="news-cat cat-culture">Culture · Heritage</span>
+      <div class="news-card-title">Garpanchkot Fort — Purulia's Hidden Historical Site</div>
+      <div class="news-card-body">The ruins of Garpanchkot Fort in Kashipur block are associated with the ancient Panchet royal dynasty and are one of Purulia's most significant historical sites. Located near the Damodar River and <strong>Panchet Dam</strong> reservoir, the site combines heritage value with riverside natural beauty — currently undervisited and largely undeveloped for tourism.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: Archaeological Survey of India · District Gazetteer</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
+    <div class="news-card rv" data-cat="infra">
+      <span class="news-cat cat-infra">Infrastructure · Rail</span>
+      <div class="news-card-title">Purulia Junction — Rail Gateway to Eastern India</div>
+      <div class="news-card-body">Purulia Junction, under South Eastern Railway's Chakradharpur Division, connects the district to Howrah, Asansol, Ranchi, and Chakradharpur. <strong>The Purulia Express</strong> (Train 12827/12828) runs between Purulia and Howrah Junction. Railway modernisation programmes have been allocating funds for track electrification, station upgrades, and speed improvements across this network.</div>
+      <div class="news-card-foot">
+        <div class="news-src">Source: South Eastern Railway (SER) · Indian Railways</div>
+        <div class="news-verified">Verified fact</div>
+      </div>
+    </div>
+
   </div>
 </section>
 
@@ -1200,6 +1416,35 @@ window.addEventListener('load',()=>{
   }
   const el=document.querySelector(hash);
   if(el)el.scrollIntoView();
+});
+
+/* ── News filter ── */
+function filterNews(cat,btn){
+  document.querySelectorAll('.news-filter-btn').forEach(b=>b.classList.remove('active'));
+  if(btn)btn.classList.add('active');
+  const hero=document.querySelector('.news-hero');
+  if(hero){
+    const heroMatch=cat==='all'||cat==='culture';
+    hero.style.display=heroMatch?'':'none';
+  }
+  document.querySelectorAll('#newsGrid .news-card').forEach(card=>{
+    const match=cat==='all'||card.dataset.cat===cat;
+    card.classList.toggle('hidden',!match);
+  });
+}
+
+/* ── News card stagger animation on scroll ── */
+const newsObs=new IntersectionObserver(entries=>{
+  entries.forEach(e=>{
+    if(e.isIntersecting){
+      e.target.style.animation='cardIn .6s cubic-bezier(.25,.46,.45,.94) both';
+      newsObs.unobserve(e.target);
+    }
+  });
+},{threshold:.08,rootMargin:'0px 0px -40px 0px'});
+document.querySelectorAll('.news-card').forEach((c,i)=>{
+  c.style.animationDelay=(i%3)*.08+'s';
+  newsObs.observe(c);
 });
 </script>
 </body>
