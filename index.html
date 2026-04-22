@@ -1120,14 +1120,13 @@ function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt
   const grid=document.getElementById('voices-grid');
   if(!grid)return;
   try{
-    const res=await fetch(SCRIPT_URL+'?action=voices');
-    const data=await res.json();
-    const voices=data.voices||[];
-    if(!voices.length){
+    const res=await fetch(SCRIPT_URL+'?action=getMessages');
+    const messages=await res.json();
+    if(!Array.isArray(messages)||!messages.length){
       grid.innerHTML='<p class="voices-empty">Be the first to leave your mark.</p>';
       return;
     }
-    grid.innerHTML=voices.map(v=>`<div class="vc rv"><div class="vc-name">${escHtml(v.name)}</div><p class="vc-msg">${escHtml(v.message)}</p></div>`).join('');
+    grid.innerHTML=messages.map(v=>`<div class="vc rv"><div class="vc-name">${escHtml(v.name)}</div><p class="vc-msg">${escHtml(v.message)}</p></div>`).join('');
     grid.querySelectorAll('.rv').forEach((el,i)=>{el.style.transitionDelay=(i%5)*.06+'s';rvo.observe(el);});
   }catch(e){}
 })();

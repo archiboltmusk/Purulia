@@ -5,42 +5,17 @@
 
 const TO_EMAIL       = 'thelosthillproject@gmail.com';
 const SHEET_NAME     = 'Submissions';
-const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; 
+const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ';
 
 // ── Handlers ─────────────────────────────────────────────────────────────────
 
 function doGet(e) {
-  if (e && e.parameter && e.parameter.action === 'voices') {
-    return getVoices();
+  // If the website asks for the live messages feed, run the fetch function
+  if (e.parameter && e.parameter.action === 'getMessages') {
+    return getMessagesJSON();
   }
+  // Otherwise, fall back to processing a normal submission
   return processSubmission(e.parameter);
-}
-
-function getVoices() {
-  try {
-    const ss = openSheet();
-    const sheet = ss.getSheetByName(SHEET_NAME);
-    if (!sheet) return jsonFeed([]);
-
-    const rows = sheet.getDataRange().getValues();
-    // columns: Timestamp, Name, Role, Location, Message, Contact
-    const voices = rows.slice(1)
-      .filter(row => row[1] && row[4])
-      .reverse()
-      .slice(0, 50)
-      .map(row => ({ name: String(row[1]), message: String(row[4]) }));
-
-    return jsonFeed(voices);
-  } catch (err) {
-    Logger.log('getVoices error: ' + err);
-    return jsonFeed([]);
-  }
-}
-
-function jsonFeed(voices) {
-  return ContentService
-    .createTextOutput(JSON.stringify({ voices }))
-    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function doPost(e) {
@@ -49,6 +24,47 @@ function doPost(e) {
   } catch (err) {
     Logger.log('doPost parse error: ' + err);
     return jsonResponse({success: false, error: err.toString()});
+  }
+}
+
+// ── Fetch Live Messages Logic ─────────────────────────────────────────────────
+
+function getMessagesJSON() {
+  try {
+    const ss = openSheet();
+    const sheet = ss.getSheetByName(SHEET_NAME);
+
+    if (!sheet) {
+      return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    const data = sheet.getDataRange().getValues();
+    if (data.length <= 1) {
+      return ContentService.createTextOutput(JSON.stringify([])).setMimeType(ContentService.MimeType.JSON);
+    }
+
+    // Skip the header row
+    const rows = data.slice(1);
+
+    // Map the rows into objects, STRICTLY EXCLUDING the contact info (row[5]) for privacy
+    let messages = rows.map(row => {
+      return {
+        timestamp: row[0],
+        name: row[1],
+        role: row[2],
+        location: row[3],
+        message: row[4]
+      };
+    });
+
+    // Filter out empty messages and reverse the array to show latest first
+    messages = messages.filter(m => m.message && m.message.trim() !== '' && m.message !== '(none)').reverse();
+
+    return ContentService.createTextOutput(JSON.stringify(messages)).setMimeType(ContentService.MimeType.JSON);
+
+  } catch (err) {
+    Logger.log('getMessages error: ' + err);
+    return ContentService.createTextOutput(JSON.stringify({error: err.toString()})).setMimeType(ContentService.MimeType.JSON);
   }
 }
 
