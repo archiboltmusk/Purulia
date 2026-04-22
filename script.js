@@ -212,3 +212,25 @@ window.addEventListener('load',()=>{
   if(el)el.scrollIntoView();
 });
 
+
+/* ── Nav dropdown ── */
+function toggleMenu(){
+  const t=document.getElementById('navToggle');
+  const d=document.getElementById('navDropdown');
+  if(!t||!d)return;
+  t.classList.toggle('open');
+  d.classList.toggle('open');
+}
+document.addEventListener('click',e=>{
+  if(!e.target.closest('.nav-left')){
+    document.getElementById('navToggle')?.classList.remove('open');
+    document.getElementById('navDropdown')?.classList.remove('open');
+  }
+});
+/* Active page highlight */
+(function(){
+  const p=window.location.pathname.split('/').pop()||'index.html';
+  document.querySelectorAll('.nd-item').forEach(a=>{
+    if(a.getAttribute('href')===p)a.classList.add('nd-active');
+  });
+})();
