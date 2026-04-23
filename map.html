@@ -107,6 +107,25 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* Timeline slider */
+#timeline-panel{
+  position:fixed;bottom:2rem;left:50%;transform:translateX(-50%);
+  z-index:810;
+  background:rgba(12,10,5,.92);border:1px solid rgba(212,136,42,.18);
+  backdrop-filter:blur(20px);padding:.8rem 1.4rem .9rem;
+  display:none;min-width:280px;text-align:center;
+}
+#timeline-panel.visible{display:block;}
+.tl-label{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.28em;color:var(--amber);text-transform:uppercase;margin-bottom:.6rem;}
+#tl-year{font-family:'EB Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--cream);display:block;line-height:1;margin-bottom:.5rem;}
+#tl-slider{
+  -webkit-appearance:none;width:100%;height:2px;
+  background:rgba(212,136,42,.2);outline:none;cursor:pointer;
+  accent-color:var(--amber);
+}
+#tl-slider::-webkit-slider-thumb{-webkit-appearance:none;width:14px;height:14px;border-radius:50%;background:var(--amber);border:2px solid rgba(240,230,208,.2);}
+.tl-marks{display:flex;justify-content:space-between;margin-top:.4rem;font-family:'DM Mono',monospace;font-size:.32rem;letter-spacing:.1em;color:rgba(212,136,42,.35);}
+
 /* Block name labels */
 .block-label{
   font-family:'DM Mono',monospace;font-size:.28rem;letter-spacing:.14em;
@@ -236,12 +255,23 @@ body{overflow:hidden;}
   <button class="mf-btn" data-layer="aqi" onclick="filterLayer('aqi',this)">
     <span class="mf-dot" style="background:#52B42A"></span>Air Quality
   </button>
+  <button class="mf-btn" data-layer="timeline" onclick="filterLayer('timeline',this)">
+    <span class="mf-dot" style="background:#D4882A"></span>Timeline
+  </button>
 </div>
 
 <!-- AQI live status bar -->
 <div id="aqi-status">
   <span id="aqi-status-text">Loading stations…</span>
   <button id="aqi-refresh-btn" onclick="loadAQI()" title="Refresh AQI data">↻</button>
+</div>
+
+<!-- Timeline slider panel -->
+<div id="timeline-panel">
+  <div class="tl-label">Project Timeline</div>
+  <span id="tl-year">2040</span>
+  <input id="tl-slider" type="range" min="0" max="3" step="1" value="3" oninput="onTimeline(this.value)">
+  <div class="tl-marks"><span>2024</span><span>2028</span><span>2032</span><span>2040</span></div>
 </div>
 
 <!-- Map container -->
@@ -410,31 +440,31 @@ const pts = [
     tag:'District Headquarters', name:'Purulia Town',
     desc:'Administrative and commercial centre of Purulia district. Population ~120,000. Junction of NH-32 and the district\'s main rail corridor.' },
 
-  // PROJECTS
-  { layer:'project', coords:[23.2700,86.0600], color:'#E8A94A', size:12, pulse:true,
-    tag:'Priority Project · Solar Energy',name:'Solar &amp; Green Energy Park',
-    desc:'Hura–Kashipur area. Target <strong>500–1,000MW</strong> installed. Pre-laid 33kV feeder. Land at ₹5L/acre. 5yr GST reimbursement. Target: 8,000 direct jobs, ₹3,000Cr investment.' },
-  { layer:'project', coords:[23.3100,86.3300], color:'#E8A94A', size:11,
-    tag:'Project · Crafts Economy', name:'Tribal Crafts Cluster',
-    desc:'Near Purulia town. Shared kilns, looms, casting furnaces. APEDA + customs on-site. GI-tagged <strong>Dokra metalwork</strong> and <strong>Chhau masks</strong>. Artisan-owned IP.' },
-  { layer:'project', coords:[23.0650,86.6550], color:'#E8A94A', size:11,
-    tag:'Project · Agro-Processing', name:'Agro-Processing Park',
-    desc:'Manbazar. 5,000MT cold storage, FSSAI lab. Mahua distillery cooperatives, sal seed oil, heritage grain branding. ₹500Cr annual revenue target by 2032.' },
-  { layer:'project', coords:[23.3340,86.3600], color:'#E8A94A', size:10,
-    tag:'Project · Governance', name:'PIFC — Single Window Centre',
-    desc:'Purulia Investment Facilitation Centre. One portal, 12 departments. <strong>30-day deemed approval</strong>. Relationship manager for every investment above ₹5Cr. Cost: ₹3–5Cr.' },
-  { layer:'project', coords:[23.3480,86.3480], color:'#E8A94A', size:10,
+  // PROJECTS (phase = year by which the project is active/complete)
+  { layer:'project', phase:2024, coords:[23.3480,86.3480], color:'#E8A94A', size:10,
     tag:'Project · Healthcare', name:'Deben Mahata Govt. Medical College',
     desc:'Established ~2018. <strong>100 MBBS seats</strong>. Purulia\'s first government medical college. Next milestone: NMC approval for postgraduate seats and specialist faculty retention.' },
-  { layer:'project', coords:[23.3200,86.3750], color:'#E8A94A', size:10,
+  { layer:'project', phase:2024, coords:[23.3200,86.3750], color:'#E8A94A', size:10,
     tag:'Project · Healthcare', name:'Bharat Medical College',
     desc:'Established <strong>2024</strong>. 150 MBBS seats. Together with Deben Mahata GMC, Purulia now has 250 MBBS seats annually. Building the private specialist ecosystem.' },
-  { layer:'project', coords:[23.3640,86.4250], color:'#E8A94A', size:11,
-    tag:'Project · Aviation · UDAN', name:'Purulia Regional Airport',
-    desc:'Upgrade existing airstrip to <strong>ATR-72 standard</strong> (₹80–120Cr). Proposed routes: Purulia–Kolkata (40 min) and Purulia–Ranchi (25 min). UDAN scheme eligible.' },
-  { layer:'project', coords:[23.5050,86.6800], color:'#6DB88A', size:11,
+  { layer:'project', phase:2028, coords:[23.3340,86.3600], color:'#E8A94A', size:10,
+    tag:'Project · Governance', name:'PIFC — Single Window Centre',
+    desc:'Purulia Investment Facilitation Centre. One portal, 12 departments. <strong>30-day deemed approval</strong>. Relationship manager for every investment above ₹5Cr. Cost: ₹3–5Cr.' },
+  { layer:'project', phase:2028, coords:[23.3100,86.3300], color:'#E8A94A', size:11,
+    tag:'Project · Crafts Economy', name:'Tribal Crafts Cluster',
+    desc:'Near Purulia town. Shared kilns, looms, casting furnaces. APEDA + customs on-site. GI-tagged <strong>Dokra metalwork</strong> and <strong>Chhau masks</strong>. Artisan-owned IP.' },
+  { layer:'project', phase:2028, coords:[23.2700,86.0600], color:'#E8A94A', size:12, pulse:true,
+    tag:'Priority Project · Solar Energy',name:'Solar &amp; Green Energy Park',
+    desc:'Hura–Kashipur area. Target <strong>500–1,000MW</strong> installed. Pre-laid 33kV feeder. Land at ₹5L/acre. 5yr GST reimbursement. Target: 8,000 direct jobs, ₹3,000Cr investment.' },
+  { layer:'project', phase:2032, coords:[23.0650,86.6550], color:'#E8A94A', size:11,
+    tag:'Project · Agro-Processing', name:'Agro-Processing Park',
+    desc:'Manbazar. 5,000MT cold storage, FSSAI lab. Mahua distillery cooperatives, sal seed oil, heritage grain branding. ₹500Cr annual revenue target by 2032.' },
+  { layer:'project', phase:2032, coords:[23.5050,86.6800], color:'#6DB88A', size:11,
     tag:'Infrastructure · Rail', name:'Adra Junction',
     desc:'Key South Eastern Railway junction. <strong>Adra–Ranchi doubling + electrification</strong> in Railway Board pipeline — Ranchi in 2 hours. Howrah–Purulia Express runs through here.' },
+  { layer:'project', phase:2040, coords:[23.3640,86.4250], color:'#E8A94A', size:11,
+    tag:'Project · Aviation · UDAN', name:'Purulia Regional Airport',
+    desc:'Upgrade existing airstrip to <strong>ATR-72 standard</strong> (₹80–120Cr). Proposed routes: Purulia–Kolkata (40 min) and Purulia–Ranchi (25 min). UDAN scheme eligible.' },
   { layer:'infra', coords:[23.3370,86.3700], color:'#6DB88A', size:11,
     tag:'Infrastructure · Rail', name:'Purulia Junction',
     desc:'South Eastern Railway, Chakradharpur Division. <strong>Purulia Express</strong> (12827/12828) to Howrah. Electrification and station redevelopment with Chhau art and craft market planned.' },
@@ -463,6 +493,7 @@ pts.forEach(pt => {
   const m = L.marker(pt.coords, { icon: mkIcon(pt.color, pt.size, pt.pulse||false) })
     .bindPopup(popup(pt.tag, pt.name, pt.desc), { className:'p2040-popup', maxWidth:300 });
   m._layer = pt.layer;
+  m._phase = pt.phase || null;
   layers[pt.layer].addLayer(m);
   markers.push(m);
 });
@@ -639,17 +670,25 @@ function loadAQI() {
     });
 }
 
-// ── Layer filter ──────────────────────────────────────────────────────────────
+// ── Timeline filter ───────────────────────────────────────────────────────────
+const PHASES = [2024, 2028, 2032, 2040];
+let timelineActive = false;
+
 function filterLayer(type, btn) {
   document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
-  const aqiStatus = document.getElementById('aqi-status');
-  const aqiLegend = document.getElementById('aqi-legend-section');
+  const aqiStatus  = document.getElementById('aqi-status');
+  const aqiLegend  = document.getElementById('aqi-legend-section');
   const mainLegend = document.getElementById('main-legend-items');
+  const tlPanel    = document.getElementById('timeline-panel');
   const isAqi = type === 'aqi';
+  const isTL  = type === 'timeline';
 
   Object.entries(layers).forEach(([key, lg]) => {
-    const show = isAqi ? key === 'aqi' : (type === 'all' ? key !== 'aqi' : key === type);
+    const show = isAqi   ? key === 'aqi'
+               : isTL    ? key === 'project'
+               : type === 'all' ? key !== 'aqi'
+               : key === type;
     if (show) { if (!map.hasLayer(lg)) map.addLayer(lg); }
     else      { if (map.hasLayer(lg))  map.removeLayer(lg); }
   });
@@ -657,8 +696,29 @@ function filterLayer(type, btn) {
   if (aqiStatus) aqiStatus.classList.toggle('visible', isAqi);
   if (aqiLegend) aqiLegend.classList.toggle('visible', isAqi);
   if (mainLegend) mainLegend.style.display = isAqi ? 'none' : '';
+  if (tlPanel) tlPanel.classList.toggle('visible', isTL);
+
+  timelineActive = isTL;
+  if (isTL) {
+    const slider = document.getElementById('tl-slider');
+    onTimeline(slider ? slider.value : 3);
+  } else {
+    markers.forEach(m => { if (m._layer === 'project') { m.setOpacity(1); m.getElement()?.style.setProperty('filter','none'); } });
+  }
 
   if (isAqi && !aqiLoaded) loadAQI();
+}
+
+function onTimeline(idx) {
+  const year = PHASES[idx];
+  const yearEl = document.getElementById('tl-year');
+  if (yearEl) yearEl.textContent = year;
+  markers.forEach(m => {
+    if (m._layer !== 'project') return;
+    const visible = !m._phase || m._phase <= year;
+    const el = m.getElement();
+    if (el) el.style.opacity = visible ? '1' : '0.12';
+  });
 }
 
 // ── Pulse animation keyframe ──────────────────────────────────────────────────
