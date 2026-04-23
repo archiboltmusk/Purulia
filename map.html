@@ -707,6 +707,20 @@ function filterLayer(type, btn) {
   }
 
   if (isAqi && !aqiLoaded) loadAQI();
+
+  // Fly to the bounds of visible markers
+  const visibleCoords = markers
+    .filter(m => {
+      const k = m._layer;
+      return isAqi ? false : isTL ? k === 'project' : type === 'all' ? k !== 'aqi' : k === type;
+    })
+    .map(m => m.getLatLng());
+  if (visibleCoords.length) {
+    const bounds = L.latLngBounds(visibleCoords);
+    map.flyToBounds(bounds, { padding: [80, 80], duration: 0.9, maxZoom: 13 });
+  } else if (type === 'all' || isAqi) {
+    map.flyTo([23.33, 86.55], 10, { duration: 0.9 });
+  }
 }
 
 function onTimeline(idx) {
