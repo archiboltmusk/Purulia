@@ -107,6 +107,20 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* Basemap toggle */
+#basemap-toggle{
+  position:fixed;bottom:2rem;right:2rem;
+  z-index:810;display:flex;flex-direction:column;gap:.25rem;
+}
+.bm-btn{
+  font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.2em;text-transform:uppercase;
+  padding:.42rem .85rem;border:1px solid rgba(212,136,42,.15);
+  background:rgba(12,10,5,.92);color:rgba(240,230,208,.28);
+  cursor:pointer;transition:all .25s;text-align:left;backdrop-filter:blur(12px);
+}
+.bm-btn:hover{color:rgba(240,230,208,.65);border-color:rgba(212,136,42,.3);}
+.bm-btn.bm-active{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+
 /* AQI button active/hover override */
 .mf-btn[data-layer="aqi"]:hover{border-color:rgba(82,180,42,.3);color:rgba(82,180,42,.7);}
 .mf-btn[data-layer="aqi"].active{border-color:#52B42A!important;color:#52B42A!important;background:rgba(82,180,42,.08)!important;}
@@ -223,7 +237,11 @@ body{overflow:hidden;}
   </div>
 </div>
 
-<div id="map-info">Purulia District · 23.33°N 86.37°E<br>West Bengal, India</div>
+<div id="basemap-toggle">
+  <button class="bm-btn bm-active" onclick="setBasemap('dark',this)">◼ Dark</button>
+  <button class="bm-btn" onclick="setBasemap('satellite',this)">◻ Satellite</button>
+  <button class="bm-btn" onclick="setBasemap('terrain',this)">◎ Terrain</button>
+</div>
 
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="script.js"></script>
@@ -236,13 +254,34 @@ const map = L.map('map', {
   attributionControl: true,
 });
 
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
-  attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
-  subdomains: 'abcd',
-  maxZoom: 19,
-}).addTo(map);
-
 L.control.zoom({ position: 'bottomright' }).addTo(map);
+
+// ── Basemap layers ────────────────────────────────────────────────────────────
+const basemaps = {
+  dark: L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://carto.com/">CARTO</a>',
+    subdomains: 'abcd', maxZoom: 19,
+  }),
+  satellite: L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    attribution: '© <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics',
+    maxZoom: 19,
+  }),
+  terrain: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
+    attribution: '© <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> © <a href="https://opentopomap.org/">OpenTopoMap</a>',
+    subdomains: 'abc', maxZoom: 17,
+  }),
+};
+let activeBasemap = basemaps.dark;
+basemaps.dark.addTo(map);
+
+function setBasemap(name, btn) {
+  map.removeLayer(activeBasemap);
+  activeBasemap = basemaps[name];
+  activeBasemap.addTo(map);
+  activeBasemap.bringToBack();
+  document.querySelectorAll('.bm-btn').forEach(b => b.classList.remove('bm-active'));
+  btn.classList.add('bm-active');
+}
 
 // ── District boundary overlay ─────────────────────────────────────────────────
 map.createPane('districtPane');
