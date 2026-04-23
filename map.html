@@ -107,6 +107,13 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* Block name labels */
+.block-label{
+  font-family:'DM Mono',monospace;font-size:.28rem;letter-spacing:.14em;
+  color:rgba(212,136,42,.28);text-transform:uppercase;white-space:nowrap;
+  pointer-events:none;line-height:1;
+}
+
 /* Travel-time ring tooltips */
 .ring-tip{
   background:rgba(12,10,5,.88)!important;border:1px solid rgba(212,136,42,.2)!important;
@@ -333,6 +340,46 @@ fetch('https://nominatim.openstreetmap.org/search?q=Purulia+district%2C+West+Ben
         dashArray: '6 4',
       },
     }).addTo(map);
+  })
+  .catch(() => {});
+
+// ── Block-level boundaries ────────────────────────────────────────────────────
+map.createPane('blockPane');
+map.getPane('blockPane').style.zIndex = 355;
+map.getPane('blockPane').style.pointerEvents = 'none';
+
+function roughCentroid(rings) {
+  let la = 0, lo = 0, n = 0;
+  rings.forEach(r => r.forEach(([x, y]) => { lo += x; la += y; n++; }));
+  return n ? [la / n, lo / n] : null;
+}
+
+const BLOCK_QUERY = `[out:json][timeout:30];area["name"="Purulia"]["admin_level"="6"]["boundary"="administrative"]->.d;rel["admin_level"="8"]["boundary"="administrative"](area.d);out geom;`;
+fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(BLOCK_QUERY))
+  .then(r => r.json())
+  .then(data => {
+    (data.elements || []).forEach(el => {
+      if (el.type !== 'relation') return;
+      const outers = (el.members || []).filter(m => m.type === 'way' && m.role === 'outer' && m.geometry?.length);
+      if (!outers.length) return;
+      const name = el.tags?.name || el.tags?.['name:en'] || '';
+      const rings = outers.map(w => w.geometry.map(p => [p.lon, p.lat]));
+      L.geoJSON({
+        type: 'Feature',
+        properties: { name },
+        geometry: { type: 'MultiPolygon', coordinates: rings.map(r => [r]) },
+      }, {
+        pane: 'blockPane',
+        style: { color: '#D4882A', fillOpacity: 0, weight: 0.6, opacity: 0.22, dashArray: '2 5' },
+      }).addTo(map);
+      const c = roughCentroid(rings);
+      if (c && name) {
+        L.marker(c, {
+          icon: L.divIcon({ className: 'block-label', html: name, iconSize: [120, 14], iconAnchor: [60, 7] }),
+          interactive: false, pane: 'blockPane',
+        }).addTo(map);
+      }
+    });
   })
   .catch(() => {});
 
