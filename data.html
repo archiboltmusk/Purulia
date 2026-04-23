@@ -127,6 +127,218 @@
       <div class="gt-card-src">Source: WBIDC Land Bank, 2024</div>
     </div>
   </div>
+  <!-- ══ SOLUTION MATRIX ══ -->
+  <div id="solution-matrix">
+    <div class="rv">
+      <div class="sl">// Problem → Solution</div>
+      <h2 class="sh">Every Problem.<br><em>A Specific Answer.</em></h2>
+      <p class="ss">Not aspirations. Not committees. Each challenge below has a named solution, a cost estimate, a timeline, and a clear owner — right now.</p>
+    </div>
+    <div class="sm-filters rv">
+      <button class="sf-btn sf-active" onclick="filterSM('all',this)">All Problems</button>
+      <button class="sf-btn" onclick="filterSM('water',this)">💧 Water</button>
+      <button class="sf-btn" onclick="filterSM('economy',this)">⚡ Economy</button>
+      <button class="sf-btn" onclick="filterSM('infra',this)">🏗 Infrastructure</button>
+      <button class="sf-btn" onclick="filterSM('health',this)">🎓 Health & Education</button>
+      <button class="sf-btn" onclick="filterSM('governance',this)">📋 Governance</button>
+    </div>
+    <div class="sm-grid rv" id="smGrid">
+
+      <div class="sm-card" data-cat="water">
+        <span class="sm-cat cat-water">Water</span>
+        <div class="sm-problem">Seasonal drought collapses agriculture every dry year</div>
+        <div class="sm-cause">Root cause: 80% of 1,200mm rain falls in 90 days with no storage</div>
+        <div class="sm-solution">Build <strong>500+ check dams</strong> on every nala under MGNREGS — Jharkhand's proven model. Desilt 500+ abandoned village ponds. Zero new money required — only execution.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹200Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">3 years</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">District Admin</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-ready">Ready to Start</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="water">
+        <span class="sm-cat cat-water">Water</span>
+        <div class="sm-problem">78% of cultivable land has no irrigation — one crop per year</div>
+        <div class="sm-cause">Root cause: No water conveyance infrastructure from storage to fields</div>
+        <div class="sm-solution">Krishak Bandhu expansion + drip &amp; sprinkler subsidy for every eligible holding. <strong>Shift to bajra, ragi, and pulses</strong> — crops that yield on 400mm instead of 900mm. Triples effective growing season.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹40Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2 years</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">Agriculture Dept</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-active">Active Scheme</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="economy">
+        <span class="sm-cat cat-economy">Economy</span>
+        <div class="sm-problem">Dokra artist earns ₹200 per piece that sells for ₹20,000 in Delhi</div>
+        <div class="sm-cause">Root cause: No GI tag, no collective bargaining, no export channel</div>
+        <div class="sm-solution"><strong>File GI tag for Dokra metalwork and Chhau masks.</strong> Form artisan FPOs — artisans own the brand. APEDA export channels + D2C platforms. Target: ₹20–25k/month per artisan household.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹50Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">Commerce Dept</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-policy">Policy Push Needed</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="economy">
+        <span class="sm-cat cat-economy">Economy</span>
+        <div class="sm-problem">500MW of solar potential sitting on idle laterite land</div>
+        <div class="sm-cause">Root cause: No developer pipeline, no pre-cleared land, no reliable grid connection</div>
+        <div class="sm-solution">Designate <strong>"Purulia Solar Zone"</strong> — pre-laid 33kV feeder, land at ₹5L/acre, 5-year GST reimbursement, fast-track environmental clearance. Sign 3 anchor developers. Cranes in 18 months.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹100Cr infra</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">District Admin + WBIDC</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-active">In Progress</span>
+          <a href="map.html" class="sm-link">See on map →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="economy">
+        <span class="sm-cat cat-economy">Economy</span>
+        <div class="sm-problem">Forest produce — mahua, sal seed, tamarind — leaves as raw commodity</div>
+        <div class="sm-cause">Root cause: No processing infrastructure; value addition happens in Kolkata</div>
+        <div class="sm-solution">Mahua distillery cooperatives (tribal women as owners). Sal seed cold-press oil (₹40/kg → ₹400/kg). <strong>Brand millets as "Chota Nagpur Heritage Grains."</strong> 3 agro-processing clusters with FSSAI labs.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹150Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2032</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">Cooperatives + WBIDC</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-policy">Policy Push Needed</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="infra">
+        <span class="sm-cat cat-infra">Infrastructure</span>
+        <div class="sm-problem">18% power transmission loss makes industry uncompetitive before it starts</div>
+        <div class="sm-cause">Root cause: Substations from the 1970s, no feeder separation, no industrial metering</div>
+        <div class="sm-solution">RDSS scheme upgrade — Centre funds 60%. <strong>Feeder separation: agriculture vs industrial.</strong> Captive solar microgrids for industrial clusters. Target: &lt;2% loss (Gujarat benchmark). Implementable in 3 years.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹600Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">WBSEDCL + Centre</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-active">Scheme Active</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="infra">
+        <span class="sm-cat cat-infra">Infrastructure</span>
+        <div class="sm-problem">No airport — 4-hour journey to Kolkata blocks executive investment visits</div>
+        <div class="sm-cause">Root cause: Airstrip exists but not upgraded; no UDAN application filed</div>
+        <div class="sm-solution">Upgrade Purulia airstrip to <strong>ATR-72 standard (₹80–120Cr)</strong> — fully UDAN eligible. Routes: Purulia–Kolkata (40 min), Purulia–Ranchi (25 min). Centre subsidy covers 80%. Application needs filing now.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹120Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">AAI + State + Centre</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-funding">Application Needed Now</span>
+          <a href="map.html" class="sm-link">See on map →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="infra">
+        <span class="sm-cat cat-infra">Infrastructure</span>
+        <div class="sm-problem">BharatNet fibre reaches GPs in paper — not in copper or glass</div>
+        <div class="sm-cause">Root cause: Execution gap; funding exists, last-mile deployment does not</div>
+        <div class="sm-solution"><strong>BharatNet Phase 3 to every GP</strong> — Centre funds 100%, district needs execution accountability. Village Wi-Fi on local entrepreneur model at ₹10–20/day. 4 co-working centres for remote workers to stay.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹150Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">BharatNet + District</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-funding">Execution Gap</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="health">
+        <span class="sm-cat cat-health">Health</span>
+        <div class="sm-problem">Zero oncologists within 250km — cancer patients travel to Kolkata or die untreated</div>
+        <div class="sm-cause">Root cause: No PG seats, no specialist packages, no private practice ecosystem</div>
+        <div class="sm-solution">Push NMC for <strong>PG seat approval at Deben Mahata GMC.</strong> Specialist retention package: housing + private practice rights + research allowance. One specialist arrival signals viability to the next.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹25Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">3 years</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">NMC + State Health</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-policy">Policy Push Needed</span>
+          <a href="audience.html#aud-doctors" class="sm-link">For doctors →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="health">
+        <span class="sm-cat cat-health">Education</span>
+        <div class="sm-problem">50.5% female literacy — half the district's women cannot read or access any scheme</div>
+        <div class="sm-cause">Root cause: Distance to schools, early marriage pressure, no economic incentive to persist</div>
+        <div class="sm-solution">Women's literacy centres in every block tied to SHG economic programs. <strong>Literacy = direct access to bank accounts, crafts cooperatives, and Krishak Bandhu.</strong> Pilot in 5 blocks, replicate in 20.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹30Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">5 years</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">NGOs + GP + State</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-active">Partial Activity</span>
+          <a href="blueprint.html#deepdives" class="sm-link">See plan →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="governance">
+        <span class="sm-cat cat-governance">Governance</span>
+        <div class="sm-problem">Business registration takes 90+ days across 12 departments — every investor walks</div>
+        <div class="sm-cause">Root cause: No single portal, no accountability for silence, no relationship manager</div>
+        <div class="sm-solution">Launch <strong>PIFC — Purulia Investment Facilitation Centre.</strong> One portal, 12 departments notified simultaneously. 30-day deemed approval (no response = clearance granted). Relationship manager for every ₹5Cr+ investment.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹3–5Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">6 months</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">Collectorate</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-ready">Ready to Start</span>
+          <a href="join.html#sprint" class="sm-link">Sprint action →</a>
+        </div>
+      </div>
+
+      <div class="sm-card" data-cat="governance">
+        <span class="sm-cat cat-governance">Governance</span>
+        <div class="sm-problem">Educated youth leave and don't come back — the cycle compounds every year</div>
+        <div class="sm-cause">Root cause: No peer group, no career path, no reason to believe Purulia is a real option</div>
+        <div class="sm-solution"><strong>Young Leaders Fellowship:</strong> 20 paid positions per year on district development work. 2 years. Creates peer gravity before the ecosystem exists. Peer effects are as powerful as economic incentives.</div>
+        <div class="sm-meta">
+          <div class="sm-m"><div class="sm-m-label">Cost</div><div class="sm-m-val">₹25Cr</div></div>
+          <div class="sm-m"><div class="sm-m-label">Timeline</div><div class="sm-m-val">2028</div></div>
+          <div class="sm-m"><div class="sm-m-label">Owner</div><div class="sm-m-val">State + Private</div></div>
+        </div>
+        <div class="sm-footer">
+          <span class="sm-status st-policy">Funding Needed</span>
+          <a href="audience.html#aud-students" class="sm-link">For students →</a>
+        </div>
+      </div>
+
+    </div><!-- /sm-grid -->
+  </div><!-- /solution-matrix -->
+
   <div class="gt-compare rv">
     <div class="gt-compare-title">⚠ The Five Things Most Likely to Make This Fail — And the Specific Answers</div>
     <div class="gt-compare-grid">
@@ -259,5 +471,15 @@
   </div>
 </footer>
 <script src="script.js"></script>
+<script>
+window.filterSM=function(cat,btn){
+  document.querySelectorAll('.sf-btn').forEach(function(b){b.classList.remove('sf-active');});
+  btn.classList.add('sf-active');
+  document.querySelectorAll('.sm-card').forEach(function(card){
+    var matches=cat==='all'||card.dataset.cat===cat;
+    card.classList.toggle('sm-hidden',!matches);
+  });
+};
+</script>
 </body>
 </html>

@@ -148,6 +148,58 @@
   </div>
 </section>
 
+<!-- ══ PATH FINDER ══ -->
+<section id="path-finder">
+  <div class="pf-intro rv">
+    <div class="sl">// Where Do You Start?</div>
+    <h2 class="sh">Tell Us Who You Are.<br><em>Get Your Next Move.</em></h2>
+    <p class="ss">One click. A personalized action card built for your role — with specific steps, not generic advice.</p>
+  </div>
+  <div class="pf-grid rv" id="pfGrid">
+    <div class="pf-role-card" onclick="pfSelect('doctor')">
+      <span class="pf-role-ico">🩺</span>
+      <div class="pf-role-name">Doctor / Healthcare</div>
+      <div class="pf-role-sub">Specialist · GP · Researcher</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('engineer')">
+      <span class="pf-role-ico">⚙️</span>
+      <div class="pf-role-name">Engineer</div>
+      <div class="pf-role-sub">Civil · Electrical · Software</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('investor')">
+      <span class="pf-role-ico">💼</span>
+      <div class="pf-role-name">Investor / Business</div>
+      <div class="pf-role-sub">Solar · Agro · Impact · VC</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('politician')">
+      <span class="pf-role-ico">🏛️</span>
+      <div class="pf-role-name">Policy / Administration</div>
+      <div class="pf-role-sub">IAS · MLA · MP · Elected</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('diaspora')">
+      <span class="pf-role-ico">🌍</span>
+      <div class="pf-role-name">Diaspora</div>
+      <div class="pf-role-sub">Purulia-origin, anywhere</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('student')">
+      <span class="pf-role-ico">📚</span>
+      <div class="pf-role-name">Student</div>
+      <div class="pf-role-sub">Undergraduate · Postgrad · Research</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('artist')">
+      <span class="pf-role-ico">🎭</span>
+      <div class="pf-role-name">Artist / Craftsperson</div>
+      <div class="pf-role-sub">Dokra · Chhau · Weaver · Maker</div>
+    </div>
+    <div class="pf-role-card" onclick="pfSelect('other')">
+      <span class="pf-role-ico">→</span>
+      <div class="pf-role-name">Journalist / Researcher</div>
+      <div class="pf-role-sub">Communicator · Academic</div>
+    </div>
+  </div>
+  <div class="pf-result-wrap" id="pfResult"></div>
+</section>
+
 <!-- ══ SHARE STRIP ══ -->
 <div class="share-wrap rv">
   <p class="share-label">If this blueprint resonates — send it to one person who should read it.</p>
@@ -172,5 +224,164 @@
   </div>
 </footer>
 <script src="script.js"></script>
+<script>
+(function(){
+  var cards={
+    doctor:{
+      eyebrow:'For Doctors &amp; Healthcare Professionals',
+      title:'Purulia needs you to arrive — and be seen arriving.',
+      body:'Two medical colleges, zero oncologists within 250km. The city that gets a specialist anchor gets the entire ecosystem. One visible arrival changes the narrative for every doctor who comes after.',
+      actions:[
+        '<strong>Read the full doctor\'s brief</strong> — specific gaps, packages, and what\'s been built so far',
+        '<strong>Contact Deben Mahata GMC</strong> about PG seat expansion and specialist retention packages',
+        '<strong>Explore the Young Leaders Fellowship</strong> — 2-year paid positions for returning professionals',
+        '<strong>Connect via the form</strong> — we\'ll put you in touch with the right people in the district'
+      ],
+      ctas:[
+        {label:'Doctor\'s Brief →',href:'audience.html#aud-doctors'},
+        {label:'Join Now →',href:'join.html#respond'}
+      ]
+    },
+    engineer:{
+      eyebrow:'For Engineers',
+      title:'The execution gap is your opportunity.',
+      body:'Every scheme — RDSS power, BharatNet broadband, PMGSY roads — is funded. The barrier is execution, not money. An engineer who shows up in Purulia right now gets to build the infrastructure of a transformed district.',
+      actions:[
+        '<strong>See the full infrastructure pipeline</strong> — ₹3,500Cr of funded projects needing implementation',
+        '<strong>Review the technical brief</strong> — power, water, broadband, roads, and what\'s still missing',
+        '<strong>Explore the Solar & Energy Park</strong> — engineering roles available from Year 1',
+        '<strong>Connect with the team</strong> — civil, electrical, and software engineers all needed'
+      ],
+      ctas:[
+        {label:'Infrastructure Plan →',href:'blueprint.html#deepdives'},
+        {label:'View the Map →',href:'map.html'}
+      ]
+    },
+    investor:{
+      eyebrow:'For Investors &amp; Business Leaders',
+      title:'Eastern India\'s best solar site is uninvested.',
+      body:'5.4 kWh/m² irradiance — highest east of Gujarat. Industrial land at ₹5L/acre. 5-year GST reimbursement. Pre-cleared solar zone. You\'d be the first anchor investor, which means you set the terms.',
+      actions:[
+        '<strong>Model the impact</strong> — use the calculator in the Blueprint to run your own projections',
+        '<strong>Review the funding table</strong> — which ₹3,500Cr is already secured vs what needs private capital',
+        '<strong>Explore the three industrial zones</strong> — Solar Park, Crafts Cluster, Agro-Processing Park',
+        '<strong>Request an introduction</strong> to the District Collector and WBIDC through the form'
+      ],
+      ctas:[
+        {label:'Investment Case →',href:'blueprint.html#economics'},
+        {label:'Connect Now →',href:'join.html#respond'}
+      ]
+    },
+    politician:{
+      eyebrow:'For Politicians &amp; Civil Servants',
+      title:'One written guarantee changes everything.',
+      body:'A 3-year tenure commitment signed by MP, MLA, and DC. That single document makes everything compound. The PIFC opens. Investors arrive. The district transforms. The entire blueprint fits in one term — if that term is protected.',
+      actions:[
+        '<strong>Read the full political brief</strong> — what one term of continuity can achieve',
+        '<strong>Study the five first conversations</strong> — the five people to contact this week',
+        '<strong>Review the PIFC design</strong> — single-window clearance, 30-day deemed approval, ₹3–5Cr cost',
+        '<strong>Request a briefing</strong> — a full presentation of the blueprint is available'
+      ],
+      ctas:[
+        {label:'Five Conversations →',href:'join.html#fivepeople'},
+        {label:'The Blueprint →',href:'blueprint.html'}
+      ]
+    },
+    diaspora:{
+      eyebrow:'For the Purulia Diaspora',
+      title:'Your city connections are Purulia\'s untapped capital.',
+      body:'One procurement manager in Mumbai who chooses Dokra over Chinese brass triggers a supply chain. One Purulia-origin investor anchors a zone. The diaspora network is the fastest path to the first movers — and you\'re already in it.',
+      actions:[
+        '<strong>Read the diaspora brief</strong> — what you can do from exactly where you are',
+        '<strong>Register for the Pravasi Sammelan</strong> — the virtual and in-person gathering for Purulia-origin professionals',
+        '<strong>Map your network</strong> — who do you know who should read this?',
+        '<strong>Connect via the form</strong> — land at subsidised rates and 5-year tax holidays for diaspora enterprises'
+      ],
+      ctas:[
+        {label:'Diaspora Brief →',href:'audience.html#aud-diaspora'},
+        {label:'Join the Sammelan →',href:'join.html#respond'}
+      ]
+    },
+    student:{
+      eyebrow:'For Students',
+      title:'The Young Leaders Fellowship is waiting for 20 people.',
+      body:'20 paid positions per cohort. Two years. Real work on the district transformation — not research, not observation. If you\'re between 22 and 32, this is a career-defining assignment. You\'d be building the thing, not studying it.',
+      actions:[
+        '<strong>Read the student brief</strong> — career paths, fellowship structure, and what\'s been built so far',
+        '<strong>Review the 15-year roadmap</strong> — where the jobs are and when they arrive',
+        '<strong>Apply for the fellowship</strong> — via the join form, mention the Young Leaders program specifically',
+        '<strong>Share this blueprint</strong> with one professor or career counsellor who should know about it'
+      ],
+      ctas:[
+        {label:'Student Brief →',href:'audience.html#aud-students'},
+        {label:'Apply Now →',href:'join.html#respond'}
+      ]
+    },
+    artist:{
+      eyebrow:'For Artists &amp; Craftspeople',
+      title:'GI tags could triple your income — the application isn\'t filed yet.',
+      body:'Dokra metalwork sells for ₹200 at the farm gate and ₹20,000 in Delhi. The GI tag application is in progress. The FPO structure is being built. The artisans who join first co-own the brand from the beginning.',
+      actions:[
+        '<strong>Read the craftsperson\'s brief</strong> — GI tags, FPOs, export channels, and what exists today',
+        '<strong>See the income projections</strong> — ₹4,500/month baseline to ₹20–25k/month target',
+        '<strong>Connect with the Tribal Crafts Cluster team</strong> — the physical cluster is being designed',
+        '<strong>Share this blueprint</strong> with one artisan collective or cooperative you know'
+      ],
+      ctas:[
+        {label:'Artisan Brief →',href:'audience.html#aud-artists'},
+        {label:'Connect Now →',href:'join.html#respond'}
+      ]
+    },
+    other:{
+      eyebrow:'For Journalists, Researchers &amp; Communicators',
+      title:'A well-told story creates accountability that no policy can.',
+      body:'A single deep-dive in a national publication reaches the exact civil servants and investors who will never see this website. Media scrutiny creates administrative accountability. Documentation creates proof. Both are urgent.',
+      actions:[
+        '<strong>Read the full blueprint</strong> — every claim is sourced, every statistic verifiable',
+        '<strong>Review the live momentum feed</strong> — what\'s already moved since the blueprint launched',
+        '<strong>Request a briefing or interview</strong> — we\'ll connect you with engineers, artisans, and administrators on the ground',
+        '<strong>Use the data page</strong> — 12 verified metrics and the five most likely failure modes, with specific answers'
+      ],
+      ctas:[
+        {label:'Ground Truth →',href:'data.html'},
+        {label:'Get in Touch →',href:'join.html#respond'}
+      ]
+    }
+  };
+
+  window.pfSelect=function(role){
+    var d=cards[role];
+    if(!d) return;
+    var ctaHtml=d.ctas.map(function(c){
+      return '<a href="'+c.href+'" class="btn btn-a">'+c.label+'</a>';
+    }).join('');
+    var actionsHtml=d.actions.map(function(a){
+      return '<li>'+a+'</li>';
+    }).join('');
+    var html='<div class="pf-result-card">'
+      +'<div class="pf-result-eyebrow">'+d.eyebrow+'</div>'
+      +'<div class="pf-result-title">'+d.title+'</div>'
+      +'<div class="pf-result-body">'+d.body+'</div>'
+      +'<div class="pf-actions-label">Your specific next steps</div>'
+      +'<ul class="pf-action-list">'+actionsHtml+'</ul>'
+      +'<div class="pf-result-ctas">'+ctaHtml+'</div>'
+      +'<button class="pf-reset" onclick="pfReset()">← Choose a different role</button>'
+      +'</div>';
+    var resultEl=document.getElementById('pfResult');
+    resultEl.innerHTML=html;
+    resultEl.classList.add('pf-show');
+    document.getElementById('pfGrid').style.display='none';
+    resultEl.scrollIntoView({behavior:'smooth',block:'start'});
+  };
+
+  window.pfReset=function(){
+    var resultEl=document.getElementById('pfResult');
+    resultEl.classList.remove('pf-show');
+    resultEl.innerHTML='';
+    document.getElementById('pfGrid').style.display='';
+    document.getElementById('pfGrid').scrollIntoView({behavior:'smooth',block:'start'});
+  };
+})();
+</script>
 </body>
 </html>

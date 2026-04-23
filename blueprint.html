@@ -126,6 +126,165 @@
   </table>
 </section>
 
+<!-- ══ IMPACT CALCULATOR ══ -->
+<section id="impact-calc">
+  <div class="rv">
+    <div class="sl">// Live Model</div>
+    <h2 class="sh">Move the Levers.<br><em>See the Outcome.</em></h2>
+    <p class="ss">Adjust the inputs for any of the three economic engines. The projections update in real time — based on comparable district transformations across India.</p>
+  </div>
+  <div class="calc-tabs rv">
+    <button class="ct-btn ct-active" onclick="setCalc('solar',this)">☀ Solar Park</button>
+    <button class="ct-btn" onclick="setCalc('water',this)">💧 Water & Farming</button>
+    <button class="ct-btn" onclick="setCalc('crafts',this)">🏺 Crafts Economy</button>
+  </div>
+
+  <!-- Solar Panel -->
+  <div class="calc-panel cp-active rv" id="cp-solar">
+    <div class="calc-inputs">
+      <div class="ci-group">
+        <label class="ci-label">Installed Capacity (MW)</label>
+        <input type="range" class="ci-range" id="c-mw" min="50" max="1000" step="50" value="500" oninput="updateCalc()">
+        <div class="ci-val" id="cv-mw">500 MW</div>
+      </div>
+      <div class="ci-group">
+        <label class="ci-label">Land Lease Rate (₹ / acre / yr)</label>
+        <input type="range" class="ci-range" id="c-lease" min="15000" max="50000" step="2500" value="30000" oninput="updateCalc()">
+        <div class="ci-val" id="cv-lease">₹30,000</div>
+      </div>
+    </div>
+    <div>
+      <div class="calc-outputs">
+        <div class="co"><div class="co-v" id="co-jobs">4,000</div><div class="co-l">Direct jobs created</div></div>
+        <div class="co"><div class="co-v" id="co-lease-income">₹22.5Cr</div><div class="co-l">Annual farmer lease income</div></div>
+        <div class="co"><div class="co-v" id="co-co2">7.2L t</div><div class="co-l">CO₂ offset per year</div></div>
+        <div class="co"><div class="co-v" id="co-homes">5L</div><div class="co-l">Homes powered annually</div></div>
+      </div>
+      <div class="calc-note">Assumptions: 8 jobs/MW (manufacturing + O&M), 1.5 acres/MW, 24% capacity factor, 0.82 t CO₂/MWh avoided, 1kW per household.</div>
+    </div>
+  </div>
+
+  <!-- Water Panel -->
+  <div class="calc-panel rv" id="cp-water">
+    <div class="calc-inputs">
+      <div class="ci-group">
+        <label class="ci-label">Check Dams Built</label>
+        <input type="range" class="ci-range" id="c-dams" min="25" max="1000" step="25" value="300" oninput="updateCalc()">
+        <div class="ci-val" id="cv-dams">300</div>
+      </div>
+      <div class="ci-group">
+        <label class="ci-label">Avg. Hectares per Dam</label>
+        <input type="range" class="ci-range" id="c-ha" min="10" max="80" step="5" value="30" oninput="updateCalc()">
+        <div class="ci-val" id="cv-ha">30 ha</div>
+      </div>
+    </div>
+    <div>
+      <div class="calc-outputs">
+        <div class="co"><div class="co-v" id="co-hectares">9,000</div><div class="co-l">Hectares newly irrigated</div></div>
+        <div class="co"><div class="co-v" id="co-seasons">2 extra</div><div class="co-l">Cropping seasons per year</div></div>
+        <div class="co"><div class="co-v" id="co-farm-income">₹270Cr</div><div class="co-l">Added farmer income / yr</div></div>
+        <div class="co"><div class="co-v" id="co-villages">86</div><div class="co-l">Villages water-secure</div></div>
+      </div>
+      <div class="calc-note">Assumptions: ₹15,000/ha/season income, 2 extra seasons enabled, 3.5 dams per village served. MGNREGS cost ~₹6L per dam.</div>
+    </div>
+  </div>
+
+  <!-- Crafts Panel -->
+  <div class="calc-panel rv" id="cp-crafts">
+    <div class="calc-inputs">
+      <div class="ci-group">
+        <label class="ci-label">Artisans in GI Programme</label>
+        <input type="range" class="ci-range" id="c-artisans" min="100" max="8000" step="100" value="2000" oninput="updateCalc()">
+        <div class="ci-val" id="cv-artisans">2,000</div>
+      </div>
+      <div class="ci-group">
+        <label class="ci-label">Price Premium Multiplier</label>
+        <input type="range" class="ci-range" id="c-mult" min="2" max="10" step="0.5" value="4" oninput="updateCalc()">
+        <div class="ci-val" id="cv-mult">4×</div>
+      </div>
+    </div>
+    <div>
+      <div class="calc-outputs">
+        <div class="co"><div class="co-v" id="co-artisan-income">₹18k/mo</div><div class="co-l">Monthly income per artisan</div></div>
+        <div class="co"><div class="co-v" id="co-sector-rev">₹432Cr</div><div class="co-l">Annual sector revenue</div></div>
+        <div class="co"><div class="co-v" id="co-export">₹151Cr</div><div class="co-l">Export value (35% of revenue)</div></div>
+        <div class="co"><div class="co-v" id="co-uplift">4×</div><div class="co-l">Income uplift vs today's ₹4,500/mo</div></div>
+      </div>
+      <div class="calc-note">Baseline: ₹4,500/month farm-gate. GI + FPO + D2C channels enable multiplied realisation. 35% of turnover estimated as export revenue.</div>
+    </div>
+  </div>
+</section>
+<script>
+(function(){
+  var currentCalc = 'solar';
+  function fmt(n){
+    if(n>=10000000) return '₹'+(n/10000000).toFixed(1)+'Cr';
+    if(n>=100000) return (n/100000).toFixed(1)+'L';
+    if(n>=1000) return (n/1000).toFixed(1)+'k';
+    return n.toString();
+  }
+  function pulse(id){
+    var el=document.getElementById(id);
+    if(!el) return;
+    el.classList.add('pulse');
+    setTimeout(function(){el.classList.remove('pulse');},300);
+  }
+  function set(id,val){
+    var el=document.getElementById(id);
+    if(el){el.textContent=val;pulse(id);}
+  }
+  window.setCalc=function(name,btn){
+    currentCalc=name;
+    document.querySelectorAll('.ct-btn').forEach(function(b){b.classList.remove('ct-active');});
+    btn.classList.add('ct-active');
+    document.querySelectorAll('.calc-panel').forEach(function(p){p.classList.remove('cp-active');});
+    document.getElementById('cp-'+name).classList.add('cp-active');
+    updateCalc();
+  };
+  window.updateCalc=function(){
+    if(currentCalc==='solar'){
+      var mw=parseInt(document.getElementById('c-mw').value)||500;
+      var rate=parseInt(document.getElementById('c-lease').value)||30000;
+      document.getElementById('cv-mw').textContent=mw+' MW';
+      document.getElementById('cv-lease').textContent='₹'+rate.toLocaleString('en-IN');
+      var jobs=mw*8;
+      var leaseIncome=(mw*1.5*rate)/10000000;
+      var co2=Math.round(mw*1000*24*0.24*0.82)/1000;
+      var homes=mw*1000;
+      set('co-jobs',jobs.toLocaleString('en-IN'));
+      set('co-lease-income','₹'+leaseIncome.toFixed(1)+'Cr');
+      set('co-co2',(co2/100).toFixed(1)+'L t');
+      set('co-homes',fmt(homes));
+    } else if(currentCalc==='water'){
+      var dams=parseInt(document.getElementById('c-dams').value)||300;
+      var ha=parseInt(document.getElementById('c-ha').value)||30;
+      document.getElementById('cv-dams').textContent=dams.toLocaleString('en-IN');
+      document.getElementById('cv-ha').textContent=ha+' ha';
+      var hectares=dams*ha;
+      var income=(hectares*15000*2)/10000000;
+      var villages=Math.round(dams/3.5);
+      set('co-hectares',hectares.toLocaleString('en-IN'));
+      set('co-seasons','2 extra');
+      set('co-farm-income','₹'+income.toFixed(0)+'Cr');
+      set('co-villages',villages.toLocaleString('en-IN'));
+    } else {
+      var artisans=parseInt(document.getElementById('c-artisans').value)||2000;
+      var mult=parseFloat(document.getElementById('c-mult').value)||4;
+      document.getElementById('cv-artisans').textContent=artisans.toLocaleString('en-IN');
+      document.getElementById('cv-mult').textContent=mult+'×';
+      var monthlyIncome=Math.round(4500*mult);
+      var sectorRev=(artisans*monthlyIncome*12)/10000000;
+      var exportVal=sectorRev*0.35;
+      set('co-artisan-income','₹'+Math.round(monthlyIncome/1000)+'k/mo');
+      set('co-sector-rev','₹'+sectorRev.toFixed(0)+'Cr');
+      set('co-export','₹'+exportVal.toFixed(0)+'Cr');
+      set('co-uplift',mult+'×');
+    }
+  };
+  window.updateCalc();
+})();
+</script>
+
 <!-- ══ SHARE STRIP ══ -->
 <div class="share-wrap rv">
   <p class="share-label">Share this blueprint with one person in the right position to act on it.</p>
