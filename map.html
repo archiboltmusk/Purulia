@@ -107,6 +107,26 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* Travel-time ring tooltips */
+.ring-tip{
+  background:rgba(12,10,5,.88)!important;border:1px solid rgba(212,136,42,.2)!important;
+  border-radius:0!important;color:rgba(212,136,42,.65)!important;
+  font-family:'DM Mono',monospace!important;font-size:.36rem!important;
+  letter-spacing:.2em!important;text-transform:uppercase!important;
+  box-shadow:none!important;padding:.2rem .45rem!important;white-space:nowrap;
+}
+.ring-tip::before{display:none!important;}
+
+/* Travel-time ring toggle */
+.ml-toggle{display:flex;align-items:center;justify-content:space-between;margin-top:.8rem;padding-top:.7rem;border-top:1px solid rgba(212,136,42,.1);}
+.ml-toggle-label{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.2em;color:rgba(240,230,208,.28);text-transform:uppercase;}
+.ml-toggle-btn{
+  font-family:'DM Mono',monospace;font-size:.35rem;letter-spacing:.18em;text-transform:uppercase;
+  padding:.28rem .55rem;border:1px solid rgba(212,136,42,.2);background:transparent;
+  color:rgba(240,230,208,.28);cursor:pointer;transition:all .25s;
+}
+.ml-toggle-btn.on{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+
 /* Animated route lines */
 .route-nh32 path{animation:dashflow-nh 1.6s linear infinite;}
 .route-expr path{animation:dashflow-ex 2.6s linear infinite;}
@@ -231,6 +251,10 @@ body{overflow:hidden;}
     <div class="ml-item"><div class="ml-dot" style="background:#6DB88A"></div>Infrastructure</div>
     <div class="ml-item"><div class="ml-dot" style="background:#B88ADB"></div>Heritage &amp; Nature</div>
     <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Water</div>
+  </div>
+  <div class="ml-toggle">
+    <span class="ml-toggle-label">Travel rings</span>
+    <button id="ring-toggle-btn" class="ml-toggle-btn" onclick="toggleRings(this)">Off</button>
   </div>
   <div id="aqi-legend-section">
     <div class="aql-title">AQI Scale (EPA)</div>
@@ -406,6 +430,35 @@ const expr = L.polyline([
   [23.33,86.36],[23.28,86.22],[23.20,86.05],[23.12,85.92],[23.00,85.75]
 ], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6', className:'route-expr' }).addTo(layers.infra);
 expr.bindPopup(popup('Proposed · Road','Purulia–Ranchi Expressway','<strong>130km proposed corridor</strong>. Journey time: Ranchi in 90 minutes. Opens Jharkhand\'s industrial market. ₹2,500Cr — Bharatmala eligible. Transforms Purulia\'s economic geography.'));
+
+// ── Travel-time rings ─────────────────────────────────────────────────────────
+const PURULIA_CENTRE = [23.3325, 86.3636];
+const ringLayer = L.layerGroup();
+const ringDefs = [
+  { km: 25, label: '30 min', opacity: .55 },
+  { km: 50, label: '60 min', opacity: .38 },
+  { km: 75, label: '90 min', opacity: .22 },
+];
+ringDefs.forEach(({ km, label, opacity }) => {
+  const c = L.circle(PURULIA_CENTRE, {
+    radius: km * 1000,
+    color: '#D4882A', fillColor: '#D4882A',
+    fillOpacity: 0.03, weight: 1, opacity,
+    dashArray: '5 6', interactive: false,
+  });
+  c.bindTooltip(label, {
+    permanent: true, direction: 'top', offset: [0, -(km * 1000 / 111000) * 4],
+    className: 'ring-tip',
+  });
+  ringLayer.addLayer(c);
+});
+
+let ringsOn = false;
+function toggleRings(btn) {
+  ringsOn = !ringsOn;
+  if (ringsOn) { ringLayer.addTo(map); btn.textContent = 'On'; btn.classList.add('on'); }
+  else         { map.removeLayer(ringLayer); btn.textContent = 'Off'; btn.classList.remove('on'); }
+}
 
 // ── AQI helpers ───────────────────────────────────────────────────────────────
 function aqiColor(v) {
