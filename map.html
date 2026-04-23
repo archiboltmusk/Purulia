@@ -630,6 +630,18 @@ function mkAqiIcon(aqi) {
 
 let aqiLoaded = false, aqiLoading = false;
 
+// Individual geo lookups — works reliably with the demo token
+const AQI_POINTS = [
+  [23.33, 86.37],  // Purulia
+  [23.80, 86.45],  // Dhanbad
+  [23.68, 86.98],  // Asansol
+  [23.48, 87.32],  // Durgapur
+  [23.36, 85.33],  // Ranchi
+  [23.67, 86.15],  // Bokaro
+  [22.80, 86.18],  // Jamshedpur
+  [21.47, 83.97],  // Sambalpur
+];
+
 function loadAQI() {
   if (aqiLoading) return;
   aqiLoading = true;
@@ -638,49 +650,56 @@ function loadAQI() {
   if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
   if (txt) txt.textContent = 'Fetching stations…';
 
-  fetch('https://api.waqi.info/map/bounds/?latlng=21.5,84.0,24.5,88.5&token=demo')
-    .then(r => r.json())
-    .then(data => {
-      layers.aqi.clearLayers();
-      if (data.status === 'ok' && Array.isArray(data.data)) {
-        let count = 0;
-        data.data.forEach(st => {
-          if (!st.lat || !st.lon || st.aqi === '-' || st.aqi === '') return;
-          const c = aqiColor(st.aqi);
-          const cat = aqiCategory(st.aqi);
-          const name = st.station?.name || 'AQI Station';
-          const time = st.station?.time;
-          const timeStr = time
-            ? new Date(time).toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
-            : 'N/A';
-          const m = L.marker([st.lat, st.lon], { icon: mkAqiIcon(st.aqi) })
-            .bindPopup(
-              popup('Air Quality · Real-Time AQI', name,
-                `<strong style="color:${c};font-size:1.6rem;line-height:1;">${st.aqi}</strong><br>` +
-                `<span style="color:${c};opacity:.85;">${cat}</span><br><br>` +
-                `<span style="color:rgba(240,230,208,.3);font-size:.76rem;">Updated: ${timeStr}</span><br>` +
-                `<span style="color:rgba(240,230,208,.2);font-size:.72rem;">Source: World Air Quality Index (waqi.info)</span>`
-              ),
-              { maxWidth: 300 }
-            );
-          m._layer = 'aqi';
-          layers.aqi.addLayer(m);
-          count++;
-        });
-        aqiLoaded = true;
-        const now = new Date().toLocaleTimeString('en-IN', { timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit' });
-        if (txt) txt.textContent = `${count} station${count !== 1 ? 's' : ''} · ${now}`;
-      } else {
-        if (txt) txt.textContent = data.status === 'nope' ? 'Token limit reached' : 'No data returned';
-      }
-    })
-    .catch(() => {
-      if (txt) txt.textContent = 'Network error — try again';
-    })
-    .finally(() => {
-      aqiLoading = false;
-      if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  const seen = new Set();
+  Promise.all(
+    AQI_POINTS.map(([lat, lon]) =>
+      fetch(`https://api.waqi.info/feed/geo:${lat};${lon}/?token=demo`)
+        .then(r => r.json()).catch(() => null)
+    )
+  ).then(results => {
+    layers.aqi.clearLayers();
+    let count = 0;
+    results.forEach(data => {
+      if (!data || data.status !== 'ok') return;
+      const st = data.data;
+      if (!st?.city?.geo || st.aqi == null) return;
+      if (seen.has(st.idx)) return;
+      seen.add(st.idx);
+      const [lat, lon] = st.city.geo;
+      const aqi = st.aqi;
+      const c = aqiColor(aqi);
+      const cat = aqiCategory(aqi);
+      const name = st.city.name || 'AQI Station';
+      const timeStr = st.time?.s
+        ? new Date(st.time.s).toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+        : 'N/A';
+      const pm25 = st.iaqi?.pm25?.v;
+      const pm10 = st.iaqi?.pm10?.v;
+      const detail = [pm25 != null ? `PM2.5: ${pm25} µg/m³` : '', pm10 != null ? `PM10: ${pm10} µg/m³` : ''].filter(Boolean).join(' · ');
+      const m = L.marker([lat, lon], { icon: mkAqiIcon(aqi) })
+        .bindPopup(
+          popup('Air Quality · Real-Time AQI', name,
+            `<strong style="color:${c};font-size:1.6rem;line-height:1;">${aqi}</strong><br>` +
+            `<span style="color:${c};opacity:.85;">${cat}</span><br>` +
+            (detail ? `<span style="color:rgba(240,230,208,.45);font-size:.78rem;">${detail}</span><br>` : '') +
+            `<br><span style="color:rgba(240,230,208,.3);font-size:.76rem;">Updated: ${timeStr}</span><br>` +
+            `<span style="color:rgba(240,230,208,.2);font-size:.72rem;">Source: World Air Quality Index (waqi.info)</span>`
+          ),
+          { maxWidth: 300 }
+        );
+      m._layer = 'aqi';
+      layers.aqi.addLayer(m);
+      count++;
     });
+    aqiLoaded = true;
+    const now = new Date().toLocaleTimeString('en-IN', { timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit' });
+    if (txt) txt.textContent = `${count} station${count !== 1 ? 's' : ''} · ${now}`;
+  }).catch(() => {
+    if (txt) txt.textContent = 'Network error — try again';
+  }).finally(() => {
+    aqiLoading = false;
+    if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+  });
 }
 
 // ── Timeline filter ───────────────────────────────────────────────────────────
