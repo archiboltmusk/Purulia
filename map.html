@@ -107,10 +107,40 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* AQI button active/hover override */
+.mf-btn[data-layer="aqi"]:hover{border-color:rgba(82,180,42,.3);color:rgba(82,180,42,.7);}
+.mf-btn[data-layer="aqi"].active{border-color:#52B42A!important;color:#52B42A!important;background:rgba(82,180,42,.08)!important;}
+.mf-btn[data-layer="aqi"] .mf-dot{animation:ripple 1.5s infinite;}
+
+/* AQI status bar */
+#aqi-status{
+  position:fixed;top:124px;left:50%;transform:translateX(-50%);
+  z-index:810;display:none;align-items:center;gap:.7rem;
+  background:rgba(12,10,5,.88);border:1px solid rgba(82,180,42,.18);
+  backdrop-filter:blur(12px);padding:.32rem .9rem;
+  font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.16em;
+  color:rgba(240,230,208,.25);text-transform:uppercase;white-space:nowrap;
+}
+#aqi-status.visible{display:flex;}
+#aqi-refresh-btn{
+  background:transparent;border:none;cursor:pointer;
+  color:rgba(82,180,42,.5);font-size:.75rem;padding:0 .1rem;
+  transition:color .2s;line-height:1;
+}
+#aqi-refresh-btn:hover{color:#52B42A;}
+#aqi-refresh-btn.spinning{display:inline-block;animation:aqi-spin .75s linear infinite;}
+@keyframes aqi-spin{to{transform:rotate(360deg);}}
+
+/* AQI legend section */
+#aqi-legend-section{display:none;margin-top:.85rem;padding-top:.75rem;border-top:1px solid rgba(82,180,42,.14);}
+#aqi-legend-section.visible{display:block;}
+.aql-title{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.28em;color:rgba(82,180,42,.7);text-transform:uppercase;margin-bottom:.6rem;}
+
 @media(max-width:640px){
   #map-legend{display:none;}
   #map-filters{top:70px;left:.5rem;right:.5rem;transform:none;overflow-x:auto;gap:.2rem;}
   .mf-btn{padding:.45rem .7rem;font-size:.38rem;white-space:nowrap;}
+  #aqi-status{top:112px;font-size:.35rem;}
 }
 </style>
 </head>
@@ -156,6 +186,15 @@ body{overflow:hidden;}
   <button class="mf-btn" data-layer="heritage" onclick="filterLayer('heritage',this)">
     <span class="mf-dot" style="background:#B88ADB"></span>Heritage &amp; Nature
   </button>
+  <button class="mf-btn" data-layer="aqi" onclick="filterLayer('aqi',this)">
+    <span class="mf-dot" style="background:#52B42A"></span>Air Quality
+  </button>
+</div>
+
+<!-- AQI live status bar -->
+<div id="aqi-status">
+  <span id="aqi-status-text">Loading stations…</span>
+  <button id="aqi-refresh-btn" onclick="loadAQI()" title="Refresh AQI data">↻</button>
 </div>
 
 <!-- Map container -->
@@ -166,11 +205,22 @@ body{overflow:hidden;}
 <!-- Legend -->
 <div id="map-legend">
   <div class="ml-title">Map Legend</div>
-  <div class="ml-item"><div class="ml-dot" style="background:#D4882A"></div>District Centre</div>
-  <div class="ml-item"><div class="ml-dot" style="background:#E8A94A"></div>Projects</div>
-  <div class="ml-item"><div class="ml-dot" style="background:#6DB88A"></div>Infrastructure</div>
-  <div class="ml-item"><div class="ml-dot" style="background:#B88ADB"></div>Heritage &amp; Nature</div>
-  <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Water</div>
+  <div id="main-legend-items">
+    <div class="ml-item"><div class="ml-dot" style="background:#D4882A"></div>District Centre</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#E8A94A"></div>Projects</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#6DB88A"></div>Infrastructure</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#B88ADB"></div>Heritage &amp; Nature</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Water</div>
+  </div>
+  <div id="aqi-legend-section">
+    <div class="aql-title">AQI Scale (EPA)</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#009966"></div>0–50 · Good</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#FFDE33"></div>51–100 · Moderate</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#FF9933"></div>101–150 · Sensitive</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#CC0033"></div>151–200 · Unhealthy</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#660099"></div>201–300 · Very Unhealthy</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#7E0023"></div>301+ · Hazardous</div>
+  </div>
 </div>
 
 <div id="map-info">Purulia District · 23.33°N 86.37°E<br>West Bengal, India</div>
@@ -211,8 +261,8 @@ function popup(tag, name, desc) {
 }
 
 // ── Layer groups ──────────────────────────────────────────────────────────────
-const layers = { landmark: L.layerGroup(), project: L.layerGroup(), infra: L.layerGroup(), heritage: L.layerGroup() };
-Object.values(layers).forEach(lg => lg.addTo(map));
+const layers = { landmark: L.layerGroup(), project: L.layerGroup(), infra: L.layerGroup(), heritage: L.layerGroup(), aqi: L.layerGroup() };
+Object.entries(layers).forEach(([k, lg]) => { if (k !== 'aqi') lg.addTo(map); });
 
 // ── Data ──────────────────────────────────────────────────────────────────────
 const pts = [
@@ -289,14 +339,119 @@ const expr = L.polyline([
 ], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6' }).addTo(layers.infra);
 expr.bindPopup(popup('Proposed · Road','Purulia–Ranchi Expressway','<strong>130km proposed corridor</strong>. Journey time: Ranchi in 90 minutes. Opens Jharkhand\'s industrial market. ₹2,500Cr — Bharatmala eligible. Transforms Purulia\'s economic geography.'));
 
+// ── AQI helpers ───────────────────────────────────────────────────────────────
+function aqiColor(v) {
+  const n = parseInt(v);
+  if (isNaN(n) || n < 0) return '#888888';
+  if (n <= 50)  return '#009966';
+  if (n <= 100) return '#FFDE33';
+  if (n <= 150) return '#FF9933';
+  if (n <= 200) return '#CC0033';
+  if (n <= 300) return '#660099';
+  return '#7E0023';
+}
+function aqiCategory(v) {
+  const n = parseInt(v);
+  if (isNaN(n) || n < 0) return 'Unknown';
+  if (n <= 50)  return 'Good';
+  if (n <= 100) return 'Moderate';
+  if (n <= 150) return 'Unhealthy for Sensitive Groups';
+  if (n <= 200) return 'Unhealthy';
+  if (n <= 300) return 'Very Unhealthy';
+  return 'Hazardous';
+}
+function mkAqiIcon(aqi) {
+  const c = aqiColor(aqi);
+  const n = parseInt(aqi);
+  const val = isNaN(n) ? '–' : n;
+  const sz = 36;
+  return L.divIcon({
+    className: '',
+    html: `<div style="position:relative;width:${sz}px;height:${sz}px;">` +
+      `<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:${sz*1.8}px;height:${sz*1.8}px;border-radius:50%;border:1px solid ${c};opacity:.22;animation:ripple 2.5s infinite;pointer-events:none;"></div>` +
+      `<div style="position:absolute;top:0;left:0;width:${sz}px;height:${sz}px;border-radius:50%;background:${c};display:flex;align-items:center;justify-content:center;color:#fff;font-family:'DM Mono',monospace;font-size:.5rem;font-weight:500;box-shadow:0 0 14px ${c}99;border:1.5px solid rgba(255,255,255,.15);">${val}</div>` +
+      `</div>`,
+    iconSize: [sz, sz],
+    iconAnchor: [sz/2, sz/2],
+    popupAnchor: [0, -sz/2 - 8],
+  });
+}
+
+let aqiLoaded = false, aqiLoading = false;
+
+function loadAQI() {
+  if (aqiLoading) return;
+  aqiLoading = true;
+  const btn = document.getElementById('aqi-refresh-btn');
+  const txt = document.getElementById('aqi-status-text');
+  if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
+  if (txt) txt.textContent = 'Fetching stations…';
+
+  fetch('https://api.waqi.info/map/bounds/?latlng=21.5,84.0,24.5,88.5&token=demo')
+    .then(r => r.json())
+    .then(data => {
+      layers.aqi.clearLayers();
+      if (data.status === 'ok' && Array.isArray(data.data)) {
+        let count = 0;
+        data.data.forEach(st => {
+          if (!st.lat || !st.lon || st.aqi === '-' || st.aqi === '') return;
+          const c = aqiColor(st.aqi);
+          const cat = aqiCategory(st.aqi);
+          const name = st.station?.name || 'AQI Station';
+          const time = st.station?.time;
+          const timeStr = time
+            ? new Date(time).toLocaleString('en-IN', { timeZone:'Asia/Kolkata', day:'numeric', month:'short', hour:'2-digit', minute:'2-digit' })
+            : 'N/A';
+          const m = L.marker([st.lat, st.lon], { icon: mkAqiIcon(st.aqi) })
+            .bindPopup(
+              popup('Air Quality · Real-Time AQI', name,
+                `<strong style="color:${c};font-size:1.6rem;line-height:1;">${st.aqi}</strong><br>` +
+                `<span style="color:${c};opacity:.85;">${cat}</span><br><br>` +
+                `<span style="color:rgba(240,230,208,.3);font-size:.76rem;">Updated: ${timeStr}</span><br>` +
+                `<span style="color:rgba(240,230,208,.2);font-size:.72rem;">Source: World Air Quality Index (waqi.info)</span>`
+              ),
+              { maxWidth: 300 }
+            );
+          m._layer = 'aqi';
+          layers.aqi.addLayer(m);
+          count++;
+        });
+        aqiLoaded = true;
+        const now = new Date().toLocaleTimeString('en-IN', { timeZone:'Asia/Kolkata', hour:'2-digit', minute:'2-digit' });
+        if (txt) txt.textContent = `${count} station${count !== 1 ? 's' : ''} · ${now}`;
+      } else {
+        if (txt) txt.textContent = data.status === 'nope' ? 'Token limit reached' : 'No data returned';
+      }
+    })
+    .catch(() => {
+      if (txt) txt.textContent = 'Network error — try again';
+    })
+    .finally(() => {
+      aqiLoading = false;
+      if (btn) { btn.classList.remove('spinning'); btn.disabled = false; }
+    });
+}
+
 // ── Layer filter ──────────────────────────────────────────────────────────────
 function filterLayer(type, btn) {
   document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
+  const aqiStatus = document.getElementById('aqi-status');
+  const aqiLegend = document.getElementById('aqi-legend-section');
+  const mainLegend = document.getElementById('main-legend-items');
+  const isAqi = type === 'aqi';
+
   Object.entries(layers).forEach(([key, lg]) => {
-    if (type === 'all' || type === key) { if (!map.hasLayer(lg)) map.addLayer(lg); }
-    else { if (map.hasLayer(lg)) map.removeLayer(lg); }
+    const show = isAqi ? key === 'aqi' : (type === 'all' ? key !== 'aqi' : key === type);
+    if (show) { if (!map.hasLayer(lg)) map.addLayer(lg); }
+    else      { if (map.hasLayer(lg))  map.removeLayer(lg); }
   });
+
+  if (aqiStatus) aqiStatus.classList.toggle('visible', isAqi);
+  if (aqiLegend) aqiLegend.classList.toggle('visible', isAqi);
+  if (mainLegend) mainLegend.style.display = isAqi ? 'none' : '';
+
+  if (isAqi && !aqiLoaded) loadAQI();
 }
 
 // ── Pulse animation keyframe ──────────────────────────────────────────────────
