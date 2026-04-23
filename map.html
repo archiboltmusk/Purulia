@@ -159,6 +159,17 @@ body{overflow:hidden;}
 @keyframes dashflow-nh{to{stroke-dashoffset:-10;}}
 @keyframes dashflow-ex{to{stroke-dashoffset:-9;}}
 
+/* Fullscreen button */
+#fs-btn{
+  position:fixed;top:80px;right:2rem;z-index:810;
+  font-family:'DM Mono',monospace;font-size:.55rem;
+  width:2rem;height:2rem;display:flex;align-items:center;justify-content:center;
+  background:rgba(12,10,5,.92);border:1px solid rgba(212,136,42,.18);
+  color:rgba(240,230,208,.28);cursor:pointer;transition:all .25s;
+  backdrop-filter:blur(12px);
+}
+#fs-btn:hover{color:var(--amber);border-color:rgba(212,136,42,.4);}
+
 /* Basemap toggle */
 #basemap-toggle{
   position:fixed;bottom:2rem;right:2rem;
@@ -303,6 +314,8 @@ body{overflow:hidden;}
     <div class="ml-item"><div class="ml-dot" style="background:#7E0023"></div>301+ · Hazardous</div>
   </div>
 </div>
+
+<button id="fs-btn" onclick="toggleFullscreen()" title="Toggle fullscreen">⛶</button>
 
 <div id="basemap-toggle">
   <button class="bm-btn bm-active" onclick="setBasemap('dark',this)">◼ Dark</button>
@@ -734,6 +747,20 @@ function onTimeline(idx) {
     if (el) el.style.opacity = visible ? '1' : '0.12';
   });
 }
+
+// ── Fullscreen ────────────────────────────────────────────────────────────────
+function toggleFullscreen() {
+  const btn = document.getElementById('fs-btn');
+  if (!document.fullscreenElement) {
+    document.documentElement.requestFullscreen().then(() => { if (btn) btn.textContent = '✕'; });
+  } else {
+    document.exitFullscreen().then(() => { if (btn) btn.textContent = '⛶'; });
+  }
+}
+document.addEventListener('fullscreenchange', () => {
+  const btn = document.getElementById('fs-btn');
+  if (btn) btn.textContent = document.fullscreenElement ? '✕' : '⛶';
+});
 
 // ── Pulse animation keyframe ──────────────────────────────────────────────────
 const style = document.createElement('style');
