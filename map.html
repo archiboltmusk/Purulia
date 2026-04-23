@@ -107,6 +107,12 @@ body{overflow:hidden;}
 .p-desc{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.48);padding:.2rem 1.2rem 1rem;}
 .p-desc strong{color:rgba(240,230,208,.75);}
 
+/* Animated route lines */
+.route-nh32 path{animation:dashflow-nh 1.6s linear infinite;}
+.route-expr path{animation:dashflow-ex 2.6s linear infinite;}
+@keyframes dashflow-nh{to{stroke-dashoffset:-10;}}
+@keyframes dashflow-ex{to{stroke-dashoffset:-9;}}
+
 /* Basemap toggle */
 #basemap-toggle{
   position:fixed;bottom:2rem;right:2rem;
@@ -393,12 +399,12 @@ pts.forEach(pt => {
 // ── Infrastructure polylines ──────────────────────────────────────────────────
 const nh32 = L.polyline([
   [23.60,86.72],[23.505,86.68],[23.40,86.55],[23.33,86.36],[23.22,86.12],[23.05,85.92]
-], { color:'#6DB88A', weight:2.5, opacity:.55, dashArray:'6 4' }).addTo(layers.infra);
+], { color:'#6DB88A', weight:2.5, opacity:.55, dashArray:'6 4', className:'route-nh32' }).addTo(layers.infra);
 nh32.bindPopup(popup('Infrastructure · Road','NH-32 Corridor','National Highway 32 running through Purulia district. <strong>4-laning to Grand Trunk Road</strong> spine planned. Backbone of the district\'s connectivity and industrial access.'));
 
 const expr = L.polyline([
   [23.33,86.36],[23.28,86.22],[23.20,86.05],[23.12,85.92],[23.00,85.75]
-], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6' }).addTo(layers.infra);
+], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6', className:'route-expr' }).addTo(layers.infra);
 expr.bindPopup(popup('Proposed · Road','Purulia–Ranchi Expressway','<strong>130km proposed corridor</strong>. Journey time: Ranchi in 90 minutes. Opens Jharkhand\'s industrial market. ₹2,500Cr — Bharatmala eligible. Transforms Purulia\'s economic geography.'));
 
 // ── AQI helpers ───────────────────────────────────────────────────────────────
