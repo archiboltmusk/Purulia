@@ -79,6 +79,32 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .pad{padding:8rem 5rem;}
 .pad-sm{padding:6rem 5rem;}
 
+/* ── CRISIS NUMBERS ── */
+#crisis{padding:6rem 5rem;background:rgba(139,37,37,.05);border-top:1px solid rgba(139,37,37,.2);border-bottom:1px solid rgba(139,37,37,.15);}
+.crisis-intro{max-width:700px;margin-bottom:4rem;}
+.crisis-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:2px;margin-bottom:3rem;}
+.crisis-stat{background:rgba(240,230,208,.02);border:1px solid rgba(139,37,37,.18);padding:2.2rem 2rem;transition:all .4s cubic-bezier(.25,.46,.45,.94);}
+.crisis-stat:hover{background:rgba(139,37,37,.07);border-color:rgba(139,37,37,.35);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.35);}
+.cs-val{font-family:'EB Garamond',serif;font-size:3rem;font-weight:800;line-height:1;margin-bottom:.35rem;}
+.cs-val.bad{color:#E05050;}
+.cs-val.good{color:#6DB88A;}
+.cs-label{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.28em;color:rgba(240,230,208,.45);text-transform:uppercase;margin-bottom:.75rem;}
+.cs-note{font-size:.95rem;line-height:1.62;color:rgba(240,230,208,.5);}
+.crisis-link{margin-top:1rem;}
+@media(max-width:900px){.crisis-grid{grid-template-columns:repeat(2,1fr);}}
+@media(max-width:560px){.crisis-grid{grid-template-columns:1fr;}}
+
+/* ── MOMENTUM ── */
+#momentum{padding:7rem 5rem;background:var(--ink2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);}
+.mom-intro{max-width:600px;margin-bottom:4rem;}
+.mom-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:2px;}
+.mom-item{background:var(--ink3);padding:2.4rem 2.2rem;border-top:2px solid transparent;transition:all .4s cubic-bezier(.25,.46,.45,.94);cursor:default;}
+.mom-item:hover{background:var(--ink4);border-top-color:var(--amber);transform:translateY(-5px);box-shadow:0 16px 40px rgba(0,0,0,.4);}
+.mom-tag{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:.8rem;}
+.mom-title{font-family:'EB Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--cream);line-height:1.25;margin-bottom:.8rem;}
+.mom-body{font-size:.97rem;line-height:1.65;color:rgba(240,230,208,.52);}
+@media(max-width:700px){.mom-grid{grid-template-columns:1fr;}}
+
 /* ── REFRAME ── */
 #reframe{padding:8rem 5rem;display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start;border-bottom:1px solid var(--border2);}
 .rf-map-wrap{aspect-ratio:1;display:flex;align-items:center;justify-content:center;}
