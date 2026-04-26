@@ -163,8 +163,27 @@
         <button class="form-submit" onclick="submitForm()">I Want to Be Part of This →</button>
       </div>
       <div class="form-success" id="formSuccess">
-        <div class="form-success-t">✓ Received. We'll be in touch.</div>
-        <div class="form-success-s">Your message has been noted. Someone from the Purulia 2040 team will respond personally — not an auto-reply, a real person.</div>
+        <div class="fs-check" aria-hidden="true">✓</div>
+        <div class="form-success-t" id="fsName">Received.</div>
+        <div class="fs-timeline">
+          <div class="fs-tl-item fs-done">
+            <span class="fs-tl-dot"></span>
+            <span>Message delivered to the Purulia 2040 team</span>
+          </div>
+          <div class="fs-tl-item">
+            <span class="fs-tl-dot"></span>
+            <span>Personal response within <strong>48 hours</strong> — a real person, not a bot</span>
+          </div>
+          <div class="fs-tl-item">
+            <span class="fs-tl-dot"></span>
+            <span>If relevant, connected directly to district administration</span>
+          </div>
+        </div>
+        <div class="fs-share">
+          <div class="fs-share-label">While you wait — one share moves this faster than anything else:</div>
+          <div class="fs-share-btns" id="fsShareBtns"></div>
+        </div>
+        <a href="mailto:thelosthillproject@gmail.com" class="fs-direct">Or write to us directly →</a>
       </div>
     </div>
   </div>

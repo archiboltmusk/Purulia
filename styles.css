@@ -286,6 +286,22 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .bq2{color:var(--amber2);border-color:rgba(232,169,74,.4);}
 .by2{color:rgba(240,230,208,.35);border-color:rgba(240,230,208,.15);}
 
+/* ── FIX 9: RICH FORM SUCCESS STATE ── */
+.form-success{display:none;padding:2.5rem;border:1px solid rgba(109,184,138,.3);background:rgba(109,184,138,.05);}
+.fs-check{font-size:2.2rem;color:#6DB88A;margin-bottom:1rem;display:block;}
+.form-success-t{font-family:'EB Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--cream);margin-bottom:1.5rem;}
+.fs-timeline{display:flex;flex-direction:column;gap:.8rem;margin-bottom:1.8rem;padding-bottom:1.8rem;border-bottom:1px solid var(--border2);}
+.fs-tl-item{display:flex;align-items:flex-start;gap:.8rem;font-size:.97rem;color:rgba(240,230,208,.5);line-height:1.6;}
+.fs-tl-item strong{color:var(--cream);}
+.fs-tl-dot{width:8px;height:8px;border-radius:50%;background:var(--border2);flex-shrink:0;margin-top:.45rem;transition:background .5s;}
+.fs-done .fs-tl-dot{background:#6DB88A;box-shadow:0 0 8px rgba(109,184,138,.4);}
+.fs-done{color:rgba(240,230,208,.75);}
+.fs-share{margin-bottom:1.5rem;}
+.fs-share-label{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(212,136,42,.55);margin-bottom:.8rem;}
+.fs-share-btns{display:flex;gap:.5rem;flex-wrap:wrap;}
+.fs-direct{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,230,208,.22);text-decoration:none;transition:color .3s;display:inline-block;}
+.fs-direct:hover{color:rgba(212,136,42,.6);}
+
 /* ── RESPONSE FORM ── */
 #respond{padding:8rem 5rem;background:var(--forest2);border-top:1px solid rgba(212,136,42,.15);}
 .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:6rem;align-items:start;margin-top:4rem;}

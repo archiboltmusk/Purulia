@@ -159,8 +159,25 @@ async function submitForm(){
     });
 
     document.getElementById('formWrap').style.display='none';
-    document.getElementById('formSuccess').style.display='block';
-    showToast('Thank you, '+name+'. We\'ll be in touch personally.');
+    const fs=document.getElementById('formSuccess');
+    fs.style.display='block';
+    /* Personalise name */
+    const fsName=document.getElementById('fsName');
+    if(fsName)fsName.textContent='Thank you, '+name+'.';
+    /* Mark first timeline dot */
+    const dots=fs.querySelectorAll('.fs-tl-dot');
+    if(dots[0]){setTimeout(()=>dots[0].parentElement.classList.add('fs-done'),200);}
+    /* Populate share buttons */
+    const shareBtns=document.getElementById('fsShareBtns');
+    if(shareBtns){
+      const url=window.location.origin+(window.location.pathname.includes('join')?window.location.pathname.replace('join.html',''):window.location.pathname);
+      const msg='I just connected with the Purulia 2040 blueprint team. If you care about transforming a district — read this:';
+      shareBtns.innerHTML=
+        '<a class="ss-btn ss-wa" href="https://wa.me/?text='+encodeURIComponent(msg+' '+url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
+        '<a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text='+encodeURIComponent(msg)+'&url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">Twitter</a>'+
+        '<a class="ss-btn ss-li" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">LinkedIn</a>';
+    }
+    showToast('Welcome, '+name+'. We\'ll respond personally within 48 hours.');
   }catch(err){
     btn.disabled=false;
     btn.textContent='I Want to Be Part of This →';
