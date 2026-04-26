@@ -705,6 +705,24 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
 @media(max-width:960px){.proof-strip{padding:3rem 2rem;gap:2.5rem;flex-direction:column;align-items:flex-start;}.proof-nums{gap:2rem;}.proof-sep{height:36px;}}
 @media(max-width:480px){.proof-nums{flex-direction:column;align-items:flex-start;gap:1.2rem;}.proof-sep{display:none;}}
 
+/* ── FIX 6: STAY UPDATED BAR ── */
+.follow-bar{background:var(--ink2);border-top:1px solid var(--border);border-bottom:1px solid var(--border2);padding:2.8rem 5rem;display:flex;align-items:center;justify-content:space-between;gap:2.5rem;flex-wrap:wrap;}
+.follow-title{font-family:'EB Garamond',serif;font-size:1.3rem;font-weight:600;color:var(--cream);margin-bottom:.3rem;}
+.follow-sub{font-family:'DM Mono',monospace;font-size:.49rem;letter-spacing:.2em;color:rgba(240,230,208,.28);text-transform:uppercase;}
+.follow-form{display:flex;flex-shrink:0;}
+.follow-input{background:rgba(240,230,208,.04);border:1px solid var(--border);border-right:none;color:var(--cream);font-family:'EB Garamond',serif;font-size:1rem;padding:.82rem 1.2rem;width:260px;outline:none;transition:border-color .3s;cursor:text;}
+.follow-input:focus{border-color:rgba(212,136,42,.5);}
+.follow-input::placeholder{color:rgba(240,230,208,.18);font-style:italic;}
+.follow-btn{background:var(--amber);color:var(--ink);font-family:'DM Mono',monospace;font-size:.58rem;letter-spacing:.18em;text-transform:uppercase;border:none;padding:.82rem 1.6rem;cursor:pointer;transition:background .3s,transform .25s;white-space:nowrap;}
+.follow-btn:hover{background:var(--amber2);transform:translateX(2px);}
+.follow-btn:disabled{opacity:.5;cursor:not-allowed;transform:none;}
+.follow-thanks{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.22em;color:rgba(109,184,138,.8);text-transform:uppercase;padding:.82rem 0;}
+@media(max-width:960px){
+  .follow-bar{padding:2.5rem 2rem;flex-direction:column;align-items:flex-start;gap:1.4rem;}
+  .follow-form{width:100%;}
+  .follow-input{flex:1;min-width:0;width:auto;}
+}
+
 /* ── FIX 4: LIVE MOMENTUM INDICATORS ── */
 .mom-live-bar{display:flex;align-items:center;gap:.65rem;margin-top:1.2rem;}
 .mlb-dot{display:inline-block;width:7px;height:7px;border-radius:50%;background:var(--amber);animation:lfpulse 2.2s ease-in-out infinite;flex-shrink:0;}

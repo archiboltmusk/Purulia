@@ -517,6 +517,28 @@ document.addEventListener('click',e=>{
   });
 })();
 
+/* ── FIX 6: STAY UPDATED / FOLLOW ── */
+window.followSubmit=async function(){
+  const input=document.getElementById('followEmail');
+  const email=input?input.value.trim():'';
+  if(!email||!email.includes('@')){showToast('Please enter a valid email address.');return;}
+  const btn=document.querySelector('.follow-btn');
+  if(btn){btn.textContent='Sending…';btn.disabled=true;}
+  try{
+    await fetch(SCRIPT_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({name:'Email Follow',role:'subscriber',contact:email,message:'Homepage follow/newsletter signup',location:'homepage follow bar'})
+    });
+    const form=document.getElementById('followForm');
+    if(form)form.innerHTML='<span class="follow-thanks">You\'re in — we\'ll be in touch.</span>';
+    showToast('Subscribed. Updates coming your way.');
+  }catch(e){
+    if(btn){btn.textContent='Follow →';btn.disabled=false;}
+    showToast('Could not subscribe — try the full form instead.');
+  }
+};
+
 /* ── FIX 4: LIVE READER COUNTER ── */
 (function(){
   const el=document.getElementById('readerCount');
