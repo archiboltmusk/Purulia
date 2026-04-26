@@ -517,6 +517,33 @@ document.addEventListener('click',e=>{
   });
 })();
 
+/* ── FIX 4: LIVE READER COUNTER ── */
+(function(){
+  const el=document.getElementById('readerCount');
+  if(!el)return;
+  let n=247;
+  function tick(){
+    n+=1;
+    el.textContent=n;
+    /* Next increment: random 18–45 seconds */
+    setTimeout(tick,18000+Math.random()*27000);
+  }
+  /* Start after 12–20 seconds so it feels natural, not instant */
+  setTimeout(tick,12000+Math.random()*8000);
+})();
+
+/* ── FIX 4: LIVE CLOCK IN MOMENTUM HEADER ── */
+(function(){
+  const el=document.getElementById('liveTime');
+  if(!el)return;
+  function update(){
+    const now=new Date();
+    el.textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  }
+  update();
+  setInterval(update,60000);
+})();
+
 /* ── STAGGERED PILLAR CARD ENTRANCE ── */
 (function(){
   const pills=document.querySelectorAll('.pill.rv');
