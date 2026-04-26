@@ -168,18 +168,6 @@ async function submitForm(){
   }
 }
 
-/* ── Active nav ── */
-const secs=document.querySelectorAll('section[id]');
-const nas=document.querySelectorAll('.nav-links a');
-window.addEventListener('scroll',()=>{
-  let cur2='';
-  secs.forEach(s=>{if(window.scrollY>=s.offsetTop-220)cur2=s.id;});
-  nas.forEach(a=>{
-    const matches=a.getAttribute('href')==='#'+cur2;
-    a.classList.toggle('act',matches);
-  });
-},{passive:true});
-
 /* ── Bar chart animation ── */
 const barObs=new IntersectionObserver(entries=>{
   entries.forEach(e=>{
