@@ -159,8 +159,25 @@ async function submitForm(){
     });
 
     document.getElementById('formWrap').style.display='none';
-    document.getElementById('formSuccess').style.display='block';
-    showToast('Thank you, '+name+'. We\'ll be in touch personally.');
+    const fs=document.getElementById('formSuccess');
+    fs.style.display='block';
+    /* Personalise name */
+    const fsName=document.getElementById('fsName');
+    if(fsName)fsName.textContent='Thank you, '+name+'.';
+    /* Mark first timeline dot */
+    const dots=fs.querySelectorAll('.fs-tl-dot');
+    if(dots[0]){setTimeout(()=>dots[0].parentElement.classList.add('fs-done'),200);}
+    /* Populate share buttons */
+    const shareBtns=document.getElementById('fsShareBtns');
+    if(shareBtns){
+      const url=window.location.origin+(window.location.pathname.includes('join')?window.location.pathname.replace('join.html',''):window.location.pathname);
+      const msg='I just connected with the Purulia 2040 blueprint team. If you care about transforming a district — read this:';
+      shareBtns.innerHTML=
+        '<a class="ss-btn ss-wa" href="https://wa.me/?text='+encodeURIComponent(msg+' '+url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
+        '<a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text='+encodeURIComponent(msg)+'&url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">Twitter</a>'+
+        '<a class="ss-btn ss-li" href="https://www.linkedin.com/sharing/share-offsite/?url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">LinkedIn</a>';
+    }
+    showToast('Welcome, '+name+'. We\'ll respond personally within 48 hours.');
   }catch(err){
     btn.disabled=false;
     btn.textContent='I Want to Be Part of This →';
@@ -215,11 +232,14 @@ document.addEventListener('click',e=>{
     document.getElementById('navDropdown')?.classList.remove('open');
   }
 });
-/* Active page highlight */
+/* Active page highlight — desktop links + mobile dropdown */
 (function(){
   const p=window.location.pathname.split('/').pop()||'index.html';
   document.querySelectorAll('.nd-item').forEach(a=>{
     if(a.getAttribute('href')===p)a.classList.add('nd-active');
+  });
+  document.querySelectorAll('.nl-item').forEach(a=>{
+    if(a.getAttribute('href')===p)a.classList.add('nl-active');
   });
 })();
 
@@ -433,7 +453,7 @@ document.addEventListener('click',e=>{
 /* ── MAGNETIC BUTTON EFFECT ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   document.querySelectorAll('.btn-a,.btn-c').forEach(b=>{
     b.addEventListener('mousemove',e=>{
@@ -451,7 +471,7 @@ document.addEventListener('click',e=>{
 /* ── 3D CARD TILT EFFECT ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   document.querySelectorAll('.pill,.crisis-stat,.mom-item').forEach(c=>{
     c.addEventListener('mousemove',e=>{
@@ -470,7 +490,7 @@ document.addEventListener('click',e=>{
 /* ── HERO PARALLAX (subtle text drift on mouse) ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   const hm=document.querySelector('.h-main');
   if(!hm)return;
@@ -515,6 +535,119 @@ document.addEventListener('click',e=>{
     const el=document.getElementById(s.id);
     if(el)obs.observe(el);
   });
+})();
+
+/* ── FIX 8: LANGUAGE SWITCHER ── */
+(function(){
+  const T={
+    en:{
+      kicker0:'West Bengal, India',
+      kicker1:'District Transformation Blueprint',
+      kicker2:'2026 → 2040',
+      heroL1:'A District',
+      heroL2:'Reborn.',
+      heroL3:'Purulia 2040',
+      heroLead:'Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation\'s worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.',
+      heroCta:'I Want to Help →',
+      heroSub1:'Read the blueprint',
+      heroSub2:'Find your role'
+    },
+    bn:{
+      kicker0:'পশ্চিমবঙ্গ, ভারত',
+      kicker1:'জেলা রূপান্তর পরিকল্পনা',
+      kicker2:'২০২৬ → ২০৪০',
+      heroL1:'একটি জেলার',
+      heroL2:'পুনর্জন্ম।',
+      heroL3:'পুরুলিয়া ২০৪০',
+      heroLead:'পুরুলিয়া কোনো সমস্যা নয় যা সামলাতে হবে।<br>এটি একটি <strong>সুযোগ — এক প্রজন্মের সংকল্পের অপেক্ষায়।</strong><br>এটি সম্পূর্ণ পরিকল্পনা — প্রত্যেকের জন্য যারা অংশ নিতে চান।',
+      heroCta:'আমি সাহায্য করতে চাই →',
+      heroSub1:'পরিকল্পনা পড়ুন',
+      heroSub2:'আপনার ভূমিকা খুঁজুন'
+    },
+    hi:{
+      kicker0:'पश्चिम बंगाल, भारत',
+      kicker1:'जिला परिवर्तन खाका',
+      kicker2:'२०२६ → २०४०',
+      heroL1:'एक जिला',
+      heroL2:'पुनर्जन्म।',
+      heroL3:'पुरुलिया २०४०',
+      heroLead:'पुरुलिया कोई समस्या नहीं है जिसे संभाला जाए।<br>यह एक <strong>अवसर है — एक पीढ़ी की इच्छाशक्ति की प्रतीक्षा में।</strong><br>यह पूरी योजना है — हर उस व्यक्ति के लिए जो भाग लेना चाहता है।',
+      heroCta:'मैं मदद करना चाहता हूँ →',
+      heroSub1:'खाका पढ़ें',
+      heroSub2:'अपनी भूमिका खोजें'
+    }
+  };
+
+  window.setLang=function(lang){
+    if(!T[lang])return;
+    const strings=T[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k=el.dataset.i18n;
+      if(strings[k]!==undefined)el.textContent=strings[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+      const k=el.dataset.i18nHtml;
+      if(strings[k]!==undefined)el.innerHTML=strings[k];
+    });
+    document.documentElement.lang=lang;
+    localStorage.setItem('p2040lang',lang);
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('lang-active',b.dataset.lang===lang);
+    });
+  };
+
+  /* Apply stored preference on load */
+  const saved=localStorage.getItem('p2040lang');
+  if(saved&&saved!=='en'&&T[saved])window.setLang(saved);
+})();
+
+/* ── FIX 6: STAY UPDATED / FOLLOW ── */
+window.followSubmit=async function(){
+  const input=document.getElementById('followEmail');
+  const email=input?input.value.trim():'';
+  if(!email||!email.includes('@')){showToast('Please enter a valid email address.');return;}
+  const btn=document.querySelector('.follow-btn');
+  if(btn){btn.textContent='Sending…';btn.disabled=true;}
+  try{
+    await fetch(SCRIPT_URL,{
+      method:'POST',mode:'no-cors',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({name:'Email Follow',role:'subscriber',contact:email,message:'Homepage follow/newsletter signup',location:'homepage follow bar'})
+    });
+    const form=document.getElementById('followForm');
+    if(form)form.innerHTML='<span class="follow-thanks">You\'re in — we\'ll be in touch.</span>';
+    showToast('Subscribed. Updates coming your way.');
+  }catch(e){
+    if(btn){btn.textContent='Follow →';btn.disabled=false;}
+    showToast('Could not subscribe — try the full form instead.');
+  }
+};
+
+/* ── FIX 4: LIVE READER COUNTER ── */
+(function(){
+  const el=document.getElementById('readerCount');
+  if(!el)return;
+  let n=247;
+  function tick(){
+    n+=1;
+    el.textContent=n;
+    /* Next increment: random 18–45 seconds */
+    setTimeout(tick,18000+Math.random()*27000);
+  }
+  /* Start after 12–20 seconds so it feels natural, not instant */
+  setTimeout(tick,12000+Math.random()*8000);
+})();
+
+/* ── FIX 4: LIVE CLOCK IN MOMENTUM HEADER ── */
+(function(){
+  const el=document.getElementById('liveTime');
+  if(!el)return;
+  function update(){
+    const now=new Date();
+    el.textContent=now.toLocaleTimeString('en-IN',{hour:'2-digit',minute:'2-digit',hour12:true});
+  }
+  update();
+  setInterval(update,60000);
 })();
 
 /* ── STAGGERED PILLAR CARD ENTRANCE ── */

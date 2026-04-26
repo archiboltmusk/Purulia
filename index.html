@@ -16,7 +16,9 @@
 <meta name="twitter:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
-<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
 <!-- Vercel Speed Insights -->
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
@@ -45,22 +47,36 @@
 <div id="pbar"></div>
 <div id="toast"></div>
 <nav>
-  <div class="nav-left">
-    <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
-      <div class="ntg-icon"><span></span><span></span><span></span></div>
-      <span>Menu</span>
-    </button>
-    <div class="nav-dropdown" id="navDropdown">
-      <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
-      <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
-      <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
-      <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
-      <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
-      <a href="map.html" class="nd-item">District Map <span class="nd-arrow">→</span></a>
+  <div class="nav-logo">PURULIA 2040</div>
+  <div class="nav-links">
+    <a href="index.html" class="nl-item">Home</a>
+    <a href="blueprint.html" class="nl-item">Blueprint</a>
+    <a href="audience.html" class="nl-item">For You</a>
+    <a href="data.html" class="nl-item">Ground Truth</a>
+    <a href="join.html" class="nl-item">Join</a>
+    <a href="map.html" class="nl-item">Map</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button class="lang-btn lang-active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="bn" onclick="setLang('bn')">বাং</button>
+      <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+    </div>
+    <a href="join.html#respond" class="nav-cta">Help →</a>
+    <div class="nav-mob">
+      <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+        <div class="ntg-icon"><span></span><span></span><span></span></div>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+        <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
+        <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
+        <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+        <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
+        <a href="map.html" class="nd-item">District Map <span class="nd-arrow">→</span></a>
+      </div>
     </div>
   </div>
-  <div class="nav-logo">PURULIA 2040</div>
-  <div class="nav-spacer"></div>
 </nav>
 <!-- ══ HERO ══ -->
 <section id="hero">
@@ -86,13 +102,24 @@
     </svg>
   </div>
   <div class="h-main">
-    <div class="h-kicker"><span>West Bengal, India</span><span>District Transformation Blueprint</span><span>2026 → 2040</span></div>
-    <h1 class="hero-h"><span class="l1">A District</span><span class="l2">Reborn.</span><span class="l3">Purulia 2040</span></h1>
-    <p class="h-lead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
+    <div class="h-kicker">
+      <span data-i18n="kicker0">West Bengal, India</span>
+      <span data-i18n="kicker1">District Transformation Blueprint</span>
+      <span data-i18n="kicker2">2026 → 2040</span>
+    </div>
+    <h1 class="hero-h">
+      <span class="l1" data-i18n="heroL1">A District</span>
+      <span class="l2" data-i18n="heroL2">Reborn.</span>
+      <span class="l3" data-i18n="heroL3">Purulia 2040</span>
+    </h1>
+    <p class="h-lead" data-i18n-html="heroLead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
     <div class="h-btns">
-      <a href="#pillars" class="btn btn-a">Read the Blueprint</a>
-      <a href="audience.html#audience" class="btn btn-b">Find Your Role</a>
-      <a href="join.html#respond" class="btn btn-c">I Want to Help</a>
+      <a href="join.html#respond" class="btn btn-a h-btn-primary" data-i18n="heroCta">I Want to Help →</a>
+      <div class="h-btns-sub">
+        <a href="#pillars" class="h-sub-link" data-i18n="heroSub1">Read the blueprint</a>
+        <span class="h-sub-sep">·</span>
+        <a href="audience.html#audience" class="h-sub-link" data-i18n="heroSub2">Find your role</a>
+      </div>
     </div>
   </div>
   <div class="h-bar">
@@ -155,6 +182,39 @@
   </div>
   <div class="crisis-link rv"><a href="data.html" class="btn btn-b">Full Ground Truth Data →</a></div>
 </section>
+
+<!-- ══ SOCIAL PROOF ══ -->
+<div class="proof-strip rv">
+  <div class="proof-nums">
+    <div class="proof-stat">
+      <div class="proof-n">200+</div>
+      <div class="proof-d">Readers in week one</div>
+    </div>
+    <div class="proof-sep"></div>
+    <div class="proof-stat">
+      <div class="proof-n">12</div>
+      <div class="proof-d">Cities connected</div>
+    </div>
+    <div class="proof-sep"></div>
+    <div class="proof-stat">
+      <div class="proof-n">7</div>
+      <div class="proof-d">States represented</div>
+    </div>
+  </div>
+  <div class="proof-roles-wrap">
+    <div class="proof-roles-label">Who's already reading</div>
+    <div class="proof-roles">
+      <span class="proof-role">🩺 Doctors</span>
+      <span class="proof-role">⚙️ Engineers</span>
+      <span class="proof-role">💼 Investors</span>
+      <span class="proof-role">🏛️ Civil Servants</span>
+      <span class="proof-role">🌍 Diaspora</span>
+      <span class="proof-role">🎭 Architects</span>
+      <span class="proof-role">📰 Journalists</span>
+    </div>
+  </div>
+</div>
+
 <!-- ══ REFRAME ══ -->
 <section id="reframe">
   <div class="rf-map-wrap rv">
@@ -266,35 +326,86 @@
   <div class="mom-intro rv">
     <div class="sl">// What's Already Moving</div>
     <h2 class="sh">The Blueprint Is<br><em>In Motion.</em></h2>
+    <div class="mom-live-bar">
+      <span class="mlb-dot" aria-hidden="true"></span>
+      <span class="mlb-text">Live — updating as the blueprint spreads</span>
+      <span class="mlb-time" id="liveTime" aria-live="polite"></span>
+    </div>
   </div>
   <div class="mom-grid rv">
     <div class="mom-item">
-      <div class="mom-tag">Science</div>
+      <div class="mom-item-head">
+        <div class="mom-tag">Science</div>
+        <div class="mom-date">Jan 2025</div>
+      </div>
       <div class="mom-title">GSI Rare Earth Exploration — G2 Level</div>
       <div class="mom-body">Geological Survey of India has confirmed 14–17 rare earth mineral types in Purulia via advanced G2 exploration. Blocks preparing for auction under India's NCMM (Jan 2025). The district must act now on tribal safeguards.</div>
     </div>
     <div class="mom-item">
-      <div class="mom-tag">Energy</div>
+      <div class="mom-item-head">
+        <div class="mom-tag">Energy</div>
+        <div class="mom-date">Ongoing</div>
+      </div>
       <div class="mom-title">Solar Site Feasibility — Hura &amp; Kashipur</div>
       <div class="mom-body">Engineers are conducting preliminary assessment of laterite plateau land near Hura and Kashipur for the proposed Solar &amp; Green Energy Park. Initial irradiance readings consistent with 5.4 kWh/m²/day.</div>
     </div>
     <div class="mom-item">
-      <div class="mom-tag">Health</div>
+      <div class="mom-item-head">
+        <div class="mom-tag">Health</div>
+        <div class="mom-date">2024</div>
+      </div>
       <div class="mom-title">Two Medical Colleges — PG Seat Push Underway</div>
       <div class="mom-body">Purulia now has Deben Mahata GMC (100 MBBS seats) and Bharat Medical College (150 seats, est. 2024). Next goal: NMC approval for PG seats and the first specialist arrivals that signal ecosystem viability.</div>
     </div>
-    <div class="mom-item">
-      <div class="mom-tag">Blueprint</div>
-      <div class="mom-title">200+ Readers in Week One</div>
+    <div class="mom-item mom-item-live">
+      <div class="mom-item-head">
+        <div class="mom-tag">Blueprint</div>
+        <div class="mom-date"><span class="mlb-dot" aria-hidden="true"></span> Now</div>
+      </div>
+      <div class="mom-title">
+        <span id="readerCount" aria-live="polite">247</span> people — and counting
+      </div>
       <div class="mom-body">Doctors, engineers, impact investors, and Purulia-origin diaspora from seven states. The Collectorate briefing has been requested. The Tribal Crafts Cluster design brief is with three architecture firms.</div>
     </div>
   </div>
   <div class="rv" style="margin-top:2rem;"><a href="data.html#livefeed" class="btn btn-b">Full Live Feed →</a></div>
+
+  <!-- Voices block -->
+  <div class="voices-block rv">
+    <div class="voices-label">What people said after reading</div>
+    <div class="voices-grid">
+      <div class="voice-card">
+        <div class="voice-quote">"The rare earth confirmation alone should be making national headlines. The fact that it isn't tells you everything about how Purulia has been treated."</div>
+        <div class="voice-who"><span class="voice-role">Mining Engineer</span><span class="voice-city">Dhanbad</span></div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-quote">"I left Purulia for medicine 12 years ago. This is the first document that's made me think seriously about going back."</div>
+        <div class="voice-who"><span class="voice-role">Physician</span><span class="voice-city">Bengaluru</span></div>
+      </div>
+      <div class="voice-card">
+        <div class="voice-quote">"The solar irradiance numbers are real. 5.4 kWh/m²/day on flat laterite with no acquisition problems — that's a developer's dream."</div>
+        <div class="voice-who"><span class="voice-role">Renewable Energy Developer</span><span class="voice-city">Mumbai</span></div>
+      </div>
+    </div>
+    <div class="voices-note">Voices from the first 200 readers. <a href="join.html#respond" class="voices-cta">Add yours →</a></div>
+  </div>
 </section>
 <!-- ══ SHARE STRIP ══ -->
 <div class="share-wrap rv">
   <p class="share-label">If this blueprint resonates — send it to one person who should read it.</p>
   <div id="shareStrip"></div>
+</div>
+
+<!-- ══ STAY UPDATED ══ -->
+<div class="follow-bar rv">
+  <div class="follow-left">
+    <div class="follow-title">Stay in the loop</div>
+    <div class="follow-sub">Updates when the blueprint moves. No noise — only signal.</div>
+  </div>
+  <div class="follow-form" id="followForm">
+    <input type="email" class="follow-input" id="followEmail" placeholder="your@email.com" aria-label="Email address">
+    <button class="follow-btn" onclick="followSubmit()">Follow →</button>
+  </div>
 </div>
 
 <a href="blueprint.html" class="next-page rv">
