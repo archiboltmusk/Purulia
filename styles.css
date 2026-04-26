@@ -683,6 +683,14 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
 /* ── FOOTER AMBER BRAND GLOW ── */
 .ft-brand{text-shadow:0 0 20px rgba(212,136,42,.08);}
 
+/* ── FIX 1: SINGLE PRIMARY CTA ── */
+.h-btn-primary{font-size:.68rem;padding:1.1rem 2.8rem;letter-spacing:.22em;}
+.h-btns{flex-direction:column;align-items:flex-start;gap:.9rem;}
+.h-btns-sub{display:flex;align-items:center;gap:.8rem;}
+.h-sub-link{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,230,208,.28);text-decoration:none;transition:color .3s;cursor:none;}
+.h-sub-link:hover{color:rgba(212,136,42,.65);}
+.h-sub-sep{color:rgba(240,230,208,.12);font-family:'DM Mono',monospace;font-size:.7rem;}
+
 /* ── REDUCED MOTION ── */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
