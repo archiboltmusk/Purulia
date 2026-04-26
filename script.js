@@ -215,11 +215,14 @@ document.addEventListener('click',e=>{
     document.getElementById('navDropdown')?.classList.remove('open');
   }
 });
-/* Active page highlight */
+/* Active page highlight — desktop links + mobile dropdown */
 (function(){
   const p=window.location.pathname.split('/').pop()||'index.html';
   document.querySelectorAll('.nd-item').forEach(a=>{
     if(a.getAttribute('href')===p)a.classList.add('nd-active');
+  });
+  document.querySelectorAll('.nl-item').forEach(a=>{
+    if(a.getAttribute('href')===p)a.classList.add('nl-active');
   });
 })();
 
