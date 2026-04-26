@@ -227,7 +227,7 @@ function toggleMenu(){
   d.classList.toggle('open');
 }
 document.addEventListener('click',e=>{
-  if(!e.target.closest('.nav-left')){
+  if(!e.target.closest('.nav-mob')){
     document.getElementById('navToggle')?.classList.remove('open');
     document.getElementById('navDropdown')?.classList.remove('open');
   }
