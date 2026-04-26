@@ -27,6 +27,19 @@
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://mahatoanupam002-lang.github.io/purulia/#website","url":"https://mahatoanupam002-lang.github.io/purulia/","name":"Purulia 2040","description":"A complete transformation blueprint for Purulia, West Bengal — six pillars, a 15-year roadmap, full economics."},{"@type":"WebPage","@id":"https://mahatoanupam002-lang.github.io/purulia/#webpage","url":"https://mahatoanupam002-lang.github.io/purulia/","name":"Purulia 2040 — A District Reborn","description":"A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.","isPartOf":{"@id":"https://mahatoanupam002-lang.github.io/purulia/#website"}},{"@type":"GovernmentService","name":"Purulia 2040 District Transformation Blueprint","description":"A 15-year blueprint to transform Purulia district, West Bengal into Eastern India's green economy frontier through six strategic pillars: solar energy, crafts economy, water management, infrastructure, investment climate, and connectivity.","areaServed":{"@type":"AdministrativeArea","name":"Purulia District, West Bengal, India"},"serviceType":"District Development Planning"}]}</script>
 </head>
 <body>
+<div id="loader" aria-hidden="true">
+  <svg class="ld-mandala" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="44" stroke="#D4882A" stroke-width=".5" opacity=".5"/>
+    <circle cx="50" cy="50" r="30" stroke="#D4882A" stroke-width=".3" stroke-dasharray="3 6" opacity=".6"/>
+    <circle cx="50" cy="50" r="16" stroke="#D4882A" stroke-width=".5" opacity=".7"/>
+    <circle cx="50" cy="50" r="4" fill="#D4882A" opacity=".5"/>
+    <g stroke="#D4882A" stroke-width=".3" opacity=".4">
+      <line x1="50" y1="6" x2="50" y2="94"/><line x1="6" y1="50" x2="94" y2="50"/>
+      <line x1="19" y1="19" x2="81" y2="81"/><line x1="81" y1="19" x2="19" y2="81"/>
+    </g>
+  </svg>
+  <div class="ld-label">Purulia 2040</div>
+</div>
 <div id="cur"></div>
 <div id="curR"></div>
 <div id="pbar"></div>
@@ -52,6 +65,7 @@
 <!-- ══ HERO ══ -->
 <section id="hero">
   <div class="h-bg"></div>
+  <canvas id="heroCanvas" aria-hidden="true"></canvas>
   <div class="h-mandala">
     <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="250" cy="250" r="240" stroke="#D4882A" stroke-width=".5"/>
@@ -82,11 +96,15 @@
     </div>
   </div>
   <div class="h-bar">
-    <div class="hb"><div class="hb-n">300</div><div class="hb-l">Sunny days / yr</div></div>
+    <div class="hb"><div class="hb-n" data-hcount="300">300</div><div class="hb-l">Sunny days / yr</div></div>
     <div class="hb"><div class="hb-n">4,000</div><div class="hb-l">Years of Dokra craft</div></div>
-    <div class="hb"><div class="hb-n">6</div><div class="hb-l">Transformation levers</div></div>
+    <div class="hb"><div class="hb-n" data-hcount="6">6</div><div class="hb-l">Transformation levers</div></div>
     <div class="hb"><div class="hb-n">₹3,500Cr</div><div class="hb-l">Investment needed</div></div>
-    <div class="hb"><div class="hb-n">2040</div><div class="hb-l">Target horizon</div></div>
+    <div class="hb"><div class="hb-n" data-hcount="2040">2040</div><div class="hb-l">Target horizon</div></div>
+  </div>
+  <div class="scroll-hint" aria-hidden="true">
+    <div class="sh-line"></div>
+    <div class="sh-text">Scroll</div>
   </div>
 </section>
 
@@ -105,27 +123,27 @@
   </div>
   <div class="crisis-grid rv">
     <div class="crisis-stat">
-      <div class="cs-val bad">62.4%</div>
+      <div class="cs-val bad" data-count="62.4" data-suffix="%">62.4%</div>
       <div class="cs-label">Children malnourished</div>
       <div class="cs-note">Ages 2–12. 82% of 4-year-old girls. Worse than sub-Saharan benchmarks for the same age groups.</div>
     </div>
     <div class="crisis-stat">
-      <div class="cs-val bad">~71%</div>
+      <div class="cs-val bad" data-count="71" data-prefix="~" data-suffix="%">~71%</div>
       <div class="cs-label">Tribal dropout before Cl. X</div>
       <div class="cs-note">7 in 10 Scheduled Tribe children leave school before Class X. Tribal literacy: 53.86% vs national ST avg 58.96%.</div>
     </div>
     <div class="crisis-stat">
-      <div class="cs-val bad">0.31</div>
+      <div class="cs-val bad" data-count="0.31">0.31</div>
       <div class="cs-label">Human Development Index</div>
       <div class="cs-note">Among WB's lowest. Male–female literacy gap: 37 percentage points. Gender Discrimination Index in education: 0.42.</div>
     </div>
     <div class="crisis-stat">
-      <div class="cs-val bad">~66%</div>
+      <div class="cs-val bad" data-count="66" data-prefix="~" data-suffix="%">~66%</div>
       <div class="cs-label">District under severe drought</div>
       <div class="cs-note">12.3% extreme, 53.7% severe. Barabazar block: 75.5% extreme risk. Only 2.6% of the district is near-normal.</div>
     </div>
     <div class="crisis-stat">
-      <div class="cs-val bad">90%</div>
+      <div class="cs-val bad" data-count="90" data-suffix="%">90%</div>
       <div class="cs-label">Migrants cite poverty</div>
       <div class="cs-note">89% cite unemployment. 44% cite landlessness. The working-age population is leaving — and not returning.</div>
     </div>
