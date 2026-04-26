@@ -416,6 +416,13 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 .lf-desc{font-size:.97rem;color:rgba(240,230,208,.48);line-height:1.68;}
 @media(max-width:960px){#livefeed{padding:5rem 2rem;}.lf-header{flex-direction:column;gap:1.2rem;}.lf-item{grid-template-columns:1fr;gap:.8rem;}}
 
+/* ── FIX 8: LANGUAGE SWITCHER ── */
+.lang-switch{display:flex;align-items:center;gap:.2rem;}
+.lang-btn{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.12em;text-transform:uppercase;background:none;border:1px solid var(--border2);color:rgba(240,230,208,.22);padding:.32rem .6rem;cursor:pointer;transition:all .25s;line-height:1;}
+.lang-btn:hover{border-color:rgba(212,136,42,.35);color:rgba(240,230,208,.55);}
+.lang-btn.lang-active{border-color:rgba(212,136,42,.5);color:var(--amber);background:rgba(212,136,42,.07);}
+@media(max-width:960px){.lang-switch{display:none;}}
+
 /* ── FIX 7: DESKTOP NAV LINKS ── */
 .nav-links{display:flex;align-items:center;gap:2.4rem;}
 .nl-item{font-family:'DM Mono',monospace;font-size:.47rem;letter-spacing:.28em;text-transform:uppercase;color:rgba(240,230,208,.32);text-decoration:none;transition:color .3s;cursor:none;position:relative;}

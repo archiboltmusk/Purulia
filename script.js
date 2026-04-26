@@ -520,6 +520,70 @@ document.addEventListener('click',e=>{
   });
 })();
 
+/* ── FIX 8: LANGUAGE SWITCHER ── */
+(function(){
+  const T={
+    en:{
+      kicker0:'West Bengal, India',
+      kicker1:'District Transformation Blueprint',
+      kicker2:'2026 → 2040',
+      heroL1:'A District',
+      heroL2:'Reborn.',
+      heroL3:'Purulia 2040',
+      heroLead:'Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation\'s worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.',
+      heroCta:'I Want to Help →',
+      heroSub1:'Read the blueprint',
+      heroSub2:'Find your role'
+    },
+    bn:{
+      kicker0:'পশ্চিমবঙ্গ, ভারত',
+      kicker1:'জেলা রূপান্তর পরিকল্পনা',
+      kicker2:'২০২৬ → ২০৪০',
+      heroL1:'একটি জেলার',
+      heroL2:'পুনর্জন্ম।',
+      heroL3:'পুরুলিয়া ২০৪০',
+      heroLead:'পুরুলিয়া কোনো সমস্যা নয় যা সামলাতে হবে।<br>এটি একটি <strong>সুযোগ — এক প্রজন্মের সংকল্পের অপেক্ষায়।</strong><br>এটি সম্পূর্ণ পরিকল্পনা — প্রত্যেকের জন্য যারা অংশ নিতে চান।',
+      heroCta:'আমি সাহায্য করতে চাই →',
+      heroSub1:'পরিকল্পনা পড়ুন',
+      heroSub2:'আপনার ভূমিকা খুঁজুন'
+    },
+    hi:{
+      kicker0:'पश्चिम बंगाल, भारत',
+      kicker1:'जिला परिवर्तन खाका',
+      kicker2:'२०२६ → २०४०',
+      heroL1:'एक जिला',
+      heroL2:'पुनर्जन्म।',
+      heroL3:'पुरुलिया २०४०',
+      heroLead:'पुरुलिया कोई समस्या नहीं है जिसे संभाला जाए।<br>यह एक <strong>अवसर है — एक पीढ़ी की इच्छाशक्ति की प्रतीक्षा में।</strong><br>यह पूरी योजना है — हर उस व्यक्ति के लिए जो भाग लेना चाहता है।',
+      heroCta:'मैं मदद करना चाहता हूँ →',
+      heroSub1:'खाका पढ़ें',
+      heroSub2:'अपनी भूमिका खोजें'
+    }
+  };
+
+  window.setLang=function(lang){
+    if(!T[lang])return;
+    const strings=T[lang];
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k=el.dataset.i18n;
+      if(strings[k]!==undefined)el.textContent=strings[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+      const k=el.dataset.i18nHtml;
+      if(strings[k]!==undefined)el.innerHTML=strings[k];
+    });
+    document.documentElement.lang=lang;
+    localStorage.setItem('p2040lang',lang);
+    document.querySelectorAll('.lang-btn').forEach(b=>{
+      b.classList.toggle('lang-active',b.dataset.lang===lang);
+    });
+  };
+
+  /* Apply stored preference on load */
+  const saved=localStorage.getItem('p2040lang');
+  if(saved&&saved!=='en'&&T[saved])window.setLang(saved);
+})();
+
 /* ── FIX 6: STAY UPDATED / FOLLOW ── */
 window.followSubmit=async function(){
   const input=document.getElementById('followEmail');

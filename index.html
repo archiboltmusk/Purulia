@@ -57,6 +57,11 @@
     <a href="map.html" class="nl-item">Map</a>
   </div>
   <div class="nav-right">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button class="lang-btn lang-active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="bn" onclick="setLang('bn')">বাং</button>
+      <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+    </div>
     <a href="join.html#respond" class="nav-cta">Help →</a>
     <div class="nav-mob">
       <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
@@ -97,15 +102,23 @@
     </svg>
   </div>
   <div class="h-main">
-    <div class="h-kicker"><span>West Bengal, India</span><span>District Transformation Blueprint</span><span>2026 → 2040</span></div>
-    <h1 class="hero-h"><span class="l1">A District</span><span class="l2">Reborn.</span><span class="l3">Purulia 2040</span></h1>
-    <p class="h-lead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
+    <div class="h-kicker">
+      <span data-i18n="kicker0">West Bengal, India</span>
+      <span data-i18n="kicker1">District Transformation Blueprint</span>
+      <span data-i18n="kicker2">2026 → 2040</span>
+    </div>
+    <h1 class="hero-h">
+      <span class="l1" data-i18n="heroL1">A District</span>
+      <span class="l2" data-i18n="heroL2">Reborn.</span>
+      <span class="l3" data-i18n="heroL3">Purulia 2040</span>
+    </h1>
+    <p class="h-lead" data-i18n-html="heroLead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
     <div class="h-btns">
-      <a href="join.html#respond" class="btn btn-a h-btn-primary">I Want to Help →</a>
+      <a href="join.html#respond" class="btn btn-a h-btn-primary" data-i18n="heroCta">I Want to Help →</a>
       <div class="h-btns-sub">
-        <a href="#pillars" class="h-sub-link">Read the blueprint</a>
+        <a href="#pillars" class="h-sub-link" data-i18n="heroSub1">Read the blueprint</a>
         <span class="h-sub-sep">·</span>
-        <a href="audience.html#audience" class="h-sub-link">Find your role</a>
+        <a href="audience.html#audience" class="h-sub-link" data-i18n="heroSub2">Find your role</a>
       </div>
     </div>
   </div>
