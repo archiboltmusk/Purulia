@@ -433,7 +433,7 @@ document.addEventListener('click',e=>{
 /* ── MAGNETIC BUTTON EFFECT ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   document.querySelectorAll('.btn-a,.btn-c').forEach(b=>{
     b.addEventListener('mousemove',e=>{
@@ -451,7 +451,7 @@ document.addEventListener('click',e=>{
 /* ── 3D CARD TILT EFFECT ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   document.querySelectorAll('.pill,.crisis-stat,.mom-item').forEach(c=>{
     c.addEventListener('mousemove',e=>{
@@ -470,7 +470,7 @@ document.addEventListener('click',e=>{
 /* ── HERO PARALLAX (subtle text drift on mouse) ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  if(window.matchMedia('(max-width:960px)').matches)return;
+  if(window.matchMedia('(pointer:coarse)').matches)return;
 
   const hm=document.querySelector('.h-main');
   if(!hm)return;

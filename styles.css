@@ -349,24 +349,31 @@ footer{padding:2.8rem 5rem;border-top:1px solid var(--border2);display:grid;grid
 @media(max-width:960px){
   nav{padding:1.2rem 2rem;}
   .h-main{padding:9rem 2rem 3rem;}
-  .h-bar{grid-template-columns:repeat(3,1fr);}
+  .h-bar{grid-template-columns:repeat(2,1fr);}
   .hb{padding:1.2rem 1.5rem;}
+  .hb:last-child{grid-column:1/-1;border-right:none;border-top:1px solid var(--border);}
   #reframe,.pad,.pad-sm{padding:5rem 2rem;}
   #reframe{grid-template-columns:1fr;}
   .rf-map-wrap{display:none;}
   .ph,.econ-g,.five-grid,.gt-grid,.gt-compare-grid,.form-grid,#sprint{grid-template-columns:1fr;}
-  .pgrid{grid-template-columns:1fr;}
+  .pgrid{grid-template-columns:repeat(2,1fr);}
   .aud-layout{grid-template-columns:1fr;}
   .ddi{grid-template-columns:1fr;}
   .tl-row{grid-template-columns:1fr;}
   .tl-spine{display:none;}
   .tlc::before{display:none;}
   .tlc{margin-top:0;}
+  #crisis,#pillars,#momentum,#path-finder,#reframe{padding:5rem 2rem;}
   #deepdives,#audience,#timeline,#economics,#fivepeople,#sprint,#respond,#groundtruth,#manifesto{padding:5rem 2rem;}
   footer{grid-template-columns:1fr;text-align:center;}
   .ft-links{justify-content:center;}
   .next-page{padding:2.5rem 1.5rem;}
   .np-title{font-size:1.5rem;}
+  /* Touch-friendly tap targets */
+  .aud-btn{min-height:44px;display:inline-flex;align-items:center;justify-content:center;}
+  .pf-role-card{padding:1.6rem 1.4rem;}
+  .nd-item{min-height:52px;}
+  .btn{min-height:48px;display:inline-flex;align-items:center;justify-content:center;}
 }
 /* ── Form loading state ── */
 .form-submit:disabled{opacity:.55;cursor:not-allowed;}
@@ -690,6 +697,40 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
 .h-sub-link{font-family:'DM Mono',monospace;font-size:.52rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,230,208,.28);text-decoration:none;transition:color .3s;cursor:none;}
 .h-sub-link:hover{color:rgba(212,136,42,.65);}
 .h-sub-sep{color:rgba(240,230,208,.12);font-family:'DM Mono',monospace;font-size:.7rem;}
+
+/* ── FIX 2: MOBILE — TOUCH CURSOR RESET ── */
+@media(pointer:coarse){
+  body{cursor:auto;}
+  a,button,.btn,.nav-toggle,.aud-btn,.sf-btn,.ct-btn,.sp-btn,.ss-btn,
+  .pf-role-card,.pill,.ddt,.tlc,.mom-item,.crisis-stat,.lf-item,.spi,.fp,
+  .aud-action,.aud-share,.pf-reset,.nd-item,.next-page{cursor:pointer;}
+  #cur,#curR{display:none;}
+  #heroCanvas{display:none;}
+}
+
+/* ── FIX 2: MOBILE — SMALL PHONE (<480px) ── */
+@media(max-width:480px){
+  h1.hero-h{font-size:clamp(3.2rem,13vw,5rem);}
+  .h-main{padding:7.5rem 1.5rem 2.5rem;}
+  .h-kicker{font-size:.5rem;gap:.4rem;}
+  .h-kicker span{padding:.22rem .6rem;}
+  .h-lead{font-size:1.12rem;}
+  .h-btn-primary{font-size:.6rem;padding:1rem 2rem;}
+  .h-btns-sub{gap:.5rem;}
+  .h-sub-sep{display:none;}
+  .h-sub-link{font-size:.5rem;}
+  .pgrid{grid-template-columns:1fr;}
+  .crisis-grid{grid-template-columns:1fr;}
+  .pf-grid{grid-template-columns:repeat(2,1fr);}
+  .sh{font-size:clamp(1.9rem,7vw,2.8rem);}
+  .page-hd-title{font-size:clamp(2rem,10vw,3rem);}
+}
+
+/* ── FIX 2: MOBILE — TABLET PILLAR GRID ── */
+@media(min-width:481px) and (max-width:960px){
+  .pgrid{grid-template-columns:repeat(2,1fr);}
+  .crisis-grid{grid-template-columns:repeat(2,1fr);}
+}
 
 /* ── REDUCED MOTION ── */
 @media(prefers-reduced-motion:reduce){
