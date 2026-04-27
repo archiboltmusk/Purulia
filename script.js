@@ -655,22 +655,7 @@ window.followSubmit=async function(){
   }
 };
 
-/* ── FIX 4: LIVE READER COUNTER ── */
-(function(){
-  const el=document.getElementById('readerCount');
-  if(!el)return;
-  let n=247;
-  function tick(){
-    n+=1;
-    el.textContent=n;
-    /* Next increment: random 18–45 seconds */
-    setTimeout(tick,18000+Math.random()*27000);
-  }
-  /* Start after 12–20 seconds so it feels natural, not instant */
-  setTimeout(tick,12000+Math.random()*8000);
-})();
-
-/* ── FIX 4: LIVE CLOCK IN MOMENTUM HEADER ── */
+/* ── LIVE CLOCK IN MOMENTUM HEADER ── */
 (function(){
   const el=document.getElementById('liveTime');
   if(!el)return;
