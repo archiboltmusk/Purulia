@@ -827,3 +827,83 @@ window.followSubmit=async function(){
     if(item){idx=vis().indexOf(item);go();}
   });
 })();
+
+/* ── READING TIME ── */
+(function(){
+  const hd=document.querySelector('.page-hd');
+  if(!hd)return;
+  const words=document.body.innerText.trim().split(/\s+/).length;
+  const mins=Math.max(1,Math.round(words/220));
+  const el=document.createElement('div');
+  el.className='reading-time';
+  el.textContent='~ '+mins+' min read';
+  hd.appendChild(el);
+})();
+
+/* ── COPY STAT BUTTONS ── */
+(function(){
+  document.querySelectorAll('.gt-card').forEach(function(card){
+    const label=card.querySelector('.gt-card-label');
+    const val=card.querySelector('.gt-card-val');
+    const src=card.querySelector('.gt-card-src');
+    if(!label||!val)return;
+    const btn=document.createElement('button');
+    btn.className='gt-copy';btn.setAttribute('aria-label','Copy stat');btn.textContent='copy';
+    btn.addEventListener('click',function(){
+      const text=label.textContent+': '+val.textContent+(src?'\n'+src.textContent:'');
+      navigator.clipboard.writeText(text).then(function(){showToast('Stat copied to clipboard');});
+    });
+    card.appendChild(btn);
+  });
+})();
+
+/* ── KEYBOARD SHORTCUT HELP (?) ── */
+(function(){
+  const SHORTCUTS=[
+    ['⌘K / Ctrl+K','Open command palette'],
+    ['↑ ↓ + Enter','Navigate palette'],
+    ['Esc','Close palette / overlay'],
+    ['Tab','Keyboard navigation (accessibility)'],
+  ];
+
+  const overlay=document.createElement('div');
+  overlay.id='kbhelp';
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-label','Keyboard shortcuts');
+
+  const box=document.createElement('div');
+  box.id='kbhelp-box';
+
+  const title=document.createElement('div');
+  title.id='kbhelp-title';title.textContent='Keyboard Shortcuts';
+  box.appendChild(title);
+
+  const table=document.createElement('div');
+  table.id='kbhelp-table';
+  SHORTCUTS.forEach(function(s){
+    const row=document.createElement('div');
+    row.className='kbh-row';
+    row.innerHTML='<kbd>'+s[0]+'</kbd><span>'+s[1]+'</span>';
+    table.appendChild(row);
+  });
+  box.appendChild(table);
+
+  const close=document.createElement('div');
+  close.id='kbhelp-close';close.textContent='Press Esc or ? to close';
+  box.appendChild(close);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function openHelp(){overlay.classList.add('open');}
+  function closeHelp(){overlay.classList.remove('open');}
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='?'&&!e.metaKey&&!e.ctrlKey&&!(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){
+      overlay.classList.contains('open')?closeHelp():openHelp();
+    }
+    if(e.key==='Escape')closeHelp();
+  });
+  overlay.addEventListener('click',function(e){if(e.target===overlay)closeHelp();});
+})();

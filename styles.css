@@ -883,3 +883,24 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
 .dc-wrap{position:relative;height:220px;}
 .dc-src{font-family:'DM Mono',monospace;font-size:.41rem;letter-spacing:.08em;color:rgba(240,230,208,.2);margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(212,136,42,.08);}
 @media(max-width:900px){.dc-grid{grid-template-columns:1fr;}}
+
+/* ── READING TIME ── */
+.reading-time{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.22em;text-transform:uppercase;color:rgba(240,230,208,.28);margin-top:1.2rem;}
+
+/* ── COPY STAT BUTTON ── */
+.gt-card{position:relative;}
+.gt-copy{position:absolute;top:.9rem;right:.9rem;background:none;border:1px solid rgba(212,136,42,.15);color:rgba(212,136,42,.35);font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.2em;text-transform:uppercase;padding:.3rem .55rem;cursor:none;opacity:0;transition:opacity .25s,border-color .25s,color .25s;}
+.gt-card:hover .gt-copy{opacity:1;}
+.gt-copy:hover{border-color:var(--amber);color:var(--amber);}
+@media(pointer:coarse){.gt-copy{opacity:1;cursor:auto;}}
+
+/* ── KEYBOARD HELP OVERLAY ── */
+#kbhelp{position:fixed;inset:0;background:rgba(9,7,3,.82);backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);z-index:99000;display:none;align-items:center;justify-content:center;}
+#kbhelp.open{display:flex;}
+#kbhelp-box{background:rgba(14,11,5,.97);border:1px solid rgba(212,136,42,.2);width:min(480px,90vw);padding:2.5rem;}
+#kbhelp-title{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.35em;text-transform:uppercase;color:var(--amber);margin-bottom:1.8rem;}
+#kbhelp-table{display:flex;flex-direction:column;gap:.9rem;margin-bottom:2rem;}
+.kbh-row{display:flex;align-items:baseline;gap:1.5rem;}
+.kbh-row kbd{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.12em;color:var(--cream);background:rgba(240,230,208,.06);border:1px solid var(--border2);padding:.25rem .6rem;min-width:110px;display:inline-block;text-align:center;flex-shrink:0;}
+.kbh-row span{font-size:.92rem;color:rgba(240,230,208,.5);font-style:italic;}
+#kbhelp-close{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,230,208,.2);}
