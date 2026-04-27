@@ -684,3 +684,226 @@ window.followSubmit=async function(){
   const pills=document.querySelectorAll('.pill.rv');
   pills.forEach((p,i)=>{p.style.transitionDelay=(i*.08+.04)+'s';});
 })();
+
+/* ── LINK PREFETCH ON HOVER ── */
+(function(){
+  const seen=new Set();
+  document.addEventListener('mouseover',function(e){
+    const a=e.target.closest('a[href]');
+    if(!a)return;
+    const h=a.getAttribute('href');
+    if(!h||h.startsWith('#')||h.startsWith('http')||h.startsWith('mailto:')||h.startsWith('tel:'))return;
+    const page=h.split('#')[0];
+    if(!page||seen.has(page))return;
+    seen.add(page);
+    const lnk=document.createElement('link');
+    lnk.rel='prefetch';lnk.href=page;
+    document.head.appendChild(lnk);
+  },{passive:true});
+})();
+
+/* ── BACK TO TOP ── */
+(function(){
+  const btn=document.createElement('button');
+  btn.id='btt';btn.setAttribute('aria-label','Back to top');btn.textContent='↑';
+  document.body.appendChild(btn);
+  window.addEventListener('scroll',function(){
+    btn.classList.toggle('btt-show',window.scrollY>600);
+  },{passive:true});
+  btn.addEventListener('click',function(){
+    window.scrollTo({top:0,behavior:'smooth'});
+  });
+})();
+
+/* ── TICKER PAUSE ON HOVER ── */
+(function(){
+  const t=document.querySelector('.ticker-t');
+  if(!t)return;
+  const ticker=t.closest('.ticker');
+  if(!ticker)return;
+  ticker.addEventListener('mouseenter',function(){t.style.animationPlayState='paused';});
+  ticker.addEventListener('mouseleave',function(){t.style.animationPlayState='running';});
+})();
+
+/* ── COMMAND PALETTE (⌘K / Ctrl+K) ── */
+(function(){
+  const PAGES=[
+    {href:'index.html',       label:'Home',         desc:'Overview & manifesto'},
+    {href:'blueprint.html',   label:'Blueprint',    desc:'The 15-year plan'},
+    {href:'data.html',        label:'Ground Truth', desc:'Verified data & charts'},
+    {href:'audience.html',    label:'For You',      desc:'Find your role'},
+    {href:'join.html',        label:'Join',         desc:'Get involved'},
+    {href:'map.html',         label:'District Map', desc:'Interactive map'},
+    {href:'blueprint.html#deepdives', label:'Deep Dives',    desc:'All 6 pillars expanded'},
+    {href:'blueprint.html#timeline',  label:'Timeline',      desc:'2026 → 2040 roadmap'},
+    {href:'blueprint.html#economics', label:'Economics',     desc:'Revenue projections'},
+    {href:'data.html#solution-matrix',label:'Solution Matrix',desc:'Every problem, specific answer'},
+    {href:'data.html#data-charts',    label:'Data Charts',   desc:'Visualised statistics'},
+    {href:'join.html#respond',        label:'Join Now',      desc:'Five people. Eighteen months.'},
+  ];
+
+  /* Build DOM */
+  const pal=document.createElement('div');
+  pal.id='cmdpal';
+  pal.setAttribute('role','dialog');
+  pal.setAttribute('aria-modal','true');
+  pal.setAttribute('aria-label','Command palette');
+
+  const inner=document.createElement('div');
+  inner.id='cmdpal-inner';
+
+  const inp=document.createElement('input');
+  inp.type='text';inp.id='cmdpal-input';inp.placeholder='Go to…';
+  inp.setAttribute('aria-label','Search pages');
+  inp.setAttribute('autocomplete','off');
+  inner.appendChild(inp);
+
+  const res=document.createElement('div');
+  res.id='cmdpal-results';
+  PAGES.forEach(function(p){
+    const d=document.createElement('div');
+    d.className='cmd-item';d.dataset.href=p.href;
+    d.innerHTML=p.label+'<span>'+p.desc+'</span>';
+    res.appendChild(d);
+  });
+  inner.appendChild(res);
+
+  const hint=document.createElement('div');
+  hint.id='cmdpal-hint';
+  hint.innerHTML='<span>↑↓ navigate</span><span>↵ open</span><span>Esc close</span>';
+  inner.appendChild(hint);
+  pal.appendChild(inner);
+  document.body.appendChild(pal);
+
+  let idx=0;
+
+  function open(){pal.classList.add('open');inp.value='';filter('');setIdx(0);inp.focus();}
+  function close(){pal.classList.remove('open');}
+
+  function vis(){return Array.from(res.querySelectorAll('.cmd-item:not(.cmd-hide)'));}
+
+  function setIdx(i){
+    const items=vis();
+    idx=Math.max(0,Math.min(i,items.length-1));
+    items.forEach(function(el,j){el.classList.toggle('cmd-on',j===idx);});
+    if(items[idx])items[idx].scrollIntoView({block:'nearest'});
+  }
+
+  function filter(q){
+    const qq=q.toLowerCase();
+    res.querySelectorAll('.cmd-item').forEach(function(el){
+      el.classList.toggle('cmd-hide',!!qq&&!el.textContent.toLowerCase().includes(qq));
+    });
+    setIdx(0);
+  }
+
+  function go(){
+    const items=vis();
+    if(!items[idx])return;
+    const href=items[idx].dataset.href;
+    close();
+    const de=document.documentElement;
+    if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+      window.location.href=href;
+    } else {
+      de.style.transition='opacity .2s ease';de.style.opacity='0';
+      setTimeout(function(){sessionStorage.setItem('pgt','1');window.location.href=href;},200);
+    }
+  }
+
+  document.addEventListener('keydown',function(e){
+    if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();pal.classList.contains('open')?close():open();return;}
+    if(!pal.classList.contains('open'))return;
+    if(e.key==='Escape'){close();}
+    else if(e.key==='ArrowDown'){e.preventDefault();setIdx(idx+1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();setIdx(idx-1);}
+    else if(e.key==='Enter'){go();}
+  });
+
+  inp.addEventListener('input',function(){filter(this.value);});
+  pal.addEventListener('click',function(e){
+    if(e.target===pal){close();return;}
+    const item=e.target.closest('.cmd-item');
+    if(item){idx=vis().indexOf(item);go();}
+  });
+})();
+
+/* ── READING TIME ── */
+(function(){
+  const hd=document.querySelector('.page-hd');
+  if(!hd)return;
+  const words=document.body.innerText.trim().split(/\s+/).length;
+  const mins=Math.max(1,Math.round(words/220));
+  const el=document.createElement('div');
+  el.className='reading-time';
+  el.textContent='~ '+mins+' min read';
+  hd.appendChild(el);
+})();
+
+/* ── COPY STAT BUTTONS ── */
+(function(){
+  document.querySelectorAll('.gt-card').forEach(function(card){
+    const label=card.querySelector('.gt-card-label');
+    const val=card.querySelector('.gt-card-val');
+    const src=card.querySelector('.gt-card-src');
+    if(!label||!val)return;
+    const btn=document.createElement('button');
+    btn.className='gt-copy';btn.setAttribute('aria-label','Copy stat');btn.textContent='copy';
+    btn.addEventListener('click',function(){
+      const text=label.textContent+': '+val.textContent+(src?'\n'+src.textContent:'');
+      navigator.clipboard.writeText(text).then(function(){showToast('Stat copied to clipboard');});
+    });
+    card.appendChild(btn);
+  });
+})();
+
+/* ── KEYBOARD SHORTCUT HELP (?) ── */
+(function(){
+  const SHORTCUTS=[
+    ['⌘K / Ctrl+K','Open command palette'],
+    ['↑ ↓ + Enter','Navigate palette'],
+    ['Esc','Close palette / overlay'],
+    ['Tab','Keyboard navigation (accessibility)'],
+  ];
+
+  const overlay=document.createElement('div');
+  overlay.id='kbhelp';
+  overlay.setAttribute('role','dialog');
+  overlay.setAttribute('aria-modal','true');
+  overlay.setAttribute('aria-label','Keyboard shortcuts');
+
+  const box=document.createElement('div');
+  box.id='kbhelp-box';
+
+  const title=document.createElement('div');
+  title.id='kbhelp-title';title.textContent='Keyboard Shortcuts';
+  box.appendChild(title);
+
+  const table=document.createElement('div');
+  table.id='kbhelp-table';
+  SHORTCUTS.forEach(function(s){
+    const row=document.createElement('div');
+    row.className='kbh-row';
+    row.innerHTML='<kbd>'+s[0]+'</kbd><span>'+s[1]+'</span>';
+    table.appendChild(row);
+  });
+  box.appendChild(table);
+
+  const close=document.createElement('div');
+  close.id='kbhelp-close';close.textContent='Press Esc or ? to close';
+  box.appendChild(close);
+
+  overlay.appendChild(box);
+  document.body.appendChild(overlay);
+
+  function openHelp(){overlay.classList.add('open');}
+  function closeHelp(){overlay.classList.remove('open');}
+
+  document.addEventListener('keydown',function(e){
+    if(e.key==='?'&&!e.metaKey&&!e.ctrlKey&&!(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')){
+      overlay.classList.contains('open')?closeHelp():openHelp();
+    }
+    if(e.key==='Escape')closeHelp();
+  });
+  overlay.addEventListener('click',function(e){if(e.target===overlay)closeHelp();});
+})();
