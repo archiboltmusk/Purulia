@@ -834,6 +834,13 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
   .crisis-grid{grid-template-columns:repeat(2,1fr);}
 }
 
+/* ── ACCESSIBILITY ── */
+.skip-link{position:absolute;left:-9999px;top:auto;width:1px;height:1px;overflow:hidden;z-index:100000;}
+.skip-link:focus{position:fixed;left:1rem;top:1rem;width:auto;height:auto;padding:.75rem 1.5rem;background:var(--amber);color:var(--ink);font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.2em;text-transform:uppercase;text-decoration:none;outline:none;border-radius:2px;}
+:focus-visible{outline:2px solid rgba(212,136,42,.8);outline-offset:3px;border-radius:2px;}
+.form-input:focus-visible,.form-select:focus-visible,.form-textarea:focus-visible,.follow-input:focus-visible,.ci-range:focus-visible{outline:none;}
+#main-content:focus{outline:none;}
+
 /* ── REDUCED MOTION ── */
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.001ms!important;transition-duration:.001ms!important;}
