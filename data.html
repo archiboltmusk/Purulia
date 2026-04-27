@@ -199,6 +199,42 @@
       <div class="gt-card-src">Source: Platform coverage maps — Zepto, Blinkit, Swiggy Instamart, Amazon, Flipkart, 2025</div>
     </div>
   </div>
+
+  <!-- ══ DATA CHARTS ══ -->
+  <div id="data-charts">
+    <div class="rv">
+      <div class="sl">// Visual Evidence</div>
+      <h2>The Numbers, <em>Charted.</em></h2>
+      <p>The same data rendered visually. The scale of the gap becomes visceral when you see it.</p>
+    </div>
+    <div class="dc-grid rv">
+      <div class="dc-card">
+        <div class="dc-label">Per Capita Income Gap</div>
+        <div class="dc-sub">Purulia earns ₹35 for every ₹100 the state earns</div>
+        <div class="dc-wrap"><canvas id="chartIncome"></canvas></div>
+        <div class="dc-src">Source: WB DES 2021–22 · IndiaSTAT 2023–24</div>
+      </div>
+      <div class="dc-card">
+        <div class="dc-label">Development Indicators vs Benchmarks</div>
+        <div class="dc-sub">Purulia trails on every measurable dimension</div>
+        <div class="dc-wrap"><canvas id="chartIndicators"></canvas></div>
+        <div class="dc-src">Source: NFHS-5 2022 · Agriculture Census 2015–16 · ISFR 2023</div>
+      </div>
+      <div class="dc-card">
+        <div class="dc-label">Drought Severity Across the District</div>
+        <div class="dc-sub">66% classified severe-to-extreme — not a localised problem</div>
+        <div class="dc-wrap"><canvas id="chartDrought"></canvas></div>
+        <div class="dc-src">Source: Environmental Monitoring &amp; Assessment, Springer 2023</div>
+      </div>
+      <div class="dc-card">
+        <div class="dc-label">Children in Crisis</div>
+        <div class="dc-sub">Malnutrition, dropout, and child labour rates against benchmarks</div>
+        <div class="dc-wrap"><canvas id="chartChildren"></canvas></div>
+        <div class="dc-src">Source: NFHS-5 2022 · UDISE+ 2022–23 · Census 2011 · ResearchGate 2021</div>
+      </div>
+    </div>
+  </div>
+
   <!-- ══ SOLUTION MATRIX ══ -->
   <div id="solution-matrix">
     <div class="rv">
@@ -664,6 +700,7 @@
     <a href="join.html">Join</a>
   </div>
 </footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
 <script src="script.js"></script>
 <script>
 window.filterSM=function(cat,btn){
@@ -674,6 +711,113 @@ window.filterSM=function(cat,btn){
     card.classList.toggle('sm-hidden',!matches);
   });
 };
+</script>
+<script>
+/* ── Chart.js Initialisation ── */
+(function(){
+  var done=false;
+  function r(a){return 'rgba(212,136,42,'+a+')';}
+  function rd(a){return 'rgba(224,80,80,'+a+')';}
+  function gr(a){return 'rgba(107,174,138,'+a+')';}
+  var F={family:'DM Mono, monospace',size:10};
+  var TC='rgba(240,230,208,0.4)';
+  var GC='rgba(212,136,42,0.07)';
+
+  function go(){
+    if(done||typeof Chart==='undefined')return;
+    done=true;
+
+    /* Income gap – horizontal bar */
+    new Chart(document.getElementById('chartIncome'),{
+      type:'bar',
+      data:{
+        labels:['Purulia','WB Average','National Avg'],
+        datasets:[{data:[50074,141373,170620],backgroundColor:[rd(.7),r(.65),gr(.65)],borderColor:['#E05050','#D4882A','#6BAE8A'],borderWidth:1}]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>'₹'+c.raw.toLocaleString('en-IN')}}},
+        scales:{
+          x:{grid:{color:GC},ticks:{callback:v=>'₹'+(v/1000).toFixed(0)+'k',color:TC,font:F}},
+          y:{grid:{display:false},ticks:{color:'rgba(240,230,208,.65)',font:F}}
+        }
+      }
+    });
+
+    /* Development indicators – grouped bar */
+    new Chart(document.getElementById('chartIndicators'),{
+      type:'bar',
+      data:{
+        labels:['Female Literacy','Sanitation','Irrigation','Forest Cover'],
+        datasets:[
+          {label:'Purulia', data:[62.3,29.2,21.6,14.69],backgroundColor:rd(.7),borderColor:'#E05050',borderWidth:1},
+          {label:'WB State',data:[70.5,76,62.5,19.03],   backgroundColor:r(.6), borderColor:'#D4882A',borderWidth:1},
+          {label:'National',data:[65.5,69,51.5,21.71],   backgroundColor:gr(.6),borderColor:'#6BAE8A',borderWidth:1}
+        ]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,
+        plugins:{
+          legend:{labels:{color:'rgba(240,230,208,.55)',font:F,boxWidth:10,padding:10}},
+          tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}
+        },
+        scales:{
+          x:{grid:{color:GC},ticks:{color:TC,font:{family:'DM Mono, monospace',size:9},maxRotation:20}},
+          y:{grid:{color:GC},min:0,max:100,ticks:{callback:v=>v+'%',color:TC,font:F}}
+        }
+      }
+    });
+
+    /* Drought – doughnut */
+    new Chart(document.getElementById('chartDrought'),{
+      type:'doughnut',
+      data:{
+        labels:['Extreme','Severe','Moderate','Near-Normal'],
+        datasets:[{
+          data:[12.3,53.7,31.4,2.6],
+          backgroundColor:[rd(.85),'rgba(220,110,50,.8)',r(.55),gr(.65)],
+          borderColor:'rgba(9,7,3,.9)',borderWidth:2,hoverOffset:6
+        }]
+      },
+      options:{
+        responsive:true,maintainAspectRatio:false,cutout:'55%',
+        plugins:{
+          legend:{position:'bottom',labels:{color:'rgba(240,230,208,.5)',font:{family:'DM Mono, monospace',size:9},boxWidth:10,padding:12}},
+          tooltip:{callbacks:{label:c=>c.label+': '+c.raw+'% of district area'}}
+        }
+      }
+    });
+
+    /* Children in crisis – horizontal bar */
+    new Chart(document.getElementById('chartChildren'),{
+      type:'bar',
+      data:{
+        labels:['Child malnutrition','Tribal dropout','District dropout avg','Child labour (Purulia)','Child labour (WB avg)'],
+        datasets:[{
+          data:[62.4,71,49,5.8,3.2],
+          backgroundColor:[rd(.7),rd(.7),r(.55),rd(.7),gr(.6)],
+          borderColor:['#E05050','#E05050','#D4882A','#E05050','#6BAE8A'],
+          borderWidth:1
+        }]
+      },
+      options:{
+        indexAxis:'y',responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},
+        scales:{
+          x:{grid:{color:GC},max:100,ticks:{callback:v=>v+'%',color:TC,font:F}},
+          y:{grid:{display:false},ticks:{color:'rgba(240,230,208,.55)',font:{family:'DM Mono, monospace',size:9}}}
+        }
+      }
+    });
+  }
+
+  /* Lazy-init on intersection */
+  var el=document.getElementById('data-charts');
+  if(el&&'IntersectionObserver' in window){
+    var obs=new IntersectionObserver(function(es){if(es[0].isIntersecting){go();obs.disconnect();}},{threshold:0.05});
+    obs.observe(el);
+  } else { go(); }
+})();
 </script>
 </body>
 </html>

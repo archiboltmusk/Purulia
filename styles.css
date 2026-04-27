@@ -841,3 +841,14 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
   #heroCanvas{display:none!important;}
   h1.hero-h .l2{animation:none;background:none;-webkit-text-fill-color:var(--amber);color:var(--amber);}
 }
+
+/* ── DATA CHARTS ── */
+#data-charts{padding:5rem var(--mg) 0;}
+#data-charts .rv>p{color:rgba(240,230,208,.48);font-style:italic;max-width:54ch;margin-bottom:2.5rem;}
+.dc-grid{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;}
+.dc-card{background:rgba(212,136,42,.04);border:1px solid var(--border2);padding:2rem;}
+.dc-label{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.28em;text-transform:uppercase;color:var(--amber);margin-bottom:.5rem;}
+.dc-sub{font-size:.88rem;color:rgba(240,230,208,.4);margin-bottom:1.5rem;font-style:italic;line-height:1.4;}
+.dc-wrap{position:relative;height:220px;}
+.dc-src{font-family:'DM Mono',monospace;font-size:.41rem;letter-spacing:.08em;color:rgba(240,230,208,.2);margin-top:1rem;padding-top:.75rem;border-top:1px solid rgba(212,136,42,.08);}
+@media(max-width:900px){.dc-grid{grid-template-columns:1fr;}}
