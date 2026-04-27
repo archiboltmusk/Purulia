@@ -849,6 +849,12 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
   h1.hero-h .l2{animation:none;background:none;-webkit-text-fill-color:var(--amber);color:var(--amber);}
 }
 
+/* ── BACK TO TOP ── */
+#btt{position:fixed;bottom:2rem;right:2rem;width:44px;height:44px;background:rgba(9,7,3,.85);border:1px solid var(--border2);color:var(--amber);font-size:1.1rem;cursor:none;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transform:translateY(12px);transition:opacity .3s,transform .3s,border-color .3s;z-index:900;border-radius:2px;backdrop-filter:blur(12px);}
+#btt.btt-show{opacity:1;pointer-events:all;transform:translateY(0);}
+#btt:hover{border-color:var(--amber);}
+@media(pointer:coarse){#btt{cursor:auto;}}
+
 /* ── DATA CHARTS ── */
 #data-charts{padding:5rem var(--mg) 0;}
 #data-charts .rv>p{color:rgba(240,230,208,.48);font-style:italic;max-width:54ch;margin-bottom:2.5rem;}
