@@ -724,3 +724,106 @@ window.followSubmit=async function(){
   ticker.addEventListener('mouseenter',function(){t.style.animationPlayState='paused';});
   ticker.addEventListener('mouseleave',function(){t.style.animationPlayState='running';});
 })();
+
+/* ── COMMAND PALETTE (⌘K / Ctrl+K) ── */
+(function(){
+  const PAGES=[
+    {href:'index.html',       label:'Home',         desc:'Overview & manifesto'},
+    {href:'blueprint.html',   label:'Blueprint',    desc:'The 15-year plan'},
+    {href:'data.html',        label:'Ground Truth', desc:'Verified data & charts'},
+    {href:'audience.html',    label:'For You',      desc:'Find your role'},
+    {href:'join.html',        label:'Join',         desc:'Get involved'},
+    {href:'map.html',         label:'District Map', desc:'Interactive map'},
+    {href:'blueprint.html#deepdives', label:'Deep Dives',    desc:'All 6 pillars expanded'},
+    {href:'blueprint.html#timeline',  label:'Timeline',      desc:'2026 → 2040 roadmap'},
+    {href:'blueprint.html#economics', label:'Economics',     desc:'Revenue projections'},
+    {href:'data.html#solution-matrix',label:'Solution Matrix',desc:'Every problem, specific answer'},
+    {href:'data.html#data-charts',    label:'Data Charts',   desc:'Visualised statistics'},
+    {href:'join.html#respond',        label:'Join Now',      desc:'Five people. Eighteen months.'},
+  ];
+
+  /* Build DOM */
+  const pal=document.createElement('div');
+  pal.id='cmdpal';
+  pal.setAttribute('role','dialog');
+  pal.setAttribute('aria-modal','true');
+  pal.setAttribute('aria-label','Command palette');
+
+  const inner=document.createElement('div');
+  inner.id='cmdpal-inner';
+
+  const inp=document.createElement('input');
+  inp.type='text';inp.id='cmdpal-input';inp.placeholder='Go to…';
+  inp.setAttribute('aria-label','Search pages');
+  inp.setAttribute('autocomplete','off');
+  inner.appendChild(inp);
+
+  const res=document.createElement('div');
+  res.id='cmdpal-results';
+  PAGES.forEach(function(p){
+    const d=document.createElement('div');
+    d.className='cmd-item';d.dataset.href=p.href;
+    d.innerHTML=p.label+'<span>'+p.desc+'</span>';
+    res.appendChild(d);
+  });
+  inner.appendChild(res);
+
+  const hint=document.createElement('div');
+  hint.id='cmdpal-hint';
+  hint.innerHTML='<span>↑↓ navigate</span><span>↵ open</span><span>Esc close</span>';
+  inner.appendChild(hint);
+  pal.appendChild(inner);
+  document.body.appendChild(pal);
+
+  let idx=0;
+
+  function open(){pal.classList.add('open');inp.value='';filter('');setIdx(0);inp.focus();}
+  function close(){pal.classList.remove('open');}
+
+  function vis(){return Array.from(res.querySelectorAll('.cmd-item:not(.cmd-hide)'));}
+
+  function setIdx(i){
+    const items=vis();
+    idx=Math.max(0,Math.min(i,items.length-1));
+    items.forEach(function(el,j){el.classList.toggle('cmd-on',j===idx);});
+    if(items[idx])items[idx].scrollIntoView({block:'nearest'});
+  }
+
+  function filter(q){
+    const qq=q.toLowerCase();
+    res.querySelectorAll('.cmd-item').forEach(function(el){
+      el.classList.toggle('cmd-hide',!!qq&&!el.textContent.toLowerCase().includes(qq));
+    });
+    setIdx(0);
+  }
+
+  function go(){
+    const items=vis();
+    if(!items[idx])return;
+    const href=items[idx].dataset.href;
+    close();
+    const de=document.documentElement;
+    if(window.matchMedia('(prefers-reduced-motion:reduce)').matches){
+      window.location.href=href;
+    } else {
+      de.style.transition='opacity .2s ease';de.style.opacity='0';
+      setTimeout(function(){sessionStorage.setItem('pgt','1');window.location.href=href;},200);
+    }
+  }
+
+  document.addEventListener('keydown',function(e){
+    if((e.metaKey||e.ctrlKey)&&e.key==='k'){e.preventDefault();pal.classList.contains('open')?close():open();return;}
+    if(!pal.classList.contains('open'))return;
+    if(e.key==='Escape'){close();}
+    else if(e.key==='ArrowDown'){e.preventDefault();setIdx(idx+1);}
+    else if(e.key==='ArrowUp'){e.preventDefault();setIdx(idx-1);}
+    else if(e.key==='Enter'){go();}
+  });
+
+  inp.addEventListener('input',function(){filter(this.value);});
+  pal.addEventListener('click',function(e){
+    if(e.target===pal){close();return;}
+    const item=e.target.closest('.cmd-item');
+    if(item){idx=vis().indexOf(item);go();}
+  });
+})();
