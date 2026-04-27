@@ -853,6 +853,8 @@ const PHASES = [2024, 2028, 2032, 2040];
 let timelineActive = false;
 
 function filterLayer(type, btn) {
+  closeReportPanel();
+  closeAccountabilityPanel();
   document.querySelectorAll('.mf-btn').forEach(b => b.classList.remove('active'));
   btn.classList.add('active');
   const aqiStatus  = document.getElementById('aqi-status');
@@ -982,7 +984,7 @@ function rpRenderMarker(r) {
   const blockName = r.block || rpGetBlock(r.lat, r.lng);
   const blockStr = blockName ? '<br><span style="color:rgba(109,184,138,.55);font-size:.74rem;">📍 ' + blockName + ' Block</span>' : '';
   const nameStr = r.name ? '<span style="color:rgba(240,230,208,.35);font-size:.78rem;">— ' + r.name + '</span>' : 'Anonymous';
-  L.marker([r.lat, r.lng], { icon: mkReportIcon() })
+  const m = L.marker([r.lat, r.lng], { icon: mkReportIcon() })
     .bindPopup(popup(
       'Community Report · ' + catLabel,
       r.desc || 'Reported problem',
@@ -990,6 +992,7 @@ function rpRenderMarker(r) {
       + blockStr + '<br>' + nameStr
     ))
     .addTo(reportLayer);
+  m._blockName = blockName || '';
 }
 
 function updateReportBadge() {
@@ -1067,7 +1070,7 @@ function buildAccountabilityPanel() {
   const reports = [];
   reportLayer.eachLayer(m => {
     const ll = m.getLatLng();
-    const blockName = rpGetBlock(ll.lat, ll.lng) || 'Unknown';
+    const blockName = m._blockName || rpGetBlock(ll.lat, ll.lng) || 'Unknown';
     reports.push(blockName);
   });
   const blockCounts = {};
