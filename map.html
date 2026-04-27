@@ -260,7 +260,44 @@ body{overflow:hidden;}
 .rp-submit:disabled{opacity:.3;cursor:default;}
 .mf-btn[data-layer="report"]:hover{border-color:rgba(232,82,74,.3);color:rgba(232,82,74,.7);}
 .mf-btn[data-layer="report"].active{border-color:#E8524A!important;color:#E8524A!important;background:rgba(232,82,74,.08)!important;}
-@media(max-width:640px){#report-panel{width:100%;top:60px;}}
+/* Block chip */
+.rp-block-chip{display:none;font-family:'DM Mono',monospace;font-size:.36rem;letter-spacing:.15em;color:#6DB88A;text-transform:uppercase;padding:.2rem .55rem;background:rgba(109,184,138,.08);border:1px solid rgba(109,184,138,.25);margin:.25rem 0 .6rem;}
+.rp-block-chip.visible{display:inline-block;}
+/* Report badge */
+#report-badge{display:none;margin-left:.3rem;padding:.05rem .3rem;background:#E8524A;color:#fff;border-radius:8px;font-size:.34rem;font-family:'DM Mono',monospace;vertical-align:middle;line-height:1.5;}
+/* Accountability panel */
+#accountability-panel{
+  position:fixed;left:0;top:0;bottom:0;z-index:820;
+  width:300px;max-width:92vw;
+  background:rgba(12,10,5,.97);border-right:1px solid rgba(212,136,42,.18);
+  backdrop-filter:blur(20px);transform:translateX(-100%);
+  transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+#accountability-panel.open{transform:translateX(0);}
+.ac-head{padding:1.4rem 1.4rem .8rem;border-bottom:1px solid rgba(212,136,42,.1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.ac-title{font-family:'EB Garamond',serif;font-size:1.1rem;font-weight:600;color:var(--cream);}
+.ac-close{background:none;border:none;cursor:pointer;color:rgba(240,230,208,.3);font-size:1.1rem;padding:.2rem;transition:color .2s;}
+.ac-close:hover{color:var(--amber);}
+.ac-body{padding:1rem 1.2rem;flex:1;}
+.ac-section{font-family:'DM Mono',monospace;font-size:.35rem;letter-spacing:.25em;color:var(--amber);text-transform:uppercase;margin:.9rem 0 .6rem;padding-bottom:.35rem;border-bottom:1px solid rgba(212,136,42,.1);}
+.ac-stat-row{display:flex;gap:1rem;margin-bottom:.5rem;}
+.ac-stat{flex:1;text-align:center;padding:.6rem .3rem;}
+.ac-stat-n{font-family:'EB Garamond',serif;font-size:1.6rem;font-weight:700;color:var(--cream);line-height:1;}
+.ac-stat-l{font-family:'DM Mono',monospace;font-size:.31rem;letter-spacing:.14em;color:rgba(240,230,208,.28);text-transform:uppercase;margin-top:.2rem;}
+.ac-row{display:flex;align-items:center;gap:.6rem;padding:.45rem 0;border-bottom:1px solid rgba(212,136,42,.06);}
+.ac-row:last-child{border-bottom:none;}
+.ac-rank{font-family:'DM Mono',monospace;font-size:.34rem;color:rgba(212,136,42,.3);width:1.1rem;text-align:right;flex-shrink:0;}
+.ac-bar-wrap{flex:1;min-width:0;}
+.ac-block-name{font-family:'DM Mono',monospace;font-size:.37rem;letter-spacing:.09em;color:rgba(240,230,208,.62);text-transform:uppercase;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.ac-bar{height:2px;background:rgba(212,136,42,.15);margin-top:.22rem;border-radius:1px;}
+.ac-bar-fill{height:100%;background:var(--amber);border-radius:1px;transition:width .7s ease;}
+.ac-count{font-family:'DM Mono',monospace;font-size:.38rem;color:var(--amber);flex-shrink:0;font-weight:500;}
+.ac-empty{font-family:'DM Mono',monospace;font-size:.4rem;color:rgba(240,230,208,.18);text-align:center;padding:2.5rem 0;letter-spacing:.1em;line-height:2;}
+.ac-wa-btn{display:block;width:100%;padding:.55rem;margin-top:1.1rem;font-family:'DM Mono',monospace;font-size:.36rem;letter-spacing:.18em;text-transform:uppercase;background:rgba(37,211,102,.05);border:1px solid rgba(37,211,102,.18);color:rgba(37,211,102,.45);cursor:pointer;transition:all .25s;text-align:center;text-decoration:none;box-sizing:border-box;}
+.ac-wa-btn:hover{border-color:rgba(37,211,102,.45);color:rgba(37,211,102,.8);}
+.mf-btn[data-layer="accountability"].active{border-color:var(--amber)!important;color:var(--amber)!important;background:rgba(212,136,42,.08)!important;}
+@media(max-width:640px){#report-panel{width:100%;top:60px;}#accountability-panel{width:100%;top:60px;}}
 </style>
 <script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
 </head>
@@ -330,7 +367,10 @@ body{overflow:hidden;}
     <span class="mf-dot" style="background:#D4882A"></span>Timeline
   </button>
   <button class="mf-btn" data-layer="report" onclick="toggleReportPanel(this)">
-    <span class="mf-dot" style="background:#E8524A"></span>Report
+    <span class="mf-dot" style="background:#E8524A"></span>Report<span id="report-badge"></span>
+  </button>
+  <button class="mf-btn" data-layer="accountability" onclick="toggleAccountabilityPanel(this)">
+    <span class="mf-dot" style="background:#D4882A"></span>Leaderboard
   </button>
 </div>
 
@@ -344,6 +384,7 @@ body{overflow:hidden;}
     <span class="rp-label">📍 Your location</span>
     <button class="rp-gps-btn" id="rp-gps-btn" onclick="rpDetectGPS()">⊕ Detect GPS location</button>
     <div class="rp-coords" id="rp-coords"></div>
+    <div class="rp-block-chip" id="rp-block-chip"></div>
 
     <span class="rp-label">📂 Category</span>
     <select class="rp-select" id="rp-category">
@@ -368,6 +409,29 @@ body{overflow:hidden;}
     <input type="text" class="rp-input" id="rp-name" placeholder="Anonymous by default">
 
     <button class="rp-submit" id="rp-submit" onclick="rpSubmit()">Submit Report →</button>
+  </div>
+</div>
+
+<!-- Accountability leaderboard -->
+<div id="accountability-panel" role="dialog" aria-label="Block accountability leaderboard">
+  <div class="ac-head">
+    <div class="ac-title">Block Accountability</div>
+    <button class="ac-close" onclick="closeAccountabilityPanel()" aria-label="Close">✕</button>
+  </div>
+  <div class="ac-body">
+    <div class="ac-stat-row">
+      <div class="ac-stat">
+        <div class="ac-stat-n" id="ac-total">0</div>
+        <div class="ac-stat-l">Reports</div>
+      </div>
+      <div class="ac-stat">
+        <div class="ac-stat-n" id="ac-blocks-affected">0</div>
+        <div class="ac-stat-l">Blocks Affected</div>
+      </div>
+    </div>
+    <div class="ac-section">Reports by Block</div>
+    <div id="ac-list"></div>
+    <a href="https://wa.me/?text=Purulia+civic+issue+report+via+Purulia+2040+map.+View+all+reports+at+https%3A%2F%2Fmahatoanupam002-lang.github.io%2Fpurulia%2Fmap.html" target="_blank" rel="noopener" class="ac-wa-btn">📲 Share via WhatsApp →</a>
   </div>
 </div>
 
@@ -507,6 +571,7 @@ fetch('https://overpass-api.de/api/interpreter?data=' + encodeURIComponent(BLOCK
       if (!outers.length) return;
       const name = el.tags?.name || el.tags?.['name:en'] || '';
       const rings = outers.map(w => w.geometry.map(p => [p.lon, p.lat]));
+      if (name) blockPolygons.push({ name, rings });
       L.geoJSON({
         type: 'Feature',
         properties: { name },
@@ -870,7 +935,35 @@ document.head.appendChild(style);
 // ── Problem Reports ───────────────────────────────────────────────────────────
 const REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
 const reportLayer = L.layerGroup().addTo(map);
+const blockPolygons = [];
 let rpLat = null, rpLng = null, rpPhotoB64 = null;
+
+function pointInRing(lat, lng, ring) {
+  let inside = false;
+  const x = lng, y = lat;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if (((yi > y) !== (yj > y)) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) inside = !inside;
+  }
+  return inside;
+}
+
+function rpGetBlock(lat, lng) {
+  for (const bp of blockPolygons) {
+    for (const ring of bp.rings) {
+      if (pointInRing(lat, lng, ring)) return bp.name;
+    }
+  }
+  return null;
+}
+
+function rpSetBlock(lat, lng) {
+  const chip = document.getElementById('rp-block-chip');
+  if (!chip) return;
+  const name = rpGetBlock(+lat, +lng);
+  if (name) { chip.textContent = '📍 ' + name + ' Block'; chip.classList.add('visible'); }
+  else chip.classList.remove('visible');
+}
 
 function mkReportIcon() {
   return L.divIcon({
@@ -886,31 +979,59 @@ function mkReportIcon() {
 function rpRenderMarker(r) {
   const catLabel = {water:'Water',road:'Roads',power:'Power',health:'Health',education:'Education',environment:'Environment',other:'Other'}[r.category] || 'Other';
   const dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '';
+  const blockName = r.block || rpGetBlock(r.lat, r.lng);
+  const blockStr = blockName ? '<br><span style="color:rgba(109,184,138,.55);font-size:.74rem;">📍 ' + blockName + ' Block</span>' : '';
   const nameStr = r.name ? '<span style="color:rgba(240,230,208,.35);font-size:.78rem;">— ' + r.name + '</span>' : 'Anonymous';
   L.marker([r.lat, r.lng], { icon: mkReportIcon() })
     .bindPopup(popup(
       'Community Report · ' + catLabel,
       r.desc || 'Reported problem',
-      (dateStr ? '<span style="color:rgba(240,230,208,.3);font-size:.76rem;">' + dateStr + '</span><br>' : '') + nameStr
+      (dateStr ? '<span style="color:rgba(240,230,208,.3);font-size:.76rem;">' + dateStr + '</span>' : '')
+      + blockStr + '<br>' + nameStr
     ))
     .addTo(reportLayer);
 }
 
+function updateReportBadge() {
+  const count = reportLayer.getLayers().length;
+  const badge = document.getElementById('report-badge');
+  if (!badge) return;
+  if (count > 0) { badge.textContent = count; badge.style.display = 'inline-block'; }
+  else badge.style.display = 'none';
+}
+
 function rpLoadFromStorage() {
+  try { JSON.parse(localStorage.getItem('rp_reports') || '[]').forEach(r => rpRenderMarker(r)); } catch(e) {}
+  updateReportBadge();
+}
+
+async function rpFetchShared() {
   try {
-    JSON.parse(localStorage.getItem('rp_reports') || '[]').forEach(r => rpRenderMarker(r));
+    const res = await fetch(REPORT_URL + '?action=getReports');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (Array.isArray(data.reports) && data.reports.length) {
+      data.reports.forEach(r => rpRenderMarker(r));
+      updateReportBadge();
+      return;
+    }
   } catch(e) {}
+  rpLoadFromStorage();
 }
 
 function toggleReportPanel(btn) {
   const panel = document.getElementById('report-panel');
   const isOpen = panel.classList.contains('open');
+  closeAccountabilityPanel();
   if (isOpen) {
     panel.classList.remove('open');
     if (btn) btn.classList.remove('active');
   } else {
     panel.classList.add('open');
     if (btn) btn.classList.add('active');
+    // Auto-start GPS
+    const gpsBtn = document.getElementById('rp-gps-btn');
+    if (gpsBtn && !gpsBtn.classList.contains('got')) rpDetectGPS();
   }
 }
 
@@ -920,33 +1041,85 @@ function closeReportPanel() {
   if (btn) btn.classList.remove('active');
 }
 
+function toggleAccountabilityPanel(btn) {
+  const panel = document.getElementById('accountability-panel');
+  const isOpen = panel.classList.contains('open');
+  closeReportPanel();
+  if (isOpen) {
+    panel.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  } else {
+    buildAccountabilityPanel();
+    panel.classList.add('open');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+function closeAccountabilityPanel() {
+  const panel = document.getElementById('accountability-panel');
+  if (!panel) return;
+  panel.classList.remove('open');
+  const btn = document.querySelector('.mf-btn[data-layer="accountability"]');
+  if (btn) btn.classList.remove('active');
+}
+
+function buildAccountabilityPanel() {
+  const reports = [];
+  reportLayer.eachLayer(m => {
+    const ll = m.getLatLng();
+    const blockName = rpGetBlock(ll.lat, ll.lng) || 'Unknown';
+    reports.push(blockName);
+  });
+  const blockCounts = {};
+  reports.forEach(b => { blockCounts[b] = (blockCounts[b] || 0) + 1; });
+  const sorted = Object.entries(blockCounts).sort((a, b) => b[1] - a[1]);
+  const maxCount = sorted[0]?.[1] || 1;
+
+  const totalEl = document.getElementById('ac-total');
+  const blocksEl = document.getElementById('ac-blocks-affected');
+  const listEl = document.getElementById('ac-list');
+  if (totalEl) totalEl.textContent = reports.length;
+  if (blocksEl) blocksEl.textContent = sorted.filter(([k]) => k !== 'Unknown').length;
+  if (!listEl) return;
+
+  if (sorted.length === 0) {
+    listEl.innerHTML = '<div class="ac-empty">No reports yet.<br>Be the first to report<br>a local problem.</div>';
+    return;
+  }
+  listEl.innerHTML = sorted.map(([name, count], i) =>
+    '<div class="ac-row">'
+    + '<div class="ac-rank">' + (i + 1) + '</div>'
+    + '<div class="ac-bar-wrap">'
+    + '<div class="ac-block-name">' + name + '</div>'
+    + '<div class="ac-bar"><div class="ac-bar-fill" style="width:' + (count / maxCount * 100).toFixed(1) + '%"></div></div>'
+    + '</div>'
+    + '<div class="ac-count">' + count + '</div>'
+    + '</div>'
+  ).join('');
+}
+
 function rpDetectGPS() {
   const btn = document.getElementById('rp-gps-btn');
   const coordsEl = document.getElementById('rp-coords');
-  if (!navigator.geolocation) { coordsEl.textContent = 'GPS not available — tap the map instead'; return; }
-  btn.textContent = '⟳ Detecting…';
-  btn.disabled = true;
+  if (!navigator.geolocation) { if (coordsEl) coordsEl.textContent = 'GPS not available — tap the map instead'; return; }
+  if (btn) { btn.textContent = '⟳ Detecting…'; btn.disabled = true; }
   navigator.geolocation.getCurrentPosition(
     pos => {
       rpLat = pos.coords.latitude.toFixed(5);
       rpLng = pos.coords.longitude.toFixed(5);
-      coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E';
-      coordsEl.style.color = '';
-      btn.textContent = '✓ Location captured';
-      btn.classList.add('got');
-      btn.disabled = false;
+      if (coordsEl) { coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E'; coordsEl.style.color = ''; }
+      if (btn) { btn.textContent = '✓ Location captured'; btn.classList.add('got'); btn.disabled = false; }
+      rpSetBlock(rpLat, rpLng);
       map.flyTo([+rpLat, +rpLng], 14, { duration: 1.2 });
     },
     err => {
-      coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map to set location' : 'Could not get location — tap the map instead';
-      btn.textContent = '⊕ Retry GPS';
-      btn.disabled = false;
+      if (coordsEl) coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map to set location' : 'Could not get location — tap the map instead';
+      if (btn) { btn.textContent = '⊕ Retry GPS'; btn.disabled = false; }
     },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
 
-// Tap map to set report location when panel is open
 map.on('click', function(e) {
   if (!document.getElementById('report-panel').classList.contains('open')) return;
   rpLat = e.latlng.lat.toFixed(5);
@@ -955,6 +1128,7 @@ map.on('click', function(e) {
   const btn = document.getElementById('rp-gps-btn');
   if (coordsEl) { coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E (map tap)'; coordsEl.style.color = ''; }
   if (btn) { btn.textContent = '✓ Location set'; btn.classList.add('got'); }
+  rpSetBlock(rpLat, rpLng);
 });
 
 document.getElementById('rp-photo').addEventListener('change', function() {
@@ -974,8 +1148,7 @@ async function rpSubmit() {
   const coordsEl = document.getElementById('rp-coords');
 
   if (!rpLat || !rpLng) {
-    coordsEl.textContent = '⚠ Set your location first — detect GPS or tap the map';
-    coordsEl.style.color = '#E8524A';
+    if (coordsEl) { coordsEl.textContent = '⚠ Set your location first — detect GPS or tap the map'; coordsEl.style.color = '#E8524A'; }
     return;
   }
   if (!cat) { document.getElementById('rp-category').style.borderColor = '#E8524A'; return; }
@@ -984,15 +1157,17 @@ async function rpSubmit() {
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
 
-  const report = { lat: parseFloat(rpLat), lng: parseFloat(rpLng), category: cat, desc, name, ts: Date.now(), photo: rpPhotoB64 || null };
+  const block = rpGetBlock(+rpLat, +rpLng) || '';
+  const report = { lat: parseFloat(rpLat), lng: parseFloat(rpLng), block, category: cat, desc, name, ts: Date.now(), photo: rpPhotoB64 || null };
 
   try {
     const saved = JSON.parse(localStorage.getItem('rp_reports') || '[]');
-    saved.push({ lat: report.lat, lng: report.lng, category: cat, desc, name, ts: report.ts });
+    saved.push({ lat: report.lat, lng: report.lng, block, category: cat, desc, name, ts: report.ts });
     localStorage.setItem('rp_reports', JSON.stringify(saved));
   } catch(e) {}
 
   rpRenderMarker(report);
+  updateReportBadge();
 
   try {
     await fetch(REPORT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'report', ...report }) });
@@ -1001,13 +1176,13 @@ async function rpSubmit() {
   map.flyTo([report.lat, report.lng], 14, { duration: 1.2 });
   showToast('Report submitted — thank you.');
 
-  // Reset form
   rpLat = rpLng = rpPhotoB64 = null;
-  ['rp-gps-btn','rp-coords','rp-category','rp-desc','rp-name','rp-photo','rp-photo-label'].forEach(id => {
+  ['rp-gps-btn','rp-coords','rp-block-chip','rp-category','rp-desc','rp-name','rp-photo','rp-photo-label'].forEach(id => {
     const el = document.getElementById(id);
     if (!el) return;
     if (id === 'rp-gps-btn') { el.textContent = '⊕ Detect GPS location'; el.classList.remove('got'); el.disabled = false; }
     else if (id === 'rp-coords') { el.textContent = ''; el.style.color = ''; }
+    else if (id === 'rp-block-chip') { el.textContent = ''; el.classList.remove('visible'); }
     else if (id === 'rp-photo-label') { el.textContent = '+ Attach a photo'; el.classList.remove('has-photo'); }
     else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') { el.value = ''; el.style.borderColor = ''; }
   });
@@ -1016,7 +1191,7 @@ async function rpSubmit() {
   closeReportPanel();
 }
 
-rpLoadFromStorage();
+rpFetchShared();
 </script>
 <a href="index.html" class="np-float">
   <div class="np-meta">
