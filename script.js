@@ -347,16 +347,19 @@ document.addEventListener('click',e=>{
     return{
       x:Math.random()*W,
       y:forceY!==undefined?forceY:Math.random()*H,
-      r:Math.random()*1.2+.28,
+      r:Math.random()*2.2+.7,
       vx:(Math.random()-.5)*.22,
       vy:-(Math.random()*.28+.07),
-      o:Math.random()*.28+.05
+      o:Math.random()*.5+.18
     };
   }
 
   function resize(){
-    W=cv.width=cv.offsetWidth||window.innerWidth;
-    H=cv.height=cv.offsetHeight||window.innerHeight;
+    const dpr=window.devicePixelRatio||1;
+    W=cv.offsetWidth||window.innerWidth;
+    H=cv.offsetHeight||window.innerHeight;
+    cv.width=W*dpr;cv.height=H*dpr;
+    ctx.setTransform(dpr,0,0,dpr,0,0);
   }
 
   function init(){
@@ -400,7 +403,7 @@ document.addEventListener('click',e=>{
         const dx=pts[i].x-pts[j].x,dy=pts[i].y-pts[j].y;
         const d=Math.hypot(dx,dy);
         if(d<72){
-          ctx.strokeStyle='rgba(212,136,42,'+((1-d/72)*.055)+')';
+          ctx.strokeStyle='rgba(212,136,42,'+((1-d/72)*.13)+')';
           ctx.beginPath();
           ctx.moveTo(pts[i].x,pts[i].y);
           ctx.lineTo(pts[j].x,pts[j].y);
