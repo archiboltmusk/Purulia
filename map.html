@@ -225,6 +225,42 @@ body{overflow:hidden;}
   #aqi-status{top:112px;font-size:.35rem;}
   #fs-btn{top:70px;}
 }
+
+/* ── REPORT PANEL ── */
+#report-panel{
+  position:fixed;right:0;top:0;bottom:0;z-index:820;
+  width:320px;max-width:92vw;
+  background:rgba(12,10,5,.97);border-left:1px solid rgba(212,136,42,.18);
+  backdrop-filter:blur(20px);transform:translateX(100%);
+  transition:transform .35s cubic-bezier(.25,.46,.45,.94);
+  display:flex;flex-direction:column;overflow-y:auto;
+}
+#report-panel.open{transform:translateX(0);}
+.rp-head{padding:1.4rem 1.4rem .8rem;border-bottom:1px solid rgba(212,136,42,.1);display:flex;align-items:center;justify-content:space-between;flex-shrink:0;}
+.rp-title{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--cream);}
+.rp-close{background:none;border:none;cursor:pointer;color:rgba(240,230,208,.3);font-size:1.1rem;padding:.2rem;transition:color .2s;}
+.rp-close:hover{color:var(--amber);}
+.rp-body{padding:1.1rem 1.4rem;flex:1;display:flex;flex-direction:column;}
+.rp-label{font-family:'DM Mono',monospace;font-size:.37rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;display:block;margin-bottom:.3rem;margin-top:.75rem;}
+.rp-label:first-child{margin-top:0;}
+.rp-gps-btn{width:100%;padding:.55rem;font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.18em;text-transform:uppercase;background:rgba(212,136,42,.06);border:1px solid rgba(212,136,42,.22);color:rgba(240,230,208,.5);cursor:pointer;transition:all .25s;}
+.rp-gps-btn:hover{border-color:var(--amber);color:var(--amber);}
+.rp-gps-btn.got{border-color:#6DB88A!important;color:#6DB88A!important;background:rgba(109,184,138,.07)!important;}
+.rp-coords{font-family:'DM Mono',monospace;font-size:.34rem;color:rgba(212,136,42,.4);margin:.25rem 0 0;min-height:.65rem;}
+.rp-select,.rp-textarea,.rp-input{width:100%;background:rgba(240,230,208,.04);border:1px solid rgba(212,136,42,.16);color:rgba(240,230,208,.72);font-family:'DM Mono',monospace;font-size:.42rem;padding:.48rem .65rem;outline:none;transition:border-color .2s;box-sizing:border-box;}
+.rp-select:focus,.rp-textarea:focus,.rp-input:focus{border-color:rgba(212,136,42,.45);}
+.rp-select option{background:#0c0a05;}
+.rp-textarea{height:78px;resize:vertical;line-height:1.55;}
+.rp-photo-label{display:block;width:100%;padding:.5rem;font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.16em;text-transform:uppercase;border:1px dashed rgba(212,136,42,.2);color:rgba(240,230,208,.32);cursor:pointer;text-align:center;transition:all .25s;box-sizing:border-box;}
+.rp-photo-label:hover{border-color:rgba(212,136,42,.38);color:rgba(240,230,208,.55);}
+.rp-photo-label.has-photo{border-color:#6DB88A;color:#6DB88A;}
+#rp-photo{display:none;}
+.rp-submit{width:100%;padding:.65rem;margin-top:1.1rem;font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.22em;text-transform:uppercase;background:rgba(212,136,42,.1);border:1px solid rgba(212,136,42,.3);color:rgba(240,230,208,.65);cursor:pointer;transition:all .25s;}
+.rp-submit:hover:not(:disabled){background:rgba(212,136,42,.18);border-color:var(--amber);color:var(--amber);}
+.rp-submit:disabled{opacity:.3;cursor:default;}
+.mf-btn[data-layer="report"]:hover{border-color:rgba(232,82,74,.3);color:rgba(232,82,74,.7);}
+.mf-btn[data-layer="report"].active{border-color:#E8524A!important;color:#E8524A!important;background:rgba(232,82,74,.08)!important;}
+@media(max-width:640px){#report-panel{width:100%;top:60px;}}
 </style>
 <script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
 </head>
@@ -293,6 +329,46 @@ body{overflow:hidden;}
   <button class="mf-btn" data-layer="timeline" onclick="filterLayer('timeline',this)">
     <span class="mf-dot" style="background:#D4882A"></span>Timeline
   </button>
+  <button class="mf-btn" data-layer="report" onclick="toggleReportPanel(this)">
+    <span class="mf-dot" style="background:#E8524A"></span>Report
+  </button>
+</div>
+
+<!-- Report panel -->
+<div id="report-panel" role="dialog" aria-label="Report a local problem">
+  <div class="rp-head">
+    <div class="rp-title">Report a Problem</div>
+    <button class="rp-close" onclick="closeReportPanel()" aria-label="Close panel">✕</button>
+  </div>
+  <div class="rp-body">
+    <span class="rp-label">📍 Your location</span>
+    <button class="rp-gps-btn" id="rp-gps-btn" onclick="rpDetectGPS()">⊕ Detect GPS location</button>
+    <div class="rp-coords" id="rp-coords"></div>
+
+    <span class="rp-label">📂 Category</span>
+    <select class="rp-select" id="rp-category">
+      <option value="">Select a category…</option>
+      <option value="water">💧 Water / Drought</option>
+      <option value="road">🛣️ Roads / Transport</option>
+      <option value="power">⚡ Power / Electricity</option>
+      <option value="health">🏥 Health / Medical</option>
+      <option value="education">🎓 Education</option>
+      <option value="environment">🌿 Environment / Forest</option>
+      <option value="other">📋 Other</option>
+    </select>
+
+    <span class="rp-label">📝 Description</span>
+    <textarea class="rp-textarea" id="rp-desc" placeholder="Describe the problem briefly…"></textarea>
+
+    <span class="rp-label">📷 Photo (optional)</span>
+    <label class="rp-photo-label" id="rp-photo-label" for="rp-photo">+ Attach a photo</label>
+    <input type="file" id="rp-photo" accept="image/*" capture="environment">
+
+    <span class="rp-label">👤 Your name (optional)</span>
+    <input type="text" class="rp-input" id="rp-name" placeholder="Anonymous by default">
+
+    <button class="rp-submit" id="rp-submit" onclick="rpSubmit()">Submit Report →</button>
+  </div>
 </div>
 
 <!-- AQI live status bar -->
@@ -790,6 +866,157 @@ document.addEventListener('fullscreenchange', () => {
 const style = document.createElement('style');
 style.textContent = '@keyframes ripple{0%{transform:translate(-50%,-50%) scale(.5);opacity:.5;}100%{transform:translate(-50%,-50%) scale(2.2);opacity:0;}}';
 document.head.appendChild(style);
+
+// ── Problem Reports ───────────────────────────────────────────────────────────
+const REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
+const reportLayer = L.layerGroup().addTo(map);
+let rpLat = null, rpLng = null, rpPhotoB64 = null;
+
+function mkReportIcon() {
+  return L.divIcon({
+    className: '',
+    html: '<div style="position:relative;width:12px;height:12px;">'
+      + '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:28px;height:28px;border-radius:50%;border:1px solid #E8524A;opacity:.3;animation:ripple 2s infinite;"></div>'
+      + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:#E8524A;box-shadow:0 0 12px #E8524A99;border:1.5px solid rgba(255,255,255,.15);"></div>'
+      + '</div>',
+    iconSize: [12, 12], iconAnchor: [6, 6], popupAnchor: [0, -14],
+  });
+}
+
+function rpRenderMarker(r) {
+  const catLabel = {water:'Water',road:'Roads',power:'Power',health:'Health',education:'Education',environment:'Environment',other:'Other'}[r.category] || 'Other';
+  const dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '';
+  const nameStr = r.name ? '<span style="color:rgba(240,230,208,.35);font-size:.78rem;">— ' + r.name + '</span>' : 'Anonymous';
+  L.marker([r.lat, r.lng], { icon: mkReportIcon() })
+    .bindPopup(popup(
+      'Community Report · ' + catLabel,
+      r.desc || 'Reported problem',
+      (dateStr ? '<span style="color:rgba(240,230,208,.3);font-size:.76rem;">' + dateStr + '</span><br>' : '') + nameStr
+    ))
+    .addTo(reportLayer);
+}
+
+function rpLoadFromStorage() {
+  try {
+    JSON.parse(localStorage.getItem('rp_reports') || '[]').forEach(r => rpRenderMarker(r));
+  } catch(e) {}
+}
+
+function toggleReportPanel(btn) {
+  const panel = document.getElementById('report-panel');
+  const isOpen = panel.classList.contains('open');
+  if (isOpen) {
+    panel.classList.remove('open');
+    if (btn) btn.classList.remove('active');
+  } else {
+    panel.classList.add('open');
+    if (btn) btn.classList.add('active');
+  }
+}
+
+function closeReportPanel() {
+  document.getElementById('report-panel').classList.remove('open');
+  const btn = document.querySelector('.mf-btn[data-layer="report"]');
+  if (btn) btn.classList.remove('active');
+}
+
+function rpDetectGPS() {
+  const btn = document.getElementById('rp-gps-btn');
+  const coordsEl = document.getElementById('rp-coords');
+  if (!navigator.geolocation) { coordsEl.textContent = 'GPS not available — tap the map instead'; return; }
+  btn.textContent = '⟳ Detecting…';
+  btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      rpLat = pos.coords.latitude.toFixed(5);
+      rpLng = pos.coords.longitude.toFixed(5);
+      coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E';
+      coordsEl.style.color = '';
+      btn.textContent = '✓ Location captured';
+      btn.classList.add('got');
+      btn.disabled = false;
+      map.flyTo([+rpLat, +rpLng], 14, { duration: 1.2 });
+    },
+    err => {
+      coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map to set location' : 'Could not get location — tap the map instead';
+      btn.textContent = '⊕ Retry GPS';
+      btn.disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+// Tap map to set report location when panel is open
+map.on('click', function(e) {
+  if (!document.getElementById('report-panel').classList.contains('open')) return;
+  rpLat = e.latlng.lat.toFixed(5);
+  rpLng = e.latlng.lng.toFixed(5);
+  const coordsEl = document.getElementById('rp-coords');
+  const btn = document.getElementById('rp-gps-btn');
+  if (coordsEl) { coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E (map tap)'; coordsEl.style.color = ''; }
+  if (btn) { btn.textContent = '✓ Location set'; btn.classList.add('got'); }
+});
+
+document.getElementById('rp-photo').addEventListener('change', function() {
+  const file = this.files[0];
+  const label = document.getElementById('rp-photo-label');
+  if (!file) { rpPhotoB64 = null; label.textContent = '+ Attach a photo'; label.classList.remove('has-photo'); return; }
+  const reader = new FileReader();
+  reader.onload = ev => { rpPhotoB64 = ev.target.result; label.textContent = '✓ ' + file.name; label.classList.add('has-photo'); };
+  reader.readAsDataURL(file);
+});
+
+async function rpSubmit() {
+  const cat = document.getElementById('rp-category').value;
+  const desc = document.getElementById('rp-desc').value.trim();
+  const name = document.getElementById('rp-name').value.trim();
+  const submitBtn = document.getElementById('rp-submit');
+  const coordsEl = document.getElementById('rp-coords');
+
+  if (!rpLat || !rpLng) {
+    coordsEl.textContent = '⚠ Set your location first — detect GPS or tap the map';
+    coordsEl.style.color = '#E8524A';
+    return;
+  }
+  if (!cat) { document.getElementById('rp-category').style.borderColor = '#E8524A'; return; }
+  if (!desc) { document.getElementById('rp-desc').style.borderColor = '#E8524A'; return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  const report = { lat: parseFloat(rpLat), lng: parseFloat(rpLng), category: cat, desc, name, ts: Date.now(), photo: rpPhotoB64 || null };
+
+  try {
+    const saved = JSON.parse(localStorage.getItem('rp_reports') || '[]');
+    saved.push({ lat: report.lat, lng: report.lng, category: cat, desc, name, ts: report.ts });
+    localStorage.setItem('rp_reports', JSON.stringify(saved));
+  } catch(e) {}
+
+  rpRenderMarker(report);
+
+  try {
+    await fetch(REPORT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'report', ...report }) });
+  } catch(e) {}
+
+  map.flyTo([report.lat, report.lng], 14, { duration: 1.2 });
+  showToast('Report submitted — thank you.');
+
+  // Reset form
+  rpLat = rpLng = rpPhotoB64 = null;
+  ['rp-gps-btn','rp-coords','rp-category','rp-desc','rp-name','rp-photo','rp-photo-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'rp-gps-btn') { el.textContent = '⊕ Detect GPS location'; el.classList.remove('got'); el.disabled = false; }
+    else if (id === 'rp-coords') { el.textContent = ''; el.style.color = ''; }
+    else if (id === 'rp-photo-label') { el.textContent = '+ Attach a photo'; el.classList.remove('has-photo'); }
+    else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') { el.value = ''; el.style.borderColor = ''; }
+  });
+  submitBtn.textContent = 'Submit Report →';
+  submitBtn.disabled = false;
+  closeReportPanel();
+}
+
+rpLoadFromStorage();
 </script>
 <a href="index.html" class="np-float">
   <div class="np-meta">
