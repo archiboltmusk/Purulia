@@ -164,6 +164,41 @@ body{overflow:hidden;}
 @keyframes dashflow-nh{to{stroke-dashoffset:-10;}}
 @keyframes dashflow-ex{to{stroke-dashoffset:-9;}}
 
+/* Search box */
+#map-search{
+  position:fixed;top:118px;right:2rem;z-index:820;
+  background:rgba(12,10,5,.92);border:1px solid rgba(212,136,42,.18);
+  backdrop-filter:blur(20px);padding:.42rem .6rem;min-width:188px;
+}
+#search-input{
+  width:100%;background:transparent;border:none;
+  color:rgba(240,230,208,.8);font-family:'DM Mono',monospace;
+  font-size:.44rem;letter-spacing:.1em;outline:none;padding:.15rem .3rem;
+}
+#search-input::placeholder{color:rgba(240,230,208,.22);}
+#search-results{
+  display:none;border-top:1px solid rgba(212,136,42,.12);
+  margin-top:.35rem;max-height:190px;overflow-y:auto;
+}
+.sr-item{
+  font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.1em;
+  color:rgba(240,230,208,.45);padding:.42rem .3rem;cursor:pointer;
+  text-transform:uppercase;transition:color .18s,background .18s;line-height:1.4;
+  border-bottom:1px solid rgba(212,136,42,.06);
+}
+.sr-item:last-child{border-bottom:none;}
+.sr-item:hover{color:var(--amber);background:rgba(212,136,42,.07);}
+.sr-empty{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.1em;
+  color:rgba(240,230,208,.18);padding:.42rem .3rem;text-transform:uppercase;}
+
+/* Legend line swatch for roads & rail */
+.ml-line{width:20px;height:2px;flex-shrink:0;border-radius:1px;}
+.ml-dash{width:20px;height:2px;flex-shrink:0;border-radius:1px;
+  background:repeating-linear-gradient(90deg,currentColor 0,currentColor 5px,transparent 5px,transparent 9px);}
+
+/* Filter bar horizontal scroll on mobile */
+@media(max-width:700px){#map-filters{overflow-x:auto;justify-content:flex-start;max-width:calc(100% - 2rem);}}
+
 /* Fullscreen button */
 #fs-btn{
   position:fixed;top:80px;right:2rem;z-index:810;
@@ -372,6 +407,16 @@ body{overflow:hidden;}
   <button class="mf-btn" data-layer="accountability" onclick="toggleAccountabilityPanel(this)">
     <span class="mf-dot" style="background:#D4882A"></span>Leaderboard
   </button>
+  <button class="mf-btn active" id="rivers-toggle-btn" onclick="toggleRiverLayer(this)">
+    <span class="mf-dot" style="background:#64AACC"></span>Rivers
+  </button>
+</div>
+
+<!-- Place search -->
+<div id="map-search" role="search" aria-label="Search map places">
+  <input type="text" id="search-input" placeholder="⌕  Search places…" autocomplete="off"
+         oninput="onSearch(this.value)" onkeydown="onSearchKey(event)" aria-label="Search places">
+  <div id="search-results" role="listbox"></div>
 </div>
 
 <!-- Report panel -->
@@ -462,7 +507,9 @@ body{overflow:hidden;}
     <div class="ml-item"><div class="ml-dot" style="background:#E8A94A"></div>Projects</div>
     <div class="ml-item"><div class="ml-dot" style="background:#6DB88A"></div>Infrastructure</div>
     <div class="ml-item"><div class="ml-dot" style="background:#B88ADB"></div>Heritage &amp; Nature</div>
-    <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Water · Rivers</div>
+    <div class="ml-item"><div class="ml-dot" style="background:#64AACC"></div>Rivers</div>
+    <div class="ml-item"><div class="ml-line" style="background:#6DB88A;opacity:.7"></div>Road / NH</div>
+    <div class="ml-item"><div class="ml-line" style="background:#C8B898;opacity:.8"></div>Railway</div>
   </div>
   <div class="ml-toggle">
     <span class="ml-toggle-label">Travel rings</span>
@@ -678,14 +725,29 @@ pts.forEach(pt => {
 
 // ── Infrastructure polylines ──────────────────────────────────────────────────
 const nh32 = L.polyline([
-  [23.60,86.72],[23.505,86.68],[23.40,86.55],[23.33,86.36],[23.22,86.12],[23.05,85.92]
+  [23.55,86.83],[23.49,86.68],[23.40,86.55],[23.33,86.36],[23.22,86.12],[23.12,85.95],[23.04,85.82]
 ], { color:'#6DB88A', weight:2.5, opacity:.55, dashArray:'6 4', className:'route-nh32' }).addTo(layers.infra);
 nh32.bindPopup(popup('Infrastructure · Road','NH-32 Corridor','National Highway 32 running through Purulia district. <strong>4-laning to Grand Trunk Road</strong> spine planned. Backbone of the district\'s connectivity and industrial access.'));
 
 const expr = L.polyline([
-  [23.33,86.36],[23.28,86.22],[23.20,86.05],[23.12,85.92],[23.00,85.75]
+  [23.3325,86.3636],[23.26,86.20],[23.18,86.04],[23.08,85.89],[22.98,85.76]
 ], { color:'#6DB88A', weight:2, opacity:.35, dashArray:'3 6', className:'route-expr' }).addTo(layers.infra);
 expr.bindPopup(popup('Proposed · Road','Purulia–Ranchi Expressway','<strong>130km proposed corridor</strong>. Journey time: Ranchi in 90 minutes. Opens Jharkhand\'s industrial market. ₹2,500Cr — Bharatmala eligible. Transforms Purulia\'s economic geography.'));
+
+// ── Railway lines ─────────────────────────────────────────────────────────────
+const RAIL_STYLE = { color:'#C8B898', weight:2.2, opacity:.65, dashArray:'8 5' };
+// South Eastern Railway — Chakradharpur Division main line (Muri–Purulia–Adra–Asansol border)
+const railMain = L.polyline([
+  [23.30,85.87],[23.31,85.99],[23.32,86.12],[23.326,86.24],[23.329,86.32],
+  [23.3256,86.378],[23.34,86.44],[23.38,86.52],[23.43,86.59],[23.4958,86.675],
+  [23.52,86.77],[23.54,86.86]
+], RAIL_STYLE).addTo(layers.infra);
+railMain.bindPopup(popup('Infrastructure · Rail','South Eastern Railway — Main Line','<strong>Muri → Purulia → Adra → Asansol</strong> corridor (Chakradharpur Division). Purulia Express (12827/28) to Howrah. Electrification and Adra–Ranchi doubling in Railway Board pipeline.'));
+// Purulia south branch toward Kotshila / Bankura
+const railSouth = L.polyline([
+  [23.3256,86.378],[23.30,86.40],[23.26,86.44],[23.22,86.47]
+], { ...RAIL_STYLE, opacity:.40 }).addTo(layers.infra);
+railSouth.bindPopup(popup('Infrastructure · Rail','Purulia–Kotshila Branch','Branch line from Purulia south toward Kotshila, connecting to Bankura.'));
 
 // ── River overlay ────────────────────────────────────────────────────────────
 map.createPane('riverPane');
@@ -696,23 +758,23 @@ const RIVER_STYLE = { color: '#64AACC', weight: 1.8, opacity: 0.45, pane: 'river
 const TRIB_STYLE  = { color: '#64AACC', weight: 1,   opacity: 0.28, pane: 'riverPane' };
 
 const rivers = [
-  // Kasai / Kangsabati — flows W→E across the district
+  // Kasai / Kangsabati — originates near Jharkhand border, flows E through southern Purulia
   { name: 'Kasai (Kangsabati)', style: RIVER_STYLE, coords: [
-    [23.195,85.875],[23.175,85.97],[23.145,86.09],[23.115,86.22],
-    [23.085,86.35],[23.065,86.47],[23.060,86.58],[23.080,86.70],
+    [23.21,85.78],[23.19,85.91],[23.16,86.04],[23.12,86.18],
+    [23.09,86.32],[23.07,86.47],[23.07,86.59],[23.09,86.70],
   ]},
-  // Damodar — northern edge
+  // Damodar — northern boundary, ~23.53–23.57°N (Santaldih at 23.54°N, 86.52°E)
   { name: 'Damodar', style: RIVER_STYLE, coords: [
-    [23.635,86.03],[23.625,86.18],[23.615,86.32],[23.600,86.48],
-    [23.595,86.62],[23.590,86.75],[23.580,86.92],
+    [23.574,86.00],[23.567,86.14],[23.557,86.28],[23.547,86.43],
+    [23.539,86.58],[23.533,86.74],[23.526,86.90],
   ]},
-  // Kumari tributary
+  // Kumari — flows N/NE through central Purulia to join Damodar
   { name: 'Kumari', style: TRIB_STYLE, coords: [
-    [23.45,86.10],[23.38,86.17],[23.31,86.22],[23.24,86.28],
+    [23.28,86.03],[23.34,86.08],[23.40,86.12],[23.47,86.16],[23.53,86.20],
   ]},
-  // Subarnarekha headwaters (southwestern corner)
+  // Subarnarekha — far southwest corner, Bandwan block area
   { name: 'Subarnarekha', style: TRIB_STYLE, coords: [
-    [23.12,85.84],[23.09,85.90],[23.03,85.96],
+    [23.10,85.75],[23.05,85.82],[22.99,85.90],[22.95,85.97],
   ]},
 ];
 
@@ -1195,6 +1257,58 @@ async function rpSubmit() {
 }
 
 rpFetchShared();
+
+// ── Place search ──────────────────────────────────────────────────────────────
+function onSearch(q) {
+  const box = document.getElementById('search-results');
+  if (!q.trim()) { box.style.display = 'none'; box.innerHTML = ''; return; }
+  const hits = pts
+    .map((p, i) => ({ p, i }))
+    .filter(({ p }) => p.name.toLowerCase().includes(q.toLowerCase()))
+    .slice(0, 7);
+  if (!hits.length) {
+    box.innerHTML = '<div class="sr-empty">No results</div>';
+    box.style.display = 'block';
+    return;
+  }
+  box.innerHTML = hits.map(({ p, i }) =>
+    `<div class="sr-item" role="option" onclick="searchFly(${i})">${p.name}<br><span style="opacity:.45;font-size:.88em;">${p.tag}</span></div>`
+  ).join('');
+  box.style.display = 'block';
+}
+
+function searchFly(idx) {
+  const pt = pts[idx];
+  if (!pt) return;
+  // Ensure the correct layer is visible
+  const lg = layers[pt.layer];
+  if (lg && !map.hasLayer(lg)) map.addLayer(lg);
+  map.flyTo(pt.coords, 14, { duration: 1.1 });
+  const m = markers[idx];
+  if (m) setTimeout(() => m.openPopup(), 1200);
+  document.getElementById('search-results').style.display = 'none';
+  document.getElementById('search-input').value = '';
+}
+
+function onSearchKey(e) {
+  if (e.key === 'Escape') {
+    document.getElementById('search-results').style.display = 'none';
+    document.getElementById('search-input').value = '';
+  }
+}
+
+map.on('click', () => {
+  const box = document.getElementById('search-results');
+  if (box) box.style.display = 'none';
+});
+
+// ── Rivers visibility toggle ──────────────────────────────────────────────────
+let riversVisible = true;
+function toggleRiverLayer(btn) {
+  riversVisible = !riversVisible;
+  if (riversVisible) { riverLayer.addTo(map); btn.classList.add('active'); }
+  else { map.removeLayer(riverLayer); btn.classList.remove('active'); }
+}
 </script>
 <a href="index.html" class="np-float">
   <div class="np-meta">
