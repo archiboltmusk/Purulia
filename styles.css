@@ -904,3 +904,110 @@ nav{box-shadow:0 2px 50px rgba(0,0,0,.45);}
 .kbh-row kbd{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.12em;color:var(--cream);background:rgba(240,230,208,.06);border:1px solid var(--border2);padding:.25rem .6rem;min-width:110px;display:inline-block;text-align:center;flex-shrink:0;}
 .kbh-row span{font-size:.92rem;color:rgba(240,230,208,.5);font-style:italic;}
 #kbhelp-close{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,230,208,.2);}
+
+/* ════════════════════════════════════════════════
+   GROUNDBREAKING ENHANCEMENTS — V3
+   Ambient light · Text scramble · Countdown · Reading mode
+   Section navigation · Animated crisis · 3D depth
+   ════════════════════════════════════════════════ */
+
+/* ── Ambient Glow Cursor — candle on manuscript ── */
+#ambientGlow{position:fixed;width:580px;height:580px;border-radius:50%;background:radial-gradient(circle,rgba(212,136,42,.055) 0%,rgba(212,136,42,.02) 35%,transparent 68%);pointer-events:none;z-index:8;transform:translate(-50%,-50%);will-change:left,top;}
+@media(pointer:coarse){#ambientGlow{display:none;}}
+@media(prefers-reduced-motion:reduce){#ambientGlow{display:none;}}
+
+/* ── Section Navigation Dots ── */
+#secdots{position:fixed;right:1.6rem;top:50%;transform:translateY(-50%);z-index:699;display:flex;flex-direction:column;gap:.9rem;align-items:center;}
+.sd-dot{width:5px;height:5px;border-radius:50%;background:rgba(212,136,42,.18);border:1px solid rgba(212,136,42,.22);cursor:pointer;transition:all .4s cubic-bezier(.25,.46,.45,.94);position:relative;flex-shrink:0;}
+.sd-dot::after{content:attr(data-label);position:absolute;right:calc(100% + .7rem);top:50%;transform:translateY(-50%);font-family:'DM Mono',monospace;font-size:.36rem;letter-spacing:.22em;text-transform:uppercase;color:transparent;white-space:nowrap;transition:color .3s;pointer-events:none;}
+.sd-dot:hover::after,.sd-dot.sd-active::after{color:rgba(212,136,42,.55);}
+.sd-dot.sd-active{background:var(--amber);border-color:var(--amber);transform:scale(1.65);box-shadow:0 0 10px rgba(212,136,42,.45);}
+.sd-dot:hover:not(.sd-active){background:rgba(212,136,42,.38);transform:scale(1.28);}
+@media(max-width:1100px){#secdots{display:none;}}
+@media(pointer:coarse){#secdots{display:none;}}
+
+/* ── Countdown to 2040 ── */
+.hero-countdown{font-family:'DM Mono',monospace;font-size:.49rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(212,136,42,.38);margin-top:2.2rem;display:flex;align-items:center;gap:.35rem;flex-wrap:wrap;opacity:0;animation:rise 1s ease 1.3s forwards;}
+.hero-countdown::before{content:'';display:inline-block;width:20px;height:1px;background:rgba(212,136,42,.35);flex-shrink:0;margin-right:.15rem;}
+.cd-val{font-family:'EB Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--amber);font-style:italic;margin:0 .08rem;}
+
+/* ── Reading Mode ── */
+.rm-badge{position:fixed;top:4.4rem;left:50%;transform:translateX(-50%);background:rgba(12,10,5,.96);border:1px solid rgba(212,136,42,.28);font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.3em;text-transform:uppercase;color:rgba(212,136,42,.5);padding:.32rem .9rem;z-index:9999;display:none;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);white-space:nowrap;}
+.rm-on .rm-badge{display:block;}
+.rm-on #waFloat,.rm-on .ticker,.rm-on .share-wrap,.rm-on .follow-bar{display:none!important;}
+.rm-on #secdots{opacity:0!important;pointer-events:none;}
+.rm-on #cur,.rm-on #curR{opacity:0!important;}
+.rm-on #ambientGlow{opacity:0!important;}
+.rm-on #pbar{opacity:0!important;}
+.nav-rm{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.18em;text-transform:uppercase;color:rgba(240,230,208,.18);background:none;border:1px solid rgba(240,230,208,.07);padding:.28rem .55rem;cursor:none;transition:all .25s;white-space:nowrap;line-height:1;}
+.nav-rm:hover{border-color:rgba(212,136,42,.32);color:rgba(212,136,42,.45);}
+.rm-on .nav-rm{color:var(--amber);border-color:rgba(212,136,42,.42);background:rgba(212,136,42,.07);}
+@media(max-width:960px){.nav-rm{display:none;}}
+@media(pointer:coarse){.nav-rm{display:none;}}
+
+/* ── Scramble blinking cursor on .l2 ── */
+h1.hero-h .l2.scrambling::after{content:'';display:inline-block;width:3px;height:.75em;background:var(--amber);margin-left:4px;vertical-align:middle;animation:blink .6s step-end infinite;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+
+/* ── Animated crisis pulse (replaces static shadow) ── */
+.cs-val.bad{animation:crisisPulse 4.5s ease-in-out infinite;}
+@keyframes crisisPulse{
+  0%,100%{text-shadow:0 0 28px rgba(224,80,80,.22),0 0 55px rgba(224,80,80,.08);}
+  50%{text-shadow:0 0 42px rgba(224,80,80,.48),0 0 90px rgba(224,80,80,.2);}
+}
+.cs-val.good{animation:solutionPulse 4s ease-in-out infinite;}
+@keyframes solutionPulse{
+  0%,100%{text-shadow:0 0 28px rgba(109,184,138,.22),0 0 55px rgba(109,184,138,.08);}
+  50%{text-shadow:0 0 40px rgba(109,184,138,.42),0 0 80px rgba(109,184,138,.18);}
+}
+
+/* ── Enhanced CTA primary glow ── */
+.btn-a:hover{background:var(--amber2);transform:translateY(-3px) scale(1.03);box-shadow:0 14px 36px rgba(212,136,42,.32),0 0 55px rgba(212,136,42,.13);}
+
+/* ── Momentum item live pulse overlay ── */
+.mom-item-live{border:1px solid rgba(212,136,42,.15)!important;animation:liveGlow 3s ease-in-out infinite;}
+@keyframes liveGlow{0%,100%{box-shadow:none;}50%{box-shadow:0 0 30px rgba(212,136,42,.06),inset 0 0 30px rgba(212,136,42,.03);}}
+
+/* ── Pillar cards — depth shimmer on enter ── */
+.pill.rv.on{animation:pillIn .7s cubic-bezier(.25,.46,.45,.94) both;}
+@keyframes pillIn{from{opacity:0;transform:translateY(24px) scale(.98);}to{opacity:1;transform:translateY(0) scale(1);}}
+
+/* ── Crisis stat — count-up green flash ── */
+.cs-val.counted{animation:countFlash .5s ease both;}
+@keyframes countFlash{0%{filter:brightness(1);}50%{filter:brightness(1.5);}100%{filter:brightness(1);}}
+
+/* ── Path finder role card selected state ── */
+.pf-role-card.pf-selected{border-color:var(--amber)!important;background:#1C1408;transform:translateY(-5px)!important;box-shadow:0 0 0 1px rgba(212,136,42,.2),0 14px 36px rgba(0,0,0,.5)!important;}
+.pf-role-card.pf-selected::before{transform:scaleX(1)!important;}
+
+/* ── Insights list — draw-in border on scroll ── */
+.insights li.rv.on{animation:insightIn .65s cubic-bezier(.25,.46,.45,.94) both;}
+@keyframes insightIn{from{opacity:0;transform:translateX(-16px);}to{opacity:1;transform:translateX(0);}}
+
+/* ── Scroll to top: enhanced ── */
+#btt:hover{border-color:var(--amber);background:rgba(212,136,42,.08);box-shadow:0 0 20px rgba(212,136,42,.12);}
+
+/* ── Word-by-word reveal (for JS injection) ── */
+.word-wrap{overflow:hidden;display:inline;}
+.word-inner{display:inline-block;opacity:0;transform:translateY(110%);animation:wordUp .55s cubic-bezier(.25,.46,.45,.94) both;}
+@keyframes wordUp{to{opacity:1;transform:translateY(0);}}
+
+/* ── Follow bar input — cursor pointer on coarse ── */
+@media(pointer:coarse){.follow-input{cursor:text;}.follow-btn{cursor:pointer;}}
+
+/* ── Ticker — live indicator dot ── */
+.ticker-live-dot{width:5px;height:5px;border-radius:50%;background:var(--ink);display:inline-block;margin-right:.5rem;vertical-align:middle;animation:lfpulse 2s ease-in-out infinite;opacity:.6;}
+
+/* ── Nav reading mode keyboard hint ── */
+.nav-rm[title]:hover::after{content:attr(title);position:absolute;right:0;top:calc(100% + .5rem);font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.15em;color:rgba(212,136,42,.45);white-space:nowrap;background:rgba(12,10,5,.92);border:1px solid rgba(212,136,42,.15);padding:.25rem .55rem;}
+
+/* ── Crisis intro heading — word reveal ready ── */
+.crisis-intro .sh .word-inner{animation-delay:calc(var(--wi,0) * .06s + .1s);}
+
+/* ── Reduce motion overrides for new animations ── */
+@media(prefers-reduced-motion:reduce){
+  .cs-val.bad,.cs-val.good,.mom-item-live,.pill.rv.on,.insights li.rv.on{animation:none!important;}
+  .cs-val.bad{text-shadow:0 0 28px rgba(224,80,80,.22),0 0 55px rgba(224,80,80,.08);}
+  .cs-val.good{text-shadow:0 0 28px rgba(109,184,138,.22);}
+  .word-inner{opacity:1!important;transform:none!important;animation:none!important;}
+}

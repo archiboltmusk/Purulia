@@ -895,3 +895,273 @@ window.followSubmit=async function(){
   });
   overlay.addEventListener('click',function(e){if(e.target===overlay)closeHelp();});
 })();
+
+/* ════════════════════════════════════════════════
+   GROUNDBREAKING ENHANCEMENTS — V3
+   ════════════════════════════════════════════════ */
+
+/* ── Ambient Candlelight Cursor ── */
+(function(){
+  if(window.matchMedia('(pointer:coarse)').matches)return;
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const glow=document.createElement('div');
+  glow.id='ambientGlow';
+  glow.setAttribute('aria-hidden','true');
+  document.body.appendChild(glow);
+  let gx=window.innerWidth/2,gy=window.innerHeight/2,agx=gx,agy=gy;
+  document.addEventListener('mousemove',function(e){gx=e.clientX;gy=e.clientY;},{passive:true});
+  (function animGlow(){
+    agx+=(gx-agx)*.055;
+    agy+=(gy-agy)*.055;
+    glow.style.left=agx+'px';
+    glow.style.top=agy+'px';
+    requestAnimationFrame(animGlow);
+  })();
+})();
+
+/* ── Text Scramble on Hero "Reborn." ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  const el=document.querySelector('h1.hero-h .l2');
+  if(!el)return;
+  const original=el.textContent;
+  const chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*#@!?/\\|';
+  const stepsPerChar=9;
+  const totalFrames=original.length*stepsPerChar;
+  let frame=0;
+  function scramble(){
+    const revealed=Math.floor(frame/stepsPerChar);
+    let out='';
+    for(let i=0;i<original.length;i++){
+      if(i<revealed){out+=original[i];}
+      else if(' .,;:'.includes(original[i])){out+=original[i];}
+      else{out+=chars[Math.floor(Math.random()*chars.length)];}
+    }
+    el.textContent=out;
+    if(frame<totalFrames){
+      frame++;
+      requestAnimationFrame(scramble);
+    } else {
+      el.textContent=original;
+      el.classList.remove('scrambling');
+    }
+  }
+  setTimeout(function(){
+    el.classList.add('scrambling');
+    scramble();
+  },680);
+})();
+
+/* ── Countdown to 2040 ── */
+(function(){
+  const hBtns=document.querySelector('.h-btns');
+  if(!hBtns)return;
+  const cd=document.createElement('div');
+  cd.className='hero-countdown';
+  cd.setAttribute('aria-live','polite');
+  cd.setAttribute('aria-label','Time remaining until 2040 target');
+  hBtns.parentNode.insertBefore(cd,hBtns.nextSibling);
+  function update(){
+    const target=new Date('2040-01-01T00:00:00');
+    const now=new Date();
+    let diff=target-now;
+    if(diff<=0){cd.innerHTML='The 2040 horizon has arrived.';return;}
+    const years=Math.floor(diff/(1000*60*60*24*365.25));
+    diff-=years*(1000*60*60*24*365.25);
+    const months=Math.floor(diff/(1000*60*60*24*30.44));
+    diff-=months*(1000*60*60*24*30.44);
+    const days=Math.floor(diff/(1000*60*60*24));
+    cd.innerHTML=
+      '<span class="cd-val">'+years+'</span>yr '+
+      '<span class="cd-val">'+months+'</span>mo '+
+      '<span class="cd-val">'+days+'</span>d until 2040';
+  }
+  update();
+  setInterval(update,3600000);
+})();
+
+/* ── Section Navigation Dots ── */
+(function(){
+  const DEFS=[
+    {id:'hero',label:'Intro'},
+    {id:'crisis',label:'Reality'},
+    {id:'reframe',label:'The Case'},
+    {id:'pillars',label:'Pillars'},
+    {id:'path-finder',label:'Your Role'},
+    {id:'momentum',label:'Momentum'},
+    {id:'deepdives',label:'Deep Dives'},
+    {id:'timeline',label:'Timeline'},
+    {id:'economics',label:'Economics'},
+    {id:'audience',label:'Audience'},
+    {id:'groundtruth',label:'Ground Truth'},
+    {id:'solution-matrix',label:'Solutions'},
+    {id:'respond',label:'Join'},
+    {id:'fivepeople',label:'Five People'},
+    {id:'sprint',label:'Sprint'},
+    {id:'livefeed',label:'Live Feed'},
+  ];
+  const found=[];
+  DEFS.forEach(function(def){
+    const sec=document.getElementById(def.id);
+    if(sec)found.push({sec:sec,label:def.label});
+  });
+  if(found.length<2)return;
+  const wrap=document.createElement('div');
+  wrap.id='secdots';
+  wrap.setAttribute('aria-hidden','true');
+  document.body.appendChild(wrap);
+  const dots=found.map(function(f){
+    const d=document.createElement('div');
+    d.className='sd-dot';
+    d.dataset.label=f.label;
+    d.setAttribute('role','button');
+    d.setAttribute('tabindex','0');
+    d.setAttribute('aria-label','Jump to '+f.label);
+    d.addEventListener('click',function(){f.sec.scrollIntoView({behavior:'smooth',block:'start'});});
+    d.addEventListener('keydown',function(e){
+      if(e.key==='Enter'||e.key===' '){e.preventDefault();f.sec.scrollIntoView({behavior:'smooth',block:'start'});}
+    });
+    wrap.appendChild(d);
+    return d;
+  });
+  let activeIdx=-1;
+  const obs=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(!en.isIntersecting)return;
+      const idx=found.findIndex(function(f){return f.sec===en.target;});
+      if(idx<0||idx===activeIdx)return;
+      activeIdx=idx;
+      dots.forEach(function(d,i){d.classList.toggle('sd-active',i===idx);});
+    });
+  },{threshold:0.15,rootMargin:'-15% 0px -60% 0px'});
+  found.forEach(function(f){obs.observe(f.sec);});
+})();
+
+/* ── Reading Mode (press R) ── */
+(function(){
+  const html=document.documentElement;
+  /* Inject badge */
+  const badge=document.createElement('div');
+  badge.className='rm-badge';
+  badge.setAttribute('aria-hidden','true');
+  badge.textContent='Reading mode — press R to exit';
+  document.body.appendChild(badge);
+  /* Inject nav button */
+  const navRight=document.querySelector('.nav-right');
+  if(navRight){
+    const btn=document.createElement('button');
+    btn.className='nav-rm';
+    btn.id='navRmBtn';
+    btn.setAttribute('aria-label','Toggle reading mode');
+    btn.setAttribute('title','Reading mode (R)');
+    btn.textContent='▣ Read';
+    /* Insert before first child */
+    navRight.insertBefore(btn,navRight.firstChild);
+    btn.addEventListener('click',toggle);
+  }
+  function toggle(){
+    const on=html.classList.toggle('rm-on');
+    localStorage.setItem('p2040rm',on?'1':'0');
+  }
+  document.addEventListener('keydown',function(e){
+    if(e.key==='r'&&!e.metaKey&&!e.ctrlKey&&e.target.tagName!=='INPUT'&&e.target.tagName!=='TEXTAREA'){
+      toggle();
+    }
+  });
+  if(localStorage.getItem('p2040rm')==='1')html.classList.add('rm-on');
+})();
+
+/* ── Path Finder: event delegation (replaces inline onclick) ── */
+(function(){
+  const grid=document.getElementById('pfGrid');
+  if(!grid)return;
+  grid.addEventListener('click',function(e){
+    const card=e.target.closest('.pf-role-card[data-role]');
+    if(card&&typeof window.pfSelect==='function')window.pfSelect(card.dataset.role);
+  });
+})();
+
+/* ── Word-by-word reveal for key headlines ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  function splitWords(el){
+    if(!el||!el.textContent.trim())return;
+    const text=el.textContent;
+    const words=text.split(' ');
+    el.innerHTML=words.map(function(w,i){
+      return '<span class="word-wrap"><span class="word-inner" style="--wi:'+i+';animation-delay:'+(i*0.07+0.05)+'s">'+(w||'')+'</span></span>';
+    }).join(' ');
+  }
+  /* Apply only when the element enters viewport */
+  const targets=[
+    document.querySelector('#crisis .sh'),
+    document.querySelector('#pillars .sh'),
+    document.querySelector('#path-finder .sh'),
+  ].filter(Boolean);
+  if(!targets.length)return;
+  const wo=new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if(en.isIntersecting){splitWords(en.target);wo.unobserve(en.target);}
+    });
+  },{threshold:.4});
+  targets.forEach(function(t){wo.observe(t);});
+})();
+
+/* ── Crisis counter: flash on completion ── */
+(function(){
+  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
+  document.querySelectorAll('.cs-val[data-count]').forEach(function(el){
+    const orig=el.textContent;
+    const obs=new IntersectionObserver(function(entries){
+      entries.forEach(function(en){
+        if(!en.isIntersecting)return;
+        obs.unobserve(en.target);
+        setTimeout(function(){en.target.classList.add('counted');
+          setTimeout(function(){en.target.classList.remove('counted');},500);
+        },1750);
+      });
+    },{threshold:.5});
+    obs.observe(el);
+  });
+})();
+
+/* ── Fix: Wire up nav elements that lost inline onclick ── */
+(function(){
+  /* Follow button */
+  const followBtn=document.querySelector('.follow-btn');
+  if(followBtn&&!followBtn.hasAttribute('onclick')){
+    followBtn.addEventListener('click',function(){
+      if(typeof window.followSubmit==='function')window.followSubmit();
+    });
+  }
+  /* Nav cmd button */
+  const cmdBtn=document.querySelector('.nav-cmd');
+  if(cmdBtn&&!cmdBtn.hasAttribute('onclick')){
+    cmdBtn.addEventListener('click',function(){
+      document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}));
+    });
+  }
+  /* Nav toggle */
+  const navToggle=document.getElementById('navToggle');
+  if(navToggle&&!navToggle.hasAttribute('onclick')){
+    navToggle.addEventListener('click',function(){
+      if(typeof toggleMenu==='function')toggleMenu();
+    });
+  }
+  /* Lang buttons */
+  document.querySelectorAll('.lang-btn:not([onclick])').forEach(function(btn){
+    btn.addEventListener('click',function(){
+      if(typeof window.setLang==='function')window.setLang(this.dataset.lang);
+    });
+  });
+})();
+
+/* ── Keyboard shortcuts: add reading mode entry ── */
+(function(){
+  const table=document.getElementById('kbhelp-table');
+  if(!table)return;
+  const row=document.createElement('div');
+  row.className='kbh-row';
+  row.innerHTML='<kbd>R</kbd><span>Toggle reading mode</span>';
+  table.appendChild(row);
+})();
