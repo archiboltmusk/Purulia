@@ -60,13 +60,13 @@
   </div>
   <div class="nav-right">
     <div class="lang-switch" role="group" aria-label="Language">
-      <button class="lang-btn lang-active" data-lang="en" onclick="setLang('en')">EN</button>
-      <button class="lang-btn" data-lang="bn" onclick="setLang('bn')">বাং</button>
-      <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+      <button class="lang-btn lang-active" data-lang="en">EN</button>
+      <button class="lang-btn" data-lang="bn">বাং</button>
+      <button class="lang-btn" data-lang="hi">हिं</button>
     </div>
-    <a href="join.html#respond" class="nav-cta">Help →</a><button class="nav-cmd" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" aria-label="Open command palette" title="⌘K">⌘K</button>
+    <a href="join.html#respond" class="nav-cta">Help →</a><button class="nav-cmd" aria-label="Open command palette" title="⌘K">⌘K</button>
     <div class="nav-mob">
-      <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+      <button class="nav-toggle" id="navToggle">
         <div class="ntg-icon"><span></span><span></span><span></span></div>
       </button>
       <div class="nav-dropdown" id="navDropdown">
@@ -249,42 +249,42 @@
     <p class="ss">One click. A personalized action card built for your role — with specific steps, not generic advice.</p>
   </div>
   <div class="pf-grid rv" id="pfGrid">
-    <div class="pf-role-card" onclick="pfSelect('doctor')">
+    <div class="pf-role-card" data-role="doctor">
       <span class="pf-role-ico">🩺</span>
       <div class="pf-role-name">Doctor / Healthcare</div>
       <div class="pf-role-sub">Specialist · GP · Researcher</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('engineer')">
+    <div class="pf-role-card" data-role="engineer">
       <span class="pf-role-ico">⚙️</span>
       <div class="pf-role-name">Engineer</div>
       <div class="pf-role-sub">Civil · Electrical · Software</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('investor')">
+    <div class="pf-role-card" data-role="investor">
       <span class="pf-role-ico">💼</span>
       <div class="pf-role-name">Investor / Business</div>
       <div class="pf-role-sub">Solar · Agro · Impact · VC</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('politician')">
+    <div class="pf-role-card" data-role="politician">
       <span class="pf-role-ico">🏛️</span>
       <div class="pf-role-name">Policy / Administration</div>
       <div class="pf-role-sub">IAS · MLA · MP · Elected</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('diaspora')">
+    <div class="pf-role-card" data-role="diaspora">
       <span class="pf-role-ico">🌍</span>
       <div class="pf-role-name">Diaspora</div>
       <div class="pf-role-sub">Purulia-origin, anywhere</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('student')">
+    <div class="pf-role-card" data-role="student">
       <span class="pf-role-ico">📚</span>
       <div class="pf-role-name">Student</div>
       <div class="pf-role-sub">Undergraduate · Postgrad · Research</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('artist')">
+    <div class="pf-role-card" data-role="artist">
       <span class="pf-role-ico">🎭</span>
       <div class="pf-role-name">Artist / Craftsperson</div>
       <div class="pf-role-sub">Dokra · Chhau · Weaver · Maker</div>
     </div>
-    <div class="pf-role-card" onclick="pfSelect('other')">
+    <div class="pf-role-card" data-role="other">
       <span class="pf-role-ico">→</span>
       <div class="pf-role-name">Journalist / Researcher</div>
       <div class="pf-role-sub">Communicator · Academic</div>
@@ -362,7 +362,7 @@
   </div>
   <div class="follow-form" id="followForm">
     <input type="email" class="follow-input" id="followEmail" placeholder="your@email.com" aria-label="Email address">
-    <button class="follow-btn" onclick="followSubmit()">Follow →</button>
+    <button class="follow-btn">Follow →</button>
   </div>
 </div>
 
