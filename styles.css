@@ -966,6 +966,8 @@ h1.hero-h .l2.scrambling::after{content:'';display:inline-block;width:3px;height
 
 /* ── Momentum item live pulse overlay ── */
 .mom-item-live{border:1px solid rgba(212,136,42,.15)!important;animation:liveGlow 3s ease-in-out infinite;}
+/* ── Momentum full-width featured item ── */
+.mom-item[style*="grid-column"]{background:rgba(184,138,219,.04);}
 @keyframes liveGlow{0%,100%{box-shadow:none;}50%{box-shadow:0 0 30px rgba(212,136,42,.06),inset 0 0 30px rgba(212,136,42,.03);}}
 
 /* ── Pillar cards — depth shimmer on enter ── */
