@@ -124,6 +124,9 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 .k-rep-label{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;margin-bottom:.5rem;}
 .k-rep-name{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--cream);}
 .k-rep-sub{font-family:'DM Mono',monospace;font-size:.42rem;color:rgba(240,230,208,.35);margin-top:.3rem;line-height:1.7;}
+.k-rep-person{display:flex;align-items:center;gap:.9rem;}
+.k-rep-avatar{flex-shrink:0;width:2.6rem;height:2.6rem;border-radius:50%;background:rgba(212,136,42,.1);border:1px solid rgba(212,136,42,.35);display:flex;align-items:center;justify-content:center;font-family:'DM Mono',monospace;font-size:.55rem;letter-spacing:.05em;color:var(--amber2);}
+.k-rep-person-text{min-width:0;}
 
 /* ── How it works ── */
 .k-how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6rem;}
@@ -192,7 +195,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
   <div class="k-stat"><div class="k-stat-n" id="k-stat-total">0</div><div class="k-stat-l">Reports Filed</div></div>
   <div class="k-stat"><div class="k-stat-n" id="k-stat-wards">0</div><div class="k-stat-l">Wards Covered</div></div>
   <div class="k-stat"><div class="k-stat-n" id="k-stat-resolved">0</div><div class="k-stat-l">Marked Resolved</div></div>
-  <div class="k-stat"><div class="k-stat-n">22</div><div class="k-stat-l">Total Wards · PMC</div></div>
+  <div class="k-stat"><div class="k-stat-n">23</div><div class="k-stat-l">Total Wards · PMC</div></div>
 </div>
 
 <!-- ══ REPORT ══ -->
@@ -213,7 +216,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 
         <span class="k-label">🏘️ Confirm your ward</span>
         <select class="k-select" id="k-ward">
-          <option value="">Select ward (1–22)…</option>
+          <option value="">Select ward (1–23)…</option>
         </select>
 
         <span class="k-label">📝 What's the problem?</span>
@@ -272,21 +275,27 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
         <div class="k-rep-row">
           <div class="k-rep-label">Municipality</div>
           <div class="k-rep-name">Purulia Municipality</div>
-          <div class="k-rep-sub">Jubilee Compound, Purulia · 723101<br>puruliamunicipality@gmail.com · +91 90460 03666</div>
+          <div class="k-rep-sub">Jubilee Compound, Purulia · 723101<br>puruliamunicipality@gmail.com · +91 90460 03666<br>Chairman: Nabendu Mahali — the elected Board was briefly dissolved (Dec 2025) and placed under a State-appointed Administrator, then reinstated after the Calcutta High Court set the dissolution aside.</div>
         </div>
         <div class="k-rep-row">
           <div class="k-rep-label">Lok Sabha Constituency</div>
           <div class="k-rep-name">Purulia</div>
-          <div class="k-rep-sub">MP (2024–): Jyotirmay Singh Mahato</div>
+          <div class="k-rep-person" style="margin-top:.5rem;">
+            <div class="k-rep-avatar" aria-hidden="true">JSM</div>
+            <div class="k-rep-person-text"><div class="k-rep-sub" style="margin-top:0;">MP (2024–): Jyotirmay Singh Mahato</div></div>
+          </div>
         </div>
         <div class="k-rep-row">
           <div class="k-rep-label">Assembly Constituency</div>
           <div class="k-rep-name">Purulia (No. 242)</div>
-          <div class="k-rep-sub">MLA (2026–): Sudip Kumar Mukherjee, BJP</div>
+          <div class="k-rep-person" style="margin-top:.5rem;">
+            <div class="k-rep-avatar" aria-hidden="true">SKM</div>
+            <div class="k-rep-person-text"><div class="k-rep-sub" style="margin-top:0;">MLA (2026–): Sudip Kumar Mukherjee, BJP</div></div>
+          </div>
         </div>
         <div class="k-rep-row">
           <div class="k-rep-label">Ward Data</div>
-          <div class="k-rep-sub">Purulia town is divided into 22 municipal wards. This leaderboard ranks reports by ward — not by individual — until verified councillor data is added.</div>
+          <div class="k-rep-sub">Purulia town is divided into 23 municipal wards. This leaderboard ranks reports by ward — not by individual councillor — until verified councillor data for all 23 wards is added.</div>
         </div>
       </div>
     </div>
@@ -338,7 +347,7 @@ const K_CENTER = [23.3320, 86.3654];
 // Ward dropdown
 (function(){
   const sel = document.getElementById('k-ward');
-  for (let i = 1; i <= 22; i++) {
+  for (let i = 1; i <= 23; i++) {
     const opt = document.createElement('option');
     opt.value = 'Ward ' + i;
     opt.textContent = 'Ward ' + i;
