@@ -113,6 +113,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 .k-lb-rank{font-family:'DM Mono',monospace;font-size:.44rem;color:rgba(212,136,42,.4);width:1.4rem;text-align:right;flex-shrink:0;}
 .k-lb-bar-wrap{flex:1;min-width:0;}
 .k-lb-name{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.08em;color:rgba(240,230,208,.7);text-transform:uppercase;}
+.k-lb-councillor{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.04em;color:rgba(212,136,42,.5);margin-top:.15rem;}
 .k-lb-bar{height:3px;background:rgba(212,136,42,.14);margin-top:.3rem;}
 .k-lb-bar-fill{height:100%;background:var(--amber);transition:width .8s ease;}
 .k-lb-count{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--amber);font-weight:500;flex-shrink:0;}
@@ -295,7 +296,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
         </div>
         <div class="k-rep-row">
           <div class="k-rep-label">Ward Data</div>
-          <div class="k-rep-sub">Purulia town is divided into 23 municipal wards. This leaderboard ranks reports by ward — not by individual councillor — until verified councillor data for all 23 wards is added.</div>
+          <div class="k-rep-sub">Purulia town is divided into 23 municipal wards. Councillor names shown per ward are the 2022 poll winners, sourced directly from the West Bengal State Election Commission (portal.wbme.org).</div>
         </div>
       </div>
     </div>
@@ -344,13 +345,43 @@ const K_MUNICIPALITY_PHONE = '919046003666';
 const K_MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
 const K_CENTER = [23.3320, 86.3654];
 
+// Elected councillors per ward, 2022 Purulia Municipality poll — sourced from the
+// West Bengal State Election Commission's own results API (portal.wbme.org).
+// Board was briefly dissolved (Dec 2025) and reinstated by the Calcutta High Court in 2026.
+const WARD_COUNCILLORS = {
+  1: {name:'Bishnu Sahis', party:'AITC'},
+  2: {name:'Abir Sengupta', party:'BJP'},
+  3: {name:'Sunoy Kabiraj', party:'AITC'},
+  4: {name:'Asha Gorain', party:'AITC'},
+  5: {name:'Bivash Ranjan Das', party:'AITC'},
+  6: {name:'Mousumi Ghosh', party:'IND'},
+  7: {name:'Durba Dutta', party:'AITC'},
+  8: {name:'Faisal Kamal Ashraf', party:'AITC'},
+  9: {name:'Pradip Banerjee', party:'AITC'},
+  10: {name:'Indrani Dey', party:'AITC'},
+  11: {name:'Kajal Das', party:'AITC'},
+  12: {name:'Rumki Karmakar', party:'IND'},
+  13: {name:'Pradip Mukherjee', party:'BJP'},
+  14: {name:'Kanika Karmakar', party:'BJP'},
+  15: {name:'Ruqaiya Khatoon', party:'INC'},
+  16: {name:'Nabendu Mahali', party:'AITC'},
+  17: {name:'Mayuri Nandi', party:'AITC'},
+  18: {name:'Arati Pandey', party:'AITC'},
+  19: {name:'Baidyanath Mondal', party:'AITC'},
+  20: {name:'Samiran Roy', party:'AITC'},
+  21: {name:'Rabishankar Das', party:'AITC'},
+  22: {name:'Anwari Bibi', party:'AITC'},
+  23: {name:'Pradip Daga', party:'AITC'}
+};
+
 // Ward dropdown
 (function(){
   const sel = document.getElementById('k-ward');
   for (let i = 1; i <= 23; i++) {
     const opt = document.createElement('option');
     opt.value = 'Ward ' + i;
-    opt.textContent = 'Ward ' + i;
+    const c = WARD_COUNCILLORS[i];
+    opt.textContent = 'Ward ' + i + (c ? ' — ' + c.name : '');
     sel.appendChild(opt);
   }
 })();
@@ -409,13 +440,16 @@ function kBuildLeaderboard(reports){
     return;
   }
   const max = sorted[0][1];
-  list.innerHTML = sorted.map(([name,count],i) =>
-    '<div class="k-lb-row">'
-    + '<div class="k-lb-rank">'+(i+1)+'</div>'
-    + '<div class="k-lb-bar-wrap"><div class="k-lb-name">'+name+'</div><div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:'+(count/max*100).toFixed(1)+'%"></div></div></div>'
-    + '<div class="k-lb-count">'+count+'</div>'
-    + '</div>'
-  ).join('');
+  list.innerHTML = sorted.map(([name,count],i) => {
+    const wardNum = parseInt(String(name).replace('Ward ',''), 10);
+    const c = WARD_COUNCILLORS[wardNum];
+    const councillorHtml = c ? '<div class="k-lb-councillor">'+c.name+' · '+c.party+'</div>' : '';
+    return '<div class="k-lb-row">'
+      + '<div class="k-lb-rank">'+(i+1)+'</div>'
+      + '<div class="k-lb-bar-wrap"><div class="k-lb-name">'+name+'</div>'+councillorHtml+'<div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:'+(count/max*100).toFixed(1)+'%"></div></div></div>'
+      + '<div class="k-lb-count">'+count+'</div>'
+      + '</div>';
+  }).join('');
 }
 
 async function kLoadReports(){
