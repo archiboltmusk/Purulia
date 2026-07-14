@@ -1,11 +1,18 @@
 /**
  * Purulia 2040 — Form Handler
  * Google Apps Script — deploys as a web app endpoint
+ *
+ * Configuration lives in Script Properties (this project's equivalent of
+ * environment variables), not in this file:
+ *   Apps Script editor → ⚙ Project Settings → Script Properties → Add property
+ *     SPREADSHEET_ID = the ID from your Google Sheet's URL
+ *                       (…/spreadsheets/d/<THIS PART>/edit)
+ * Falls back to the constant below if no Script Property is set.
  */
 
 const TO_EMAIL       = 'thelosthillproject@gmail.com';
 const SHEET_NAME     = 'Submissions';
-const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ';
+const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; // fallback if Script Property is unset
 
 const REPORTS_SHEET_NAME = 'Reports';
 const REPORTS_DRIVE_FOLDER = 'Purulia 2040 — Report Photos';
@@ -198,17 +205,23 @@ function getReports(category) {
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
+function getSpreadsheetId() {
+  return PropertiesService.getScriptProperties().getProperty('SPREADSHEET_ID') || SPREADSHEET_ID;
+}
+
 function openSheet() {
-  // Now it just checks if an ID is provided, without blocking your specific ID
-  if (SPREADSHEET_ID) {
-    return SpreadsheetApp.openById(SPREADSHEET_ID);
+  const id = getSpreadsheetId();
+  if (id) {
+    return SpreadsheetApp.openById(id);
   }
   const ss = SpreadsheetApp.getActiveSpreadsheet();
   if (!ss) {
     throw new Error(
       'Cannot find spreadsheet. Either: (a) open this script from inside ' +
-      'your Google Sheet via Extensions → Apps Script, OR (b) paste your ' +
-      'Sheet ID into the SPREADSHEET_ID constant at the top of this file.'
+      'your Google Sheet via Extensions → Apps Script, (b) set a ' +
+      'SPREADSHEET_ID Script Property (⚙ Project Settings → Script ' +
+      'Properties), or (c) paste your Sheet ID into the SPREADSHEET_ID ' +
+      'constant at the top of this file.'
     );
   }
   return ss;
