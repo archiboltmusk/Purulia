@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Purulia Kasa — Report Garbage in 30 Seconds</title>
+<meta name="description" content="Purulia Kasa is a crowdsourced garbage-reporting map for Purulia town — snap a photo, pin the spot, confirm your ward, and escalate straight to Purulia Municipality. Inspired by Bengaluru's Namma Kasa.">
+<meta property="og:title" content="Purulia Kasa — Report Garbage in 30 Seconds">
+<meta property="og:description" content="A crowdsourced garbage-reporting map and ward accountability leaderboard for Purulia town.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
+<meta property="og:url" content="https://mahatoanupam002-lang.github.io/purulia/kasa.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Purulia Kasa — Report Garbage in 30 Seconds">
+<meta name="twitter:description" content="A crowdsourced garbage-reporting map and ward accountability leaderboard for Purulia town.">
+<meta name="twitter:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
+<!-- Vercel Speed Insights -->
+<script>
+  window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
+</script>
+<script defer src="/_vercel/speed-insights/script.js"></script>
+<link rel="canonical" href="https://mahatoanupam002-lang.github.io/purulia/kasa.html">
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://mahatoanupam002-lang.github.io/purulia/kasa.html#webpage","url":"https://mahatoanupam002-lang.github.io/purulia/kasa.html","name":"Purulia Kasa — Report Garbage in 30 Seconds","description":"A crowdsourced garbage-reporting map and ward accountability leaderboard for Purulia town.","isPartOf":{"@id":"https://mahatoanupam002-lang.github.io/purulia/#website"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://mahatoanupam002-lang.github.io/purulia/"},{"@type":"ListItem","position":2,"name":"Purulia Kasa","item":"https://mahatoanupam002-lang.github.io/purulia/kasa.html"}]}}]}</script>
+<style>
+/* ══ PURULIA KASA — PAGE-SPECIFIC STYLES ══ */
+
+.k-wrap{max-width:1040px;margin:0 auto;padding:0 5rem;}
+@media(max-width:960px){.k-wrap{padding:0 1.4rem;}}
+
+section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
+@media(max-width:960px){section.k-section{padding:3.5rem 1.4rem;}}
+
+/* ── Stats strip ── */
+#k-stats{background:var(--ink2);border-top:1px solid var(--border2);border-bottom:1px solid var(--border2);padding:2.6rem 5rem;display:flex;align-items:center;justify-content:center;gap:4rem;flex-wrap:wrap;}
+@media(max-width:960px){#k-stats{padding:2rem 1.4rem;gap:2rem;}}
+.k-stat{text-align:center;}
+.k-stat-n{font-family:'EB Garamond',serif;font-size:2.4rem;font-weight:800;color:var(--amber);line-height:1;text-shadow:0 0 24px rgba(212,136,42,.2);}
+.k-stat-l{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.28em;color:rgba(240,230,208,.32);text-transform:uppercase;margin-top:.6rem;}
+
+/* ── Report card (form) ── */
+.k-report-grid{display:grid;grid-template-columns:1fr 1fr;gap:3rem;align-items:start;}
+@media(max-width:900px){.k-report-grid{grid-template-columns:1fr;}}
+
+.k-form{background:var(--ink3);border:1px solid var(--border2);padding:2rem 2.2rem 2.4rem;}
+.k-label{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.24em;color:var(--amber);text-transform:uppercase;display:block;margin:1.15rem 0 .45rem;}
+.k-label:first-child{margin-top:0;}
+.k-photo-label{display:flex;align-items:center;justify-content:center;gap:.6rem;width:100%;padding:1.4rem;font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;border:1px dashed rgba(212,136,42,.3);color:rgba(240,230,208,.4);cursor:pointer;text-align:center;transition:all .25s;box-sizing:border-box;background-size:cover;background-position:center;min-height:64px;}
+.k-photo-label:hover{border-color:rgba(212,136,42,.55);color:rgba(240,230,208,.7);}
+.k-photo-label.has-photo{border-color:#6DB88A;color:#6DB88A;border-style:solid;}
+#k-photo{display:none;}
+.k-gps-btn{width:100%;padding:.85rem;font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.18em;text-transform:uppercase;background:rgba(212,136,42,.07);border:1px solid rgba(212,136,42,.28);color:rgba(240,230,208,.6);cursor:pointer;transition:all .25s;}
+.k-gps-btn:hover{border-color:var(--amber);color:var(--amber);}
+.k-gps-btn.got{border-color:#6DB88A!important;color:#6DB88A!important;background:rgba(109,184,138,.08)!important;}
+.k-coords{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.05em;color:rgba(212,136,42,.5);margin-top:.4rem;min-height:.9rem;}
+.k-select,.k-textarea,.k-input{width:100%;background:rgba(240,230,208,.04);border:1px solid rgba(212,136,42,.2);color:rgba(240,230,208,.78);font-family:'DM Mono',monospace;font-size:.5rem;padding:.6rem .7rem;outline:none;transition:border-color .2s;box-sizing:border-box;}
+.k-select:focus,.k-textarea:focus,.k-input:focus{border-color:rgba(212,136,42,.5);}
+.k-select option{background:#0c0a05;}
+.k-textarea{height:80px;resize:vertical;line-height:1.6;}
+.k-submit{width:100%;padding:.95rem;margin-top:1.6rem;font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.24em;text-transform:uppercase;background:var(--amber);color:var(--ink);border:none;cursor:pointer;transition:all .25s;clip-path:polygon(0 0,calc(100% - 10px) 0,100% 10px,100% 100%,10px 100%,0 calc(100% - 10px));}
+.k-submit:hover:not(:disabled){background:var(--amber2);transform:translateY(-2px);}
+.k-submit:disabled{opacity:.35;cursor:default;transform:none;}
+.k-privacy{margin-top:1rem;font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.08em;color:rgba(240,230,208,.28);line-height:1.9;}
+
+/* ── Report card (result) ── */
+.k-card{background:var(--ink3);border:1px solid rgba(212,136,42,.25);padding:0;overflow:hidden;display:none;}
+.k-card.visible{display:block;}
+.k-card-photo{width:100%;height:220px;object-fit:cover;display:block;background:var(--ink4);}
+.k-card-body{padding:1.6rem 1.8rem 2rem;}
+.k-card-id{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.2em;color:rgba(212,136,42,.5);text-transform:uppercase;margin-bottom:.6rem;}
+.k-card-title{font-family:'EB Garamond',serif;font-size:1.3rem;font-weight:700;color:var(--cream);margin-bottom:.5rem;}
+.k-card-meta{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.08em;color:rgba(240,230,208,.42);line-height:2;}
+.k-card-actions{display:flex;flex-direction:column;gap:.6rem;margin-top:1.4rem;}
+.k-card-btn{display:block;width:100%;text-align:center;padding:.75rem;font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.18em;text-transform:uppercase;text-decoration:none;border:1px solid rgba(37,211,102,.3);color:rgba(37,211,102,.75);background:rgba(37,211,102,.06);transition:all .25s;box-sizing:border-box;}
+.k-card-btn:hover{border-color:#25D366;color:#25D366;}
+.k-card-btn.k-btn-b{border-color:rgba(240,230,208,.22);color:rgba(240,230,208,.55);background:transparent;}
+.k-card-btn.k-btn-b:hover{border-color:var(--amber);color:var(--amber);}
+.k-card-again{background:none;border:none;color:rgba(240,230,208,.3);font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.16em;text-transform:uppercase;cursor:pointer;margin-top:1rem;text-decoration:underline;padding:0;}
+.k-card-again:hover{color:var(--amber);}
+.k-card-placeholder{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;min-height:340px;border:1px dashed rgba(212,136,42,.18);padding:2rem;text-align:center;}
+.k-card-placeholder .kp-icon{font-size:2.4rem;margin-bottom:1rem;opacity:.4;}
+.k-card-placeholder p{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.1em;color:rgba(240,230,208,.28);line-height:1.9;text-transform:uppercase;max-width:220px;}
+
+/* ── Map ── */
+#kasa-map{width:100%;height:460px;border:1px solid var(--border2);}
+.leaflet-popup-content-wrapper{background:rgba(12,10,5,.97)!important;border:1px solid rgba(212,136,42,.22)!important;border-radius:0!important;box-shadow:0 24px 60px rgba(0,0,0,.7),0 0 0 1px rgba(212,136,42,.08)!important;padding:0!important;}
+.leaflet-popup-content{margin:0!important;width:250px!important;}
+.leaflet-popup-tip-container{display:none!important;}
+.leaflet-popup-close-button{color:rgba(240,230,208,.3)!important;font-size:18px!important;top:10px!important;right:12px!important;}
+.leaflet-popup-close-button:hover{color:var(--amber)!important;}
+.leaflet-control-zoom{border:1px solid rgba(212,136,42,.2)!important;border-radius:0!important;}
+.leaflet-control-zoom a{background:rgba(12,10,5,.95)!important;color:rgba(240,230,208,.5)!important;border-bottom:1px solid rgba(212,136,42,.15)!important;font-family:'DM Mono',monospace!important;border-radius:0!important;}
+.leaflet-control-zoom a:hover{background:rgba(212,136,42,.1)!important;color:var(--amber)!important;}
+.leaflet-control-attribution{background:rgba(12,10,5,.8)!important;color:rgba(240,230,208,.2)!important;font-size:.55rem!important;font-family:'DM Mono',monospace!important;}
+.k-popup-title{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.14em;text-transform:uppercase;color:var(--amber);padding:.9rem 1rem .3rem;}
+.k-popup-desc{font-family:'EB Garamond',serif;font-size:.92rem;color:var(--cream);padding:0 1rem;line-height:1.5;}
+.k-popup-meta{font-family:'DM Mono',monospace;font-size:.4rem;color:rgba(240,230,208,.35);padding:.6rem 1rem 1rem;line-height:1.8;}
+.k-popup-img{width:100%;height:120px;object-fit:cover;display:block;}
+.k-map-note{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.1em;color:rgba(240,230,208,.3);margin-top:1rem;text-align:center;}
+
+/* ── Leaderboard ── */
+.k-lb-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:3rem;align-items:start;}
+@media(max-width:900px){.k-lb-grid{grid-template-columns:1fr;}}
+.k-lb-list{background:var(--ink3);border:1px solid var(--border2);padding:1.6rem 1.8rem;max-height:520px;overflow-y:auto;}
+.k-lb-row{display:flex;align-items:center;gap:.8rem;padding:.6rem 0;border-bottom:1px solid rgba(212,136,42,.08);}
+.k-lb-row:last-child{border-bottom:none;}
+.k-lb-rank{font-family:'DM Mono',monospace;font-size:.44rem;color:rgba(212,136,42,.4);width:1.4rem;text-align:right;flex-shrink:0;}
+.k-lb-bar-wrap{flex:1;min-width:0;}
+.k-lb-name{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.08em;color:rgba(240,230,208,.7);text-transform:uppercase;}
+.k-lb-bar{height:3px;background:rgba(212,136,42,.14);margin-top:.3rem;}
+.k-lb-bar-fill{height:100%;background:var(--amber);transition:width .8s ease;}
+.k-lb-count{font-family:'DM Mono',monospace;font-size:.5rem;color:var(--amber);font-weight:500;flex-shrink:0;}
+.k-lb-empty{font-family:'DM Mono',monospace;font-size:.46rem;color:rgba(240,230,208,.22);text-align:center;padding:3rem 0;letter-spacing:.08em;line-height:2;text-transform:uppercase;}
+
+.k-rep-card{background:var(--ink3);border:1px solid var(--border2);padding:1.8rem 2rem;}
+.k-rep-row{padding:1rem 0;border-bottom:1px solid rgba(212,136,42,.1);}
+.k-rep-row:last-child{border-bottom:none;padding-bottom:0;}
+.k-rep-label{font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.22em;color:var(--amber);text-transform:uppercase;margin-bottom:.5rem;}
+.k-rep-name{font-family:'EB Garamond',serif;font-size:1.15rem;font-weight:600;color:var(--cream);}
+.k-rep-sub{font-family:'DM Mono',monospace;font-size:.42rem;color:rgba(240,230,208,.35);margin-top:.3rem;line-height:1.7;}
+
+/* ── How it works ── */
+.k-how-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1.6rem;}
+@media(max-width:900px){.k-how-grid{grid-template-columns:1fr 1fr;}}
+@media(max-width:560px){.k-how-grid{grid-template-columns:1fr;}}
+.k-how-step{background:var(--ink3);padding:2rem 1.6rem;border:1px solid var(--border2);}
+.k-how-n{font-family:'EB Garamond',serif;font-size:1.8rem;font-weight:800;color:var(--amber);line-height:1;margin-bottom:1rem;}
+.k-how-t{font-family:'EB Garamond',serif;font-size:1.05rem;font-weight:700;color:var(--cream);margin-bottom:.5rem;}
+.k-how-d{font-size:.88rem;line-height:1.65;color:rgba(240,230,208,.45);}
+
+.k-toast-warn{color:#E8524A!important;}
+</style>
+<script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
+</head>
+<body>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="cur"></div>
+<div id="curR"></div>
+<div id="pbar"></div>
+<div id="toast"></div>
+
+<nav>
+  <div class="nav-logo">PURULIA 2040</div>
+  <div class="nav-links">
+    <a href="index.html" class="nl-item">Home</a>
+    <a href="blueprint.html" class="nl-item">Blueprint</a>
+    <a href="audience.html" class="nl-item">For You</a>
+    <a href="data.html" class="nl-item">Ground Truth</a>
+    <a href="join.html" class="nl-item">Join</a>
+    <a href="map.html" class="nl-item">Map</a>
+    <a href="kasa.html" class="nl-item">Kasa</a>
+  </div>
+  <div class="nav-right">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button class="lang-btn lang-active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="bn" onclick="setLang('bn')">বাং</button>
+      <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
+    </div>
+    <a href="#report" class="nav-cta">Report Now →</a><button class="nav-cmd" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" aria-label="Open command palette" title="⌘K">⌘K</button>
+    <div class="nav-mob">
+      <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+        <div class="ntg-icon"><span></span><span></span><span></span></div>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+        <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
+        <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
+        <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+        <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
+        <a href="map.html" class="nd-item">District Map <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item nd-active">Purulia Kasa <span class="nd-arrow">→</span></a>
+      </div>
+    </div>
+  </div>
+</nav>
+<span id="main-content" tabindex="-1"></span>
+
+<section class="page-hd">
+  <div class="page-hd-label">Civic Action · Purulia Town</div>
+  <h1 class="page-hd-title">Purulia Kasa.<br><em>Report It. Track It. Fix It.</em></h1>
+  <p class="page-hd-sub">A crowdsourced garbage-reporting map for Purulia town — snap a photo, pin the exact spot, confirm your ward, and we route it straight to Purulia Municipality. Every report is public. Every ward is ranked. Inspired by Bengaluru's <strong style="color:rgba(240,230,208,.6);font-style:normal;">Namma Kasa</strong>, built for Purulia.</p>
+</section>
+
+<!-- ══ STATS ══ -->
+<div id="k-stats">
+  <div class="k-stat"><div class="k-stat-n" id="k-stat-total">0</div><div class="k-stat-l">Reports Filed</div></div>
+  <div class="k-stat"><div class="k-stat-n" id="k-stat-wards">0</div><div class="k-stat-l">Wards Covered</div></div>
+  <div class="k-stat"><div class="k-stat-n" id="k-stat-resolved">0</div><div class="k-stat-l">Marked Resolved</div></div>
+  <div class="k-stat"><div class="k-stat-n">22</div><div class="k-stat-l">Total Wards · PMC</div></div>
+</div>
+
+<!-- ══ REPORT ══ -->
+<section class="k-section" id="report">
+  <div class="k-wrap">
+    <div class="sl rv">// 01 — Report a Spot</div>
+    <h2 class="sh rv" style="margin-bottom:2.6rem;">Garbage somewhere it<br><em style="color:var(--amber2);font-style:italic;">shouldn't be?</em></h2>
+
+    <div class="k-report-grid">
+      <div class="k-form rv">
+        <span class="k-label">📷 Photo of the garbage</span>
+        <label class="k-photo-label" id="k-photo-label" for="k-photo">+ Take or choose a photo</label>
+        <input type="file" id="k-photo" accept="image/*" capture="environment">
+
+        <span class="k-label">📍 Your location</span>
+        <button class="k-gps-btn" id="k-gps-btn" onclick="kDetectGPS()">⊕ Use my location</button>
+        <div class="k-coords" id="k-coords">GPS denied or unavailable? Tap the map below to drop a pin instead.</div>
+
+        <span class="k-label">🏘️ Confirm your ward</span>
+        <select class="k-select" id="k-ward">
+          <option value="">Select ward (1–22)…</option>
+        </select>
+
+        <span class="k-label">📝 What's the problem?</span>
+        <textarea class="k-textarea" id="k-desc" placeholder="e.g. Overflowing bin, uncollected household waste, illegal dumping…"></textarea>
+
+        <span class="k-label">👤 Your name (optional)</span>
+        <input type="text" class="k-input" id="k-name" placeholder="Anonymous by default">
+
+        <button class="k-submit" id="k-submit" onclick="kSubmit()">Submit Report →</button>
+        <div class="k-privacy">🔒 Your identity is never published. Reports show only the photo, location, ward and description — never your name unless you choose to add it.</div>
+      </div>
+
+      <div>
+        <div class="k-card-placeholder rv" id="k-card-placeholder">
+          <div class="kp-icon">🗑️</div>
+          <p>Your report card will appear here — with a one-tap button to notify Purulia Municipality.</p>
+        </div>
+        <div class="k-card rv" id="k-card">
+          <img class="k-card-photo" id="k-card-photo" alt="Reported garbage">
+          <div class="k-card-body">
+            <div class="k-card-id" id="k-card-id">REPORT #</div>
+            <div class="k-card-title">Report Filed</div>
+            <div class="k-card-meta" id="k-card-meta"></div>
+            <div class="k-card-actions">
+              <a class="k-card-btn" id="k-card-wa" href="#" target="_blank" rel="noopener">📲 Send to Purulia Municipality</a>
+              <a class="k-card-btn k-btn-b" id="k-card-share" href="#" target="_blank" rel="noopener">↗ Share this report</a>
+            </div>
+            <button class="k-card-again" onclick="kReset()">File another report</button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ MAP ══ -->
+<section class="k-section" id="kasa-map-section">
+  <div class="k-wrap">
+    <div class="sl rv">// 02 — Live Map</div>
+    <h2 class="sh rv" style="margin-bottom:2rem;font-size:clamp(1.8rem,3vw,2.6rem);">Every report, <em style="color:var(--amber2);font-style:italic;">in one place.</em></h2>
+    <div id="kasa-map" class="rv"></div>
+    <div class="k-map-note">Red pins are open reports · Green pins are marked resolved · Tap the map while filing a report to drop a pin manually</div>
+  </div>
+</section>
+
+<!-- ══ LEADERBOARD ══ -->
+<section class="k-section" id="leaderboard">
+  <div class="k-wrap">
+    <div class="sl rv">// 03 — Ward Accountability</div>
+    <h2 class="sh rv" style="margin-bottom:2.6rem;font-size:clamp(1.8rem,3vw,2.6rem);">Which wards need <em style="color:var(--amber2);font-style:italic;">the most attention?</em></h2>
+    <div class="k-lb-grid">
+      <div class="k-lb-list rv" id="k-lb-list">
+        <div class="k-lb-empty">No reports yet.<br>Be the first to file one above.</div>
+      </div>
+      <div class="k-rep-card rv">
+        <div class="k-rep-row">
+          <div class="k-rep-label">Municipality</div>
+          <div class="k-rep-name">Purulia Municipality</div>
+          <div class="k-rep-sub">Jubilee Compound, Purulia · 723101<br>puruliamunicipality@gmail.com · +91 90460 03666</div>
+        </div>
+        <div class="k-rep-row">
+          <div class="k-rep-label">Lok Sabha Constituency</div>
+          <div class="k-rep-name">Purulia</div>
+          <div class="k-rep-sub">MP (2024–): Jyotirmay Singh Mahato</div>
+        </div>
+        <div class="k-rep-row">
+          <div class="k-rep-label">Assembly Constituency</div>
+          <div class="k-rep-name">Purulia (No. 242)</div>
+          <div class="k-rep-sub">MLA: updated after the 2026 result is formally confirmed.</div>
+        </div>
+        <div class="k-rep-row">
+          <div class="k-rep-label">Ward Data</div>
+          <div class="k-rep-sub">Purulia town is divided into 22 municipal wards. This leaderboard ranks reports by ward — not by individual — until verified councillor data is added.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ══ HOW IT WORKS ══ -->
+<section class="k-section" id="how">
+  <div class="k-wrap">
+    <div class="sl rv">// 04 — How It Works</div>
+    <h2 class="sh rv" style="margin-bottom:2.6rem;font-size:clamp(1.8rem,3vw,2.6rem);">Four steps. <em style="color:var(--amber2);font-style:italic;">Thirty seconds.</em></h2>
+    <div class="k-how-grid">
+      <div class="k-how-step rv"><div class="k-how-n">01</div><div class="k-how-t">Snap a photo</div><div class="k-how-d">Take a picture of the garbage, right where it is. No account, no sign-up.</div></div>
+      <div class="k-how-step rv"><div class="k-how-n">02</div><div class="k-how-t">Pin the spot</div><div class="k-how-d">GPS captures the exact coordinates. Confirm your ward from the dropdown.</div></div>
+      <div class="k-how-step rv"><div class="k-how-n">03</div><div class="k-how-t">It goes public</div><div class="k-how-d">Your report appears instantly on the live map and the ward leaderboard.</div></div>
+      <div class="k-how-step rv"><div class="k-how-n">04</div><div class="k-how-t">We escalate it</div><div class="k-how-d">One tap sends your report card straight to Purulia Municipality on WhatsApp or email.</div></div>
+    </div>
+  </div>
+</section>
+
+<a href="join.html" class="next-page rv">
+  <div class="np-meta">
+    <div class="np-label">Get Involved</div>
+    <div class="np-title">Join Purulia 2040 — <em>Help Build the Rest.</em></div>
+  </div>
+  <div class="np-arrow">→</div>
+</a>
+<footer>
+  <div class="ft-brand">Purulia 2040<span>A District Transformation Blueprint</span></div>
+  <div class="ft-mid">Purulia Kasa · A Civic Waste-Reporting Tool<br>West Bengal, India · 23.33°N 86.37°E</div>
+  <div class="ft-links">
+    <a href="index.html#reframe">The Case</a>
+    <a href="map.html">District Map</a>
+    <a href="join.html">Join</a>
+  </div>
+</footer>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="script.js"></script>
+<script>
+// ══════════════════════════════════════════════════════════
+// PURULIA KASA — report capture, map, leaderboard
+// ══════════════════════════════════════════════════════════
+const K_REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
+const K_MUNICIPALITY_PHONE = '919046003666';
+const K_MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
+const K_CENTER = [23.3320, 86.3654];
+
+// Ward dropdown
+(function(){
+  const sel = document.getElementById('k-ward');
+  for (let i = 1; i <= 22; i++) {
+    const opt = document.createElement('option');
+    opt.value = 'Ward ' + i;
+    opt.textContent = 'Ward ' + i;
+    sel.appendChild(opt);
+  }
+})();
+
+// Map init
+const kMap = L.map('kasa-map', { scrollWheelZoom: false }).setView(K_CENTER, 13);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+  attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
+}).addTo(kMap);
+const kReportLayer = L.layerGroup().addTo(kMap);
+let kPinMarker = null;
+let kLat = null, kLng = null, kPhotoB64 = null;
+
+function kMkIcon(status){
+  const color = status === 'resolved' ? '#6DB88A' : '#E8524A';
+  return L.divIcon({
+    className: '',
+    html: '<div style="position:relative;width:12px;height:12px;">'
+      + '<div style="position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;border:1px solid '+color+';opacity:.3;"></div>'
+      + '<div style="position:absolute;top:0;left:0;width:100%;height:100%;border-radius:50%;background:'+color+';box-shadow:0 0 12px '+color+'99;border:1.5px solid rgba(255,255,255,.15);"></div>'
+      + '</div>',
+    iconSize:[12,12], iconAnchor:[6,6], popupAnchor:[0,-14]
+  });
+}
+
+function kRenderMarker(r){
+  const dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+  const photoHtml = r.photoUrl ? '<img class="k-popup-img" src="'+r.photoUrl+'" alt="Garbage report">' : '';
+  const popupHtml = photoHtml
+    + '<div class="k-popup-title">🗑️ Garbage Report · '+(r.ward||'Unassigned ward')+'</div>'
+    + '<div class="k-popup-desc">'+(r.desc||'Reported problem')+'</div>'
+    + '<div class="k-popup-meta">'+dateStr+(r.status==='resolved'?' · <span style="color:#6DB88A">Resolved</span>':' · <span style="color:#E8524A">Open</span>')+'<br>'+(r.name?('— '+r.name):'Reported anonymously')+'</div>';
+  const m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(popupHtml).addTo(kReportLayer);
+  m._ward = r.ward || 'Unassigned';
+  m._status = r.status || 'new';
+}
+
+function kUpdateStats(){
+  const reports = [];
+  kReportLayer.eachLayer(m => reports.push({ ward: m._ward, status: m._status }));
+  const wardSet = new Set(reports.map(r => r.ward).filter(w => w && w !== 'Unassigned'));
+  const resolved = reports.filter(r => r.status === 'resolved').length;
+  document.getElementById('k-stat-total').textContent = reports.length;
+  document.getElementById('k-stat-wards').textContent = wardSet.size;
+  document.getElementById('k-stat-resolved').textContent = resolved;
+  kBuildLeaderboard(reports);
+}
+
+function kBuildLeaderboard(reports){
+  const counts = {};
+  reports.forEach(r => { const w = r.ward || 'Unassigned'; counts[w] = (counts[w]||0) + 1; });
+  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
+  const list = document.getElementById('k-lb-list');
+  if (!sorted.length){
+    list.innerHTML = '<div class="k-lb-empty">No reports yet.<br>Be the first to file one above.</div>';
+    return;
+  }
+  const max = sorted[0][1];
+  list.innerHTML = sorted.map(([name,count],i) =>
+    '<div class="k-lb-row">'
+    + '<div class="k-lb-rank">'+(i+1)+'</div>'
+    + '<div class="k-lb-bar-wrap"><div class="k-lb-name">'+name+'</div><div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:'+(count/max*100).toFixed(1)+'%"></div></div></div>'
+    + '<div class="k-lb-count">'+count+'</div>'
+    + '</div>'
+  ).join('');
+}
+
+async function kLoadReports(){
+  try{
+    const res = await fetch(K_REPORT_URL + '?action=getReports&category=waste');
+    if (!res.ok) throw new Error();
+    const data = await res.json();
+    if (Array.isArray(data.reports) && data.reports.length){
+      data.reports.forEach(r => kRenderMarker(r));
+      kUpdateStats();
+      return;
+    }
+  }catch(e){}
+  try{
+    JSON.parse(localStorage.getItem('kasa_reports')||'[]').forEach(r => kRenderMarker(r));
+  }catch(e){}
+  kUpdateStats();
+}
+kLoadReports();
+
+kMap.on('click', function(e){
+  kLat = e.latlng.lat.toFixed(5);
+  kLng = e.latlng.lng.toFixed(5);
+  const coordsEl = document.getElementById('k-coords');
+  const btn = document.getElementById('k-gps-btn');
+  coordsEl.textContent = kLat + '°N, ' + kLng + '°E (pin dropped on map)';
+  coordsEl.classList.remove('k-toast-warn');
+  btn.textContent = '✓ Location set'; btn.classList.add('got');
+  if (kPinMarker) kMap.removeLayer(kPinMarker);
+  kPinMarker = L.marker([kLat, kLng]).addTo(kMap);
+});
+
+function kDetectGPS(){
+  const btn = document.getElementById('k-gps-btn');
+  const coordsEl = document.getElementById('k-coords');
+  if (!navigator.geolocation){ coordsEl.textContent = 'GPS not available on this device — tap the map instead.'; coordsEl.classList.add('k-toast-warn'); return; }
+  btn.textContent = '⟳ Locating…'; btn.disabled = true;
+  navigator.geolocation.getCurrentPosition(
+    pos => {
+      kLat = pos.coords.latitude.toFixed(5);
+      kLng = pos.coords.longitude.toFixed(5);
+      coordsEl.textContent = kLat + '°N, ' + kLng + '°E';
+      coordsEl.classList.remove('k-toast-warn');
+      btn.textContent = '✓ Location captured'; btn.classList.add('got'); btn.disabled = false;
+      if (kPinMarker) kMap.removeLayer(kPinMarker);
+      kPinMarker = L.marker([kLat, kLng]).addTo(kMap);
+      kMap.flyTo([+kLat, +kLng], 15, { duration: 1.1 });
+      document.getElementById('kasa-map-section').scrollIntoView({ behavior:'smooth', block:'center' });
+    },
+    err => {
+      coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map below to set your location instead.' : 'Could not get GPS — tap the map below instead.';
+      coordsEl.classList.add('k-toast-warn');
+      btn.textContent = '⊕ Retry location'; btn.disabled = false;
+    },
+    { enableHighAccuracy: true, timeout: 10000 }
+  );
+}
+
+document.getElementById('k-photo').addEventListener('change', function(){
+  const file = this.files[0];
+  const label = document.getElementById('k-photo-label');
+  if (!file){ kPhotoB64 = null; label.textContent = '+ Take or choose a photo'; label.classList.remove('has-photo'); label.style.backgroundImage=''; return; }
+  const reader = new FileReader();
+  reader.onload = ev => {
+    kPhotoB64 = ev.target.result;
+    label.textContent = '✓ ' + file.name;
+    label.classList.add('has-photo');
+  };
+  reader.readAsDataURL(file);
+});
+
+async function kSubmit(){
+  const ward = document.getElementById('k-ward').value;
+  const desc = document.getElementById('k-desc').value.trim();
+  const name = document.getElementById('k-name').value.trim();
+  const submitBtn = document.getElementById('k-submit');
+  const coordsEl = document.getElementById('k-coords');
+
+  if (!kPhotoB64){ showToast('Please attach a photo of the garbage.'); return; }
+  if (!kLat || !kLng){ coordsEl.textContent = '⚠ Set your location first — use GPS or tap the map.'; coordsEl.classList.add('k-toast-warn'); return; }
+  if (!ward){ document.getElementById('k-ward').style.borderColor = '#E8524A'; showToast('Please select your ward.'); return; }
+  if (!desc){ document.getElementById('k-desc').style.borderColor = '#E8524A'; showToast('Please describe the problem briefly.'); return; }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
+
+  const id = 'R' + Date.now();
+  const ts = Date.now();
+  const report = { id, lat: parseFloat(kLat), lng: parseFloat(kLng), ward, category: 'waste', desc, name, ts, photoUrl: kPhotoB64, status: 'new' };
+
+  try{
+    const saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
+    saved.push({ id, lat: report.lat, lng: report.lng, ward, category: 'waste', desc, name, ts, status: 'new' });
+    localStorage.setItem('kasa_reports', JSON.stringify(saved));
+  }catch(e){}
+
+  kRenderMarker(report);
+  kUpdateStats();
+
+  try{
+    await fetch(K_REPORT_URL, {
+      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'report', lat: report.lat, lng: report.lng, ward, block:'', category: 'waste', desc, name, photo: kPhotoB64 })
+    });
+  }catch(e){}
+
+  kShowCard(report);
+  showToast('Report filed — thank you for keeping Purulia clean.');
+  submitBtn.disabled = false;
+  submitBtn.textContent = 'Submit Report →';
+}
+
+function kShowCard(report){
+  document.getElementById('k-card-placeholder').style.display = 'none';
+  const card = document.getElementById('k-card');
+  card.classList.add('visible');
+  document.getElementById('k-card-photo').src = report.photoUrl;
+  document.getElementById('k-card-id').textContent = 'REPORT #' + report.id.slice(-8).toUpperCase();
+  const dateStr = new Date(report.ts).toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  document.getElementById('k-card-meta').innerHTML =
+    report.ward + '<br>' + report.lat.toFixed(5) + '°N, ' + report.lng.toFixed(5) + '°E<br>' + dateStr + (report.name ? '<br>— ' + report.name : '<br>Reported anonymously');
+
+  const waMsg = 'Garbage report — Purulia Kasa\n'
+    + 'Ward: ' + report.ward + '\n'
+    + 'Location: ' + report.lat.toFixed(5) + '°N, ' + report.lng.toFixed(5) + '°E\n'
+    + 'Description: ' + report.desc + '\n'
+    + 'Map pin: https://www.google.com/maps?q=' + report.lat + ',' + report.lng + '\n'
+    + 'Reported via Purulia Kasa — https://mahatoanupam002-lang.github.io/purulia/kasa.html';
+  document.getElementById('k-card-wa').href = 'https://wa.me/' + K_MUNICIPALITY_PHONE + '?text=' + encodeURIComponent(waMsg);
+
+  const shareMsg = 'I just reported uncollected garbage in ' + report.ward + ', Purulia via Purulia Kasa. Report civic issues in 30 seconds:';
+  document.getElementById('k-card-share').href = 'https://wa.me/?text=' + encodeURIComponent(shareMsg + ' https://mahatoanupam002-lang.github.io/purulia/kasa.html');
+
+  card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+}
+
+function kReset(){
+  document.getElementById('k-card').classList.remove('visible');
+  document.getElementById('k-card-placeholder').style.display = 'flex';
+  kLat = kLng = kPhotoB64 = null;
+  if (kPinMarker){ kMap.removeLayer(kPinMarker); kPinMarker = null; }
+  ['k-gps-btn','k-coords','k-ward','k-desc','k-name','k-photo','k-photo-label'].forEach(id => {
+    const el = document.getElementById(id);
+    if (!el) return;
+    if (id === 'k-gps-btn'){ el.textContent = '⊕ Use my location'; el.classList.remove('got'); el.disabled = false; }
+    else if (id === 'k-coords'){ el.textContent = 'GPS denied or unavailable? Tap the map below to drop a pin instead.'; el.classList.remove('k-toast-warn'); }
+    else if (id === 'k-photo-label'){ el.textContent = '+ Take or choose a photo'; el.classList.remove('has-photo'); }
+    else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT'){ el.value = ''; el.style.borderColor = ''; }
+  });
+  document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
+}
+
+// Deep-link: #report focuses the form
+if (window.location.hash === '#report') {
+  setTimeout(() => document.getElementById('k-photo-label')?.focus(), 400);
+}
+</script>
+</body>
+</html>

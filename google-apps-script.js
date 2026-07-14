@@ -5,21 +5,34 @@
 
 const TO_EMAIL       = 'thelosthillproject@gmail.com';
 const SHEET_NAME     = 'Submissions';
-const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ'; 
+const SPREADSHEET_ID = '17HN5pN74XgCreHRNgUDMdj2A6-RldS3ID-4WoIpeZDQ';
+
+const REPORTS_SHEET_NAME = 'Reports';
+const REPORTS_DRIVE_FOLDER = 'Purulia 2040 — Report Photos';
 
 // ── Handlers ─────────────────────────────────────────────────────────────────
 
 function doGet(e) {
+  const action = e.parameter && e.parameter.action;
+  if (action === 'getReports') {
+    return getReports(e.parameter.category);
+  }
   return processSubmission(e.parameter);
 }
 
 function doPost(e) {
+  let data;
   try {
-    return processSubmission(JSON.parse(e.postData.contents));
+    data = JSON.parse(e.postData.contents);
   } catch (err) {
     Logger.log('doPost parse error: ' + err);
     return jsonResponse({success: false, error: err.toString()});
   }
+
+  if (data.type === 'report') {
+    return saveReport(data);
+  }
+  return processSubmission(data);
 }
 
 // ── Core logic ────────────────────────────────────────────────────────────────
@@ -85,6 +98,104 @@ function processSubmission(data) {
   }
 }
 
+// ── Reports (map & Purulia Kasa waste tracker) ─────────────────────────────────
+
+function saveReport(data) {
+  try {
+    const ss = openSheet();
+    let sheet = ss.getSheetByName(REPORTS_SHEET_NAME);
+    if (!sheet) {
+      sheet = ss.insertSheet(REPORTS_SHEET_NAME);
+      sheet.appendRow(['Timestamp', 'ID', 'Category', 'Lat', 'Lng', 'Ward', 'Block', 'Description', 'Name', 'PhotoURL', 'Status']);
+      sheet.setFrozenRows(1);
+    }
+
+    const id = 'R' + Date.now() + Math.floor(Math.random() * 1000);
+    let photoUrl = '';
+    if (data.photo) {
+      try {
+        photoUrl = savePhotoToDrive(data.photo, id);
+      } catch (photoErr) {
+        Logger.log('Photo save error: ' + photoErr);
+      }
+    }
+
+    sheet.appendRow([
+      new Date().toLocaleString('en-IN', {timeZone: 'Asia/Kolkata'}),
+      id,
+      data.category || 'other',
+      data.lat || '',
+      data.lng || '',
+      data.ward || '',
+      data.block || '',
+      data.desc || '',
+      data.name || 'Anonymous',
+      photoUrl,
+      'new'
+    ]);
+
+    return jsonResponse({success: true, id: id, photoUrl: photoUrl});
+  } catch (err) {
+    Logger.log('saveReport error: ' + err);
+    return jsonResponse({success: false, error: err.toString()});
+  }
+}
+
+function savePhotoToDrive(dataUrl, id) {
+  const match = String(dataUrl).match(/^data:(image\/\w+);base64,(.*)$/);
+  if (!match) return '';
+  const mimeType = match[1];
+  const base64 = match[2];
+  const bytes = Utilities.base64Decode(base64);
+  const ext = mimeType.split('/')[1] || 'jpg';
+  const blob = Utilities.newBlob(bytes, mimeType, id + '.' + ext);
+
+  const folders = DriveApp.getFoldersByName(REPORTS_DRIVE_FOLDER);
+  const folder = folders.hasNext() ? folders.next() : DriveApp.createFolder(REPORTS_DRIVE_FOLDER);
+
+  const file = folder.createFile(blob);
+  file.setSharing(DriveApp.Access.ANYONE_WITH_LINK, DriveApp.Permission.VIEW);
+  return 'https://drive.google.com/uc?export=view&id=' + file.getId();
+}
+
+function getReports(category) {
+  try {
+    const ss = openSheet();
+    const sheet = ss.getSheetByName(REPORTS_SHEET_NAME);
+    if (!sheet || sheet.getLastRow() < 2) {
+      return jsonOutput({success: true, reports: []});
+    }
+
+    const rows = sheet.getRange(2, 1, sheet.getLastRow() - 1, 11).getValues();
+    let reports = rows.map(function(r) {
+      return {
+        ts: r[0] ? new Date(r[0]).getTime() || String(r[0]) : '',
+        id: r[1],
+        category: r[2],
+        lat: parseFloat(r[3]),
+        lng: parseFloat(r[4]),
+        ward: r[5],
+        block: r[6],
+        desc: r[7],
+        name: r[8],
+        photoUrl: r[9],
+        status: r[10] || 'new'
+      };
+    }).filter(function(r) {
+      return !isNaN(r.lat) && !isNaN(r.lng);
+    });
+
+    if (category) {
+      reports = reports.filter(function(r) { return r.category === category; });
+    }
+
+    return jsonOutput({success: true, reports: reports});
+  } catch (err) {
+    Logger.log('getReports error: ' + err);
+    return jsonOutput({success: false, error: err.toString(), reports: []});
+  }
+}
+
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function openSheet() {
@@ -107,6 +218,12 @@ function jsonResponse(obj) {
   return ContentService
     .createTextOutput(obj.success ? "Success" : "Error: " + obj.error)
     .setMimeType(ContentService.MimeType.TEXT);
+}
+
+function jsonOutput(obj) {
+  return ContentService
+    .createTextOutput(JSON.stringify(obj))
+    .setMimeType(ContentService.MimeType.JSON);
 }
 
 function buildProtocolsEmail(firstName) {

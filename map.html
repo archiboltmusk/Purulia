@@ -352,6 +352,7 @@ body{overflow:hidden;}
     <a href="data.html" class="nl-item">Ground Truth</a>
     <a href="join.html" class="nl-item">Join</a>
     <a href="map.html" class="nl-item">Map</a>
+    <a href="kasa.html" class="nl-item">Kasa</a>
   </div>
   <div class="nav-right">
     <div class="lang-switch" role="group" aria-label="Language">
@@ -371,6 +372,7 @@ body{overflow:hidden;}
         <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
         <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
         <a href="map.html" class="nd-item nd-active">District Map <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item">Purulia Kasa <span class="nd-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -434,6 +436,7 @@ body{overflow:hidden;}
     <span class="rp-label">📂 Category</span>
     <select class="rp-select" id="rp-category">
       <option value="">Select a category…</option>
+      <option value="waste">🗑️ Garbage / Waste</option>
       <option value="water">💧 Water / Drought</option>
       <option value="road">🛣️ Roads / Transport</option>
       <option value="power">⚡ Power / Electricity</option>
@@ -1041,7 +1044,7 @@ function mkReportIcon() {
 }
 
 function rpRenderMarker(r) {
-  const catLabel = {water:'Water',road:'Roads',power:'Power',health:'Health',education:'Education',environment:'Environment',other:'Other'}[r.category] || 'Other';
+  const catLabel = {waste:'Garbage / Waste',water:'Water',road:'Roads',power:'Power',health:'Health',education:'Education',environment:'Environment',other:'Other'}[r.category] || 'Other';
   const dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '';
   const blockName = r.block || rpGetBlock(r.lat, r.lng);
   const blockStr = blockName ? '<br><span style="color:rgba(109,184,138,.55);font-size:.74rem;">📍 ' + blockName + ' Block</span>' : '';
