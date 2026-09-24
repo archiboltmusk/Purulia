@@ -1,0 +1,30 @@
+name: Deploy Purulia Kasa
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      # Inject your variables into a config file
+      - name: Generate config.js
+        run: |
+          echo "window.KASA_CONFIG = {" > config.js
+          echo "  SUPABASE_URL: '${{ vars.SUPABASE_URL }}'," >> config.js
+          echo "  SUPABASE_ANON_KEY: '${{ vars.SUPABASE_ANON_KEY }}'" >> config.js
+          echo "};" >> config.js
+
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: '.'
+
+      - uses: actions/deploy-pages@v4
