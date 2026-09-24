@@ -144,9 +144,7 @@ export async function submitEvidence(mode, r, blob, meta, pos) {
 
   await sendPhotoMeta(path, meta);
 
-  checkPhoto(path, captureToken, pos.lat, pos.lng).catch(err =>
-    console.warn('photo check failed', err)
-  );
+  await checkPhoto(path, captureToken, pos.lat, pos.lng);
 
   const { data, error } = mode === 'claim'
     ? await sb.rpc('kasa_claim_cleanup', {

@@ -516,8 +516,8 @@ const api = {
     const captureToken = await getCaptureToken();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     await sendPhotoMeta(path, meta);
-    // Vision AI check happens asynchronously — don't block evidence submission.
-    checkPhoto(path, captureToken, pos.lat, pos.lng).catch(err => console.warn('photo check failed', err));
+    // Evidence photos must be checked (reuse/fingerprint) before the server accepts them.
+    await checkPhoto(path, captureToken, pos.lat, pos.lng);
     const { data, error } = mode === 'claim'
       ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
