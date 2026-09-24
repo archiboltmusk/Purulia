@@ -467,11 +467,12 @@ const api = {
       getCaptureToken(),
       uploadPhoto('reports', d.photoBlob)
     ]);
-    // Send metadata and check photo in parallel.
-    await Promise.all([
-      sendPhotoMeta(path, d.photoMeta),
-      checkPhoto(path, captureToken, d.lat, d.lng)
-    ]);
+    // Send metadata immediately.
+    await sendPhotoMeta(path, d.photoMeta);
+    // Vision AI check happens asynchronously in background — don't block user.
+    // This ensures fast report submission while verification continues after.
+    checkPhoto(path, captureToken, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
+    // Create report in database immediately.
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -515,9 +516,8 @@ const api = {
     const captureToken = await getCaptureToken();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     await sendPhotoMeta(path, meta);
-    ev?.setStatus?.(t('ev_checking'));
-    // Pass token and location for EXIF verification and token validation.
-    await checkPhoto(path, captureToken, pos.lat, pos.lng);
+    // Vision AI check happens asynchronously — don't block evidence submission.
+    checkPhoto(path, captureToken, pos.lat, pos.lng).catch(err => console.warn('photo check failed', err));
     const { data, error } = mode === 'claim'
       ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
