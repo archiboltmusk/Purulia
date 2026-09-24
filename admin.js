@@ -201,7 +201,8 @@ async function loadSla(){
 async function loadResolutions(){
   const { data, error } = await sb.rpc('kasa_admin_queue');
   if (!error) return renderModeration(data);
-  return loadLegacyResolutions();
+  document.getElementById('adResolutions').innerHTML = `<div class="ad-empty">${esc(error.code === 'KASA_NOT_ADMIN' || /KASA_NOT_ADMIN/.test(error.message)
+    ? 'This account is not a moderator.' : 'Could not load the moderation queue: ' + (error.details || error.message))}</div>`;
 }
 
 /* What the phone said about a photo, for the moderator (never coordinates). */
@@ -326,67 +327,6 @@ document.getElementById('adReplyForm').addEventListener('submit', async (e) => {
   msg.textContent = error ? 'Failed: ' + (error.details || error.message) : 'Published on the report.';
   if (!error) e.target.reset();
 });
-
-async function loadLegacyResolutions(){
-  const el = document.getElementById('adResolutions');
-  try {
-    const { data } = await sb.from('pending_resolutions').select('*');
-    if (!data?.length){
-      el.innerHTML = '<div class="ad-empty">No pending resolutions. 🎉</div>';
-      return;
-    }
-    el.innerHTML = data.map(r => `
-      <div class="ad-card" style="margin-bottom:1rem;">
-        <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:1rem;flex-wrap:wrap;gap:.6rem;">
-          <div>
-            <div class="ad-card-label">Ward ${r.ward_no} · ${esc(r.councillor_name || '—')}</div>
-            <div style="font-family:var(--serif);font-size:1.05rem;color:var(--cream);margin-top:.3rem;">${esc(r.description || 'Garbage reported')}</div>
-            <div style="font-family:var(--mono);font-size:11px;color:var(--text-lo);margin-top:.4rem;">
-              Reported ${new Date(r.reported_at).toLocaleDateString('en-IN')} · Submitted ${new Date(r.resolution_submitted_at).toLocaleString('en-IN')}
-            </div>
-          </div>
-          <div style="display:flex;gap:.5rem;flex-shrink:0;">
-            <button class="ad-refresh" data-approve="${esc(r.id)}" style="background:var(--green);">✓ Approve</button>
-            <button class="ad-refresh" data-reject="${esc(r.id)}" style="background:var(--red);">✕ Reject</button>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1rem;">
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:.5rem;">Before</div>
-            <img src="${esc(r.original_photo)}" style="width:100%;height:200px;object-fit:cover;border-radius:4px;border:1px solid var(--border);" alt="">
-          </div>
-          <div>
-            <div style="font-family:var(--mono);font-size:10px;letter-spacing:.2em;text-transform:uppercase;color:var(--green);margin-bottom:.5rem;">After</div>
-            <img src="${esc(r.cleanup_photo)}" style="width:100%;height:200px;object-fit:cover;border-radius:4px;border:1px solid var(--border);" alt="">
-          </div>
-        </div>
-      </div>
-    `).join('');
-
-    el.querySelectorAll('[data-approve]').forEach(btn => {
-      btn.addEventListener('click', () => handleApprove(btn.dataset.approve));
-    });
-    el.querySelectorAll('[data-reject]').forEach(btn => {
-      btn.addEventListener('click', () => handleReject(btn.dataset.reject));
-    });
-  } catch(e){ el.innerHTML = '<div class="ad-empty">Could not load.</div>'; }
-}
-
-async function handleApprove(reportId){
-  if (!confirm('Approve this cleanup?')) return;
-  const { error } = await sb.rpc('approve_resolution', { p_report_id: reportId, p_reviewed_by: 'admin' });
-  if (error){ alert('Failed: ' + error.message); return; }
-  await loadResolutions();
-  await loadOverview();
-  await loadWards();
-}
-
-async function handleReject(reportId){
-  const reason = prompt('Why rejected?');
-  const { error } = await sb.rpc('reject_resolution', { p_report_id: reportId, p_reason: reason || null, p_reviewed_by: 'admin' });
-  if (error){ alert('Failed: ' + error.message); return; }
-  await loadResolutions();
-}
 
 async function loadAutomation(){
   const el = document.getElementById('adAutomation');

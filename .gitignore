@@ -13,7 +13,3 @@ Thumbs.db
 
 # Dependencies (tests install imagescript locally)
 node_modules/
-kasa-app/node_modules/
-
-# Build artifacts
-kasa-app/dist/

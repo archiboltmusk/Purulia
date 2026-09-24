@@ -1,7 +1,5 @@
 User-agent: *
-Disallow: /admin.html
-Disallow: /admin.js
-Disallow: /config.js
+Disallow: /Purulia/admin.html
 Allow: /
 
-Sitemap: https://archiboltmusk.github.io/Purulia/kasa.html
+Sitemap: https://archiboltmusk.github.io/Purulia/sitemap.xml

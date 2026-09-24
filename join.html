@@ -2,297 +2,224 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Purulia Kasa — Report Garbage in 30 Seconds</title>
-<meta name="description" content="A crowdsourced garbage-reporting map for Purulia town. Snap a photo. Pin the spot. Your ward councillor is notified.">
-<meta property="og:title" content="Purulia Kasa — Report Garbage in 30 Seconds">
-<meta property="og:description" content="Purulia's civic waste-reporting map. Every report public. Every ward ranked.">
-<meta property="og:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
-<meta property="og:url" content="https://mahatoanupam002-lang.github.io/purulia/kasa.html">
-
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Join — Purulia 2040</title>
+<meta name="description" content="Five people to contact this week. The first 18 months. The manifesto. And how to get involved.">
+<meta property="og:title" content="Join — Purulia 2040">
+<meta property="og:description" content="Five people to contact this week. The first 18 months. The manifesto. And how to get involved.">
+<meta property="og:type" content="website">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/join.html">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Join — Purulia 2040">
+<meta name="twitter:description" content="Five people to contact this week. The first 18 months. The manifesto. And how to get involved.">
+<meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
-
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&display=swap"></noscript>
-
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
-<link rel="stylesheet" href="kasa.css">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/join.html">
+<link rel="stylesheet" href="styles.css">
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/join.html#webpage","url":"https://archiboltmusk.github.io/Purulia/join.html","name":"Join — Purulia 2040","description":"Five people to contact this week. The first 18 months. The manifesto. And how to get involved.","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"},"breadcrumb":{"@type":"BreadcrumbList","itemListElement":[{"@type":"ListItem","position":1,"name":"Home","item":"https://archiboltmusk.github.io/Purulia/"},{"@type":"ListItem","position":2,"name":"Join","item":"https://archiboltmusk.github.io/Purulia/join.html"}]}}]}</script>
+<script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
 </head>
 <body>
-
-<!-- ═══ OFFLINE INDICATOR ═══ -->
-<div class="k-offline" id="k-offline" hidden>
-  <span class="k-offline-dot"></span>
-  Offline — reports will queue and upload when connected
-</div>
-
-<!-- ═══ LOADER ═══ -->
-<div id="k-loader" class="k-loader">
-  <div class="k-loader-text">Loading Purulia Kasa…</div>
-</div>
-
-<!-- ═══ NAV ═══ -->
-<nav class="k-nav">
-  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
-  <div class="k-nav-links">
-    <a href="index.html" data-i18n="nav_home">Home</a>
-    <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
-    <a href="map.html" data-i18n="nav_map">Map</a>
-    <a href="kasa.html" class="k-nav-active" data-i18n="nav_kasa">Kasa</a>
+<a href="#main-content" class="skip-link">Skip to main content</a>
+<div id="cur"></div>
+<div id="curR"></div>
+<div id="pbar"></div>
+<div id="toast"></div>
+<nav>
+  <div class="nav-logo">PURULIA 2040</div>
+  <div class="nav-links">
+    <a href="index.html" class="nl-item">Home</a>
+    <a href="blueprint.html" class="nl-item">Blueprint</a>
+    <a href="audience.html" class="nl-item">For You</a>
+    <a href="data.html" class="nl-item">Ground Truth</a>
+    <a href="join.html" class="nl-item">Join</a>
+    <a href="map.html" class="nl-item">Map</a>
+    <a href="kasa.html" class="nl-item">Kasa</a>
   </div>
-  <div class="k-nav-right">
-    <div class="k-lang-switch" role="group" aria-label="Language">
-      <button class="k-lang-btn k-lang-active" data-lang="en">EN</button>
-      <button class="k-lang-btn" data-lang="bn">বাং</button>
-      <button class="k-lang-btn" data-lang="hi">हिं</button>
+  <div class="nav-right">
+    <div class="lang-switch" role="group" aria-label="Language">
+      <button class="lang-btn lang-active" data-lang="en" onclick="setLang('en')">EN</button>
+      <button class="lang-btn" data-lang="bn" onclick="setLang('bn')">বাং</button>
+      <button class="lang-btn" data-lang="hi" onclick="setLang('hi')">हिं</button>
     </div>
-    <a href="#" id="k-nav-report" class="k-nav-cta" data-i18n="nav_report">Report →</a>
+    <a href="join.html#respond" class="nav-cta">Help →</a><button class="nav-cmd" onclick="document.dispatchEvent(new KeyboardEvent('keydown',{key:'k',ctrlKey:true,bubbles:true}))" aria-label="Open command palette" title="⌘K">⌘K</button>
+    <div class="nav-mob">
+      <button class="nav-toggle" id="navToggle" onclick="toggleMenu()">
+        <div class="ntg-icon"><span></span><span></span><span></span></div>
+      </button>
+      <div class="nav-dropdown" id="navDropdown">
+        <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+        <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
+        <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
+        <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+        <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
+        <a href="map.html" class="nd-item">District Map <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item">Purulia Kasa <span class="nd-arrow">→</span></a>
+      </div>
+    </div>
   </div>
 </nav>
-
-<!-- ═══ INTRO MODAL ═══ -->
-<div class="k-intro" id="k-intro" aria-hidden="true">
-  <div class="k-intro-backdrop"></div>
-  <div class="k-intro-card" role="dialog" aria-modal="true">
-    <div class="k-intro-logo">Purulia <em>Kasa</em></div>
-    <h2 class="k-intro-title" data-i18n="intro_title">Purulia has a garbage problem.</h2>
-    <p class="k-intro-sub" data-i18n="intro_sub">Report it. Photograph it. Track who is responsible.</p>
-    <p class="k-intro-meta" data-i18n="intro_meta">Every dump is mapped to the responsible ward, councillor, MLA, and MP. When enough citizens report, it becomes impossible to ignore.</p>
-    <div class="k-intro-stats" data-i18n="intro_stats">23 wards · 1 Chairman · 1 MLA · 1 MP · All of Purulia</div>
-    <button class="k-btn k-btn-primary" id="k-intro-continue" style="margin-top:.6rem;" data-i18n="intro_cta">Continue to Map →</button>
-  </div>
-</div>
-
-<!-- ═══ HERO ═══ -->
-<header class="k-hero">
-  <h1 class="k-hero-title">
-    <span data-i18n="hero_l1">See garbage?</span><br>
-    <em data-i18n="hero_l2">Report it in 30 seconds.</em>
-  </h1>
-  <p class="k-hero-sub" data-i18n="hero_sub">A public map for Purulia town. Every report is visible. Every ward is ranked. Your councillor is notified.</p>
-  <button class="k-hero-cta" id="k-hero-cta">
-    <span class="k-hero-cta-icon">📷</span>
-    <span data-i18n="hero_cta">Report Now</span>
-  </button>
-</header>
-
-<!-- ═══ MAP ═══ -->
-<section class="k-map-section">
-  <div id="k-map" style="touch-action:pan-x pan-y;"></div>
-
-  <div class="k-map-topbar">
-    <div class="k-filter-bar">
-      <select id="k-filter-severity" class="k-filter-select">
-        <option value="" data-i18n="filter_all_sev">All Severity</option>
-        <option value="minor" data-i18n="sev_minor">Minor</option>
-        <option value="severe" data-i18n="sev_severe">Severe</option>
-        <option value="critical" data-i18n="sev_critical">Critical</option>
-      </select>
-      <select id="k-filter-status" class="k-filter-select">
-        <option value="" data-i18n="filter_all_status">All Status</option>
-        <option value="open" data-i18n="status_open">Open</option>
-        <option value="resolved" data-i18n="status_resolved">Resolved</option>
-      </select>
-      <input type="number" id="k-search-ward" class="k-filter-select k-filter-ward" placeholder="Ward #" min="1" max="23">
-    </div>
-
-    <div class="k-map-pill">
-      <span class="k-pill-num" id="k-pill-active">—</span>
-      <span class="k-pill-label" data-i18n="pill_active">Active</span>
-      <span class="k-pill-sep">·</span>
-      <span class="k-pill-num" id="k-pill-total">—</span>
-      <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
-    </div>
-  </div>
-
-  <div class="k-map-legend">
-    <span><i class="k-dot k-dot-minor"></i> <span data-i18n="sev_minor">Minor</span></span>
-    <span><i class="k-dot k-dot-severe"></i> <span data-i18n="sev_severe">Severe</span></span>
-    <span><i class="k-dot k-dot-critical"></i> <span data-i18n="sev_critical">Critical</span></span>
-    <span><i class="k-dot k-dot-resolved"></i> <span data-i18n="status_resolved">Resolved</span></span>
-  </div>
-
-  <button class="k-map-report-btn" id="k-map-report-btn" aria-label="Report garbage">
-    <span>📷</span> <span data-i18n="map_report">Report</span>
-  </button>
+<span id="main-content" tabindex="-1"></span>
+<section class="page-hd">
+  <div class="page-hd-label">Take Action</div>
+  <h1 class="page-hd-title">Five People.<br><em>Eighteen Months.</em></h1>
+  <p class="page-hd-sub">The five conversations to have this week. The sprint plan. The manifesto. And how to join.</p>
 </section>
-
-<!-- ═══ TICKER ═══ -->
-<section class="k-ticker">
-  <div class="k-ticker-track" id="k-ticker-track"></div>
-</section>
-
-<!-- ═══ STATS ═══ -->
-<section class="k-stats">
-  <div class="k-stat"><div class="k-stat-n" id="k-stat-total">—</div><div class="k-stat-l" data-i18n="stat_reports">Reports</div></div>
-  <div class="k-stat"><div class="k-stat-n" id="k-stat-resolved">—</div><div class="k-stat-l" data-i18n="stat_resolved">Resolved</div></div>
-  <div class="k-stat"><div class="k-stat-n" id="k-stat-wards">—</div><div class="k-stat-l" data-i18n="stat_wards">Wards active</div></div>
-  <div class="k-stat"><div class="k-stat-n" id="k-stat-rate">—</div><div class="k-stat-l" data-i18n="stat_rate">Resolution %</div></div>
-</section>
-
-<!-- ═══ LEADERBOARD ═══ -->
-<section class="k-lb-section">
-  <div class="k-section-head">
-    <div class="k-section-num">03 · Accountability</div>
-    <h2 class="k-section-title" data-i18n="lb_title">Ward accountability</h2>
-    <p class="k-section-sub" data-i18n="lb_sub">Ranked by open reports. The higher the bar, the more attention needed.</p>
+<!-- ══ FIVE PEOPLE ══ -->
+<section id="fivepeople">
+  <div class="five-intro rv">
+    <div class="sl">// 06 — The First Five</div>
+    <h2 class="sh">Five People. <em>Five Conversations.</em></h2>
+    <p class="ss">Not a broadcast. Not a mass email. Five targeted messages this week. Each one moves one real thing. This is how blueprints become projects.</p>
   </div>
-  <div class="k-lb-list" id="k-lb-list">
-    <div class="k-lb-empty" data-i18n="lb_loading">Loading…</div>
+  <div class="five-grid rv">
+    <div class="fp"><div class="fp-n">1</div><div class="fp-who">The District Collector</div><div class="fp-role">Or the MLA / MP with real local access</div><div class="fp-why">The only person who can guarantee a 3-year tenure and open the PIFC. Without political continuity, nothing compounds. This conversation starts everything else.</div><div class="fp-msg">"Read the politicians section. Tell me what would need to be true for this to happen in your term."</div></div>
+    <div class="fp"><div class="fp-n">2</div><div class="fp-who">The Solar Developer</div><div class="fp-role">A project head at a national renewable energy firm</div><div class="fp-why">Three signed solar developers create visible activity — cranes, construction, payments to farmers — within 18 months. This is the visible proof that changes the district's narrative before anything else does.</div><div class="fp-msg">"We have pre-cleared land, 5.4 kWh/m² irradiance, and a single-window clearance centre opening in 6 months. Would your team take a site visit?"</div></div>
+    <div class="fp"><div class="fp-n">3</div><div class="fp-who">The Purulia-Origin Senior</div><div class="fp-role">A director, VP, or partner — anywhere in India or abroad</div><div class="fp-why">One person with procurement power who is emotionally connected to Purulia can open supply chain conversations, make introductions, and invest — often all three, once they see the plan.</div><div class="fp-msg">"Read the diaspora section. I want to know if you'd come to the first Pravasi Sammelan."</div></div>
+    <div class="fp"><div class="fp-n">4</div><div class="fp-who">The Journalist</div><div class="fp-role">A state correspondent, development reporter, or regional editor</div><div class="fp-why">A single well-researched deep dive on local policy execution reaches the exact people who will never see this website. Media scrutiny creates administrative accountability and attracts investment simultaneously.</div><div class="fp-msg">"I have a blueprint for transforming a Tier-4 district with ₹3,500 crore in central scheme money that's already available. The story is the gap between what's funded and what's executed."</div></div>
+    <div class="fp"><div class="fp-n">5</div><div class="fp-who">The Doctor or Specialist</div><div class="fp-role">Ideally Purulia-origin, practicing in any Indian city</div><div class="fp-why">One specialist who publicly commits to setting up in Purulia — even tentatively — signals to the next specialist that Purulia is a real career option. Momentum is made of arrivals as much as announcements.</div><div class="fp-msg">"Read the doctors section. Purulia now has two medical colleges and no specialist ecosystem around them yet. Would you consider building one?"</div></div>
   </div>
 </section>
 
-<!-- ═══ CHAIN ═══ -->
-<section class="k-chain-section">
-  <div class="k-section-head">
-    <div class="k-section-num">04 · Responsibility</div>
-    <h2 class="k-section-title" data-i18n="chain_title">Who's responsible</h2>
-    <p class="k-section-sub" data-i18n="chain_sub">The chain of accountability for garbage in Purulia.</p>
+<!-- ══ SPRINT ══ -->
+<section id="sprint">
+  <div class="sp-intro rv">
+    <div class="sl">// 07 — The First Move</div>
+    <h2>18 months.<br>One desk in the Collectorate.</h2>
+    <p>These five actions unlock everything. Sequenced deliberately. Each creates conditions for the next. Nothing requires new money — only will and follow-through.</p>
+    <p style="font-style:italic;color:rgba(240,230,208,.32);margin-top:1.5rem;">"The entire system depends on getting the first 3–5 anchor investors. Everything before is preparation. Everything after is momentum."</p>
   </div>
-  <div class="k-chain" id="k-chain"></div>
+  <div class="sp-list rv">
+    <div class="spi"><div class="spi-n">1</div><div><div class="spi-t">Digitise every land record in the district</div><div class="spi-d">Banglar Bhumi completion. Unblocks investment, infrastructure, acquisition. 12 months, no new money — only execution.</div></div><span class="badge bn2">Start Now</span></div>
+    <div class="spi"><div class="spi-n">2</div><div><div class="spi-t">Open the Purulia Investment Facilitation Centre</div><div class="spi-d">One office, one portal, all 12 departments. 30-day deemed approval. Signals to every investor that things have changed. Cost: ₹3–5 crore.</div></div><span class="badge bq2">Month 1–6</span></div>
+    <div class="spi"><div class="spi-n">3</div><div><div class="spi-t">Sign three anchor solar developers</div><div class="spi-d">Visible cranes. Land lease income for farmers within 18 months. Economic activity that creates its own momentum.</div></div><span class="badge bq2">Month 3–12</span></div>
+    <div class="spi"><div class="spi-n">4</div><div><div class="spi-t">Expand the medical colleges already here</div><div class="spi-d">Purulia has two medical colleges. Push NMC for PG seat approvals, recruit specialist faculty, and build the private practice ecosystem around them.</div></div><span class="badge bq2">Month 1–3</span></div>
+    <div class="spi"><div class="spi-n">5</div><div><div class="spi-t">Repair the five best government schools</div><div class="spi-d">Power, toilets, library, teacher monitoring. ₹15–25L per school. Signals to families that staying is viable. The most human ROI in the plan.</div></div><span class="badge by2">Month 1–6</span></div>
+  </div>
 </section>
 
-<!-- ═══ AUTHORITY ═══ -->
-<section class="k-auth-section">
-  <div class="k-section-head">
-    <div class="k-section-num">05 · Representatives</div>
-    <h2 class="k-section-title" data-i18n="auth_title">Elected representatives</h2>
+<!-- ══ MANIFESTO ══ -->
+<section id="manifesto">
+  <div class="mf-bg"></div>
+  <div class="mf-orn">2040</div>
+  <div class="mf-inner rv">
+    <blockquote>"Every district that breaks out of systemic poverty has a tipping point. It isn't magic; it is the moment when infrastructure aligns with local enterprise and people decide to stay...<br><br>Purulia's turning point story <em>is not written yet.</em><br>That is not a problem.<br><em>That is the opportunity.</em>"</blockquote>
+    <div class="mf-div"></div>
+    <p class="mf-coda">The solar farms going up on laterite land no one wanted. The Dokra artist getting her first order from Copenhagen. The engineer who came back from Bengaluru to start an O&M company. The child in a school in Bagmundi who will one day run the medical college. The architect designing a railway station that makes people feel something when they arrive.<br><br>Document all of it. In 2040, this becomes the Purulia Story — studied at LBSNAA, cited by the Finance Commission, and debated at every policy conference in India. That story starts with what happens in the next eighteen months.</p>
+    <div class="mf-div"></div>
+    <div class="mf-src">Purulia 2040 — A District Transformation Blueprint · West Bengal, India</div>
   </div>
-  <div class="k-auth-grid">
-    <div class="k-auth-card" data-rep="mla">
-      <div>
-        <div class="k-auth-label" data-i18n="auth_mla">MLA · Purulia</div>
-        <div class="k-auth-name">Sudip Kumar Mukherjee</div>
-        <div class="k-auth-meta">BJP · Assembly No. 242</div>
+</section>
+
+<!-- ══ RESPOND FORM ══ -->
+<section id="respond">
+  <div class="rv"><div class="sl">// 08 — Join This</div><h2 class="sh">Tell Us <em>Who You Are.</em></h2></div>
+  <div class="form-grid">
+    <div class="form-left rv">
+      <h2>One message can change what happens next.</h2>
+      <p>This blueprint needs people, not just readers. If something in here spoke to you — as a doctor, engineer, student, investor, artist, politician, or someone who just grew up here — tell us. That is how a plan finds its people.</p>
+      <div class="supporter-proof">
+        <div class="sp-num">47</div>
+        <div class="sp-text">
+          <div class="sp-main">People from 12 cities have already connected.</div>
+          <div class="sp-sub">Doctors · Engineers · Investors · Diaspora · Students</div>
+        </div>
       </div>
-      <button class="k-auth-action" data-profile="mla" data-i18n="auth_view">View →</button>
-    </div>
-    <div class="k-auth-card" data-rep="mp">
-      <div>
-        <div class="k-auth-label" data-i18n="auth_mp">MP · Purulia</div>
-        <div class="k-auth-name">Jyotirmay Singh Mahato</div>
-        <div class="k-auth-meta">BJP · Lok Sabha</div>
+      <div class="form-promise">
+        <div class="fp2"><span>→</span><span>We will respond to every submission personally. Not a newsletter. Not an auto-reply.</span></div>
+        <div class="fp2"><span>→</span><span>If you're a potential investor or partner, we'll connect you with the right person in the district administration.</span></div>
+        <div class="fp2"><span>→</span><span>If you're from Purulia and want to come back, we'll tell you exactly what's available right now.</span></div>
+        <div class="fp2"><span>→</span><span>If you just want to stay informed, we'll add you to the Purulia 2040 updates list — one email per quarter, no noise.</span></div>
       </div>
-      <button class="k-auth-action" data-profile="mp" data-i18n="auth_view">View →</button>
     </div>
-    <div class="k-auth-card" data-rep="chairman">
-      <div>
-        <div class="k-auth-label" data-i18n="auth_chairman">Chairman · Municipality</div>
-        <div class="k-auth-name">Nabendu Mahali</div>
-        <div class="k-auth-meta" data-i18n="auth_chairman_meta">AITC · Board reinstated by Calcutta HC, 2026</div>
+    <div class="form-right rv">
+      <div id="formWrap">
+        <div class="form-group"><label class="form-label">Your Name</label><input class="form-input" id="f-name" type="text" placeholder="What should we call you?"></div>
+        <div class="form-group"><label class="form-label">I am a...</label>
+          <select class="form-select" id="f-role">
+            <option value="">Select your role</option>
+            <option>Doctor / Healthcare Professional</option>
+            <option>Engineer (Civil / Electrical / Software / Other)</option>
+            <option>Architect / Urban Designer</option>
+            <option>Politician / Civil Servant / Administrator</option>
+            <option>Student</option>
+            <option>Entrepreneur / Startup Founder</option>
+            <option>Corporate / Business Leader</option>
+            <option>Artist / Craftsperson / Cultural Worker</option>
+            <option>Diaspora — from Purulia originally</option>
+            <option>Impact Investor / NGO / Foundation</option>
+            <option>Journalist / Researcher</option>
+            <option>Other</option>
+          </select>
+        </div>
+        <div class="form-group"><label class="form-label">Where are you based?</label><input class="form-input" id="f-location" type="text" placeholder="City, country"></div>
+        <div class="form-group"><label class="form-label">What would you like to do?</label><textarea class="form-textarea" id="f-message" placeholder="Tell us how you want to be involved, what questions you have, or what section of the blueprint resonated most. Even one sentence is enough."></textarea></div>
+        <div class="form-group"><label class="form-label">Contact (email or WhatsApp)</label><input class="form-input" id="f-contact" type="text" placeholder="So we can actually reach you"></div>
+        <button class="form-submit" onclick="submitForm()">I Want to Be Part of This →</button>
       </div>
-      <button class="k-auth-action" data-profile="chairman" data-i18n="auth_view">View →</button>
+      <div class="form-success" id="formSuccess">
+        <div class="fs-check" aria-hidden="true">✓</div>
+        <div class="form-success-t" id="fsName">Received.</div>
+        <div class="fs-timeline">
+          <div class="fs-tl-item fs-done">
+            <span class="fs-tl-dot"></span>
+            <span>Message delivered to the Purulia 2040 team</span>
+          </div>
+          <div class="fs-tl-item">
+            <span class="fs-tl-dot"></span>
+            <span>Personal response within <strong>48 hours</strong> — a real person, not a bot</span>
+          </div>
+          <div class="fs-tl-item">
+            <span class="fs-tl-dot"></span>
+            <span>If relevant, connected directly to district administration</span>
+          </div>
+        </div>
+        <div class="fs-share">
+          <div class="fs-share-label">While you wait — one share moves this faster than anything else:</div>
+          <div class="fs-share-btns" id="fsShareBtns"></div>
+        </div>
+        <a href="mailto:thelosthillproject@gmail.com" class="fs-direct">Or write to us directly →</a>
+      </div>
     </div>
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
-<footer class="k-footer">
-  <div data-i18n="footer_left">Purulia Kasa · A civic tool for Purulia town</div>
-  <div>23.33°N · 86.37°E</div>
+<!-- ══ CTA ══ -->
+<section id="cta">
+  <div class="cta-in rv">
+    <h2>The money exists.<br>The land is ready.<br><em>The moment is now.</em></h2>
+    <p>Every central scheme in this blueprint is funded and active. Every geographic advantage already exists. Every cultural asset is waiting. What transforms a district is the decision to begin — and one generation willing to stay long enough to see it through.</p>
+    <div class="cta-btns">
+      <a href="index.html#pillars" class="btn btn-a">Read the Six Pillars</a>
+      <a href="audience.html#audience" class="btn btn-b">Find Your Role</a>
+      <a href="#respond" class="btn btn-c">I Want to Help</a>
+    </div>
+    <div class="cta-note">Purulia · West Bengal · India · 23.33°N 86.37°E · 2026–2040</div>
+  </div>
+</section>
+
+<a href="map.html" class="next-page rv">
+  <div class="np-meta">
+    <div class="np-label">Next Page</div>
+    <div class="np-title">District Map — <em>Explore Purulia.</em></div>
+  </div>
+  <div class="np-arrow">→</div>
+</a>
+<footer>
+  <div class="ft-brand">Purulia 2040<span>A District Transformation Blueprint</span></div>
+  <div class="ft-mid">Eastern India's Green Economy Frontier<br>West Bengal, India · 23.33°N 86.37°E</div>
+  <div class="ft-links">
+    <a href="index.html#reframe">The Case</a>
+    <a href="audience.html">For You</a>
+    <a href="data.html">Ground Truth</a>
+    <a href="join.html">Join</a>
+  </div>
 </footer>
-
-<!-- ═══ BOTTOM QR BAR ═══ -->
-<div class="k-bottom-bar">
-  <button class="k-bottom-btn" id="k-qr-btn">
-    <span>📱</span> <span data-i18n="qr_btn">Scan QR to Report</span>
-  </button>
-</div>
-
-<!-- ═══ REPORT MODAL ═══ -->
-<div class="k-modal" id="k-modal" aria-hidden="true">
-  <div class="k-modal-backdrop" id="k-modal-backdrop"></div>
-  <div class="k-modal-sheet" role="dialog" aria-modal="true">
-    <div class="k-modal-handle"></div>
-    <button class="k-modal-close" id="k-modal-close" aria-label="Close">✕</button>
-
-    <div class="k-modal-step" id="k-step-1">
-      <h3 class="k-modal-title" data-i18n="step1_title">Take a photo</h3>
-      <p class="k-modal-sub" data-i18n="step1_sub">Point at the garbage. Tap to capture.</p>
-      <label class="k-photo-input" for="k-photo">
-        <span class="k-photo-icon">📷</span>
-        <span class="k-photo-text" data-i18n="step1_photo">Tap to take or choose a photo</span>
-      </label>
-      <input type="file" id="k-photo" accept="image/*" hidden>
-      <div class="k-photo-preview" id="k-photo-preview"></div>
-      <button class="k-btn k-btn-primary" id="k-next-1" disabled data-i18n="continue">Continue →</button>
-    </div>
-
-    <div class="k-modal-step" id="k-step-2" hidden>
-      <h3 class="k-modal-title" data-i18n="step2_title">Pin the location</h3>
-      <p class="k-modal-sub" data-i18n="step2_sub">We'll capture GPS. If it fails, tap the map below.</p>
-      <button class="k-btn k-btn-secondary" id="k-gps-btn" data-i18n="step2_gps">⊕ Use my location</button>
-      <div class="k-mini-map" id="k-mini-map"></div>
-      <div class="k-coords" id="k-coords" data-i18n="step2_no_loc">No location set yet</div>
-      <div class="k-field">
-        <label for="k-ward" data-i18n="step2_ward">Ward</label>
-        <select id="k-ward" class="k-input"><option value="">—</option></select>
-      </div>
-      <div class="k-field">
-        <label for="k-severity" data-i18n="step2_sev">Severity</label>
-        <select id="k-severity" class="k-input">
-          <option value="minor" data-i18n="sev_minor_long">Minor — small pile, not blocking</option>
-          <option value="severe" data-i18n="sev_severe_long">Severe — large dump, health risk</option>
-          <option value="critical" data-i18n="sev_critical_long">Critical — blocking road, dangerous</option>
-        </select>
-      </div>
-      <button class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>
-    </div>
-
-    <div class="k-modal-step" id="k-step-3" hidden>
-      <h3 class="k-modal-title" data-i18n="step3_title">What's the problem?</h3>
-      <p class="k-modal-sub" data-i18n="step3_sub">Optional. One sentence is enough.</p>
-      <textarea id="k-desc" class="k-input k-textarea" placeholder="e.g. Overflowing bin near bus stand"></textarea>
-      <div class="k-field">
-        <label for="k-name" data-i18n="step3_name">Your name (optional)</label>
-        <input type="text" id="k-name" class="k-input" placeholder="Anonymous">
-      </div>
-      <button class="k-btn k-btn-primary" id="k-submit" data-i18n="step3_submit">Submit Report →</button>
-      <div class="k-privacy" data-i18n="step3_privacy">🔒 Photo, location and ward are public. Your name is never shown unless you add it.</div>
-    </div>
-
-    <div class="k-modal-step" id="k-step-done" hidden>
-      <div class="k-done-icon">✓</div>
-      <h3 class="k-modal-title" id="k-done-title" data-i18n="done_title">Report filed</h3>
-      <p class="k-modal-sub" id="k-done-sub" data-i18n="done_sub">It's now on the public map. The Municipality has been notified.</p>
-      <a class="k-btn k-btn-primary" id="k-wa-escalate" href="#" target="_blank" rel="noopener" data-i18n="done_wa">Notify Municipality on WhatsApp →</a>
-      <button class="k-btn k-btn-secondary" id="k-done-close" data-i18n="done_close">Done</button>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ QR MODAL ═══ -->
-<div class="k-modal" id="k-qr-modal" aria-hidden="true">
-  <div class="k-modal-backdrop" id="k-qr-backdrop"></div>
-  <div class="k-modal-sheet k-qr-sheet" role="dialog" aria-modal="true">
-    <div class="k-modal-handle"></div>
-    <button class="k-modal-close" id="k-qr-close" aria-label="Close">✕</button>
-    <h3 class="k-modal-title" data-i18n="qr_title">Share Purulia Kasa</h3>
-    <p class="k-modal-sub" data-i18n="qr_sub">Point a phone camera at this QR code to open the report page.</p>
-    <div class="k-qr-wrap" id="k-qr-wrap"></div>
-    <div class="k-qr-url" id="k-qr-url"></div>
-  </div>
-</div>
-
-<!-- ═══ REP PROFILE MODAL ═══ -->
-<div class="k-modal" id="k-rep-modal" aria-hidden="true">
-  <div class="k-modal-backdrop" id="k-rep-backdrop"></div>
-  <div class="k-modal-sheet k-rep-sheet" role="dialog" aria-modal="true">
-    <div class="k-modal-handle"></div>
-    <button class="k-modal-close" id="k-rep-close" aria-label="Close">✕</button>
-    <div id="k-rep-content"></div>
-  </div>
-</div>
-
-<!-- ═══ TOAST ═══ -->
-<div class="k-toast" id="k-toast"></div>
-
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
-<script src="kasa.js"></script>
+<script src="script.js"></script>
 </body>
 </html>

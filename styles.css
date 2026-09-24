@@ -1013,3 +1013,14 @@ h1.hero-h .l2.scrambling::after{content:'';display:inline-block;width:3px;height
   .cs-val.good{text-shadow:0 0 28px rgba(109,184,138,.22);}
   .word-inner{opacity:1!important;transform:none!important;animation:none!important;}
 }
+
+/* Phones: nothing wider than the screen */
+@media(max-width:640px){
+  .ddt{grid-template-columns:auto 1fr auto;gap:.4rem .9rem;padding:1.2rem 1rem;}
+  .dd-tag{grid-column:2;grid-row:2;justify-self:start;}
+  .dd-arr{grid-column:3;grid-row:1;}
+  .etable{display:block;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .etable th,.etable td{padding:.7rem .8rem;}
+  .dc-grid > *{min-width:0;}
+  .dc-card{padding:1.3rem;}
+}
