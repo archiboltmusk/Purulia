@@ -12,13 +12,17 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import jpeg from 'npm:jpeg-js@0.4.4';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
+import * as jose from 'npm:jose@5.8.0';
+import exifParser from 'npm:exif-parser@0.1.12';
 import { JPEG_OPTIONS, dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe, visionHealthFromError } from './logic.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const VISION_KEY = Deno.env.get('GOOGLE_VISION_API_KEY') ?? '';
+const JWT_SECRET = Deno.env.get('KASA_PHOTO_TOKEN_SECRET');
 const MAX_BYTES = 6 * 1024 * 1024;
+const EXIF_MATCH_THRESHOLD = 100; // meters — allow ±100m drift in GPS
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -77,6 +81,43 @@ async function visionHealth(): Promise<string> {
   }
 }
 
+// Verify the one-time photo capture token. Returns user_id or null if invalid.
+async function verifyToken(token: string): Promise<string | null> {
+  if (!JWT_SECRET || !token) return null;
+  try {
+    const secret = new TextEncoder().encode(JWT_SECRET);
+    const verified = await jose.jwtVerify(token, secret);
+    return String(verified.payload.sub) || null;
+  } catch (_) {
+    return null;
+  }
+}
+
+// Extract GPS coordinates from EXIF data. Returns { lat, lng } or null.
+function extractExifGPS(bytes: Uint8Array): { lat: number; lng: number } | null {
+  try {
+    const parser = exifParser.create(Buffer.from(bytes));
+    const result = parser.parse();
+    const tags = result.tags;
+    if (!tags.GPSLatitude || !tags.GPSLongitude) return null;
+    return { lat: tags.GPSLatitude, lng: tags.GPSLongitude };
+  } catch (_) {
+    return null;
+  }
+}
+
+// Haversine distance between two GPS points in meters.
+function gpsDistance(lat1: number, lng1: number, lat2: number, lng2: number): number {
+  const R = 6371e3; // meters
+  const φ1 = (lat1 * Math.PI) / 180;
+  const φ2 = (lat2 * Math.PI) / 180;
+  const Δφ = ((lat2 - lat1) * Math.PI) / 180;
+  const Δλ = ((lng2 - lng1) * Math.PI) / 180;
+  const a = Math.sin(Δφ / 2) * Math.sin(Δφ / 2) + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
+  const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+  return R * c;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return reply(405, { error: 'POST only' });
@@ -86,11 +127,20 @@ Deno.serve(async (req) => {
   const { data: { user } } = await asUser.auth.getUser(jwt);
   if (!user) return reply(401, { error: 'sign-in required' });
 
-  let body: { path?: unknown; health?: unknown } = {};
+  let body: { path?: unknown; health?: unknown; token?: unknown; lat?: unknown; lng?: unknown } = {};
   try { body = await req.json(); } catch (_) { /* fallthrough */ }
   if (body.health === true) return reply(200, { vision: await visionHealth() });
+
   const path = String(body.path ?? '');
   if (!isPhotoPath(path)) return reply(400, { error: 'bad path' });
+
+  // Verify the one-time photo capture token (if JWT_SECRET is configured).
+  const captureToken = String(body.token ?? '');
+  if (JWT_SECRET && captureToken) {
+    const tokenUserId = await verifyToken(captureToken);
+    if (!tokenUserId) return reply(401, { error: 'token_invalid_or_expired' });
+    if (tokenUserId !== user.id) return reply(403, { error: 'token_mismatch' });
+  }
 
   // Only the uploader can have their photo checked (Storage records the owner).
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
@@ -104,6 +154,18 @@ Deno.serve(async (req) => {
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
     .map((b) => b.toString(16).padStart(2, '0')).join('');
   const dhash = perceptualHash(bytes);
+
+  // Extract EXIF GPS data from the photo itself.
+  let exifGps = extractExifGPS(bytes);
+  let exifMatch = true;
+  if (exifGps && body.lat && body.lng) {
+    const dist = gpsDistance(exifGps.lat, exifGps.lng, Number(body.lat), Number(body.lng));
+    // If EXIF GPS is too far from reported location, flag as mismatch.
+    exifMatch = dist <= EXIF_MATCH_THRESHOLD;
+    if (!exifMatch) {
+      console.warn(`EXIF GPS mismatch: ${dist.toFixed(0)}m for photo ${path}`);
+    }
+  }
 
   let score: number | null = null;
   let labels: string[] = [];
@@ -125,8 +187,13 @@ Deno.serve(async (req) => {
   const { error: recErr } = await admin.rpc('kasa_record_photo_check', {
     p_path: path, p_sha256: sha256, p_dhash: dhash, p_garbage_score: score,
     p_labels: labels, p_unsafe: unsafe, p_face_count: faces,
+    p_exif_gps_lat: exifGps?.lat ?? null, p_exif_gps_lng: exifGps?.lng ?? null,
+    p_exif_match: exifMatch,
   });
   if (recErr) return reply(500, { error: recErr.message });
 
-  return reply(200, { ok: true, garbage_score: score, labels, unsafe, face_count: faces, vision: score !== null });
+  return reply(200, {
+    ok: true, garbage_score: score, labels, unsafe, face_count: faces, vision: score !== null,
+    exif_gps: exifGps, exif_match: exifMatch
+  });
 });
