@@ -802,14 +802,19 @@ function wireUI(){
    OFFLINE DETECTION
    ══════════════════════════════════════════════════════════ */
 function setupOfflineDetection(){
+  // Note: navigator.onLine is unreliable, so we only use event listeners
+  // for when the browser explicitly detects online/offline transitions
   const update = () => {
     const el = document.getElementById('k-offline');
     if (!el) return;
     el.hidden = navigator.onLine;
   };
-  window.addEventListener('online', () => { update(); syncOfflineQueue().catch(e => console.warn('Sync error:', e)); });
+  window.addEventListener('online', () => {
+    update();
+    syncOfflineQueue().catch(e => console.warn('Sync error:', e));
+  });
   window.addEventListener('offline', update);
-  update();
+  // Don't check navigator.onLine on init - wait for explicit offline event
 }
 
 /* ══════════════════════════════════════════════════════════
