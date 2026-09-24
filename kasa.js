@@ -182,6 +182,7 @@ async function init(){
     sb.rpc('kasa_finalize_due').then(({ data }) => { if (data > 0) loadReports().then(renderAll); });
   }
   renderAlertsButtons();
+  renderInstallButton();
   registerServiceWorker();
 }
 
@@ -716,7 +717,10 @@ function renderWardCard(){
       <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
       ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
     </div>
-    <button type="button" class="k-ward-filter" data-ward-filter="${n}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-ward-filter="${n}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
+      <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
+    </div>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
   el.hidden = false;
 }
@@ -1235,6 +1239,50 @@ function shareReport(id){
   const text = t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
   if (navigator.share){ navigator.share({ title: 'Purulia Kasa', text, url }).catch(() => {}); return; }
   copyText(url);
+}
+
+/* A ward link opens the map filtered to that ward: something a councillor can share. */
+function shareWard(n){
+  const s = wardStats()[n] || { open: 0, resolved: 0 };
+  const url = `${PAGE_URL}?ward=${n}`;
+  const text = t('ward_share_text', { n, open: s.open, fixed: s.resolved });
+  if (navigator.share){ navigator.share({ title: 'Purulia Kasa', text, url }).catch(() => {}); return; }
+  copyText(url);
+}
+
+/* Open data: reports as a spreadsheet, public columns only. */
+const CSV_COLUMNS = ['id', 'created_at', 'ward', 'category', 'severity', 'status', 'resolution', 'resolved_at',
+  'days_open', 'overdue', 'lat', 'lng', 'landmark', 'description', 'people_saw', 'rejected_cleanup_claims',
+  'times_recurred', 'duplicate', 'photo_url', 'resolved_photo_url', 'link'];
+
+function csvCell(v){
+  if (v == null) return '';
+  if (typeof v !== 'string') return String(v);
+  // A leading = + - @ would make Excel/Sheets run a citizen's text as a formula.
+  const s = /^[=+\-@\t\r]/.test(v) ? "'" + v : v;
+  return '"' + s.replace(/"/g, '""') + '"';
+}
+
+function downloadCSV(scope){
+  const rows = (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending);
+  if (!rows.length) return showToast(t('csv_empty'));
+  const lines = rows.map(r => [
+    r.id, r.createdAt, r.ward, r.category, r.severity, r.status, r.resolution, r.resolvedAt,
+    r.status === 'resolved' ? null : daysSince(r.createdAt), isOverdue(r), r.lat, r.lng, r.landmark, r.description,
+    peopleSaw(r), r.rejectedClaims, r.recurrence, r.duplicate, r.photo, r.resolvedPhoto,
+    `${PAGE_URL}?report=${encodeURIComponent(r.id)}`
+  ].map(csvCell).join(','));
+  // The BOM makes Excel read Bengali and Hindi text as UTF-8.
+  const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  const ward = scope !== 'all' && state.filters.ward ? `ward-${state.filters.ward}-` : '';
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.csv`;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  setTimeout(() => URL.revokeObjectURL(a.href), 10000);
+  showToast(t('csv_done', { n: rows.length }));
 }
 
 function copyText(s){
@@ -1856,8 +1904,17 @@ function populateWardDropdown(){
 }
 
 function openDeepLink(){
-  const id = new URLSearchParams(location.search).get('report');
-  if (id && state.byId.has(id)) openSheet(id);
+  const q = new URLSearchParams(location.search);
+  const id = q.get('report');
+  if (id && state.byId.has(id)) return openSheet(id);
+  const ward = Number(q.get('ward'));
+  if (Number.isInteger(ward) && ward >= 1 && ward <= 23){
+    state.filters.ward = ward;
+    state.selectedWard = ward;
+    document.getElementById('k-search-ward').value = ward;
+    renderAll();
+    document.querySelector('.k-map-section').scrollIntoView();
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1923,6 +1980,32 @@ async function toggleAlerts(btn){
   renderAlertsButtons();
 }
 
+/* "Install app": Chrome/Android hand us a prompt; iPhones need Share → Add to Home Screen. */
+let installPrompt = null;
+const isStandalone = () => matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+const isIOS = () => /iPad|iPhone|iPod/.test(navigator.userAgent) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+
+window.addEventListener('beforeinstallprompt', e => {
+  e.preventDefault();
+  installPrompt = e;
+  renderInstallButton();
+});
+window.addEventListener('appinstalled', () => { installPrompt = null; renderInstallButton(); });
+
+function renderInstallButton(){
+  const show = !isStandalone() && (!!installPrompt || isIOS());
+  document.querySelectorAll('[data-install]').forEach(b => { b.hidden = !show; });
+}
+
+async function installApp(){
+  if (!installPrompt) return showToast(t('install_ios'), 8000);
+  const p = installPrompt;
+  installPrompt = null;
+  p.prompt();
+  await p.userChoice.catch(() => null);
+  renderInstallButton();
+}
+
 /* Caches the app shell so repeat visits open instantly (see sw.js). */
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
@@ -1935,7 +2018,7 @@ function registerServiceWorker(){
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-close],[data-profile],[data-chain],[data-sev]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -1965,7 +2048,10 @@ function wireUI(){
       document.getElementById('k-search-ward').value = state.filters.ward || '';
       return renderAll();
     }
+    if (d.wardShare) return shareWard(Number(d.wardShare));
     if ('wardClose' in d){ state.selectedWard = null; renderWardCard(); return updateMap(); }
+    if (d.csv) return downloadCSV(d.csv);
+    if ('install' in d) return installApp();
     if (d.profile) return openRepProfile(d.profile);
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }

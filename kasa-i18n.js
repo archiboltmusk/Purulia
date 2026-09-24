@@ -172,6 +172,9 @@ window.KASA_I18N = {
     rep_chair_meta: 'Board reinstated by Calcutta HC, 2026',
     rep_open: 'Unresolved', rep_resolved: 'Verified fixed', rep_wards: 'Wards affected', rep_worst: 'Most unresolved wards', rep_none: 'No unresolved reports.',
     wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
+    wc_share: 'Share ward link', ward_share_text: 'Ward {n}, Purulia: {open} unresolved, {fixed} fixed. See every report:',
+    csv_btn: '⬇ CSV', csv_all: '⬇ Download all reports (CSV)', csv_done: '{n} reports downloaded', csv_empty: 'No reports to download.',
+    install_btn: '📲 Install the app', install_ios: 'On iPhone: tap Share, then “Add to Home Screen”.',
 
     alerts_btn: '🔔 Alert me about reports near me', alerts_off_btn: '🔕 Nearby alerts on — turn off',
     alerts_on: "Alerts on. We'll ask you to check new reports within 500 m.", alerts_off: 'Nearby alerts turned off.',
@@ -373,6 +376,9 @@ window.KASA_I18N = {
     rep_chair_meta: 'কলকাতা হাইকোর্টে বোর্ড পুনর্বহাল, ২০২৬',
     rep_open: 'অমীমাংসিত', rep_resolved: 'যাচাই করা সমাধান', rep_wards: 'প্রভাবিত ওয়ার্ড', rep_worst: 'সবচেয়ে বেশি অমীমাংসিত ওয়ার্ড', rep_none: 'কোনো অমীমাংসিত রিপোর্ট নেই।',
     wc_open: '{n}টি অমীমাংসিত', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
+    wc_share: 'ওয়ার্ডের লিঙ্ক শেয়ার', ward_share_text: 'পুরুলিয়ার ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
+    csv_btn: '⬇ CSV', csv_all: '⬇ সব রিপোর্ট ডাউনলোড (CSV)', csv_done: '{n}টি রিপোর্ট ডাউনলোড হয়েছে', csv_empty: 'ডাউনলোড করার মতো রিপোর্ট নেই।',
+    install_btn: '📲 অ্যাপ ইনস্টল করুন', install_ios: 'আইফোনে: শেয়ার-এ ট্যাপ করুন, তারপর “Add to Home Screen”।',
 
     alerts_btn: '🔔 কাছাকাছি রিপোর্টের খবর দিন', alerts_off_btn: '🔕 কাছের খবর চালু — বন্ধ করুন',
     alerts_on: 'চালু হয়েছে। ৫০০ মিটারের মধ্যে নতুন রিপোর্ট হলে যাচাই করতে বলব।', alerts_off: 'কাছের খবর বন্ধ হয়েছে।',
@@ -573,6 +579,9 @@ window.KASA_I18N = {
     rep_chair_meta: 'कलकत्ता हाईकोर्ट ने बोर्ड बहाल किया, 2026',
     rep_open: 'अनसुलझी', rep_resolved: 'पुष्टि से सुलझी', rep_wards: 'प्रभावित वार्ड', rep_worst: 'सबसे ज़्यादा अनसुलझी रिपोर्ट वाले वार्ड', rep_none: 'कोई अनसुलझी रिपोर्ट नहीं।',
     wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
+    wc_share: 'वार्ड का लिंक शेयर करें', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
+    csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड के लिए कोई रिपोर्ट नहीं।',
+    install_btn: '📲 ऐप इंस्टॉल करें', install_ios: 'iPhone पर: शेयर पर टैप करें, फिर “Add to Home Screen”।',
 
     alerts_btn: '🔔 पास की रिपोर्ट की सूचना दें', alerts_off_btn: '🔕 पास की सूचनाएँ चालू — बंद करें',
     alerts_on: 'चालू हो गया। 500 मीटर के भीतर नई रिपोर्ट पर हम आपसे जाँच करने को कहेंगे।', alerts_off: 'पास की सूचनाएँ बंद हुईं।',
