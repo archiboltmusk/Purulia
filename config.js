@@ -12,7 +12,8 @@ window.KASA_CONFIG = {
 
   // World Air Quality Index token for the air-quality layer on map.html (free: https://aqicn.org/data-platform/token/).
   // Leave empty to fall back to WAQI's shared "demo" token, which is rate-limited and may return no stations.
-  WAQI_API_KEY: '',
+  WAQI_API_KEY: '8b116d06bed9fc883f02ff38515f53f4b490547c
+',
 
   // Published on the legal pages and used for "Right of reply" requests.
   GRIEVANCE_EMAIL: 'grievance@puruliakasa.in'
