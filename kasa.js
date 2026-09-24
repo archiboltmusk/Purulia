@@ -1617,6 +1617,7 @@ function openReport(prefill){
     goToStep(2);
   } else {
     goToStep(1);
+    useGPS();
   }
   openModal('k-modal');
 }
@@ -1699,57 +1700,49 @@ function setLocation(lat, lng, accuracy){
   updateSubmitState();
 }
 
+/* Fast Wi-Fi/cached fix — usually under a second, even on Macs without GPS. */
+function quickPosition(){
+  return new Promise((resolve, reject) => {
+    if (!navigator.geolocation) return reject(new Error('no geolocation'));
+    navigator.geolocation.getCurrentPosition(
+      p => resolve({ lat: p.coords.latitude, lng: p.coords.longitude, accuracy: p.coords.accuracy }),
+      reject, { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
+  });
+}
+
+let gpsRun = 0;
 async function useGPS(){
   const btn = document.getElementById('k-gps-btn');
-  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
-  const timeout = isSafari ? 45000 : 20000; // Safari can be slow with permission prompts
-
-  let skipRequested = false;
-  const skipBtn = document.createElement('button');
-  skipBtn.type = 'button';
-  skipBtn.style.cssText = 'margin-left:0.5rem;padding:0.3rem 0.8rem;font-size:11px;background:#444;color:#ccc;border:none;border-radius:2px;cursor:pointer;';
-  skipBtn.textContent = '(skip location)';
-  skipBtn.addEventListener('click', (e) => {
-    e.preventDefault();
-    skipRequested = true;
-  });
-
+  const run = ++gpsRun;
+  const d = draft;
+  // A manual map pin (accuracy null) or a newer request wins over a late fix.
+  const stillMine = () => run === gpsRun && draft === d && !(d.lat != null && d.accuracy == null);
+  const label = p => `✓ Location found (±${Math.round(p.accuracy)}m)`;
   btn.textContent = t('step3_gps_wait');
-  btn.disabled = true;
-  btn.appendChild(skipBtn);
 
-  try {
-    const TARGET_ACCURACY = 30;
-    const pos = await getPosition({
-      want: TARGET_ACCURACY,
-      timeout: timeout,
-      onProgress: (p) => {
-        const accuracy = Math.round(p.accuracy);
-        const threshold = accuracy <= 100 ? '✓' : '•';
-        btn.childNodes[0].textContent = `Getting location… (${accuracy}m) ${threshold}`;
-      }
-    });
+  let got = false;
+  const quick = quickPosition().then(p => {
+    if (!stillMine()) return;
+    got = true;
+    setLocation(p.lat, p.lng, p.accuracy);
+    btn.textContent = label(p);
+  }).catch(() => {});
 
-    if (skipRequested) {
-      btn.textContent = t('step3_gps');
-      return;
-    }
+  // Refine quietly with high accuracy; only replaces the fix if it is better.
+  const precise = getPosition({ want: 30, timeout: 10000, onProgress: p => {
+    if (!stillMine() || (got && p.accuracy >= d.accuracy)) return;
+    got = true;
+    setLocation(p.lat, p.lng, p.accuracy);
+    btn.textContent = label(p);
+  } }).catch(e => e);
 
-    setLocation(pos.lat, pos.lng, pos.accuracy);
-    btn.textContent = pos.accuracy <= TARGET_ACCURACY ? '✓ High accuracy' : `✓ GPS (${Math.round(pos.accuracy)}m)`;
-  } catch (e){
-    if (skipRequested) {
-      btn.textContent = t('step3_gps');
-      return;
-    }
+  const err = await Promise.all([quick, precise]).then(([, e]) => e);
+  if (!got && stillMine()){
     btn.textContent = t('step3_gps');
-    if (e.code === 1) {
-      showToast('Location permission denied. Pin a location on the map for reporting.');
-    } else {
-      showToast('Could not get GPS location. Pin on the map instead.');
-    }
+    showToast(err?.code === 1
+      ? 'Location permission denied. Tap the map to pin the spot.'
+      : 'Could not get location. Tap the map to pin the spot.');
   }
-  btn.disabled = false;
 }
 
 function setSeverity(sev){
@@ -1760,8 +1753,7 @@ function setSeverity(sev){
 function updateSubmitState(){
   const btn = document.getElementById('k-submit');
   const coords = document.getElementById('k-coords');
-  const minAccuracy = 100; // meters — require GPS accuracy for true results
-  const hasGoodGPS = draft?.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  const hasGoodGPS = draft?.lat != null;
   const canSubmit = draft?.category && draft?.photoBlob && hasGoodGPS && draft?.ward;
 
   if (btn) {
@@ -1772,9 +1764,7 @@ function updateSubmitState(){
     } else if (!draft?.photoBlob) {
       btn.title = 'Take a photo';
     } else if (draft.lat == null) {
-      btn.title = 'Get GPS location — essential for accurate reporting';
-    } else if (draft.accuracy > minAccuracy) {
-      btn.title = `GPS accuracy is ${Math.round(draft.accuracy)}m (need ≤${minAccuracy}m for accuracy)`;
+      btn.title = 'Get your location or tap the map';
     } else {
       btn.title = '';
     }
@@ -1786,8 +1776,7 @@ async function submitReport(){
   draft.ward = parseInt(document.getElementById('k-ward').value, 10) || null;
   draft.landmark = document.getElementById('k-landmark').value.trim();
   draft.description = document.getElementById('k-desc').value.trim();
-  const minAccuracy = 100;
-  const hasGoodGPS = draft.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  const hasGoodGPS = draft.lat != null;
   if (!draft.category || !draft.photoBlob || !hasGoodGPS || !draft.ward){ updateSubmitState(); return; }
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
