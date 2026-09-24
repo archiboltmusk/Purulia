@@ -1,23 +1,30 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — Complete Feature Set
+   PURULIA KASA — Complete Feature Set + NammaKasa Parity
    ══════════════════════════════════════════════════════════ */
 
-/* ── CONFIG ── */
-const SUPABASE_URL = 'https://cnmikcyvyamplbldiivp.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubWlrY3l2eWFtcGxibGRpaXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMzY0MDEsImV4cCI6MjEwNTgxMjQwMX0.h4nOvb0GWz92A_GuH-RPX90wUIRvza4RvsD9TA-XiM0';
+/* ── CONFIG — REPLACE THESE ── */
+const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
+const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+
+/* ── Runtime config ── */
+window.KASA_CONFIG = {
+  VISION_API_KEY: '',                 /* Google Vision API key — optional */
+  DIGEST_ENDPOINT: ''                 /* Optional serverless email endpoint */
+};
+
+/* ── Constants ── */
 const MUNICIPALITY_PHONE = '919046003666';
+const MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
 const MAP_CENTER = [86.3654, 23.3320];
 const MAP_ZOOM = 13;
 const KASA_PAGE_URL = 'https://mahatoanupam002-lang.github.io/purulia/kasa.html';
 const DEFAULT_SLA_DAYS = 7;
 const DUPLICATE_RADIUS_M = 20;
 const DUPLICATE_HOURS = 6;
+const ESCALATION_THRESHOLD = 10;
+const MLA_TWITTER_HANDLE = 'SudipKMukherjee';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-window.KASA_CONFIG = {
-  VISION_API_KEY: '',        // ← Add your Google Vision API key here
-  DIGEST_ENDPOINT: ''        // ← Optional: add a serverless email endpoint
-};
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
@@ -38,7 +45,7 @@ const REPS = {
 };
 
 /* ══════════════════════════════════════════════════════════
-   i18n STRINGS
+   i18n
    ══════════════════════════════════════════════════════════ */
 const I18N = {
   en: {
@@ -81,7 +88,7 @@ const I18N = {
     intro_stats:'২৩ ওয়ার্ড · ১ চেয়ারম্যান · ১ বিধায়ক · ১ সাংসদ',
     intro_cta:'ম্যাপে যান →',
     hero_l1:'আবর্জনা দেখছেন?', hero_l2:'৩০ সেকেন্ডে রিপোর্ট করুন।',
-    hero_sub:'পুরুলিয়া শহরের জন্য একটি পাবলিক ম্যাপ। প্রতিটি রিপোর্ট দৃশ্যমান।',
+    hero_sub:'পুরুলিয়া শহরের জন্য একটি পাবলিক ম্যাপ।',
     hero_cta:'রিপোর্ট করুন',
     pill_active:'সক্রিয়', pill_reports:'রিপোর্ট',
     filter_all_sev:'সব তীব্রতা', filter_all_status:'সব অবস্থা',
@@ -140,6 +147,69 @@ const I18N = {
 };
 
 /* ══════════════════════════════════════════════════════════
+   MODERATION
+   ══════════════════════════════════════════════════════════ */
+const VISION_ENDPOINT = () => `https://vision.googleapis.com/v1/images:annotate?key=${window.KASA_CONFIG.VISION_API_KEY}`;
+
+async function moderatePhoto(blob){
+  const result = { approved: false, reason: null, labels: {} };
+
+  /* Basic size check */
+  if (blob.size < 10000){
+    result.reason = 'Image too small';
+    return result;
+  }
+  if (blob.size > 8 * 1024 * 1024){
+    result.reason = 'Image too large';
+    return result;
+  }
+
+  /* Google Vision SafeSearch (optional) */
+  if (window.KASA_CONFIG.VISION_API_KEY){
+    try {
+      const base64 = await blobToBase64(blob);
+      const res = await fetch(VISION_ENDPOINT(), {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          requests: [{
+            image: { content: base64.split(',')[1] },
+            features: [{ type: 'SAFE_SEARCH_DETECTION' }]
+          }]
+        })
+      });
+      if (res.ok){
+        const data = await res.json();
+        const safe = data.responses?.[0]?.safeSearchAnnotation || {};
+        result.labels.vision = safe;
+
+        if (safe.adult === 'LIKELY' || safe.adult === 'VERY_LIKELY'){
+          result.reason = 'Image flagged as adult content';
+          return result;
+        }
+        if (safe.violence === 'LIKELY' || safe.violence === 'VERY_LIKELY'){
+          result.reason = 'Image flagged as violent content';
+          return result;
+        }
+      }
+    } catch(e){
+      console.warn('Vision check failed, proceeding', e);
+    }
+  }
+
+  result.approved = true;
+  return result;
+}
+
+function blobToBase64(blob){
+  return new Promise((resolve) => {
+    const reader = new FileReader();
+    reader.onload = () => resolve(reader.result);
+    reader.readAsDataURL(blob);
+  });
+}
+
+/* ══════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════ */
 async function init(){
@@ -165,9 +235,12 @@ async function init(){
     const ld = document.getElementById('k-loader');
     if (ld){ ld.classList.add('hidden'); setTimeout(() => ld.remove(), 500); }
   }, 800);
+
+  /* Weekly digest prompt after everything settles */
+  setTimeout(() => { checkWeeklyDigest(); }, 8000);
 }
 
-/* ── Reporter hash for reputation ── */
+/* ── Reporter fingerprint ── */
 async function getReporterHash(){
   let hash = localStorage.getItem('kasa_reporter_hash');
   if (hash) return hash;
@@ -185,19 +258,16 @@ async function getReporterHash(){
   return hash;
 }
 
-/* ── Lang ── */
+/* ── Language ── */
 function loadLang(){
   currentLang = localStorage.getItem('kasa_lang') || 'en';
   document.documentElement.lang = currentLang;
-  document.querySelectorAll('.k-lang-btn').forEach(b => {
-    b.classList.toggle('k-lang-active', b.dataset.lang === currentLang);
-  });
 }
 function applyLang(){
-  const strings = I18N[currentLang] || I18N.en;
+  const s = I18N[currentLang] || I18N.en;
   document.querySelectorAll('[data-i18n]').forEach(el => {
-    const key = el.dataset.i18n;
-    if (strings[key]) el.textContent = strings[key];
+    const k = el.dataset.i18n;
+    if (s[k]) el.textContent = s[k];
   });
   document.querySelectorAll('.k-lang-btn').forEach(b => {
     b.classList.toggle('k-lang-active', b.dataset.lang === currentLang);
@@ -216,8 +286,8 @@ function setLang(lang){
 
 /* ── Intro ── */
 function checkIntro(){
-  const forceShow = new URLSearchParams(window.location.search).get('intro') === '1';
-  if (!forceShow && localStorage.getItem('kasa_intro_seen')) return;
+  const force = new URLSearchParams(window.location.search).get('intro') === '1';
+  if (!force && localStorage.getItem('kasa_intro_seen')) return;
   const show = () => { const el = document.getElementById('k-intro'); if (el) el.classList.add('open'); };
   if (document.readyState === 'complete') setTimeout(show, 600);
   else window.addEventListener('load', () => setTimeout(show, 600));
@@ -241,7 +311,7 @@ async function loadWardGeo(){
     const res = await fetch('purulia_wards.geojson');
     if (!res.ok) throw new Error('not found');
     wardGeo = await res.json();
-    console.info('Kasa: ward boundaries loaded', wardGeo.features.length, 'polygons');
+    console.info('Kasa: ward boundaries loaded', wardGeo.features.length);
   } catch(e){ console.info('Kasa: no ward GeoJSON'); }
 }
 
@@ -275,32 +345,22 @@ function detectWard(lat, lng){
    LOAD REPORTS
    ══════════════════════════════════════════════════════════ */
 async function loadReports(){
-  /* Merge pending offline reports with server reports */
   const pending = await getPendingReports();
-
   const { data, error } = await sb
     .from('reports')
     .select('*')
+    .neq('moderation_status', 'rejected')
     .order('created_at', { ascending: false })
     .limit(500);
-
-  if (error){ console.error('Reports load failed', error); }
-
+  if (error) console.error('Reports load failed', error);
   reports = [...(data || [])];
-
-  /* Add pending reports with a flag */
   for (const p of pending){
     reports.unshift({
-      id: p.id,
-      lat: p.lat,
-      lng: p.lng,
-      ward_no: p.ward_no,
-      severity: p.severity,
-      description: p.description,
+      id: p.id, lat: p.lat, lng: p.lng, ward_no: p.ward_no,
+      severity: p.severity, description: p.description,
       reporter_name: p.reporter_name,
       photo_url: URL.createObjectURL(p.photoBlob),
-      status: 'open',
-      created_at: p.created_at,
+      status: 'open', created_at: p.created_at,
       sync_status: 'pending'
     });
   }
@@ -308,7 +368,7 @@ async function loadReports(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   OFFLINE QUEUE (IndexedDB via idb-keyval)
+   OFFLINE QUEUE
    ══════════════════════════════════════════════════════════ */
 async function getPendingReports(){
   try { return await idbKeyval.get('pending_reports') || []; }
@@ -321,8 +381,7 @@ async function queuePendingReport(report){
 }
 async function removePendingReport(id){
   const pending = await getPendingReports();
-  const filtered = pending.filter(p => p.id !== id);
-  await idbKeyval.set('pending_reports', filtered);
+  await idbKeyval.set('pending_reports', pending.filter(p => p.id !== id));
 }
 async function syncOfflineQueue(){
   if (!navigator.onLine) return;
@@ -333,7 +392,7 @@ async function syncOfflineQueue(){
     try {
       await syncReportToServer(p);
       await removePendingReport(p.id);
-    } catch(e){ console.warn('Sync failed for', p.id, e); }
+    } catch(e){ console.warn('Sync failed', p.id, e); }
   }
   await loadReports();
   updateStats();
@@ -412,6 +471,7 @@ function severityColor(){
 
 function filteredReports(){
   return reports.filter(r => {
+    if (r.moderation_status === 'rejected') return false;
     if (activeFilters.severity && r.severity !== activeFilters.severity) return false;
     if (activeFilters.status && r.status !== activeFilters.status) return false;
     if (activeFilters.ward && r.ward_no !== activeFilters.ward) return false;
@@ -473,13 +533,11 @@ function openReportPopup(props, coords){
   const w = wards[props.ward_no] || { councillor_name:'—', party:'—' };
   const date = props.created_at ? new Date(props.created_at).toLocaleDateString() : '';
   const daysOpen = props.created_at ? Math.floor((Date.now() - new Date(props.created_at).getTime()) / 86400000) : 0;
-
   const sla = DEFAULT_SLA_DAYS;
   const slaRemaining = Math.max(0, sla - daysOpen);
   const slaStatus = props.status === 'resolved' ? 'resolved'
     : slaRemaining === 0 ? 'overdue'
     : slaRemaining <= 2 ? 'warning' : 'ontrack';
-
   const slaColors = { resolved:'#6DB88A', overdue:'#E8524A', warning:'#E88A4A', ontrack:'#D4882A' };
   const slaLabels = {
     resolved: `Resolved in ${daysOpen}d`,
@@ -490,7 +548,7 @@ function openReportPopup(props, coords){
 
   const photo = props.photo_url ? `<img class="k-popup-img" src="${esc(props.photo_url)}" alt="">` : '';
   const pendingBadge = props.sync_status === 'pending'
-    ? '<div style="background:rgba(232,138,74,.15);border:1px solid #E88A4A;color:#E88A4A;font-size:.55rem;padding:.3rem .6rem;text-align:center;letter-spacing:.14em;text-transform:uppercase;">Pending sync</div>'
+    ? '<div style="background:rgba(232,138,74,.15);border-bottom:1px solid #E88A4A;color:#E88A4A;font-size:11px;padding:.4rem .6rem;text-align:center;letter-spacing:.14em;text-transform:uppercase;font-family:var(--mono);">Pending sync</div>'
     : '';
 
   let sevClass = 'k-popup-sev-minor';
@@ -524,7 +582,7 @@ function openReportPopup(props, coords){
         <div class="k-popup-title">Ward ${esc(props.ward_no || '—')} · ${esc(w.councillor_name)} · ${esc(w.party)}</div>
         <div class="k-popup-desc">${esc(props.description) || 'Garbage reported'}</div>
         <div class="k-popup-meta">${date} · ${esc(slaLabels[slaStatus])}<br>${props.reporter_name ? '— ' + esc(props.reporter_name) : 'Anonymous'}</div>
-        <div style="background:rgba(${slaStatus === 'overdue' ? '232,82,74' : slaStatus === 'warning' ? '232,138,74' : '212,136,42'},.1);border-left:2px solid ${slaColors[slaStatus]};padding:.5rem .7rem;font-size:.6rem;color:${slaColors[slaStatus]};margin-bottom:.6rem;">SLA: ${slaLabels[slaStatus]}</div>
+        <div style="background:rgba(${slaStatus === 'overdue' ? '232,82,74' : slaStatus === 'warning' ? '232,138,74' : '212,136,42'},.08);border-left:2px solid ${slaColors[slaStatus]};padding:.55rem .75rem;font-size:11px;color:${slaColors[slaStatus]};margin-bottom:.7rem;font-family:var(--mono);letter-spacing:.04em;">SLA: ${slaLabels[slaStatus]}</div>
         <button class="k-popup-upvote ${hasUpvoted ? 'upvoted' : ''}" data-upvote="${esc(props.id)}">
           <span>👍</span> ${hasUpvoted ? 'You saw this' : 'I saw this too'} · ${props.upvotes || 0}
         </button>
@@ -589,7 +647,7 @@ function renderLeaderboard(){
     <div class="k-lb-row">
       <div class="k-lb-rank">${String(i+1).padStart(2,'0')}</div>
       <div>
-        <div class="k-lb-name">Ward ${r.ward}${r.overdue ? ' <span style="color:#E8524A;font-size:.7rem;">⚠ ' + r.overdue + ' overdue</span>' : ''}</div>
+        <div class="k-lb-name">Ward ${r.ward}${r.overdue ? ' <span style="color:#E8524A;font-size:.78rem;font-family:var(--mono);">⚠ ' + r.overdue + ' overdue</span>' : ''}</div>
         <div class="k-lb-councillor">${esc(r.councillor)} · ${esc(r.party)}</div>
         <div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:${(r.open/max*100).toFixed(1)}%"></div></div>
       </div>
@@ -652,7 +710,7 @@ function openRepProfile(key){
           <span class="k-rep-worst-count">${w.count}</span>
         </div>`;
       }).join('')
-    : '<div style="padding:1rem 0;color:rgba(240,230,208,.4);font-size:.72rem;">No open reports.</div>';
+    : '<div style="padding:1rem 0;color:rgba(240,230,208,.4);font-size:.85rem;">No open reports.</div>';
   document.getElementById('k-rep-content').innerHTML = `
     <div class="k-rep-header">
       <div class="k-rep-avatar">${esc(rep.initials)}</div>
@@ -764,6 +822,12 @@ function wireUI(){
   document.getElementById('k-severity').addEventListener('change', (e) => { draft.severity = e.target.value; });
   document.getElementById('k-submit').addEventListener('click', submitReport);
   document.getElementById('k-done-close').addEventListener('click', () => { closeModal(); resetDraft(); });
+  document.getElementById('k-tweet-btn').addEventListener('click', () => {
+    if (window._lastReport){
+      const w = wards[window._lastReport.ward_no];
+      openTweetComposer(window._lastReport, w);
+    }
+  });
   document.getElementById('k-filter-severity').addEventListener('change', (e) => { activeFilters.severity = e.target.value; renderMarkers(); });
   document.getElementById('k-filter-status').addEventListener('change', (e) => { activeFilters.status = e.target.value; renderMarkers(); });
   document.getElementById('k-search-ward').addEventListener('input', (e) => {
@@ -855,7 +919,7 @@ function detectGPS(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   SUBMIT (with offline-first + duplicate detection)
+   SUBMIT
    ══════════════════════════════════════════════════════════ */
 async function submitReport(){
   if (!draft.photoBlob){ showToast('Please add a photo'); return; }
@@ -866,12 +930,11 @@ async function submitReport(){
   submitBtn.disabled = true;
   submitBtn.textContent = 'Checking photo…';
 
-  /* ── AI Moderation ── */
   let moderation;
   try {
     moderation = await moderatePhoto(draft.photoBlob);
   } catch(e){
-    console.warn('Moderation error, defaulting to pending review', e);
+    console.warn('Moderation error', e);
     moderation = { approved: true, reason: null, labels: {} };
   }
 
@@ -884,7 +947,6 @@ async function submitReport(){
 
   submitBtn.textContent = 'Checking for duplicates…';
 
-  /* Duplicate detection */
   let parentId = null;
   if (navigator.onLine){
     try {
@@ -902,16 +964,11 @@ async function submitReport(){
 
   const report = {
     id: 'R' + Date.now(),
-    lat: draft.lat,
-    lng: draft.lng,
-    ward_no: draft.ward,
-    severity: draft.severity,
-    description: desc || null,
-    reporter_name: name || null,
-    reporter_hash: reporterHash,
+    lat: draft.lat, lng: draft.lng, ward_no: draft.ward,
+    severity: draft.severity, description: desc || null,
+    reporter_name: name || null, reporter_hash: reporterHash,
     created_at: new Date().toISOString(),
-    parent_report_id: parentId,
-    is_duplicate: !!parentId,
+    parent_report_id: parentId, is_duplicate: !!parentId,
     photoBlob: draft.photoBlob,
     moderation_status: moderation.approved ? 'approved' : 'pending',
     moderation_labels: moderation.labels || {}
@@ -924,13 +981,9 @@ async function submitReport(){
       submitBtn.disabled = false;
       await afterSubmit(report, parentId);
 
-      /* Auto-tag MLA + check escalation */
-      const w = wards[report.ward_no];
-      setTimeout(() => {
-        if (confirm('Want to tag the MLA on X (Twitter) about this report?')){
-          openTweetComposer(report, w);
-        }
-      }, 1500);
+      /* Show tweet button on done step */
+      const tweetBtn = document.getElementById('k-tweet-btn');
+      if (tweetBtn){ tweetBtn.style.display = 'block'; window._lastReport = report; }
 
       await checkEscalation(report.ward_no);
       return;
@@ -939,7 +992,6 @@ async function submitReport(){
     }
   }
 
-  /* Offline queue */
   await queuePendingReport(report);
   submitBtn.textContent = 'Submit Report →';
   submitBtn.disabled = false;
@@ -955,21 +1007,16 @@ async function syncReportToServer(report){
   const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
 
   const { error: insErr } = await sb.from('reports').insert({
-    lat: report.lat,
-    lng: report.lng,
-    ward_no: report.ward_no,
-    severity: report.severity,
-    description: report.description,
-    reporter_name: report.reporter_name,
-    reporter_hash: report.reporter_hash,
-    photo_url: urlData.publicUrl,
-    status: 'open',
-    upvotes: 0,
-    flags: 0,
-    sla_days: DEFAULT_SLA_DAYS,
+    lat: report.lat, lng: report.lng, ward_no: report.ward_no,
+    severity: report.severity, description: report.description,
+    reporter_name: report.reporter_name, reporter_hash: report.reporter_hash,
+    photo_url: urlData.publicUrl, status: 'open',
+    upvotes: 0, flags: 0, sla_days: DEFAULT_SLA_DAYS,
     parent_report_id: report.parent_report_id || null,
     is_duplicate: report.is_duplicate || false,
-    sync_status: 'synced'
+    sync_status: 'synced',
+    moderation_status: report.moderation_status || 'pending',
+    moderation_labels: report.moderation_labels || {}
   });
   if (insErr) throw insErr;
 }
@@ -996,6 +1043,132 @@ async function afterSubmit(report, parentId, isPending){
 
   goToStep('done');
   showToast(isPending ? 'Saved offline' : 'Report filed');
+}
+
+/* ══════════════════════════════════════════════════════════
+   AUTO-ESCALATION
+   ══════════════════════════════════════════════════════════ */
+function buildTweetText(report, ward){
+  const councillor = ward?.councillor_name || 'Ward Councillor';
+  return [
+    `🗑️ New garbage report in Ward ${report.ward_no}, Purulia`,
+    `Councillor: ${councillor}`,
+    `Severity: ${report.severity}`,
+    report.description ? `"${report.description.slice(0, 80)}"` : '',
+    `Reported via @PuruliaKasa — puruliavision2040.vercel.app`
+  ].filter(Boolean).join('\n');
+}
+
+function openTweetComposer(report, ward){
+  const text = buildTweetText(report, ward);
+  const url = `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}&via=${MLA_TWITTER_HANDLE}`;
+  window.open(url, '_blank');
+}
+
+async function checkEscalation(wardNo){
+  if (!sb) return;
+  const { data, error } = await sb
+    .from('reports')
+    .select('id, auto_tweeted_at')
+    .eq('ward_no', wardNo)
+    .eq('status', 'open')
+    .in('moderation_status', ['approved', 'pending'])
+    .gte('created_at', new Date(Date.now() - 7 * 86400000).toISOString());
+
+  if (error || !data) return;
+  const count = data.length;
+  const alreadyTweeted = data.some(r => r.auto_tweeted_at);
+
+  if (count >= ESCALATION_THRESHOLD && !alreadyTweeted){
+    await sb
+      .from('reports')
+      .update({ auto_tweeted_at: new Date().toISOString() })
+      .eq('ward_no', wardNo)
+      .eq('status', 'open');
+
+    const text = `🚨 Ward ${wardNo}, Purulia has ${count} open garbage reports this week.\n\nThe Municipality has not responded. Time to act.\n\n@${MLA_TWITTER_HANDLE} @PuruliaKasa`;
+    setTimeout(() => {
+      if (confirm(`Ward ${wardNo} crossed ${ESCALATION_THRESHOLD} open reports this week. Tweet the MLA?`)){
+        window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, '_blank');
+      }
+    }, 2000);
+  }
+}
+
+async function buildWeeklyDigest(){
+  const { data: reports } = await sb
+    .from('reports')
+    .select('*')
+    .eq('status', 'open')
+    .in('moderation_status', ['approved', 'pending'])
+    .order('created_at', { ascending: false });
+
+  if (!reports || !reports.length) return null;
+  const byWard = {};
+  reports.forEach(r => {
+    if (!byWard[r.ward_no]) byWard[r.ward_no] = [];
+    byWard[r.ward_no].push(r);
+  });
+  const lines = [
+    'PURULIA KASA — WEEKLY DIGEST',
+    `Generated: ${new Date().toLocaleString('en-IN')}`,
+    `Total open reports: ${reports.length}`,
+    `Wards affected: ${Object.keys(byWard).length}`,
+    '',
+    '═══════════════════════════════════'
+  ];
+  Object.entries(byWard)
+    .sort((a, b) => b[1].length - a[1].length)
+    .forEach(([ward, items]) => {
+      lines.push(`\nWard ${ward} — ${items.length} open report(s)`);
+      items.slice(0, 5).forEach(r => {
+        const days = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86400000);
+        lines.push(`  • ${r.severity || 'minor'} · ${days}d ago · ${r.description || 'No description'}`);
+        lines.push(`    Map: https://www.google.com/maps?q=${r.lat},${r.lng}`);
+      });
+      if (items.length > 5) lines.push(`  ... and ${items.length - 5} more`);
+    });
+  lines.push('\n═══════════════════════════════════');
+  lines.push('\nPurulia Kasa — puruliavision2040.vercel.app');
+  return lines.join('\n');
+}
+
+async function sendWeeklyDigest(){
+  const digest = await buildWeeklyDigest();
+  if (!digest) return;
+  const mailto = `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Purulia Kasa — Weekly Digest')}&body=${encodeURIComponent(digest)}`;
+  if (window.KASA_CONFIG.DIGEST_ENDPOINT){
+    try {
+      await fetch(window.KASA_CONFIG.DIGEST_ENDPOINT, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ to: MUNICIPALITY_EMAIL, subject: 'Purulia Kasa — Weekly Digest', body: digest })
+      });
+      showToast('Weekly digest sent');
+      return;
+    } catch(e){ console.warn('Digest endpoint failed', e); }
+  }
+  window.location.href = mailto;
+}
+
+async function checkWeeklyDigest(){
+  const lastSent = localStorage.getItem('kasa_digest_sent');
+  const now = Date.now();
+  const weekMs = 7 * 86400000;
+  if (!lastSent || (now - parseInt(lastSent)) > weekMs){
+    const { count } = await sb
+      .from('reports')
+      .select('*', { count: 'exact', head: true })
+      .eq('status', 'open');
+    if (count && count > 0){
+      setTimeout(() => {
+        if (confirm(`There are ${count} open reports this week. Send the weekly digest to Purulia Municipality?`)){
+          sendWeeklyDigest();
+          localStorage.setItem('kasa_digest_sent', String(now));
+        }
+      }, 5000);
+    }
+  }
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1097,7 +1270,6 @@ function renderQR(){
    ══════════════════════════════════════════════════════════ */
 function resetDraft(){
   draft = { photoBlob:null, lat:null, lng:null, ward:null, severity:'minor' };
-  const ids = ['k-photo','k-photo-preview','k-coords','k-desc','k-name','k-ward','k-severity','k-next-1','k-next-2','k-submit','k-gps-btn'];
   ['k-photo','k-desc','k-name','k-ward'].forEach(id => { const el = document.getElementById(id); if (el) el.value = ''; });
   const pp = document.getElementById('k-photo-preview'); if (pp) pp.innerHTML = '';
   const co = document.getElementById('k-coords'); if (co) co.textContent = 'No location set yet';
@@ -1106,6 +1278,7 @@ function resetDraft(){
   const sb1 = document.getElementById('k-submit'); if (sb1){ sb1.disabled = false; sb1.textContent = 'Submit Report →'; }
   const gb = document.getElementById('k-gps-btn'); if (gb) gb.textContent = '⊕ Use my location';
   const sv = document.getElementById('k-severity'); if (sv) sv.value = 'minor';
+  const tw = document.getElementById('k-tweet-btn'); if (tw) tw.style.display = 'none';
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
 }
 
