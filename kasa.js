@@ -773,7 +773,9 @@ function sortReports(list){
     seen: (a, b) => b.seen - a.seen,
     oldest: (a, b) => statusRank[b.status] - statusRank[a.status] || new Date(a.createdAt) - new Date(b.createdAt)
   }[state.sort];
-  return [...list].sort(by);
+  // Reports neighbours doubt sink below the rest, whatever the chosen order.
+  const doubt = r => r.neighbour === 'doubted' ? 2 : (r.ratings >= 3 && r.authAvg != null && r.authAvg <= 2 ? 1 : 0);
+  return [...list].sort((a, b) => doubt(a) - doubt(b) || by(a, b));
 }
 
 function renderList(){

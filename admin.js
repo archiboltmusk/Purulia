@@ -211,6 +211,7 @@ function photoMetaText(m){
   if (m.taken_minutes_ago != null) bits.push(`taken ${m.taken_minutes_ago} min before upload`);
   if (m.exif_distance_m != null) bits.push(`photo GPS ${m.exif_distance_m} m from the spot`);
   if (m.ai_edited) bits.push('marked AI-edited');
+  if (m.gps_checked === false) bits.push('photo has no GPS — check closely');
   return bits.join(' · ');
 }
 
@@ -228,6 +229,7 @@ function renderModeration(q){
           <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>
             ${new Date(r.created_at).toLocaleString('en-IN')}
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
+            ${r.moderation_labels?.text ? ' · text needs review: ' + esc(r.moderation_labels.text) : ''}
             ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
         </div>
         <div class="ad-actions">
