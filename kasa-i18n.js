@@ -174,6 +174,7 @@ window.KASA_I18N = {
     wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
     wc_share: 'Share ward link', ward_share_text: 'Ward {n}, Purulia: {open} unresolved, {fixed} fixed. See every report:',
     csv_btn: '⬇ CSV', csv_all: '⬇ Download all reports (CSV)', csv_done: '{n} reports downloaded', csv_empty: 'No reports to download.',
+    csv_license: 'Report data is open under', csv_license_2: 'Credit “Purulia Kasa”. Photos are not covered.',
     install_btn: '📲 Install the app', install_ios: 'On iPhone: tap Share, then “Add to Home Screen”.',
 
     alerts_btn: '🔔 Alert me about reports near me', alerts_off_btn: '🔕 Nearby alerts on — turn off',
@@ -378,6 +379,7 @@ window.KASA_I18N = {
     wc_open: '{n}টি অমীমাংসিত', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
     wc_share: 'ওয়ার্ডের লিঙ্ক শেয়ার', ward_share_text: 'পুরুলিয়ার ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
     csv_btn: '⬇ CSV', csv_all: '⬇ সব রিপোর্ট ডাউনলোড (CSV)', csv_done: '{n}টি রিপোর্ট ডাউনলোড হয়েছে', csv_empty: 'ডাউনলোড করার মতো রিপোর্ট নেই।',
+    csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Purulia Kasa”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
     install_btn: '📲 অ্যাপ ইনস্টল করুন', install_ios: 'আইফোনে: শেয়ার-এ ট্যাপ করুন, তারপর “Add to Home Screen”।',
 
     alerts_btn: '🔔 কাছাকাছি রিপোর্টের খবর দিন', alerts_off_btn: '🔕 কাছের খবর চালু — বন্ধ করুন',
@@ -581,6 +583,7 @@ window.KASA_I18N = {
     wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
     wc_share: 'वार्ड का लिंक शेयर करें', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
     csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड के लिए कोई रिपोर्ट नहीं।',
+    csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Purulia Kasa” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
     install_btn: '📲 ऐप इंस्टॉल करें', install_ios: 'iPhone पर: शेयर पर टैप करें, फिर “Add to Home Screen”।',
 
     alerts_btn: '🔔 पास की रिपोर्ट की सूचना दें', alerts_off_btn: '🔕 पास की सूचनाएँ चालू — बंद करें',
