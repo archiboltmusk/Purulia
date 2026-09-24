@@ -8,7 +8,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 
 /* ── Runtime config ── */
 window.KASA_CONFIG = {
-  VISION_API_KEY: '',                 /* Google Vision API key — optional */
+  VISION_API_KEY: 'AIzaSyDs7EgIPVistfqZMthz50G5UffA9sxf_hY',                 /* Google Vision API key — optional */
   DIGEST_ENDPOINT: ''                 /* Optional serverless email endpoint */
 };
 
