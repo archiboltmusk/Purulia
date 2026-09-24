@@ -420,10 +420,19 @@ function kRenderMarker(r){
 
   var dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
   var photoHtml = r.photoUrl ? '<img class="k-popup-img" src="'+kEsc(r.photoUrl)+'" alt="Garbage report">' : '';
-  var popupHtml = photoHtml
-    + '<div class="k-popup-title">🗑️ Garbage Report · '+kEsc(r.ward||'Unassigned ward')+'</div>'
-    + '<div class="k-popup-desc">'+kEsc(r.desc||'Reported problem')+'</div>'
-    + '<div class="k-popup-meta">'+dateStr+(r.status==='resolved'?' · <span style="color:#6DB88A">Resolved</span>':' · <span style="color:#E8524A">Open</span>')+'<br>'+(r.name?('— '+kEsc(r.name)):'Reported anonymously')+'</div>';
+  var statusBadge = r.status === 'resolved'
+  ? '<span style="color:#6DB88A">Resolved</span>'
+  : '<span style="color:#E8524A">Open</span>';
+
+var resolveBtn = r.status === 'resolved'
+  ? '<button class="k-resolve-btn k-resolved" disabled>✓ Resolved</button>'
+  : '<button class="k-resolve-btn" data-resolve="'+kEsc(r.id)+'">Mark as Resolved</button>';
+
+var popupHtml = photoHtml
+  + '<div class="k-popup-title">🗑️ Garbage Report · '+kEsc(r.ward||'Unassigned ward')+'</div>'
+  + '<div class="k-popup-desc">'+kEsc(r.desc||'Reported problem')+'</div>'
+  + '<div class="k-popup-meta">'+dateStr+' · '+statusBadge+'<br>'+(r.name?('— '+kEsc(r.name)):'Reported anonymously')+'</div>'
+  + '<div class="k-popup-action">'+resolveBtn+'</div>';
   var m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(popupHtml).addTo(kReportLayer);
   m._ward = r.ward || 'Unassigned';
   m._status = r.status || 'new';
