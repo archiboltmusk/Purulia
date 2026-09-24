@@ -13,3 +13,8 @@ Thumbs.db
 
 # Dependencies (tests install imagescript locally)
 node_modules/
+
+# Development
+kasa-app/dist/
+kasa-app/node_modules/
+kasa-app/.env
