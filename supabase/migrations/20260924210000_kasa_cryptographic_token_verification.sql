@@ -66,18 +66,24 @@ ADD COLUMN IF NOT EXISTS evidence_photo_hash TEXT;
 CREATE OR REPLACE FUNCTION kasa_private.validate_claim_evidence(p_evidence_photo_hash TEXT)
 RETURNS TABLE (valid BOOLEAN, reason TEXT) LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE
-  v_record RECORD;
+  v_unsafe BOOLEAN;
+  v_garbage_score DOUBLE PRECISION;
+  v_found BOOLEAN;
 BEGIN
-  SELECT pc.sha256, pc.unsafe, pc.garbage_score INTO v_record
+  v_found := false;
+  SELECT pc.unsafe, pc.garbage_score INTO v_unsafe, v_garbage_score
   FROM kasa_private.photo_checks pc
   WHERE pc.sha256 = p_evidence_photo_hash
   LIMIT 1;
 
-  IF v_record IS NULL THEN
+  IF NOT FOUND THEN
     RETURN QUERY SELECT false, 'Evidence photo not found'::TEXT;
-  ELSIF v_record.unsafe = true THEN
+    RETURN;
+  END IF;
+
+  IF v_unsafe = true THEN
     RETURN QUERY SELECT false, 'Evidence photo contains unsafe content'::TEXT;
-  ELSIF v_record.garbage_score IS NOT NULL AND v_record.garbage_score > 0.7 THEN
+  ELSIF v_garbage_score IS NOT NULL AND v_garbage_score > 0.7 THEN
     RETURN QUERY SELECT false, 'Evidence quality too poor (garbage_score > 0.7)'::TEXT;
   ELSE
     RETURN QUERY SELECT true, 'OK'::TEXT;
