@@ -864,7 +864,25 @@ async function submitReport(){
 
   const submitBtn = document.getElementById('k-submit');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Checking…';
+  submitBtn.textContent = 'Checking photo…';
+
+  /* ── AI Moderation ── */
+  let moderation;
+  try {
+    moderation = await moderatePhoto(draft.photoBlob);
+  } catch(e){
+    console.warn('Moderation error, defaulting to pending review', e);
+    moderation = { approved: true, reason: null, labels: {} };
+  }
+
+  if (!moderation.approved){
+    showToast(`Photo rejected: ${moderation.reason || 'does not meet guidelines'}`);
+    submitBtn.disabled = false;
+    submitBtn.textContent = 'Submit Report →';
+    return;
+  }
+
+  submitBtn.textContent = 'Checking for duplicates…';
 
   /* Duplicate detection */
   let parentId = null;
@@ -894,7 +912,9 @@ async function submitReport(){
     created_at: new Date().toISOString(),
     parent_report_id: parentId,
     is_duplicate: !!parentId,
-    photoBlob: draft.photoBlob
+    photoBlob: draft.photoBlob,
+    moderation_status: moderation.approved ? 'approved' : 'pending',
+    moderation_labels: moderation.labels || {}
   };
 
   if (navigator.onLine){
@@ -903,6 +923,16 @@ async function submitReport(){
       submitBtn.textContent = 'Submit Report →';
       submitBtn.disabled = false;
       await afterSubmit(report, parentId);
+
+      /* Auto-tag MLA + check escalation */
+      const w = wards[report.ward_no];
+      setTimeout(() => {
+        if (confirm('Want to tag the MLA on X (Twitter) about this report?')){
+          openTweetComposer(report, w);
+        }
+      }, 1500);
+
+      await checkEscalation(report.ward_no);
       return;
     } catch(e){
       console.warn('Online submit failed, queuing offline', e);
