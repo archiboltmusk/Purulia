@@ -59,4 +59,35 @@ BEGIN
   RETURN v_deleted;
 END $$;
 
+-- Add evidence_photo_hash column to claims for traceability
+ALTER TABLE kasa_private.claims
+ADD COLUMN IF NOT EXISTS evidence_photo_hash TEXT;
+
+-- Function to validate evidence photos before accepting claims
+CREATE OR REPLACE FUNCTION kasa_private.validate_claim_evidence(p_evidence_photo_hash TEXT)
+RETURNS TABLE (valid BOOLEAN, reason TEXT) LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
+BEGIN
+  RETURN QUERY
+  SELECT
+    CASE
+      WHEN pc.sha256 IS NULL THEN false
+      WHEN pc.unsafe = true THEN false
+      WHEN pc.garbage_score IS NOT NULL AND pc.garbage_score > 0.7 THEN false
+      ELSE true
+    END AS valid,
+    CASE
+      WHEN pc.sha256 IS NULL THEN 'Evidence photo not found'::TEXT
+      WHEN pc.unsafe = true THEN 'Evidence photo contains unsafe content'::TEXT
+      WHEN pc.garbage_score IS NOT NULL AND pc.garbage_score > 0.7 THEN 'Evidence quality too poor (garbage_score > 0.7)'::TEXT
+      ELSE 'OK'::TEXT
+    END AS reason
+  FROM kasa_private.photo_checks pc
+  WHERE pc.sha256 = p_evidence_photo_hash
+  LIMIT 1;
+
+  IF NOT FOUND THEN
+    RETURN QUERY SELECT false, 'Evidence photo not found'::TEXT;
+  END IF;
+END $$;
+
 COMMIT;
