@@ -21,6 +21,14 @@ Supabase SQL editor (or with the Supabase CLI). Each is safe to re-run.
   held for a moderator (a held confirmation doesn't count, a held claim can't
   become final); no metadata → recorded, never refused.
 
+- `20260924190000_kasa_old_page_photo_window.sql` — until 26 Sep 2026 06:00
+  UTC, also accepts photos from pages cached before the photo-path fix.
+- `20260924200000_kasa_retry_and_photo_cleanup.sql` — a photo only counts as
+  "already used" if something actually uses it (so an honest retry after a
+  refusal works), and unused uploads are removed through the Storage API by
+  the `kasa-cleanup` function (Supabase doesn't allow deleting storage rows
+  with SQL).
+
 If you ever re-run an earlier file on its own, re-run the later ones after it.
 
 What it changes on the live project (audited 24 Sep 2026):
@@ -63,10 +71,29 @@ supabase secrets set GOOGLE_VISION_API_KEY=...   # restrict the key to the Visio
 ```
 
 Without the Vision key the function still fingerprints photos, so reused photos
-are caught. Once you've seen it working, make the check mandatory:
+are caught.
+
+Google requires a **billing account** on the Cloud project even for the free
+tier (1,000 images a month free). To check the key, open the Kasa page and run
+this in the browser console:
+
+```js
+await sb.functions.invoke('kasa-photo-check', { body: { health: true } })
+```
+
+It answers `ok`, `no_key`, `invalid_key`, `api_disabled`, `billing_disabled`,
+or `key_restricted_to_websites` (server calls come from no website, so restrict
+the key to the Vision API instead). The check sends Google an empty request, so
+no image is analysed or billed. Once you've seen it working, make the check mandatory:
 
 ```sql
 update kasa_private.settings set value = 'true' where key = 'require_photo_check';
+```
+
+Also deploy the photo clean-up function (the weekly job calls it):
+
+```
+supabase functions deploy kasa-cleanup
 ```
 
 ## 5. Nearby-report alerts (optional)

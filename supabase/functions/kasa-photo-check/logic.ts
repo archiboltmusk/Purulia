@@ -115,3 +115,23 @@ export function isUnsafe(safe: Record<string, string> | undefined): boolean {
   if (!safe) return false;
   return BAD.has(safe.adult) || BAD.has(safe.violence) || safe.racy === 'VERY_LIKELY';
 }
+
+// Why Google refused a request, from the error's ErrorInfo reason. Used by the
+// setup check, which sends an empty request: a key that is accepted gets
+// either 200 or a plain INVALID_ARGUMENT ("no images"), which both mean "ok".
+const VISION_REASONS: Record<string, string> = {
+  API_KEY_INVALID: 'invalid_key',
+  SERVICE_DISABLED: 'api_disabled',
+  BILLING_DISABLED: 'billing_disabled',
+  API_KEY_HTTP_REFERRER_BLOCKED: 'key_restricted_to_websites',
+  API_KEY_IP_ADDRESS_BLOCKED: 'key_restricted_by_ip',
+  API_KEY_SERVICE_BLOCKED: 'key_not_allowed_for_vision',
+};
+
+export interface VisionError { error?: { status?: string; details?: { reason?: string }[] } }
+
+export function visionHealthFromError(body: VisionError): string {
+  const reasons = (body?.error?.details ?? []).map((d) => d?.reason).filter(Boolean) as string[];
+  for (const r of reasons) if (VISION_REASONS[r]) return VISION_REASONS[r];
+  return body?.error?.status === 'INVALID_ARGUMENT' ? 'ok' : 'error';
+}

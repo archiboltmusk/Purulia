@@ -7,7 +7,7 @@ import assert from 'node:assert/strict';
 import pkg from 'imagescript';
 import jpeg from 'jpeg-js';
 const { Image } = pkg;
-import { JPEG_OPTIONS, dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, isPhotoPath } from '../functions/kasa-photo-check/logic.ts';
+import { JPEG_OPTIONS, dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, isPhotoPath, visionHealthFromError } from '../functions/kasa-photo-check/logic.ts';
 
 // Deterministic PRNG so the test is repeatable
 let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
@@ -75,4 +75,12 @@ assert.equal(isPhotoPath(`claims/${uid}/abcdEFGH1234xyz.jpg`), false); // per-us
 assert.equal(isPhotoPath('claims/../../abcdEFGH1234xyz.jpg'), false);
 assert.equal(isPhotoPath('other/abcdEFGH1234_-xyz.jpg'), false);
 assert.equal(isPhotoPath('claims/short.jpg'), false);
+// Vision setup check: reasons Google gives when a key is refused
+const gErr = (status: string, reason?: string) => ({ error: { status, details: reason ? [{ reason }] : [] } });
+assert.equal(visionHealthFromError(gErr('INVALID_ARGUMENT', 'API_KEY_INVALID')), 'invalid_key');
+assert.equal(visionHealthFromError(gErr('PERMISSION_DENIED', 'SERVICE_DISABLED')), 'api_disabled');
+assert.equal(visionHealthFromError(gErr('PERMISSION_DENIED', 'BILLING_DISABLED')), 'billing_disabled');
+assert.equal(visionHealthFromError(gErr('PERMISSION_DENIED', 'API_KEY_HTTP_REFERRER_BLOCKED')), 'key_restricted_to_websites');
+assert.equal(visionHealthFromError(gErr('INVALID_ARGUMENT')), 'ok', 'an accepted key with an empty request is fine');
+assert.equal(visionHealthFromError({}), 'error');
 console.log('logic tests passed');

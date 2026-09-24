@@ -12,7 +12,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import jpeg from 'npm:jpeg-js@0.4.4';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
-import { JPEG_OPTIONS, dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe } from './logic.ts';
+import { JPEG_OPTIONS, dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe, visionHealthFromError } from './logic.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -62,6 +62,21 @@ async function vision(bytes: Uint8Array) {
   return (await res.json()).responses?.[0] ?? {};
 }
 
+// Setup check: is the Vision key present and accepted? Sends an empty request,
+// which Google answers without analysing (or billing) any image.
+async function visionHealth(): Promise<string> {
+  if (!VISION_KEY) return 'no_key';
+  try {
+    const res = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${VISION_KEY}`, {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ requests: [] }),
+    });
+    if (res.ok) return 'ok';
+    return visionHealthFromError(await res.json().catch(() => ({})));
+  } catch (_) {
+    return 'unreachable';
+  }
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return reply(405, { error: 'POST only' });
@@ -71,8 +86,10 @@ Deno.serve(async (req) => {
   const { data: { user } } = await asUser.auth.getUser(jwt);
   if (!user) return reply(401, { error: 'sign-in required' });
 
-  let path = '';
-  try { path = String((await req.json()).path ?? ''); } catch (_) { /* fallthrough */ }
+  let body: { path?: unknown; health?: unknown } = {};
+  try { body = await req.json(); } catch (_) { /* fallthrough */ }
+  if (body.health === true) return reply(200, { vision: await visionHealth() });
+  const path = String(body.path ?? '');
   if (!isPhotoPath(path)) return reply(400, { error: 'bad path' });
 
   // Only the uploader can have their photo checked (Storage records the owner).
