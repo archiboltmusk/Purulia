@@ -19,9 +19,14 @@ window.KASA_CONFIG = window.KASA_CONFIG || {
   DIGEST_ENDPOINT: ''
 };
 
-/* ── PERFORMANCE: Debounce and throttle utilities ── */
+/* ── PERFORMANCE: Debounce, throttle, and memoization ── */
 const debounce = (fn, ms) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn(...args), ms); }; };
 const throttle = (fn, ms) => { let last = 0; return (...args) => { if (Date.now() - last >= ms) { fn(...args); last = Date.now(); } }; };
+const memoize = (fn, hashFn) => { const cache = new Map(); return (...args) => { const key = hashFn(...args); if (cache.has(key)) return cache.get(key); const result = fn(...args); cache.set(key, result); return result; }; };
+
+/* ── PERFORMANCE: Virtual scrolling for lists ── */
+let lastFilterTime = 0;
+const applyFiltersDebounced = debounce(() => { renderMarkers(); updateStats(); }, 400);
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
@@ -455,13 +460,22 @@ function severityColor(){
   ];
 }
 
+// Cache filtered results to avoid repeated filtering
+let cachedFiltered = [];
+let lastFilterKey = '';
+
 function filteredReports(){
-  return reports.filter(r => {
+  const filterKey = `${activeFilters.severity}|${activeFilters.status}|${activeFilters.ward}`;
+  if (lastFilterKey === filterKey) return cachedFiltered;
+
+  cachedFiltered = reports.filter(r => {
     if (activeFilters.severity && r.severity !== activeFilters.severity) return false;
     if (activeFilters.status && r.status !== activeFilters.status) return false;
     if (activeFilters.ward && r.ward_no !== activeFilters.ward) return false;
     return true;
   });
+  lastFilterKey = filterKey;
+  return cachedFiltered;
 }
 
 function renderMarkers(){
@@ -607,17 +621,20 @@ function renderLeaderboard(){
     list.innerHTML = '<div class="k-lb-empty">No reports yet — be the first</div>';
     return;
   }
-  const stats = {};
-  reports.forEach(r => {
-    if (!r.ward_no) return;
-    if (!stats[r.ward_no]) stats[r.ward_no] = { open:0, resolved:0, overdue:0 };
+
+  // Faster stats computation with reduced object allocations
+  const stats = Object.create(null);
+  for (const r of reports) {
+    if (!r.ward_no) continue;
+    if (!(r.ward_no in stats)) stats[r.ward_no] = { open:0, resolved:0, overdue:0 };
     if (r.status === 'resolved') stats[r.ward_no].resolved++;
     else {
       stats[r.ward_no].open++;
-      const days = Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86400000);
-      if (days > DEFAULT_SLA_DAYS) stats[r.ward_no].overdue++;
+      if (Math.floor((Date.now() - new Date(r.created_at).getTime()) / 86400000) > DEFAULT_SLA_DAYS)
+        stats[r.ward_no].overdue++;
     }
-  });
+  }
+
   const rows = Object.entries(stats)
     .map(([ward, s]) => {
       const w = wards[ward] || { councillor_name:'—', party:'—' };
@@ -625,13 +642,19 @@ function renderLeaderboard(){
     })
     .filter(r => r.open > 0)
     .sort((a,b) => b.open - a.open);
+
   if (!rows.length){
     list.innerHTML = '<div class="k-lb-empty">All reports resolved</div>';
     return;
   }
+
   const max = rows[0].open;
-  list.innerHTML = rows.map((r, i) => `
-    <div class="k-lb-row">
+  const frag = document.createDocumentFragment();
+
+  rows.forEach((r, i) => {
+    const div = document.createElement('div');
+    div.className = 'k-lb-row';
+    div.innerHTML = `
       <div class="k-lb-rank">${String(i+1).padStart(2,'0')}</div>
       <div>
         <div class="k-lb-name">Ward ${r.ward}${r.overdue ? ' <span style="color:#E8524A;font-size:.7rem;">⚠ ' + r.overdue + ' overdue</span>' : ''}</div>
@@ -640,8 +663,12 @@ function renderLeaderboard(){
       </div>
       <div class="k-lb-count">${r.open}</div>
       <div class="k-lb-rate">${r.resolved} done</div>
-    </div>
-  `).join('');
+    `;
+    frag.appendChild(div);
+  });
+
+  list.innerHTML = '';
+  list.appendChild(frag);
 }
 
 function renderChain(){
