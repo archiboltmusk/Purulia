@@ -1,4 +1,4 @@
 User-agent: *
+Disallow: /admin.html
+Disallow: /admin.js
 Allow: /
-
-Sitemap: https://mahatoanupam002-lang.github.io/purulia/sitemap.xml
