@@ -868,7 +868,8 @@ function loadAQI() {
   if (btn) { btn.classList.add('spinning'); btn.disabled = true; }
   if (txt) txt.textContent = 'Fetching stations…';
 
-  fetch('https://api.waqi.info/map/bounds/?latlng=21.5,84.0,24.5,88.5&token=demo')
+  const waqi_key = (window.KASA_CONFIG && window.KASA_CONFIG.WAQI_API_KEY) || 'demo';
+  fetch(`https://api.waqi.info/map/bounds/?latlng=21.5,84.0,24.5,88.5&token=${waqi_key}`)
     .then(r => r.json())
     .then(data => {
       layers.aqi.clearLayers();
