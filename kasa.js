@@ -1,46 +1,82 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — Phase 1
-   MapLibre + Supabase. Anonymous reporting. Public map.
+   PURULIA KASA — Stage 1
+   MapLibre + Supabase. Anonymous. Public. Accountable.
    ══════════════════════════════════════════════════════════ */
 
 /* ── CONFIG — REPLACE THESE ── */
 const SUPABASE_URL = 'https://https://jrravmlodmbmmzmhofxi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpycmF2bWxvZG1ibW16bWhvZnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjMzNzksImV4cCI6MjEwNTc5OTM3OX0.dQKsZtiOsQLO8TIQnIuIaOxVDL_Q4K47VI__PqvQGqo';
 const MUNICIPALITY_PHONE = '919046003666';
-const MAP_CENTER = [86.3654, 23.3320];   /* [lng, lat] for MapLibre */
+const MAP_CENTER = [86.3654, 23.3320];
 const MAP_ZOOM = 13;
 const KASA_PAGE_URL = 'https://mahatoanupam002-lang.github.io/purulia/kasa.html';
 
-/* ── Supabase client ── */
+/* ── Supabase ── */
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
 let reports = [];
-let wards = {};   /* { ward_no: { name, party } } */
-let draft = { photoBlob: null, photoFile: null, lat: null, lng: null, ward: null };
+let wards = {};
+let draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'minor' };
+let activeFilters = { severity: '', status: '' };
+let userUpvotes = new Set();  // report IDs this browser has upvoted
+
+/* ── Rep data (hardcoded — replace with Supabase table in Stage 2) ── */
+const REPS = {
+  mla: {
+    name: 'Sudip Kumar Mukherjee',
+    role: 'MLA · Purulia (No. 242)',
+    party: 'BJP',
+    initials: 'SKM'
+  },
+  mp: {
+    name: 'Jyotirmay Singh Mahato',
+    role: 'MP · Purulia',
+    party: 'BJP',
+    initials: 'JSM'
+  }
+};
 
 /* ══════════════════════════════════════════════════════════
    INIT
    ══════════════════════════════════════════════════════════ */
 async function init(){
+  loadUpvotes();
   await loadWards();
   initMainMap();
   await loadReports();
   populateWardDropdown();
   updateStats();
   renderLeaderboard();
+  renderChain();
   wireUI();
+  checkIntro();
 }
 
-/* ── Load wards from Supabase ── */
+function checkIntro(){
+  if (!localStorage.getItem('kasa_intro_seen')){
+    setTimeout(() => {
+      document.getElementById('k-intro').classList.add('open');
+    }, 400);
+  }
+}
+
+function loadUpvotes(){
+  try { userUpvotes = new Set(JSON.parse(localStorage.getItem('kasa_upvotes') || '[]')); } catch(e) {}
+}
+function saveUpvotes(){
+  try { localStorage.setItem('kasa_upvotes', JSON.stringify([...userUpvotes])); } catch(e) {}
+}
+
+/* ── Load wards ── */
 async function loadWards(){
   const { data, error } = await sb.from('wards').select('*').order('ward_no');
   if (error){ console.error('Wards load failed', error); return; }
   (data || []).forEach(w => { wards[w.ward_no] = w; });
 }
 
-/* ── Load reports from Supabase ── */
+/* ── Load reports ── */
 async function loadReports(){
   const { data, error } = await sb
     .from('reports')
@@ -53,7 +89,7 @@ async function loadReports(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   MAIN MAP (MapLibre + OpenFreeMap dark tiles)
+   MAIN MAP
    ══════════════════════════════════════════════════════════ */
 function initMainMap(){
   mainMap = new maplibregl.Map({
@@ -71,32 +107,31 @@ function initMainMap(){
       data: { type: 'FeatureCollection', features: [] }
     });
 
-    /* Halo layer (soft glow under pins) */
+    /* Halo layer */
     mainMap.addLayer({
       id: 'reports-halo',
       type: 'circle',
       source: 'reports',
       paint: {
         'circle-radius': 14,
-        'circle-color': ['case', ['==', ['get','status'], 'resolved'], '#6DB88A', '#E8524A'],
+        'circle-color': severityColor(),
         'circle-opacity': 0.18
       }
     });
 
-    /* Core pin dot */
+    /* Core dot */
     mainMap.addLayer({
       id: 'reports-core',
       type: 'circle',
       source: 'reports',
       paint: {
         'circle-radius': 6,
-        'circle-color': ['case', ['==', ['get','status'], 'resolved'], '#6DB88A', '#E8524A'],
+        'circle-color': severityColor(),
         'circle-stroke-color': 'rgba(255,255,255,.3)',
         'circle-stroke-width': 1
       }
     });
 
-    /* Click on a pin → open popup */
     mainMap.on('click', 'reports-core', (e) => {
       const props = e.features[0].properties;
       const coords = e.features[0].geometry.coordinates.slice();
@@ -109,9 +144,29 @@ function initMainMap(){
   });
 }
 
+/* Severity → color mapping */
+function severityColor(){
+  return [
+    'case',
+    ['==', ['get','status'], 'resolved'], '#6DB88A',
+    ['==', ['get','severity'], 'critical'], '#E8524A',
+    ['==', ['get','severity'], 'severe'], '#E88A4A',
+    '#D4882A'
+  ];
+}
+
+/* Filter → GeoJSON features */
+function filteredReports(){
+  return reports.filter(r => {
+    if (activeFilters.severity && r.severity !== activeFilters.severity) return false;
+    if (activeFilters.status && r.status !== activeFilters.status) return false;
+    return true;
+  });
+}
+
 function renderMarkers(){
   if (!mainMap || !mainMap.getSource('reports')) return;
-  const features = reports
+  const features = filteredReports()
     .filter(r => r.lat && r.lng)
     .map(r => ({
       type: 'Feature',
@@ -119,61 +174,81 @@ function renderMarkers(){
       properties: {
         id: r.id,
         status: r.status,
+        severity: r.severity || 'minor',
         ward_no: r.ward_no,
         description: r.description || '',
         photo_url: r.photo_url || '',
         reporter_name: r.reporter_name || '',
         created_at: r.created_at,
-        resolved_photo_url: r.resolved_photo_url || ''
+        resolved_photo_url: r.resolved_photo_url || '',
+        upvotes: r.upvotes || 0,
+        flags: r.flags || 0
       }
     }));
   mainMap.getSource('reports').setData({ type: 'FeatureCollection', features });
 }
 
-/* ── Popup for a report ── */
+/* ── Popup ── */
 function openReportPopup(props, coords){
   const w = wards[props.ward_no] || { councillor_name: '—', party: '—' };
   const date = props.created_at ? new Date(props.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '';
+  const daysOpen = props.created_at ? Math.floor((Date.now() - new Date(props.created_at).getTime()) / 86400000) : 0;
+
   const photo = props.photo_url ? `<img class="k-popup-img" src="${esc(props.photo_url)}" alt="">` : '';
   const statusLabel = props.status === 'resolved'
     ? '<span style="color:#6DB88A">Resolved</span>'
-    : '<span style="color:#E8524A">Open</span>';
-  const resolveBtn = props.status === 'resolved'
-    ? '<span class="k-popup-btn k-resolved">✓ Resolved</span>'
-    : `<button class="k-popup-btn k-btn-resolve" data-resolve="${esc(props.id)}">Mark as Resolved</button>`;
+    : `<span style="color:#E8524A">${daysOpen} days open</span>`;
+
+  /* Severity badge */
+  let sevClass = 'k-popup-sev-minor';
+  if (props.status === 'resolved') sevClass = 'k-popup-sev-resolved';
+  else if (props.severity === 'critical') sevClass = 'k-popup-sev-critical';
+  else if (props.severity === 'severe') sevClass = 'k-popup-sev-severe';
+
+  /* Upvote state */
+  const hasUpvoted = userUpvotes.has(props.id);
+
+  /* Actions */
+  let actionsHtml = '';
+  if (props.status === 'resolved'){
+    actionsHtml = `<span class="k-popup-btn" style="border-color:#6DB88A;color:#6DB88A;cursor:default;">✓ Resolved</span>`;
+  } else {
+    actionsHtml = `
+      <button class="k-popup-btn k-btn-verify" data-verify="${esc(props.id)}">Verify Cleanup</button>
+      <button class="k-popup-btn k-btn-flag" data-flag="${esc(props.id)}">Flag</button>`;
+  }
 
   const html = `
     <div class="k-popup">
       ${photo}
       <div class="k-popup-body">
+        <div class="k-popup-severity ${sevClass}">${props.status === 'resolved' ? 'Resolved' : (props.severity || 'Minor')}</div>
         <div class="k-popup-title">Ward ${esc(props.ward_no || '—')} · ${esc(w.councillor_name)} · ${esc(w.party)}</div>
         <div class="k-popup-desc">${esc(props.description) || 'Garbage reported'}</div>
         <div class="k-popup-meta">${date} · ${statusLabel}<br>${props.reporter_name ? '— ' + esc(props.reporter_name) : 'Reported anonymously'}</div>
-        ${resolveBtn}
-        <a class="k-popup-btn" href="https://www.google.com/maps?q=${props.lat || coords[1]},${props.lng || coords[0]}" target="_blank" rel="noopener">Open in Google Maps</a>
+        <button class="k-popup-upvote ${hasUpvoted ? 'upvoted' : ''}" data-upvote="${esc(props.id)}">
+          <span>👍</span> ${hasUpvoted ? 'You saw this' : 'I saw this too'} · ${props.upvotes || 0}
+        </button>
+        <div class="k-popup-actions">
+          ${actionsHtml}
+        </div>
+        <a class="k-popup-btn" style="margin-top:.5rem;" href="https://www.google.com/maps?q=${props.lat || coords[1]},${props.lng || coords[0]}" target="_blank" rel="noopener">Get directions</a>
       </div>
     </div>`;
 
-  new maplibregl.Popup({ closeButton: true, maxWidth: '280px' })
+  new maplibregl.Popup({ closeButton: true, maxWidth: '320px', offset: 12 })
     .setLngLat(coords)
     .setHTML(html)
     .addTo(mainMap);
 }
 
-/* ── Resolve flow (delegated) ── */
-document.addEventListener('click', async (e) => {
-  const btn = e.target.closest('[data-resolve]');
-  if (!btn) return;
-  const id = btn.getAttribute('data-resolve');
-  await openResolveModal(id);
-});
-
 /* ══════════════════════════════════════════════════════════
-   STATS
+   STATS + PILL
    ══════════════════════════════════════════════════════════ */
 function updateStats(){
   const total = reports.length;
   const resolved = reports.filter(r => r.status === 'resolved').length;
+  const active = total - resolved;
   const wardsActive = new Set(reports.map(r => r.ward_no).filter(Boolean)).size;
   const rate = total ? Math.round((resolved / total) * 100) : 0;
 
@@ -181,10 +256,13 @@ function updateStats(){
   document.getElementById('k-stat-resolved').textContent = resolved;
   document.getElementById('k-stat-wards').textContent = wardsActive;
   document.getElementById('k-stat-rate').textContent = rate + '%';
+
+  document.getElementById('k-pill-active').textContent = active;
+  document.getElementById('k-pill-total').textContent = total;
 }
 
 /* ══════════════════════════════════════════════════════════
-   LEADERBOARD
+   LEADERBOARD (open reports first)
    ══════════════════════════════════════════════════════════ */
 function renderLeaderboard(){
   const list = document.getElementById('k-lb-list');
@@ -192,39 +270,121 @@ function renderLeaderboard(){
     list.innerHTML = '<div class="k-lb-empty">No reports yet — be the first</div>';
     return;
   }
-  const counts = {};
-  const resolvedCounts = {};
+
+  /* Count open and resolved per ward */
+  const stats = {};
   reports.forEach(r => {
     if (!r.ward_no) return;
-    counts[r.ward_no] = (counts[r.ward_no] || 0) + 1;
-    if (r.status === 'resolved') resolvedCounts[r.ward_no] = (resolvedCounts[r.ward_no] || 0) + 1;
+    if (!stats[r.ward_no]) stats[r.ward_no] = { open: 0, resolved: 0, total: 0 };
+    stats[r.ward_no].total++;
+    if (r.status === 'resolved') stats[r.ward_no].resolved++;
+    else stats[r.ward_no].open++;
   });
-  const rows = Object.entries(counts)
-    .map(([ward, count]) => {
+
+  /* Sort by OPEN count descending (your request: "open report then unresolved") */
+  const rows = Object.entries(stats)
+    .map(([ward, s]) => {
       const w = wards[ward] || { councillor_name: '—', party: '—' };
-      const res = resolvedCounts[ward] || 0;
-      const rate = Math.round((res / count) * 100);
-      return { ward: parseInt(ward), count, councillor: w.councillor_name, party: w.party, rate };
+      return { ward: parseInt(ward), open: s.open, resolved: s.resolved, total: s.total, councillor: w.councillor_name, party: w.party };
     })
-    .sort((a, b) => b.count - a.count);
+    .filter(r => r.open > 0)   // only show wards with open reports
+    .sort((a, b) => b.open - a.open);
 
   if (!rows.length){
-    list.innerHTML = '<div class="k-lb-empty">No ward data yet</div>';
+    list.innerHTML = '<div class="k-lb-empty">All reports resolved — nothing pending</div>';
     return;
   }
-  const max = rows[0].count;
+  const max = rows[0].open;
   list.innerHTML = rows.map((r, i) => `
     <div class="k-lb-row">
       <div class="k-lb-rank">${String(i+1).padStart(2,'0')}</div>
       <div>
         <div class="k-lb-name">Ward ${r.ward}</div>
         <div class="k-lb-councillor">${esc(r.councillor)} · ${esc(r.party)}</div>
-        <div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:${(r.count/max*100).toFixed(1)}%"></div></div>
+        <div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:${(r.open/max*100).toFixed(1)}%"></div></div>
       </div>
-      <div class="k-lb-count">${r.count}</div>
-      <div class="k-lb-rate">${r.rate}%</div>
+      <div class="k-lb-count">${r.open}</div>
+      <div class="k-lb-rate">${r.resolved} done</div>
     </div>
   `).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   ACCOUNTABILITY CHAIN (actual Purulia hierarchy)
+   ══════════════════════════════════════════════════════════ */
+function renderChain(){
+  const chain = document.getElementById('k-chain');
+  const nodes = [
+    { icon: '🏛', name: 'Purulia Municipality', role: 'Urban local body · Executes sanitation' },
+    { icon: '👤', name: 'Chairman / Administrator', role: 'Nabendu Mahali · Elected head (or SDO as Administrator)' },
+    { icon: '📋', name: 'Executive Officer', role: 'Municipal administrative head' },
+    { icon: '🧹', name: 'Sanitation Inspector', role: 'Ward-level waste management' },
+    { icon: '👷', name: 'Conservancy Staff', role: 'On-ground cleanup crew' }
+  ];
+  chain.innerHTML = nodes.map((n, i) => {
+    const arrow = i < nodes.length - 1 ? '<div class="k-chain-arrow">↓</div>' : '';
+    return `
+      <div class="k-chain-node">
+        <div class="k-chain-icon">${n.icon}</div>
+        <div class="k-chain-text">
+          <div class="k-chain-name">${esc(n.name)}</div>
+          <div class="k-chain-role">${esc(n.role)}</div>
+        </div>
+      </div>${arrow}`;
+  }).join('');
+}
+
+/* ══════════════════════════════════════════════════════════
+   REP PROFILES
+   ══════════════════════════════════════════════════════════ */
+function openRepProfile(key){
+  const rep = REPS[key];
+  if (!rep) return;
+
+  /* Compute stats for this rep */
+  const total = reports.length;
+  const resolved = reports.filter(r => r.status === 'resolved').length;
+  const active = total - resolved;
+
+  /* Worst wards: top 5 by open report count */
+  const stats = {};
+  reports.forEach(r => {
+    if (!r.ward_no || r.status === 'resolved') return;
+    if (!stats[r.ward_no]) stats[r.ward_no] = 0;
+    stats[r.ward_no]++;
+  });
+  const worst = Object.entries(stats)
+    .map(([ward, count]) => ({ ward: parseInt(ward), count }))
+    .sort((a, b) => b.count - a.count)
+    .slice(0, 5);
+
+  const worstHtml = worst.length
+    ? worst.map((w, i) => {
+        const wd = wards[w.ward] || {};
+        return `<div class="k-rep-worst-item">
+          <span>${i+1}. Ward ${w.ward} · ${esc(wd.councillor_name || '—')}</span>
+          <span class="k-rep-worst-count">${w.count}</span>
+        </div>`;
+      }).join('')
+    : '<div style="padding:1rem 0;color:rgba(240,230,208,.4);font-size:.72rem;">No open reports in this constituency.</div>';
+
+  document.getElementById('k-rep-content').innerHTML = `
+    <div class="k-rep-header">
+      <div class="k-rep-avatar">${esc(rep.initials)}</div>
+      <div>
+        <div class="k-rep-name">${esc(rep.name)}</div>
+        <div class="k-rep-role">${esc(rep.role)} · ${esc(rep.party)}</div>
+      </div>
+    </div>
+    <div class="k-rep-stats">
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${active}</div><div class="k-rep-stat-l">Active</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${total}</div><div class="k-rep-stat-l">Reports</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${resolved}</div><div class="k-rep-stat-l">Resolved</div></div>
+    </div>
+    <div class="k-rep-worst-title">Worst wards (open reports)</div>
+    ${worstHtml}
+  `;
+  document.getElementById('k-rep-modal').classList.add('open');
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -291,6 +451,12 @@ function setLocation(lat, lng){
    UI WIRING
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
+  /* Intro */
+  document.getElementById('k-intro-continue').addEventListener('click', () => {
+    document.getElementById('k-intro').classList.remove('open');
+    localStorage.setItem('kasa_intro_seen', '1');
+  });
+
   /* Open modal */
   document.getElementById('k-hero-cta').addEventListener('click', openModal);
   document.getElementById('k-map-report-btn').addEventListener('click', openModal);
@@ -303,16 +469,19 @@ function wireUI(){
   /* Photo */
   document.getElementById('k-photo').addEventListener('change', handlePhoto);
 
-  /* Step navigation */
+  /* Steps */
   document.getElementById('k-next-1').addEventListener('click', () => goToStep(2));
   document.getElementById('k-next-2').addEventListener('click', () => goToStep(3));
 
   /* GPS */
   document.getElementById('k-gps-btn').addEventListener('click', detectGPS);
 
-  /* Ward select */
+  /* Ward + severity */
   document.getElementById('k-ward').addEventListener('change', (e) => {
     draft.ward = e.target.value ? parseInt(e.target.value) : null;
+  });
+  document.getElementById('k-severity').addEventListener('change', (e) => {
+    draft.severity = e.target.value;
   });
 
   /* Submit */
@@ -323,9 +492,54 @@ function wireUI(){
     closeModal();
     resetDraft();
   });
+
+  /* Filters */
+  document.getElementById('k-filter-severity').addEventListener('change', (e) => {
+    activeFilters.severity = e.target.value;
+    renderMarkers();
+  });
+  document.getElementById('k-filter-status').addEventListener('change', (e) => {
+    activeFilters.status = e.target.value;
+    renderMarkers();
+  });
+
+  /* QR */
+  document.getElementById('k-qr-btn').addEventListener('click', () => {
+    document.getElementById('k-qr-modal').classList.add('open');
+    renderQR();
+  });
+  document.getElementById('k-qr-close').addEventListener('click', () => {
+    document.getElementById('k-qr-modal').classList.remove('open');
+  });
+  document.getElementById('k-qr-backdrop').addEventListener('click', () => {
+    document.getElementById('k-qr-modal').classList.remove('open');
+  });
+
+  /* Rep profiles */
+  document.querySelectorAll('[data-profile]').forEach(btn => {
+    btn.addEventListener('click', () => openRepProfile(btn.dataset.profile));
+  });
+  document.getElementById('k-rep-close').addEventListener('click', () => {
+    document.getElementById('k-rep-modal').classList.remove('open');
+  });
+  document.getElementById('k-rep-backdrop').addEventListener('click', () => {
+    document.getElementById('k-rep-modal').classList.remove('open');
+  });
+
+  /* Delegated: popup actions */
+  document.addEventListener('click', (e) => {
+    const upBtn = e.target.closest('[data-upvote]');
+    if (upBtn){ handleUpvote(upBtn.dataset.upvote, upBtn); return; }
+
+    const verifyBtn = e.target.closest('[data-verify]');
+    if (verifyBtn){ handleVerify(verifyBtn.dataset.verify); return; }
+
+    const flagBtn = e.target.closest('[data-flag]');
+    if (flagBtn){ handleFlag(flagBtn.dataset.flag); return; }
+  });
 }
 
-/* ── Photo handling + client-side downscale ── */
+/* ── Photo handling ── */
 function handlePhoto(e){
   const file = e.target.files[0];
   if (!file) return;
@@ -342,7 +556,6 @@ function handlePhoto(e){
       canvas.getContext('2d').drawImage(img, 0, 0, w, h);
       canvas.toBlob((blob) => {
         draft.photoBlob = blob;
-        draft.photoFile = new File([blob], `kasa-${Date.now()}.jpg`, { type: 'image/jpeg' });
         document.getElementById('k-photo-preview').innerHTML = `<img src="${canvas.toDataURL('image/jpeg', 0.75)}" alt="">`;
         document.getElementById('k-next-1').disabled = false;
       }, 'image/jpeg', 0.75);
@@ -355,20 +568,11 @@ function handlePhoto(e){
 /* ── GPS ── */
 function detectGPS(){
   const btn = document.getElementById('k-gps-btn');
-  if (!navigator.geolocation){
-    showToast('GPS not available — tap the map instead');
-    return;
-  }
+  if (!navigator.geolocation){ showToast('GPS not available — tap the map instead'); return; }
   btn.textContent = '⟳ Locating…';
   navigator.geolocation.getCurrentPosition(
-    (pos) => {
-      btn.textContent = '✓ Location captured';
-      setLocation(pos.coords.latitude, pos.coords.longitude);
-    },
-    (err) => {
-      btn.textContent = '⊕ Use my location';
-      showToast(err.code === 1 ? 'Permission denied — tap the map' : 'GPS failed — tap the map');
-    },
+    (pos) => { btn.textContent = '✓ Location captured'; setLocation(pos.coords.latitude, pos.coords.longitude); },
+    (err) => { btn.textContent = '⊕ Use my location'; showToast(err.code === 1 ? 'Permission denied — tap the map' : 'GPS failed — tap the map'); },
     { enableHighAccuracy: true, timeout: 10000 }
   );
 }
@@ -385,22 +589,16 @@ async function submitReport(){
   submitBtn.disabled = true;
   submitBtn.textContent = 'Uploading photo…';
 
-  /* 1. Upload photo to Supabase Storage */
+  /* Upload photo */
   const filename = `reports/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
   const { error: upErr } = await sb.storage
     .from('kasa-photos')
     .upload(filename, draft.photoBlob, { contentType: 'image/jpeg', upsert: false });
-  if (upErr){
-    console.error(upErr);
-    showToast('Photo upload failed — try again');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Report →';
-    return;
-  }
+  if (upErr){ console.error(upErr); showToast('Photo upload failed — try again'); submitBtn.disabled = false; submitBtn.textContent = 'Submit Report →'; return; }
   const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
   const photoUrl = urlData.publicUrl;
 
-  /* 2. Insert report */
+  /* Insert report */
   submitBtn.textContent = 'Filing report…';
   const desc = document.getElementById('k-desc').value.trim();
   const name = document.getElementById('k-name').value.trim();
@@ -409,45 +607,63 @@ async function submitReport(){
     lat: draft.lat,
     lng: draft.lng,
     ward_no: draft.ward,
+    severity: draft.severity,
     description: desc || null,
     reporter_name: name || null,
     photo_url: photoUrl,
-    status: 'open'
+    status: 'open',
+    upvotes: 0,
+    flags: 0
   }).select().single();
 
-  if (insErr){
-    console.error(insErr);
-    showToast('Report failed — try again');
-    submitBtn.disabled = false;
-    submitBtn.textContent = 'Submit Report →';
-    return;
-  }
+  if (insErr){ console.error(insErr); showToast('Report failed — try again'); submitBtn.disabled = false; submitBtn.textContent = 'Submit Report →'; return; }
 
-  /* 3. Update in-memory state */
+  /* Update state */
   reports.unshift(inserted);
   renderMarkers();
   updateStats();
   renderLeaderboard();
 
-  /* 4. Build WhatsApp escalation link */
+  /* WhatsApp escalation */
   const w = wards[draft.ward] || { councillor_name: '—' };
-  const msg = `Garbage report — Purulia Kasa\n`
-    + `Ward: ${draft.ward} (${w.councillor_name})\n`
-    + `Location: ${draft.lat.toFixed(5)}°N, ${draft.lng.toFixed(5)}°E\n`
-    + `Issue: ${desc || '(no description)'}\n`
-    + `Map: https://www.google.com/maps?q=${draft.lat},${draft.lng}\n`
-    + `Report: ${KASA_PAGE_URL}`;
+  const msg = `Garbage report — Purulia Kasa\nWard: ${draft.ward} (${w.councillor_name})\nLocation: ${draft.lat.toFixed(5)}°N, ${draft.lng.toFixed(5)}°E\nSeverity: ${draft.severity}\nIssue: ${desc || '(no description)'}\nMap: https://www.google.com/maps?q=${draft.lat},${draft.lng}`;
   document.getElementById('k-wa-escalate').href = `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}`;
 
-  /* 5. Show done step */
   goToStep('done');
   showToast('Report filed — thank you');
 }
 
 /* ══════════════════════════════════════════════════════════
-   RESOLVE FLOW
+   UPVOTE
    ══════════════════════════════════════════════════════════ */
-async function openResolveModal(reportId){
+async function handleUpvote(reportId, btn){
+  if (userUpvotes.has(reportId)){ showToast('You already upvoted this'); return; }
+  const r = reports.find(x => x.id === reportId);
+  if (!r) return;
+  r.upvotes = (r.upvotes || 0) + 1;
+  userUpvotes.add(reportId);
+  saveUpvotes();
+  btn.classList.add('upvoted');
+  btn.innerHTML = `<span>👍</span> You saw this · ${r.upvotes}`;
+  await sb.rpc('upvote_report', { p_report_id: reportId });
+  showToast('Thanks — your upvote is counted');
+}
+
+/* ══════════════════════════════════════════════════════════
+   FLAG
+   ══════════════════════════════════════════════════════════ */
+async function handleFlag(reportId){
+  const r = reports.find(x => x.id === reportId);
+  if (!r) return;
+  r.flags = (r.flags || 0) + 1;
+  await sb.rpc('flag_report', { p_report_id: reportId, p_reason: null });
+  showToast('Flagged — thank you');
+}
+
+/* ══════════════════════════════════════════════════════════
+   VERIFY CLEANUP
+   ══════════════════════════════════════════════════════════ */
+function handleVerify(reportId){
   const input = document.createElement('input');
   input.type = 'file';
   input.accept = 'image/*';
@@ -478,13 +694,9 @@ async function openResolveModal(reportId){
 
 async function commitResolve(reportId, blob){
   showToast('Uploading proof…');
-
   const filename = `resolved/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
-  const { error: upErr } = await sb.storage
-    .from('kasa-photos')
-    .upload(filename, blob, { contentType: 'image/jpeg' });
+  const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, blob, { contentType: 'image/jpeg' });
   if (upErr){ console.error(upErr); showToast('Upload failed'); return; }
-
   const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
 
   const { error: rpcErr } = await sb.rpc('mark_resolved', {
@@ -494,7 +706,6 @@ async function commitResolve(reportId, blob){
   });
   if (rpcErr){ console.error(rpcErr); showToast('Could not mark resolved'); return; }
 
-  /* Update local state */
   const r = reports.find(x => x.id === reportId);
   if (r){
     r.status = 'resolved';
@@ -508,16 +719,35 @@ async function commitResolve(reportId, blob){
 }
 
 /* ══════════════════════════════════════════════════════════
+   QR CODE
+   ══════════════════════════════════════════════════════════ */
+function renderQR(){
+  const wrap = document.getElementById('k-qr-wrap');
+  const urlEl = document.getElementById('k-qr-url');
+  wrap.innerHTML = '';
+  urlEl.textContent = KASA_PAGE_URL;
+
+  if (window.QRCode){
+    const canvas = document.createElement('canvas');
+    wrap.appendChild(canvas);
+    window.QRCode.toCanvas(canvas, KASA_PAGE_URL, { width: 220, margin: 1, color: { dark: '#0a0805', light: '#f0e6d0' } }, (err) => {
+      if (err) console.error(err);
+    });
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
    UTILITIES
    ══════════════════════════════════════════════════════════ */
 function resetDraft(){
-  draft = { photoBlob: null, photoFile: null, lat: null, lng: null, ward: null };
+  draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'minor' };
   document.getElementById('k-photo').value = '';
   document.getElementById('k-photo-preview').innerHTML = '';
   document.getElementById('k-coords').textContent = 'No location set yet';
   document.getElementById('k-desc').value = '';
   document.getElementById('k-name').value = '';
   document.getElementById('k-ward').value = '';
+  document.getElementById('k-severity').value = 'minor';
   document.getElementById('k-next-1').disabled = true;
   document.getElementById('k-next-2').disabled = true;
   document.getElementById('k-submit').disabled = false;
@@ -540,5 +770,5 @@ function esc(s){
   }[c]));
 }
 
-/* ── Go ── */
+/* ── GO ── */
 init();
