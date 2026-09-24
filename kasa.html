@@ -9,10 +9,6 @@
 <meta property="og:description" content="Purulia's civic waste-reporting map. Every report public. Every ward ranked.">
 <meta property="og:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
 <meta property="og:url" content="https://mahatoanupam002-lang.github.io/purulia/kasa.html">
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Purulia Kasa — Report Garbage in 30 Seconds">
-<meta name="twitter:description" content="Purulia's civic waste-reporting map. Every report public. Every ward ranked.">
-<meta name="twitter:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 
@@ -38,6 +34,19 @@
   <a href="#" id="k-nav-report" class="k-nav-cta">Report →</a>
 </nav>
 
+<!-- ══════════════════ INTRO MODAL (first visit only) ══════════════════ -->
+<div class="k-intro" id="k-intro" aria-hidden="true">
+  <div class="k-intro-backdrop"></div>
+  <div class="k-intro-card" role="dialog" aria-modal="true" aria-label="Welcome to Purulia Kasa">
+    <div class="k-intro-logo">Purulia <em>Kasa</em></div>
+    <h2 class="k-intro-title">Purulia has a garbage problem.</h2>
+    <p class="k-intro-sub">Report it. Photograph it. Track who is responsible.</p>
+    <p class="k-intro-meta">Every dump is mapped to the responsible ward, MLA, and MP. When enough citizens report, it becomes impossible to ignore.</p>
+    <div class="k-intro-stats">23 wards · 1 MLA · 1 MP · All of Purulia</div>
+    <button class="k-btn k-btn-primary" id="k-intro-continue">Continue</button>
+  </div>
+</div>
+
 <!-- ══════════════════ HERO ══════════════════ -->
 <header class="k-hero">
   <h1 class="k-hero-title">See garbage?<br><em>Report it in 30 seconds.</em></h1>
@@ -51,10 +60,40 @@
 <!-- ══════════════════ LIVE MAP ══════════════════ -->
 <section class="k-map-section">
   <div id="k-map"></div>
+
+  <!-- Stats pill overlay -->
+  <div class="k-map-pill">
+    <span class="k-pill-num" id="k-pill-active">—</span>
+    <span class="k-pill-label">Active</span>
+    <span class="k-pill-sep">·</span>
+    <span class="k-pill-num" id="k-pill-total">—</span>
+    <span class="k-pill-label">Reports</span>
+  </div>
+
+  <!-- Filter bar -->
+  <div class="k-filter-bar">
+    <select id="k-filter-severity" class="k-filter-select">
+      <option value="">All Severity</option>
+      <option value="minor">Minor</option>
+      <option value="severe">Severe</option>
+      <option value="critical">Critical</option>
+    </select>
+    <select id="k-filter-status" class="k-filter-select">
+      <option value="">All Status</option>
+      <option value="open">Open</option>
+      <option value="resolved">Resolved</option>
+    </select>
+  </div>
+
+  <!-- Legend -->
   <div class="k-map-legend">
-    <span><i class="k-dot k-dot-open"></i> Open</span>
+    <span><i class="k-dot k-dot-minor"></i> Minor</span>
+    <span><i class="k-dot k-dot-severe"></i> Severe</span>
+    <span><i class="k-dot k-dot-critical"></i> Critical</span>
     <span><i class="k-dot k-dot-resolved"></i> Resolved</span>
   </div>
+
+  <!-- Report button -->
   <button class="k-map-report-btn" id="k-map-report-btn" aria-label="Report garbage">
     <span>📷</span> Report
   </button>
@@ -79,32 +118,34 @@
   </div>
 </section>
 
+<!-- ══════════════════ ACCOUNTABILITY CHAIN ══════════════════ -->
+<section class="k-chain-section">
+  <div class="k-section-head">
+    <h2 class="k-section-title">Who's responsible</h2>
+    <p class="k-section-sub">The chain of accountability for garbage in Purulia.</p>
+  </div>
+  <div class="k-chain" id="k-chain">
+    <!-- Rendered by JS -->
+  </div>
+</section>
+
 <!-- ══════════════════ AUTHORITY ══════════════════ -->
 <section class="k-auth-section">
   <div class="k-section-head">
-    <h2 class="k-section-title">Who's responsible</h2>
+    <h2 class="k-section-title">Elected representatives</h2>
   </div>
   <div class="k-auth-grid">
-    <div class="k-auth-card">
-      <div class="k-auth-label">Municipality</div>
-      <div class="k-auth-name">Purulia Municipality</div>
-      <div class="k-auth-meta">Jubilee Compound, Purulia 723101</div>
-      <a class="k-auth-action" href="https://wa.me/919046003666" target="_blank" rel="noopener">Message on WhatsApp →</a>
-    </div>
-    <div class="k-auth-card">
+    <div class="k-auth-card" data-rep="mla">
       <div class="k-auth-label">MLA · Purulia</div>
       <div class="k-auth-name">Sudip Kumar Mukherjee</div>
       <div class="k-auth-meta">BJP · Assembly No. 242</div>
+      <button class="k-auth-action" data-profile="mla">View profile →</button>
     </div>
-    <div class="k-auth-card">
+    <div class="k-auth-card" data-rep="mp">
       <div class="k-auth-label">MP · Purulia</div>
       <div class="k-auth-name">Jyotirmay Singh Mahato</div>
       <div class="k-auth-meta">Lok Sabha · 2024–</div>
-    </div>
-    <div class="k-auth-card">
-      <div class="k-auth-label">Chairman</div>
-      <div class="k-auth-name">Nabendu Mahali</div>
-      <div class="k-auth-meta">Board reinstated by Calcutta HC, 2026</div>
+      <button class="k-auth-action" data-profile="mp">View profile →</button>
     </div>
   </div>
 </section>
@@ -114,6 +155,13 @@
   <div>Purulia Kasa · A civic tool for Purulia town</div>
   <div>23.33°N · 86.37°E</div>
 </footer>
+
+<!-- ══════════════════ BOTTOM QR BAR ══════════════════ -->
+<div class="k-bottom-bar">
+  <button class="k-bottom-btn" id="k-qr-btn">
+    <span>📱</span> Scan QR to Report
+  </button>
+</div>
 
 <!-- ══════════════════ REPORT MODAL (bottom sheet) ══════════════════ -->
 <div class="k-modal" id="k-modal" aria-hidden="true">
@@ -146,6 +194,14 @@
           <option value="">Select ward…</option>
         </select>
       </div>
+      <div class="k-field">
+        <label for="k-severity">Severity</label>
+        <select id="k-severity" class="k-input">
+          <option value="minor">Minor — small pile, not blocking</option>
+          <option value="severe">Severe — large dump, health risk</option>
+          <option value="critical">Critical — blocking road, dangerous</option>
+        </select>
+      </div>
       <button class="k-btn k-btn-primary" id="k-next-2" disabled>Continue →</button>
     </div>
 
@@ -171,12 +227,38 @@
   </div>
 </div>
 
+<!-- ══════════════════ QR MODAL ══════════════════ -->
+<div class="k-modal" id="k-qr-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" id="k-qr-backdrop"></div>
+  <div class="k-modal-sheet k-qr-sheet" role="dialog" aria-modal="true" aria-label="Share QR code">
+    <div class="k-modal-handle"></div>
+    <button class="k-modal-close" id="k-qr-close" aria-label="Close">✕</button>
+    <h3 class="k-modal-title">Share Purulia Kasa</h3>
+    <p class="k-modal-sub">Point a phone camera at this QR code to open the report page.</p>
+    <div class="k-qr-wrap" id="k-qr-wrap"></div>
+    <div class="k-qr-url" id="k-qr-url"></div>
+  </div>
+</div>
+
+<!-- ══════════════════ REP PROFILE MODAL ══════════════════ -->
+<div class="k-modal" id="k-rep-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" id="k-rep-backdrop"></div>
+  <div class="k-modal-sheet k-rep-sheet" role="dialog" aria-modal="true" aria-label="Representative profile">
+    <div class="k-modal-handle"></div>
+    <button class="k-modal-close" id="k-rep-close" aria-label="Close">✕</button>
+    <div id="k-rep-content">
+      <!-- Rendered by JS -->
+    </div>
+  </div>
+</div>
+
 <!-- ══════════════════ TOAST ══════════════════ -->
 <div class="k-toast" id="k-toast"></div>
 
 <!-- ══════════════════ SCRIPTS ══════════════════ -->
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
 <script src="kasa.js"></script>
 </body>
 </html>
