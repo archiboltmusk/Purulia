@@ -477,11 +477,10 @@ declare
   v_near    integer := kasa_private.cfg_num('near_duplicate_distance')::integer;
   v_far     double precision := kasa_private.cfg_num('elsewhere_radius_m');
 begin
-  if p_path is null or p_path !~ ('^' || p_folder || '/[0-9a-f-]{36}/[A-Za-z0-9_-]{8,64}\.(jpg|jpeg|png|webp)$') then
+  -- Flat random names: a public photo link must not reveal who uploaded it.
+  -- Ownership comes from the owner Supabase Storage records for the upload.
+  if p_path is null or p_path !~ ('^' || p_folder || '/[A-Za-z0-9_-]{16,64}\.(jpg|jpeg|png|webp)$') then
     perform kasa_private.fail('KASA_PHOTO_INVALID', 'A photo is required.');
-  end if;
-  if split_part(p_path, '/', 2) <> p_uid::text then
-    perform kasa_private.fail('KASA_PHOTO_NOT_YOURS', 'You can only submit photos you uploaded.');
   end if;
 
   select o.created_at, coalesce(o.owner_id::text, o.owner::text) into v_created, v_owner
@@ -1497,7 +1496,7 @@ begin
   if to_regclass('public.automation_log') is not null then execute 'revoke insert, update, delete, truncate on public.automation_log from anon, authenticated'; end if;
 end $$;
 
--- ── Storage: uploads only into your own folder, never overwrite or delete ─
+-- ── Storage: signed-in uploads with random names, never overwrite or delete ─
 do $$
 declare p record;
 begin
@@ -1518,11 +1517,10 @@ begin
       execute format('drop policy %I on storage.objects', p.policyname);
     end loop;
     execute $p$
-      create policy kasa_photos_insert_own_folder on storage.objects for insert to authenticated
+      create policy kasa_photos_insert on storage.objects for insert to authenticated
       with check (
         bucket_id = 'kasa-photos'
-        and (storage.foldername(name))[1] in ('reports', 'claims', 'votes')
-        and (storage.foldername(name))[2] = (select auth.uid())::text
+        and name ~ '^(reports|claims|votes)/[A-Za-z0-9_-]{16,64}\.(jpg|jpeg|png|webp)$'
       )
     $p$;
   exception when others then

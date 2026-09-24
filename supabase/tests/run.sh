@@ -9,8 +9,9 @@ for db in kasa_legacy kasa_fresh; do
   $P -c "drop database if exists $db" -c "create database $db" >/dev/null
   $P -d $db -f tests/supabase_stub.sql >/dev/null
   if [ $db = kasa_legacy ]; then $P -d $db -f tests/legacy_schema.sql >/dev/null; fi
-  $P -d $db -f migrations/20260924120000_kasa_v2_accountability.sql >/dev/null 2>&1
-  $P -d $db -f migrations/20260924120000_kasa_v2_accountability.sql >/dev/null 2>&1
+  for pass in 1 2; do
+    for m in migrations/*.sql; do $P -d $db -f "$m" >/dev/null 2>&1; done
+  done
   if [ $db = kasa_fresh ]; then
     # Fresh projects have no admins table or legacy rows; seed one row so the suite's first lookup works.
     $P -d $db -c "create table public.admins (user_id uuid primary key)" \

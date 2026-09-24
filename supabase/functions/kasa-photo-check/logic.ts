@@ -1,12 +1,12 @@
 // Pure helpers for the photo check, kept free of Deno/Supabase imports so
 // they can be unit-tested with plain Node.
 
-export const PATH_RE = /^(reports|claims|votes)\/([0-9a-f-]{36})\/[A-Za-z0-9_-]{8,64}\.(jpg|jpeg|png|webp)$/;
+// Random flat names: a public photo link must not reveal who uploaded it.
+export const PATH_RE = /^(reports|claims|votes)\/[A-Za-z0-9_-]{16,64}\.(jpg|jpeg|png|webp)$/;
 
-/** The uploader's user id from a storage path, or null if the path is malformed. */
-export function pathOwner(path: string): string | null {
-  const m = PATH_RE.exec(path);
-  return m ? m[2] : null;
+/** True for a well-formed Kasa photo path (no folders, no traversal). */
+export function isPhotoPath(path: string): boolean {
+  return PATH_RE.test(path);
 }
 
 export const GRID = 9;

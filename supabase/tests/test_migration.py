@@ -81,7 +81,7 @@ def user(created_ago='30 days'):
 
 def upload(uid, folder, owner=None):
     """Uploads as the user would (through storage RLS). Returns the object path."""
-    path = f'{folder}/{uid}/{uuid.uuid4().hex[:16]}.jpg'
+    path = f'{folder}/{uuid.uuid4().hex[:20]}.jpg'
     o = owner or uid
     q("insert into storage.objects (bucket_id, name, owner, owner_id) values ('kasa-photos', %s, %s, %s)",
       (path, o, str(o)), uid=uid)
@@ -164,12 +164,22 @@ check('browser users cannot forge photo-check results',
 
 # Storage
 other = user()
-check("can't upload into someone else's photo folder",
+p_mine = upload(other, 'reports')
+check('the photo-check function can look up who uploaded a photo',
+      rpc('kasa_photo_owner', role='service_role', p_path=p_mine) == str(other))
+check("browsers can't look up who uploaded a photo",
+      refused(err(rpc, 'kasa_photo_owner', uid=someone, p_path=p_mine)) and refused(err(rpc, 'kasa_photo_owner', p_path=p_mine)))
+check("uploads can't go into per-user folders (photo links must not identify the uploader)",
       'row-level security' in (err(q, "insert into storage.objects (bucket_id, name, owner) values ('kasa-photos', %s, %s)",
-                                   (f'claims/{other}/abcdefgh12.jpg', someone), uid=someone) or ''))
+                                   (f'claims/{someone}/abcdefgh12345678.jpg', someone), uid=someone) or ''))
 check("can't upload outside reports/claims/votes",
       'row-level security' in (err(q, "insert into storage.objects (bucket_id, name, owner) values ('kasa-photos', %s, %s)",
-                                   (f'misc/{someone}/abcdefgh12.jpg', someone), uid=someone) or ''))
+                                   ('misc/abcdefgh12345678.jpg', someone), uid=someone) or ''))
+check('anon cannot upload photos',
+      'row-level security' in (err(q, "insert into storage.objects (bucket_id, name) values ('kasa-photos', %s)",
+                                   ('reports/abcdefgh12345678.jpg',)) or '')
+      or 'permission denied' in (err(q, "insert into storage.objects (bucket_id, name) values ('kasa-photos', %s)",
+                                     ('reports/abcdefgh12345679.jpg',)) or ''))
 p_own = upload(someone, 'reports')
 q("update storage.objects set name = name || 'x' where name = %s", (p_own,), uid=someone)
 q('delete from storage.objects where name = %s', (p_own,), uid=someone)
@@ -186,6 +196,7 @@ res, alice_photo = report(alice)
 rid = res['id']
 row = view_row(rid)
 check('report can be filed and appears publicly', row and row['status'] == 'open' and row['photo_url'] == BASE + alice_photo, row)
+check("public photo link doesn't contain the reporter's id", row and str(alice) not in row['photo_url'], row)
 check('report stores GPS-verified flag', row and row['gps_verified'] is True, row)
 ev = q("select kind, actor_tag from public.kasa_public_events where report_id::text = %s", (str(rid),))
 check('filing is recorded in the public evidence trail', ev and ev[0][0] == 'reported' and len(ev[0][1]) == 6, ev)
@@ -195,7 +206,11 @@ check('reports outside Purulia are refused',
 check('photo must actually be uploaded',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
-          p_photo_path=f'reports/{alice}/doesnotexist1.jpg') == 'KASA_PHOTO_MISSING')
+          p_photo_path='reports/doesnotexist12345678.jpg') == 'KASA_PHOTO_MISSING')
+check('old per-user-folder photo paths are refused',
+      err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
+          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
+          p_photo_path=f'reports/{alice}/abcdefgh12345678.jpg') == 'KASA_PHOTO_INVALID')
 check("can't file with someone else's photo",
       err(rpc, 'kasa_create_report', uid=someone, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,

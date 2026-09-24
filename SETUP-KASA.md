@@ -9,8 +9,15 @@ The Kasa page (`kasa.html`) works in two modes:
 
 ## 1. Apply the database migration
 
-Run `supabase/migrations/20260924120000_kasa_v2_accountability.sql` once in the
-Supabase SQL editor (or with the Supabase CLI). It is safe to re-run.
+Run the files in `supabase/migrations/` in name order, once each, in the
+Supabase SQL editor (or with the Supabase CLI). Each is safe to re-run.
+
+- `20260924120000_kasa_v2_accountability.sql` — the v2 rules below.
+- `20260924160000_kasa_unlinkable_photo_paths.sql` — photo links no longer
+  contain the uploader's anonymous ID, so nobody can link one person's reports
+  and confirmations together.
+
+Both are applied on the live project (24 Sep 2026).
 
 What it changes on the live project (audited 24 Sep 2026):
 

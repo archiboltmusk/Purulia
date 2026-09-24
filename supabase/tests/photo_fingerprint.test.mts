@@ -4,7 +4,7 @@
 import assert from 'node:assert/strict';
 import pkg from 'imagescript';
 const { Image } = pkg;
-import { dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, pathOwner } from '../functions/kasa-photo-check/logic.ts';
+import { dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, isPhotoPath } from '../functions/kasa-photo-check/logic.ts';
 
 // Deterministic PRNG so the test is repeatable
 let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
@@ -67,7 +67,9 @@ assert.equal(isUnsafe({ adult: 'UNLIKELY', violence: 'POSSIBLE', racy: 'LIKELY' 
 assert.equal(isUnsafe(undefined), false);
 
 const uid = '3f1c2a9e-0000-4000-8000-000000000001';
-assert.equal(pathOwner(`claims/${uid}/abcdEFGH1234.jpg`), uid);
-assert.equal(pathOwner(`claims/${uid}/../../x.jpg`), null);
-assert.equal(pathOwner(`other/${uid}/abcdEFGH1234.jpg`), null);
+assert.equal(isPhotoPath('claims/abcdEFGH1234_-xyz.jpg'), true);
+assert.equal(isPhotoPath(`claims/${uid}/abcdEFGH1234xyz.jpg`), false); // per-user folders would make links identify people
+assert.equal(isPhotoPath('claims/../../abcdEFGH1234xyz.jpg'), false);
+assert.equal(isPhotoPath('other/abcdEFGH1234_-xyz.jpg'), false);
+assert.equal(isPhotoPath('claims/short.jpg'), false);
 console.log('logic tests passed');

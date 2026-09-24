@@ -404,8 +404,10 @@ function rpcError(error){
   return e;
 }
 
-async function uploadPhoto(folder, blob, uid){
-  const path = `${folder}/${uid}/${randomName(20)}.jpg`;
+/* Random flat names: photo links are public and must not reveal who uploaded
+   them. The server checks ownership from Storage's own record of the upload. */
+async function uploadPhoto(folder, blob){
+  const path = `${folder}/${randomName(24)}.jpg`;
   const { error } = await sb.storage.from('kasa-photos').upload(path, blob, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' });
   if (error){ console.error('Kasa: upload failed', error); throw new KasaError('err_upload'); }
   return path;
@@ -425,8 +427,8 @@ async function checkPhoto(path){
 const api = {
   async createReport(d){
     if (state.mode !== 'v2') return legacyCreateReport(d);
-    const uid = await ensureSession();
-    const path = await uploadPhoto('reports', d.photoBlob, uid);
+    await ensureSession();
+    const path = await uploadPhoto('reports', d.photoBlob);
     await checkPhoto(path);
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
@@ -466,8 +468,8 @@ const api = {
 
   async evidence(mode, r, blob, pos, note){
     if (state.mode !== 'v2') return legacySubmitProof(r, blob);
-    const uid = await ensureSession();
-    const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob, uid);
+    await ensureSession();
+    const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     ev?.setStatus?.(t('ev_checking'));
     await checkPhoto(path);
     const { data, error } = mode === 'claim'

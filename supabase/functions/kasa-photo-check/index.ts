@@ -12,7 +12,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import { Image } from 'npm:imagescript@1.3.0';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
-import { dhashFromGray, garbageScore, grayThumb, isUnsafe, pathOwner } from './logic.ts';
+import { dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe } from './logic.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -71,9 +71,12 @@ Deno.serve(async (req) => {
 
   let path = '';
   try { path = String((await req.json()).path ?? ''); } catch (_) { /* fallthrough */ }
-  if (pathOwner(path) !== user.id) return reply(403, { error: 'not your photo' });
+  if (!isPhotoPath(path)) return reply(400, { error: 'bad path' });
 
+  // Only the uploader can have their photo checked (Storage records the owner).
   const admin = createClient(SUPABASE_URL, SERVICE_KEY);
+  const { data: owner } = await admin.rpc('kasa_photo_owner', { p_path: path });
+  if (owner !== user.id) return reply(403, { error: 'not your photo' });
   const { data: file, error: dlErr } = await admin.storage.from('kasa-photos').download(path);
   if (dlErr || !file) return reply(404, { error: 'photo not found' });
   if (file.size > MAX_BYTES) return reply(413, { error: 'photo too large' });
