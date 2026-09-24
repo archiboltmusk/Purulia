@@ -147,4 +147,49 @@ Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic 
 
 ---
 
+## Civic Reporting App (Kasa)
+
+A React + Vite web application for real-time civic issue reporting in Purulia. Residents can report infrastructure problems (roads, streetlights, water issues, etc.) with GPS location, photo evidence, and immediate geolocation verification.
+
+### Development
+
+```bash
+# Install dependencies
+cd kasa-app
+npm install
+
+# Start development server (hot reload)
+npm run dev
+
+# Build for production
+npm run build
+
+# Preview production build
+npm run preview
+```
+
+### Deployment
+
+The app is automatically deployed to GitHub Pages at https://archiboltmusk.github.io/Purulia/app/ via the GitHub Actions workflow (`.github/workflows/github-pages.yml`).
+
+Push to `main` or `claude/tender-hopper-r3zed1` to trigger automatic build and deployment.
+
+### Features
+
+- **GPS-First**: Geolocation required with ≤100m accuracy threshold
+- **Offline Support**: Reports queue locally if submission fails
+- **Photo Compression**: Large images compressed client-side before upload
+- **Safety Checks**: Server-side Vision AI checks photos for faces/sensitive content
+- **Moderation Dashboard**: Admin interface for reviewing and approving reports
+- **Duplicate Detection**: Server detects and flags duplicate reports
+
+### Architecture
+
+- **Frontend**: React 19 + React Router for client-side routing
+- **Backend**: Supabase (PostgreSQL + Edge Functions + Storage)
+- **Build Tool**: Vite for fast development and optimized production builds
+- **Deployment**: GitHub Pages (gh-pages branch)
+
+---
+
 *The money exists. The land is ready. The moment is now.*
