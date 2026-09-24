@@ -20,7 +20,6 @@
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
 <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"/>
-<!-- Vercel Speed Insights -->
 <script>
   window.si = window.si || function () { (window.siq = window.siq || []).push(arguments); };
 </script>
@@ -140,7 +139,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 
 .k-toast-warn{color:#E8524A!important;}
 </style>
-<script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
+<script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";setTimeout(function(){document.documentElement.style.opacity="1";},3000);}</script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -209,7 +208,7 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
       <div class="k-form rv">
         <span class="k-label">📷 Photo of the garbage</span>
         <label class="k-photo-label" id="k-photo-label" for="k-photo">+ Take or choose a photo</label>
-        <input type="file" id="k-photo" accept="image/*" capture="environment">
+        <input type="file" id="k-photo" accept="image/*">
 
         <span class="k-label">📍 Your location</span>
         <button class="k-gps-btn" id="k-gps-btn" onclick="kDetectGPS()">⊕ Use my location</button>
@@ -337,18 +336,22 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="script.js"></script>
 <script>
+// ══════════════════════════════════════════════════════════// PURULIA KASA — patched
 // ══════════════════════════════════════════════════════════
-// PURULIA KASA — report capture, map, leaderboard
-// ══════════════════════════════════════════════════════════
-const K_REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
-const K_MUNICIPALITY_PHONE = '919046003666';
-const K_MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
-const K_CENTER = [23.3320, 86.3654];
+var K_REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
+var K_MUNICIPALITY_PHONE = '919046003666';
+var K_MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
+var K_CENTER = [23.3320, 86.3654];
+var K_MAX_LOCAL_REPORTS = 30;
 
-// Elected councillors per ward, 2022 Purulia Municipality poll — sourced from the
-// West Bengal State Election Commission's own results API (portal.wbme.org).
-// Board was briefly dissolved (Dec 2025) and reinstated by the Calcutta High Court in 2026.
-const WARD_COUNCILLORS = {
+/* Escape helper for injected strings */
+function kEsc(s){
+  return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+    return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+  });
+}
+
+var WARD_COUNCILLORS = {
   1: {name:'Bishnu Sahis', party:'AITC'},
   2: {name:'Abir Sengupta', party:'BJP'},
   3: {name:'Sunoy Kabiraj', party:'AITC'},
@@ -374,29 +377,32 @@ const WARD_COUNCILLORS = {
   23: {name:'Pradip Daga', party:'AITC'}
 };
 
-// Ward dropdown
+/* ── Ward dropdown (numeric values, stable IDs) ── */
 (function(){
-  const sel = document.getElementById('k-ward');
-  for (let i = 1; i <= 23; i++) {
-    const opt = document.createElement('option');
-    opt.value = 'Ward ' + i;
-    const c = WARD_COUNCILLORS[i];
+  var sel = document.getElementById('k-ward');
+  if(!sel) return;
+  for (var i = 1; i <= 23; i++) {
+    var opt = document.createElement('option');
+    opt.value = String(i);
+    var c = WARD_COUNCILLORS[i];
     opt.textContent = 'Ward ' + i + (c ? ' — ' + c.name : '');
     sel.appendChild(opt);
   }
 })();
 
-// Map init
-const kMap = L.map('kasa-map', { scrollWheelZoom: false }).setView(K_CENTER, 13);
+/* ── Map init ── */
+var kMap = L.map('kasa-map', { scrollWheelZoom: false }).setView(K_CENTER, 13);
 L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
   attribution: '&copy; OpenStreetMap &copy; CARTO', maxZoom: 19
 }).addTo(kMap);
-const kReportLayer = L.layerGroup().addTo(kMap);
-let kPinMarker = null;
-let kLat = null, kLng = null, kPhotoB64 = null;
+var kReportLayer = L.layerGroup().addTo(kMap);
+var kPinMarker = null;
+var kLat = null, kLng = null, kPhotoB64 = null;
+var kReports = [];              /* in-memory list — single source of truth */
+var kRenderedIds = Object.create(null);
 
 function kMkIcon(status){
-  const color = status === 'resolved' ? '#6DB88A' : '#E8524A';
+  var color = status === 'resolved' ? '#6DB88A' : '#E8524A';
   return L.divIcon({
     className: '',
     html: '<div style="position:relative;width:12px;height:12px;">'
@@ -408,73 +414,98 @@ function kMkIcon(status){
 }
 
 function kRenderMarker(r){
-  const dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
-  const photoHtml = r.photoUrl ? '<img class="k-popup-img" src="'+r.photoUrl+'" alt="Garbage report">' : '';
-  const popupHtml = photoHtml
-    + '<div class="k-popup-title">🗑️ Garbage Report · '+(r.ward||'Unassigned ward')+'</div>'
-    + '<div class="k-popup-desc">'+(r.desc||'Reported problem')+'</div>'
-    + '<div class="k-popup-meta">'+dateStr+(r.status==='resolved'?' · <span style="color:#6DB88A">Resolved</span>':' · <span style="color:#E8524A">Open</span>')+'<br>'+(r.name?('— '+r.name):'Reported anonymously')+'</div>';
-  const m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(popupHtml).addTo(kReportLayer);
+  if (r.id && kRenderedIds[r.id]) return;   /* dedupe */
+  if (r.id) kRenderedIds[r.id] = true;
+
+  var dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
+  var photoHtml = r.photoUrl ? '<img class="k-popup-img" src="'+kEsc(r.photoUrl)+'" alt="Garbage report">' : '';
+  var popupHtml = photoHtml
+    + '<div class="k-popup-title">🗑️ Garbage Report · '+kEsc(r.ward||'Unassigned ward')+'</div>'
+    + '<div class="k-popup-desc">'+kEsc(r.desc||'Reported problem')+'</div>'
+    + '<div class="k-popup-meta">'+dateStr+(r.status==='resolved'?' · <span style="color:#6DB88A">Resolved</span>':' · <span style="color:#E8524A">Open</span>')+'<br>'+(r.name?('— '+kEsc(r.name)):'Reported anonymously')+'</div>';
+  var m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(popupHtml).addTo(kReportLayer);
   m._ward = r.ward || 'Unassigned';
   m._status = r.status || 'new';
+  m._id = r.id;
+}
+
+function kAddReport(r){
+  /* Push to in-memory list; only re-render if this ID is new */
+  if (r.id && kRenderedIds[r.id]) return;
+  kReports.push({ id:r.id, ward:r.ward||'Unassigned', status:r.status||'new' });
+  kRenderMarker(r);
+  kUpdateStats();
 }
 
 function kUpdateStats(){
-  const reports = [];
-  kReportLayer.eachLayer(m => reports.push({ ward: m._ward, status: m._status }));
-  const wardSet = new Set(reports.map(r => r.ward).filter(w => w && w !== 'Unassigned'));
-  const resolved = reports.filter(r => r.status === 'resolved').length;
-  document.getElementById('k-stat-total').textContent = reports.length;
-  document.getElementById('k-stat-wards').textContent = wardSet.size;
+  var wardSet = {};
+  var resolved = 0;
+  for (var i = 0; i < kReports.length; i++){
+    var w = kReports[i].ward;
+    if (w && w !== 'Unassigned') wardSet[w] = true;
+    if (kReports[i].status === 'resolved') resolved++;
+  }
+  document.getElementById('k-stat-total').textContent = kReports.length;
+  document.getElementById('k-stat-wards').textContent = Object.keys(wardSet).length;
   document.getElementById('k-stat-resolved').textContent = resolved;
-  kBuildLeaderboard(reports);
+  kBuildLeaderboard();
 }
 
-function kBuildLeaderboard(reports){
-  const counts = {};
-  reports.forEach(r => { const w = r.ward || 'Unassigned'; counts[w] = (counts[w]||0) + 1; });
-  const sorted = Object.entries(counts).sort((a,b) => b[1]-a[1]);
-  const list = document.getElementById('k-lb-list');
+function kBuildLeaderboard(){
+  var counts = {};
+  for (var i = 0; i < kReports.length; i++){
+    var w = kReports[i].ward || 'Unassigned';
+    counts[w] = (counts[w] || 0) + 1;
+  }
+  var sorted = Object.keys(counts).map(function(k){ return [k, counts[k]]; });
+  sorted.sort(function(a,b){ return b[1] - a[1]; });
+  var list = document.getElementById('k-lb-list');
   if (!sorted.length){
     list.innerHTML = '<div class="k-lb-empty">No reports yet.<br>Be the first to file one above.</div>';
     return;
   }
-  const max = sorted[0][1];
-  list.innerHTML = sorted.map(([name,count],i) => {
-    const wardNum = parseInt(String(name).replace('Ward ',''), 10);
-    const c = WARD_COUNCILLORS[wardNum];
-    const councillorHtml = c ? '<div class="k-lb-councillor">'+c.name+' · '+c.party+'</div>' : '';
-    return '<div class="k-lb-row">'
+  var max = sorted[0][1];
+  var html = '';
+  for (var i = 0; i < sorted.length; i++){
+    var name = sorted[i][0], count = sorted[i][1];
+    var wardNum = parseInt(String(name).replace('Ward ',''), 10);
+    var c = WARD_COUNCILLORS[wardNum];
+    var councillorHtml = c ? '<div class="k-lb-councillor">'+kEsc(c.name)+' · '+kEsc(c.party)+'</div>' : '';
+    html += '<div class="k-lb-row">'
       + '<div class="k-lb-rank">'+(i+1)+'</div>'
-      + '<div class="k-lb-bar-wrap"><div class="k-lb-name">'+name+'</div>'+councillorHtml+'<div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:'+(count/max*100).toFixed(1)+'%"></div></div></div>'
+      + '<div class="k-lb-bar-wrap"><div class="k-lb-name">'+kEsc(name)+'</div>'+councillorHtml+'<div class="k-lb-bar"><div class="k-lb-bar-fill" style="width:'+(count/max*100).toFixed(1)+'%"></div></div></div>'
       + '<div class="k-lb-count">'+count+'</div>'
       + '</div>';
-  }).join('');
+  }
+  list.innerHTML = html;
 }
 
 async function kLoadReports(){
   try{
-    const res = await fetch(K_REPORT_URL + '?action=getReports&category=waste');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    if (Array.isArray(data.reports) && data.reports.length){
-      data.reports.forEach(r => kRenderMarker(r));
-      kUpdateStats();
-      return;
+    var res = await fetch(K_REPORT_URL + '?action=getReports&category=waste');
+    if (res.ok){
+      var data = await res.json();
+      if (Array.isArray(data.reports) && data.reports.length){
+        data.reports.forEach(kAddReport);
+        return;
+      }
     }
   }catch(e){}
   try{
-    JSON.parse(localStorage.getItem('kasa_reports')||'[]').forEach(r => kRenderMarker(r));
+    var saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
+    saved.forEach(function(r){
+      kAddReport({ id:r.id, lat:r.lat, lng:r.lng, ward:r.ward, desc:r.desc, name:r.name, ts:r.ts, status:r.status });
+    });
   }catch(e){}
   kUpdateStats();
 }
 kLoadReports();
 
 kMap.on('click', function(e){
-  kLat = e.latlng.lat.toFixed(5);
-  kLng = e.latlng.lng.toFixed(5);
-  const coordsEl = document.getElementById('k-coords');
-  const btn = document.getElementById('k-gps-btn');
+  kLat = +e.latlng.lat.toFixed(5);
+  kLng = +e.latlng.lng.toFixed(5);
+  var coordsEl = document.getElementById('k-coords');
+  var btn = document.getElementById('k-gps-btn');
   coordsEl.textContent = kLat + '°N, ' + kLng + '°E (pin dropped on map)';
   coordsEl.classList.remove('k-toast-warn');
   btn.textContent = '✓ Location set'; btn.classList.add('got');
@@ -483,24 +514,30 @@ kMap.on('click', function(e){
 });
 
 function kDetectGPS(){
-  const btn = document.getElementById('k-gps-btn');
-  const coordsEl = document.getElementById('k-coords');
-  if (!navigator.geolocation){ coordsEl.textContent = 'GPS not available on this device — tap the map instead.'; coordsEl.classList.add('k-toast-warn'); return; }
+  var btn = document.getElementById('k-gps-btn');
+  var coordsEl = document.getElementById('k-coords');
+  if (!navigator.geolocation){
+    coordsEl.textContent = 'GPS not available on this device — tap the map instead.';
+    coordsEl.classList.add('k-toast-warn');
+    return;
+  }
   btn.textContent = '⟳ Locating…'; btn.disabled = true;
   navigator.geolocation.getCurrentPosition(
-    pos => {
-      kLat = pos.coords.latitude.toFixed(5);
-      kLng = pos.coords.longitude.toFixed(5);
+    function(pos){
+      kLat = +pos.coords.latitude.toFixed(5);
+      kLng = +pos.coords.longitude.toFixed(5);
       coordsEl.textContent = kLat + '°N, ' + kLng + '°E';
       coordsEl.classList.remove('k-toast-warn');
       btn.textContent = '✓ Location captured'; btn.classList.add('got'); btn.disabled = false;
       if (kPinMarker) kMap.removeLayer(kPinMarker);
       kPinMarker = L.marker([kLat, kLng]).addTo(kMap);
-      kMap.flyTo([+kLat, +kLng], 15, { duration: 1.1 });
+      kMap.flyTo([kLat, kLng], 15, { duration: 1.1 });
       document.getElementById('kasa-map-section').scrollIntoView({ behavior:'smooth', block:'center' });
     },
-    err => {
-      coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map below to set your location instead.' : 'Could not get GPS — tap the map below instead.';
+    function(err){
+      coordsEl.textContent = err.code === 1
+        ? 'Permission denied — tap the map below to set your location instead.'
+        : 'Could not get GPS — tap the map below instead.';
       coordsEl.classList.add('k-toast-warn');
       btn.textContent = '⊕ Retry location'; btn.disabled = false;
     },
@@ -508,71 +545,110 @@ function kDetectGPS(){
   );
 }
 
+/* ── Photo capture with client-side downscale ── */
 document.getElementById('k-photo').addEventListener('change', function(){
-  const file = this.files[0];
-  const label = document.getElementById('k-photo-label');
-  if (!file){ kPhotoB64 = null; label.textContent = '+ Take or choose a photo'; label.classList.remove('has-photo'); label.style.backgroundImage=''; return; }
-  const reader = new FileReader();
-  reader.onload = ev => {
-    kPhotoB64 = ev.target.result;
-    label.textContent = '✓ ' + file.name;
-    label.classList.add('has-photo');
+  var file = this.files[0];
+  var label = document.getElementById('k-photo-label');
+  if (!file){
+    kPhotoB64 = null;
+    label.textContent = '+ Take or choose a photo';
+    label.classList.remove('has-photo');
+    label.style.backgroundImage = '';
+    return;
+  }
+  var reader = new FileReader();
+  reader.onload = function(ev){
+    var img = new Image();
+    img.onload = function(){
+      var MAX = 1200;
+      var w = img.width, h = img.height;
+      if (w > h && w > MAX){ h = h * MAX / w; w = MAX; }
+      else if (h > MAX){ w = w * MAX / h; h = MAX; }
+      var canvas = document.createElement('canvas');
+      canvas.width = w; canvas.height = h;
+      canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+      kPhotoB64 = canvas.toDataURL('image/jpeg', 0.72);
+      label.textContent = '✓ ' + file.name;
+      label.classList.add('has-photo');
+    };
+    img.onerror = function(){
+      label.textContent = '⚠ Could not read that image';
+    };
+    img.src = ev.target.result;
   };
   reader.readAsDataURL(file);
 });
 
 async function kSubmit(){
-  const ward = document.getElementById('k-ward').value;
-  const desc = document.getElementById('k-desc').value.trim();
-  const name = document.getElementById('k-name').value.trim();
-  const submitBtn = document.getElementById('k-submit');
-  const coordsEl = document.getElementById('k-coords');
+  var ward = document.getElementById('k-ward').value;
+  var desc = document.getElementById('k-desc').value.trim();
+  var name = document.getElementById('k-name').value.trim();
+  var submitBtn = document.getElementById('k-submit');
+  var coordsEl = document.getElementById('k-coords');
 
   if (!kPhotoB64){ showToast('Please attach a photo of the garbage.'); return; }
-  if (!kLat || !kLng){ coordsEl.textContent = '⚠ Set your location first — use GPS or tap the map.'; coordsEl.classList.add('k-toast-warn'); return; }
+  if (kLat === null || kLng === null){
+    coordsEl.textContent = '⚠ Set your location first — use GPS or tap the map.';
+    coordsEl.classList.add('k-toast-warn');
+    return;
+  }
   if (!ward){ document.getElementById('k-ward').style.borderColor = '#E8524A'; showToast('Please select your ward.'); return; }
   if (!desc){ document.getElementById('k-desc').style.borderColor = '#E8524A'; showToast('Please describe the problem briefly.'); return; }
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
 
-  const id = 'R' + Date.now();
-  const ts = Date.now();
-  const report = { id, lat: parseFloat(kLat), lng: parseFloat(kLng), ward, category: 'waste', desc, name, ts, photoUrl: kPhotoB64, status: 'new' };
+  var id = 'R' + Date.now();
+  var ts = Date.now();
+  var wardLabel = 'Ward ' + ward;
+  var report = {
+    id: id, lat: kLat, lng: kLng, ward: wardLabel,
+    category: 'waste', desc: desc, name: name, ts: ts,
+    photoUrl: kPhotoB64, status: 'new'
+  };
 
+  /* Persist locally (capped) */
   try{
-    const saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
-    saved.push({ id, lat: report.lat, lng: report.lng, ward, category: 'waste', desc, name, ts, status: 'new' });
+    var saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
+    saved.push({ id:id, lat:kLat, lng:kLng, ward:wardLabel, category:'waste', desc:desc, name:name, ts:ts, status:'new' });
+    if (saved.length > K_MAX_LOCAL_REPORTS) saved = saved.slice(-K_MAX_LOCAL_REPORTS);
     localStorage.setItem('kasa_reports', JSON.stringify(saved));
-  }catch(e){}
+  }catch(e){
+    console.warn('Local storage full — report not cached locally');
+  }
 
-  kRenderMarker(report);
-  kUpdateStats();
+  kAddReport(report);
+  kShowCard(report);
+  showToast('Report filed — thank you for keeping Purulia clean.');
 
+  /* Fire-and-forget POST to Apps Script */
   try{
     await fetch(K_REPORT_URL, {
-      method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'text/plain;charset=utf-8' },
-      body: JSON.stringify({ type: 'report', lat: report.lat, lng: report.lng, ward, block:'', category: 'waste', desc, name, photo: kPhotoB64 })
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({
+        type:'report', lat:kLat, lng:kLng, ward:wardLabel,
+        block:'', category:'waste', desc:desc, name:name, photo:kPhotoB64
+      })
     });
   }catch(e){}
 
-  kShowCard(report);
-  showToast('Report filed — thank you for keeping Purulia clean.');
   submitBtn.disabled = false;
   submitBtn.textContent = 'Submit Report →';
 }
 
 function kShowCard(report){
   document.getElementById('k-card-placeholder').style.display = 'none';
-  const card = document.getElementById('k-card');
+  var card = document.getElementById('k-card');
   card.classList.add('visible');
   document.getElementById('k-card-photo').src = report.photoUrl;
   document.getElementById('k-card-id').textContent = 'REPORT #' + report.id.slice(-8).toUpperCase();
-  const dateStr = new Date(report.ts).toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
+  var dateStr = new Date(report.ts).toLocaleString('en-IN', { day:'numeric', month:'short', year:'numeric', hour:'2-digit', minute:'2-digit' });
   document.getElementById('k-card-meta').innerHTML =
-    report.ward + '<br>' + report.lat.toFixed(5) + '°N, ' + report.lng.toFixed(5) + '°E<br>' + dateStr + (report.name ? '<br>— ' + report.name : '<br>Reported anonymously');
+    kEsc(report.ward) + '<br>' + report.lat.toFixed(5) + '°N, ' + report.lng.toFixed(5) + '°E<br>'
+    + dateStr + (report.name ? '<br>— ' + kEsc(report.name) : '<br>Reported anonymously');
 
-  const waMsg = 'Garbage report — Purulia Kasa\n'
+  var waMsg = 'Garbage report — Purulia Kasa\n'
     + 'Ward: ' + report.ward + '\n'
     + 'Location: ' + report.lat.toFixed(5) + '°N, ' + report.lng.toFixed(5) + '°E\n'
     + 'Description: ' + report.desc + '\n'
@@ -580,7 +656,7 @@ function kShowCard(report){
     + 'Reported via Purulia Kasa — https://mahatoanupam002-lang.github.io/purulia/kasa.html';
   document.getElementById('k-card-wa').href = 'https://wa.me/' + K_MUNICIPALITY_PHONE + '?text=' + encodeURIComponent(waMsg);
 
-  const shareMsg = 'I just reported uncollected garbage in ' + report.ward + ', Purulia via Purulia Kasa. Report civic issues in 30 seconds:';
+  var shareMsg = 'I just reported uncollected garbage in ' + report.ward + ', Purulia via Purulia Kasa. Report civic issues in 30 seconds:';
   document.getElementById('k-card-share').href = 'https://wa.me/?text=' + encodeURIComponent(shareMsg + ' https://mahatoanupam002-lang.github.io/purulia/kasa.html');
 
   card.scrollIntoView({ behavior: 'smooth', block: 'center' });
@@ -591,20 +667,30 @@ function kReset(){
   document.getElementById('k-card-placeholder').style.display = 'flex';
   kLat = kLng = kPhotoB64 = null;
   if (kPinMarker){ kMap.removeLayer(kPinMarker); kPinMarker = null; }
-  ['k-gps-btn','k-coords','k-ward','k-desc','k-name','k-photo','k-photo-label'].forEach(id => {
-    const el = document.getElementById(id);
+  var btn = document.getElementById('k-gps-btn');
+  btn.textContent = '⊕ Use my location'; btn.classList.remove('got'); btn.disabled = false;
+  var coordsEl = document.getElementById('k-coords');
+  coordsEl.textContent = 'GPS denied or unavailable? Tap the map below to drop a pin instead.';
+  coordsEl.classList.remove('k-toast-warn');
+  var label = document.getElementById('k-photo-label');
+  label.textContent = '+ Take or choose a photo';
+  label.classList.remove('has-photo');
+  label.style.backgroundImage = '';
+  ['k-ward','k-desc','k-name','k-photo'].forEach(function(id){
+    var el = document.getElementById(id);
     if (!el) return;
-    if (id === 'k-gps-btn'){ el.textContent = '⊕ Use my location'; el.classList.remove('got'); el.disabled = false; }
-    else if (id === 'k-coords'){ el.textContent = 'GPS denied or unavailable? Tap the map below to drop a pin instead.'; el.classList.remove('k-toast-warn'); }
-    else if (id === 'k-photo-label'){ el.textContent = '+ Take or choose a photo'; el.classList.remove('has-photo'); }
-    else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT'){ el.value = ''; el.style.borderColor = ''; }
+    el.value = '';
+    el.style.borderColor = '';
   });
   document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
 }
 
-// Deep-link: #report focuses the form
+/* Deep-link: #report focuses the form */
 if (window.location.hash === '#report') {
-  setTimeout(() => document.getElementById('k-photo-label')?.focus(), 400);
+  setTimeout(function(){
+    var lbl = document.getElementById('k-photo-label');
+    if (lbl) lbl.focus();
+  }, 400);
 }
 </script>
 </body>
