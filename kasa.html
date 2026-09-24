@@ -67,6 +67,11 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 .k-submit:disabled{opacity:.35;cursor:default;transform:none;}
 .k-privacy{margin-top:1rem;font-family:'DM Mono',monospace;font-size:.4rem;letter-spacing:.08em;color:rgba(240,230,208,.28);line-height:1.9;}
 
+/* ── Ward status chip ── */
+.k-ward-status{padding:.7rem .8rem;background:rgba(212,136,42,.05);border:1px solid rgba(212,136,42,.2);font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.08em;color:rgba(240,230,208,.55);margin-bottom:.4rem;}
+.k-ward-status.k-detected{background:rgba(109,184,138,.08);border-color:rgba(109,184,138,.4);color:#6DB88A;}
+.k-ward-status.k-manual{background:rgba(232,82,74,.06);border-color:rgba(232,82,74,.3);color:rgba(232,82,74,.8);}
+
 /* ── Report card (result) ── */
 .k-card{background:var(--ink3);border:1px solid rgba(212,136,42,.25);padding:0;overflow:hidden;display:none;}
 .k-card.visible{display:block;}
@@ -101,7 +106,27 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 .k-popup-desc{font-family:'EB Garamond',serif;font-size:.92rem;color:var(--cream);padding:0 1rem;line-height:1.5;}
 .k-popup-meta{font-family:'DM Mono',monospace;font-size:.4rem;color:rgba(240,230,208,.35);padding:.6rem 1rem 1rem;line-height:1.8;}
 .k-popup-img{width:100%;height:120px;object-fit:cover;display:block;}
+.k-popup-action{padding:0 1rem 1rem;}
+.k-resolve-btn{width:100%;padding:.6rem;font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.16em;text-transform:uppercase;background:rgba(109,184,138,.12);border:1px solid rgba(109,184,138,.4);color:#6DB88A;cursor:pointer;transition:all .2s;}
+.k-resolve-btn:hover{background:rgba(109,184,138,.2);border-color:#6DB88A;}
+.k-resolve-btn.k-resolved{background:rgba(109,184,138,.05);color:rgba(109,184,138,.5);cursor:default;border-color:rgba(109,184,138,.2);}
 .k-map-note{font-family:'DM Mono',monospace;font-size:.42rem;letter-spacing:.1em;color:rgba(240,230,208,.3);margin-top:1rem;text-align:center;}
+
+/* ── Resolve modal ── */
+#k-resolve-modal{position:fixed;inset:0;background:rgba(0,0,0,.7);display:flex;align-items:center;justify-content:center;z-index:9998;padding:1.4rem;}
+.k-rm-box{background:var(--ink3);border:1px solid rgba(212,136,42,.3);max-width:400px;width:100%;padding:2rem;position:relative;max-height:90vh;overflow-y:auto;}
+.k-rm-close{position:absolute;top:.7rem;right:.9rem;background:none;border:none;color:rgba(240,230,208,.4);font-size:1.1rem;cursor:pointer;padding:.4rem;}
+.k-rm-close:hover{color:var(--amber);}
+.k-rm-title{font-family:'EB Garamond',serif;font-size:1.4rem;font-weight:700;color:var(--cream);margin-bottom:.5rem;}
+.k-rm-sub{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.05em;color:rgba(240,230,208,.45);line-height:1.8;margin-bottom:1.4rem;}
+.k-rm-photo{display:block;text-align:center;padding:1.4rem;border:1px dashed rgba(212,136,42,.3);color:rgba(240,230,208,.5);font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;cursor:pointer;transition:all .25s;}
+.k-rm-photo:hover{border-color:var(--amber);color:var(--amber);}
+#k-rm-file{display:none;}
+.k-rm-preview{margin-top:1rem;}
+.k-rm-preview img{width:100%;max-height:200px;object-fit:cover;border:1px solid rgba(212,136,42,.2);}
+.k-rm-submit{width:100%;padding:.85rem;margin-top:1.4rem;background:var(--amber);color:var(--ink);border:none;font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;cursor:pointer;transition:all .25s;}
+.k-rm-submit:disabled{opacity:.35;cursor:default;}
+.k-rm-submit:hover:not(:disabled){background:var(--amber2);}
 
 /* ── Leaderboard ── */
 .k-lb-grid{display:grid;grid-template-columns:1.3fr 1fr;gap:3rem;align-items:start;}
@@ -214,9 +239,10 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
         <button class="k-gps-btn" id="k-gps-btn" onclick="kDetectGPS()">⊕ Use my location</button>
         <div class="k-coords" id="k-coords">GPS denied or unavailable? Tap the map below to drop a pin instead.</div>
 
-        <span class="k-label">🏘️ Confirm your ward</span>
-        <select class="k-select" id="k-ward">
-          <option value="">Select ward (1–23)…</option>
+        <span class="k-label">🏘️ Ward (auto-detected)</span>
+        <div id="k-ward-status" class="k-ward-status">Set your location — ward will be detected automatically</div>
+        <select class="k-select" id="k-ward" style="display:none;">
+          <option value="">Select ward manually…</option>
         </select>
 
         <span class="k-label">📝 What's the problem?</span>
@@ -309,9 +335,9 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
     <h2 class="sh rv" style="margin-bottom:2.6rem;font-size:clamp(1.8rem,3vw,2.6rem);">Four steps. <em style="color:var(--amber2);font-style:italic;">Thirty seconds.</em></h2>
     <div class="k-how-grid">
       <div class="k-how-step rv"><div class="k-how-n">01</div><div class="k-how-t">Snap a photo</div><div class="k-how-d">Take a picture of the garbage, right where it is. No account, no sign-up.</div></div>
-      <div class="k-how-step rv"><div class="k-how-n">02</div><div class="k-how-t">Pin the spot</div><div class="k-how-d">GPS captures the exact coordinates. Confirm your ward from the dropdown.</div></div>
+      <div class="k-how-step rv"><div class="k-how-n">02</div><div class="k-how-t">Pin the spot</div><div class="k-how-d">GPS captures the exact coordinates. Your ward is detected automatically.</div></div>
       <div class="k-how-step rv"><div class="k-how-n">03</div><div class="k-how-t">It goes public</div><div class="k-how-d">Your report appears instantly on the live map and the ward leaderboard.</div></div>
-      <div class="k-how-step rv"><div class="k-how-n">04</div><div class="k-how-t">We escalate it</div><div class="k-how-d">One tap sends your report card straight to Purulia Municipality on WhatsApp or email.</div></div>
+      <div class="k-how-step rv"><div class="k-how-n">04</div><div class="k-how-t">We escalate it</div><div class="k-how-d">One tap sends your report card straight to Purulia Municipality on WhatsApp.</div></div>
     </div>
   </div>
 </section>
@@ -336,7 +362,8 @@ section.k-section{padding:6rem 5rem;border-bottom:1px solid var(--border2);}
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script src="script.js"></script>
 <script>
-// ══════════════════════════════════════════════════════════// PURULIA KASA — patched
+// ══════════════════════════════════════════════════════════
+// PURULIA KASA — final build with all patches
 // ══════════════════════════════════════════════════════════
 var K_REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
 var K_MUNICIPALITY_PHONE = '919046003666';
@@ -351,6 +378,85 @@ function kEsc(s){
   });
 }
 
+/* ══════════════════════════════════════════════════════════
+   POINT-IN-POLYGON — auto-ward detection
+   ══════════════════════════════════════════════════════════ */
+function kPointInRing(pt, ring){
+  var x = pt[0], y = pt[1];
+  var inside = false;
+  for (var i = 0, j = ring.length - 1; i < ring.length; j = i++){
+    var xi = ring[i][0], yi = ring[i][1];
+    var xj = ring[j][0], yj = ring[j][1];
+    var intersect = ((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi);
+    if (intersect) inside = !inside;
+  }
+  return inside;
+}
+
+function kPointInPolygon(pt, polygon){
+  if (polygon.type === 'Polygon'){
+    if (!kPointInRing(pt, polygon.coordinates[0])) return false;
+    for (var h = 1; h < polygon.coordinates.length; h++){
+      if (kPointInRing(pt, polygon.coordinates[h])) return false;
+    }
+    return true;
+  }
+  if (polygon.type === 'MultiPolygon'){
+    for (var i = 0; i < polygon.coordinates.length; i++){
+      if (kPointInPolygon(pt, { type:'Polygon', coordinates: polygon.coordinates[i] })) return true;
+    }
+    return false;
+  }
+  return false;
+}
+
+var kWardGeo = null;
+
+async function kLoadWardGeo(){
+  try{
+    var res = await fetch('purulia_wards.geojson');
+    if (!res.ok) throw new Error('geojson not found');
+    kWardGeo = await res.json();
+    console.info('Kasa: ward boundaries loaded — auto-detection active.');
+  }catch(e){
+    console.info('Kasa: no ward boundaries found — manual ward selection only.');
+  }
+}
+
+function kDetectWard(lat, lng){
+  if (!kWardGeo || !kWardGeo.features) return null;
+  for (var i = 0; i < kWardGeo.features.length; i++){
+    var f = kWardGeo.features[i];
+    if (kPointInPolygon([lng, lat], f.geometry)){
+      var props = f.properties || {};
+      var wardNum = props.ward || props.WARD || props.ward_no || props.Ward_No;
+      if (wardNum) return parseInt(String(wardNum).replace(/\D/g, ''), 10);
+    }
+  }
+  return null;
+}
+
+function kApplyWardDetection(lat, lng){
+  var statusEl = document.getElementById('k-ward-status');
+  var selectEl = document.getElementById('k-ward');
+  if (!statusEl || !selectEl) return;
+
+  var wardNum = kDetectWard(lat, lng);
+
+  if (wardNum){
+    selectEl.value = String(wardNum);
+    selectEl.style.display = 'none';
+    statusEl.textContent = 'Ward ' + wardNum + ' — ' +
+      (WARD_COUNCILLORS[wardNum] ? WARD_COUNCILLORS[wardNum].name : 'detected');
+    statusEl.className = 'k-ward-status k-detected';
+  } else {
+    selectEl.style.display = '';
+    statusEl.textContent = 'Location outside known ward boundaries — pick manually below';
+    statusEl.className = 'k-ward-status k-manual';
+  }
+}
+
+/* Councillor data */
 var WARD_COUNCILLORS = {
   1: {name:'Bishnu Sahis', party:'AITC'},
   2: {name:'Abir Sengupta', party:'BJP'},
@@ -366,7 +472,7 @@ var WARD_COUNCILLORS = {
   12: {name:'Rumki Karmakar', party:'IND'},
   13: {name:'Pradip Mukherjee', party:'BJP'},
   14: {name:'Kanika Karmakar', party:'BJP'},
-  15: {name:'Ruqaiya Khatoon', party:'INC'},
+  15: {name:'Rukaiya Khatoon', party:'INC'},
   16: {name:'Nabendu Mahali', party:'AITC'},
   17: {name:'Mayuri Nandi', party:'AITC'},
   18: {name:'Arati Pandey', party:'AITC'},
@@ -377,7 +483,7 @@ var WARD_COUNCILLORS = {
   23: {name:'Pradip Daga', party:'AITC'}
 };
 
-/* ── Ward dropdown (numeric values, stable IDs) ── */
+/* Populate ward dropdown */
 (function(){
   var sel = document.getElementById('k-ward');
   if(!sel) return;
@@ -392,14 +498,17 @@ var WARD_COUNCILLORS = {
 
 /* ── Map init ── */
 var kMap = L.map('kasa-map', { scrollWheelZoom: false }).setView(K_CENTER, 13);
-L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png?key=cb1_3w2m_1_86a22895565ef38f5fdb2fc6', {
-  attribution: '&copy; OpenStreetMap &copy; CARTO',
+
+/* OpenFreeMap tiles — no key required */
+L.tileLayer('https://tiles.openfreemap.org/styles/dark/{z}/{x}/{y}.png', {
+  attribution: '&copy; <a href="https://openfreemap.org">OpenFreeMap</a> &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
   maxZoom: 19
 }).addTo(kMap);
+
 var kReportLayer = L.layerGroup().addTo(kMap);
 var kPinMarker = null;
 var kLat = null, kLng = null, kPhotoB64 = null;
-var kReports = [];              /* in-memory list — single source of truth */
+var kReports = [];
 var kRenderedIds = Object.create(null);
 
 function kMkIcon(status){
@@ -414,35 +523,34 @@ function kMkIcon(status){
   });
 }
 
-function kRenderMarker(r){
-  if (r.id && kRenderedIds[r.id]) return;   /* dedupe */
-  if (r.id) kRenderedIds[r.id] = true;
-
+function kPopupHtml(r){
   var dateStr = r.ts ? new Date(r.ts).toLocaleDateString('en-IN',{day:'numeric',month:'short',year:'numeric'}) : '';
   var photoHtml = r.photoUrl ? '<img class="k-popup-img" src="'+kEsc(r.photoUrl)+'" alt="Garbage report">' : '';
   var statusBadge = r.status === 'resolved'
-  ? '<span style="color:#6DB88A">Resolved</span>'
-  : '<span style="color:#E8524A">Open</span>';
+    ? '<span style="color:#6DB88A">Resolved</span>'
+    : '<span style="color:#E8524A">Open</span>';
+  var resolveBtn = r.status === 'resolved'
+    ? '<button class="k-resolve-btn k-resolved" disabled>✓ Resolved</button>'
+    : '<button class="k-resolve-btn" data-resolve="'+kEsc(r.id)+'">Mark as Resolved</button>';
+  return photoHtml
+    + '<div class="k-popup-title">🗑️ Garbage Report · '+kEsc(r.ward||'Unassigned ward')+'</div>'
+    + '<div class="k-popup-desc">'+kEsc(r.desc||'Reported problem')+'</div>'
+    + '<div class="k-popup-meta">'+dateStr+' · '+statusBadge+'<br>'+(r.name?('— '+kEsc(r.name)):'Reported anonymously')+'</div>'
+    + '<div class="k-popup-action">'+resolveBtn+'</div>';
+}
 
-var resolveBtn = r.status === 'resolved'
-  ? '<button class="k-resolve-btn k-resolved" disabled>✓ Resolved</button>'
-  : '<button class="k-resolve-btn" data-resolve="'+kEsc(r.id)+'">Mark as Resolved</button>';
-
-var popupHtml = photoHtml
-  + '<div class="k-popup-title">🗑️ Garbage Report · '+kEsc(r.ward||'Unassigned ward')+'</div>'
-  + '<div class="k-popup-desc">'+kEsc(r.desc||'Reported problem')+'</div>'
-  + '<div class="k-popup-meta">'+dateStr+' · '+statusBadge+'<br>'+(r.name?('— '+kEsc(r.name)):'Reported anonymously')+'</div>'
-  + '<div class="k-popup-action">'+resolveBtn+'</div>';
-  var m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(popupHtml).addTo(kReportLayer);
+function kRenderMarker(r){
+  if (r.id && kRenderedIds[r.id]) return;
+  if (r.id) kRenderedIds[r.id] = true;
+  var m = L.marker([r.lat, r.lng], { icon: kMkIcon(r.status) }).bindPopup(kPopupHtml(r)).addTo(kReportLayer);
   m._ward = r.ward || 'Unassigned';
   m._status = r.status || 'new';
   m._id = r.id;
 }
 
 function kAddReport(r){
-  /* Push to in-memory list; only re-render if this ID is new */
   if (r.id && kRenderedIds[r.id]) return;
-  kReports.push({ id:r.id, ward:r.ward||'Unassigned', status:r.status||'new' });
+  kReports.push({ id:r.id, ward:r.ward||'Unassigned', status:r.status||'new', lat:r.lat, lng:r.lng, desc:r.desc, name:r.name, ts:r.ts, photoUrl:r.photoUrl });
   kRenderMarker(r);
   kUpdateStats();
 }
@@ -491,25 +599,32 @@ function kBuildLeaderboard(){
 }
 
 async function kLoadReports(){
+  var loadedFromApi = false;
   try{
     var res = await fetch(K_REPORT_URL + '?action=getReports&category=waste');
     if (res.ok){
       var data = await res.json();
       if (Array.isArray(data.reports) && data.reports.length){
         data.reports.forEach(kAddReport);
-        return;
+        loadedFromApi = true;
       }
     }
-  }catch(e){}
+  }catch(e){ console.warn('API fetch failed, using local cache only', e); }
+
   try{
     var saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
     saved.forEach(function(r){
       kAddReport({ id:r.id, lat:r.lat, lng:r.lng, ward:r.ward, desc:r.desc, name:r.name, ts:r.ts, status:r.status });
     });
-  }catch(e){}
+  }catch(e){ console.warn('localStorage read failed', e); }
+
   kUpdateStats();
+  if (!loadedFromApi){
+    console.info('Kasa: using local cache only — API returned no reports or failed.');
+  }
 }
 kLoadReports();
+kLoadWardGeo();
 
 kMap.on('click', function(e){
   kLat = +e.latlng.lat.toFixed(5);
@@ -521,6 +636,7 @@ kMap.on('click', function(e){
   btn.textContent = '✓ Location set'; btn.classList.add('got');
   if (kPinMarker) kMap.removeLayer(kPinMarker);
   kPinMarker = L.marker([kLat, kLng]).addTo(kMap);
+  kApplyWardDetection(kLat, kLng);
 });
 
 function kDetectGPS(){
@@ -541,6 +657,7 @@ function kDetectGPS(){
       btn.textContent = '✓ Location captured'; btn.classList.add('got'); btn.disabled = false;
       if (kPinMarker) kMap.removeLayer(kPinMarker);
       kPinMarker = L.marker([kLat, kLng]).addTo(kMap);
+      kApplyWardDetection(kLat, kLng);
       kMap.flyTo([kLat, kLng], 15, { duration: 1.1 });
       document.getElementById('kasa-map-section').scrollIntoView({ behavior:'smooth', block:'center' });
     },
@@ -555,7 +672,7 @@ function kDetectGPS(){
   );
 }
 
-/* ── Photo capture with client-side downscale ── */
+/* Photo with client-side downscale */
 document.getElementById('k-photo').addEventListener('change', function(){
   var file = this.files[0];
   var label = document.getElementById('k-photo-label');
@@ -602,8 +719,18 @@ async function kSubmit(){
     coordsEl.classList.add('k-toast-warn');
     return;
   }
-  if (!ward){ document.getElementById('k-ward').style.borderColor = '#E8524A'; showToast('Please select your ward.'); return; }
-  if (!desc){ document.getElementById('k-desc').style.borderColor = '#E8524A'; showToast('Please describe the problem briefly.'); return; }
+  if (!ward){
+    var statusEl = document.getElementById('k-ward-status');
+    if (statusEl) statusEl.className = 'k-ward-status k-manual';
+    document.getElementById('k-ward').style.borderColor = '#E8524A';
+    showToast('Please select your ward.');
+    return;
+  }
+  if (!desc){
+    document.getElementById('k-desc').style.borderColor = '#E8524A';
+    showToast('Please describe the problem briefly.');
+    return;
+  }
 
   submitBtn.disabled = true;
   submitBtn.textContent = 'Submitting…';
@@ -617,7 +744,6 @@ async function kSubmit(){
     photoUrl: kPhotoB64, status: 'new'
   };
 
-  /* Persist locally (capped) */
   try{
     var saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
     saved.push({ id:id, lat:kLat, lng:kLng, ward:wardLabel, category:'waste', desc:desc, name:name, ts:ts, status:'new' });
@@ -631,7 +757,6 @@ async function kSubmit(){
   kShowCard(report);
   showToast('Report filed — thank you for keeping Purulia clean.');
 
-  /* Fire-and-forget POST to Apps Script */
   try{
     await fetch(K_REPORT_URL, {
       method: 'POST', mode: 'no-cors',
@@ -686,6 +811,13 @@ function kReset(){
   label.textContent = '+ Take or choose a photo';
   label.classList.remove('has-photo');
   label.style.backgroundImage = '';
+  var statusEl = document.getElementById('k-ward-status');
+  if (statusEl){
+    statusEl.textContent = 'Set your location — ward will be detected automatically';
+    statusEl.className = 'k-ward-status';
+  }
+  var wardSelect = document.getElementById('k-ward');
+  wardSelect.style.display = 'none';
   ['k-ward','k-desc','k-name','k-photo'].forEach(function(id){
     var el = document.getElementById(id);
     if (!el) return;
@@ -695,7 +827,135 @@ function kReset(){
   document.getElementById('report').scrollIntoView({ behavior: 'smooth' });
 }
 
-/* Deep-link: #report focuses the form */
+/* ══════════════════════════════════════════════════════════
+   RESOLUTION VERIFICATION
+   ══════════════════════════════════════════════════════════ */
+document.addEventListener('click', function(e){
+  var btn = e.target.closest('[data-resolve]');
+  if (!btn) return;
+  e.preventDefault();
+  kOpenResolveDialog(btn.getAttribute('data-resolve'));
+});
+
+function kOpenResolveDialog(reportId){
+  var existing = document.getElementById('k-resolve-modal');
+  if (existing) existing.remove();
+
+  var modal = document.createElement('div');
+  modal.id = 'k-resolve-modal';
+  modal.innerHTML =
+    '<div class="k-rm-box">'
+    + '<button class="k-rm-close" aria-label="Close">✕</button>'
+    + '<div class="k-rm-title">Verify Cleanup</div>'
+    + '<div class="k-rm-sub">Upload a photo showing the spot is now clean. This will mark the report as resolved for everyone.</div>'
+    + '<label class="k-rm-photo" for="k-rm-file">+ Add cleanup photo</label>'
+    + '<input type="file" id="k-rm-file" accept="image/*">'
+    + '<div class="k-rm-preview" id="k-rm-preview"></div>'
+    + '<button class="k-rm-submit" id="k-rm-submit" disabled>Confirm Resolved →</button>'
+    + '</div>';
+  document.body.appendChild(modal);
+
+  var fileInput = modal.querySelector('#k-rm-file');
+  var preview   = modal.querySelector('#k-rm-preview');
+  var submitBtn = modal.querySelector('#k-rm-submit');
+  var photoB64  = null;
+
+  modal.querySelector('.k-rm-close').addEventListener('click', function(){ modal.remove(); });
+
+  fileInput.addEventListener('change', function(){
+    var file = this.files[0];
+    if (!file) return;
+    var reader = new FileReader();
+    reader.onload = function(ev){
+      var img = new Image();
+      img.onload = function(){
+        var MAX = 1200, w = img.width, h = img.height;
+        if (w > h && w > MAX){ h = h * MAX / w; w = MAX; }
+        else if (h > MAX){ w = w * MAX / h; h = MAX; }
+        var canvas = document.createElement('canvas');
+        canvas.width = w; canvas.height = h;
+        canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+        photoB64 = canvas.toDataURL('image/jpeg', 0.72);
+        preview.innerHTML = '<img src="'+photoB64+'" alt="Cleanup proof">';
+        submitBtn.disabled = false;
+      };
+      img.src = ev.target.result;
+    };
+    reader.readAsDataURL(file);
+  });
+
+  submitBtn.addEventListener('click', function(){
+    if (!photoB64) return;
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Saving…';
+    kMarkResolved(reportId, photoB64);
+    modal.remove();
+  });
+}
+
+function kMarkResolved(reportId, photoB64){
+  for (var i = 0; i < kReports.length; i++){
+    if (kReports[i].id === reportId){
+      kReports[i].status = 'resolved';
+      kReports[i].resolvedAt = Date.now();
+      kReports[i].resolvedPhoto = photoB64;
+      break;
+    }
+  }
+
+  kReportLayer.eachLayer(function(m){
+    if (m._id === reportId){
+      m._status = 'resolved';
+      m.setIcon(kMkIcon('resolved'));
+      var r = null;
+      for (var j = 0; j < kReports.length; j++){ if (kReports[j].id === reportId) r = kReports[j]; }
+      if (r){
+        r.status = 'resolved';
+        m.setPopupContent(kPopupHtml(r));
+      }
+    }
+  });
+
+  try{
+    var saved = JSON.parse(localStorage.getItem('kasa_reports')||'[]');
+    for (var k = 0; k < saved.length; k++){
+      if (saved[k].id === reportId){
+        saved[k].status = 'resolved';
+        saved[k].resolvedAt = Date.now();
+        break;
+      }
+    }
+    localStorage.setItem('kasa_reports', JSON.stringify(saved));
+  }catch(e){}
+
+  try{
+    fetch(K_REPORT_URL, {
+      method: 'POST', mode: 'no-cors',
+      headers: { 'Content-Type': 'text/plain;charset=utf-8' },
+      body: JSON.stringify({ type: 'resolve', id: reportId, photo: photoB64, ts: Date.now() })
+    });
+  }catch(e){}
+
+  kUpdateStats();
+  showToast('Marked as resolved — thank you.');
+}
+
+/* Leaflet re-measure once reveal animation completes */
+(function(){
+  var mapEl = document.getElementById('kasa-map');
+  if (!mapEl) return;
+  setTimeout(function(){ kMap.invalidateSize(); }, 250);
+  var obs = new IntersectionObserver(function(entries){
+    entries.forEach(function(en){
+      if (en.isIntersecting){ setTimeout(function(){ kMap.invalidateSize(); }, 350); }
+    });
+  }, { threshold: 0.1 });
+  obs.observe(mapEl);
+  window.addEventListener('resize', function(){
+    setTimeout(function(){ kMap.invalidateSize(); }, 150);
+  }, { passive: true });
+})();
+
 if (window.location.hash === '#report') {
   setTimeout(function(){
     var lbl = document.getElementById('k-photo-label');
