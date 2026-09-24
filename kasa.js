@@ -462,12 +462,16 @@ const api = {
   async createReport(d){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
-    // Request a one-time capture token (protects against spoofed photos).
-    const captureToken = await getCaptureToken();
-    const path = await uploadPhoto('reports', d.photoBlob);
-    await sendPhotoMeta(path, d.photoMeta);
-    // Pass token and location for EXIF verification and token validation.
-    await checkPhoto(path, captureToken, d.lat, d.lng);
+    // Parallelize token request and photo upload for speed.
+    const [captureToken, path] = await Promise.all([
+      getCaptureToken(),
+      uploadPhoto('reports', d.photoBlob)
+    ]);
+    // Send metadata and check photo in parallel.
+    await Promise.all([
+      sendPhotoMeta(path, d.photoMeta),
+      checkPhoto(path, captureToken, d.lat, d.lng)
+    ]);
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -1715,12 +1719,14 @@ async function useGPS(){
   btn.appendChild(skipBtn);
 
   try {
+    const TARGET_ACCURACY = 30;
     const pos = await getPosition({
-      want: 30,
+      want: TARGET_ACCURACY,
       timeout: timeout,
       onProgress: (p) => {
         const accuracy = Math.round(p.accuracy);
-        btn.childNodes[0].textContent = `Getting location… (${accuracy}m)`;
+        const threshold = accuracy <= 100 ? '✓' : '•';
+        btn.childNodes[0].textContent = `Getting location… (${accuracy}m) ${threshold}`;
       }
     });
 
@@ -1730,7 +1736,7 @@ async function useGPS(){
     }
 
     setLocation(pos.lat, pos.lng, pos.accuracy);
-    btn.textContent = t('step3_gps_done');
+    btn.textContent = pos.accuracy <= TARGET_ACCURACY ? '✓ High accuracy' : `✓ GPS (${Math.round(pos.accuracy)}m)`;
   } catch (e){
     if (skipRequested) {
       btn.textContent = t('step3_gps');
@@ -1738,9 +1744,9 @@ async function useGPS(){
     }
     btn.textContent = t('step3_gps');
     if (e.code === 1) {
-      showToast('Location permission denied. You can still pin a location on the map.');
+      showToast('Location permission denied. Pin a location on the map for reporting.');
     } else {
-      showToast(t('step3_gps_fail'));
+      showToast('Could not get GPS location. Pin on the map instead.');
     }
   }
   btn.disabled = false;
@@ -1753,7 +1759,26 @@ function setSeverity(sev){
 
 function updateSubmitState(){
   const btn = document.getElementById('k-submit');
-  if (btn && draft) btn.disabled = !(draft.category && draft.photoBlob && draft.lat != null && draft.ward);
+  const coords = document.getElementById('k-coords');
+  const minAccuracy = 100; // meters — require GPS accuracy for true results
+  const hasGoodGPS = draft?.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  const canSubmit = draft?.category && draft?.photoBlob && hasGoodGPS && draft?.ward;
+
+  if (btn) {
+    btn.disabled = !canSubmit;
+    // Show GPS status in submit button
+    if (!draft?.ward) {
+      btn.title = 'Select a ward';
+    } else if (!draft?.photoBlob) {
+      btn.title = 'Take a photo';
+    } else if (draft.lat == null) {
+      btn.title = 'Get GPS location — essential for accurate reporting';
+    } else if (draft.accuracy > minAccuracy) {
+      btn.title = `GPS accuracy is ${Math.round(draft.accuracy)}m (need ≤${minAccuracy}m for accuracy)`;
+    } else {
+      btn.title = '';
+    }
+  }
 }
 
 async function submitReport(){
@@ -1761,7 +1786,9 @@ async function submitReport(){
   draft.ward = parseInt(document.getElementById('k-ward').value, 10) || null;
   draft.landmark = document.getElementById('k-landmark').value.trim();
   draft.description = document.getElementById('k-desc').value.trim();
-  if (!draft.category || !draft.photoBlob || draft.lat == null || !draft.ward){ updateSubmitState(); return; }
+  const minAccuracy = 100;
+  const hasGoodGPS = draft.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  if (!draft.category || !draft.photoBlob || !hasGoodGPS || !draft.ward){ updateSubmitState(); return; }
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
   btn.textContent = t('step3_uploading');
