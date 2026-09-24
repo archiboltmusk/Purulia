@@ -10,8 +10,8 @@ window.KASA_CONFIG = {
   // Generate once with: npx web-push generate-vapid-keys (private key → Supabase secret)
   VAPID_PUBLIC_KEY: '',
 
-  // World Air Quality Index API key for air pollution data on the map. Leave empty to hide AQI features.
-  // Get a key from https://waqi.info/
+  // World Air Quality Index token for the air-quality layer on map.html (free: https://aqicn.org/data-platform/token/).
+  // Leave empty to fall back to WAQI's shared "demo" token, which is rate-limited and may return no stations.
   WAQI_API_KEY: '',
 
   // Published on the legal pages and used for "Right of reply" requests.
