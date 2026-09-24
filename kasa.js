@@ -4,8 +4,8 @@
    ══════════════════════════════════════════════════════════ */
 
 /* ── CONFIG — REPLACE THESE TWO ── */
-const SUPABASE_URL = 'https://https://jrravmlodmbmmzmhofxi.supabase.co';
-const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpycmF2bWxvZG1ibW16bWhvZnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjMzNzksImV4cCI6MjEwNTc5OTM3OX0.dQKsZtiOsQLO8TIQnIuIaOxVDL_Q4K47VI__PqvQGqo';
+const SUPABASE_URL = 'https://cnmikcyvyamplbldiivp.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubWlrY3l2eWFtcGxibGRpaXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMzY0MDEsImV4cCI6MjEwNTgxMjQwMX0.h4nOvb0GWz92A_GuH-RPX90wUIRvza4RvsD9TA-XiM0';
 
 /* ── Constants ── */
 const MUNICIPALITY_PHONE = '919046003666';
