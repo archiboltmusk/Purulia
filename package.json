@@ -4,7 +4,10 @@
   "description": "A complete transformation blueprint for Purulia, West Bengal",
   "type": "module",
   "scripts": {
-    "build": "echo 'Static site - no build needed'"
+    "dev": "cd kasa-app && npm run dev",
+    "build": "cd kasa-app && npm run build",
+    "build:kasa": "cd kasa-app && npm run build",
+    "lint": "cd kasa-app && npm run lint"
   },
   "keywords": [
     "purulia",
