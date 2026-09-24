@@ -1669,6 +1669,12 @@ async function submitReport(){
     afterSubmit(res, draft);
   } catch (e){
     btn.textContent = t('step3_submit');
+    // The report service can't start a session (e.g. sign-in switched off):
+    // keep the report on the phone and upload it on a later visit.
+    if (e instanceof KasaError && e.key === 'err_session'){
+      await queuePendingReport(draft);
+      return afterSubmit({ saved: true }, draft);
+    }
     if (e instanceof KasaError || /^KASA_/.test(e?.message || '')){
       btn.disabled = false;
       showToast(errorText(e), 7000);
@@ -1683,6 +1689,7 @@ async function submitReport(){
 async function afterSubmit(res, d){
   let title = 'done_title', sub = 'done_sub';
   if (res.offline){ title = 'done_title_offline'; sub = 'done_sub_offline'; }
+  else if (res.saved){ title = 'done_title_saved'; sub = 'done_sub_saved'; }
   else if (res.moderation === 'review'){ title = 'done_title_review'; sub = 'done_sub_review'; }
   else if (res.duplicateOf){ title = 'done_title_dup'; sub = 'done_sub_dup'; }
   else if (res.recurrenceOf){ title = 'done_title_recur'; sub = 'done_sub_recur'; }
