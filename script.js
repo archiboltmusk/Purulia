@@ -217,14 +217,23 @@ function showToast(msg){
   toastTimer=setTimeout(function(){t.classList.remove('show');},2800);
 }
 
-/* ── Form submit — Google Sheets + email via Apps Script ── */
-const SCRIPT_URL='https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
+/* ── Form submit — saved privately in Supabase (only moderators can read it) ── */
+async function p2040Submit(fields){
+  var c=window.KASA_CONFIG||{};
+  if(!c.SUPABASE_URL||!c.SUPABASE_ANON_KEY) throw new Error('Form not configured.');
+  var res=await fetch(c.SUPABASE_URL+'/rest/v1/rpc/p2040_submit',{
+    method:'POST',
+    headers:{'Content-Type':'application/json',apikey:c.SUPABASE_ANON_KEY,Authorization:'Bearer '+c.SUPABASE_ANON_KEY},
+    body:JSON.stringify(fields)
+  });
+  if(!res.ok){
+    var detail='';
+    try{detail=(await res.json()).details||'';}catch(e){}
+    var err=new Error(detail||'Could not send.'); err.fromServer=!!detail; throw err;
+  }
+}
 
 async function submitForm(){
-  if(!SCRIPT_URL){
-    showToast('Form not configured — please email thelosthillproject@gmail.com directly.');
-    return;
-  }
   var nameEl=document.getElementById('f-name');
   var roleEl=document.getElementById('f-role');
   var locEl =document.getElementById('f-location');
@@ -247,12 +256,7 @@ async function submitForm(){
   if(btn){btn.disabled=true;btn.textContent='Sending…';}
 
   try{
-    var payload=JSON.stringify({name, role, location:location||'Not provided', contact, message:message||'(none)'});
-    await fetch(SCRIPT_URL,{
-      method:'POST', mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:payload
-    });
+    await p2040Submit({p_kind:'join', p_name:name, p_role:role, p_location:location||null, p_contact:contact, p_message:message||null});
 
     var wrap=document.getElementById('formWrap');
     var fs=document.getElementById('formSuccess');
@@ -274,7 +278,7 @@ async function submitForm(){
     showToast('Welcome, '+name+'. We\'ll respond personally within 48 hours.');
   }catch(err){
     if(btn){btn.disabled=false;btn.textContent='I Want to Be Part of This →';}
-    showToast('Could not send — please email thelosthillproject@gmail.com directly.');
+    showToast(err.fromServer?err.message:'Could not send — please email thelosthillproject@gmail.com directly.');
   }
 }
 
@@ -683,17 +687,13 @@ window.followSubmit=async function(){
   var btn=document.querySelector('.follow-btn');
   if(btn){btn.textContent='Sending…';btn.disabled=true;}
   try{
-    await fetch(SCRIPT_URL,{
-      method:'POST',mode:'no-cors',
-      headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({name:'Email Follow',role:'subscriber',contact:email,message:'Homepage follow/newsletter signup',location:'homepage follow bar'})
-    });
+    await p2040Submit({p_kind:'follow', p_name:null, p_role:null, p_location:null, p_contact:email, p_message:null});
     var form=document.getElementById('followForm');
     if(form)form.innerHTML='<span class="follow-thanks">You\'re in — we\'ll be in touch.</span>';
     showToast('Subscribed. Updates coming your way.');
   }catch(e){
     if(btn){btn.textContent='Follow →';btn.disabled=false;}
-    showToast('Could not subscribe — try the full form instead.');
+    showToast(e.fromServer?e.message:'Could not subscribe — try the full form instead.');
   }
 };
 

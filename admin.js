@@ -82,7 +82,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation()
+    loadResolutions(), loadAutomation(), loadSignups()
   ]);
 }
 
@@ -348,6 +348,23 @@ async function loadAutomation(){
       </table>
     `;
   } catch(e){ el.innerHTML = '<div class="ad-empty">Could not load.</div>'; }
+}
+
+async function loadSignups(){
+  const el = document.getElementById('adSignups');
+  const { data, error } = await sb.rpc('kasa_admin_signups', { p_limit: 200 });
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No sign-ups yet.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>When</th><th>Form</th><th>Name</th><th>Role</th><th>Location</th><th>Contact</th><th>Message</th></tr></thead>
+      <tbody>
+        ${data.map(s => `<tr>
+          <td>${esc(new Date(s.created_at).toLocaleString('en-IN'))}</td><td>${esc(s.kind)}</td><td>${esc(s.name || '')}</td>
+          <td>${esc(s.role || '')}</td><td>${esc(s.location || '')}</td><td>${esc(s.contact)}</td>
+          <td style="white-space:pre-wrap;">${esc(s.message || '')}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
 }
 
 function esc(s){

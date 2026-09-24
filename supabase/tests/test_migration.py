@@ -174,7 +174,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -513,8 +513,8 @@ if LEGACY:
           'retired' in (err(admin_sql, "select public.mark_resolved(%s::uuid, 'x', 'x')", (str(rid),)) or ''))
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
-check('only read-only helpers are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due'}, open_definers)
+check('only read-only helpers and the sign-up form are callable without signing in',
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -878,6 +878,21 @@ cid4 = claim(cl3, nr4['id'], where=cl4_spot, path=checked(cl3, 'claims'))['claim
 check('one person cannot keep confirming the same claimant',
       err(vote, v1, cid4, v='verify', where=cl4_spot, path=checked(v1, 'votes')) == 'KASA_CONFIRM_LIMIT')
 set_rules(BASELINE)
+
+# ─────────────────────────────── Join / follow sign-ups ───────────────────────────────
+check('anyone can join without signing in',
+      rpc('p2040_submit', ip='10.40.0.1', p_kind='join', p_name='Asha', p_role='Student', p_location=None,
+          p_contact='asha@example.com', p_message='Hello').get('ok') is True)
+check('follow needs a real e-mail address', err(rpc, 'p2040_submit', ip='10.40.0.1', p_kind='follow', p_name=None,
+      p_role=None, p_location=None, p_contact='nope', p_message=None) == 'KASA_BAD_FORM')
+for i in range(5):
+    rpc('p2040_submit', ip='10.41.0.2', p_kind='follow', p_name=None, p_role=None, p_location=None,
+        p_contact=f'f{i}@example.com', p_message=None)
+check('one network is limited to 5 sign-ups an hour', err(rpc, 'p2040_submit', ip='10.41.0.2', p_kind='follow',
+      p_name=None, p_role=None, p_location=None, p_contact='f9@example.com', p_message=None) == 'KASA_RATE_LIMIT')
+check('sign-ups are not readable by the public', 'permission denied' in (err(q, 'select * from kasa_private.signups') or ''))
+check('only moderators can list sign-ups', 'permission denied' in (err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) or '') or
+      err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) == 'KASA_NOT_ADMIN')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

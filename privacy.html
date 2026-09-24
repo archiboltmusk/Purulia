@@ -68,7 +68,8 @@
     <p><strong>Photo checks (if enabled).</strong> Photos may be analysed by Google Vision to estimate whether they show garbage and to screen out unsafe images. We also store a fingerprint of each photo to detect the same photo being reused. Results are stored privately.</p>
     <p><strong>Nearby alerts (only if you turn them on).</strong> We store your browser's push-notification address, your approximate location rounded to about 100 metres, your alert radius and your language, so we can alert you to new reports near you. Turning alerts off deletes them.</p>
     <p><strong>On your device.</strong> Your language, your anonymous session, and which reports you have marked or rated are kept in your browser's local storage so the page remembers them.</p>
-    <p>We <strong>do not</strong> collect: your real name, your email, your phone number, your contacts, your location history, or your browsing history.</p>
+    <p>When you report, confirm, rate or flag, we <strong>do not</strong> collect: your real name, your email, your phone number, your contacts, your location history, or your browsing history.</p>
+    <p><strong>Purulia 2040 Join and Follow forms (only if you fill them in).</strong> These forms are separate from reporting. The Join form stores the name, role, location, contact (phone or email) and message you type; the Follow box stores your email address. We also store the same one-way network fingerprint described above, only to limit spam. This information is stored privately with Supabase and can be read only by the Purulia 2040 team, to reply to you. It is never published and never linked to any report.</p>
 
     <h2>3. How the Anonymous ID and Fingerprints Work</h2>
     <p>The anonymous ID is a random identifier created by Supabase Auth, stored in your browser. The network fingerprint and photo fingerprints are one-way hashes: they can be compared with each other, but cannot be turned back into your IP address or the original photo.</p>
@@ -89,6 +90,7 @@
       <li><strong>Unused uploads</strong> — photos that were uploaded but never attached to a report — are deleted automatically by a weekly clean-up once they are more than two days old.</li>
       <li><strong>Private location data and fingerprints</strong> are kept with the report they relate to, so fraud checks keep working.</li>
       <li><strong>Nearby-alert subscriptions</strong> are deleted when you turn alerts off or when your browser tells us the subscription has ended.</li>
+      <li><strong>Join and Follow form submissions</strong> are kept until you ask us to delete them (write to the Grievance Officer). They are never part of the public record.</li>
       <li><strong>Daily public record</strong> — once a day, a SHA-256 fingerprint of every public report, event and reply is published in the Platform's public code repository and saved to the Internet Archive, so anyone can check that the public record was not altered later. A fingerprint contains none of the content and cannot be turned back into it; fingerprints are kept permanently, including after the content itself is removed.</li>
       <li><strong>Removed content</strong> — if content is removed after a complaint or a legal order, it is hidden from the public and preserved privately for 180 days, as required by the IT (Intermediary Guidelines) Rules, 2021.</li>
     </ul>
@@ -123,7 +125,7 @@
       <li><strong>Google Vision API</strong> (photo checks, if enabled; receives the photo) — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a></li>
       <li><strong>Your browser's push service</strong> (for example Google, Mozilla or Apple), only if you turn on nearby alerts</li>
     </ul>
-    <p>WhatsApp, email and X links open those services only when you choose to use them. None of these services receive your name or contact information from us, because we don't collect those in the first place.</p>
+    <p>WhatsApp, email and X links open those services only when you choose to use them. None of these services receive your name or contact information from us. The only place we hold such details is the optional Join and Follow forms, stored privately with Supabase.</p>
 
     <h2>8. Your Rights</h2>
     <p>Under India's Digital Personal Data Protection Act, 2023, you have the right to:</p>
