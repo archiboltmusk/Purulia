@@ -22,7 +22,6 @@
 </head>
 <body>
 
-<!-- ══════════════════ NAV ══════════════════ -->
 <nav class="k-nav">
   <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
   <div class="k-nav-links">
@@ -34,20 +33,18 @@
   <a href="#" id="k-nav-report" class="k-nav-cta">Report →</a>
 </nav>
 
-<!-- ══════════════════ INTRO MODAL (first visit only) ══════════════════ -->
 <div class="k-intro" id="k-intro" aria-hidden="true">
   <div class="k-intro-backdrop"></div>
   <div class="k-intro-card" role="dialog" aria-modal="true" aria-label="Welcome to Purulia Kasa">
     <div class="k-intro-logo">Purulia <em>Kasa</em></div>
     <h2 class="k-intro-title">Purulia has a garbage problem.</h2>
     <p class="k-intro-sub">Report it. Photograph it. Track who is responsible.</p>
-    <p class="k-intro-meta">Every dump is mapped to the responsible ward, MLA, and MP. When enough citizens report, it becomes impossible to ignore.</p>
-    <div class="k-intro-stats">23 wards · 1 MLA · 1 MP · All of Purulia</div>
+    <p class="k-intro-meta">Every dump is mapped to the responsible ward, councillor, MLA, and MP. When enough citizens report, it becomes impossible to ignore.</p>
+    <div class="k-intro-stats">23 wards · 1 Chairman · 1 MLA · 1 MP · All of Purulia</div>
     <button class="k-btn k-btn-primary" id="k-intro-continue">Continue</button>
   </div>
 </div>
 
-<!-- ══════════════════ HERO ══════════════════ -->
 <header class="k-hero">
   <h1 class="k-hero-title">See garbage?<br><em>Report it in 30 seconds.</em></h1>
   <p class="k-hero-sub">A public map for Purulia town. Every report is visible. Every ward is ranked. Your councillor is notified.</p>
@@ -57,11 +54,9 @@
   </button>
 </header>
 
-<!-- ══════════════════ LIVE MAP ══════════════════ -->
 <section class="k-map-section">
   <div id="k-map"></div>
 
-  <!-- Stats pill overlay -->
   <div class="k-map-pill">
     <span class="k-pill-num" id="k-pill-active">—</span>
     <span class="k-pill-label">Active</span>
@@ -70,7 +65,6 @@
     <span class="k-pill-label">Reports</span>
   </div>
 
-  <!-- Filter bar -->
   <div class="k-filter-bar">
     <select id="k-filter-severity" class="k-filter-select">
       <option value="">All Severity</option>
@@ -85,7 +79,6 @@
     </select>
   </div>
 
-  <!-- Legend -->
   <div class="k-map-legend">
     <span><i class="k-dot k-dot-minor"></i> Minor</span>
     <span><i class="k-dot k-dot-severe"></i> Severe</span>
@@ -93,13 +86,11 @@
     <span><i class="k-dot k-dot-resolved"></i> Resolved</span>
   </div>
 
-  <!-- Report button -->
   <button class="k-map-report-btn" id="k-map-report-btn" aria-label="Report garbage">
     <span>📷</span> Report
   </button>
 </section>
 
-<!-- ══════════════════ STATS ══════════════════ -->
 <section class="k-stats">
   <div class="k-stat"><div class="k-stat-n" id="k-stat-total">—</div><div class="k-stat-l">Reports</div></div>
   <div class="k-stat"><div class="k-stat-n" id="k-stat-resolved">—</div><div class="k-stat-l">Resolved</div></div>
@@ -107,7 +98,6 @@
   <div class="k-stat"><div class="k-stat-n" id="k-stat-rate">—</div><div class="k-stat-l">Resolution %</div></div>
 </section>
 
-<!-- ══════════════════ WARD LEADERBOARD ══════════════════ -->
 <section class="k-lb-section">
   <div class="k-section-head">
     <h2 class="k-section-title">Ward accountability</h2>
@@ -118,58 +108,51 @@
   </div>
 </section>
 
-<!-- ══════════════════ ACCOUNTABILITY CHAIN ══════════════════ -->
 <section class="k-chain-section">
   <div class="k-section-head">
     <h2 class="k-section-title">Who's responsible</h2>
     <p class="k-section-sub">The chain of accountability for garbage in Purulia.</p>
   </div>
-  <div class="k-chain" id="k-chain">
-    <!-- Rendered by JS -->
-  </div>
+  <div class="k-chain" id="k-chain"></div>
 </section>
 
-<!-- ══════════════════ AUTHORITY ══════════════════ -->
 <section class="k-auth-section">
   <div class="k-section-head">
     <h2 class="k-section-title">Elected representatives</h2>
   </div>
   <div class="k-auth-grid k-auth-grid-3">
-  <div class="k-auth-card" data-rep="mla">
-    <div class="k-auth-label">MLA · Purulia</div>
-    <div class="k-auth-name">Sudip Kumar Mukherjee</div>
-    <div class="k-auth-meta">BJP · Assembly No. 242</div>
-    <button class="k-auth-action" data-profile="mla">View profile →</button>
+    <div class="k-auth-card" data-rep="mla">
+      <div class="k-auth-label">MLA · Purulia</div>
+      <div class="k-auth-name">Sudip Kumar Mukherjee</div>
+      <div class="k-auth-meta">BJP · Assembly No. 242</div>
+      <button class="k-auth-action" data-profile="mla">View profile →</button>
+    </div>
+    <div class="k-auth-card" data-rep="mp">
+      <div class="k-auth-label">MP · Purulia</div>
+      <div class="k-auth-name">Jyotirmay Singh Mahato</div>
+      <div class="k-auth-meta">BJP · Lok Sabha</div>
+      <button class="k-auth-action" data-profile="mp">View profile →</button>
+    </div>
+    <div class="k-auth-card" data-rep="chairman">
+      <div class="k-auth-label">Chairman · Municipality</div>
+      <div class="k-auth-name">Nabendu Mahali</div>
+      <div class="k-auth-meta">AITC · Board reinstated by Calcutta HC, 2026</div>
+      <button class="k-auth-action" data-profile="chairman">View profile →</button>
+    </div>
   </div>
-  <div class="k-auth-card" data-rep="mp">
-    <div class="k-auth-label">MP · Purulia</div>
-    <div class="k-auth-name">Jyotirmay Singh Mahato</div>
-    <div class="k-auth-meta">BJP · Lok Sabha</div>
-    <button class="k-auth-action" data-profile="mp">View profile →</button>
-  </div>
-  <div class="k-auth-card" data-rep="chairman">
-    <div class="k-auth-label">Chairman · Municipality</div>
-    <div class="k-auth-name">Nabendu Mahali</div>
-    <div class="k-auth-meta">AITC · Board reinstated by Calcutta HC, 2026</div>
-    <button class="k-auth-action" data-profile="chairman">View profile →</button>
-  </div>
-</div>
 </section>
 
-<!-- ══════════════════ FOOTER ══════════════════ -->
 <footer class="k-footer">
   <div>Purulia Kasa · A civic tool for Purulia town</div>
   <div>23.33°N · 86.37°E</div>
 </footer>
 
-<!-- ══════════════════ BOTTOM QR BAR ══════════════════ -->
 <div class="k-bottom-bar">
   <button class="k-bottom-btn" id="k-qr-btn">
     <span>📱</span> Scan QR to Report
   </button>
 </div>
 
-<!-- ══════════════════ REPORT MODAL (bottom sheet) ══════════════════ -->
 <div class="k-modal" id="k-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-modal-backdrop"></div>
   <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-label="Report garbage">
@@ -233,7 +216,6 @@
   </div>
 </div>
 
-<!-- ══════════════════ QR MODAL ══════════════════ -->
 <div class="k-modal" id="k-qr-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-qr-backdrop"></div>
   <div class="k-modal-sheet k-qr-sheet" role="dialog" aria-modal="true" aria-label="Share QR code">
@@ -246,22 +228,17 @@
   </div>
 </div>
 
-<!-- ══════════════════ REP PROFILE MODAL ══════════════════ -->
 <div class="k-modal" id="k-rep-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-rep-backdrop"></div>
   <div class="k-modal-sheet k-rep-sheet" role="dialog" aria-modal="true" aria-label="Representative profile">
     <div class="k-modal-handle"></div>
     <button class="k-modal-close" id="k-rep-close" aria-label="Close">✕</button>
-    <div id="k-rep-content">
-      <!-- Rendered by JS -->
-    </div>
+    <div id="k-rep-content"></div>
   </div>
 </div>
 
-<!-- ══════════════════ TOAST ══════════════════ -->
 <div class="k-toast" id="k-toast"></div>
 
-<!-- ══════════════════ SCRIPTS ══════════════════ -->
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
