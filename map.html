@@ -404,9 +404,6 @@ body{overflow:hidden;}
   <button class="mf-btn" data-layer="report" onclick="toggleReportPanel(this)">
     <span class="mf-dot" style="background:#E8524A"></span>Report<span id="report-badge"></span>
   </button>
-  <button class="mf-btn" data-layer="accountability" onclick="toggleAccountabilityPanel(this)">
-    <span class="mf-dot" style="background:#D4882A"></span>Leaderboard
-  </button>
   <button class="mf-btn active" id="rivers-toggle-btn" onclick="toggleRiverLayer(this)">
     <span class="mf-dot" style="background:#64AACC"></span>Rivers
   </button>
@@ -426,35 +423,9 @@ body{overflow:hidden;}
     <button class="rp-close" onclick="closeReportPanel()" aria-label="Close panel">✕</button>
   </div>
   <div class="rp-body">
-    <span class="rp-label">📍 Your location</span>
-    <button class="rp-gps-btn" id="rp-gps-btn" onclick="rpDetectGPS()">⊕ Detect GPS location</button>
-    <div class="rp-coords" id="rp-coords"></div>
-    <div class="rp-block-chip" id="rp-block-chip"></div>
-
-    <span class="rp-label">📂 Category</span>
-    <select class="rp-select" id="rp-category">
-      <option value="">Select a category…</option>
-      <option value="waste">🗑️ Garbage / Waste</option>
-      <option value="water">💧 Water / Drought</option>
-      <option value="road">🛣️ Roads / Transport</option>
-      <option value="power">⚡ Power / Electricity</option>
-      <option value="health">🏥 Health / Medical</option>
-      <option value="education">🎓 Education</option>
-      <option value="environment">🌿 Environment / Forest</option>
-      <option value="other">📋 Other</option>
-    </select>
-
-    <span class="rp-label">📝 Description</span>
-    <textarea class="rp-textarea" id="rp-desc" placeholder="Describe the problem briefly…"></textarea>
-
-    <span class="rp-label">📷 Photo (optional)</span>
-    <label class="rp-photo-label" id="rp-photo-label" for="rp-photo">+ Attach a photo</label>
-    <input type="file" id="rp-photo" accept="image/*" capture="environment">
-
-    <span class="rp-label">👤 Your name (optional)</span>
-    <input type="text" class="rp-input" id="rp-name" placeholder="Anonymous by default">
-
-    <button class="rp-submit" id="rp-submit" onclick="rpSubmit()">Submit Report →</button>
+    <p style="color:rgba(240,230,208,.7);font-size:.95rem;line-height:1.6;margin:0 0 1rem;">Problems in Purulia town are reported on <strong>Purulia Kasa</strong>: every report is public, checked for abuse, and marked fixed only when neighbours confirm it on the spot.</p>
+    <a class="rp-submit" href="kasa.html" style="display:block;text-align:center;text-decoration:none;">Report on Purulia Kasa →</a>
+    <p style="color:rgba(240,230,208,.4);font-size:.8rem;line-height:1.5;margin:1rem 0 0;">Kasa covers Purulia town for now. Reporting for the rest of the district is not available yet.</p>
   </div>
 </div>
 
@@ -1000,7 +971,6 @@ style.textContent = '@keyframes ripple{0%{transform:translate(-50%,-50%) scale(.
 document.head.appendChild(style);
 
 // ── Problem Reports ───────────────────────────────────────────────────────────
-const REPORT_URL = 'https://script.google.com/macros/s/AKfycbxUb515nu7o2tjAy28J2L60SmsH-E7kdPnqTNfW1nYI5p4wUVR8RvEl_X5Ys-93AV5Y/exec';
 const reportLayer = L.layerGroup().addTo(map);
 const blockPolygons = [];
 let rpLat = null, rpLng = null, rpPhotoB64 = null;
@@ -1068,25 +1038,6 @@ function updateReportBadge() {
   else badge.style.display = 'none';
 }
 
-function rpLoadFromStorage() {
-  try { JSON.parse(localStorage.getItem('rp_reports') || '[]').forEach(r => rpRenderMarker(r)); } catch(e) {}
-  updateReportBadge();
-}
-
-async function rpFetchShared() {
-  try {
-    const res = await fetch(REPORT_URL + '?action=getReports');
-    if (!res.ok) throw new Error();
-    const data = await res.json();
-    if (Array.isArray(data.reports) && data.reports.length) {
-      data.reports.forEach(r => rpRenderMarker(r));
-      updateReportBadge();
-      return;
-    }
-  } catch(e) {}
-  rpLoadFromStorage();
-}
-
 function toggleReportPanel(btn) {
   const panel = document.getElementById('report-panel');
   const isOpen = panel.classList.contains('open');
@@ -1097,9 +1048,6 @@ function toggleReportPanel(btn) {
   } else {
     panel.classList.add('open');
     if (btn) btn.classList.add('active');
-    // Auto-start GPS
-    const gpsBtn = document.getElementById('rp-gps-btn');
-    if (gpsBtn && !gpsBtn.classList.contains('got')) rpDetectGPS();
   }
 }
 
@@ -1165,101 +1113,6 @@ function buildAccountabilityPanel() {
     + '</div>'
   ).join('');
 }
-
-function rpDetectGPS() {
-  const btn = document.getElementById('rp-gps-btn');
-  const coordsEl = document.getElementById('rp-coords');
-  if (!navigator.geolocation) { if (coordsEl) coordsEl.textContent = 'GPS not available — tap the map instead'; return; }
-  if (btn) { btn.textContent = '⟳ Detecting…'; btn.disabled = true; }
-  navigator.geolocation.getCurrentPosition(
-    pos => {
-      rpLat = pos.coords.latitude.toFixed(5);
-      rpLng = pos.coords.longitude.toFixed(5);
-      if (coordsEl) { coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E'; coordsEl.style.color = ''; }
-      if (btn) { btn.textContent = '✓ Location captured'; btn.classList.add('got'); btn.disabled = false; }
-      rpSetBlock(rpLat, rpLng);
-      map.flyTo([+rpLat, +rpLng], 14, { duration: 1.2 });
-    },
-    err => {
-      if (coordsEl) coordsEl.textContent = err.code === 1 ? 'Permission denied — tap the map to set location' : 'Could not get location — tap the map instead';
-      if (btn) { btn.textContent = '⊕ Retry GPS'; btn.disabled = false; }
-    },
-    { enableHighAccuracy: true, timeout: 10000 }
-  );
-}
-
-map.on('click', function(e) {
-  if (!document.getElementById('report-panel').classList.contains('open')) return;
-  rpLat = e.latlng.lat.toFixed(5);
-  rpLng = e.latlng.lng.toFixed(5);
-  const coordsEl = document.getElementById('rp-coords');
-  const btn = document.getElementById('rp-gps-btn');
-  if (coordsEl) { coordsEl.textContent = rpLat + '°N, ' + rpLng + '°E (map tap)'; coordsEl.style.color = ''; }
-  if (btn) { btn.textContent = '✓ Location set'; btn.classList.add('got'); }
-  rpSetBlock(rpLat, rpLng);
-});
-
-document.getElementById('rp-photo').addEventListener('change', function() {
-  const file = this.files[0];
-  const label = document.getElementById('rp-photo-label');
-  if (!file) { rpPhotoB64 = null; label.textContent = '+ Attach a photo'; label.classList.remove('has-photo'); return; }
-  const reader = new FileReader();
-  reader.onload = ev => { rpPhotoB64 = ev.target.result; label.textContent = '✓ ' + file.name; label.classList.add('has-photo'); };
-  reader.readAsDataURL(file);
-});
-
-async function rpSubmit() {
-  const cat = document.getElementById('rp-category').value;
-  const desc = document.getElementById('rp-desc').value.trim();
-  const name = document.getElementById('rp-name').value.trim();
-  const submitBtn = document.getElementById('rp-submit');
-  const coordsEl = document.getElementById('rp-coords');
-
-  if (!rpLat || !rpLng) {
-    if (coordsEl) { coordsEl.textContent = '⚠ Set your location first — detect GPS or tap the map'; coordsEl.style.color = '#E8524A'; }
-    return;
-  }
-  if (!cat) { document.getElementById('rp-category').style.borderColor = '#E8524A'; return; }
-  if (!desc) { document.getElementById('rp-desc').style.borderColor = '#E8524A'; return; }
-
-  submitBtn.disabled = true;
-  submitBtn.textContent = 'Submitting…';
-
-  const block = rpGetBlock(+rpLat, +rpLng) || '';
-  const report = { lat: parseFloat(rpLat), lng: parseFloat(rpLng), block, category: cat, desc, name, ts: Date.now(), photo: rpPhotoB64 || null };
-
-  try {
-    const saved = JSON.parse(localStorage.getItem('rp_reports') || '[]');
-    saved.push({ lat: report.lat, lng: report.lng, block, category: cat, desc, name, ts: report.ts });
-    localStorage.setItem('rp_reports', JSON.stringify(saved));
-  } catch(e) {}
-
-  rpRenderMarker(report);
-  updateReportBadge();
-
-  try {
-    await fetch(REPORT_URL, { method: 'POST', mode: 'no-cors', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ type: 'report', ...report }) });
-  } catch(e) {}
-
-  map.flyTo([report.lat, report.lng], 14, { duration: 1.2 });
-  showToast('Report submitted — thank you.');
-
-  rpLat = rpLng = rpPhotoB64 = null;
-  ['rp-gps-btn','rp-coords','rp-block-chip','rp-category','rp-desc','rp-name','rp-photo','rp-photo-label'].forEach(id => {
-    const el = document.getElementById(id);
-    if (!el) return;
-    if (id === 'rp-gps-btn') { el.textContent = '⊕ Detect GPS location'; el.classList.remove('got'); el.disabled = false; }
-    else if (id === 'rp-coords') { el.textContent = ''; el.style.color = ''; }
-    else if (id === 'rp-block-chip') { el.textContent = ''; el.classList.remove('visible'); }
-    else if (id === 'rp-photo-label') { el.textContent = '+ Attach a photo'; el.classList.remove('has-photo'); }
-    else if (el.tagName === 'INPUT' || el.tagName === 'TEXTAREA' || el.tagName === 'SELECT') { el.value = ''; el.style.borderColor = ''; }
-  });
-  submitBtn.textContent = 'Submit Report →';
-  submitBtn.disabled = false;
-  closeReportPanel();
-}
-
-rpFetchShared();
 
 // ── Place search ──────────────────────────────────────────────────────────────
 function onSearch(q) {
