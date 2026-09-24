@@ -138,7 +138,7 @@ an SMS provider and costs money per message.
 
 ```
 PGHOST=... PGPORT=... bash supabase/tests/run.sh          # database rules (needs Postgres 16 + psycopg)
-npm i --no-save imagescript@1.3.0 && node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
+npm i --no-save imagescript@1.3.0 jpeg-js@0.4.4 && node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
 ```
 
 Both run in GitHub Actions (`.github/workflows/kasa-tests.yml`).

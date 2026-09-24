@@ -1,10 +1,13 @@
 // Photo fingerprint + Vision scoring tests for the kasa-photo-check function.
-//   npm i --no-save imagescript@1.3.0
+//   npm i --no-save imagescript@1.3.0 jpeg-js@0.4.4
 //   node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
+// ImageScript only draws and encodes the test photos; they are decoded with
+// jpeg-js, exactly as the Edge Function does.
 import assert from 'node:assert/strict';
 import pkg from 'imagescript';
+import jpeg from 'jpeg-js';
 const { Image } = pkg;
-import { dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, isPhotoPath } from '../functions/kasa-photo-check/logic.ts';
+import { JPEG_OPTIONS, dhashFromGray, grayThumb, photoDistance, isSamePhoto, garbageScore, isUnsafe, isPhotoPath } from '../functions/kasa-photo-check/logic.ts';
 
 // Deterministic PRNG so the test is repeatable
 let seed = 7; const rnd = () => (seed = (seed * 1103515245 + 12345) % 2 ** 31) / 2 ** 31;
@@ -31,8 +34,8 @@ function scene(w: number, h: number, clutter: boolean, shift = 0) {
 }
 
 async function hashOf(bytes: Uint8Array) {
-  const img = await Image.decode(bytes);
-  return dhashFromGray(grayThumb(img.bitmap, img.width, img.height));
+  const img = jpeg.decode(bytes, JPEG_OPTIONS);
+  return dhashFromGray(grayThumb(img.data, img.width, img.height));
 }
 
 const dirty = scene(1200, 900, true);

@@ -10,9 +10,9 @@
 // Secret:  supabase secrets set GOOGLE_VISION_API_KEY=...   (optional)
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
-import { Image } from 'npm:imagescript@1.3.0';
+import jpeg from 'npm:jpeg-js@0.4.4';
 import { encodeBase64 } from 'jsr:@std/encoding@1/base64';
-import { dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe } from './logic.ts';
+import { JPEG_OPTIONS, dhashFromGray, garbageScore, grayThumb, isPhotoPath, isUnsafe } from './logic.ts';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
@@ -30,10 +30,12 @@ function reply(status: number, body: unknown) {
   return new Response(JSON.stringify(body), { status, headers: { ...CORS, 'Content-Type': 'application/json' } });
 }
 
-async function perceptualHash(bytes: Uint8Array): Promise<string | null> {
+// The page always uploads JPEG (it re-encodes every photo), so a pure-JS
+// decoder is enough — no native or WebAssembly code for the runtime to load.
+function perceptualHash(bytes: Uint8Array): string | null {
   try {
-    const img = await Image.decode(bytes);
-    return dhashFromGray(grayThumb(img.bitmap, img.width, img.height));
+    const img = jpeg.decode(bytes, JPEG_OPTIONS);
+    return dhashFromGray(grayThumb(img.data, img.width, img.height));
   } catch (_) {
     return null;
   }
@@ -84,7 +86,7 @@ Deno.serve(async (req) => {
 
   const sha256 = Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', bytes)))
     .map((b) => b.toString(16).padStart(2, '0')).join('');
-  const dhash = await perceptualHash(bytes);
+  const dhash = perceptualHash(bytes);
 
   let score: number | null = null;
   let labels: string[] = [];

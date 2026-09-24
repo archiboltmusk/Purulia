@@ -45,7 +45,7 @@ jobs:
         run: for f in kasa.js kasa-i18n.js admin.js sw.js config.js; do node --check "$f"; done
       - name: Photo fingerprint + Vision scoring
         run: |
-          npm install --no-save imagescript@1.3.0
+          npm install --no-save imagescript@1.3.0 jpeg-js@0.4.4
           node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
       - name: Ward boundaries
         run: node tools/validate-wards.mjs purulia_wards.geojson || echo "::warning::Ward boundary file has problems (see log)"

@@ -9,6 +9,9 @@ export function isPhotoPath(path: string): boolean {
   return PATH_RE.test(path);
 }
 
+/** jpeg-js decode options, shared with the tests so they decode exactly as production does. */
+export const JPEG_OPTIONS = { useTArray: true, formatAsRGBA: true, maxResolutionInMP: 30, maxMemoryUsageInMB: 256 };
+
 export const GRID = 9;
 const FLAT = 4; // gray levels; pairs closer than this are "flat" and ignored
 
