@@ -14,6 +14,10 @@ const DUPLICATE_RADIUS_M = 20;
 const DUPLICATE_HOURS = 6;
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+window.KASA_CONFIG = {
+  VISION_API_KEY: '',        // ← Add your Google Vision API key here
+  DIGEST_ENDPOINT: ''        // ← Optional: add a serverless email endpoint
+};
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
