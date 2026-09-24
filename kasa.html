@@ -22,18 +22,15 @@
 </head>
 <body>
 
-<!-- ═══ OFFLINE INDICATOR ═══ -->
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
   Offline — reports will queue and upload when connected
 </div>
 
-<!-- ═══ LOADER ═══ -->
 <div id="k-loader" class="k-loader">
   <div class="k-loader-text">Loading Purulia Kasa…</div>
 </div>
 
-<!-- ═══ NAV ═══ -->
 <nav class="k-nav">
   <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
   <div class="k-nav-links">
@@ -52,7 +49,6 @@
   </div>
 </nav>
 
-<!-- ═══ INTRO MODAL ═══ -->
 <div class="k-intro" id="k-intro" aria-hidden="true">
   <div class="k-intro-backdrop"></div>
   <div class="k-intro-card" role="dialog" aria-modal="true">
@@ -65,7 +61,6 @@
   </div>
 </div>
 
-<!-- ═══ HERO ═══ -->
 <header class="k-hero">
   <h1 class="k-hero-title">
     <span data-i18n="hero_l1">See garbage?</span><br>
@@ -78,7 +73,6 @@
   </button>
 </header>
 
-<!-- ═══ MAP ═══ -->
 <section class="k-map-section">
   <div id="k-map" style="touch-action:pan-x pan-y;"></div>
 
@@ -97,7 +91,6 @@
       </select>
       <input type="number" id="k-search-ward" class="k-filter-select k-filter-ward" placeholder="Ward #" min="1" max="23">
     </div>
-
     <div class="k-map-pill">
       <span class="k-pill-num" id="k-pill-active">—</span>
       <span class="k-pill-label" data-i18n="pill_active">Active</span>
@@ -119,12 +112,10 @@
   </button>
 </section>
 
-<!-- ═══ TICKER ═══ -->
 <section class="k-ticker">
   <div class="k-ticker-track" id="k-ticker-track"></div>
 </section>
 
-<!-- ═══ STATS ═══ -->
 <section class="k-stats">
   <div class="k-stat"><div class="k-stat-n" id="k-stat-total">—</div><div class="k-stat-l" data-i18n="stat_reports">Reports</div></div>
   <div class="k-stat"><div class="k-stat-n" id="k-stat-resolved">—</div><div class="k-stat-l" data-i18n="stat_resolved">Resolved</div></div>
@@ -132,7 +123,6 @@
   <div class="k-stat"><div class="k-stat-n" id="k-stat-rate">—</div><div class="k-stat-l" data-i18n="stat_rate">Resolution %</div></div>
 </section>
 
-<!-- ═══ LEADERBOARD ═══ -->
 <section class="k-lb-section">
   <div class="k-section-head">
     <div class="k-section-num">03 · Accountability</div>
@@ -144,7 +134,6 @@
   </div>
 </section>
 
-<!-- ═══ CHAIN ═══ -->
 <section class="k-chain-section">
   <div class="k-section-head">
     <div class="k-section-num">04 · Responsibility</div>
@@ -154,7 +143,6 @@
   <div class="k-chain" id="k-chain"></div>
 </section>
 
-<!-- ═══ AUTHORITY ═══ -->
 <section class="k-auth-section">
   <div class="k-section-head">
     <div class="k-section-num">05 · Representatives</div>
@@ -188,20 +176,17 @@
   </div>
 </section>
 
-<!-- ═══ FOOTER ═══ -->
 <footer class="k-footer">
   <div data-i18n="footer_left">Purulia Kasa · A civic tool for Purulia town</div>
   <div>23.33°N · 86.37°E</div>
 </footer>
 
-<!-- ═══ BOTTOM QR BAR ═══ -->
 <div class="k-bottom-bar">
   <button class="k-bottom-btn" id="k-qr-btn">
     <span>📱</span> <span data-i18n="qr_btn">Scan QR to Report</span>
   </button>
 </div>
 
-<!-- ═══ REPORT MODAL ═══ -->
 <div class="k-modal" id="k-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-modal-backdrop"></div>
   <div class="k-modal-sheet" role="dialog" aria-modal="true">
@@ -264,7 +249,6 @@
   </div>
 </div>
 
-<!-- ═══ QR MODAL ═══ -->
 <div class="k-modal" id="k-qr-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-qr-backdrop"></div>
   <div class="k-modal-sheet k-qr-sheet" role="dialog" aria-modal="true">
@@ -277,7 +261,6 @@
   </div>
 </div>
 
-<!-- ═══ REP PROFILE MODAL ═══ -->
 <div class="k-modal" id="k-rep-modal" aria-hidden="true">
   <div class="k-modal-backdrop" id="k-rep-backdrop"></div>
   <div class="k-modal-sheet k-rep-sheet" role="dialog" aria-modal="true">
@@ -287,7 +270,6 @@
   </div>
 </div>
 
-<!-- ═══ TOAST ═══ -->
 <div class="k-toast" id="k-toast"></div>
 
 <script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
