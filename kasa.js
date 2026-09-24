@@ -14,21 +14,66 @@ const DUPLICATE_RADIUS_M = 20;
 const DUPLICATE_HOURS = 6;
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-window.KASA_CONFIG = {
-  VISION_API_KEY: '',        // ← Add your Google Vision API key here
-  DIGEST_ENDPOINT: ''        // ← Optional: add a serverless email endpoint
+window.KASA_CONFIG = window.KASA_CONFIG || {
+  VISION_API_KEY: '',  // Set via config.js or environment
+  DIGEST_ENDPOINT: ''
 };
+
+/* ── PERFORMANCE: Debounce and throttle utilities ── */
+const debounce = (fn, ms) => { let timeout; return (...args) => { clearTimeout(timeout); timeout = setTimeout(() => fn(...args), ms); }; };
+const throttle = (fn, ms) => { let last = 0; return (...args) => { if (Date.now() - last >= ms) { fn(...args); last = Date.now(); } }; };
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
 let reports = [];
 let wards = {};
 let wardGeo = null;
-let draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'minor' };
+let draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'minor', visionScore: null };
 let activeFilters = { severity: '', status: '', ward: null };
 let userUpvotes = new Set();
 let currentLang = 'en';
 let reporterHash = null;
+let renderDebounced = debounce(() => { renderMarkers(); updateStats(); renderLeaderboard(); renderTicker(); }, 300);
+
+/* ── VISION API: Garbage Detection & Validation ── */
+async function validatePhotoWithVision(base64Image) {
+  if (!window.KASA_CONFIG.VISION_API_KEY) return { confidence: 0.5, labels: [], isGarbage: true };
+  try {
+    const response = await fetch(`https://vision.googleapis.com/v1/images:annotate?key=${window.KASA_CONFIG.VISION_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        requests: [{
+          image: { content: base64Image.split(',')[1] },
+          features: [
+            { type: 'LABEL_DETECTION', maxResults: 10 },
+            { type: 'OBJECT_LOCALIZATION', maxResults: 10 }
+          ]
+        }]
+      })
+    });
+    const result = await response.json();
+    if (result.responses && result.responses[0]) {
+      const labels = result.responses[0].labelAnnotations || [];
+      const objects = result.responses[0].localizedObjectAnnotations || [];
+
+      const garbageKeywords = ['garbage', 'waste', 'trash', 'litter', 'dump', 'refuse', 'debris', 'rubbish'];
+      const relevantLabels = labels.filter(l => garbageKeywords.some(k => l.description.toLowerCase().includes(k)));
+      const relevantObjects = objects.filter(o => garbageKeywords.some(k => o.name.toLowerCase().includes(k)));
+
+      const confidence = Math.max(
+        relevantLabels.length > 0 ? relevantLabels[0].score : 0,
+        relevantObjects.length > 0 ? relevantObjects[0].score : 0
+      );
+
+      return { confidence: Math.round(confidence * 100) / 100, labels: relevantLabels.map(l => l.description), isGarbage: confidence > 0.4 };
+    }
+    return { confidence: 0.5, labels: [], isGarbage: true };
+  } catch(e) {
+    console.warn('Vision API error:', e);
+    return { confidence: 0.5, labels: [], isGarbage: true };
+  }
+}
 
 /* ── Reps ── */
 const REPS = {
@@ -1025,22 +1070,38 @@ function handleVerify(reportId){
 }
 
 async function commitResolve(reportId, blob){
-  showToast('Uploading proof…');
-  const filename = `resolved/${reportId}-${Date.now()}.jpg`;
-  const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, blob, { contentType:'image/jpeg' });
-  if (upErr){ showToast('Upload failed'); return; }
-  const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
-  const { error: rpcErr } = await sb.rpc('mark_resolved', {
-    p_report_id: reportId,
-    p_resolved_photo_url: urlData.publicUrl,
-    p_resolved_by: reporterHash
-  });
-  if (rpcErr){ showToast('Could not mark resolved'); return; }
-  await loadReports();
-  updateStats();
-  renderLeaderboard();
-  renderTicker();
-  showToast('Marked as resolved ✓');
+  showToast('Validating and uploading proof…');
+
+  // Validate with Google Vision API
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const base64 = e.target.result;
+    const validation = await validatePhotoWithVision(base64);
+
+    showToast(`Uploading proof… (confidence: ${Math.round(validation.confidence * 100)}%)`);
+
+    const filename = `resolved/${reportId}-${Date.now()}.jpg`;
+    const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, blob, { contentType:'image/jpeg' });
+    if (upErr){ showToast('Upload failed'); return; }
+
+    const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
+
+    // No upvote requirement - any municipality official can resolve
+    const { error: rpcErr } = await sb.rpc('mark_resolved', {
+      p_report_id: reportId,
+      p_resolved_photo_url: urlData.publicUrl,
+      p_resolved_by: reporterHash,
+      p_vision_confidence: validation.confidence,
+      p_vision_labels: validation.labels.join(',')
+    });
+
+    if (rpcErr){ showToast('Could not mark resolved'); return; }
+
+    showToast(`Resolved ✓ (${validation.confidence * 100}% confidence)`);
+    await loadReports();
+    renderDebounced();
+  };
+  reader.readAsDataURL(blob);
 }
 
 function handleShare(url, msg){
