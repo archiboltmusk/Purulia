@@ -24,10 +24,9 @@ ADD COLUMN IF NOT EXISTS exif_gps_lat FLOAT8,
 ADD COLUMN IF NOT EXISTS exif_gps_lng FLOAT8,
 ADD COLUMN IF NOT EXISTS exif_match BOOLEAN; -- true if reported GPS ≤100m from EXIF GPS
 
--- Create overloaded kasa_record_photo_check that accepts EXIF parameters
--- The old 7-parameter version still exists and works for backwards compatibility
-DROP FUNCTION IF EXISTS public.kasa_record_photo_check(text, text, text, double precision, jsonb, boolean, integer, double precision, double precision, boolean) CASCADE;
-CREATE FUNCTION public.kasa_record_photo_check(
+-- Update kasa_record_photo_check to accept EXIF parameters
+-- Uses CREATE OR REPLACE with DEFAULT values for new parameters for backwards compatibility
+CREATE OR REPLACE FUNCTION public.kasa_record_photo_check(
   p_path text, p_sha256 text, p_dhash text,
   p_garbage_score double precision, p_labels jsonb, p_unsafe boolean, p_face_count integer,
   p_exif_gps_lat double precision default null,
