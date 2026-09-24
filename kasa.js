@@ -1927,7 +1927,7 @@ async function toggleAlerts(btn){
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
   const go = () => navigator.serviceWorker.register('sw.js').catch(e => console.info('Kasa: service worker not registered', e));
-  (window.requestIdleCallback || setTimeout)(go, 3000);
+  setTimeout(() => (window.requestIdleCallback || setTimeout)(go), 3000);
 }
 
 /* ══════════════════════════════════════════════════════════
