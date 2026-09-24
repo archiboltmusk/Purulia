@@ -64,6 +64,7 @@
       <li><strong>A network fingerprint</strong> — a one-way, salted hash of the first part of your IP address (for example, the first three numbers of an IPv4 address). It is used only to check that confirmations of a cleanup come from different networks. Your full IP address is not stored in our database.</li>
     </ul>
     <p><strong>Anonymous account.</strong> The first time you report, confirm, rate or flag something, our database provider (Supabase) creates a random anonymous account ID for your browser. It is not linked to any name, email or phone number. It lets us stop one person from confirming their own cleanup claim, voting twice, or flooding the Platform. Clearing your browser's site data removes it from your device.</p>
+    <p><strong>Camera and photo information.</strong> Cleanup and confirmation photos are taken with the camera inside the page; the camera is used only while the camera screen is open, and only the photo you choose to use is uploaded. When you choose a photo from your phone instead, the page reads, on your phone, the time the camera says it was taken, the location the camera stamped on it (if any), and whether the file says it was made or edited with AI. Only those values are sent — never the rest of the photo's metadata. We use them to refuse old or AI-edited evidence and to send a photo taken far from the spot to a moderator. The photo's location is deleted as soon as the photo is used; only its distance from the spot is kept. Every photo is uploaded without any of its original metadata.</p>
     <p><strong>Photo checks (if enabled).</strong> Photos may be analysed by Google Vision to estimate whether they show garbage and to screen out unsafe images. We also store a fingerprint of each photo to detect the same photo being reused. Results are stored privately.</p>
     <p><strong>Nearby alerts (only if you turn them on).</strong> We store your browser's push-notification address, your approximate location rounded to about 100 metres, your alert radius and your language, so we can alert you to new reports near you. Turning alerts off deletes them.</p>
     <p><strong>On your device.</strong> Your language, your anonymous session, and which reports you have marked or rated are kept in your browser's local storage so the page remembers them.</p>
@@ -95,7 +96,7 @@
     <p>Every report is <strong>public by design</strong>. That is the entire point of Purulia Kasa — transparent civic accountability. The following are visible to anyone:</p>
     <ul>
       <li>The photograph, location (as a pin on the map), ward, issue type, severity, landmark and description</li>
-      <li>Confirmations, disputes and cleanup claims — with their photos, their distance from the spot, and a per-report pseudonym</li>
+      <li>Confirmations, disputes and cleanup claims — with their photos, their distance from the spot, a per-report pseudonym, and whether the photo came from the in-page camera or from the phone (with how old it was and, if its location data was far from the spot, that distance)</li>
       <li>The number of people who saw the report, and rating totals and averages</li>
       <li>Official responses published under the right of reply</li>
     </ul>
@@ -103,6 +104,7 @@
     <ul>
       <li>Your anonymous account ID</li>
       <li>Your GPS position when confirming, disputing, rating or marking "I saw this too"</li>
+      <li>The location stamped on any photo you upload (only the distance from the spot is kept)</li>
       <li>Your network fingerprint or your IP address</li>
       <li>Your individual ratings, or your nearby-alert subscription</li>
     </ul>

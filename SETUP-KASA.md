@@ -16,8 +16,12 @@ Supabase SQL editor (or with the Supabase CLI). Each is safe to re-run.
 - `20260924160000_kasa_unlinkable_photo_paths.sql` — photo links no longer
   contain the uploader's anonymous ID, so nobody can link one person's reports
   and confirmations together.
+- `20260924180000_kasa_photo_evidence_checks.sql` — evidence photos: AI-edited
+  or older than 2 hours → refused; photo GPS more than 500 m from the spot →
+  held for a moderator (a held confirmation doesn't count, a held claim can't
+  become final); no metadata → recorded, never refused.
 
-Both are applied on the live project (24 Sep 2026).
+If you ever re-run an earlier file on its own, re-run the later ones after it.
 
 What it changes on the live project (audited 24 Sep 2026):
 
@@ -115,7 +119,26 @@ A moderator is any Supabase Auth user listed in `public.admins`. They use
 `admin.html` to publish or hide reports, reject fake cleanup claims, void fake
 votes, and publish officials' responses (right of reply).
 
-## 10. Tuning
+## 10. Evidence photos
+
+Cleanup claims, confirmations and disputes are photographed with the camera
+inside the page (no gallery step). If a browser can't open the camera — some
+in-app browsers can't — the page lets people choose a photo instead; its
+metadata is read on the phone and checked (see migration 3 above). Held photos
+appear first in `admin.html` with a **Clear** button; clearing needs a public
+reason, like every moderator action.
+
+To refuse anything that isn't from the in-page camera:
+
+```sql
+update kasa_private.settings set value = 'true' where key = 'require_live_capture';
+```
+
+This blocks people whose browser can't open the camera, so leave it off unless
+you see abuse. The metadata is sent by the phone, so it stops careless cheating,
+not a determined cheat; the people confirming on the spot are still the real check.
+
+## 11. Tuning
 
 All thresholds live in `kasa_private.settings` (quorum, dispute count,
 challenge window, GPS radius and accuracy, rate limits, neighbour-rating
@@ -130,15 +153,20 @@ update kasa_private.settings set value = '2' where key = 'verify_quorum';
 Server rules make cheating slow, visible and risky, not impossible. Someone
 who prepares several anonymous accounts in advance, uses a GPS-spoofing app
 and switches between networks could still fake a cleanup. Every confirmation
-photo is public, and anyone on the spot can dispute it for 12 hours. To close
-this further, require phone-number (OTP) sign-in for confirmations; that needs
-an SMS provider and costs money per message.
+photo is public, and anyone on the spot can dispute it for 12 hours. The live
+camera and photo-metadata checks catch careless cheating (an old photo, a
+photo from elsewhere, an AI-erased pile of garbage), but a phone can be made
+to send any metadata. To close this further, require phone-number (OTP)
+sign-in for confirmations; that needs an SMS provider and costs money per
+message. CAPTCHAs, including free proof-of-work ones, don't help here: they
+stop bots, not one person with three phones.
 
 ## Tests
 
 ```
 PGHOST=... PGPORT=... bash supabase/tests/run.sh          # database rules (needs Postgres 16 + psycopg)
 npm i --no-save imagescript@1.3.0 jpeg-js@0.4.4 && node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
+node tests/kasa_photo_meta.test.mjs                        # on-phone photo metadata reader
 ```
 
-Both run in GitHub Actions (`.github/workflows/kasa-tests.yml`).
+All run in GitHub Actions (`.github/workflows/kasa-tests.yml`).

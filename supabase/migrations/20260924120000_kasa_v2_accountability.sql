@@ -1234,7 +1234,10 @@ begin
 end $$;
 
 -- ── Public read models (no user ids, no IPs, pseudonymous actors) ───────
-create or replace view public.kasa_public_reports as
+-- Dropped first so a re-run works after later migrations added columns;
+-- privileges are granted again below.
+drop view if exists public.kasa_public_reports;
+create view public.kasa_public_reports as
 select r.id, r.created_at, r.lat, r.lng, r.ward_no, r.category, r.severity, r.status,
        r.description, r.landmark, r.photo_url,
        coalesce(r.upvotes, 0) as upvotes, r.seen_on_site, coalesce(r.flags, 0) as flags,

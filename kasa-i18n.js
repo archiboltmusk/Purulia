@@ -604,3 +604,71 @@ window.KASA_I18N = {
     err_KASA_AUTH_REQUIRED: 'सुरक्षित सत्र शुरू नहीं हो सका। फिर कोशिश करें।'
   }
 };
+
+/* Live camera and photo-metadata checks (v2.2). */
+Object.assign(window.KASA_I18N.en, {
+  trust_6: 'Evidence photos are taken with the camera on this page. Photos marked as AI-edited, or taken earlier, are refused; a photo whose location data is far from the spot waits for a moderator.',
+  cam_title: 'Take the photo', cam_starting: 'Starting camera…', cam_capture: 'Take photo', cam_retake: 'Retake', cam_use: 'Use this photo',
+  cam_denied: 'Camera permission is off. Allow it in your browser settings, or choose a photo instead.',
+  cam_unavailable: "This browser can't open the camera here. Choose a photo instead — its time and location data will be checked.",
+  cam_fallback: 'Camera not working? Choose a photo',
+  ev_photo_live: '✓ Photo taken with the live camera',
+  ev_photo_file: '✓ Photo ready — its time and location data will be checked',
+  ev_photo_ai: '✗ This photo says it was made or edited with AI. Take a new photo with the camera.',
+  ev_photo_old: '✗ This photo was taken {ago}. Take a new one at the spot now.',
+  ev_done_held: "Recorded. Your photo's location data is far from the spot, so a moderator will check it before it counts.",
+  ev_done_claim_held: "Claim recorded. Its photo's location data is far from the spot, so a moderator must check it before the cleanup can become final.",
+  pn_claim_held: "A moderator must check the claim photo (its location data is far from the spot) before this can become final.",
+  report_ai_note: 'This photo is marked as made or edited with AI. A moderator will check it before the report appears.',
+  tl_live: 'live camera', tl_file: 'from gallery', tl_taken: 'photo taken {t} earlier', tl_exif_far: 'photo location data {d} m from the spot',
+  tl_held: 'waiting for a moderator', tl_ai: 'marked as AI-edited',
+  dur_m: '{n} min', dur_h: '{n} h', dur_d: '{n} days',
+  ev_vote_cleared: 'Moderator cleared a held photo', ev_claim_cleared: 'Moderator cleared the claim photo',
+  err_KASA_PHOTO_OLD: 'This photo was taken {ago}. Take a new one at the spot now.',
+  err_KASA_PHOTO_AI_EDITED: "This photo says it was made or edited with AI, so it can't be evidence. Take a new photo with the camera.",
+  err_KASA_LIVE_CAMERA_REQUIRED: 'Take the photo with the camera on this page.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  trust_6: 'প্রমাণের ছবি এই পেজের ক্যামেরা দিয়েই তোলা হয়। AI দিয়ে বদলানো বা আগে তোলা ছবি বাতিল হয়; যে ছবির লোকেশন তথ্য জায়গা থেকে দূরে, তা মডারেটরের যাচাইয়ের অপেক্ষায় থাকে।',
+  cam_title: 'ছবি তুলুন', cam_starting: 'ক্যামেরা চালু হচ্ছে…', cam_capture: 'ছবি তুলুন', cam_retake: 'আবার তুলুন', cam_use: 'এই ছবি ব্যবহার করুন',
+  cam_denied: 'ক্যামেরার অনুমতি বন্ধ। ব্রাউজারের সেটিংসে চালু করুন, অথবা একটি ছবি বেছে নিন।',
+  cam_unavailable: 'এই ব্রাউজারে এখানে ক্যামেরা খোলা যাচ্ছে না। একটি ছবি বেছে নিন — তার সময় ও লোকেশন তথ্য যাচাই করা হবে।',
+  cam_fallback: 'ক্যামেরা কাজ করছে না? একটি ছবি বেছে নিন',
+  ev_photo_live: '✓ লাইভ ক্যামেরায় ছবি তোলা হয়েছে',
+  ev_photo_file: '✓ ছবি তৈরি — তার সময় ও লোকেশন তথ্য যাচাই করা হবে',
+  ev_photo_ai: '✗ এই ছবিতে লেখা আছে এটি AI দিয়ে তৈরি বা বদলানো। ক্যামেরা দিয়ে নতুন ছবি তুলুন।',
+  ev_photo_old: '✗ এই ছবি তোলা হয়েছে {ago}। ঘটনাস্থলে এখনই নতুন ছবি তুলুন।',
+  ev_done_held: 'রেকর্ড হয়েছে। আপনার ছবির লোকেশন তথ্য জায়গা থেকে দূরে, তাই গোনার আগে মডারেটর যাচাই করবেন।',
+  ev_done_claim_held: 'দাবি রেকর্ড হয়েছে। ছবির লোকেশন তথ্য জায়গা থেকে দূরে, তাই চূড়ান্ত হওয়ার আগে মডারেটরকে যাচাই করতে হবে।',
+  pn_claim_held: 'দাবির ছবির লোকেশন তথ্য জায়গা থেকে দূরে — চূড়ান্ত হওয়ার আগে মডারেটরকে যাচাই করতে হবে।',
+  report_ai_note: 'এই ছবিতে লেখা আছে এটি AI দিয়ে তৈরি বা বদলানো। রিপোর্ট দেখানোর আগে মডারেটর যাচাই করবেন।',
+  tl_live: 'লাইভ ক্যামেরা', tl_file: 'গ্যালারি থেকে', tl_taken: 'ছবি {t} আগে তোলা', tl_exif_far: 'ছবির লোকেশন তথ্য জায়গা থেকে {d} মি দূরে',
+  tl_held: 'মডারেটরের অপেক্ষায়', tl_ai: 'AI দিয়ে বদলানো বলে চিহ্নিত',
+  dur_m: '{n} মিনিট', dur_h: '{n} ঘণ্টা', dur_d: '{n} দিন',
+  ev_vote_cleared: 'মডারেটর আটকে থাকা ছবি যাচাই করে ছেড়েছেন', ev_claim_cleared: 'মডারেটর দাবির ছবি যাচাই করে ছেড়েছেন',
+  err_KASA_PHOTO_OLD: 'এই ছবি তোলা হয়েছে {ago}। ঘটনাস্থলে এখনই নতুন ছবি তুলুন।',
+  err_KASA_PHOTO_AI_EDITED: 'এই ছবিতে লেখা আছে এটি AI দিয়ে তৈরি বা বদলানো, তাই প্রমাণ হিসেবে চলবে না। ক্যামেরা দিয়ে নতুন ছবি তুলুন।',
+  err_KASA_LIVE_CAMERA_REQUIRED: 'এই পেজের ক্যামেরা দিয়ে ছবি তুলুন।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  trust_6: 'सबूत की फ़ोटो इसी पेज के कैमरे से ली जाती है। AI से बदली गई या पहले ली गई फ़ोटो अस्वीकार होती है; जिस फ़ोटो का लोकेशन डेटा जगह से दूर हो, वह मॉडरेटर की जाँच का इंतज़ार करती है।',
+  cam_title: 'फ़ोटो लें', cam_starting: 'कैमरा चालू हो रहा है…', cam_capture: 'फ़ोटो लें', cam_retake: 'फिर से लें', cam_use: 'यही फ़ोटो इस्तेमाल करें',
+  cam_denied: 'कैमरे की अनुमति बंद है। ब्राउज़र की सेटिंग में चालू करें, या कोई फ़ोटो चुनें।',
+  cam_unavailable: 'इस ब्राउज़र में यहाँ कैमरा नहीं खुल रहा। कोई फ़ोटो चुनें — उसका समय और लोकेशन डेटा जाँचा जाएगा।',
+  cam_fallback: 'कैमरा नहीं चल रहा? कोई फ़ोटो चुनें',
+  ev_photo_live: '✓ लाइव कैमरे से फ़ोटो ली गई',
+  ev_photo_file: '✓ फ़ोटो तैयार — उसका समय और लोकेशन डेटा जाँचा जाएगा',
+  ev_photo_ai: '✗ इस फ़ोटो में लिखा है कि यह AI से बनी या बदली गई है। कैमरे से नई फ़ोटो लें।',
+  ev_photo_old: '✗ यह फ़ोटो {ago} ली गई थी। मौके पर अभी नई फ़ोटो लें।',
+  ev_done_held: 'दर्ज हो गया। आपकी फ़ोटो का लोकेशन डेटा जगह से दूर है, इसलिए गिनती से पहले मॉडरेटर जाँचेंगे।',
+  ev_done_claim_held: 'दावा दर्ज हो गया। फ़ोटो का लोकेशन डेटा जगह से दूर है, इसलिए अंतिम होने से पहले मॉडरेटर को जाँचना होगा।',
+  pn_claim_held: 'दावे की फ़ोटो का लोकेशन डेटा जगह से दूर है — अंतिम होने से पहले मॉडरेटर को जाँचना होगा।',
+  report_ai_note: 'इस फ़ोटो में लिखा है कि यह AI से बनी या बदली गई है। रिपोर्ट दिखने से पहले मॉडरेटर जाँचेंगे।',
+  tl_live: 'लाइव कैमरा', tl_file: 'गैलरी से', tl_taken: 'फ़ोटो {t} पहले ली गई', tl_exif_far: 'फ़ोटो का लोकेशन डेटा जगह से {d} मी दूर',
+  tl_held: 'मॉडरेटर का इंतज़ार', tl_ai: 'AI से बदली गई के रूप में चिह्नित',
+  dur_m: '{n} मिनट', dur_h: '{n} घंटे', dur_d: '{n} दिन',
+  ev_vote_cleared: 'मॉडरेटर ने रोकी गई फ़ोटो जाँचकर मंज़ूर की', ev_claim_cleared: 'मॉडरेटर ने दावे की फ़ोटो जाँचकर मंज़ूर की',
+  err_KASA_PHOTO_OLD: 'यह फ़ोटो {ago} ली गई थी। मौके पर अभी नई फ़ोटो लें।',
+  err_KASA_PHOTO_AI_EDITED: 'इस फ़ोटो में लिखा है कि यह AI से बनी या बदली गई है, इसलिए यह सबूत नहीं बन सकती। कैमरे से नई फ़ोटो लें।',
+  err_KASA_LIVE_CAMERA_REQUIRED: 'इसी पेज के कैमरे से फ़ोटो लें।'
+});

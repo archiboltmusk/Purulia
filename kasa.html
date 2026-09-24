@@ -32,6 +32,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
 <script defer src="config.js"></script>
 <script defer src="kasa-i18n.js"></script>
+<script defer src="kasa-photo-meta.js"></script>
 <script defer src="kasa.js"></script>
 </head>
 <body>
@@ -226,6 +227,7 @@
       </label>
       <input type="file" id="k-photo" accept="image/*" hidden>
       <div class="k-photo-preview" id="k-photo-preview"></div>
+      <div class="k-cat-warning" id="k-photo-note" hidden></div>
       <button type="button" class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>
       <button type="button" class="k-btn k-btn-ghost" data-goto="1" data-i18n="back">← Back</button>
     </div>
@@ -309,7 +311,8 @@
       <div class="k-ev-body">
         <div class="k-ev-label" data-i18n="ev_photo">Take a photo now</div>
         <div class="k-ev-status" id="k-ev-photo-status" data-i18n="ev_photo_hint">Use the camera — the photo must be taken now, at the spot.</div>
-        <label class="k-btn k-btn-secondary k-btn-sm" for="k-ev-photo" data-i18n="ev_photo_btn">📷 Open camera</label>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-ev-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
+        <label class="k-ev-fallback" for="k-ev-photo" id="k-ev-file-btn" hidden data-i18n="cam_fallback">Camera not working? Choose a photo</label>
         <input type="file" id="k-ev-photo" accept="image/*" capture="environment" hidden>
         <div class="k-photo-preview" id="k-ev-preview"></div>
       </div>
@@ -370,6 +373,24 @@
     <p class="k-modal-sub" data-i18n="qr_sub">Point a phone camera at this QR code to open the report page.</p>
     <div class="k-qr-wrap" id="k-qr-wrap"></div>
     <div class="k-qr-url" id="k-qr-url"></div>
+  </div>
+</div>
+
+<!-- Live camera for evidence photos: no gallery, no editing step -->
+<div class="k-cam" id="k-cam" hidden role="dialog" aria-modal="true" aria-labelledby="k-cam-title">
+  <div class="k-cam-top">
+    <span id="k-cam-title" data-i18n="cam_title">Take the photo</span>
+    <button type="button" class="k-cam-close" id="k-cam-close" aria-label="Close">✕</button>
+  </div>
+  <div class="k-cam-stage">
+    <video id="k-cam-video" playsinline muted autoplay></video>
+    <img id="k-cam-still" alt="" hidden>
+    <div class="k-cam-msg" id="k-cam-msg"></div>
+  </div>
+  <div class="k-cam-bar">
+    <button type="button" class="k-cam-shutter" id="k-cam-shutter" aria-label="Take photo" disabled></button>
+    <button type="button" class="k-btn k-btn-secondary" id="k-cam-retake" hidden data-i18n="cam_retake">Retake</button>
+    <button type="button" class="k-btn k-btn-primary" id="k-cam-use" hidden data-i18n="cam_use">Use this photo</button>
   </div>
 </div>
 

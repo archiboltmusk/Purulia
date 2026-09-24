@@ -28,7 +28,8 @@ const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
   verify_quorum: 3, dispute_quorum: 2, challenge_hours: 12, claim_expiry_days: 14,
-  claim_radius_m: 50, vote_radius_m: 100, max_gps_accuracy_m: 60
+  claim_radius_m: 50, vote_radius_m: 100, max_gps_accuracy_m: 60,
+  max_photo_age_minutes: 120, photo_gps_far_m: 500, require_live_capture: 0
 };
 const SEVERITIES = ['minor', 'severe', 'critical'];
 const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
@@ -187,13 +188,10 @@ async function init(){
 /* ══════════════════════════════════════════════════════════
    DATA
    ══════════════════════════════════════════════════════════ */
-const V2_COLS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,' +
-  'moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,' +
-  'sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,' +
-  'claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count';
-
 async function fetchRows(){
-  const v2 = await sb.from('kasa_public_reports').select(V2_COLS).order('created_at', { ascending: false }).limit(1000);
+  // select('*'): the public view only has public columns, and a page cached
+  // before a column was added (or removed) keeps working.
+  const v2 = await sb.from('kasa_public_reports').select('*').order('created_at', { ascending: false }).limit(1000);
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
@@ -258,7 +256,8 @@ function normalize(r){
     claim: r.claim_id ? {
       id: r.claim_id, photo: safeUrl(r.claim_photo_url), createdAt: r.claim_created_at,
       verify: Number(r.claim_verify_count || 0), dispute: Number(r.claim_dispute_count || 0),
-      quorumAt: r.claim_quorum_reached_at, finalAfter: r.claim_finalize_after, distance: r.claim_distance_m
+      quorumAt: r.claim_quorum_reached_at, finalAfter: r.claim_finalize_after, distance: r.claim_distance_m,
+      held: !!r.claim_needs_review
     } : null,
     ratings: Number(r.rating_count || 0),
     onsiteRatings: Number(r.onsite_rating_count || 0),
@@ -393,7 +392,8 @@ function errorText(err){
     try { data = err.hint ? JSON.parse(err.hint) : {}; } catch (e) {}
     const key = 'err_' + code;
     const hasOwn = I18N[state.lang]?.[key] || I18N.en[key];
-    return hasOwn ? t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m }) : (err.details || t('err_generic'));
+    const taken = data.taken_minutes_ago != null ? ago(new Date(Date.now() - data.taken_minutes_ago * 60000).toISOString()) : '';
+    return hasOwn ? t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m, ago: taken }) : (err.details || t('err_generic'));
   }
   return t('err_generic');
 }
@@ -413,6 +413,21 @@ async function uploadPhoto(folder, blob){
   return path;
 }
 
+/* What the phone said about the photo — capture method, camera time, GPS
+   stamp, AI-edit marker (kasa-photo-meta.js). Sent before the photo is used;
+   the server applies the rules. Older databases without the function are fine. */
+async function sendPhotoMeta(path, meta){
+  if (!meta) return;
+  const { error } = await sb.rpc('kasa_photo_meta', { p_path: path, p_meta: meta });
+  if (error && error.code !== 'PGRST202') console.warn('Kasa: photo metadata not recorded', error);
+}
+
+async function readPhotoMeta(file){
+  let m = {};
+  try { if (window.KasaPhotoMeta) m = await window.KasaPhotoMeta.read(file); } catch (e) { /* treat as no metadata */ }
+  return { capture: 'file', ...m };
+}
+
 /* Server-side photo check (fingerprint + Google Vision). Best effort: when the
    function isn't deployed the database decides whether that's acceptable. */
 async function checkPhoto(path){
@@ -429,6 +444,7 @@ const api = {
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
     const path = await uploadPhoto('reports', d.photoBlob);
+    await sendPhotoMeta(path, d.photoMeta);
     await checkPhoto(path);
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
@@ -466,10 +482,11 @@ const api = {
     return data;
   },
 
-  async evidence(mode, r, blob, pos, note){
+  async evidence(mode, r, blob, pos, note, meta){
     if (state.mode !== 'v2') return legacySubmitProof(r, blob);
     await ensureSession();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
+    await sendPhotoMeta(path, meta);
     ev?.setStatus?.(t('ev_checking'));
     await checkPhoto(path);
     const { data, error } = mode === 'claim'
@@ -814,7 +831,7 @@ function renderTrust(){
   if (!on) return;
   const r = state.rules;
   const vars = { cr: r.claim_radius_m, vr: r.vote_radius_m, q: r.verify_quorum, dq: r.dispute_quorum, h: r.challenge_hours };
-  document.getElementById('k-trust-steps').innerHTML = [1, 2, 3, 4, 5]
+  document.getElementById('k-trust-steps').innerHTML = [1, 2, 3, 4, 5, 6]
     .map(i => `<li class="k-trust-step"><span class="k-trust-n">${i}</span><span>${esc(t('trust_' + i, vars))}</span></li>`).join('');
 }
 
@@ -946,6 +963,7 @@ function renderStatusPanel(r){
         <div class="k-progress"><span class="k-dots">${dots}</span>
           <span>${esc(t('pn_progress', { v: r.claim.verify, q, d: r.claim.dispute, dq }))}</span></div>
         <div class="k-panel-meta">${esc(timing)}</div>
+        ${r.claim.held ? `<div class="k-note k-note-warn">⏸ ${esc(t('pn_claim_held'))}</div>` : ''}
       </div>`);
   } else if (r.status === 'claimed'){
     parts.push(`<div class="k-panel k-panel-claim"><div class="k-panel-meta">${esc(t('pn_legacy_review'))}</div></div>`);
@@ -1097,7 +1115,15 @@ function renderTimelineHTML(r){
     if (e.kind === 'claim_rejected' && d.reason) bits.push(d.reason === 'disputed_on_site' ? t('rej_disputed_on_site') : String(d.reason));
     if (e.kind === 'resolved') bits.push(t('tl_counts', { v: d.verify_count ?? '?', d: d.dispute_count ?? 0 }));
     if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason));
-    if ((e.kind === 'moderated' || e.kind === 'vote_voided' || e.kind === 'reply_hidden') && d.reason) bits.push(String(d.reason));
+    if (['reported', 'claimed', 'verified', 'disputed'].includes(e.kind)){
+      if (d.capture === 'live') bits.push(t('tl_live'));
+      else if (d.capture === 'file') bits.push(t('tl_file'));
+      if (d.taken_minutes_ago >= 60) bits.push(t('tl_taken', { t: duration(d.taken_minutes_ago) }));
+      if (d.flag === 'gps_far' && d.exif_distance_m != null) bits.push(t('tl_exif_far', { d: d.exif_distance_m }));
+      if (d.ai_edited) bits.push(t('tl_ai'));
+      if (d.needs_review) bits.push(t('tl_held'));
+    }
+    if (['moderated', 'vote_voided', 'reply_hidden', 'vote_cleared', 'claim_cleared'].includes(e.kind) && d.reason) bits.push(String(d.reason));
     if (e.kind === 'official_reply' && d.name) bits.push(`${d.name}${d.role ? ' · ' + d.role : ''}`);
     if ((e.kind === 'neighbours_verified' || e.kind === 'neighbours_doubted') && d.ratings) bits.push(t('tl_ratings', { n: d.ratings, a: d.average }));
     const photo = safeUrl(e.photo_url);
@@ -1275,7 +1301,7 @@ function openEvidence(spec){
   if (!r) return;
   const legacy = state.mode !== 'v2';
   const m = legacy ? 'legacy' : mode;
-  ev = { mode: m, r, pos: null, blob: null, setStatus: (s) => { document.getElementById('k-ev-submit').textContent = s; } };
+  ev = { mode: m, r, pos: null, blob: null, meta: null, setStatus: (s) => { document.getElementById('k-ev-submit').textContent = s; } };
   const rules = state.rules;
   const radius = m === 'claim' ? rules.claim_radius_m : rules.vote_radius_m;
   ev.radius = radius;
@@ -1285,6 +1311,8 @@ function openEvidence(spec){
   document.getElementById('k-ev-loc-status').className = 'k-ev-status';
   document.getElementById('k-ev-preview').innerHTML = '';
   document.getElementById('k-ev-photo').value = '';
+  document.getElementById('k-ev-file-btn').hidden = true;
+  document.getElementById('k-ev-photo-status').className = 'k-ev-status';
   document.getElementById('k-ev-photo-status').textContent = t('ev_photo_hint');
   document.getElementById('k-ev-note').value = '';
   document.getElementById('k-ev-note-wrap').hidden = m !== 'dispute';
@@ -1318,17 +1346,133 @@ async function checkEvidenceLocation(){
 
 function setEvStatus(el, kind, text){ el.className = 'k-ev-status k-ev-' + kind; el.textContent = text; }
 
+function setEvidencePhoto(blob, meta, okKey){
+  ev.blob = blob;
+  ev.meta = meta;
+  document.getElementById('k-ev-preview').innerHTML = blob ? `<img src="${URL.createObjectURL(blob)}" alt="">` : '';
+  if (okKey) setEvStatus(document.getElementById('k-ev-photo-status'), 'ok', t(okKey));
+  updateEvidenceSubmit();
+}
+
+function rejectEvidencePhoto(text){
+  setEvidencePhoto(null, null);
+  setEvStatus(document.getElementById('k-ev-photo-status'), 'bad', text);
+}
+
+async function captureEvidencePhoto(){
+  if (!ev) return;
+  const res = cameraSupported() ? await openCamera() : { error: 'unavailable' };
+  if (!ev) return;
+  if (res.blob) return setEvidencePhoto(res.blob, { capture: 'live' }, 'ev_photo_live');
+  if (res.error === 'cancelled') return;
+  // No camera in this browser (some in-app browsers) or permission refused:
+  // allow a file, whose time, location and AI markers are then checked.
+  if (!state.rules.require_live_capture) document.getElementById('k-ev-file-btn').hidden = false;
+  setEvStatus(document.getElementById('k-ev-photo-status'), 'bad', t(res.error === 'denied' ? 'cam_denied' : 'cam_unavailable'));
+}
+
 async function handleEvidencePhoto(file){
   if (!file || !ev) return;
   try {
-    ev.blob = await compressImage(file);
-    document.getElementById('k-ev-preview').innerHTML = `<img src="${URL.createObjectURL(ev.blob)}" alt="">`;
-    setEvStatus(document.getElementById('k-ev-photo-status'), 'ok', t('ev_photo_ok'));
+    const meta = await readPhotoMeta(file);
+    if (meta.ai_marker) return rejectEvidencePhoto(t('ev_photo_ai'));
+    if (meta.taken_at){
+      const taken = new Date(meta.taken_at).getTime();
+      const skew = 10 * 60000;
+      const notBefore = ev.mode === 'claim' ? 0 : new Date(ev.r.claim?.createdAt || 0).getTime() - skew;
+      if (taken <= Date.now() + skew && (Date.now() - taken > state.rules.max_photo_age_minutes * 60000 || taken < notBefore)){
+        return rejectEvidencePhoto(t('ev_photo_old', { ago: ago(meta.taken_at) }));
+      }
+    }
+    setEvidencePhoto(await compressImage(file), meta, 'ev_photo_file');
   } catch (e){
-    ev.blob = null;
-    setEvStatus(document.getElementById('k-ev-photo-status'), 'bad', t('err_photo_read'));
+    rejectEvidencePhoto(t('err_photo_read'));
   }
-  updateEvidenceSubmit();
+}
+
+/* ══════════════════════════════════════════════════════════
+   LIVE CAMERA — evidence photos come straight from the camera, so
+   there is no gallery step where an old, borrowed or AI-edited photo
+   could slip in. (Someone determined can still fake it; the people
+   confirming on the spot are the real check.)
+   ══════════════════════════════════════════════════════════ */
+const camera = { stream: null, blob: null, resolve: null };
+
+function cameraSupported(){
+  return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext !== false;
+}
+
+function showCameraState(s){
+  document.getElementById('k-cam-video').hidden = s !== 'live';
+  document.getElementById('k-cam-still').hidden = s !== 'still';
+  document.getElementById('k-cam-shutter').hidden = s !== 'live';
+  document.getElementById('k-cam-retake').hidden = s !== 'still';
+  document.getElementById('k-cam-use').hidden = s !== 'still';
+}
+
+function openCamera(){
+  return new Promise(resolve => {
+    camera.resolve = resolve;
+    camera.blob = null;
+    const shutter = document.getElementById('k-cam-shutter');
+    shutter.disabled = true;
+    shutter.setAttribute('aria-label', t('cam_capture'));
+    showCameraState('live');
+    document.getElementById('k-cam-msg').textContent = t('cam_starting');
+    document.getElementById('k-cam').hidden = false;
+    startCameraStream();
+  });
+}
+
+async function startCameraStream(){
+  const video = document.getElementById('k-cam-video');
+  try {
+    camera.stream = await navigator.mediaDevices.getUserMedia({
+      audio: false, video: { facingMode: { ideal: 'environment' }, width: { ideal: 1920 }, height: { ideal: 1080 } }
+    });
+    if (!camera.resolve){ stopCameraStream(); return; } // closed while starting
+    video.srcObject = camera.stream;
+    await video.play().catch(() => {});
+    document.getElementById('k-cam-msg').textContent = '';
+    document.getElementById('k-cam-shutter').disabled = false;
+  } catch (e){
+    closeCamera({ error: e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'denied' : 'unavailable' });
+  }
+}
+
+function stopCameraStream(){
+  if (camera.stream) camera.stream.getTracks().forEach(tr => tr.stop());
+  camera.stream = null;
+  document.getElementById('k-cam-video').srcObject = null;
+}
+
+function closeCamera(result){
+  stopCameraStream();
+  document.getElementById('k-cam').hidden = true;
+  const done = camera.resolve;
+  camera.resolve = null;
+  if (done) done(result);
+}
+
+async function takeCameraShot(){
+  const video = document.getElementById('k-cam-video');
+  if (!video.videoWidth) return;
+  const scale = Math.min(1, PHOTO_MAX_PX / Math.max(video.videoWidth, video.videoHeight));
+  const canvas = document.createElement('canvas');
+  canvas.width = Math.round(video.videoWidth * scale);
+  canvas.height = Math.round(video.videoHeight * scale);
+  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  try {
+    camera.blob = await new Promise((resolve, reject) =>
+      canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.85));
+  } catch (e){
+    showToast(t('err_photo_read'));
+    return;
+  }
+  const still = document.getElementById('k-cam-still');
+  if (still.src) URL.revokeObjectURL(still.src);
+  still.src = URL.createObjectURL(camera.blob);
+  showCameraState('still');
 }
 
 function updateEvidenceSubmit(){
@@ -1346,12 +1490,13 @@ async function submitEvidence(){
   btn.disabled = true;
   btn.textContent = t('ev_sending');
   try {
-    const res = await api.evidence(mode, r, ev.blob, ev.pos, document.getElementById('k-ev-note').value.trim());
+    const res = await api.evidence(mode, r, ev.blob, ev.pos, document.getElementById('k-ev-note').value.trim(), ev.meta);
     closeModal('k-ev-modal');
     const q = state.rules.verify_quorum, dq = state.rules.dispute_quorum;
     let msg;
     if (mode === 'legacy') msg = t('ev_done_legacy');
-    else if (mode === 'claim') msg = t('ev_done_claim', { q });
+    else if (mode === 'claim') msg = t(res.needs_review ? 'ev_done_claim_held' : 'ev_done_claim', { q });
+    else if (res.needs_review) msg = t('ev_done_held');
     else if (res.claim_status === 'rejected') msg = t('ev_done_rejected');
     else if (res.claim_status === 'accepted') msg = t('ev_resolved');
     else if (mode === 'verify' && res.final_after) msg = t('ev_done_quorum', { h: state.rules.challenge_hours });
@@ -1373,13 +1518,14 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '' };
+  return { category: null, photoBlob: null, photoMeta: null, lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '' };
 }
 
 function openReport(prefill){
   draft = newDraft();
   document.getElementById('k-photo').value = '';
   document.getElementById('k-photo-preview').innerHTML = '';
+  document.getElementById('k-photo-note').hidden = true;
   document.getElementById('k-landmark').value = '';
   document.getElementById('k-desc').value = '';
   document.getElementById('k-ward').value = '';
@@ -1437,8 +1583,12 @@ function selectCategory(key, advance = true){
 async function handlePhoto(file){
   if (!file) return;
   try {
+    draft.photoMeta = await readPhotoMeta(file);
     draft.photoBlob = await compressImage(file);
     document.getElementById('k-photo-preview').innerHTML = `<img src="${URL.createObjectURL(draft.photoBlob)}" alt="">`;
+    const note = document.getElementById('k-photo-note');
+    note.hidden = !draft.photoMeta.ai_marker;
+    note.textContent = draft.photoMeta.ai_marker ? t('report_ai_note') : '';
     document.getElementById('k-next-2').disabled = false;
   } catch (e){
     showToast(t('err_photo_read'));
@@ -1833,12 +1983,18 @@ function wireUI(){
 
   document.getElementById('k-ev-loc-btn').addEventListener('click', checkEvidenceLocation);
   document.getElementById('k-ev-photo').addEventListener('change', e => handleEvidencePhoto(e.target.files[0]));
+  document.getElementById('k-ev-cam-btn').addEventListener('click', captureEvidencePhoto);
+  document.getElementById('k-cam-shutter').addEventListener('click', takeCameraShot);
+  document.getElementById('k-cam-retake').addEventListener('click', () => showCameraState('live'));
+  document.getElementById('k-cam-use').addEventListener('click', () => closeCamera({ blob: camera.blob }));
+  document.getElementById('k-cam-close').addEventListener('click', () => closeCamera({ error: 'cancelled' }));
   document.getElementById('k-ev-submit').addEventListener('click', submitEvidence);
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
   document.getElementById('k-qr-btn').addEventListener('click', openQR);
 
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
+    if (!document.getElementById('k-cam').hidden) return closeCamera({ error: 'cancelled' });
     const open = [...document.querySelectorAll('.k-modal.open')].pop();
     if (open) closeModal(open.id);
   });
@@ -1884,6 +2040,12 @@ function randomName(n){
   const a = new Uint8Array(n);
   crypto.getRandomValues(a);
   return Array.from(a, b => 'abcdefghijklmnopqrstuvwxyz0123456789'[b % 36]).join('');
+}
+
+function duration(m){
+  if (m < 60) return t('dur_m', { n: Math.round(m) });
+  if (m < 1440) return t('dur_h', { n: Math.floor(m / 60) });
+  return t('dur_d', { n: Math.floor(m / 1440) });
 }
 
 function ago(iso){

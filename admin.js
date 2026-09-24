@@ -204,9 +204,19 @@ async function loadResolutions(){
   return loadLegacyResolutions();
 }
 
+/* What the phone said about a photo, for the moderator (never coordinates). */
+function photoMetaText(m){
+  if (!m || !m.capture || m.capture === 'none') return '';
+  const bits = [m.capture === 'live' ? 'live camera' : m.capture === 'file' ? 'from gallery' : 'no metadata sent'];
+  if (m.taken_minutes_ago != null) bits.push(`taken ${m.taken_minutes_ago} min before upload`);
+  if (m.exif_distance_m != null) bits.push(`photo GPS ${m.exif_distance_m} m from the spot`);
+  if (m.ai_edited) bits.push('marked AI-edited');
+  return bits.join(' · ');
+}
+
 function renderModeration(q){
   document.getElementById('adModNote').textContent =
-    'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, or void an obviously fake confirmation or dispute. Every action is published in the report\'s evidence trail with the reason you give.';
+    'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, void an obviously fake confirmation or dispute, or clear a photo held because its location data was far from the spot. Every action is published in the report\'s evidence trail with the reason you give.';
   document.getElementById('adReplySection').hidden = false;
   const el = document.getElementById('adResolutions');
   const reports = q.reports || [], claims = q.claims || [];
@@ -217,6 +227,7 @@ function renderModeration(q){
           <div class="ad-item-title">${esc(r.category)} · Ward ${esc(r.ward_no ?? '?')} · ${esc(r.moderation_status === 'review' ? 'waiting for approval' : 'flagged by ' + r.flags)}</div>
           <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>
             ${new Date(r.created_at).toLocaleString('en-IN')}
+            ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
             ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
         </div>
         <div class="ad-actions">
@@ -231,15 +242,23 @@ function renderModeration(q){
       <div class="ad-item-head">
         <div>
           <div class="ad-item-title">${esc(c.category)} · Ward ${esc(c.ward_no ?? '?')} — cleanup claimed ${new Date(c.created_at).toLocaleString('en-IN')}</div>
-          <div class="ad-item-meta">Claim photo taken ${esc(c.distance_m)} m from the spot · ${c.verify_count} confirmations · ${c.dispute_count} disputes${c.quorum_reached_at ? ' · quorum reached' : ''}</div>
+          <div class="ad-item-meta">Claim photo taken ${esc(c.distance_m)} m from the spot · ${c.verify_count} confirmations · ${c.dispute_count} disputes${c.quorum_reached_at ? ' · quorum reached' : ''}
+            ${photoMetaText(c.photo_meta) ? '<br>Claim photo: ' + esc(photoMetaText(c.photo_meta)) : ''}
+            ${c.needs_review ? '<br><strong>⏸ Held: the claim photo\'s location data is far from the spot. It can\'t become final until you clear or reject it.</strong>' : ''}</div>
         </div>
-        <div class="ad-actions"><button class="ad-bad" data-reject-claim="${esc(c.id)}">✕ Reject claim</button></div>
+        <div class="ad-actions">
+          ${c.needs_review ? `<button class="ad-ok" data-clear-claim="${esc(c.id)}">✓ Clear photo</button>` : ''}
+          <button class="ad-bad" data-reject-claim="${esc(c.id)}">✕ Reject claim</button>
+        </div>
       </div>
       <div class="ad-photos">
         <figure><img src="${esc(c.original_photo_url)}" alt="" loading="lazy"><figcaption>Before (report)</figcaption></figure>
         <figure><img src="${esc(c.photo_url)}" alt="" loading="lazy"><figcaption>Claim</figcaption></figure>
-        ${(c.votes || []).map(v => `<figure><img src="${esc(v.photo_url || '')}" alt="" loading="lazy">
-          <figcaption>${v.vote === 'verify' ? '✓ confirm' : '✗ dispute'} · ${esc(v.distance_m)} m <button data-void="${esc(v.id)}">void</button></figcaption></figure>`).join('')}
+        ${(c.votes || []).map(v => `<figure${v.needs_review ? ' class="ad-held"' : ''}><img src="${esc(v.photo_url || '')}" alt="" loading="lazy">
+          <figcaption>${v.vote === 'verify' ? '✓ confirm' : '✗ dispute'} · ${esc(v.distance_m)} m
+            ${photoMetaText(v.photo_meta) ? '<br>' + esc(photoMetaText(v.photo_meta)) : ''}
+            ${v.needs_review ? '<br><strong>⏸ held — not counted</strong> <button data-clear-vote="' + esc(v.id) + '">clear</button>' : ''}
+            <button data-void="${esc(v.id)}">void</button></figcaption></figure>`).join('')}
       </div>
     </div>`).join('');
   el.innerHTML = (reportHtml ? '<div class="ad-sub-title">Reports</div>' + reportHtml : '') +
@@ -249,6 +268,19 @@ function renderModeration(q){
   el.querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => moderate(b.dataset.id, b.dataset.mod)));
   el.querySelectorAll('[data-reject-claim]').forEach(b => b.addEventListener('click', () => rejectClaim(b.dataset.rejectClaim)));
   el.querySelectorAll('[data-void]').forEach(b => b.addEventListener('click', () => voidVote(b.dataset.void)));
+  el.querySelectorAll('[data-clear-vote]').forEach(b => b.addEventListener('click', () => clearHeld('vote', b.dataset.clearVote)));
+  el.querySelectorAll('[data-clear-claim]').forEach(b => b.addEventListener('click', () => clearHeld('claim', b.dataset.clearClaim)));
+}
+
+// Clearing says, on the public record, that the photo was checked and is from the spot.
+async function clearHeld(kind, id){
+  const note = prompt('Public reason for clearing this photo (e.g. "landmarks match the spot; phone had a stale location"):');
+  if (!note) return;
+  const { error } = kind === 'vote'
+    ? await sb.rpc('kasa_admin_clear_vote', { p_vote_id: id, p_note: note })
+    : await sb.rpc('kasa_admin_clear_claim', { p_claim_id: id, p_note: note });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
 }
 
 async function moderate(id, action){

@@ -563,6 +563,169 @@ gone_id = t1['targets'][0]['id']
 rpc('kasa_push_result', role='service_role', p_sub_id=gone_id, p_ok=False, p_gone=True)
 check('expired push subscriptions are deleted', admin_sql('select count(*) from kasa_private.push_subs where id = %s', (gone_id,))[0][0] == 0)
 
+# ─────────────────────────── Photo metadata (v2.2) ───────────────────────────
+from datetime import datetime, timedelta, timezone
+
+
+def meta(uid, path, **m):
+    return rpc('kasa_photo_meta', uid=uid, p_path=path, p_meta=m)
+
+
+def mins_ago(n):
+    return (datetime.now(timezone.utc) - timedelta(minutes=n)).isoformat()
+
+
+def far_from(spot, meters=2000):
+    lat, lng = offset(meters, base=spot)
+    return {'lat': lat, 'lng': lng}
+
+
+def claim_m(uid, rid, where, **m):
+    path = upload(uid, 'claims')
+    if m:
+        meta(uid, path, **m)
+    return claim(uid, rid, where=where, path=path)
+
+
+def vote_m(uid, cid, where, v='verify', ip='10.0.0.1', **m):
+    path = upload(uid, 'votes')
+    if m:
+        meta(uid, path, **m)
+    return vote(uid, cid, v=v, where=where, ip=ip, path=path)
+
+
+def report_m(uid, where, category='garbage', **m):
+    path = upload(uid, 'reports')
+    if m:
+        meta(uid, path, **m)
+    return rpc('kasa_create_report', uid=uid, p_category=category, p_severity='minor', p_lat=where[0], p_lng=where[1],
+               p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=path)
+
+
+def events_of(rid, kind):
+    return [r[0] for r in q('select detail from public.kasa_public_events where report_id::text = %s and kind = %s order by id',
+                            (str(rid), kind))]
+
+
+check('browsers must sign in to send photo metadata',
+      refused(err(rpc, 'kasa_photo_meta', p_path='reports/abcdefghijklmnop.jpg', p_meta={'capture': 'live'})))
+m_owner, m_other = user(), user()
+m_path = upload(m_owner, 'claims')
+check("can't send metadata for someone else's photo", err(meta, m_other, m_path, capture='live') == 'KASA_PHOTO_NOT_YOURS')
+first = meta(m_owner, m_path, capture='file', ai_marker='trainedAlgorithmicMedia')
+second = meta(m_owner, m_path, capture='live')
+check("photo metadata can't be rewritten after it is sent",
+      first['recorded'] and not second['recorded']
+      and admin_sql('select capture from kasa_private.photo_meta where photo_path = %s', (m_path,))[0][0] == 'file', (first, second))
+
+# Report A: claim, then confirmations with different metadata
+spot_a = offset(-3000, 4000)
+rid_a = report(user('60 days'), where=spot_a)[0]['id']
+claimant_a = user('90 days')
+check('AI-edited cleanup photo is refused',
+      err(claim_m, claimant_a, rid_a, spot_a, capture='file', ai_marker='compositeWithTrainedAlgorithmicMedia') == 'KASA_PHOTO_AI_EDITED')
+check('cleanup photo taken 3 hours ago is refused',
+      err(claim_m, claimant_a, rid_a, spot_a, capture='file', taken_at=mins_ago(180)) == 'KASA_PHOTO_OLD')
+ca = claim_m(claimant_a, rid_a, spot_a, capture='file', taken_at=mins_ago(-600))
+check('a phone clock set in the future is ignored, not refused', ca['status'] == 'claimed' and not ca['needs_review'], ca)
+cid_a = ca['claim_id']
+check('confirmation photo taken before the claim is refused',
+      err(vote_m, user('60 days'), cid_a, spot_a, capture='file', taken_at=mins_ago(30)) == 'KASA_PHOTO_OLD')
+check('AI-edited confirmation photo is refused',
+      err(vote_m, user('60 days'), cid_a, spot_a, capture='file', ai_marker='trainedAlgorithmicMedia') == 'KASA_PHOTO_AI_EDITED')
+va_live = vote_m(user('60 days'), cid_a, spot_a, ip='49.1.1.1', capture='live')
+check('live-camera confirmation counts', va_live['verify_count'] == 1 and not va_live['needs_review'], va_live)
+held_voter = user('60 days')
+va_held = vote_m(held_voter, cid_a, spot_a, ip='49.2.2.2', capture='file', taken_at=mins_ago(1), **far_from(spot_a))
+check('confirmation whose photo GPS is 2 km away is held, not counted',
+      va_held['needs_review'] and va_held['verify_count'] == 1, va_held)
+held_meta = admin_sql('select exif_lat, exif_lng, round(exif_distance_m) from kasa_private.photo_meta pm '
+                      'join kasa_private.votes v on v.photo_path = pm.photo_path where v.voter_id = %s', (held_voter,))[0]
+check("only the distance is kept, never the photo's coordinates",
+      held_meta[0] is None and held_meta[1] is None and 1900 < held_meta[2] < 2100, held_meta)
+vd = vote_m(user('60 days'), cid_a, spot_a, v='dispute', ip='49.3.3.3', capture='file', **far_from(spot_a))
+check('a dispute with far photo GPS still counts (disputes are never silenced)',
+      vd['dispute_count'] == 1 and not vd['needs_review'], vd)
+va_n = vote_m(user('60 days'), cid_a, spot_a, ip='49.4.4.4')
+row = view_row(rid_a)
+check('without the held confirmation there is no quorum', va_n['verify_count'] == 2 and row['claim_quorum_reached_at'] is None,
+      (va_n, row))
+ev = events_of(rid_a, 'verified')
+check('evidence trail shows capture method and the held photo',
+      any(e.get('capture') == 'live' for e in ev) and any(e.get('needs_review') and e.get('flag') == 'gps_far' for e in ev), ev)
+held_id = admin_sql('select id from kasa_private.votes where voter_id = %s', (held_voter,))[0][0]
+check('non-admins cannot clear a held photo',
+      err(rpc, 'kasa_admin_clear_vote', uid=bob, p_vote_id=held_id, p_note='looks fine') == 'KASA_NOT_ADMIN')
+check('clearing a held photo needs a public reason',
+      err(rpc, 'kasa_admin_clear_vote', uid=mod, p_vote_id=held_id, p_note=' ') == 'KASA_REASON_REQUIRED')
+q_claims = rpc('kasa_admin_queue', uid=mod)['claims']
+qa = next(x for x in q_claims if str(x['id']) == str(cid_a))
+check('moderator queue lists held photos first with their metadata',
+      qa['needs_attention'] and any(v['needs_review'] and v['photo_meta'].get('flag') == 'gps_far' for v in qa['votes']), qa)
+cleared = rpc('kasa_admin_clear_vote', uid=mod, p_vote_id=held_id, p_note='Landmarks match the spot')
+row = view_row(rid_a)
+check('a cleared confirmation counts and can complete the quorum',
+      row['claim_verify_count'] == 3 and row['claim_quorum_reached_at'] is not None, (cleared, row))
+check('clearing is on the public record', len(events_of(rid_a, 'vote_cleared')) == 1)
+held2 = user('60 days')
+vote_m(held2, cid_a, spot_a, ip='49.5.5.5', capture='file', **far_from(spot_a))
+held2_id = admin_sql('select id from kasa_private.votes where voter_id = %s', (held2,))[0][0]
+rpc('kasa_admin_void_vote', uid=mod, p_vote_id=held2_id, p_reason='Photo is of another street')
+check('voiding a held confirmation does not remove a counted one', view_row(rid_a)['claim_verify_count'] == 3)
+
+# Report B: a held claim can't be finalised until a moderator clears it
+spot_b = offset(-6000, 6000)
+rid_b = report(user('60 days'), where=spot_b)[0]['id']
+cb = claim_m(user('90 days'), rid_b, spot_b, capture='file', **far_from(spot_b, 1500))
+cid_b = cb['claim_id']
+check('cleanup claim whose photo GPS is far away is held for a moderator',
+      cb['needs_review'] and view_row(rid_b)['claim_needs_review'] is True, cb)
+for i, ip in enumerate(['61.1.1.1', '61.2.2.2', '61.3.3.3']):
+    vote_m(user('60 days'), cid_b, spot_b, ip=ip, capture='live')
+admin_sql("update kasa_private.claims set quorum_reached_at = now() - interval '13 hours' where id = %s", (cid_b,))
+rpc('kasa_finalize_due')
+check('a held claim is not resolved even after quorum and the challenge window', view_row(rid_b)['status'] == 'claimed')
+rpc('kasa_admin_clear_claim', uid=mod, p_claim_id=cid_b, p_note='Photo matches the spot; phone had a stale location')
+check('once cleared, it resolves normally', view_row(rid_b)['status'] == 'resolved')
+
+# Report C: nobody reviews a held claim → it expires and the report reopens
+spot_c = offset(-8000, 2000)
+rid_c = report(user('60 days'), where=spot_c)[0]['id']
+cid_c = claim_m(user('90 days'), rid_c, spot_c, capture='file', **far_from(spot_c))['claim_id']
+admin_sql("update kasa_private.claims set created_at = now() - interval '15 days' where id = %s", (cid_c,))
+rpc('kasa_finalize_due')
+check('an unreviewed held claim expires and the report reopens',
+      view_row(rid_c)['status'] == 'open'
+      and admin_sql('select decided_reason from kasa_private.claims where id = %s', (cid_c,))[0][0] == 'photo_not_reviewed')
+
+# Optional: live camera only
+spot_d = offset(-9000, 5000)
+rid_d = report(user('60 days'), where=spot_d)[0]['id']
+admin_sql("update kasa_private.settings set value = 'true' where key = 'require_live_capture'")
+cd_user = user('90 days')
+check('with live camera required, a file photo is refused',
+      err(claim_m, cd_user, rid_d, spot_d, capture='file') == 'KASA_LIVE_CAMERA_REQUIRED')
+check('...and so is a photo sent without metadata', err(claim, cd_user, rid_d, where=spot_d) == 'KASA_LIVE_CAMERA_REQUIRED')
+check('...but a live-camera photo is accepted', claim_m(cd_user, rid_d, spot_d, capture='live')['status'] == 'claimed')
+check('...and new reports can still use a gallery photo',
+      report_m(user(), offset(-9500, 5000), capture='file')['moderation_status'] == 'approved')
+admin_sql("update kasa_private.settings set value = 'false' where key = 'require_live_capture'")
+
+# New reports
+ai_r = report_m(user(), offset(-10000, 1000), capture='file', ai_marker='trainedAlgorithmicMedia')
+check('report with an AI-made photo waits for a moderator', ai_r['moderation_status'] == 'review' and view_row(ai_r['id']) is None, ai_r)
+spot_f = offset(-10500, 3000)
+far_r = report_m(user(), spot_f, capture='file', **far_from(spot_f, 3000))
+check('report whose photo GPS is far from the pin stays visible but under review',
+      far_r['moderation_status'] == 'flagged' and view_row(far_r['id']) is not None, far_r)
+old_r2 = report_m(user(), offset(-11000, 1000), capture='file', taken_at=mins_ago(3 * 24 * 60))
+ev = events_of(old_r2['id'], 'reported')
+check('an old photo can still be reported; its age is shown publicly',
+      old_r2['moderation_status'] == 'approved' and ev and 4300 < ev[0].get('taken_minutes_ago', 0) < 4340, ev)
+check('reports without metadata still work', report_m(user(), offset(-11500, 1000))['moderation_status'] == 'approved')
+rules = rpc('kasa_rules')
+check('photo rules are published', rules.get('max_photo_age_minutes') == 120 and rules.get('photo_gps_far_m') == 500, rules)
+
 # Network grouping
 check('same /24 network hashes the same',
       q('select kasa_private.ip_hash()', role='postgres', ip='49.36.10.5')[0][0] ==

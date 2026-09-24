@@ -467,3 +467,19 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 
 .k-toast{position:fixed;bottom:5rem;left:50%;transform:translateX(-50%) translateY(120px);background:var(--ink3);border:1px solid var(--border2);color:var(--cream);padding:.85rem 1.3rem;font-family:var(--mono);font-size:12px;line-height:1.5;border-radius:8px;z-index:5000;opacity:0;transition:all .25s cubic-bezier(.2,.7,.3,1);width:max-content;max-width:min(92vw,480px);text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.5);pointer-events:none;}
 .k-toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
+
+/* Live camera (evidence photos) */
+.k-cam{position:fixed;inset:0;z-index:2000;background:#000;display:flex;flex-direction:column;}
+.k-cam-top{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;padding-top:max(.9rem,env(safe-area-inset-top));font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);}
+.k-cam-close{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:var(--cream);font-size:16px;}
+.k-cam-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.k-cam-stage video,.k-cam-stage img{width:100%;height:100%;object-fit:contain;background:#000;}
+.k-cam-msg{position:absolute;left:1rem;right:1rem;bottom:1rem;text-align:center;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--cream);}
+.k-cam-msg:empty{display:none;}
+.k-cam-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:1.1rem 1rem;padding-bottom:max(1.1rem,env(safe-area-inset-bottom));min-height:108px;}
+.k-cam-bar .k-btn{width:auto;flex:1;max-width:220px;margin:0;}
+.k-cam-shutter{width:72px;height:72px;border-radius:50%;background:var(--cream);border:5px solid rgba(255,255,255,.35);box-shadow:0 0 0 3px #000 inset;transition:transform .1s;}
+.k-cam-shutter:active{transform:scale(.92);}
+.k-cam-shutter:disabled{opacity:.35;}
+.k-ev-fallback{display:block;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--amber);text-decoration:underline;cursor:pointer;}
+
