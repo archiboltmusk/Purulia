@@ -2114,9 +2114,6 @@ function esc(s){
   }[c]));
 }
 
-init();let currentLang = 'en';
-let reporterHash = null;
-
 /* ── Reps ── */
 const REPS = {
   mla: { name:'Sudip Kumar Mukherjee', role:'MLA · Purulia (No. 242)', party:'BJP', initials:'SKM', scope:'constituency' },
