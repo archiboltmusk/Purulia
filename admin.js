@@ -2,8 +2,8 @@
    PURULIA KASA — Admin Analytics
    ══════════════════════════════════════════════════════════ */
 
-const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_URL = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_URL) || '';
+const SUPABASE_ANON_KEY = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_ANON_KEY) || '';
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
