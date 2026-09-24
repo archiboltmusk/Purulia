@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Privacy Policy — Purulia Kasa</title>
+<meta name="description" content="Privacy Policy for Purulia Kasa, a civic reporting platform for Purulia town.">
+<meta name="robots" content="index, follow">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+
+<link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="legal.css">
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="blueprint.html">Blueprint</a>
+    <a href="map.html">Map</a>
+    <a href="kasa.html">Kasa</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="legal-wrap">
+
+  <a href="kasa.html" class="legal-back">← Back to Purulia Kasa</a>
+
+  <h1 class="legal-title">Privacy <em>Policy</em></h1>
+  <div class="legal-meta">Last updated: 24 September 2026 · Effective immediately</div>
+
+  <div class="legal-body">
+
+    <h2>1. Our Core Promise</h2>
+    <div class="legal-callout">
+      <p><strong>Purulia Kasa is built to protect the identity of every reporter.</strong> We do not ask for your name, email, phone number, or address. We do not use advertising or tracking cookies. We do not sell any data to anyone.</p>
+    </div>
+    <p>This Privacy Policy explains what limited data we do collect, why we collect it, and how we protect it.</p>
+
+    <h2>2. What We Collect</h2>
+    <p>When you submit a report, the following information is stored:</p>
+    <ul>
+      <li><strong>Photograph</strong> — the image you take of the problem.</li>
+      <li><strong>Location</strong> — the point you pin on the map, and your GPS accuracy if you used GPS.</li>
+      <li><strong>Ward number</strong> — detected from the location, or chosen by you.</li>
+      <li><strong>Issue type and severity</strong> — what you select.</li>
+      <li><strong>Landmark and description</strong> — only what you choose to type.</li>
+      <li><strong>Timestamp</strong> — the date and time of submission.</li>
+    </ul>
+    <p>When you confirm or dispute a cleanup, claim a cleanup, rate a report, or tap "I saw this too", we also store:</p>
+    <ul>
+      <li><strong>Your GPS position at that moment</strong> — used only to check that you were at the spot. It is stored privately; only your distance from the spot, rounded to the nearest metre, is published.</li>
+      <li><strong>Your ratings</strong> — published only as totals and averages, never individually.</li>
+      <li><strong>A network fingerprint</strong> — a one-way, salted hash of the first part of your IP address (for example, the first three numbers of an IPv4 address). It is used only to check that confirmations of a cleanup come from different networks. Your full IP address is not stored in our database.</li>
+    </ul>
+    <p><strong>Anonymous account.</strong> The first time you report, confirm, rate or flag something, our database provider (Supabase) creates a random anonymous account ID for your browser. It is not linked to any name, email or phone number. It lets us stop one person from confirming their own cleanup claim, voting twice, or flooding the Platform. Clearing your browser's site data removes it from your device.</p>
+    <p><strong>Photo checks (if enabled).</strong> Photos may be analysed by Google Vision to estimate whether they show garbage and to screen out unsafe images. We also store a fingerprint of each photo to detect the same photo being reused. Results are stored privately.</p>
+    <p><strong>Nearby alerts (only if you turn them on).</strong> We store your browser's push-notification address, your approximate location rounded to about 100 metres, your alert radius and your language, so we can alert you to new reports near you. Turning alerts off deletes them.</p>
+    <p><strong>On your device.</strong> Your language, your anonymous session, and which reports you have marked or rated are kept in your browser's local storage so the page remembers them.</p>
+    <p>We <strong>do not</strong> collect: your real name, your email, your phone number, your contacts, your location history, or your browsing history.</p>
+
+    <h2>3. How the Anonymous ID and Fingerprints Work</h2>
+    <p>The anonymous ID is a random identifier created by Supabase Auth, stored in your browser. The network fingerprint and photo fingerprints are one-way hashes: they can be compared with each other, but cannot be turned back into your IP address or the original photo.</p>
+    <p>These identifiers are:</p>
+    <ul>
+      <li><strong>Not personally identifying on their own.</strong> They do not reveal your name, address, or identity.</li>
+      <li><strong>Never published.</strong> Public activity is shown under a short pseudonym that is different for every report, so reports cannot be linked to the same person.</li>
+      <li><strong>Used only for:</strong> preventing self-confirmation and duplicate votes, rate-limiting spam, detecting reused photos, and detecting abuse.</li>
+    </ul>
+
+    <h2>4. Where Data Is Stored</h2>
+    <p>All data is stored on <strong>Supabase</strong> (a Postgres-based backend service), in a data centre located in <strong>Mumbai, India</strong>. Photographs are stored in Supabase Storage. Because reports are public by design, anyone with a photo's link can view it.</p>
+    <p>Data transmitted between your browser and our servers is encrypted using HTTPS/TLS. Supabase encrypts stored data at rest.</p>
+
+    <h2>5. How Long We Keep Data</h2>
+    <ul>
+      <li><strong>Reports and their evidence trail</strong> (photos, confirmations, disputes, official responses) are kept as a public civic record for as long as the Platform operates. Resolved reports are removed from the map 90 days after they are resolved but remain in the record.</li>
+      <li><strong>Unused uploads</strong> — photos that were uploaded but never attached to a report — are deleted automatically by a weekly clean-up once they are more than two days old.</li>
+      <li><strong>Private location data and fingerprints</strong> are kept with the report they relate to, so fraud checks keep working.</li>
+      <li><strong>Nearby-alert subscriptions</strong> are deleted when you turn alerts off or when your browser tells us the subscription has ended.</li>
+      <li><strong>Removed content</strong> — if content is removed after a complaint or a legal order, it is hidden from the public and preserved privately for 180 days, as required by the IT (Intermediary Guidelines) Rules, 2021.</li>
+    </ul>
+
+    <h2>6. Who Can See Your Report</h2>
+    <p>Every report is <strong>public by design</strong>. That is the entire point of Purulia Kasa — transparent civic accountability. The following are visible to anyone:</p>
+    <ul>
+      <li>The photograph, location (as a pin on the map), ward, issue type, severity, landmark and description</li>
+      <li>Confirmations, disputes and cleanup claims — with their photos, their distance from the spot, and a per-report pseudonym</li>
+      <li>The number of people who saw the report, and rating totals and averages</li>
+      <li>Official responses published under the right of reply</li>
+    </ul>
+    <p>What is <strong>never</strong> shown publicly:</p>
+    <ul>
+      <li>Your anonymous account ID</li>
+      <li>Your GPS position when confirming, disputing, rating or marking "I saw this too"</li>
+      <li>Your network fingerprint or your IP address</li>
+      <li>Your individual ratings, or your nearby-alert subscription</li>
+    </ul>
+    <p>Reports of encroachment, illegal construction, illegal mining and other illegal activity are seen by a moderator before they are published.</p>
+
+    <h2>7. Third-Party Services</h2>
+    <p>Purulia Kasa uses the following third-party services to function. Loading the page from these services necessarily shows them your IP address.</p>
+    <ul>
+      <li><strong>Supabase</strong> (database, storage, anonymous accounts, server functions) — <a href="https://supabase.com/privacy" target="_blank" rel="noopener">privacy policy</a></li>
+      <li><strong>Vercel</strong> (website hosting; anonymous page-speed measurements on some pages) — <a href="https://vercel.com/legal/privacy-policy" target="_blank" rel="noopener">privacy policy</a></li>
+      <li><strong>OpenFreeMap</strong> (map tiles; it sees which area of the map you view) and <strong>MapLibre</strong> (map software, delivered via the unpkg and jsDelivr code servers)</li>
+      <li><strong>Google Fonts</strong> (typefaces) — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a></li>
+      <li><strong>Cloudflare Turnstile</strong> (spam protection, if enabled) — <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener">privacy policy</a></li>
+      <li><strong>Google Vision API</strong> (photo checks, if enabled; receives the photo) — <a href="https://policies.google.com/privacy" target="_blank" rel="noopener">privacy policy</a></li>
+      <li><strong>Your browser's push service</strong> (for example Google, Mozilla or Apple), only if you turn on nearby alerts</li>
+    </ul>
+    <p>WhatsApp, email and X links open those services only when you choose to use them. None of these services receive your name or contact information from us, because we don't collect those in the first place.</p>
+
+    <h2>8. Your Rights</h2>
+    <p>Under India's Digital Personal Data Protection Act, 2023, you have the right to:</p>
+    <ul>
+      <li><strong>Request deletion</strong> of a report you submitted.</li>
+      <li><strong>Request correction</strong> of inaccurate information.</li>
+      <li><strong>Ask what data we hold</strong> about you.</li>
+      <li><strong>Withdraw consent</strong> at any time (though this will not affect past lawful processing).</li>
+      <li><strong>Have your complaint heard</strong> by our Grievance Officer, and then by the Data Protection Board of India.</li>
+    </ul>
+    <p>To exercise these rights, email the Grievance Officer at <a href="mailto:grievance@puruliakasa.in">grievance@puruliakasa.in</a> with the report link and your request. Because reports are anonymous, we may not be able to confirm who filed a report; we will then act on the request based on its content.</p>
+
+    <h2>9. Children's Privacy</h2>
+    <p>Purulia Kasa is not intended for anyone under 18 without the consent of a parent or guardian, in line with the Digital Personal Data Protection Act, 2023. We do not knowingly collect data from children. If you believe a child has submitted a report, contact us and we will remove it.</p>
+
+    <h2>10. Security Measures</h2>
+    <p>We implement the following safeguards:</p>
+    <ul>
+      <li>Row Level Security on the database; the browser cannot change or delete reports directly.</li>
+      <li>Every change to a report goes through server-side checks that the website cannot bypass.</li>
+      <li>Encrypted HTTPS/TLS transmission.</li>
+      <li>Admin-only access to review queues, protected by Supabase Auth.</li>
+      <li>Rate limiting on reports, ratings and other actions.</li>
+      <li>Automatic deletion of unused uploads.</li>
+    </ul>
+    <p>However, <strong>no system is completely secure</strong>. While we take reasonable precautions, we cannot guarantee absolute protection against all threats.</p>
+
+    <h2>11. Changes to This Policy</h2>
+    <p>We may update this Privacy Policy from time to time. Material changes will be announced on the Platform. Continued use of Purulia Kasa after a policy update constitutes acceptance of the revised terms.</p>
+
+    <h2>12. Contact</h2>
+    <p>For privacy-related questions, contact our Grievance Officer:</p>
+    <ul>
+      <li><strong>Name:</strong> Anupam Mahato (Administrator)</li>
+      <li><strong>Email:</strong> <a href="mailto:grievance@puruliakasa.in">grievance@puruliakasa.in</a></li>
+      <li><strong>Response time:</strong> Acknowledgement within 24 hours; full response within 15 days.</li>
+    </ul>
+
+    <div class="legal-footer-links">
+      <a href="terms.html">Terms of Use</a>
+      <a href="grievance.html">Grievance Officer</a>
+      <a href="kasa.html">Back to Kasa</a>
+      <a href="index.html">Home</a>
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>
