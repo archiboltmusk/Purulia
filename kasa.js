@@ -4,8 +4,8 @@
    ══════════════════════════════════════════════════════════ */
 
 /* ── CONFIG — REPLACE THESE ── */
-const SUPABASE_URL = 'https://YOUR-PROJECT.supabase.co';
-const SUPABASE_ANON_KEY = 'YOUR-ANON-KEY';
+const SUPABASE_URL = 'https://https://jrravmlodmbmmzmhofxi.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpycmF2bWxvZG1ibW16bWhvZnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjMzNzksImV4cCI6MjEwNTc5OTM3OX0.dQKsZtiOsQLO8TIQnIuIaOxVDL_Q4K47VI__PqvQGqo';
 const MUNICIPALITY_PHONE = '919046003666';
 const MAP_CENTER = [86.3654, 23.3320];   /* [lng, lat] for MapLibre */
 const MAP_ZOOM = 13;
