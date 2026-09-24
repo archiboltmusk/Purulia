@@ -669,6 +669,14 @@ function initMainMap(){
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
+  // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
+  const resizeMap = () => mainMap && mainMap.resize();
+  if (window.ResizeObserver) new ResizeObserver(resizeMap).observe(document.getElementById('k-map'));
+  window.addEventListener('load', resizeMap);
+  window.addEventListener('pageshow', resizeMap);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden) resizeMap(); });
+  document.fonts?.ready.then(resizeMap);
+  mainMap.once('load', resizeMap);
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
 
@@ -764,6 +772,7 @@ function setView(view){
   });
   document.getElementById('k-list').hidden = view !== 'list';
   if (view === 'list') renderList();
+  else if (mainMap) requestAnimationFrame(() => mainMap.resize());
 }
 
 function sortReports(list){
