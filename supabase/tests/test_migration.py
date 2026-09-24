@@ -169,9 +169,16 @@ check('the photo-check function can look up who uploaded a photo',
       rpc('kasa_photo_owner', role='service_role', p_path=p_mine) == str(other))
 check("browsers can't look up who uploaded a photo",
       refused(err(rpc, 'kasa_photo_owner', uid=someone, p_path=p_mine)) and refused(err(rpc, 'kasa_photo_owner', p_path=p_mine)))
-check("uploads can't go into per-user folders (photo links must not identify the uploader)",
+# Pages cached before 24 Sep 2026 upload into <folder>/<user id>/ — allowed only
+# for your own folder, and only until the old-page window closes.
+WINDOW_OPEN = admin_sql("select now() < '2026-09-26T06:00:00Z'::timestamptz")[0][0]
+check("can't upload into someone else's per-user folder",
       'row-level security' in (err(q, "insert into storage.objects (bucket_id, name, owner) values ('kasa-photos', %s, %s)",
-                                   (f'claims/{someone}/abcdefgh12345678.jpg', someone), uid=someone) or ''))
+                                   (f'claims/{other}/abcdefgh12345678.jpg', someone), uid=someone) or ''))
+own_old_err = err(q, "insert into storage.objects (bucket_id, name, owner, owner_id) values ('kasa-photos', %s, %s, %s)",
+                  (f'claims/{someone}/abcdefgh12345678.jpg', someone, str(someone)), uid=someone)
+check('old-format upload into your own folder works only while the old-page window is open',
+      (own_old_err is None) == WINDOW_OPEN, (WINDOW_OPEN, own_old_err))
 check("can't upload outside reports/claims/votes",
       'row-level security' in (err(q, "insert into storage.objects (bucket_id, name, owner) values ('kasa-photos', %s, %s)",
                                    ('misc/abcdefgh12345678.jpg', someone), uid=someone) or ''))
@@ -207,10 +214,27 @@ check('photo must actually be uploaded',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
           p_photo_path='reports/doesnotexist12345678.jpg') == 'KASA_PHOTO_MISSING')
-check('old per-user-folder photo paths are refused',
+admin_sql("update kasa_private.settings set value = '\"2000-01-01T00:00:00Z\"' where key = 'old_photo_paths_until'")
+check('old per-user-folder photo paths are refused once the old-page window has closed',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
           p_photo_path=f'reports/{alice}/abcdefgh12345678.jpg') == 'KASA_PHOTO_INVALID')
+admin_sql("update kasa_private.settings set value = '\"2999-01-01T00:00:00Z\"' where key = 'old_photo_paths_until'")
+old_page_user = user('30 days')
+old_path = f'reports/{old_page_user}/{uuid.uuid4().hex[:16]}.jpg'
+admin_sql("insert into storage.objects (bucket_id, name, owner, owner_id) values ('kasa-photos', %s, %s, %s)",
+          (old_path, old_page_user, str(old_page_user)))
+old_res = rpc('kasa_create_report', uid=old_page_user, p_category='garbage', p_severity='minor', p_lat=offset(-500, -500)[0],
+              p_lng=offset(-500, -500)[1], p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=old_path)
+check('while the window is open, a page cached before the fix can still file with its own old-format photo',
+      old_res['moderation_status'] == 'approved', old_res)
+old_path2 = f'reports/{old_page_user}/{uuid.uuid4().hex[:16]}.jpg'
+admin_sql("insert into storage.objects (bucket_id, name, owner, owner_id) values ('kasa-photos', %s, %s, %s)",
+          (old_path2, old_page_user, str(old_page_user)))
+check("...but nobody can use someone else's old-format photo",
+      err(rpc, 'kasa_create_report', uid=someone, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
+          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=old_path2) == 'KASA_PHOTO_INVALID')
+admin_sql("update kasa_private.settings set value = '\"2026-09-26T06:00:00Z\"' where key = 'old_photo_paths_until'")
 check("can't file with someone else's photo",
       err(rpc, 'kasa_create_report', uid=someone, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
