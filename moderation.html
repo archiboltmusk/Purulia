@@ -2,104 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="robots" content="noindex, nofollow">
+<meta http-equiv="refresh" content="0; url=admin.html">
 <title>Purulia Kasa — Moderation</title>
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
-<link rel="preconnect" href="https://fonts.googleapis.com">
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap"></noscript>
-<link rel="stylesheet" href="kasa.css">
-<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script defer src="config.js"></script>
-<script defer src="moderation.js"></script>
-<style>
-.mod-wrap{max-width:1000px;margin:0 auto;padding:1.6rem;}
-.mod-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:2rem;padding-bottom:1rem;border-bottom:1px solid var(--border);}
-.mod-title{font-family:var(--serif);font-size:1.8rem;font-weight:700;color:var(--cream);}
-.mod-logout{padding:.5rem 1rem;background:var(--amber);color:var(--ink);border:none;font-family:var(--mono);font-size:11px;cursor:pointer;border-radius:3px;}
-.mod-logout:hover{opacity:.8;}
-.mod-filters{display:flex;gap:1rem;margin-bottom:2rem;flex-wrap:wrap;}
-.mod-filter-select{padding:.6rem 1rem;background:rgba(212,136,42,.08);border:1px solid var(--border);color:var(--cream);font-family:var(--mono);font-size:11px;border-radius:3px;}
-.mod-filter-select:focus{outline:none;border-color:var(--amber);}
-.mod-list{display:flex;flex-direction:column;gap:1.2rem;}
-.mod-item{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:4px;overflow:hidden;display:flex;flex-direction:column;}
-.mod-item-head{display:flex;justify-content:space-between;align-items:flex-start;padding:1.2rem;border-bottom:1px solid rgba(212,136,42,.08);}
-.mod-item-meta{flex:1;}
-.mod-item-id{font-family:var(--mono);font-size:10px;color:var(--text-lo);margin-bottom:.3rem;}
-.mod-item-desc{color:var(--cream);font-size:.95rem;margin-bottom:.5rem;max-height:4em;overflow:hidden;word-break:break-word;}
-.mod-item-details{font-family:var(--mono);font-size:10px;color:var(--text-md);margin-top:.5rem;display:flex;gap:1rem;flex-wrap:wrap;}
-.mod-item-photo{width:100px;height:100px;object-fit:cover;background:var(--ink2);}
-.mod-item-actions{display:flex;gap:.6rem;padding:1rem;background:rgba(212,136,42,.02);}
-.mod-btn{padding:.6rem 1.2rem;background:var(--amber);color:var(--ink);border:none;font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;cursor:pointer;border-radius:3px;transition:all .2s;}
-.mod-btn:hover{background:var(--amber2);}
-.mod-btn-reject{background:#c85a54;color:#fff;}
-.mod-btn-reject:hover{background:#d46a64;}
-.mod-btn-approve{background:#5a8a54;color:#fff;}
-.mod-btn-approve:hover{background:#6a9a64;}
-.mod-btn-delete{background:#3a3a3a;color:#fff;}
-.mod-btn-delete:hover{background:#4a4a4a;}
-.mod-btn:disabled{opacity:.5;cursor:not-allowed;}
-.mod-safety{font-family:var(--mono);font-size:9px;padding:.4rem .6rem;border-radius:2px;margin-top:.5rem;display:inline-block;}
-.mod-safety-bad{background:#c85a54;color:#fff;}
-.mod-safety-ok{background:#5a8a54;color:#fff;}
-.mod-safety-unchecked{background:rgba(212,136,42,.2);color:var(--text-lo);}
-.mod-loading{padding:2rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--text-lo);}
-.mod-login{max-width:400px;margin:3rem auto;padding:2rem;background:var(--ink2);border:1px solid var(--border);border-radius:6px;text-align:center;}
-.mod-login-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--cream);margin-bottom:.6rem;}
-.mod-login-sub{font-size:.9rem;color:var(--text-md);margin-bottom:1.6rem;line-height:1.6;}
-.mod-login-input{width:100%;padding:.8rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);margin-bottom:1rem;border-radius:3px;}
-.mod-login-input:focus{outline:none;border-color:var(--amber);}
-.mod-login-btn{width:100%;padding:.8rem;background:var(--amber);color:var(--ink);border:none;font-family:var(--mono);font-weight:600;cursor:pointer;border-radius:3px;}
-.mod-login-btn:hover{opacity:.9;}
-.mod-error{padding:1.2rem;background:#c85a54;color:#fff;border-radius:3px;margin-bottom:1rem;font-size:.9rem;}
-@media(max-width:600px){
-.mod-item-head{flex-direction:column;}
-.mod-item-photo{width:100%;height:150px;}
-.mod-filters{flex-direction:column;}
-.mod-filter-select{width:100%;}
-}
-</style>
+<script>location.replace('admin.html' + location.hash);</script>
 </head>
-<body>
-
-<div class="mod-wrap" id="mod-wrap" hidden>
-  <div class="mod-header">
-    <h1 class="mod-title">Moderation Dashboard</h1>
-    <button type="button" class="mod-logout" id="mod-logout">Sign Out</button>
-  </div>
-
-  <div class="mod-filters">
-    <select id="mod-filter-status" class="mod-filter-select">
-      <option value="">All Status</option>
-      <option value="pending_review">Pending Review</option>
-      <option value="approved">Approved</option>
-      <option value="resolved">Resolved</option>
-      <option value="rejected">Rejected</option>
-    </select>
-    <select id="mod-filter-unsafe" class="mod-filter-select">
-      <option value="">All Safety</option>
-      <option value="1">Marked Unsafe</option>
-      <option value="0">Safe</option>
-    </select>
-  </div>
-
-  <div class="mod-list" id="mod-list">
-    <div class="mod-loading">Loading reports…</div>
-  </div>
-</div>
-
-<div class="mod-login" id="mod-login">
-  <h1 class="mod-login-title">Moderator Login</h1>
-  <p class="mod-login-sub">Enter your email to access the moderation dashboard.</p>
-  <div id="mod-error" hidden class="mod-error"></div>
-  <form id="mod-login-form">
-    <input type="email" class="mod-login-input" id="mod-email" placeholder="Email address" required>
-    <button type="submit" class="mod-login-btn">Send Login Link</button>
-  </form>
-</div>
-
-</body>
+<body><p>Moderation has moved to <a href="admin.html">admin.html</a>.</p></body>
 </html>

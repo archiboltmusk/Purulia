@@ -2,8 +2,12 @@ import React, { useEffect, useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { initSupabase } from './api/supabase';
 import ReportForm from './components/ReportForm';
-import ModerationDashboard from './components/ModerationDashboard';
 import './kasa.css';
+
+function ToAdmin() {
+  useEffect(() => { window.location.replace('../admin.html'); }, []);
+  return null;
+}
 
 function App() {
   const [configLoaded, setConfigLoaded] = useState(false);
@@ -43,9 +47,9 @@ function App() {
   }
 
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={import.meta.env.BASE_URL}>
       <Routes>
-        <Route path="/moderation" element={<ModerationDashboard />} />
+        <Route path="/moderation" element={<ToAdmin />} />
         <Route path="/" element={<ReportForm />} />
       </Routes>
     </BrowserRouter>

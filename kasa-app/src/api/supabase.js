@@ -165,29 +165,3 @@ export async function submitEvidence(mode, r, blob, meta, pos) {
   if (error) throw rpcError(error);
   return data;
 }
-
-// --- Moderation: gated behind kasa_private.is_admin(), requires a signed-in
-// user present in public.admins. No generic delete exists — only approve/hide/restore.
-
-export async function getModerationQueue() {
-  const sb = getSb();
-  const { data, error } = await sb.rpc('kasa_admin_queue');
-  if (error) throw rpcError(error);
-  return data; // { reports: [...], claims: [...] }
-}
-
-export async function moderateReport(reportId, action, reason) {
-  const sb = getSb();
-  const { data, error } = await sb.rpc('kasa_admin_moderate', {
-    p_report_id: String(reportId),
-    p_action: action, // 'approve' | 'hide' | 'restore'
-    p_reason: reason || null
-  });
-  if (error) throw rpcError(error);
-  return data;
-}
-
-export function getPhotoUrl(photoPath) {
-  const url = window.KASA_CONFIG?.SUPABASE_URL;
-  return `${url}/storage/v1/object/public/kasa-photos/${photoPath}`;
-}
