@@ -123,6 +123,21 @@ def view_row(rid):
     return rows[0][0] if rows else None
 
 
+NEW_RULES = {'require_evidence_photo_check': 'true', 'voter_min_account_hours': '72', 'voter_min_prior_actions': '1',
+             'trusted_prior_actions': '3', 'confirm_same_claimant_days': '7', 'max_travel_kmh': '150'}
+BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': '0', 'voter_min_prior_actions': '0',
+            'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000'}
+
+
+def set_rules(values):
+    for k, v in values.items():
+        admin_sql("update kasa_private.settings set value = %s::jsonb where key = %s", (v, k))
+
+
+# The scenarios below predate the vote-integrity and abuse-defense rules; they run
+# with those rules relaxed, and the rules get their own section at the end.
+set_rules(BASELINE)
+
 # ─────────────────────────── Direct-access loopholes ───────────────────────────
 legacy_id = admin_sql("select id from public.reports order by created_at limit 1")[0][0]
 someone = user()
@@ -149,6 +164,17 @@ check('anon cannot write through the public view',
       'permission denied' in view_write or 'cannot update view' in view_write, view_write)
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
+PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review'}
+check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
+      sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
+open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
+                        "where table_schema = 'public' and grantee in ('anon', 'authenticated') "
+                        "and privilege_type in ('INSERT', 'UPDATE', 'DELETE', 'TRUNCATE')")
+check('anon/authenticated cannot write to any public table directly', not open_grants, open_grants)
+anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
+                                          "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
+check('only the intended SECURITY DEFINER functions are callable without signing in',
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -348,7 +374,8 @@ res_d = vote(d2, cid2, v='dispute', where=spot2, ip='10.9.9.9')
 row = view_row(rid2)
 check('two on-site disputes reject a fake cleanup and reopen the report',
       res_d['claim_status'] == 'rejected' and row['status'] == 'open' and row['rejected_claims'] == 1, (res_d, row))
-check('rejected claimant gets a strike', admin_sql('select strikes from kasa_private.profiles where user_id = %s', (fake,))[0][0] == 1)
+check('disputes alone give the claimant no strike',
+      (admin_sql('select coalesce(max(strikes), 0) from kasa_private.profiles where user_id = %s', (fake,))[0][0]) == 0)
 check('rejected claimant must wait before claiming the same spot again', err(claim, fake, rid2, where=spot2) == 'KASA_COOLDOWN')
 admin_sql('update kasa_private.profiles set strikes = 3 where user_id = %s', (fake,))
 res3, _ = report(bob, where=offset(4000))
@@ -777,6 +804,80 @@ check('photo rules are published', rules.get('max_photo_age_minutes') == 120 and
 check('same /24 network hashes the same',
       q('select kasa_private.ip_hash()', role='postgres', ip='49.36.10.5')[0][0] ==
       q('select kasa_private.ip_hash()', role='postgres', ip='49.36.10.200')[0][0])
+
+# ─────────────────────── Vote integrity and abuse defenses ───────────────────────
+set_rules(NEW_RULES)
+
+
+def with_history(created_ago='30 days'):
+    uid = user(created_ago)
+    admin_sql("insert into public.reports (lat, lng, photo_url, user_id, category, status, moderation_status, created_at) "
+              "values (23.30, 86.30, 'x', %s, 'garbage', 'open', 'approved', now() - interval '10 days')", (uid,))
+    return uid
+
+
+def checked(uid, folder):
+    path = upload(uid, folder)
+    photo_check(path)
+    return path
+
+
+def report_text(uid, where, text):
+    return rpc('kasa_create_report', uid=uid, p_category='garbage', p_severity='minor', p_lat=where[0], p_lng=where[1],
+               p_accuracy=10.0, p_ward_no=5, p_description=text, p_landmark=None, p_photo_path=upload(uid, 'reports'),
+               p_client_id=None)
+
+
+writer = user()
+check('abusive text is refused', err(report_text, writer, offset(7000, -7000), 'bhenchod garbage') == 'KASA_TEXT_BLOCKED')
+acc = report_text(user(), offset(7100, -7000), 'The councillor is a chor')
+check('accusations wait for a moderator', acc['moderation_status'] == 'review' and view_row(acc['id']) is None, acc)
+phone = report_text(user(), offset(7200, -7000), 'Call 98765 43210')
+check('phone numbers wait for a moderator', phone['moderation_status'] == 'review', phone)
+traveller = user()
+report_text(traveller, offset(7300, -7000), 'Drain blocked')
+check('a GPS jump of ~10 km in seconds is refused',
+      err(report_text, traveller, offset(-2700, -7000), 'Drain blocked') == 'KASA_IMPOSSIBLE_TRAVEL')
+
+nspot2 = offset(7500, -6000)
+nr = report_text(user(), nspot2, 'Pile of waste')
+cl_user = user()
+check('cleanup evidence needs a server photo check',
+      err(claim, cl_user, nr['id'], where=nspot2) == 'KASA_PHOTO_UNCHECKED')
+ncid = claim(cl_user, nr['id'], where=nspot2, path=checked(cl_user, 'claims'))['claim_id']
+fresh = user('1 day')
+check('accounts newer than 3 days before the claim cannot respond',
+      err(vote, fresh, ncid, v='dispute', where=nspot2, path=checked(fresh, 'votes')) == 'KASA_ACCOUNT_TOO_NEW')
+blank = user('30 days')
+check('accounts with no earlier activity cannot respond',
+      err(vote, blank, ncid, v='verify', where=nspot2, path=checked(blank, 'votes')) == 'KASA_NO_HISTORY')
+p1, p2 = with_history(), with_history()
+vote(p1, ncid, v='dispute', where=nspot2, ip='10.1.1.1', path=checked(p1, 'votes'))
+held = vote(p2, ncid, v='dispute', where=nspot2, ip='10.1.1.2', path=checked(p2, 'votes'))
+check('two disputes from one network hold the claim for a moderator instead of rejecting it',
+      held['claim_status'] == 'pending' and
+      admin_sql('select needs_review from kasa_private.claims where id = %s', (ncid,))[0][0], held)
+p3 = with_history()
+rej = vote(p3, ncid, v='dispute', where=nspot2, ip='10.2.2.2', path=checked(p3, 'votes'))
+check('disputes from two networks reject the claim, with no strike',
+      rej['claim_status'] == 'rejected' and
+      admin_sql('select coalesce(max(strikes), 0) from kasa_private.profiles where user_id = %s', (cl_user,))[0][0] == 0, rej)
+
+nspot3 = offset(7700, -5000)
+nr3 = report_text(user(), nspot3, 'Pile of waste')
+cl3 = user()
+cid3 = claim(cl3, nr3['id'], where=nspot3, path=checked(cl3, 'claims'))['claim_id']
+v1, v2, v3 = with_history(), with_history(), with_history()
+for i, v_ in enumerate((v1, v2, v3)):
+    last = vote(v_, cid3, v='verify', where=nspot3, ip=f'10.3.{i}.1', path=checked(v_, 'votes'))
+check('a quorum of only low-history confirmers waits for a moderator',
+      admin_sql('select quorum_reached_at is not null and needs_review from kasa_private.claims where id = %s', (cid3,))[0][0], last)
+nr4 = report_text(user(), offset(7900, -5000), 'Pile of waste')
+cl4_spot = offset(7900, -5000)
+cid4 = claim(cl3, nr4['id'], where=cl4_spot, path=checked(cl3, 'claims'))['claim_id']
+check('one person cannot keep confirming the same claimant',
+      err(vote, v1, cid4, v='verify', where=cl4_spot, path=checked(v1, 'votes')) == 'KASA_CONFIRM_LIMIT')
+set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

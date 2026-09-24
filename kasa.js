@@ -24,6 +24,8 @@ const MAP_ZOOM = 13;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
+// Exactly what the public view offers; never select('*') from it.
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -192,7 +194,7 @@ async function init(){
 async function fetchRows(){
   // select('*'): the public view only has public columns, and a page cached
   // before a column was added (or removed) keeps working.
-  const v2 = await sb.from('kasa_public_reports').select('*').order('created_at', { ascending: false }).limit(1000);
+  const v2 = await sb.from('kasa_public_reports').select(PUBLIC_REPORT_COLUMNS).order('created_at', { ascending: false }).limit(1000);
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
