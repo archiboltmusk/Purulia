@@ -310,19 +310,59 @@ function renderLeaderboard(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   ACCOUNTABILITY CHAIN (actual Purulia hierarchy)
+   ACCOUNTABILITY CHAIN — actual Purulia Municipality hierarchy
+   Source: WBDMD, Purulia Municipality establishment data
    ══════════════════════════════════════════════════════════ */
 function renderChain(){
   const chain = document.getElementById('k-chain');
   const nodes = [
-    { icon: '🏛', name: 'Purulia Municipality', role: 'Urban local body · Executes sanitation' },
-    { icon: '👤', name: 'Chairman / Administrator', role: 'Nabendu Mahali · Elected head (or SDO as Administrator)' },
-    { icon: '📋', name: 'Executive Officer', role: 'Municipal administrative head' },
-    { icon: '🧹', name: 'Sanitation Inspector', role: 'Ward-level waste management' },
-    { icon: '👷', name: 'Conservancy Staff', role: 'On-ground cleanup crew' }
+    {
+      icon: '🏛',
+      name: 'The Council / Board of Councillors',
+      role: 'Elected body · 23 ward councillors · Sets policy & budgets',
+      action: 'Report a systemic issue'
+    },
+    {
+      icon: '👤',
+      name: 'Chairman',
+      role: 'Nabendu Mahali · Political head & chief executive authority',
+      action: 'Escalate unresolved ward issues'
+    },
+    {
+      icon: '📋',
+      name: 'Executive Officer (EO)',
+      role: 'WB Civil Service appointee · Implements board resolutions, manages funds & departments',
+      action: 'File formal complaint'
+    },
+    {
+      icon: '🧹',
+      name: 'Sanitation Inspector (SI)',
+      role: 'Supervises waste collection, drainage, water distribution across all 23 wards',
+      action: 'Direct operational escalation'
+    },
+    {
+      icon: '👷',
+      name: 'Sanitation Supervisors / Ward Jamadars',
+      role: 'Sub-inspectors · Assist the SI with field coordination',
+      action: 'Ward-level follow-up'
+    },
+    {
+      icon: '🧑‍🔧',
+      name: 'Sanitation & Conservancy Staff',
+      role: 'Garbage collection, road sweeping, drain cleaning, spraying',
+      action: 'On-ground crew'
+    },
+    {
+      icon: '📝',
+      name: 'Clerical Staff',
+      role: 'Grievance tracking, attendance, inventory',
+      action: 'Complaint reference number'
+    }
   ];
+
   chain.innerHTML = nodes.map((n, i) => {
-    const arrow = i < nodes.length - 1 ? '<div class="k-chain-arrow">↓</div>' : '';
+    const isLast = i === nodes.length - 1;
+    const arrow = !isLast ? '<div class="k-chain-arrow">↓</div>' : '';
     return `
       <div class="k-chain-node">
         <div class="k-chain-icon">${n.icon}</div>
@@ -333,7 +373,6 @@ function renderChain(){
       </div>${arrow}`;
   }).join('');
 }
-
 /* ══════════════════════════════════════════════════════════
    REP PROFILES
    ══════════════════════════════════════════════════════════ */
