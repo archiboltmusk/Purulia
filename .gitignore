@@ -10,3 +10,6 @@ Thumbs.db
 .vscode/
 .idea/
 *.swp
+
+# Dependencies (tests install imagescript locally)
+node_modules/
