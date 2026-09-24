@@ -8,7 +8,7 @@ const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBh
 const MUNICIPALITY_PHONE = '919046003666';
 const MAP_CENTER = [86.3654, 23.3320];
 const MAP_ZOOM = 13;
-const KASA_PAGE_URL = 'https://mahatoanupam002-lang.github.io/purulia/kasa.html';
+const KASA_PAGE_URL = location.origin + location.pathname;
 const DEFAULT_SLA_DAYS = 7;
 const DUPLICATE_RADIUS_M = 20;
 const DUPLICATE_HOURS = 6;
@@ -479,22 +479,13 @@ function severityColor(){
   ];
 }
 
-// Cache filtered results to avoid repeated filtering
-let cachedFiltered = [];
-let lastFilterKey = '';
-
 function filteredReports(){
-  const filterKey = `${activeFilters.severity}|${activeFilters.status}|${activeFilters.ward}`;
-  if (lastFilterKey === filterKey) return cachedFiltered;
-
-  cachedFiltered = reports.filter(r => {
+  return reports.filter(r => {
     if (activeFilters.severity && r.severity !== activeFilters.severity) return false;
     if (activeFilters.status && r.status !== activeFilters.status) return false;
     if (activeFilters.ward && r.ward_no !== activeFilters.ward) return false;
     return true;
   });
-  lastFilterKey = filterKey;
-  return cachedFiltered;
 }
 
 function renderMarkers(){
@@ -893,8 +884,6 @@ function wireUI(){
    OFFLINE DETECTION
    ══════════════════════════════════════════════════════════ */
 function setupOfflineDetection(){
-  // Note: navigator.onLine is unreliable, so we only use event listeners
-  // for when the browser explicitly detects online/offline transitions
   const update = () => {
     const el = document.getElementById('k-offline');
     if (!el) return;
@@ -905,7 +894,7 @@ function setupOfflineDetection(){
     syncOfflineQueue().catch(e => console.warn('Sync error:', e));
   });
   window.addEventListener('offline', update);
-  // Don't check navigator.onLine on init - wait for explicit offline event
+  update();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -1151,38 +1140,20 @@ function handleVerify(reportId){
 }
 
 async function commitResolve(reportId, blob){
-  showToast('Validating and uploading proof…');
-
-  // Validate with Google Vision API
-  const reader = new FileReader();
-  reader.onload = async (e) => {
-    const base64 = e.target.result;
-    const validation = await validatePhotoWithVision(base64);
-
-    showToast(`Uploading proof… (confidence: ${Math.round(validation.confidence * 100)}%)`);
-
-    const filename = `resolved/${reportId}-${Date.now()}.jpg`;
-    const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, blob, { contentType:'image/jpeg' });
-    if (upErr){ showToast('Upload failed'); return; }
-
-    const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
-
-    // No upvote requirement - any municipality official can resolve
-    const { error: rpcErr } = await sb.rpc('mark_resolved', {
-      p_report_id: reportId,
-      p_resolved_photo_url: urlData.publicUrl,
-      p_resolved_by: reporterHash,
-      p_vision_confidence: validation.confidence,
-      p_vision_labels: validation.labels.join(',')
-    });
-
-    if (rpcErr){ showToast('Could not mark resolved'); return; }
-
-    showToast(`Resolved ✓ (${validation.confidence * 100}% confidence)`);
-    await loadReports();
-    renderDebounced();
-  };
-  reader.readAsDataURL(blob);
+  showToast('Uploading proof for review…');
+  const filename = `resolutions/${reportId}-${Date.now()}.jpg`;
+  const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, blob, { contentType:'image/jpeg' });
+  if (upErr){ showToast('Upload failed'); return; }
+  const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
+  const { error: rpcErr } = await sb.rpc('submit_resolution', {
+    p_report_id: reportId,
+    p_resolved_photo_url: urlData.publicUrl,
+    p_submitted_by: reporterHash
+  });
+  if (rpcErr){ showToast('Could not submit'); return; }
+  await loadReports();
+  renderDebounced();
+  showToast('Submitted for verification');
 }
 
 function handleShare(url, msg){

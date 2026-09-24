@@ -26,6 +26,7 @@ button{font-family:inherit;cursor:pointer;border:none;background:none;color:inhe
 img{display:block;max-width:100%;}
 
 .k-offline{position:fixed;top:0;left:0;right:0;z-index:3000;background:var(--orange);color:var(--ink);padding:.65rem 1rem;font-family:var(--mono);font-size:12px;letter-spacing:.08em;text-align:center;display:flex;align-items:center;justify-content:center;gap:.6rem;}
+.k-offline[hidden]{display:none;}
 .k-offline-dot{width:7px;height:7px;border-radius:50%;background:var(--ink);animation:kPulse 1.5s ease infinite;}
 @keyframes kPulse{0%,100%{opacity:1;}50%{opacity:.3;}}
 
