@@ -129,8 +129,8 @@ img{display:block;max-width:100%;}
 
 /* ═══ AUTHORITY ═══ */
 .k-auth-section{padding:3.6rem 0 5rem;border-top:1px solid var(--border);}
-.k-auth-grid{max-width:1080px;margin:2rem auto 0;padding:0 1.4rem;display:grid;grid-template-columns:repeat(2,1fr);gap:1rem;}
-@media(max-width:640px){.k-auth-grid{grid-template-columns:1fr;}}
+.k-auth-grid-3{grid-template-columns:repeat(3,1fr);}
+@media(max-width:900px){.k-auth-grid-3{grid-template-columns:1fr;}}
 .k-auth-card{background:var(--ink3);border:1px solid var(--border);padding:1.4rem;}
 .k-auth-label{font-size:.6rem;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:.5rem;}
 .k-auth-name{font-family:var(--serif);font-size:1.12rem;font-weight:600;color:var(--cream);}
