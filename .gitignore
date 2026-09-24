@@ -1,21 +1,15 @@
-# Dependencies
-node_modules/
+# Generated at build time by GitHub Actions
+config.js
 
-# Build artifacts
-dist/
-build/
-.cache/
+# Local env
+.env
+.env.local
 
-# OS files
+# OS
 .DS_Store
 Thumbs.db
 
-# Editor files
+# Editor
 .vscode/
 .idea/
 *.swp
-*.swo
-*~
-
-# Backups
-*.bak
