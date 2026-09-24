@@ -159,7 +159,7 @@ async function init(){
   wireUI();
   checkIntro();
   setupOfflineDetection();
-  syncOfflineQueue();
+  await syncOfflineQueue();
 
   setTimeout(() => {
     const ld = document.getElementById('k-loader');
@@ -807,7 +807,7 @@ function setupOfflineDetection(){
     if (!el) return;
     el.hidden = navigator.onLine;
   };
-  window.addEventListener('online', () => { update(); syncOfflineQueue(); });
+  window.addEventListener('online', () => { update(); syncOfflineQueue().catch(e => console.warn('Sync error:', e)); });
   window.addEventListener('offline', update);
   update();
 }
