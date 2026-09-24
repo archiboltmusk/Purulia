@@ -1,30 +1,31 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — Stage 1
-   MapLibre + Supabase. Anonymous. Public. Accountable.
+   PURULIA KASA — Stage 1 Final
+   MapLibre + Supabase + Ward auto-detection
    ══════════════════════════════════════════════════════════ */
 
-/* ── CONFIG — REPLACE THESE ── */
+/* ── CONFIG — REPLACE THESE TWO ── */
 const SUPABASE_URL = 'https://https://jrravmlodmbmmzmhofxi.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImpycmF2bWxvZG1ibW16bWhvZnhpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMjMzNzksImV4cCI6MjEwNTc5OTM3OX0.dQKsZtiOsQLO8TIQnIuIaOxVDL_Q4K47VI__PqvQGqo';
+
+/* ── Constants ── */
 const MUNICIPALITY_PHONE = '919046003666';
 const MAP_CENTER = [86.3654, 23.3320];
 const MAP_ZOOM = 13;
 const KASA_PAGE_URL = 'https://mahatoanupam002-lang.github.io/purulia/kasa.html';
 
-/* ── Supabase ── */
+/* ── Supabase client ── */
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
 let reports = [];
 let wards = {};
+let wardGeo = null;
 let draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'minor' };
 let activeFilters = { severity: '', status: '' };
-let userUpvotes = new Set();  // report IDs this browser has upvoted
+let userUpvotes = new Set();
 
-/* ── Rep data ──
-   MLA/MP are state/national; ward councillors are in `wards` table.
-   Update these when the next election happens. */
+/* ── Rep data ── */
 const REPS = {
   mla: {
     name: 'Sudip Kumar Mukherjee',
@@ -55,6 +56,7 @@ const REPS = {
 async function init(){
   loadUpvotes();
   await loadWards();
+  await loadWardGeo();
   initMainMap();
   await loadReports();
   populateWardDropdown();
@@ -80,14 +82,60 @@ function saveUpvotes(){
   try { localStorage.setItem('kasa_upvotes', JSON.stringify([...userUpvotes])); } catch(e) {}
 }
 
-/* ── Load wards ── */
+/* ══════════════════════════════════════════════════════════
+   WARDS (from Supabase) + WARD GEOMETRY (from GeoJSON)
+   ══════════════════════════════════════════════════════════ */
 async function loadWards(){
   const { data, error } = await sb.from('wards').select('*').order('ward_no');
   if (error){ console.error('Wards load failed', error); return; }
   (data || []).forEach(w => { wards[w.ward_no] = w; });
 }
 
-/* ── Load reports ── */
+async function loadWardGeo(){
+  try {
+    const res = await fetch('purulia_wards.geojson');
+    if (!res.ok) throw new Error('not found');
+    wardGeo = await res.json();
+    console.info('Kasa: ward boundaries loaded', wardGeo.features.length, 'polygons');
+  } catch(e){
+    console.info('Kasa: no ward GeoJSON — manual ward selection only');
+  }
+}
+
+/* Point-in-polygon (ray casting) */
+function pointInRing(pt, ring){
+  let x = pt[0], y = pt[1], inside = false;
+  for (let i = 0, j = ring.length - 1; i < ring.length; j = i++){
+    const xi = ring[i][0], yi = ring[i][1];
+    const xj = ring[j][0], yj = ring[j][1];
+    if (((yi > y) !== (yj > y)) && (x < (xj - xi) * (y - yi) / (yj - yi) + xi)) inside = !inside;
+  }
+  return inside;
+}
+
+function pointInPolygon(pt, polygon){
+  if (polygon.type === 'Polygon') return pointInRing(pt, polygon.coordinates[0]);
+  if (polygon.type === 'MultiPolygon'){
+    return polygon.coordinates.some(rings => pointInRing(pt, rings[0]));
+  }
+  return false;
+}
+
+function detectWard(lat, lng){
+  if (!wardGeo || !wardGeo.features) return null;
+  for (const f of wardGeo.features){
+    if (pointInPolygon([lng, lat], f.geometry)){
+      const props = f.properties || {};
+      const n = props.ward || props.WARD || props.ward_no || props.Ward_No;
+      if (n) return parseInt(String(n).replace(/\D/g, ''), 10);
+    }
+  }
+  return null;
+}
+
+/* ══════════════════════════════════════════════════════════
+   LOAD REPORTS
+   ══════════════════════════════════════════════════════════ */
 async function loadReports(){
   const { data, error } = await sb
     .from('reports')
@@ -113,12 +161,37 @@ function initMainMap(){
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
 
   mainMap.on('load', () => {
+    /* Ward boundary outlines (visible layer) */
+    if (wardGeo) {
+      mainMap.addSource('wards', { type: 'geojson', data: wardGeo });
+
+      mainMap.addLayer({
+        id: 'wards-fill',
+        type: 'fill',
+        source: 'wards',
+        paint: {
+          'fill-color': '#d4882a',
+          'fill-opacity': 0.04
+        }
+      });
+
+      mainMap.addLayer({
+        id: 'wards-line',
+        type: 'line',
+        source: 'wards',
+        paint: {
+          'line-color': 'rgba(212,136,42,.4)',
+          'line-width': 1
+        }
+      });
+    }
+
+    /* Reports source */
     mainMap.addSource('reports', {
       type: 'geojson',
       data: { type: 'FeatureCollection', features: [] }
     });
 
-    /* Halo layer */
     mainMap.addLayer({
       id: 'reports-halo',
       type: 'circle',
@@ -130,7 +203,6 @@ function initMainMap(){
       }
     });
 
-    /* Core dot */
     mainMap.addLayer({
       id: 'reports-core',
       type: 'circle',
@@ -155,7 +227,6 @@ function initMainMap(){
   });
 }
 
-/* Severity → color mapping */
 function severityColor(){
   return [
     'case',
@@ -166,7 +237,6 @@ function severityColor(){
   ];
 }
 
-/* Filter → GeoJSON features */
 function filteredReports(){
   return reports.filter(r => {
     if (activeFilters.severity && r.severity !== activeFilters.severity) return false;
@@ -193,13 +263,17 @@ function renderMarkers(){
         created_at: r.created_at,
         resolved_photo_url: r.resolved_photo_url || '',
         upvotes: r.upvotes || 0,
-        flags: r.flags || 0
+        flags: r.flags || 0,
+        lat: r.lat,
+        lng: r.lng
       }
     }));
   mainMap.getSource('reports').setData({ type: 'FeatureCollection', features });
 }
 
-/* ── Popup ── */
+/* ══════════════════════════════════════════════════════════
+   POPUP
+   ══════════════════════════════════════════════════════════ */
 function openReportPopup(props, coords){
   const w = wards[props.ward_no] || { councillor_name: '—', party: '—' };
   const date = props.created_at ? new Date(props.created_at).toLocaleDateString('en-IN', {day:'numeric', month:'short', year:'numeric'}) : '';
@@ -210,16 +284,13 @@ function openReportPopup(props, coords){
     ? '<span style="color:#6DB88A">Resolved</span>'
     : `<span style="color:#E8524A">${daysOpen} days open</span>`;
 
-  /* Severity badge */
   let sevClass = 'k-popup-sev-minor';
   if (props.status === 'resolved') sevClass = 'k-popup-sev-resolved';
   else if (props.severity === 'critical') sevClass = 'k-popup-sev-critical';
   else if (props.severity === 'severe') sevClass = 'k-popup-sev-severe';
 
-  /* Upvote state */
   const hasUpvoted = userUpvotes.has(props.id);
 
-  /* Actions */
   let actionsHtml = '';
   if (props.status === 'resolved'){
     actionsHtml = `<span class="k-popup-btn" style="border-color:#6DB88A;color:#6DB88A;cursor:default;">✓ Resolved</span>`;
@@ -263,26 +334,32 @@ function updateStats(){
   const wardsActive = new Set(reports.map(r => r.ward_no).filter(Boolean)).size;
   const rate = total ? Math.round((resolved / total) * 100) : 0;
 
-  document.getElementById('k-stat-total').textContent = total;
-  document.getElementById('k-stat-resolved').textContent = resolved;
-  document.getElementById('k-stat-wards').textContent = wardsActive;
-  document.getElementById('k-stat-rate').textContent = rate + '%';
+  const elTotal = document.getElementById('k-stat-total');
+  const elResolved = document.getElementById('k-stat-resolved');
+  const elWards = document.getElementById('k-stat-wards');
+  const elRate = document.getElementById('k-stat-rate');
+  if (elTotal) elTotal.textContent = total;
+  if (elResolved) elResolved.textContent = resolved;
+  if (elWards) elWards.textContent = wardsActive;
+  if (elRate) elRate.textContent = rate + '%';
 
-  document.getElementById('k-pill-active').textContent = active;
-  document.getElementById('k-pill-total').textContent = total;
+  const pillActive = document.getElementById('k-pill-active');
+  const pillTotal = document.getElementById('k-pill-total');
+  if (pillActive) pillActive.textContent = active;
+  if (pillTotal) pillTotal.textContent = total;
 }
 
 /* ══════════════════════════════════════════════════════════
-   LEADERBOARD (open reports first)
+   LEADERBOARD (open first)
    ══════════════════════════════════════════════════════════ */
 function renderLeaderboard(){
   const list = document.getElementById('k-lb-list');
+  if (!list) return;
   if (!reports.length){
     list.innerHTML = '<div class="k-lb-empty">No reports yet — be the first</div>';
     return;
   }
 
-  /* Count open and resolved per ward */
   const stats = {};
   reports.forEach(r => {
     if (!r.ward_no) return;
@@ -292,13 +369,12 @@ function renderLeaderboard(){
     else stats[r.ward_no].open++;
   });
 
-  /* Sort by OPEN count descending (your request: "open report then unresolved") */
   const rows = Object.entries(stats)
     .map(([ward, s]) => {
       const w = wards[ward] || { councillor_name: '—', party: '—' };
       return { ward: parseInt(ward), open: s.open, resolved: s.resolved, total: s.total, councillor: w.councillor_name, party: w.party };
     })
-    .filter(r => r.open > 0)   // only show wards with open reports
+    .filter(r => r.open > 0)
     .sort((a, b) => b.open - a.open);
 
   if (!rows.length){
@@ -321,54 +397,19 @@ function renderLeaderboard(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   ACCOUNTABILITY CHAIN — actual Purulia Municipality hierarchy
-   Source: WBDMD, Purulia Municipality establishment data
+   ACCOUNTABILITY CHAIN — Purulia Municipality hierarchy
    ══════════════════════════════════════════════════════════ */
 function renderChain(){
   const chain = document.getElementById('k-chain');
+  if (!chain) return;
   const nodes = [
-    {
-      icon: '🏛',
-      name: 'The Council / Board of Councillors',
-      role: 'Elected body · 23 ward councillors · Sets policy & budgets',
-      action: 'Report a systemic issue'
-    },
-    {
-      icon: '👤',
-      name: 'Chairman',
-      role: 'Nabendu Mahali · Political head & chief executive authority',
-      action: 'Escalate unresolved ward issues'
-    },
-    {
-      icon: '📋',
-      name: 'Executive Officer (EO)',
-      role: 'WB Civil Service appointee · Implements board resolutions, manages funds & departments',
-      action: 'File formal complaint'
-    },
-    {
-      icon: '🧹',
-      name: 'Sanitation Inspector (SI)',
-      role: 'Supervises waste collection, drainage, water distribution across all 23 wards',
-      action: 'Direct operational escalation'
-    },
-    {
-      icon: '👷',
-      name: 'Sanitation Supervisors / Ward Jamadars',
-      role: 'Sub-inspectors · Assist the SI with field coordination',
-      action: 'Ward-level follow-up'
-    },
-    {
-      icon: '🧑‍🔧',
-      name: 'Sanitation & Conservancy Staff',
-      role: 'Garbage collection, road sweeping, drain cleaning, spraying',
-      action: 'On-ground crew'
-    },
-    {
-      icon: '📝',
-      name: 'Clerical Staff',
-      role: 'Grievance tracking, attendance, inventory',
-      action: 'Complaint reference number'
-    }
+    { icon: '🏛', name: 'The Council / Board of Councillors', role: 'Elected body · 23 ward councillors · Sets policy & budgets' },
+    { icon: '👤', name: 'Chairman', role: 'Nabendu Mahali · Political head & chief executive authority' },
+    { icon: '📋', name: 'Executive Officer (EO)', role: 'WB Civil Service appointee · Implements board resolutions, manages funds & departments' },
+    { icon: '🧹', name: 'Sanitation Inspector (SI)', role: 'Supervises waste collection, drainage, water distribution across all 23 wards' },
+    { icon: '👷', name: 'Sanitation Supervisors / Ward Jamadars', role: 'Sub-inspectors · Assist the SI with field coordination' },
+    { icon: '🧑‍🔧', name: 'Sanitation & Conservancy Staff', role: 'Garbage collection, road sweeping, drain cleaning, spraying' },
+    { icon: '📝', name: 'Clerical Staff', role: 'Grievance tracking, attendance, inventory' }
   ];
 
   chain.innerHTML = nodes.map((n, i) => {
@@ -384,6 +425,7 @@ function renderChain(){
       </div>${arrow}`;
   }).join('');
 }
+
 /* ══════════════════════════════════════════════════════════
    REP PROFILES
    ══════════════════════════════════════════════════════════ */
@@ -391,12 +433,10 @@ function openRepProfile(key){
   const rep = REPS[key];
   if (!rep) return;
 
-  /* Compute stats for this rep */
   const total = reports.length;
   const resolved = reports.filter(r => r.status === 'resolved').length;
   const active = total - resolved;
 
-  /* Worst wards: top 5 by open report count */
   const stats = {};
   reports.forEach(r => {
     if (!r.ward_no || r.status === 'resolved') return;
@@ -412,11 +452,15 @@ function openRepProfile(key){
     ? worst.map((w, i) => {
         const wd = wards[w.ward] || {};
         return `<div class="k-rep-worst-item">
-          <span>${i+1}. Ward ${w.ward} · ${esc(wd.councillor_name || '—')}</span>
+          <span>${i+1}. Ward ${w.ward} · ${esc(wd.councillor_name || '—')} <em style="color:rgba(240,230,208,.35);font-style:normal;">(${esc(wd.party || '—')})</em></span>
           <span class="k-rep-worst-count">${w.count}</span>
         </div>`;
       }).join('')
-    : '<div style="padding:1rem 0;color:rgba(240,230,208,.4);font-size:.72rem;">No open reports in this constituency.</div>';
+    : '<div style="padding:1rem 0;color:rgba(240,230,208,.4);font-size:.72rem;">No open reports in this area.</div>';
+
+  const scopeLabel = rep.scope === 'municipality'
+    ? 'All 23 wards of Purulia town'
+    : 'Purulia constituency';
 
   document.getElementById('k-rep-content').innerHTML = `
     <div class="k-rep-header">
@@ -424,6 +468,7 @@ function openRepProfile(key){
       <div>
         <div class="k-rep-name">${esc(rep.name)}</div>
         <div class="k-rep-role">${esc(rep.role)} · ${esc(rep.party)}</div>
+        <div class="k-rep-role" style="margin-top:.3rem;font-size:.6rem;color:rgba(240,230,208,.35);">Covers: ${esc(scopeLabel)}</div>
       </div>
     </div>
     <div class="k-rep-stats">
@@ -480,12 +525,36 @@ function initMiniMap(){
     zoom: 13,
     attributionControl: false
   });
+
+  /* Show ward outlines in mini-map too */
+  miniMap.on('load', () => {
+    if (wardGeo){
+      miniMap.addSource('wards-mini', { type: 'geojson', data: wardGeo });
+      miniMap.addLayer({
+        id: 'wards-mini-line',
+        type: 'line',
+        source: 'wards-mini',
+        paint: { 'line-color': 'rgba(212,136,42,.5)', 'line-width': 1 }
+      });
+    }
+  });
+
   miniMap.on('click', (e) => setLocation(e.lngLat.lat, e.lngLat.lng));
 }
 
 function setLocation(lat, lng){
   draft.lat = lat;
   draft.lng = lng;
+
+  /* Auto-detect ward from coordinates */
+  const autoWard = detectWard(lat, lng);
+  if (autoWard && wards[autoWard]){
+    draft.ward = autoWard;
+    const sel = document.getElementById('k-ward');
+    if (sel) sel.value = String(autoWard);
+    showToast(`Ward ${autoWard} detected — ${wards[autoWard].councillor_name}`);
+  }
+
   document.getElementById('k-coords').textContent = `${lat.toFixed(5)}°N, ${lng.toFixed(5)}°E`;
   if (miniMap){
     if (miniMarker) miniMarker.remove();
@@ -589,7 +658,9 @@ function wireUI(){
   });
 }
 
-/* ── Photo handling ── */
+/* ══════════════════════════════════════════════════════════
+   PHOTO HANDLING
+   ══════════════════════════════════════════════════════════ */
 function handlePhoto(e){
   const file = e.target.files[0];
   if (!file) return;
@@ -615,7 +686,9 @@ function handlePhoto(e){
   reader.readAsDataURL(file);
 }
 
-/* ── GPS ── */
+/* ══════════════════════════════════════════════════════════
+   GPS
+   ══════════════════════════════════════════════════════════ */
 function detectGPS(){
   const btn = document.getElementById('k-gps-btn');
   if (!navigator.geolocation){ showToast('GPS not available — tap the map instead'); return; }
@@ -639,7 +712,6 @@ async function submitReport(){
   submitBtn.disabled = true;
   submitBtn.textContent = 'Uploading photo…';
 
-  /* Upload photo */
   const filename = `reports/${Date.now()}-${Math.random().toString(36).slice(2,8)}.jpg`;
   const { error: upErr } = await sb.storage
     .from('kasa-photos')
@@ -648,7 +720,6 @@ async function submitReport(){
   const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
   const photoUrl = urlData.publicUrl;
 
-  /* Insert report */
   submitBtn.textContent = 'Filing report…';
   const desc = document.getElementById('k-desc').value.trim();
   const name = document.getElementById('k-name').value.trim();
@@ -668,13 +739,11 @@ async function submitReport(){
 
   if (insErr){ console.error(insErr); showToast('Report failed — try again'); submitBtn.disabled = false; submitBtn.textContent = 'Submit Report →'; return; }
 
-  /* Update state */
   reports.unshift(inserted);
   renderMarkers();
   updateStats();
   renderLeaderboard();
 
-  /* WhatsApp escalation */
   const w = wards[draft.ward] || { councillor_name: '—' };
   const msg = `Garbage report — Purulia Kasa\nWard: ${draft.ward} (${w.councillor_name})\nLocation: ${draft.lat.toFixed(5)}°N, ${draft.lng.toFixed(5)}°E\nSeverity: ${draft.severity}\nIssue: ${desc || '(no description)'}\nMap: https://www.google.com/maps?q=${draft.lat},${draft.lng}`;
   document.getElementById('k-wa-escalate').href = `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}`;
@@ -774,6 +843,7 @@ async function commitResolve(reportId, blob){
 function renderQR(){
   const wrap = document.getElementById('k-qr-wrap');
   const urlEl = document.getElementById('k-qr-url');
+  if (!wrap || !urlEl) return;
   wrap.innerHTML = '';
   urlEl.textContent = KASA_PAGE_URL;
 
@@ -808,6 +878,7 @@ function resetDraft(){
 
 function showToast(msg){
   const t = document.getElementById('k-toast');
+  if (!t) return;
   t.textContent = msg;
   t.classList.add('show');
   clearTimeout(showToast._timer);
