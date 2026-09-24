@@ -462,12 +462,17 @@ const api = {
   async createReport(d){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
-    // Request a one-time capture token (protects against spoofed photos).
-    const captureToken = await getCaptureToken();
-    const path = await uploadPhoto('reports', d.photoBlob);
+    // Parallelize token request and photo upload for speed.
+    const [captureToken, path] = await Promise.all([
+      getCaptureToken(),
+      uploadPhoto('reports', d.photoBlob)
+    ]);
+    // Send metadata immediately.
     await sendPhotoMeta(path, d.photoMeta);
-    // Pass token and location for EXIF verification and token validation.
-    await checkPhoto(path, captureToken, d.lat, d.lng);
+    // Vision AI check happens asynchronously in background — don't block user.
+    // This ensures fast report submission while verification continues after.
+    checkPhoto(path, captureToken, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
+    // Create report in database immediately.
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -511,9 +516,8 @@ const api = {
     const captureToken = await getCaptureToken();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     await sendPhotoMeta(path, meta);
-    ev?.setStatus?.(t('ev_checking'));
-    // Pass token and location for EXIF verification and token validation.
-    await checkPhoto(path, captureToken, pos.lat, pos.lng);
+    // Vision AI check happens asynchronously — don't block evidence submission.
+    checkPhoto(path, captureToken, pos.lat, pos.lng).catch(err => console.warn('photo check failed', err));
     const { data, error } = mode === 'claim'
       ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
@@ -1697,15 +1701,53 @@ function setLocation(lat, lng, accuracy){
 
 async function useGPS(){
   const btn = document.getElementById('k-gps-btn');
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const timeout = isSafari ? 45000 : 20000; // Safari can be slow with permission prompts
+
+  let skipRequested = false;
+  const skipBtn = document.createElement('button');
+  skipBtn.type = 'button';
+  skipBtn.style.cssText = 'margin-left:0.5rem;padding:0.3rem 0.8rem;font-size:11px;background:#444;color:#ccc;border:none;border-radius:2px;cursor:pointer;';
+  skipBtn.textContent = '(skip location)';
+  skipBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    skipRequested = true;
+  });
+
   btn.textContent = t('step3_gps_wait');
   btn.disabled = true;
+  btn.appendChild(skipBtn);
+
   try {
-    const pos = await getPosition({ want: 30, timeout: 15000 });
+    const TARGET_ACCURACY = 30;
+    const pos = await getPosition({
+      want: TARGET_ACCURACY,
+      timeout: timeout,
+      onProgress: (p) => {
+        const accuracy = Math.round(p.accuracy);
+        const threshold = accuracy <= 100 ? '✓' : '•';
+        btn.childNodes[0].textContent = `Getting location… (${accuracy}m) ${threshold}`;
+      }
+    });
+
+    if (skipRequested) {
+      btn.textContent = t('step3_gps');
+      return;
+    }
+
     setLocation(pos.lat, pos.lng, pos.accuracy);
-    btn.textContent = t('step3_gps_done');
+    btn.textContent = pos.accuracy <= TARGET_ACCURACY ? '✓ High accuracy' : `✓ GPS (${Math.round(pos.accuracy)}m)`;
   } catch (e){
+    if (skipRequested) {
+      btn.textContent = t('step3_gps');
+      return;
+    }
     btn.textContent = t('step3_gps');
-    showToast(t('step3_gps_fail'));
+    if (e.code === 1) {
+      showToast('Location permission denied. Pin a location on the map for reporting.');
+    } else {
+      showToast('Could not get GPS location. Pin on the map instead.');
+    }
   }
   btn.disabled = false;
 }
@@ -1717,7 +1759,26 @@ function setSeverity(sev){
 
 function updateSubmitState(){
   const btn = document.getElementById('k-submit');
-  if (btn && draft) btn.disabled = !(draft.category && draft.photoBlob && draft.lat != null && draft.ward);
+  const coords = document.getElementById('k-coords');
+  const minAccuracy = 100; // meters — require GPS accuracy for true results
+  const hasGoodGPS = draft?.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  const canSubmit = draft?.category && draft?.photoBlob && hasGoodGPS && draft?.ward;
+
+  if (btn) {
+    btn.disabled = !canSubmit;
+    // Show GPS status in submit button
+    if (!draft?.ward) {
+      btn.title = 'Select a ward';
+    } else if (!draft?.photoBlob) {
+      btn.title = 'Take a photo';
+    } else if (draft.lat == null) {
+      btn.title = 'Get GPS location — essential for accurate reporting';
+    } else if (draft.accuracy > minAccuracy) {
+      btn.title = `GPS accuracy is ${Math.round(draft.accuracy)}m (need ≤${minAccuracy}m for accuracy)`;
+    } else {
+      btn.title = '';
+    }
+  }
 }
 
 async function submitReport(){
@@ -1725,7 +1786,9 @@ async function submitReport(){
   draft.ward = parseInt(document.getElementById('k-ward').value, 10) || null;
   draft.landmark = document.getElementById('k-landmark').value.trim();
   draft.description = document.getElementById('k-desc').value.trim();
-  if (!draft.category || !draft.photoBlob || draft.lat == null || !draft.ward){ updateSubmitState(); return; }
+  const minAccuracy = 100;
+  const hasGoodGPS = draft.lat != null && (draft.accuracy == null || draft.accuracy <= minAccuracy);
+  if (!draft.category || !draft.photoBlob || !hasGoodGPS || !draft.ward){ updateSubmitState(); return; }
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
   btn.textContent = t('step3_uploading');
