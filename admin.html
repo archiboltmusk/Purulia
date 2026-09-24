@@ -52,6 +52,22 @@
 .ad-btn:hover{background:var(--amber2);}
 .ad-error{color:var(--red);font-size:.82rem;margin-top:.8rem;}
 .hidden{display:none!important;}
+.ad-sub-title{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:1.6rem 0 .8rem;}
+.ad-item{background:rgba(212,136,42,.03);border:1px solid var(--border);border-radius:6px;padding:1.1rem;margin-bottom:1rem;}
+.ad-item-head{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start;}
+.ad-item-title{font-family:var(--serif);font-size:1.05rem;color:var(--cream);}
+.ad-item-meta{font-family:var(--mono);font-size:11px;color:var(--text-lo);margin-top:.3rem;line-height:1.6;}
+.ad-actions{display:flex;gap:.4rem;flex-wrap:wrap;}
+.ad-actions button{padding:.5rem .8rem;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.08em;}
+.ad-ok{background:rgba(109,184,138,.15);color:var(--green);} .ad-bad{background:rgba(232,82,74,.15);color:var(--red);}
+.ad-photos{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:.6rem;margin-top:.9rem;}
+.ad-photos figure{margin:0;} .ad-photos img{width:100%;height:130px;object-fit:cover;border-radius:4px;border:1px solid var(--border);}
+.ad-photos figcaption{font-family:var(--mono);font-size:10px;color:var(--text-md);margin-top:.3rem;display:flex;justify-content:space-between;gap:.4rem;align-items:center;}
+.ad-photos figcaption button{color:var(--red);font-family:var(--mono);font-size:10px;}
+.ad-form{display:grid;gap:.7rem;max-width:640px;}
+.ad-form .ad-input{margin-bottom:0;}
+.ad-form textarea.ad-input{min-height:120px;resize:vertical;}
+.ad-note{font-size:.85rem;color:var(--text-md);line-height:1.6;margin-bottom:1rem;}
 </style>
 </head>
 <body>
@@ -62,6 +78,7 @@
   <input type="email" id="adEmail" class="ad-input" placeholder="Email" autocomplete="username">
   <input type="password" id="adPassword" class="ad-input" placeholder="Password" autocomplete="current-password">
   <button class="ad-btn" id="adLoginBtn">Continue →</button>
+  <div id="adCaptcha" style="display:flex;justify-content:center;margin-bottom:1rem;"></div>
   <div class="ad-error" id="adError"></div>
 </div>
 
@@ -80,8 +97,23 @@
   <div class="ad-grid" id="adOverview"><div class="ad-loading">Loading…</div></div>
 
   <section class="ad-section">
-    <h2 class="ad-section-title">Resolution review queue</h2>
+    <h2 class="ad-section-title">Moderation queue</h2>
+    <p class="ad-note" id="adModNote"></p>
     <div id="adResolutions"><div class="ad-loading">Loading…</div></div>
+  </section>
+
+  <section class="ad-section" id="adReplySection" hidden>
+    <h2 class="ad-section-title">Publish an official response (right of reply)</h2>
+    <p class="ad-note">Only publish responses whose sender you have confirmed — for example an email from an official address. The text is published unchanged next to the report and appears in its evidence trail. It does not change the report's status.</p>
+    <form class="ad-form" id="adReplyForm">
+      <input class="ad-input" id="adReplyReport" placeholder="Report link or ID" required>
+      <input class="ad-input" id="adReplyName" placeholder="Name (e.g. Councillor's full name)" required maxlength="120">
+      <input class="ad-input" id="adReplyRole" placeholder="Position (e.g. Councillor, Ward 5)" required maxlength="160">
+      <textarea class="ad-input" id="adReplyBody" placeholder="Their response, exactly as sent" required minlength="10" maxlength="2000"></textarea>
+      <input class="ad-input" id="adReplyNote" placeholder="How you verified it (shown publicly), e.g. Email from the councillor's official address, 25 Sep" maxlength="200">
+      <button class="ad-btn" type="submit">Publish response</button>
+      <div class="ad-error" id="adReplyMsg"></div>
+    </form>
   </section>
 
   <section class="ad-section">

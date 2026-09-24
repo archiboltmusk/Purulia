@@ -1,0 +1,22 @@
+name: Keep Supabase awake
+
+# Free Supabase projects pause after about a week without API traffic.
+# Reads the public project URL and anon key from config.js; no secrets needed.
+on:
+  schedule:
+    - cron: '0 6 */3 * *'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Ping the wards endpoint
+        run: |
+          URL=$(grep -oE "https://[a-z0-9]+\.supabase\.co" config.js | head -1)
+          KEY=$(grep -oE "eyJ[A-Za-z0-9._-]+" config.js | head -1)
+          curl -fsS "$URL/rest/v1/wards?select=ward_no&limit=1" -H "apikey: $KEY" -H "Authorization: Bearer $KEY" -o /dev/null -w "%{http_code}\n"

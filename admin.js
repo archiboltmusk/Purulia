@@ -5,7 +5,21 @@
 const SUPABASE_URL = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_URL) || '';
 const SUPABASE_ANON_KEY = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_ANON_KEY) || '';
 
+const TURNSTILE_SITE_KEY = (window.KASA_CONFIG && window.KASA_CONFIG.TURNSTILE_SITE_KEY) || '';
+
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+/* When CAPTCHA protection is on in Supabase Auth, every sign-in needs a Turnstile token. */
+let captchaToken = null;
+if (TURNSTILE_SITE_KEY){
+  const s = document.createElement('script');
+  s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  s.onload = () => window.turnstile.render('#adCaptcha', {
+    sitekey: TURNSTILE_SITE_KEY, theme: 'dark', action: 'kasa-admin',
+    callback: (t) => { captchaToken = t; }, 'expired-callback': () => { captchaToken = null; }
+  });
+  document.head.appendChild(s);
+}
 
 document.getElementById('adLoginBtn').addEventListener('click', tryLogin);
 document.getElementById('adPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
@@ -19,7 +33,14 @@ async function tryLogin(){
   }
   const btn = document.getElementById('adLoginBtn');
   btn.disabled = true; btn.textContent = 'Signing in…';
-  const { data, error } = await sb.auth.signInWithPassword({ email, password });
+  if (TURNSTILE_SITE_KEY && !captchaToken){
+    document.getElementById('adError').textContent = 'Complete the human check first.';
+    btn.disabled = false; btn.textContent = 'Continue →';
+    return;
+  }
+  const { data, error } = await sb.auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
+  captchaToken = null;
+  if (error && window.turnstile) window.turnstile.reset('#adCaptcha');
   if (error){
     document.getElementById('adError').textContent = error.message;
     btn.disabled = false; btn.textContent = 'Continue →';
@@ -73,7 +94,7 @@ async function loadOverview(){
     const resolved = all?.filter(r => r.status === 'resolved').length || 0;
     const open = total - resolved;
     const overdue = all?.filter(r => {
-      if (r.status !== 'open') return false;
+      if (r.status === 'resolved') return false;
       const days = (Date.now() - new Date(r.created_at).getTime()) / 86400000;
       return days > (r.sla_days || 7);
     }).length || 0;
@@ -159,7 +180,7 @@ async function loadSla(){
       if (r.status === 'resolved' && r.resolved_at){
         const days = (new Date(r.resolved_at) - new Date(r.created_at)) / 86400000;
         if (days <= sla) inSla++; else late++;
-      } else if (r.status === 'open'){
+      } else {
         open++;
         const days = (Date.now() - new Date(r.created_at)) / 86400000;
         if (days > sla) overdue++;
@@ -178,6 +199,101 @@ async function loadSla(){
 }
 
 async function loadResolutions(){
+  const { data, error } = await sb.rpc('kasa_admin_queue');
+  if (!error) return renderModeration(data);
+  return loadLegacyResolutions();
+}
+
+function renderModeration(q){
+  document.getElementById('adModNote').textContent =
+    'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, or void an obviously fake confirmation or dispute. Every action is published in the report\'s evidence trail with the reason you give.';
+  document.getElementById('adReplySection').hidden = false;
+  const el = document.getElementById('adResolutions');
+  const reports = q.reports || [], claims = q.claims || [];
+  const reportHtml = reports.map(r => `
+    <div class="ad-item">
+      <div class="ad-item-head">
+        <div>
+          <div class="ad-item-title">${esc(r.category)} · Ward ${esc(r.ward_no ?? '?')} · ${esc(r.moderation_status === 'review' ? 'waiting for approval' : 'flagged by ' + r.flags)}</div>
+          <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>
+            ${new Date(r.created_at).toLocaleString('en-IN')}
+            ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
+        </div>
+        <div class="ad-actions">
+          <button class="ad-ok" data-mod="approve" data-id="${esc(r.id)}">✓ Publish / keep</button>
+          <button class="ad-bad" data-mod="hide" data-id="${esc(r.id)}">✕ Hide</button>
+        </div>
+      </div>
+      <div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>
+    </div>`).join('');
+  const claimHtml = claims.map(c => `
+    <div class="ad-item">
+      <div class="ad-item-head">
+        <div>
+          <div class="ad-item-title">${esc(c.category)} · Ward ${esc(c.ward_no ?? '?')} — cleanup claimed ${new Date(c.created_at).toLocaleString('en-IN')}</div>
+          <div class="ad-item-meta">Claim photo taken ${esc(c.distance_m)} m from the spot · ${c.verify_count} confirmations · ${c.dispute_count} disputes${c.quorum_reached_at ? ' · quorum reached' : ''}</div>
+        </div>
+        <div class="ad-actions"><button class="ad-bad" data-reject-claim="${esc(c.id)}">✕ Reject claim</button></div>
+      </div>
+      <div class="ad-photos">
+        <figure><img src="${esc(c.original_photo_url)}" alt="" loading="lazy"><figcaption>Before (report)</figcaption></figure>
+        <figure><img src="${esc(c.photo_url)}" alt="" loading="lazy"><figcaption>Claim</figcaption></figure>
+        ${(c.votes || []).map(v => `<figure><img src="${esc(v.photo_url || '')}" alt="" loading="lazy">
+          <figcaption>${v.vote === 'verify' ? '✓ confirm' : '✗ dispute'} · ${esc(v.distance_m)} m <button data-void="${esc(v.id)}">void</button></figcaption></figure>`).join('')}
+      </div>
+    </div>`).join('');
+  el.innerHTML = (reportHtml ? '<div class="ad-sub-title">Reports</div>' + reportHtml : '') +
+    (claimHtml ? '<div class="ad-sub-title">Cleanup claims being verified</div>' + claimHtml : '') ||
+    '<div class="ad-empty">Nothing waiting. 🎉</div>';
+
+  el.querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => moderate(b.dataset.id, b.dataset.mod)));
+  el.querySelectorAll('[data-reject-claim]').forEach(b => b.addEventListener('click', () => rejectClaim(b.dataset.rejectClaim)));
+  el.querySelectorAll('[data-void]').forEach(b => b.addEventListener('click', () => voidVote(b.dataset.void)));
+}
+
+async function moderate(id, action){
+  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:' : 'Optional public note:') ;
+  if (action === 'hide' && !reason) return;
+  const { error } = await sb.rpc('kasa_admin_moderate', { p_report_id: id, p_action: action, p_reason: reason || null });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
+}
+
+async function rejectClaim(id){
+  const reason = prompt('Public reason for rejecting this cleanup claim (e.g. "photo is of a different street"):');
+  if (!reason) return;
+  const { error } = await sb.rpc('kasa_admin_reject_claim', { p_claim_id: id, p_reason: reason });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
+}
+
+async function voidVote(id){
+  const reason = prompt('Public reason for voiding this confirmation/dispute:');
+  if (!reason) return;
+  const { error } = await sb.rpc('kasa_admin_void_vote', { p_vote_id: id, p_reason: reason });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
+}
+
+document.getElementById('adReplyForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const msg = document.getElementById('adReplyMsg');
+  const raw = document.getElementById('adReplyReport').value.trim();
+  let id = raw;
+  try { id = new URL(raw).searchParams.get('report') || raw; } catch (_) {}
+  const { error } = await sb.rpc('kasa_admin_post_reply', {
+    p_report_id: id,
+    p_name: document.getElementById('adReplyName').value,
+    p_role: document.getElementById('adReplyRole').value,
+    p_body: document.getElementById('adReplyBody').value,
+    p_verified_note: document.getElementById('adReplyNote').value || null
+  });
+  msg.style.color = error ? 'var(--red)' : 'var(--green)';
+  msg.textContent = error ? 'Failed: ' + (error.details || error.message) : 'Published on the report.';
+  if (!error) e.target.reset();
+});
+
+async function loadLegacyResolutions(){
   const el = document.getElementById('adResolutions');
   try {
     const { data } = await sb.from('pending_resolutions').select('*');

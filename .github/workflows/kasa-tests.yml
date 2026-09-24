@@ -1,0 +1,51 @@
+name: Kasa tests
+
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/**', 'kasa*.js', 'sw.js', 'admin.js', '.github/workflows/kasa-tests.yml']
+  pull_request:
+    paths: ['supabase/**', 'kasa*.js', 'sw.js', 'admin.js', '.github/workflows/kasa-tests.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  database-rules:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_HOST_AUTH_METHOD: trust
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd pg_isready --health-interval 5s --health-timeout 5s --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - run: pip install "psycopg[binary]==3.2.*"
+      - name: Migration + loophole scenarios (production replica and fresh project)
+        env:
+          PGHOST: localhost
+          PGPORT: '5432'
+        run: bash supabase/tests/run.sh
+
+  frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Syntax check
+        run: for f in kasa.js kasa-i18n.js admin.js sw.js config.js; do node --check "$f"; done
+      - name: Photo fingerprint + Vision scoring
+        run: |
+          npm install --no-save imagescript@1.3.0
+          node --experimental-strip-types supabase/tests/photo_fingerprint.test.mts
+      - name: Ward boundaries
+        run: node tools/validate-wards.mjs purulia_wards.geojson || echo "::warning::Ward boundary file has problems (see log)"
