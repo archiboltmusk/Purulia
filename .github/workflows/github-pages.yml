@@ -2,7 +2,8 @@ name: Deploy to GitHub Pages
 
 on:
   push:
-    branches: [main, claude/tender-hopper-r3zed1]
+    branches: [main]
+  workflow_dispatch:
 
 permissions:
   contents: read
