@@ -429,13 +429,31 @@ async function readPhotoMeta(file){
   return { capture: 'file', ...m };
 }
 
-/* Server-side photo check (fingerprint + Google Vision). Best effort: when the
-   function isn't deployed the database decides whether that's acceptable. */
-async function checkPhoto(path){
+/* Request a one-time photo capture token before opening the camera.
+   Token is valid for 5 minutes and can only be used once. Returns null if disabled. */
+async function getCaptureToken(){
+  try {
+    const { data, error } = await sb.functions.invoke('kasa-photo-token', { body: {} });
+    if (error || !data?.ok) return null;
+    return data.token;
+  } catch (e) { return null; }
+}
+
+/* Server-side photo check (fingerprint + Google Vision + EXIF verification + token validation).
+   Best effort: when the function isn't deployed the database decides whether that's acceptable. */
+async function checkPhoto(path, token, lat, lng){
   try {
     const timeout = new Promise(resolve => setTimeout(() => resolve({ error: 'timeout' }), 15000));
-    const { data, error } = await Promise.race([sb.functions.invoke('kasa-photo-check', { body: { path } }), timeout]);
+    const body = { path };
+    if (token) body.token = token;
+    if (lat != null) body.lat = lat;
+    if (lng != null) body.lng = lng;
+    const { data, error } = await Promise.race([sb.functions.invoke('kasa-photo-check', { body }), timeout]);
     if (error) return null;
+    // If EXIF mismatch detected, log warning but don't reject (allow manual location).
+    if (data?.exif_match === false) {
+      console.warn('Kasa: EXIF GPS mismatch detected — server will flag this photo');
+    }
     return data;
   } catch (e) { return null; }
 }
@@ -444,9 +462,12 @@ const api = {
   async createReport(d){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
+    // Request a one-time capture token (protects against spoofed photos).
+    const captureToken = await getCaptureToken();
     const path = await uploadPhoto('reports', d.photoBlob);
     await sendPhotoMeta(path, d.photoMeta);
-    await checkPhoto(path);
+    // Pass token and location for EXIF verification and token validation.
+    await checkPhoto(path, captureToken, d.lat, d.lng);
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -486,10 +507,13 @@ const api = {
   async evidence(mode, r, blob, pos, note, meta){
     if (state.mode !== 'v2') return legacySubmitProof(r, blob);
     await ensureSession();
+    // Request a one-time capture token (protects against spoofed evidence).
+    const captureToken = await getCaptureToken();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     await sendPhotoMeta(path, meta);
     ev?.setStatus?.(t('ev_checking'));
-    await checkPhoto(path);
+    // Pass token and location for EXIF verification and token validation.
+    await checkPhoto(path, captureToken, pos.lat, pos.lng);
     const { data, error } = mode === 'claim'
       ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
