@@ -70,11 +70,18 @@ const ROLE_ABBR = {
   waterworks: 'WW', building: 'BL', sdo: 'SDO', bllro: 'BL&LRO', dllro: 'DL&LRO', dm: 'DM', ps: 'PS', sdpo: 'SDPO', sp: 'SP'
 };
 
+// photo: a file in reps/ whose license allows reuse; photoCredit: the attribution that license requires.
 const REPS = {
-  mla: { name: 'Sudip Kumar Mukherjee', role: 'rep_mla_role', party: 'BJP', initials: 'SKM' },
-  mp: { name: 'Jyotirmay Singh Mahato', role: 'rep_mp_role', party: 'BJP', initials: 'JSM' },
-  chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta' }
+  mla: { name: 'Sudip Kumar Mukherjee', role: 'rep_mla_role', party: 'BJP', initials: 'SKM', photo: '', photoCredit: '' },
+  mp: { name: 'Jyotirmay Singh Mahato', role: 'rep_mp_role', party: 'BJP', initials: 'JSM', photo: '', photoCredit: '' },
+  chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta', photo: '', photoCredit: '' }
 };
+
+function repAvatar(rep, cls){
+  return `<span class="${cls}"><span>${esc(rep.initials)}</span>${rep.photo ? `<img class="k-rep-photo" src="${esc(rep.photo)}" alt="" loading="lazy">` : ''}</span>`;
+}
+// A photo that fails to load leaves the initials showing.
+document.addEventListener('error', e => { if (e.target.classList?.contains('k-rep-photo')) e.target.remove(); }, true);
 const FLAG_REASONS = ['not_an_issue', 'wrong_location', 'duplicate', 'inappropriate', 'fake_or_old_photo', 'other'];
 
 /* ── State ── */
@@ -1145,7 +1152,7 @@ function renderAccountability(r){
          <span class="k-node-text"><b>${esc(t('acc_councillor'))}</b><small>${esc(r.ward ? t('acc_vacant') : t('acc_unknown'))}</small></span></div>`;
   const reps = ['mla', 'mp'].map(k => `
     <button type="button" class="k-rep-chip" data-contact="rep:${k}:${esc(r.id)}">
-      <span class="k-rep-chip-av">${esc(REPS[k].initials)}</span>
+      ${repAvatar(REPS[k], 'k-rep-chip-av')}
       <b>${esc(REPS[k].name)}</b><small><span class="k-party k-party-${esc(REPS[k].party.toLowerCase())}">${esc(REPS[k].party)}</span> · ${esc(k.toUpperCase())}</small>
     </button>`).join('');
   return `
@@ -1972,10 +1979,12 @@ function renderReps(){
     const rep = REPS[k];
     return `
       <div class="k-auth-card">
+        ${repAvatar(rep, 'k-rep-avatar k-auth-avatar')}
         <div>
           <div class="k-auth-label">${esc(t(rep.role))}</div>
           <div class="k-auth-name">${esc(rep.name)}</div>
           <div class="k-auth-meta">${esc(rep.party)}${rep.meta ? ' · ' + esc(t(rep.meta)) : ''}</div>
+          ${rep.photo && rep.photoCredit ? `<div class="k-auth-credit">${esc(t('rep_photo_credit', { credit: rep.photoCredit }))}</div>` : ''}
         </div>
         <button type="button" class="k-auth-action" data-profile="${k}">${esc(t('auth_view'))}</button>
       </div>`;
@@ -1992,7 +2001,7 @@ function openRepProfile(key){
   const worst = Object.entries(byWard).sort((a, b) => b[1] - a[1]).slice(0, 5);
   document.getElementById('k-rep-content').innerHTML = `
     <div class="k-rep-header">
-      <div class="k-rep-avatar">${esc(rep.initials)}</div>
+      ${repAvatar(rep, 'k-rep-avatar')}
       <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc(t(rep.role))} · ${esc(rep.party)}</div></div>
     </div>
     <div class="k-rep-stats">
