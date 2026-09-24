@@ -7,8 +7,8 @@
 <meta name="description" content="A crowdsourced garbage-reporting map for Purulia town. Snap a photo. Pin the spot. Your ward councillor is notified.">
 <meta property="og:title" content="Purulia Kasa — Report Garbage in 30 Seconds">
 <meta property="og:description" content="Purulia's civic waste-reporting map. Every report public. Every ward ranked.">
-<meta property="og:image" content="https://mahatoanupam002-lang.github.io/purulia/og-image.png">
-<meta property="og:url" content="https://mahatoanupam002-lang.github.io/purulia/kasa.html">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.png">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/kasa.html">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 
@@ -55,7 +55,7 @@
     <div class="k-intro-logo">Purulia <em>Kasa</em></div>
     <h2 class="k-intro-title" data-i18n="intro_title">Purulia has a garbage problem.</h2>
     <p class="k-intro-sub" data-i18n="intro_sub">Report it. Photograph it. Track who is responsible.</p>
-    <p class="k-intro-meta" data-i18n="intro_meta">Every dump is mapped to the responsible ward, councillor, MLA, and MP. When enough citizens report, it becomes impossible to ignore.</p>
+    <p class="k-intro-meta" data-i18n="intro_meta">Every dump is mapped to the responsible ward, councillor, MLA, and MP.</p>
     <div class="k-intro-stats" data-i18n="intro_stats">23 wards · 1 Chairman · 1 MLA · 1 MP · All of Purulia</div>
     <button class="k-btn k-btn-primary" id="k-intro-continue" style="margin-top:.6rem;" data-i18n="intro_cta">Continue to Map →</button>
   </div>
@@ -75,7 +75,6 @@
 
 <section class="k-map-section">
   <div id="k-map" style="touch-action:pan-x pan-y;"></div>
-
   <div class="k-map-topbar">
     <div class="k-filter-bar">
       <select id="k-filter-severity" class="k-filter-select">
@@ -99,14 +98,12 @@
       <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
     </div>
   </div>
-
   <div class="k-map-legend">
     <span><i class="k-dot k-dot-minor"></i> <span data-i18n="sev_minor">Minor</span></span>
     <span><i class="k-dot k-dot-severe"></i> <span data-i18n="sev_severe">Severe</span></span>
     <span><i class="k-dot k-dot-critical"></i> <span data-i18n="sev_critical">Critical</span></span>
     <span><i class="k-dot k-dot-resolved"></i> <span data-i18n="status_resolved">Resolved</span></span>
   </div>
-
   <button class="k-map-report-btn" id="k-map-report-btn" aria-label="Report garbage">
     <span>📷</span> <span data-i18n="map_report">Report</span>
   </button>
@@ -192,7 +189,6 @@
   <div class="k-modal-sheet" role="dialog" aria-modal="true">
     <div class="k-modal-handle"></div>
     <button class="k-modal-close" id="k-modal-close" aria-label="Close">✕</button>
-
     <div class="k-modal-step" id="k-step-1">
       <h3 class="k-modal-title" data-i18n="step1_title">Take a photo</h3>
       <p class="k-modal-sub" data-i18n="step1_sub">Point at the garbage. Tap to capture.</p>
@@ -204,7 +200,6 @@
       <div class="k-photo-preview" id="k-photo-preview"></div>
       <button class="k-btn k-btn-primary" id="k-next-1" disabled data-i18n="continue">Continue →</button>
     </div>
-
     <div class="k-modal-step" id="k-step-2" hidden>
       <h3 class="k-modal-title" data-i18n="step2_title">Pin the location</h3>
       <p class="k-modal-sub" data-i18n="step2_sub">We'll capture GPS. If it fails, tap the map below.</p>
@@ -225,7 +220,6 @@
       </div>
       <button class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>
     </div>
-
     <div class="k-modal-step" id="k-step-3" hidden>
       <h3 class="k-modal-title" data-i18n="step3_title">What's the problem?</h3>
       <p class="k-modal-sub" data-i18n="step3_sub">Optional. One sentence is enough.</p>
@@ -237,7 +231,6 @@
       <button class="k-btn k-btn-primary" id="k-submit" data-i18n="step3_submit">Submit Report →</button>
       <div class="k-privacy" data-i18n="step3_privacy">🔒 Photo, location and ward are public. Your name is never shown unless you add it.</div>
     </div>
-
     <div class="k-modal-step" id="k-step-done" hidden>
       <div class="k-done-icon">✓</div>
       <h3 class="k-modal-title" id="k-done-title" data-i18n="done_title">Report filed</h3>
