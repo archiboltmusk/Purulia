@@ -60,6 +60,6 @@ Deno.serve(async (req) => {
     return reply(200, { token, expires_in: 300, ok: true });
   } catch (e) {
     console.error('token generation failed', e);
-    return reply(500, { error: String(e), ok: false });
+    return reply(500, { error: 'token_generation_error', ok: false });
   }
 });

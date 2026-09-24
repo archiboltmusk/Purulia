@@ -190,7 +190,10 @@ Deno.serve(async (req) => {
     p_exif_gps_lat: exifGps?.lat ?? null, p_exif_gps_lng: exifGps?.lng ?? null,
     p_exif_match: exifMatch,
   });
-  if (recErr) return reply(500, { error: recErr.message });
+  if (recErr) {
+    console.error('photo check recording failed', recErr);
+    return reply(500, { error: 'photo_check_error' });
+  }
 
   return reply(200, {
     ok: true, garbage_score: score, labels, unsafe, face_count: faces, vision: score !== null,
