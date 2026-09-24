@@ -22,19 +22,30 @@ let draft = { photoBlob: null, lat: null, lng: null, ward: null, severity: 'mino
 let activeFilters = { severity: '', status: '' };
 let userUpvotes = new Set();  // report IDs this browser has upvoted
 
-/* ── Rep data (hardcoded — replace with Supabase table in Stage 2) ── */
+/* ── Rep data ──
+   MLA/MP are state/national; ward councillors are in `wards` table.
+   Update these when the next election happens. */
 const REPS = {
   mla: {
     name: 'Sudip Kumar Mukherjee',
     role: 'MLA · Purulia (No. 242)',
     party: 'BJP',
-    initials: 'SKM'
+    initials: 'SKM',
+    scope: 'constituency'
   },
   mp: {
     name: 'Jyotirmay Singh Mahato',
-    role: 'MP · Purulia',
+    role: 'MP · Purulia (Lok Sabha)',
     party: 'BJP',
-    initials: 'JSM'
+    initials: 'JSM',
+    scope: 'constituency'
+  },
+  chairman: {
+    name: 'Nabendu Mahali',
+    role: 'Chairman · Purulia Municipality',
+    party: 'AITC',
+    initials: 'NM',
+    scope: 'municipality'
   }
 };
 
