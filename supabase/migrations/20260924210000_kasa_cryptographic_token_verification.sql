@@ -7,82 +7,58 @@
 BEGIN;
 
 -- Table to track used capture tokens (one-time use only)
-CREATE TABLE IF NOT EXISTS kasa_photo_tokens (
+CREATE TABLE IF NOT EXISTS kasa_private.photo_tokens (
   id BIGSERIAL PRIMARY KEY,
   user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
-  token_hash TEXT NOT NULL UNIQUE, -- SHA-256 hash of the JWT
+  nonce TEXT NOT NULL,
   used_at TIMESTAMP NULL,
   created_at TIMESTAMP NOT NULL DEFAULT now(),
   expires_at TIMESTAMP NOT NULL,
-  INDEX (user_id, created_at),
-  INDEX (expires_at) -- For cleanup queries
+  UNIQUE (user_id, nonce)
 );
+CREATE INDEX IF NOT EXISTS photo_tokens_expires_at ON kasa_private.photo_tokens(expires_at);
 
--- Add capture_token tracking to kasa_reports
-ALTER TABLE kasa_reports
-ADD COLUMN IF NOT EXISTS capture_token_hash TEXT UNIQUE;
-
--- Add EXIF GPS verification columns
-ALTER TABLE kasa_photo_check_log
+-- Add EXIF GPS verification columns to photo_checks
+ALTER TABLE kasa_private.photo_checks
 ADD COLUMN IF NOT EXISTS exif_gps_lat FLOAT8,
 ADD COLUMN IF NOT EXISTS exif_gps_lng FLOAT8,
 ADD COLUMN IF NOT EXISTS exif_match BOOLEAN; -- true if reported GPS ≤100m from EXIF GPS
 
--- Add evidence_path for claims (references the evidence photo)
-ALTER TABLE kasa_claims
-ADD COLUMN IF NOT EXISTS evidence_photo_hash TEXT REFERENCES kasa_photo_check_log(sha256) ON DELETE RESTRICT;
-
--- Function to clean up expired tokens (call periodically)
-CREATE OR REPLACE FUNCTION kasa_cleanup_expired_tokens()
-RETURNS void AS $$
+-- Update kasa_record_photo_check function signature to accept EXIF parameters
+CREATE OR REPLACE FUNCTION public.kasa_record_photo_check(
+  p_path text, p_sha256 text, p_dhash text,
+  p_garbage_score double precision, p_labels jsonb, p_unsafe boolean, p_face_count integer,
+  p_exif_gps_lat double precision default null,
+  p_exif_gps_lng double precision default null,
+  p_exif_match boolean default null
+)
+RETURNS void LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 BEGIN
-  DELETE FROM kasa_photo_tokens WHERE expires_at < now();
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
+  INSERT INTO kasa_private.photo_checks (
+    photo_path, sha256, dhash, garbage_score, labels, unsafe, face_count,
+    exif_gps_lat, exif_gps_lng, exif_match
+  )
+  VALUES (
+    p_path, p_sha256, p_dhash, p_garbage_score, coalesce(p_labels, '[]'::jsonb),
+    coalesce(p_unsafe, false), coalesce(p_face_count, 0),
+    p_exif_gps_lat, p_exif_gps_lng, p_exif_match
+  )
+  ON CONFLICT (photo_path) DO NOTHING;
+END $$;
 
--- Function to validate and mark a token as used
-CREATE OR REPLACE FUNCTION kasa_mark_token_used(p_user_id UUID, p_token_hash TEXT)
-RETURNS BOOLEAN AS $$
+-- Function to clean up expired tokens (run occasionally via cron or trigger)
+CREATE OR REPLACE FUNCTION kasa_private.cleanup_expired_photo_tokens()
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER SET search_path = '' AS $$
 DECLARE
-  v_count INT;
+  v_deleted INT;
 BEGIN
-  UPDATE kasa_photo_tokens
-  SET used_at = now()
-  WHERE user_id = p_user_id
-    AND token_hash = p_token_hash
-    AND used_at IS NULL
-    AND expires_at > now();
+  DELETE FROM kasa_private.photo_tokens WHERE expires_at < now();
+  GET DIAGNOSTICS v_deleted = ROW_COUNT;
+  RETURN v_deleted;
+END $$;
 
-  GET DIAGNOSTICS v_count = ROW_COUNT;
-  RETURN v_count > 0;
-END;
-$$ LANGUAGE plpgsql SECURITY DEFINER;
-
--- Function to check if a claim has valid evidence
-CREATE OR REPLACE FUNCTION kasa_validate_claim_evidence(p_report_id BIGINT, p_evidence_photo_hash TEXT)
-RETURNS TABLE (valid BOOLEAN, reason TEXT) AS $$
-BEGIN
-  -- Check that photo exists and is not marked unsafe
-  RETURN QUERY
-  SELECT
-    (ph.photo_hash IS NOT NULL AND NOT ph.unsafe) AS valid,
-    CASE
-      WHEN ph.photo_hash IS NULL THEN 'Evidence photo not found'::TEXT
-      WHEN ph.unsafe THEN 'Evidence photo marked unsafe'::TEXT
-      ELSE 'OK'::TEXT
-    END AS reason
-  FROM (
-    SELECT sha256 as photo_hash, unsafe
-    FROM kasa_photo_check_log
-    WHERE sha256 = p_evidence_photo_hash
-    LIMIT 1
-  ) ph;
-
-  -- If no photo found, return explicit failure
-  IF NOT FOUND THEN
-    RETURN QUERY SELECT FALSE, 'Evidence photo not found'::TEXT;
-  END IF;
-END;
-$$ LANGUAGE plpgsql;
+-- Grant permissions for photo check function with new signature
+REVOKE ALL ON FUNCTION public.kasa_record_photo_check(text, text, text, double precision, jsonb, boolean, integer, double precision, double precision, boolean) FROM public, anon, authenticated;
+GRANT EXECUTE ON FUNCTION public.kasa_record_photo_check(text, text, text, double precision, jsonb, boolean, integer, double precision, double precision, boolean) TO service_role;
 
 COMMIT;

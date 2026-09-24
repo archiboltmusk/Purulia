@@ -471,7 +471,7 @@ const api = {
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
-      p_photo_path: path, p_client_id: d.clientId, p_capture_token: captureToken || null
+      p_photo_path: path, p_client_id: d.clientId
     });
     if (error) throw rpcError(error);
     if (data.moderation_status === 'approved' && !data.duplicate_of && !data.replayed) api.notify(String(data.id));
@@ -515,10 +515,10 @@ const api = {
     // Pass token and location for EXIF verification and token validation.
     await checkPhoto(path, captureToken, pos.lat, pos.lng);
     const { data, error } = mode === 'claim'
-      ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy, p_capture_token: captureToken || null })
+      ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
           p_claim_id: r.claim.id, p_vote: mode === 'verify' ? 'verify' : 'dispute', p_photo_path: path,
-          p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy, p_note: note || null, p_capture_token: captureToken || null
+          p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy, p_note: note || null
         });
     if (error) throw rpcError(error);
     return data;
