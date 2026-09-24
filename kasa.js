@@ -79,6 +79,7 @@ const FLAG_REASONS = ['not_an_issue', 'wrong_location', 'duplicate', 'inappropri
 
 /* ── State ── */
 const state = {
+  fixConfirms: {},        // report id -> confirmations when it was verified fixed
   mode: null,              // 'v2' once the migration is live, else 'legacy'
   rules: { ...DEFAULT_RULES },
   reports: [],
@@ -637,6 +638,7 @@ function renderAll(){
   renderList();
   updateStats();
   renderLeaderboard();
+  renderFixed();
   renderTicker();
   renderWardCard();
 }
@@ -749,7 +751,7 @@ function renderWardCard(){
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-ward-title">${esc(t('acc_ward', { n }))}</div>
-    <div class="k-ward-sub">${w.councillor_name ? esc(w.councillor_name) + (w.party ? ' · ' + esc(w.party) : '') : esc(t('lb_vacant'))}</div>
+    <div class="k-ward-sub">${w.councillor_name ? esc(w.councillor_name) : esc(t('lb_vacant'))}</div>
     <div class="k-ward-nums">
       <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
@@ -847,7 +849,7 @@ function renderLeaderboard(){
       <span class="k-lb-rank">${String(i + 1).padStart(2, '0')}</span>
       <span>
         <span class="k-lb-name">${esc(t('acc_ward', { n: s.ward }))}</span>
-        <span class="k-lb-councillor">${w.councillor_name ? esc(w.councillor_name) + (w.party ? ' · ' + esc(w.party) : '') : esc(t('lb_vacant'))}</span>
+        <span class="k-lb-councillor">${w.councillor_name ? esc(w.councillor_name) : esc(t('lb_vacant'))}</span>
         ${flags ? `<span class="k-lb-flags">${flags}</span>` : ''}
         <span class="k-lb-bar"><span class="k-lb-bar-fill" style="width:${(s.open / max * 100).toFixed(1)}%"></span></span>
       </span>
@@ -855,6 +857,54 @@ function renderLeaderboard(){
       <span class="k-lb-rate">${esc(t('lb_fixed', { n: s.resolved }))}</span>
     </button>`;
   }).join('');
+}
+
+// Verified fixes, newest first, with how long they took and who confirmed them.
+function recentFixes(){
+  return primaries()
+    .filter(r => r.status === 'resolved' && r.resolution === 'community' && r.resolvedAt)
+    .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
+    .slice(0, 6);
+}
+
+async function loadFixConfirmations(){
+  const ids = recentFixes().map(r => r.id).filter(id => !(id in state.fixConfirms));
+  if (!sb || !ids.length || state.mode !== 'v2') return;
+  const { data, error } = await sb.from('kasa_public_events').select('report_id,detail')
+    .eq('kind', 'resolved').in('report_id', ids);
+  if (error) return;
+  for (const id of ids) state.fixConfirms[id] = null;
+  for (const e of data || []) state.fixConfirms[String(e.report_id)] = Number(e.detail?.verify_count) || null;
+  renderFixed();
+}
+
+function renderFixed(){
+  const el = document.getElementById('k-fixed-list');
+  if (!el) return;
+  const fixes = recentFixes();
+  if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
+  el.innerHTML = fixes.map(r => {
+    const c = CATEGORIES[r.category];
+    const w = state.wards[r.ward] || {};
+    const days = Math.max(0, Math.round((new Date(r.resolvedAt) - new Date(r.createdAt)) / 86400000));
+    const n = state.fixConfirms[r.id];
+    return `
+    <button type="button" class="k-fixed-card" data-open="${esc(r.id)}">
+      <span class="k-fixed-photos">
+        ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy">` : '<span></span>'}
+        ${r.resolvedPhoto ? `<img src="${esc(r.resolvedPhoto)}" alt="" loading="lazy">` : '<span></span>'}
+        <span class="k-fixed-tag k-fixed-before">${esc(t('fixed_before'))}</span>
+        <span class="k-fixed-tag k-fixed-after">${esc(t('fixed_after'))}</span>
+      </span>
+      <span class="k-fixed-body">
+        <span class="k-fixed-cat">${c.icon} ${esc(t('cat_' + r.category))}</span>
+        <span class="k-fixed-speed">${esc(t(days === 0 ? 'fixed_same_day' : 'fixed_days', { n: days }))}</span>
+        <span class="k-fixed-meta">${r.ward ? esc(t('acc_ward', { n: r.ward })) : ''}${w.councillor_name ? ' · ' + esc(t('fixed_councillor', { name: w.councillor_name })) : ''}</span>
+        ${n ? `<span class="k-fixed-confirm">✓ ${esc(t('fixed_confirmed', { n }))}</span>` : ''}
+      </span>
+    </button>`;
+  }).join('');
+  loadFixConfirmations();
 }
 
 function renderTicker(){
