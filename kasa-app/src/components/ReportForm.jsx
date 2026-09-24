@@ -26,24 +26,22 @@ export default function ReportForm() {
     if (!file) return;
 
     try {
-      let blob = file;
-      if (file.size > 2 * 1024 * 1024) {
+      const img = new Image();
+      img.onload = () => {
+        const MAX = 1600;
+        const scale = Math.min(1, MAX / Math.max(img.width, img.height));
         const canvas = document.createElement('canvas');
-        const ctx = canvas.getContext('2d');
-        const img = new Image();
-
-        img.onload = () => {
-          canvas.width = img.width * 0.5;
-          canvas.height = img.height * 0.5;
-          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
-          canvas.toBlob((compressedBlob) => {
-            setPhoto({ blob: compressedBlob, url: URL.createObjectURL(compressedBlob) });
-          }, 'image/jpeg', 0.8);
-        };
-        img.src = URL.createObjectURL(file);
-      } else {
-        setPhoto({ blob: file, url: URL.createObjectURL(file) });
-      }
+        canvas.width = Math.round(img.width * scale);
+        canvas.height = Math.round(img.height * scale);
+        canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+        URL.revokeObjectURL(img.src);
+        canvas.toBlob((blob) => {
+          if (!blob) { setSubmitError('Could not read this photo. Try another.'); return; }
+          setPhoto({ blob, url: URL.createObjectURL(blob) });
+        }, 'image/jpeg', 0.8);
+      };
+      img.onerror = () => setSubmitError('Could not read this photo. Try another.');
+      img.src = URL.createObjectURL(file);
     } catch (err) {
       setSubmitError('Failed to process photo: ' + err.message);
     }

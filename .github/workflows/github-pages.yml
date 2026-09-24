@@ -36,6 +36,9 @@ jobs:
 
       - name: Prepare deployment
         run: |
+          mkdir -p deploy
+          rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude 'kasa-app' \
+            --exclude 'namma-kasa-web' --exclude 'supabase' --exclude 'tests' --exclude 'deploy' ./ deploy/
           mkdir -p deploy/app
           cp -r kasa-app/dist/* deploy/app/
 

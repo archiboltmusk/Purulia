@@ -47,7 +47,7 @@ Deno.serve(async (req) => {
     const nonce = Math.random().toString(36).slice(2, 15);
     const secret = new TextEncoder().encode(JWT_SECRET);
     const alg = 'HS256';
-    const token = await jose.SignJWT({
+    const token = await new jose.SignJWT({
       sub: user.id,
       nonce,
       type: 'photo_capture',
