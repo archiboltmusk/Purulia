@@ -1697,15 +1697,51 @@ function setLocation(lat, lng, accuracy){
 
 async function useGPS(){
   const btn = document.getElementById('k-gps-btn');
+  const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent);
+  const timeout = isSafari ? 45000 : 20000; // Safari can be slow with permission prompts
+
+  let skipRequested = false;
+  const skipBtn = document.createElement('button');
+  skipBtn.type = 'button';
+  skipBtn.style.cssText = 'margin-left:0.5rem;padding:0.3rem 0.8rem;font-size:11px;background:#444;color:#ccc;border:none;border-radius:2px;cursor:pointer;';
+  skipBtn.textContent = '(skip location)';
+  skipBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    skipRequested = true;
+  });
+
   btn.textContent = t('step3_gps_wait');
   btn.disabled = true;
+  btn.appendChild(skipBtn);
+
   try {
-    const pos = await getPosition({ want: 30, timeout: 15000 });
+    const pos = await getPosition({
+      want: 30,
+      timeout: timeout,
+      onProgress: (p) => {
+        const accuracy = Math.round(p.accuracy);
+        btn.childNodes[0].textContent = `Getting location… (${accuracy}m)`;
+      }
+    });
+
+    if (skipRequested) {
+      btn.textContent = t('step3_gps');
+      return;
+    }
+
     setLocation(pos.lat, pos.lng, pos.accuracy);
     btn.textContent = t('step3_gps_done');
   } catch (e){
+    if (skipRequested) {
+      btn.textContent = t('step3_gps');
+      return;
+    }
     btn.textContent = t('step3_gps');
-    showToast(t('step3_gps_fail'));
+    if (e.code === 1) {
+      showToast('Location permission denied. You can still pin a location on the map.');
+    } else {
+      showToast(t('step3_gps_fail'));
+    }
   }
   btn.disabled = false;
 }
