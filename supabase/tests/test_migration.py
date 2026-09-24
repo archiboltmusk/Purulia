@@ -189,7 +189,7 @@ check('anon cannot upload photos',
                                      ('reports/abcdefgh12345679.jpg',)) or ''))
 p_own = upload(someone, 'reports')
 q("update storage.objects set name = name || 'x' where name = %s", (p_own,), uid=someone)
-q('delete from storage.objects where name = %s', (p_own,), uid=someone)
+err(q, 'delete from storage.objects where name = %s', (p_own,), uid=someone)
 check("can't overwrite or delete uploaded evidence",
       admin_sql('select count(*) from storage.objects where name = %s', (p_own,))[0][0] == 1)
 
@@ -395,8 +395,20 @@ same = upload(official, 'claims'); photo_check(same, dhash=fp(A, flip=3), garbag
 check('cleanup photo that looks like the original "dirty" photo is refused',
       err(claim, official, res6['id'], where=spot6, path=same) == 'KASA_PHOTO_REUSED')
 copy = upload(official, 'claims'); photo_check(copy, sha='deadbeef' * 8, dhash=fp(C), garbage=0.1)
-earlier = upload(bob, 'reports'); photo_check(earlier, sha='deadbeef' * 8, dhash=fp(C), garbage=0.1)
+earlier_user = user()
+earlier = upload(earlier_user, 'reports'); photo_check(earlier, sha='deadbeef' * 8, dhash=fp(C), garbage=0.9)
+rpc('kasa_create_report', uid=earlier_user, p_category='garbage', p_severity='minor', p_lat=offset(7600)[0], p_lng=offset(7600)[1],
+    p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=earlier)
 check('byte-identical photo used anywhere else is refused', err(claim, official, res6['id'], where=spot6, path=copy) == 'KASA_PHOTO_REUSED')
+retry_user = user()
+first_try = upload(retry_user, 'reports'); photo_check(first_try, sha='feedface' * 8, dhash=None, garbage=0.9)
+check('a refused attempt (outside town) leaves the photo unused...',
+      err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=22.57, p_lng=88.36,
+          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=first_try) == 'KASA_OUTSIDE_AREA')
+second_try = upload(retry_user, 'reports'); photo_check(second_try, sha='feedface' * 8, dhash=None, garbage=0.9)
+retried = rpc('kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=offset(7800)[0], p_lng=offset(7800)[1],
+              p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=second_try)
+check('...so trying again with the same photo works (no false "already used")', retried['moderation_status'] == 'approved', retried)
 unsafe = upload(official, 'claims'); photo_check(unsafe, dhash=fp(D), garbage=0.0, unsafe=True)
 check('unsafe images are refused', err(claim, official, res6['id'], where=spot6, path=unsafe) == 'KASA_PHOTO_UNSAFE')
 
@@ -485,11 +497,22 @@ if LEGACY:
     fresh_stray = upload(bob, 'reports')
     admin_sql("update storage.objects set created_at = now() - interval '3 days' where name = %s or name = %s", (stray, alice_photo))
     admin_sql("update storage.objects set created_at = now() - interval '3 days' where name = %s", (legacy_photo,))
-    deleted = admin_sql('select public.cleanup_orphaned_photos()')[0][0]
-    remaining = {r[0] for r in admin_sql('select name from storage.objects')}
-    check('cleanup deletes only old uploads nothing refers to',
-          stray not in remaining and fresh_stray in remaining and alice_photo in remaining
-          and (not has_legacy_photo or legacy_photo in remaining), (deleted, stray in remaining))
+    orphans = {r[0] for r in q('select * from public.kasa_orphan_photos(1000)', role='service_role')}
+    check('cleanup lists only old uploads nothing refers to',
+          stray in orphans and fresh_stray not in orphans and alice_photo not in orphans
+          and (not has_legacy_photo or legacy_photo not in orphans), orphans)
+    check('browsers cannot list or remove photos',
+          refused(err(q, 'select * from public.kasa_orphan_photos(10)', uid=bob))
+          and refused(err(q, 'select public.kasa_photos_removed(%s::text[])', ([alice_photo],), uid=bob))
+          and refused(err(rpc, 'cleanup_orphaned_photos', uid=bob)))
+    queued = admin_sql('select public.cleanup_orphaned_photos()')[0][0]
+    check('weekly cleanup counts unused uploads without deleting storage rows by SQL (Supabase forbids it)',
+          queued >= 1 and admin_sql('select count(*) from storage.objects where name = %s', (stray,))[0][0] == 1, queued)
+    photo_check(stray, garbage=0.1)
+    q('select public.kasa_photos_removed(%s::text[])', ([stray, alice_photo],), role='service_role')
+    check('after removal, what we stored about unused photos is forgotten (used ones are kept)',
+          admin_sql('select count(*) from kasa_private.photo_checks where photo_path = %s', (stray,))[0][0] == 0
+          and admin_sql("select count(*) from public.automation_log where job_name = 'photo_cleanup'")[0][0] >= 1)
     admin_sql("update public.reports set resolved_at = now() - interval '120 days' where id = %s", (rid,))
     admin_sql('select public.run_auto_cleanup()')
     check('weekly cleanup no longer erases old resolved reports from the record', view_row(rid) is not None)
