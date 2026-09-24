@@ -24,9 +24,28 @@ const debounce = (fn, ms) => { let timeout; return (...args) => { clearTimeout(t
 const throttle = (fn, ms) => { let last = 0; return (...args) => { if (Date.now() - last >= ms) { fn(...args); last = Date.now(); } }; };
 const memoize = (fn, hashFn) => { const cache = new Map(); return (...args) => { const key = hashFn(...args); if (cache.has(key)) return cache.get(key); const result = fn(...args); cache.set(key, result); return result; }; };
 
-/* ── PERFORMANCE: Virtual scrolling for lists ── */
-let lastFilterTime = 0;
-const applyFiltersDebounced = debounce(() => { renderMarkers(); updateStats(); }, 400);
+/* ── SPAM PREVENTION & RATE LIMITING ── */
+const reportTimestamps = {}; // Track by reporter hash
+const RATE_LIMIT = { max: 5, window: 3600000 }; // 5 reports per hour per person
+const DUPLICATE_THRESHOLD = { distance: 20, time: 21600000 }; // 20m distance, 6 hours time
+
+function canSubmitReport(hash) {
+  if (!reportTimestamps[hash]) reportTimestamps[hash] = [];
+  const now = Date.now();
+  const recent = reportTimestamps[hash].filter(t => now - t < RATE_LIMIT.window);
+  if (recent.length >= RATE_LIMIT.max) return false;
+  reportTimestamps[hash] = [...recent, now];
+  return true;
+}
+
+function isDuplicateReport(lat, lng) {
+  const isDup = reports.some(r => {
+    if (Date.now() - new Date(r.created_at) > DUPLICATE_THRESHOLD.time) return false;
+    const d = Math.sqrt(Math.pow(r.lat - lat, 2) + Math.pow(r.lng - lng, 2)) * 111000; // rough km to m
+    return d < DUPLICATE_THRESHOLD.distance;
+  });
+  return isDup;
+}
 
 /* ── State ── */
 let mainMap, miniMap, miniMarker;
@@ -941,7 +960,41 @@ async function submitReport(){
 
   const submitBtn = document.getElementById('k-submit');
   submitBtn.disabled = true;
-  submitBtn.textContent = 'Checking…';
+  submitBtn.textContent = 'Validating…';
+
+  // Rate limiting: prevent spam
+  if (!canSubmitReport(reporterHash)) {
+    showToast('Too many reports. Max 5 per hour.');
+    submitBtn.textContent = 'Submit Report →';
+    submitBtn.disabled = false;
+    return;
+  }
+
+  // Duplicate check
+  if (isDuplicateReport(draft.lat, draft.lng)) {
+    showToast('Similar report nearby. Check map or continue to add more detail.');
+  }
+
+  // Vision API validation
+  const reader = new FileReader();
+  reader.onload = async (e) => {
+    const validation = await validatePhotoWithVision(e.target.result);
+    if (validation.confidence < 0.3) {
+      showToast(`Low confidence (${Math.round(validation.confidence * 100)}%). Please check photo shows garbage.`);
+      submitBtn.textContent = 'Submit Report →';
+      submitBtn.disabled = false;
+      return;
+    }
+
+    draft.visionScore = validation.confidence;
+    await submitReportContinue();
+  };
+  reader.readAsDataURL(draft.photoBlob);
+}
+
+async function submitReportContinue(){
+  const submitBtn = document.getElementById('k-submit');
+  submitBtn.textContent = 'Uploading…';
 
   /* Duplicate detection */
   let parentId = null;
@@ -971,6 +1024,7 @@ async function submitReport(){
     created_at: new Date().toISOString(),
     parent_report_id: parentId,
     is_duplicate: !!parentId,
+    vision_confidence: draft.visionScore,
     photoBlob: draft.photoBlob
   };
 
