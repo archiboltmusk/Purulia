@@ -266,7 +266,7 @@ img{display:block;max-width:100%;}
 .k-cat-icon{font-size:1.35rem;flex-shrink:0;}
 .k-cat-warning{margin:0 0 1rem;padding:.8rem 1rem;border-left:3px solid var(--orange);background:rgba(232,138,74,.08);font-size:.86rem;line-height:1.55;color:var(--text-hi);border-radius:0 4px 4px 0;}
 
-.k-photo-input{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;padding:2.2rem 1rem;border:1px dashed var(--border2);background:rgba(212,136,42,.02);cursor:pointer;text-align:center;border-radius:6px;}
+.k-photo-input{width:100%;color:inherit;font:inherit;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;padding:2.2rem 1rem;border:1px dashed var(--border2);background:rgba(212,136,42,.02);cursor:pointer;text-align:center;border-radius:6px;}
 .k-photo-input:hover{border-color:var(--amber);}
 .k-photo-icon{font-size:2rem;opacity:.75;}
 .k-photo-text{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}

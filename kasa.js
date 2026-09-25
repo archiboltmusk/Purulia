@@ -450,14 +450,24 @@ async function readPhotoMeta(file){
   return { capture: 'file', ...m };
 }
 
-/* Request a one-time photo capture token before opening the camera.
-   Token is valid for 5 minutes and can only be used once. Returns null if disabled. */
+/* One-time camera token, asked for as the camera opens. The server counts a
+   photo as live only if its metadata arrives with an unspent token of this
+   account. Offline or older servers: null, and the server decides. */
 async function getCaptureToken(){
+  if (state.mode !== 'v2') return null;
   try {
-    const { data, error } = await sb.functions.invoke('kasa-photo-token', { body: {} });
-    if (error || !data?.ok) return null;
-    return data.token;
+    await ensureSession();
+    const { data, error } = await sb.rpc('kasa_issue_capture_token');
+    return error ? null : data;
   } catch (e) { return null; }
+}
+
+/* The in-page camera plus a token requested in parallel (issued before the shot). */
+async function openLiveCamera(){
+  if (!cameraSupported()) return { error: 'unavailable' };
+  const token = getCaptureToken();
+  const res = await openCamera();
+  return { ...res, token: await token };
 }
 
 /* Server-side photo check (fingerprint + Google Vision + EXIF verification + token validation).
@@ -483,16 +493,11 @@ const api = {
   async createReport(d){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
-    // Parallelize token request and photo upload for speed.
-    const [captureToken, path] = await Promise.all([
-      getCaptureToken(),
-      uploadPhoto('reports', d.photoBlob)
-    ]);
-    // Send metadata immediately.
+    const path = await uploadPhoto('reports', d.photoBlob);
+    // Metadata (with the camera token) must be recorded before the report is created.
     await sendPhotoMeta(path, d.photoMeta);
-    // Vision AI check happens asynchronously in background — don't block user.
-    // This ensures fast report submission while verification continues after.
-    checkPhoto(path, captureToken, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
+    // The photo check runs in the background so the report isn't held up.
+    checkPhoto(path, null, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
     // Create report in database immediately.
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
@@ -534,12 +539,10 @@ const api = {
   async evidence(mode, r, blob, pos, note, meta){
     if (state.mode !== 'v2') return legacySubmitProof(r, blob);
     await ensureSession();
-    // Request a one-time capture token (protects against spoofed evidence).
-    const captureToken = await getCaptureToken();
     const path = await uploadPhoto(mode === 'claim' ? 'claims' : 'votes', blob);
     await sendPhotoMeta(path, meta);
     // Evidence photos must be checked (reuse/fingerprint) before the server accepts them.
-    await checkPhoto(path, captureToken, pos.lat, pos.lng);
+    await checkPhoto(path, null, pos.lat, pos.lng);
     const { data, error } = mode === 'claim'
       ? await sb.rpc('kasa_claim_cleanup', { p_report_id: r.id, p_photo_path: path, p_lat: pos.lat, p_lng: pos.lng, p_accuracy: pos.accuracy })
       : await sb.rpc('kasa_vote_claim', {
@@ -1543,9 +1546,9 @@ function rejectEvidencePhoto(text){
 
 async function captureEvidencePhoto(){
   if (!ev) return;
-  const res = cameraSupported() ? await openCamera() : { error: 'unavailable' };
+  const res = await openLiveCamera();
   if (!ev) return;
-  if (res.blob) return setEvidencePhoto(res.blob, { capture: 'live' }, 'ev_photo_live');
+  if (res.blob) return setEvidencePhoto(res.blob, { capture: 'live', capture_token: res.token || undefined }, 'ev_photo_live');
   if (res.error === 'cancelled') return;
   // No camera in this browser (some in-app browsers) or permission refused:
   // allow a file, whose time, location and AI markers are then checked.
@@ -1705,8 +1708,6 @@ function newDraft(){
 
 function openReport(prefill){
   draft = newDraft();
-  document.getElementById('k-photo').value = '';
-  document.getElementById('k-photo-gallery').value = '';
   document.getElementById('k-next-2').disabled = true;
   document.getElementById('k-photo-preview').innerHTML = '';
   document.getElementById('k-photo-note').hidden = true;
@@ -1764,19 +1765,27 @@ function selectCategory(key, advance = true){
   if (advance) goToStep(3);
 }
 
-async function handlePhoto(file){
-  if (!file) return;
-  try {
-    draft.photoMeta = await readPhotoMeta(file);
-    draft.photoBlob = await compressImage(file);
-    document.getElementById('k-photo-preview').innerHTML = `<img src="${URL.createObjectURL(draft.photoBlob)}" alt="">`;
-    const note = document.getElementById('k-photo-note');
-    note.hidden = !draft.photoMeta.ai_marker;
-    note.textContent = draft.photoMeta.ai_marker ? t('report_ai_note') : '';
-    document.getElementById('k-next-2').disabled = false;
-  } catch (e){
-    showToast(t('err_photo_read'));
+/* Report photos come only from the in-page camera: no gallery, no file picker. */
+async function captureReportPhoto(){
+  if (!draft) return;
+  const note = document.getElementById('k-photo-note');
+  const res = await openLiveCamera();
+  if (!draft) return;
+  if (!res.blob){
+    if (res.error === 'cancelled') return;
+    note.hidden = false;
+    note.textContent = t(res.error === 'denied' ? 'cam_permission_denied' : 'cam_report_unavailable');
+    return;
   }
+  draft.photoBlob = res.blob;
+  draft.photoMeta = { capture: 'live', capture_token: res.token || undefined };
+  const preview = document.getElementById('k-photo-preview');
+  const old = preview.querySelector('img');
+  if (old) URL.revokeObjectURL(old.src);
+  preview.innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+  note.hidden = true;
+  note.textContent = '';
+  document.getElementById('k-next-2').disabled = false;
 }
 
 function initMiniMap(){
@@ -2252,8 +2261,7 @@ function wireUI(){
   });
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
 
-  document.getElementById('k-photo').addEventListener('change', e => handlePhoto(e.target.files[0]));
-  document.getElementById('k-photo-gallery').addEventListener('change', e => handlePhoto(e.target.files[0]));
+  document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
   // A prefilled report ("same problem here") already has its category; skip straight to the location.
   document.getElementById('k-next-2').addEventListener('click', () => goToStep(draft?.category ? 3 : 2));
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);

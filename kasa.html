@@ -231,13 +231,10 @@
     <div class="k-modal-step" data-step="1">
       <h3 class="k-modal-title" id="k-step-title" data-i18n="step2_title">Take a photo</h3>
       <p class="k-modal-sub" data-i18n="step2_sub">Show the problem clearly. Avoid people's faces and number plates.</p>
-      <label class="k-photo-input" for="k-photo">
+      <button type="button" class="k-photo-input" id="k-photo-btn">
         <span class="k-photo-icon" aria-hidden="true">📷</span>
-        <span class="k-photo-text" data-i18n="step1_camera">Open the camera</span>
-      </label>
-      <input type="file" id="k-photo" accept="image/*" capture="environment" hidden>
-      <label class="k-photo-alt" for="k-photo-gallery" data-i18n="step1_gallery">or choose a photo from your gallery</label>
-      <input type="file" id="k-photo-gallery" accept="image/*" hidden>
+        <span class="k-photo-text" data-i18n="step1_camera">Open the camera and take a photo</span>
+      </button>
       <div class="k-photo-preview" id="k-photo-preview"></div>
       <div class="k-cat-warning" id="k-photo-note" hidden></div>
       <button type="button" class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>

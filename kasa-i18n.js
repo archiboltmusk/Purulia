@@ -25,7 +25,9 @@ window.KASA_I18N = {
     trust_4: 'For {h} hours after that, anyone at the spot can dispute it. {dq} disputes throw the claim out and the report reopens. Repeat fake claimants are blocked.',
     trust_5: 'Every photo, confirmation and dispute stays on the public record. Moderators can remove abusive content, but nobody can mark a report fixed on their own.',
 
-    step1_camera: 'Open the camera', step1_gallery: 'or choose a photo from your gallery',
+    step1_camera: 'Open the camera and take a photo',
+    cam_permission_denied: 'Allow the camera to file a report. Purulia Kasa only accepts photos taken with the camera on this page. You can turn it on in your browser settings.',
+    cam_report_unavailable: "This browser can't open the camera. Open this page in Chrome or Safari on your phone to file a report.",
     footer_groups: 'Volunteer groups', wc_groups: '● {n} volunteer group(s) active here →', wc_groups_none: 'No volunteer group here yet. Start one →',
     footer_analytics: 'Analytics', footer_methodology: 'How we count',
     fixed_num: '✓ · Verified fixes', fixed_title: 'Recently fixed',
@@ -245,7 +247,9 @@ window.KASA_I18N = {
     trust_4: 'এরপর {h} ঘণ্টা ঘটনাস্থলের যে কেউ আপত্তি জানাতে পারেন। {dq}টি আপত্তিতে দাবি বাতিল হয় এবং রিপোর্ট আবার খোলে। বারবার ভুয়ো দাবি করলে ব্লক করা হয়।',
     trust_5: 'প্রতিটি ছবি, নিশ্চিতকরণ ও আপত্তি প্রকাশ্য রেকর্ডে থাকে। মডারেটর আপত্তিকর বিষয় সরাতে পারেন, কিন্তু কেউ একা কোনো রিপোর্টকে সমাধান বলে চিহ্নিত করতে পারেন না।',
 
-    step1_camera: 'ক্যামেরা খুলুন', step1_gallery: 'অথবা গ্যালারি থেকে ছবি বাছুন',
+    step1_camera: 'ক্যামেরা খুলে ছবি তুলুন',
+    cam_permission_denied: 'রিপোর্ট করতে ক্যামেরার অনুমতি দিন। পুরুলিয়া কাসা শুধু এই পেজের ক্যামেরায় তোলা ছবি নেয়। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
+    cam_report_unavailable: 'এই ব্রাউজারে ক্যামেরা খোলা যাচ্ছে না। রিপোর্ট করতে ফোনের Chrome বা Safari-তে এই পেজটি খুলুন।',
     footer_groups: 'স্বেচ্ছাসেবী দল', wc_groups: '● এখানে {n}টি স্বেচ্ছাসেবী দল সক্রিয় →', wc_groups_none: 'এখানে এখনও কোনো স্বেচ্ছাসেবী দল নেই। একটি শুরু করুন →',
     footer_analytics: 'পরিসংখ্যান', footer_methodology: 'কীভাবে গোনা হয়',
     fixed_num: '✓ · যাচাই করা সমাধান', fixed_title: 'সম্প্রতি সমাধান হয়েছে',
@@ -464,7 +468,9 @@ window.KASA_I18N = {
     trust_4: 'इसके बाद {h} घंटे तक मौके पर मौजूद कोई भी आपत्ति कर सकता है। {dq} आपत्तियों पर दावा रद्द होता है और रिपोर्ट फिर खुलती है। बार-बार फ़र्ज़ी दावे करने वाले ब्लॉक होते हैं।',
     trust_5: 'हर फ़ोटो, पुष्टि और आपत्ति सार्वजनिक रिकॉर्ड में रहती है। मॉडरेटर आपत्तिजनक सामग्री हटा सकते हैं, पर कोई अकेले किसी रिपोर्ट को ठीक नहीं बता सकता।',
 
-    step1_camera: 'कैमरा खोलें', step1_gallery: 'या गैलरी से फ़ोटो चुनें',
+    step1_camera: 'कैमरा खोलें और फ़ोटो लें',
+    cam_permission_denied: 'रिपोर्ट करने के लिए कैमरे की अनुमति दें। पुरुलिया कासा केवल इसी पेज के कैमरे से ली गई फ़ोटो लेता है। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
+    cam_report_unavailable: 'इस ब्राउज़र में कैमरा नहीं खुल रहा। रिपोर्ट करने के लिए यह पेज फ़ोन के Chrome या Safari में खोलें।',
     footer_groups: 'स्वयंसेवी समूह', wc_groups: '● यहाँ {n} स्वयंसेवी समूह सक्रिय →', wc_groups_none: 'यहाँ अभी कोई स्वयंसेवी समूह नहीं। एक शुरू करें →',
     footer_analytics: 'आँकड़े', footer_methodology: 'हम कैसे गिनते हैं',
     fixed_num: '✓ · जाँची गई मरम्मत', fixed_title: 'हाल में ठीक हुआ',

@@ -128,7 +128,7 @@ NEW_RULES = {'require_evidence_photo_check': 'true', 'voter_min_account_hours': 
              'quiet_start_hour': '22', 'quiet_end_hour': '6'}
 BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': '0', 'voter_min_prior_actions': '0',
             'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000',
-            'quiet_start_hour': '0', 'quiet_end_hour': '0'}
+            'quiet_start_hour': '0', 'quiet_end_hour': '0', 'require_live_report_photo': 'false'}
 
 
 def set_rules(values):
@@ -656,6 +656,10 @@ def far_from(spot, meters=2000):
     return {'lat': lat, 'lng': lng}
 
 
+def cam_token(uid):
+    return str(rpc('kasa_issue_capture_token', uid=uid))
+
+
 def claim_m(uid, rid, where, **m):
     path = upload(uid, 'claims')
     if m:
@@ -709,7 +713,8 @@ check('confirmation photo taken before the claim is refused',
       err(vote_m, user('60 days'), cid_a, spot_a, capture='file', taken_at=mins_ago(30)) == 'KASA_PHOTO_OLD')
 check('AI-edited confirmation photo is refused',
       err(vote_m, user('60 days'), cid_a, spot_a, capture='file', ai_marker='trainedAlgorithmicMedia') == 'KASA_PHOTO_AI_EDITED')
-va_live = vote_m(user('60 days'), cid_a, spot_a, ip='49.1.1.1', capture='live')
+va_live_user = user('60 days')
+va_live = vote_m(va_live_user, cid_a, spot_a, ip='49.1.1.1', capture='live', capture_token=cam_token(va_live_user))
 check('live-camera confirmation counts', va_live['verify_count'] == 1 and not va_live['needs_review'], va_live)
 held_voter = user('60 days')
 va_held = vote_m(held_voter, cid_a, spot_a, ip='49.2.2.2', capture='file', taken_at=mins_ago(1), **far_from(spot_a))
@@ -782,7 +787,7 @@ cd_user = user('90 days')
 check('with live camera required, a file photo is refused',
       err(claim_m, cd_user, rid_d, spot_d, capture='file') == 'KASA_LIVE_CAMERA_REQUIRED')
 check('...and so is a photo sent without metadata', err(claim, cd_user, rid_d, where=spot_d) == 'KASA_LIVE_CAMERA_REQUIRED')
-check('...but a live-camera photo is accepted', claim_m(cd_user, rid_d, spot_d, capture='live')['status'] == 'claimed')
+check('...but a live-camera photo is accepted', claim_m(cd_user, rid_d, spot_d, capture='live', capture_token=cam_token(cd_user))['status'] == 'claimed')
 check('...and new reports can still use a gallery photo',
       report_m(user(), offset(-9500, 5000), capture='file')['moderation_status'] == 'approved')
 admin_sql("update kasa_private.settings set value = 'false' where key = 'require_live_capture'")
@@ -988,6 +993,29 @@ check('public report times are rounded to the hour', tr['created_at'][14:19] == 
 ev_times = [r[0] for r in q('select to_char(created_at, \'MI:SS\') from public.kasa_public_events where report_id::text = %s',
                             (str(fl_res['id']),))]
 check('public event times are rounded to the hour', ev_times and set(ev_times) == {'00:00'}, ev_times)
+
+# ─────────────────────────────── Live-camera tokens ───────────────────────────────
+set_rules({'require_live_report_photo': 'true'})
+lc = user()
+check('signed-out visitors cannot get camera tokens', refused(err(rpc, 'kasa_issue_capture_token')))
+tok = cam_token(lc)
+live_r = report_m(lc, offset(-8000, 12000), capture='live', capture_token=tok)
+check('a report photo with a fresh camera token is published', live_r['moderation_status'] == 'approved', live_r)
+reuse_r = report_m(lc, offset(-7500, 12000), capture='live', capture_token=tok)
+check('a camera token works only once', reuse_r['moderation_status'] == 'review', reuse_r)
+check('a report whose photo only claims to be live waits for a moderator',
+      report_m(user(), offset(-7000, 12000), capture='live')['moderation_status'] == 'review')
+check("someone else's camera token doesn't count",
+      report_m(user(), offset(-6500, 12000), capture='live', capture_token=cam_token(user()))['moderation_status'] == 'review')
+old_tok = cam_token(lc)
+admin_sql("update kasa_private.capture_tokens set issued_at = now() - interval '31 minutes' where token = %s", (old_tok,))
+check('an expired camera token (e.g. a report sent later from offline) waits for a moderator',
+      report_m(lc, offset(-6000, 12000), capture='live', capture_token=old_tok)['moderation_status'] == 'review')
+check('camera tokens are private', refused(err(q, 'select * from kasa_private.capture_tokens', uid=lc)))
+admin_sql("update kasa_private.settings set value = '2'::jsonb where key = 'capture_tokens_per_hour'")
+check('camera tokens are rate-limited', err(cam_token, lc) == 'KASA_RATE_LIMIT')
+admin_sql("update kasa_private.settings set value = '30'::jsonb where key = 'capture_tokens_per_hour'")
+set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

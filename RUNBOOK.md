@@ -53,7 +53,7 @@ Only add people you trust. A moderator can hide reports, reject claims and void 
 
 | Secret | Used by | If missing |
 |---|---|---|
-| `KASA_PHOTO_TOKEN_SECRET` | `kasa-photo-token`, `kasa-photo-check` | Uploads fail. Required. |
+| `KASA_PHOTO_TOKEN_SECRET` | `kasa-photo-token`, `kasa-photo-check` (old token path; the page no longer calls it) | Nothing breaks. Live-camera tokens are now issued by the database (`kasa_issue_capture_token`). |
 | `GOOGLE_VISION_API_KEY` | `kasa-photo-check` | Photos still get fingerprint checks, but no garbage/unsafe scoring. |
 | `RESEND_API_KEY`, `SIGNUP_ALERT_FROM`, `SIGNUP_ALERT_TO` | `p2040-signup-alert` | No e-mail for new Join/Follow sign-ups; they're still saved. |
 | `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_SUBJECT` | `kasa-notify` | No push alerts for nearby reports. |
@@ -69,7 +69,7 @@ Rules live in `kasa_private.settings`. Change a value with SQL; no deploy is nee
 update kasa_private.settings set value = '12' where key = 'challenge_hours';
 ```
 
-The main ones are `verify_quorum`, `dispute_quorum`, `min_distinct_networks`, `challenge_hours`, `quiet_start_hour`/`quiet_end_hour` (night hours don't count toward the dispute window), `voter_min_account_hours`, `voter_min_prior_actions`, `trusted_prior_actions`, `ring_min_shared`/`ring_window_days` (confirmers who keep confirming together), `failed_claims_limit`/`failed_claims_window_days`/`failed_claims_block_days`, `flag_review_threshold` and `max_strikes`. If you change one that is described on `methodology.html`, update that page too.
+The main ones are `verify_quorum`, `dispute_quorum`, `min_distinct_networks`, `challenge_hours`, `quiet_start_hour`/`quiet_end_hour` (night hours don't count toward the dispute window), `voter_min_account_hours`, `voter_min_prior_actions`, `trusted_prior_actions`, `ring_min_shared`/`ring_window_days` (confirmers who keep confirming together), `failed_claims_limit`/`failed_claims_window_days`/`failed_claims_block_days`, `flag_review_threshold`, `max_strikes`, and `require_live_report_photo`/`capture_token_minutes` (report photos without a valid camera token wait for a moderator). If you change one that is described on `methodology.html`, update that page too.
 
 ## Legal notices and takedown requests
 
