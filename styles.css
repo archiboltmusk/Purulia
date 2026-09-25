@@ -1026,3 +1026,593 @@ h1.hero-h .l2.scrambling::after{content:'';display:inline-block;width:3px;height
   .dc-grid > *{min-width:0;}
   .dc-card{padding:1.3rem;}
 }
+
+/* ═══════════════════════════════════════════════
+   PARISHKAR PURULIA — Refinement layer
+   Additive only. Overrides earlier rules where
+   conflict exists. Nothing in the base file changes.
+   ═══════════════════════════════════════════════ */
+
+/* ── 1. GRAIN FIX — put texture behind content ── */
+body::after{
+  z-index: 1 !important;
+  mix-blend-mode: overlay;
+  opacity: .35;
+}
+
+/* Ensure main content sits above grain */
+nav,
+#hero,
+section,
+.ticker,
+.share-wrap,
+.follow-bar,
+.next-page,
+footer{
+  position: relative;
+  z-index: 2;
+}
+
+/* ── 2. CURSOR — restore I-beam in text inputs ── */
+input,
+textarea,
+select,
+.form-input,
+.form-textarea,
+.form-select,
+.follow-input,
+#cmdpal-input,
+#k-desc,
+#k-name{
+  cursor: text;
+}
+
+select,
+.form-select{
+  cursor: pointer;
+}
+
+@media(pointer:coarse){
+  body{ cursor: auto; }
+  input, textarea, select{ cursor: auto; }
+  #cur, #curR{ display: none; }
+}
+
+/* ── 3. REDUCED MOTION — never hide content ── */
+@media(prefers-reduced-motion:reduce){
+  .h-kicker,
+  .h-lead,
+  .h-btns,
+  .h-bar,
+  .scroll-hint,
+  h1.hero-h{
+    opacity: 1 !important;
+    transform: none !important;
+    animation: none !important;
+  }
+
+  .rv{
+    opacity: 1 !important;
+    transform: none !important;
+  }
+
+  .cd-val,
+  .hero-countdown{
+    opacity: 1 !important;
+    animation: none !important;
+  }
+
+  h1.hero-h .l2{
+    background: none;
+    -webkit-text-fill-color: var(--amber);
+    color: var(--amber);
+    animation: none;
+  }
+}
+
+/* ── 4. SPACING SCALE — unified section rhythm ── */
+:root{
+  --mg: 5rem;          /* main gutter */
+  --section-y: 8rem;   /* vertical section padding */
+  --section-y-sm: 5rem;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --red-bright: #E05050;
+  --green-bright: #6DB88A;
+}
+
+@media(max-width:960px){
+  :root{
+    --mg: 2rem;
+    --section-y: 5rem;
+    --section-y-sm: 3.5rem;
+  }
+}
+
+/* Apply to every full-width section for consistency */
+section.pad,
+section.pad-sm,
+#crisis,
+#reframe,
+#pillars,
+#deepdives,
+#audience,
+#groundtruth,
+#timeline,
+#economics,
+#fivepeople,
+#sprint,
+#respond,
+#manifesto,
+#cta,
+#path-finder,
+#momentum,
+#solution-matrix,
+#impact-calc,
+#data-charts{
+  padding-left: var(--mg);
+  padding-right: var(--mg);
+}
+
+/* ── 5. CONSISTENT SECTION HEADING SCALE ── */
+.sh{
+  font-size: clamp(2.4rem, 4.2vw, 3.8rem);
+  line-height: 1.08;
+  letter-spacing: -.015em;
+}
+
+.sl{
+  font-size: .56rem;
+  letter-spacing: .38em;
+  margin-bottom: 1rem;
+}
+
+.ss{
+  font-size: 1.12rem;
+  line-height: 1.78;
+  max-width: 640px;
+}
+
+/* ── 6. NEW — SOURCE LINK STYLING ── */
+.src-link{
+  font-family: 'DM Mono', monospace;
+  font-size: .55rem;
+  letter-spacing: .16em;
+  text-transform: uppercase;
+  color: rgba(212,136,42,.65);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212,136,42,.3);
+  padding-bottom: 1px;
+  margin-left: .35rem;
+  transition: color .2s, border-color .2s;
+  white-space: nowrap;
+}
+
+.src-link:hover{
+  color: var(--amber);
+  border-color: var(--amber);
+}
+
+/* ── 7. NEW — SOURCES SECTION ── */
+#sources{
+  padding: var(--section-y) var(--mg);
+  background: var(--ink2);
+  border-top: 1px solid var(--border2);
+}
+
+.source-list{
+  list-style: none;
+  counter-reset: src;
+  display: flex;
+  flex-direction: column;
+  gap: 1.4rem;
+  margin-top: 2.5rem;
+  max-width: 820px;
+}
+
+.source-list li{
+  counter-increment: src;
+  position: relative;
+  padding-left: 3rem;
+  font-size: .98rem;
+  line-height: 1.7;
+  color: rgba(240,230,208,.58);
+}
+
+.source-list li::before{
+  content: counter(src, decimal-leading-zero);
+  position: absolute;
+  left: 0;
+  top: .15rem;
+  font-family: 'DM Mono', monospace;
+  font-size: .58rem;
+  letter-spacing: .2em;
+  color: var(--amber);
+  opacity: .55;
+}
+
+.source-list strong{
+  color: var(--cream);
+  font-weight: 600;
+}
+
+.source-list a{
+  color: var(--amber);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(212,136,42,.3);
+  transition: border-color .2s;
+}
+
+.source-list a:hover{
+  border-color: var(--amber);
+}
+
+/* ── 8. FOOTER — add wordmark styling ── */
+.ft-wordmark{
+  display: inline-flex;
+  align-items: center;
+  gap: .6rem;
+  margin-bottom: .35rem;
+}
+
+.ft-wordmark .k-mark{
+  width: 20px;
+  height: 20px;
+  position: relative;
+  display: inline-block;
+}
+
+.ft-wordmark .k-mark::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--amber);
+  opacity: .65;
+}
+
+.ft-wordmark .k-mark::after{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.ft-wordmark .k-wordmark-first,
+.ft-wordmark .k-wordmark-second{
+  font-family: 'EB Garamond', serif;
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: var(--cream);
+  letter-spacing: -.005em;
+}
+
+.ft-wordmark .k-wordmark-second{
+  color: var(--amber);
+  font-style: italic;
+}
+
+/* ── 9. NAV — wordmark version ── */
+.nav-logo.k-wordmark{
+  display: inline-flex;
+  align-items: center;
+  gap: .7rem;
+  font-family: 'EB Garamond', serif;
+  letter-spacing: -.005em;
+  text-transform: none;
+  font-size: 1.05rem;
+  color: var(--cream);
+  text-decoration: none;
+}
+
+.nav-logo.k-wordmark .k-mark{
+  width: 22px;
+  height: 22px;
+  position: relative;
+  display: inline-block;
+  flex-shrink: 0;
+}
+
+.nav-logo.k-wordmark .k-mark::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1.5px solid var(--amber);
+}
+
+.nav-logo.k-wordmark .k-mark::after{
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--amber);
+}
+
+.nav-logo.k-wordmark .k-wordmark-first{
+  font-weight: 700;
+  color: var(--cream);
+}
+
+.nav-logo.k-wordmark .k-wordmark-second{
+  font-weight: 700;
+  font-style: italic;
+  color: var(--amber);
+}
+
+/* ── 10. STATS STRIP — refine (remove the "different website" feel) ── */
+.h-bar{
+  background: rgba(10,8,5,.4);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.hb{
+  transition: background .3s;
+}
+
+.hb:hover{
+  background: rgba(212,136,42,.04);
+}
+
+.hb-n{
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -.02em;
+}
+
+/* ── 11. CRISIS STATS — semantic colors ── */
+.cs-val.bad{
+  color: var(--red-bright);
+}
+
+.cs-val.neutral{
+  color: var(--amber);
+}
+
+.cs-val.good{
+  color: var(--green-bright);
+}
+
+/* ── 12. SECTION HEADINGS — consistent ::before ornament ── */
+.sl::before{
+  content: '';
+  display: inline-block;
+  width: 24px;
+  height: 1px;
+  background: var(--amber);
+  opacity: .55;
+  margin-right: .75rem;
+  vertical-align: middle;
+}
+
+/* ── 13. LINK DEFAULTS — global ── */
+a{
+  color: inherit;
+  text-decoration: none;
+  transition: color .2s;
+}
+
+/* Override the browser default blue visited state */
+a:visited{
+  color: inherit;
+}
+
+/* ── 14. BUTTON FOCUS STATES — keyboard visible ── */
+.btn:focus-visible,
+button:focus-visible,
+a:focus-visible{
+  outline: 2px solid var(--amber);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+/* ── 15. TICKER — refined ── */
+.ticker{
+  background: linear-gradient(90deg, var(--amber) 0%, var(--amber2) 50%, var(--amber) 100%);
+  border-top: 1px solid rgba(10,8,5,.15);
+  border-bottom: 1px solid rgba(10,8,5,.15);
+}
+
+.ti{
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.ti::before{
+  content: '◆';
+  opacity: .5;
+  margin-right: .75rem;
+  font-size: .45rem;
+  vertical-align: middle;
+}
+
+/* ── 16. SHARE STRIP — remove per-platform colors ── */
+.share-wrap{
+  background: var(--ink);
+}
+
+.ss-btn{
+  background: transparent !important;
+  color: rgba(240,230,208,.65) !important;
+  border-color: var(--border) !important;
+}
+
+.ss-btn:hover{
+  background: var(--amber) !important;
+  color: var(--ink) !important;
+  border-color: var(--amber) !important;
+}
+
+/* Kill the old per-platform styles */
+.ss-wa, .ss-tw, .ss-li{
+  border-color: var(--border) !important;
+  color: rgba(240,230,208,.65) !important;
+}
+
+/* ── 17. FOLLOW BAR — refined input + button ── */
+.follow-bar{
+  background: var(--ink2);
+}
+
+.follow-input{
+  background: rgba(240,230,208,.03);
+}
+
+.follow-btn{
+  font-weight: 500;
+}
+
+/* ── 18. NEXT PAGE NAV — refine hover ── */
+.next-page{
+  position: relative;
+  overflow: hidden;
+}
+
+.next-page::before{
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg, rgba(212,136,42,.04) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity .4s;
+  pointer-events: none;
+}
+
+.next-page:hover::before{
+  opacity: 1;
+}
+
+/* ── 19. SCROLLBAR — refined ── */
+::-webkit-scrollbar{
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-thumb{
+  background: rgba(212,136,42,.4);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover{
+  background: var(--amber);
+}
+
+/* ── 20. MOBILE POLISH ── */
+@media(max-width: 960px){
+  .h-main{
+    padding: 8rem 1.4rem 3rem;
+  }
+
+  h1.hero-h{
+    font-size: clamp(2.6rem, 12vw, 4.5rem);
+  }
+
+  .h-bar{
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .hb{
+    padding: 1.4rem 1rem;
+  }
+
+  .hb:last-child{
+    grid-column: 1 / -1;
+  }
+}
+
+@media(max-width: 480px){
+  .h-bar{
+    grid-template-columns: 1fr;
+  }
+
+  .hb{
+    padding: 1.2rem 1rem;
+    text-align: center;
+    border-right: none;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .hb:last-child{
+    border-bottom: none;
+  }
+
+  .source-list li{
+    padding-left: 2.2rem;
+    font-size: .92rem;
+  }
+
+  .sh{
+    font-size: clamp(1.9rem, 8vw, 2.6rem);
+  }
+}
+
+/* ── 21. PRINT — add sources ── */
+@media print{
+  #sources{
+    padding: 1.5rem 1rem !important;
+    background: #fff;
+  }
+
+  .source-list li::before{
+    color: #555;
+  }
+
+  .src-link{
+    color: #111;
+    border-bottom: none;
+  }
+}
+
+/* ── 22. ACCESSIBILITY — focus ring for keyboard users only ── */
+:focus:not(:focus-visible){
+  outline: none;
+}
+
+/* ── 23. TEXT SELECTION ── */
+::selection{
+  background: rgba(212,136,42,.35);
+  color: var(--cream);
+}
+
+/* ── 24. LOADER — refined ── */
+#loader{
+  background: var(--ink);
+}
+
+.ld-mandala{
+  opacity: .8;
+}
+
+.ld-label{
+  color: rgba(212,136,42,.6);
+}
+
+/* ── 25. NEW — SECTION NUMBERING STYLE ── */
+.sl,
+.k-section-num{
+  font-family: 'DM Mono', monospace;
+  color: rgba(212,136,42,.7);
+}
+
+/* ── 26. NEW — HERO LEAD REFINEMENT ── */
+.h-lead{
+  font-size: clamp(1.05rem, 1.6vw, 1.28rem);
+  line-height: 1.75;
+  color: rgba(240,230,208,.62);
+  max-width: 580px;
+}
+
+.h-lead strong{
+  color: var(--cream);
+  font-style: normal;
+  font-weight: 600;
+}
