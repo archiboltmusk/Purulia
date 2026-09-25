@@ -6,9 +6,10 @@ window.KASA_CONFIG = {
   // The matching secret goes in Supabase → Authentication → Attack Protection.
   TURNSTILE_SITE_KEY: '',
 
-  // Web-push public key for "new report near me" alerts. Leave empty to hide alerts.
-  // Generate once with: npx web-push generate-vapid-keys (private key → Supabase secret)
-  VAPID_PUBLIC_KEY: '',
+  // Web-push public key for "new report near me" alerts and "watch this report". Leave
+  // empty to hide both. Generated once with: npx web-push generate-vapid-keys
+  // (private key → Supabase Edge Function secret, never committed here).
+  VAPID_PUBLIC_KEY: 'BH3hEnOcgE09IJFunauOsatBLFuPdTBER6NwerwlOkrlOgVIXLtggjSaSH93irhxjksJkTJpbWsthBk5KtW5kSo',
 
   // World Air Quality Index token for the air-quality layer on map.html (free: https://aqicn.org/data-platform/token/).
   // Leave empty to fall back to WAQI's shared "demo" token, which is rate-limited and may return no stations.
