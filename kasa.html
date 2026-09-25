@@ -35,7 +35,7 @@
 <script defer src="kasa-photo-meta.js"></script>
 <script defer src="kasa.js"></script>
 </head>
-<body>
+<body data-app-layout>
 
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
@@ -61,29 +61,12 @@
       <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
     </div>
     <button type="button" class="k-nav-cta" data-action="report" data-i18n="nav_report">Report →</button>
+    <button type="button" class="k-nav-more" id="k-more-btn" aria-controls="k-drawer" aria-expanded="false">
+      <span aria-hidden="true">☰</span> <span data-i18n="nav_more">More</span>
+    </button>
   </div>
 </nav>
 
-<header class="k-hero">
-  <div class="k-wordmark-lg">
-    <span class="k-mark" aria-hidden="true"></span>
-    <span class="k-wordmark"><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span></span>
-  </div>
-  <h1 class="k-hero-title">
-    <span data-i18n="hero_l1">See a problem?</span><br>
-    <em data-i18n="hero_l2">Report it in 30 seconds.</em>
-  </h1>
-  <p class="k-hero-sub" data-i18n="hero_sub">Garbage, blocked drains, broken roads, dark streetlights, illegal activity. Every report is public, every ward is ranked — and nothing is marked fixed until people on the spot confirm it.</p>
-  <div class="k-hero-actions">
-    <button type="button" class="k-hero-cta" data-action="report">
-      <span class="k-hero-cta-icon" aria-hidden="true">📷</span>
-      <span data-i18n="hero_cta">Report Now</span>
-    </button>
-    <a class="k-hero-link" href="#k-trust" id="k-hero-how" hidden data-i18n="hero_how">How verification works ↓</a>
-    <button type="button" class="k-hero-link k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
-    <button type="button" class="k-hero-link" data-install hidden data-i18n="install_btn">📲 Install the app</button>
-  </div>
-</header>
 
 <section class="k-map-section" aria-label="Report map">
   <div id="k-map" role="application" aria-label="Map of reports"></div>
@@ -103,7 +86,10 @@
   </div>
 
   <div class="k-map-topbar">
-    <div class="k-filter-bar">
+    <button type="button" class="k-filter-toggle" id="k-filter-toggle" aria-controls="k-filter-bar" aria-expanded="false">
+      <span aria-hidden="true">⚲</span> <span data-i18n="filters_btn">Filters</span> <span class="k-filter-count" id="k-filter-count" hidden></span>
+    </button>
+    <div class="k-filter-bar" id="k-filter-bar">
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
       <select id="k-filter-status" class="k-filter-select" aria-label="Status">
         <option value="" data-i18n="filter_all_status">All Status</option>
@@ -147,6 +133,49 @@
   </button>
 </section>
 
+<div class="k-drawer-backdrop" id="k-drawer-backdrop" hidden></div>
+<aside class="k-drawer" id="k-drawer" aria-label="More" aria-hidden="true" inert>
+  <div class="k-drawer-head">
+    <div class="k-lang-switch" role="group" aria-label="Language">
+      <button type="button" class="k-lang-btn k-lang-active" data-lang="en">EN</button>
+      <button type="button" class="k-lang-btn" data-lang="bn">বাং</button>
+      <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
+    </div>
+    <button type="button" class="k-drawer-close" id="k-drawer-close" aria-label="Close">✕</button>
+  </div>
+  <nav class="k-drawer-links">
+    <button type="button" data-mine data-i18n="nav_mine">Your reports</button>
+    <a href="index.html" data-i18n="nav_home">Home</a>
+    <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
+    <a href="map.html" data-i18n="nav_map">Map</a>
+    <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
+    <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
+  </nav>
+<header class="k-hero">
+  <div class="k-wordmark-lg">
+    <span class="k-mark" aria-hidden="true"></span>
+    <span class="k-wordmark"><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span></span>
+  </div>
+  <h1 class="k-hero-title">
+    <span data-i18n="hero_l1">See a problem?</span><br>
+    <em data-i18n="hero_l2">Report it in 30 seconds.</em>
+  </h1>
+  <p class="k-hero-sub" data-i18n="hero_sub">Garbage, blocked drains, broken roads, dark streetlights, illegal activity. Every report is public, every ward is ranked — and nothing is marked fixed until people on the spot confirm it.</p>
+  <div class="k-hero-actions">
+    <button type="button" class="k-hero-cta" data-action="report">
+      <span class="k-hero-cta-icon" aria-hidden="true">📷</span>
+      <span data-i18n="hero_cta">Report Now</span>
+    </button>
+    <a class="k-hero-link" href="#k-trust" id="k-hero-how" hidden data-i18n="hero_how">How verification works ↓</a>
+    <button type="button" class="k-hero-link k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
+    <button type="button" class="k-hero-link" data-install hidden data-i18n="install_btn">📲 Install the app</button>
+  </div>
+</header>
+<div class="k-drawer-qr">
+  <button type="button" class="k-bottom-btn" id="k-qr-btn">
+    <span aria-hidden="true">📱</span> <span data-i18n="qr_btn">Scan QR to Report</span>
+  </button>
+</div>
 <section class="k-ticker" aria-hidden="true">
   <div class="k-ticker-track" id="k-ticker-track"></div>
 </section>
@@ -176,7 +205,7 @@
   <ol class="k-trust-steps" id="k-trust-steps"></ol>
 </section>
 
-<section class="k-lb-section">
+<section class="k-lb-section" id="k-lb">
   <div class="k-section-head">
     <div class="k-section-num" data-i18n="lb_num">04 · Accountability</div>
     <h2 class="k-section-title" data-i18n="lb_title">Ward accountability</h2>
@@ -227,12 +256,9 @@
     <a href="grievance.html" data-i18n="footer_grievance">Grievance Officer</a>
   </nav>
 </footer>
+</aside>
 
-<div class="k-bottom-bar">
-  <button type="button" class="k-bottom-btn" id="k-qr-btn">
-    <span aria-hidden="true">📱</span> <span data-i18n="qr_btn">Scan QR to Report</span>
-  </button>
-</div>
+
 
 <!-- New report -->
 <div class="k-modal" id="k-modal" aria-hidden="true">
