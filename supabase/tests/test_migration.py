@@ -1242,6 +1242,112 @@ other_uid = user()
 check('a freshly signed-in device with no reports gets an empty list', rpc('kasa_my_reports', uid=other_uid) == [])
 check('a never-signed-in caller cannot call your-reports', refused(err(rpc, 'kasa_my_reports')))
 
+# ─────────────────────────── Admin delete (flagged/review reports only) ───────────────────────────
+del_r, _ = report(user(), where=offset(12700, 15000))
+check('a clean approved report cannot be hard-deleted',
+      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='hide', p_reason='test')
+check('a hidden (not flagged/review) report cannot be hard-deleted either',
+      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
+
+flagged_r, _ = report(user(), where=offset(13000, 15000))
+for i in range(2):
+    rpc('kasa_flag_report', uid=user(), ip=f'10.90.0.{i + 1}', p_report_id=str(flagged_r['id']), p_reason='not_an_issue')
+rpc('kasa_flag_report', uid=user(), ip='10.91.0.1', p_report_id=str(flagged_r['id']), p_reason='not_an_issue')
+check('the report is actually flagged before the delete test', view_row(flagged_r['id'])['moderation_status'] == 'flagged')
+check('non-admin cannot delete a report', err(rpc, 'kasa_admin_moderate', uid=user(), p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_ADMIN')
+del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete')
+check('a flagged report can be hard-deleted', del_res.get('deleted') is True, del_res)
+check('deleting a report cascades its events',
+      admin_sql('select count(*) from kasa_private.events where report_id::text = %s', (str(flagged_r['id']),))[0][0] == 0)
+check('deleting a report actually removes the row',
+      admin_sql('select count(*) from public.reports where id::text = %s', (str(flagged_r['id']),))[0][0] == 0)
+
+# ─────────────────────────── School audit ───────────────────────────
+def school_audit(uid, where=SPOT, name='Test Primary School', water=True, toilets=True, boundary=True,
+                  condition='good', accuracy=10.0, client_id=None, path=None):
+    path = path or upload(uid, 'reports')
+    return rpc('kasa_create_school_audit', uid=uid, p_school_name=name, p_lat=where[0], p_lng=where[1],
+               p_accuracy=accuracy, p_ward_no=5, p_water_ok=water, p_toilets_ok=toilets, p_boundary_ok=boundary,
+               p_building_condition=condition, p_photo_path=path, p_client_id=client_id)
+
+
+def audit_row(aid):
+    rows = q('select row_to_json(v) from public.kasa_public_school_audits v where id::text = %s', (str(aid),))
+    return rows[0][0] if rows else None
+
+
+check('anon cannot audit a school', refused(err(rpc, 'kasa_create_school_audit', p_school_name='X', p_lat=SPOT[0], p_lng=SPOT[1],
+      p_accuracy=10.0, p_ward_no=5, p_water_ok=True, p_toilets_ok=True, p_boundary_ok=True, p_building_condition='good',
+      p_photo_path='reports/x.jpg')))
+
+a1 = school_audit(user(), where=offset(13300, 15000), name='Purulia Model School')
+check('a school audit is created approved by default', a1['moderation_status'] == 'approved', a1)
+saved = admin_sql('select school_name, area_kind, water_ok, toilets_ok, boundary_ok, building_condition '
+                   'from public.school_audits where id::text = %s', (a1['id'],))[0]
+check('the audit stores the checklist and a server-assigned area',
+      saved == ('Purulia Model School', 'rural', True, True, True, 'good'), saved)
+
+check('a school audit needs a real name', err(school_audit, user(), where=offset(13600, 15000), name='ab') == 'KASA_BAD_SCHOOL_NAME')
+check('every checklist question is required',
+      err(rpc, 'kasa_create_school_audit', uid=user(), p_school_name='Some School', p_lat=offset(13900, 15000)[0],
+          p_lng=offset(13900, 15000)[1], p_accuracy=10.0, p_ward_no=5, p_water_ok=None, p_toilets_ok=True,
+          p_boundary_ok=True, p_building_condition='good', p_photo_path=upload(user(), 'reports')) == 'KASA_INCOMPLETE_AUDIT')
+check('building condition must be one of the three options',
+      err(school_audit, user(), where=offset(14200, 15000), condition='great') == 'KASA_BAD_CONDITION')
+check('a school audit outside the district is refused', err(school_audit, user(), where=(22.0, 85.0)) == 'KASA_OUTSIDE_AREA')
+
+rl_uid = user()
+for i in range(5):
+    school_audit(rl_uid, where=offset(14500 + i * 50, 15000))
+check('school audits are rate-limited per hour', err(school_audit, rl_uid, where=offset(14900, 15000)) == 'KASA_RATE_LIMIT')
+
+repeat_spot = offset(15300, 15000)
+first_visit = school_audit(user(), where=repeat_spot, name='Repeat-visit School', water=False)
+second_visit = school_audit(user(), where=repeat_spot, name='Repeat-visit School', water=True)
+check('repeat audits of the same school are both kept, not merged or blocked as duplicates',
+      first_visit['id'] != second_visit['id']
+      and admin_sql("select count(*) from public.school_audits where school_name = 'Repeat-visit School'")[0][0] == 2)
+
+fresh_audit = school_audit(user(), where=offset(15600, 15000), name='Public View School')
+check('a fresh audit is visible on the public view', audit_row(fresh_audit['id']) is not None)
+rpc('kasa_admin_moderate_school_audit', uid=mod, p_audit_id=str(fresh_audit['id']), p_action='hide')
+check('a hidden audit disappears from the public view', audit_row(fresh_audit['id']) is None)
+check('non-admin cannot moderate an audit',
+      err(rpc, 'kasa_admin_moderate_school_audit', uid=user(), p_audit_id=str(fresh_audit['id']), p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_moderate_school_audit', uid=mod, p_audit_id=str(fresh_audit['id']), p_action='approve')
+check('restoring an audit makes it public again', audit_row(fresh_audit['id']) is not None)
+
+flag_target = school_audit(user(), where=offset(15900, 15000), name='Flag Target School')
+for i in range(2):
+    rpc('kasa_flag_school_audit', uid=user(), ip=f'10.95.0.{i + 1}', p_audit_id=str(flag_target['id']), p_reason='not_this_school')
+check('anon cannot flag a school audit', refused(err(rpc, 'kasa_flag_school_audit', p_audit_id=str(flag_target['id']), p_reason='not_this_school')))
+last_flag = rpc('kasa_flag_school_audit', uid=user(), ip='10.96.0.1', p_audit_id=str(flag_target['id']), p_reason='not_this_school')
+check('three flags from two networks send an audit to review',
+      last_flag['under_review'] and audit_row(flag_target['id'])['moderation_status'] == 'flagged', last_flag)
+check('the moderation queue lists the flagged audit',
+      any(a['id'] == flag_target['id'] for a in rpc('kasa_admin_school_audit_queue', uid=mod)))
+check('non-admin cannot list the audit queue', err(rpc, 'kasa_admin_school_audit_queue', uid=user()) == 'KASA_NOT_ADMIN')
+
+delete_target = school_audit(user(), where=offset(16200, 15000), name='Delete Me School')
+rpc('kasa_admin_moderate_school_audit', uid=mod, p_audit_id=str(delete_target['id']), p_action='delete')
+check('a moderator can hard-delete a school audit outright (no evidence trail to preserve)',
+      admin_sql('select count(*) from public.school_audits where id::text = %s', (str(delete_target['id']),))[0][0] == 0)
+
+reused_uid = user()
+reused_path = upload(reused_uid, 'reports')
+school_audit(reused_uid, where=offset(16500, 15000), path=reused_path)
+check('a photo already used for an audit cannot be reused for a report',
+      err(rpc, 'kasa_create_report', uid=reused_uid, p_category='school', p_severity='minor',
+          p_lat=offset(16800, 15000)[0], p_lng=offset(16800, 15000)[1], p_accuracy=10.0, p_ward_no=5,
+          p_description=None, p_landmark=None, p_photo_path=reused_path, p_client_id=None) == 'KASA_PHOTO_REUSED')
+
+photo_owner = user()
+reused_path2 = upload(photo_owner, 'reports')
+school_audit(photo_owner, where=offset(17100, 15000), path=reused_path2)
+check('and the same reused photo is refused for a second audit too',
+      err(school_audit, photo_owner, where=offset(17400, 15000), path=reused_path2) == 'KASA_PHOTO_REUSED')
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
