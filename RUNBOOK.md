@@ -106,7 +106,7 @@ On a report that's overdue (`isOverdue`: open past its `sla_days`), the panel ad
 
 ## Legal notices and takedown requests
 
-1. Every request goes to the Grievance Officer (`grievance@puruliakasa.in`, see `grievance.html`). Acknowledge it within 24 hours.
+1. Every request goes to the Grievance Officer (`thelosthillproject@gmail.com`, see `grievance.html`). Acknowledge it within 24 hours.
 2. **Court orders or notices from a government agency under IT Act s.79(3)(b):** hide the content within 36 hours (`admin.html` → Hide, with the order's reference as the reason). Keep a copy of the order.
 3. **Private complaints (for example, "this report defames me"):** check the report against the Terms. Remove it if it breaks them (a named private person, an unsupported accusation, an identifiable face or number plate). If it's a real civic problem described fairly, leave it up and offer the complainant the right of reply. Decide within 15 days and tell them what you decided.
 4. **Requests for user data:** we keep very little (see `privacy.html`): anonymous account ids, scrambled network codes, GPS of reports and votes. Hand it over only for a written legal demand that names the report, and write down what was shared and when.

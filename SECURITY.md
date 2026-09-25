@@ -2,7 +2,7 @@
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability in Parishkar Purulia, please email **grievance@puruliakasa.in** with:
+If you discover a security vulnerability in Parishkar Purulia, please email **thelosthillproject@gmail.com** with:
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -116,4 +116,4 @@ See `terms.html` for full licence terms.
 
 **Last Updated:** 2026-09-24
 **Review Schedule:** Quarterly
-**Contact:** grievance@puruliakasa.in
+**Contact:** thelosthillproject@gmail.com

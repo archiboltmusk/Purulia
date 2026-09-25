@@ -15,5 +15,5 @@ window.KASA_CONFIG = {
   WAQI_API_KEY: '8b116d06bed9fc883f02ff38515f53f4b490547c',
 
   // Published on the legal pages and used for "Right of reply" requests.
-  GRIEVANCE_EMAIL: 'grievance@puruliakasa.in'
+  GRIEVANCE_EMAIL: 'thelosthillproject@gmail.com'
 };

@@ -28,8 +28,7 @@ No public, verifiable, and accountable tool currently tracks civic problems acro
 - License: CC BY 4.0 (data); photos are not covered
 
 ## Contact
-- Grievance Officer (legal matters, takedown requests): `grievance@parishkarpurulia.in` *(placeholder — confirm this inbox is live before publishing)*
-- General: `hello@parishkarpurulia.in` *(same caveat)*
+- Grievance Officer (legal matters, takedown requests) and general inquiries: `thelosthillproject@gmail.com`
 
 ## What we'd ask of journalists
 Cover the data as it stands, verify it independently if you can, and where a ward has a long-unresolved pattern, name the ward and its representative. The record is public and downloadable specifically so it can be checked, not just cited.

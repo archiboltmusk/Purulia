@@ -101,7 +101,7 @@ supabase functions deploy kasa-cleanup
 ```
 npx web-push generate-vapid-keys
 supabase secrets set VAPID_PUBLIC_KEY=... VAPID_PRIVATE_KEY=... \
-  VAPID_SUBJECT=mailto:grievance@puruliakasa.in KASA_PAGE_URL=https://<your-site>/kasa.html
+  VAPID_SUBJECT=mailto:thelosthillproject@gmail.com KASA_PAGE_URL=https://<your-site>/kasa.html
 supabase functions deploy kasa-notify
 ```
 
@@ -112,10 +112,10 @@ only after "Add to Home Screen".
 ## 6. Before you rely on the legal pages
 
 - `terms.html`, `privacy.html` and `grievance.html` publish
-  **grievance@puruliakasa.in** and **hello@puruliakasa.in**. The grievance
-  mechanism only protects you if that inbox exists and is read — check the
-  domain and mailboxes, or change the address in all three pages and in
-  `config.js` → `GRIEVANCE_EMAIL`.
+  **thelosthillproject@gmail.com** for both the Grievance Officer and general
+  contact. The grievance mechanism only protects you if that inbox is
+  actually read — check it regularly, or change the address in all three
+  pages and in `config.js` → `GRIEVANCE_EMAIL`.
 - These pages were written to match how the system actually works. Have a
   lawyer review them.
 
