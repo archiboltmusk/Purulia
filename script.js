@@ -1,14 +1,13 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA 2040 — SHARED RUNTIME  (patched)
+   PARISHKAR PURULIA — SHARED RUNTIME
+   Patched: WhatsApp close CSS hook, i18n sync, dead counters
+   removed, countdown rounding fixed.
    ══════════════════════════════════════════════════════════ */
 
-/* ── Global modal flag ──
-   Any overlay that opens (palette, help, share popup) sets this.
-   Global keydown handlers check it before acting, so keys don't
-   fire into the wrong modal. */
+/* ── Global modal flag ── */
 window.__pkModal = null;
 
-/* ── Escape helper (used by popups / palette) ── */
+/* ── Escape helper ── */
 function escHtml(s){
   return String(s ?? '').replace(/[&<>"']/g, c => ({
     '&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'
@@ -20,8 +19,6 @@ function escHtml(s){
   var de=document.documentElement;
   var rm=window.matchMedia('(prefers-reduced-motion:reduce)').matches;
 
-  /* SAFETY: if we faded out on the previous page but the pgt flag is
-     stuck (e.g. script crashed), force opacity back to 1 after 3s. */
   if(sessionStorage.getItem('pgt')){
     setTimeout(function(){ de.style.opacity='1'; }, 3000);
   }
@@ -50,8 +47,7 @@ function escHtml(s){
   }
 })();
 
-/* ── Cursor ──
-   Skip on touch devices and when #cur/#curR are missing. */
+/* ── Cursor ── */
 (function(){
   var cur=document.getElementById('cur'), curR=document.getElementById('curR');
   if(!cur || !curR) return;
@@ -70,8 +66,6 @@ function escHtml(s){
     requestAnimationFrame(anim);
   })();
 
-  /* FIX: delegated hover — works for elements added after load
-     (share popup buttons, WhatsApp float, back-to-top, etc.) */
   document.addEventListener('mouseover',function(e){
     var el=e.target.closest('a,button,select,input,textarea');
     if(!el || el._curHover) return;
@@ -191,7 +185,6 @@ function shareSection(id){
     copyShareLink(this.getAttribute('data-copy'));
   });
 
-  /* Auto-dismiss after 15s (was 8) */
   setTimeout(function(){
     if(popup.parentElement) popup.remove();
     if(window.__pkModal==='share') window.__pkModal=null;
@@ -217,7 +210,7 @@ function showToast(msg){
   toastTimer=setTimeout(function(){t.classList.remove('show');},2800);
 }
 
-/* ── Form submit — saved privately in Supabase (only moderators can read it) ── */
+/* ── Form submit — saved privately in Supabase ── */
 async function p2040Submit(fields){
   var c=window.KASA_CONFIG||{};
   if(!c.SUPABASE_URL||!c.SUPABASE_ANON_KEY) throw new Error('Form not configured.');
@@ -269,7 +262,7 @@ async function submitForm(){
     var shareBtns=document.getElementById('fsShareBtns');
     if(shareBtns){
       var url=window.location.origin+(window.location.pathname.includes('join')?window.location.pathname.replace('join.html',''):window.location.pathname);
-      var msg='I just connected with the Purulia 2040 blueprint team. If you care about transforming a district — read this:';
+      var msg='I just connected with the Parishkar Purulia team. If you care about transforming a district — read this:';
       shareBtns.innerHTML=
         '<a class="ss-btn ss-wa" href="https://wa.me/?text='+encodeURIComponent(msg+' '+url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
         '<a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text='+encodeURIComponent(msg)+'&url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">Twitter</a>'+
@@ -325,14 +318,15 @@ function toggleMenu(){
   var t=document.getElementById('navToggle');
   var d=document.getElementById('navDropdown');
   if(!t||!d)return;
-  t.classList.toggle('open');
+  var open = t.classList.toggle('open');
   d.classList.toggle('open');
+  t.setAttribute('aria-expanded', open ? 'true' : 'false');
 }
 document.addEventListener('click',function(e){
   if(!e.target.closest('.nav-mob')){
     var t=document.getElementById('navToggle');
     var d=document.getElementById('navDropdown');
-    if(t)t.classList.remove('open');
+    if(t){t.classList.remove('open');t.setAttribute('aria-expanded','false');}
     if(d)d.classList.remove('open');
   }
 });
@@ -351,16 +345,16 @@ document.addEventListener('click',function(e){
 /* ── WhatsApp floating share button ── */
 (function(){
   var pageMsgs={
-    'index.html':'A complete blueprint to transform an entire district — Purulia 2040. Worth reading and sharing:',
+    'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth sharing:',
     'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, complete economics — read it:',
     'audience.html':'This blueprint for Purulia 2040 was written for every kind of person who can help. Find your role:',
     'data.html':'The hard data on Purulia — why this district is primed for transformation right now:',
     'join.html':'This blueprint needs people, not just readers. Here\'s how to get involved with Purulia 2040:',
     'map.html':'Explore every project and zone in the Purulia 2040 transformation plan — interactive map:',
-    'kasa.html':'Parishkar Purulia — report garbage in 30 seconds and hold your ward accountable. Try it:'
+    'kasa.html':'Parishkar Purulia — report a civic problem in 30 seconds and hold your ward accountable. Try it:'
   };
   var page=window.location.pathname.split('/').pop()||'index.html';
-  var msg=pageMsgs[page]||'A complete transformation blueprint for Purulia, West Bengal:';
+  var msg=pageMsgs[page]||'A public record of civic problems in Purulia, West Bengal:';
   var url=window.location.origin+(window.location.pathname.includes('index.html')?window.location.pathname.replace('index.html',''):window.location.pathname);
 
   var btn=document.createElement('a');
@@ -372,7 +366,6 @@ document.addEventListener('click',function(e){
   btn.innerHTML='<svg viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg><span>Share</span>';
   document.body.appendChild(btn);
 
-  /* Dismissable close button */
   var close=document.createElement('button');
   close.className='wa-close';
   close.setAttribute('aria-label','Dismiss share button');
@@ -398,7 +391,7 @@ document.addEventListener('click',function(e){
   var page=window.location.pathname.split('/').pop()||'index.html';
   var baseUrl=window.location.origin+window.location.pathname.replace('index.html','');
   var stripMsgs={
-    'index.html':'A complete blueprint to transform Purulia into Eastern India\'s green economy frontier. Worth 5 minutes:',
+    'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth 5 minutes:',
     'blueprint.html':'The full 15-year plan to transform a district — six pillars, complete economics, real funding sources. Purulia 2040:'
   };
   var msg=stripMsgs[page]||stripMsgs['index.html'];
@@ -428,7 +421,7 @@ document.addEventListener('click',function(e){
     ld.classList.add('ld-out');
     setTimeout(function(){if(ld.parentElement)ld.remove();},750);
   }
-  var cap=setTimeout(hide,2500);
+  setTimeout(hide,2500);
   if(document.readyState==='complete')setTimeout(hide,380);
   else window.addEventListener('load',function(){setTimeout(hide,380);});
 })();
@@ -516,62 +509,6 @@ document.addEventListener('click',function(e){
   });
 })();
 
-/* ── NUMBER COUNTER ANIMATION ── */
-(function(){
-  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  var els=document.querySelectorAll('.cs-val[data-count]');
-  if(!els.length)return;
-
-  function easedCount(el){
-    var tgt=parseFloat(el.dataset.count);
-    var sfx=el.dataset.suffix||'';
-    var pfx=el.dataset.prefix||'';
-    var dec=(el.dataset.count.indexOf('.')>=0)?el.dataset.count.split('.')[1].length:0;
-    var dur=1700;
-    var t0=performance.now();
-    function fmt(v){return pfx+(dec?v.toFixed(dec):Math.round(v))+sfx;}
-    el.textContent=fmt(0);
-    (function tick(now){
-      var p=Math.min((now-t0)/dur,1);
-      var e=1-Math.pow(1-p,4);
-      el.textContent=fmt(tgt*e);
-      if(p<1)requestAnimationFrame(tick);
-      else el.textContent=fmt(tgt);
-    })(t0);
-  }
-
-  var obs=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      if(!en.isIntersecting)return;
-      easedCount(en.target);
-      obs.unobserve(en.target);
-    });
-  },{threshold:.5});
-  els.forEach(function(el){obs.observe(el);});
-})();
-
-/* ── HERO STAT COUNTERS (h-bar) ── */
-(function(){
-  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  var els=document.querySelectorAll('.hb-n[data-hcount]');
-  if(!els.length)return;
-  setTimeout(function(){
-    els.forEach(function(el){
-      var tgt=parseInt(el.dataset.hcount,10);
-      var dur=1400;
-      var t0=performance.now();
-      var orig=el.textContent;
-      (function tick(now){
-        var p=Math.min((now-t0)/dur,1);
-        var e=1-Math.pow(1-p,3);
-        el.textContent=Math.round(tgt*e);
-        if(p<1)requestAnimationFrame(tick);
-        else el.textContent=orig;
-      })(t0);
-    });
-  },2300);
-})();
-
 /* ── MAGNETIC BUTTON EFFECT ── */
 (function(){
   if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
@@ -649,12 +586,45 @@ document.addEventListener('click',function(e){
   });
 })();
 
-/* ── LANGUAGE SWITCHER ── */
+/* ── LANGUAGE SWITCHER — synced with Parishkar Purulia brand ── */
 (function(){
   var T={
-    en:{kicker0:'West Bengal, India',kicker1:'District Transformation Blueprint',kicker2:'2026 → 2040',heroL1:'A District',heroL2:'Reborn.',heroL3:'Purulia 2040',heroLead:'Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation\'s worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.',heroCta:'I Want to Help →',heroSub1:'Read the blueprint',heroSub2:'Find your role'},
-    bn:{kicker0:'পশ্চিমবঙ্গ, ভারত',kicker1:'জেলা রূপান্তর পরিকল্পনা',kicker2:'২০২৬ → ২০৪০',heroL1:'একটি জেলার',heroL2:'পুনর্জন্ম।',heroL3:'পুরুলিয়া ২০৪০',heroLead:'পুরুলিয়া কোনো সমস্যা নয় যা সামলাতে হবে।<br>এটি একটি <strong>সুযোগ — এক প্রজন্মের সংকল্পের অপেক্ষায়।</strong><br>এটি সম্পূর্ণ পরিকল্পনা — প্রত্যেকের জন্য যারা অংশ নিতে চান।',heroCta:'আমি সাহায্য করতে চাই →',heroSub1:'পরিকল্পনা পড়ুন',heroSub2:'আপনার ভূমিকা খুঁজুন'},
-    hi:{kicker0:'पश्चिम बंगाल, भारत',kicker1:'जिला परिवर्तन खाका',kicker2:'२०२६ → २०४०',heroL1:'एक जिला',heroL2:'पुनर्जन्म।',heroL3:'पुरुलिया २०४०',heroLead:'पुरुलिया कोई समस्या नहीं है जिसे संभाला जाए।<br>यह एक <strong>अवसर है — एक पीढ़ी की इच्छाशक्ति की प्रतीक्षा में।</strong><br>यह पूरी योजना है — हर उस व्यक्ति के लिए जो भाग लेना चाहता है।',heroCta:'मैं मदद करना चाहता हूँ →',heroSub1:'खाका पढ़ें',heroSub2:'अपनी भूमिका खोजें'}
+    en:{
+      kicker0:'West Bengal, India',
+      kicker1:'Civic Accountability Platform',
+      kicker2:'Live Now',
+      heroL1:'The Public Record',
+      heroL2:'of Purulia.',
+      heroL3:'Parishkar Purulia',
+      heroLead:'Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong>',
+      heroCta:'Report a Problem →',
+      heroSub1:'See the live map',
+      heroSub2:'Read the blueprint'
+    },
+    bn:{
+      kicker0:'পশ্চিমবঙ্গ, ভারত',
+      kicker1:'নাগরিক জবাবদিহিতা প্ল্যাটফর্ম',
+      kicker2:'চালু আছে',
+      heroL1:'পুরুলিয়ার',
+      heroL2:'প্রকাশ্য রেকর্ড।',
+      heroL3:'পরিষ্কার পুরুলিয়া',
+      heroLead:'পুরুলিয়ার প্রতিটি নাগরিক সমস্যা — <strong>আবর্জনা, নর্দমা, রাস্তা, স্কুল, স্বাস্থ্যকেন্দ্র, জল</strong> — একটি প্রকাশ্য ম্যাপে।<br>প্রতিটি ব্লক। প্রতিটি পুরসভা। প্রতিটি ওয়ার্ড।<br><strong>যতক্ষণ স্পটে থাকা মানুষ নিশ্চিত না করবেন, ততক্ষণ কিছু সমাধান হিসেবে গণ্য হয় না।</strong>',
+      heroCta:'একটি সমস্যা রিপোর্ট করুন →',
+      heroSub1:'লাইভ ম্যাপ দেখুন',
+      heroSub2:'ব্লুপ্রিন্ট পড়ুন'
+    },
+    hi:{
+      kicker0:'पश्चिम बंगाल, भारत',
+      kicker1:'नागरिक जवाबदेही मंच',
+      kicker2:'लाइव है',
+      heroL1:'पुरुलिया का',
+      heroL2:'सार्वजनिक रिकॉर्ड।',
+      heroL3:'परिष्कार पुरुलिया',
+      heroLead:'पुरुलिया जिले की हर नागरिक समस्या — <strong>कचरा, नाली, सड़कें, स्कूल, स्वास्थ्य केंद्र, पानी</strong> — एक सार्वजनिक मैप पर।<br>हर ब्लॉक। हर नगरपालिका। हर वार्ड।<br><strong>जब तक मौके पर मौजूद लोग पुष्टि नहीं करते, कुछ भी हल नहीं माना जाता।</strong>',
+      heroCta:'समस्या रिपोर्ट करें →',
+      heroSub1:'लाइव मैप देखें',
+      heroSub2:'ब्लूप्रिंट पढ़ें'
+    }
   };
 
   window.setLang=function(lang){
@@ -669,7 +639,7 @@ document.addEventListener('click',function(e){
       if(strings[k]!==undefined)el.innerHTML=strings[k];
     });
     document.documentElement.lang=lang;
-    localStorage.setItem('p2040lang',lang);
+    try{localStorage.setItem('p2040lang',lang);}catch(e){}
     document.querySelectorAll('.lang-btn').forEach(function(b){
       b.classList.toggle('lang-active',b.dataset.lang===lang);
     });
@@ -762,7 +732,8 @@ window.followSubmit=async function(){
 /* ── COMMAND PALETTE (⌘K / Ctrl+K) ── */
 (function(){
   var PAGES=[
-    {href:'index.html',label:'Home',desc:'Overview & manifesto'},
+    {href:'index.html',label:'Home',desc:'The public record'},
+    {href:'kasa.html',label:'Parishkar Purulia',desc:'Report & map'},
     {href:'blueprint.html',label:'Blueprint',desc:'The 15-year plan'},
     {href:'data.html',label:'Ground Truth',desc:'Verified data & charts'},
     {href:'audience.html',label:'For You',desc:'Find your role'},
@@ -980,7 +951,7 @@ window.followSubmit=async function(){
   setTimeout(function(){el.classList.add('scrambling');scramble();},680);
 })();
 
-/* ── Countdown to 2040 ── */
+/* ── Countdown to 2040 (month + day precision) ── */
 (function(){
   var hBtns=document.querySelector('.h-btns');
   if(!hBtns)return;
@@ -991,15 +962,12 @@ window.followSubmit=async function(){
   hBtns.parentNode.insertBefore(cd,hBtns.nextSibling);
   function update(){
     var target=new Date('2040-01-01T00:00:00');
-    var diff=target-new Date();
-    if(diff<=0){cd.innerHTML='The 2040 horizon has arrived.';return;}
-    var years=Math.floor(diff/(1000*60*60*24*365.25));
-    diff-=years*(1000*60*60*24*365.25);
-    var months=Math.floor(diff/(1000*60*60*24*30.44));
-    diff-=months*(1000*60*60*24*30.44);
-    var days=Math.floor(diff/(1000*60*60*24));
+    var now=new Date();
+    if(target<=now){cd.innerHTML='The 2040 horizon has arrived.';return;}
+    var months=(target.getFullYear()-now.getFullYear())*12+(target.getMonth()-now.getMonth());
+    var days=target.getDate()-now.getDate();
+    if(days<0){months--; days+=new Date(now.getFullYear(),now.getMonth()+1,0).getDate();}
     cd.innerHTML=
-      '<span class="cd-val">'+years+'</span>yr '+
       '<span class="cd-val">'+months+'</span>mo '+
       '<span class="cd-val">'+days+'</span>d until 2040';
   }
@@ -1007,14 +975,12 @@ window.followSubmit=async function(){
   setInterval(update,3600000);
 })();
 
-/* ── Section Navigation Dots (accessible) ── */
+/* ── Section Navigation Dots ── */
 (function(){
   var DEFS=[
     {id:'hero',label:'Intro'},{id:'crisis',label:'Reality'},{id:'reframe',label:'The Case'},
-    {id:'pillars',label:'Pillars'},{id:'path-finder',label:'Your Role'},{id:'momentum',label:'Momentum'},
-    {id:'deepdives',label:'Deep Dives'},{id:'timeline',label:'Timeline'},{id:'economics',label:'Economics'},
-    {id:'audience',label:'Audience'},{id:'groundtruth',label:'Ground Truth'},{id:'solution-matrix',label:'Solutions'},
-    {id:'respond',label:'Join'},{id:'fivepeople',label:'Five People'},{id:'sprint',label:'Sprint'},{id:'livefeed',label:'Live Feed'}
+    {id:'pillars',label:'Pillars'},{id:'sources',label:'Sources'},{id:'path-finder',label:'Your Role'},
+    {id:'momentum',label:'Momentum'}
   ];
   var found=[];
   DEFS.forEach(function(def){
@@ -1043,7 +1009,7 @@ window.followSubmit=async function(){
   var obs=new IntersectionObserver(function(entries){
     entries.forEach(function(en){
       if(!en.isIntersecting)return;
-      var idx=found.findIndex?found.findIndex(function(f){return f.sec===en.target;}):-1;
+      var idx=found.findIndex(function(f){return f.sec===en.target;});
       if(idx<0||idx===activeIdx)return;
       activeIdx=idx;
       dots.forEach(function(d,i){d.classList.toggle('sd-active',i===idx);});
@@ -1062,7 +1028,9 @@ window.followSubmit=async function(){
   document.body.appendChild(badge);
 
   var navRight=document.querySelector('.nav-right');
+  var hasButton=false;
   if(navRight){
+    hasButton=true;
     var btn=document.createElement('button');
     btn.className='nav-rm';
     btn.id='navRmBtn';
@@ -1075,21 +1043,21 @@ window.followSubmit=async function(){
 
   function toggle(){
     var on=html.classList.toggle('rm-on');
-    localStorage.setItem('p2040rm',on?'1':'0');
+    try{localStorage.setItem('p2040rm',on?'1':'0');}catch(e){}
   }
 
   document.addEventListener('keydown',function(e){
     var tag=(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA');
-    /* FIX: don't fire if a modal is open or user is typing */
-    if(e.key==='r'&&!e.metaKey&&!e.ctrlKey&&!tag&&!window.__pkModal){
+    /* Only fire if there's a button to toggle (i.e., on pages with the nav) */
+    if(e.key==='r'&&!e.metaKey&&!e.ctrlKey&&!tag&&!window.__pkModal&&hasButton){
       toggle();
     }
   });
 
   if(localStorage.getItem('p2040rm')==='1'){
     html.classList.add('rm-on');
-    /* FIX: show badge on load so user knows reading mode persisted */
-    setTimeout(function(){badge.classList.add('rm-show');
+    setTimeout(function(){
+      badge.classList.add('rm-show');
       setTimeout(function(){badge.classList.remove('rm-show');},3500);
     },400);
   }
@@ -1102,58 +1070,6 @@ window.followSubmit=async function(){
   grid.addEventListener('click',function(e){
     var card=e.target.closest('.pf-role-card[data-role]');
     if(card&&typeof window.pfSelect==='function')window.pfSelect(card.dataset.role);
-  });
-})();
-
-/* ── Word-by-word reveal (preserves HTML) ── */
-(function(){
-  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  /* FIX: skip elements that contain HTML children — we can't safely
-     split them without destroying markup. Only split plain-text headings. */
-  function isPlain(el){
-    for(var i=0;i<el.childNodes.length;i++){
-      if(el.childNodes[i].nodeType!==3)return false;
-    }
-    return true;
-  }
-  function splitWords(el){
-    if(!el)return;
-    if(!isPlain(el))return;
-    var text=el.textContent;
-    var words=text.split(' ');
-    el.innerHTML=words.map(function(w,i){
-      return '<span class="word-wrap"><span class="word-inner" style="animation-delay:'+(i*0.07+0.05)+'s">'+escHtml(w||'')+'</span></span>';
-    }).join(' ');
-  }
-  var targets=[
-    document.querySelector('#crisis .sh'),
-    document.querySelector('#pillars .sh'),
-    document.querySelector('#path-finder .sh')
-  ].filter(Boolean);
-  if(!targets.length)return;
-  var wo=new IntersectionObserver(function(entries){
-    entries.forEach(function(en){
-      if(en.isIntersecting){splitWords(en.target);wo.unobserve(en.target);}
-    });
-  },{threshold:.4});
-  targets.forEach(function(t){wo.observe(t);});
-})();
-
-/* ── Crisis counter: flash on completion ── */
-(function(){
-  if(window.matchMedia('(prefers-reduced-motion:reduce)').matches)return;
-  document.querySelectorAll('.cs-val[data-count]').forEach(function(el){
-    var obs=new IntersectionObserver(function(entries){
-      entries.forEach(function(en){
-        if(!en.isIntersecting)return;
-        obs.unobserve(en.target);
-        setTimeout(function(){
-          en.target.classList.add('counted');
-          setTimeout(function(){en.target.classList.remove('counted');},500);
-        },1750);
-      });
-    },{threshold:.5});
-    obs.observe(el);
   });
 })();
 
