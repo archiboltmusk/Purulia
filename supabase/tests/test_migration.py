@@ -129,7 +129,9 @@ NEW_RULES = {'require_evidence_photo_check': 'true', 'voter_min_account_hours': 
 BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': '0', 'voter_min_prior_actions': '0',
             'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000',
             'quiet_start_hour': '0', 'quiet_end_hour': '0', 'require_live_report_photo': 'false',
-            'require_live_capture': 'false'}
+            'require_live_capture': 'false',
+            # Older scenarios are spread over several km, which is now "rural"; keep town numbers for them.
+            'rural_verify_quorum': '3', 'rural_min_distinct_networks': '2', 'rural_claim_expiry_days': '14'}
 
 
 def set_rules(values):
@@ -167,7 +169,8 @@ check('anon cannot write through the public view',
       'permission denied' in view_write or 'cannot update view' in view_write, view_write)
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
-PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review'}
+PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review',
+                         'area_kind', 'block_name', 'verify_needed'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
 open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
@@ -1009,13 +1012,47 @@ check('a report whose photo only claims to be live waits for a moderator',
 check("someone else's camera token doesn't count",
       report_m(user(), offset(-6500, 12000), capture='live', capture_token=cam_token(user()))['moderation_status'] == 'review')
 old_tok = cam_token(lc)
-admin_sql("update kasa_private.capture_tokens set issued_at = now() - interval '31 minutes' where token = %s", (old_tok,))
+admin_sql("update kasa_private.capture_tokens set issued_at = now() - interval '181 minutes' where token = %s", (old_tok,))
 check('an expired camera token (e.g. a report sent later from offline) waits for a moderator',
       report_m(lc, offset(-6000, 12000), capture='live', capture_token=old_tok)['moderation_status'] == 'review')
 check('camera tokens are private', refused(err(q, 'select * from kasa_private.capture_tokens', uid=lc)))
-admin_sql("update kasa_private.settings set value = '2'::jsonb where key = 'capture_tokens_per_hour'")
+admin_sql("update kasa_private.settings set value = '1'::jsonb where key = 'capture_tokens_per_hour'")
 check('camera tokens are rate-limited', err(cam_token, lc) == 'KASA_RATE_LIMIT')
 admin_sql("update kasa_private.settings set value = '30'::jsonb where key = 'capture_tokens_per_hour'")
+set_rules(BASELINE)
+
+# ─────────────────────────────── The whole district ───────────────────────────────
+set_rules({'rural_verify_quorum': '2', 'rural_min_distinct_networks': '1', 'rural_claim_expiry_days': '30'})
+check('a report outside Purulia district is refused', err(report, user(), where=(24.0, 86.0)) == 'KASA_OUTSIDE_AREA')
+town_user = user()
+town_spot = offset(-150, 150)
+town_r = rpc('kasa_create_report', uid=town_user, p_category='streetlight', p_severity='minor', p_lat=town_spot[0],
+             p_lng=town_spot[1], p_accuracy=10.0, p_ward_no=None, p_description=None, p_landmark=None,
+             p_photo_path=upload(town_user, 'reports'), p_client_id=None)
+town_row = view_row(town_r['id'])
+check('a report in town gets its ward from the ward map', town_row['area_kind'] == 'town' and town_row['ward_no'] is not None, town_row)
+jhalda = (23.3653, 85.9764)
+vil_user = user()
+vil = rpc('kasa_create_report', uid=vil_user, p_category='hand_pump', p_severity='severe', p_lat=jhalda[0], p_lng=jhalda[1],
+          p_accuracy=10.0, p_ward_no=7, p_description='Hand pump broken', p_landmark=None, p_photo_path=upload(vil_user, 'reports'),
+          p_client_id=None)
+vil_row = view_row(vil['id'])
+check('a village report is placed in its block, without a ward, and can use village categories',
+      vil_row['area_kind'] == 'rural' and vil_row['block_name'] == 'Jhalda I' and vil_row['ward_no'] is None
+      and vil_row['category'] == 'hand_pump', vil_row)
+check('rural reports publish how many confirmations they need', vil_row['verify_needed'] == 2 and town_row['verify_needed'] == 3)
+vcl = claim(user(), vil['id'], where=jhalda)
+check('a rural claim asks for the rural number of confirmations', vcl['verify_needed'] == 2, vcl)
+vv1, vv2 = user(), user()
+vote(vv1, vcl['claim_id'], where=jhalda, ip='10.90.0.1')
+vres = vote(vv2, vcl['claim_id'], where=jhalda, ip='10.90.0.2')
+check('two village confirmations on one network reach quorum', vres['final_after'] is not None, vres)
+check('the rules page gets the rural numbers', rpc('kasa_rules').get('rural_verify_quorum') == 2)
+check('an unknown category is still refused',
+      err(rpc, 'kasa_create_report', uid=vil_user, p_category='bogus', p_severity='minor', p_lat=jhalda[0], p_lng=jhalda[1] + 0.01,
+          p_accuracy=10.0, p_ward_no=None, p_description=None, p_landmark=None, p_photo_path=upload(vil_user, 'reports'),
+          p_client_id=None) == 'KASA_BAD_CATEGORY')
+check('boundary data is private', refused(err(q, 'select * from kasa_private.areas', uid=vil_user)))
 set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]
