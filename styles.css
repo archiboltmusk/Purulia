@@ -1648,3 +1648,25 @@ a:focus-visible{
   opacity: 1;
   background: rgba(0,0,0,.4);
 }
+
+/* ── Hero stability fixes ── */
+
+/* 1. Reserve the hero's exact height so it doesn't jump when the loader leaves */
+#hero{
+  min-height: 100vh;
+  min-height: 100dvh;
+}
+
+/* 2. Prevent the canvas from triggering layout shifts during resize */
+#heroCanvas{
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* 3. Anchor the loader as an overlay, not a flow element, so removing it
+      never moves anything underneath */
+#loader{
+  position: fixed;
+  inset: 0;
+}
