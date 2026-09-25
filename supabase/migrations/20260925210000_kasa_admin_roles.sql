@@ -16,6 +16,11 @@
 
 begin;
 
+create table if not exists public.admins (
+  user_id    uuid primary key references auth.users(id) on delete cascade,
+  created_at timestamptz default now()
+);
+alter table public.admins enable row level security;
 alter table public.admins add column if not exists role text;
 update public.admins set role = 'admin' where role is null;
 alter table public.admins alter column role set default 'moderator';

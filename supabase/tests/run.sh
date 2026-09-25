@@ -13,9 +13,8 @@ for db in kasa_legacy kasa_fresh; do
     for m in migrations/*.sql; do $P -d $db -f "$m" >/dev/null 2>&1; done
   done
   if [ $db = kasa_fresh ]; then
-    # Fresh projects have no admins table or legacy rows; seed one row so the suite's first lookup works.
-    $P -d $db -c "create table public.admins (user_id uuid primary key)" \
-              -c "insert into public.reports (lat, lng, status) values (23.3321, 86.3655, 'resolved')" \
+    # Fresh projects have no legacy rows; seed one so the suite's first lookup works.
+    $P -d $db -c "insert into public.reports (lat, lng, status) values (23.3321, 86.3655, 'resolved')" \
               -c "update public.reports set resolution_method = 'legacy_unverified'" >/dev/null
   fi
   echo "== $db"
