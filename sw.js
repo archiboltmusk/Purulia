@@ -2,7 +2,7 @@
    - keeps the page usable offline (reports queue and upload later)
    - shows "new report near you" alerts and opens the report when tapped */
 
-const VERSION = 'kasa-v2-33';
+const VERSION = 'kasa-v2-34';
 const SHELL = ['kasa.html', 'kasa.css', 'kasa.js', 'kasa-i18n.js', 'kasa-photo-meta.js', 'config.js', 'purulia_wards.geojson', 'purulia_blocks.geojson',
   'manifest.webmanifest', 'kasa-icon-192.png'];
 // Versioned CDN files never change, so they can be served straight from cache.

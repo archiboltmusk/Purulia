@@ -1945,11 +1945,14 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, photoMeta: null, lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '' };
+  return { category: null, photoBlob: null, photoMeta: null, lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '', locked: false };
 }
 
 function openReport(prefill){
   draft = newDraft();
+  // "Report again" reuses the original problem's exact spot on purpose (the citizen may not
+  // be standing there right now) — GPS must never overwrite that pin at photo-capture time.
+  draft.locked = !!prefill;
   // Village reports need the block map; if it arrives after the location, place the pin again.
   if (!state.blockGeo) loadBlockGeo().then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
   document.getElementById('k-ward-field').hidden = false;
@@ -2035,6 +2038,11 @@ async function captureReportPhoto(){
   note.hidden = true;
   note.textContent = '';
   updateSubmitState();
+  // GPS started fetching when the report modal opened, before the camera did — if the
+  // photo is taken somewhere else (opened the app, walked to the actual spot, shot it),
+  // that first fix is now stale. Re-check now that the photo is the real anchor point.
+  // "Report again" pins deliberately reuse the original spot and must stay untouched.
+  if (!draft.locked) useGPS();
 }
 
 function initMiniMap(){
