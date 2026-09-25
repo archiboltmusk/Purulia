@@ -1705,6 +1705,8 @@ function newDraft(){
 function openReport(prefill){
   draft = newDraft();
   document.getElementById('k-photo').value = '';
+  document.getElementById('k-photo-gallery').value = '';
+  document.getElementById('k-next-2').disabled = true;
   document.getElementById('k-photo-preview').innerHTML = '';
   document.getElementById('k-photo-note').hidden = true;
   document.getElementById('k-landmark').value = '';
@@ -1719,11 +1721,10 @@ function openReport(prefill){
     selectCategory(prefill.category, false);
     setLocation(prefill.lat, prefill.lng, null);
     document.getElementById('k-landmark').value = prefill.landmark || '';
-    goToStep(2);
   } else {
-    goToStep(1);
     useGPS();
   }
+  goToStep(1);
   openModal('k-modal');
 }
 
@@ -1759,7 +1760,7 @@ function selectCategory(key, advance = true){
   warn.hidden = !CATEGORIES[key].review;
   warn.textContent = CATEGORIES[key].review ? t('illegal_note') : '';
   renderCategoryGrid();
-  if (advance) goToStep(2);
+  if (advance) goToStep(3);
 }
 
 async function handlePhoto(file){
@@ -2251,7 +2252,9 @@ function wireUI(){
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
 
   document.getElementById('k-photo').addEventListener('change', e => handlePhoto(e.target.files[0]));
-  document.getElementById('k-next-2').addEventListener('click', () => goToStep(3));
+  document.getElementById('k-photo-gallery').addEventListener('change', e => handlePhoto(e.target.files[0]));
+  // A prefilled report ("same problem here") already has its category; skip straight to the location.
+  document.getElementById('k-next-2').addEventListener('click', () => goToStep(draft?.category ? 3 : 2));
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
   document.getElementById('k-submit').addEventListener('click', submitReport);

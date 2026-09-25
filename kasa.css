@@ -578,3 +578,4 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-list-search:focus{border-color:var(--amber);}
 .k-ward-groups{display:block;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
 .k-ward-groups.on{color:var(--green);}
+.k-photo-alt{display:block;margin:.7rem 0 .2rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);text-decoration:underline;text-underline-offset:3px;cursor:pointer;}

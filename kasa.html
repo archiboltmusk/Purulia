@@ -229,27 +229,29 @@
     <div class="k-steps-bar" aria-hidden="true"><i data-bar="1"></i><i data-bar="2"></i><i data-bar="3"></i></div>
 
     <div class="k-modal-step" data-step="1">
-      <h3 class="k-modal-title" id="k-step-title" data-i18n="step1_title">What's the problem?</h3>
-      <p class="k-modal-sub" data-i18n="step1_sub">Pick the closest match.</p>
-      <div class="k-cat-grid" id="k-cat-grid"></div>
-    </div>
-
-    <div class="k-modal-step" data-step="2" hidden>
-      <h3 class="k-modal-title" data-i18n="step2_title">Take a photo</h3>
+      <h3 class="k-modal-title" id="k-step-title" data-i18n="step2_title">Take a photo</h3>
       <p class="k-modal-sub" data-i18n="step2_sub">Show the problem clearly. Avoid people's faces and number plates.</p>
-      <div class="k-cat-warning" id="k-cat-warning" hidden></div>
       <label class="k-photo-input" for="k-photo">
         <span class="k-photo-icon" aria-hidden="true">📷</span>
-        <span class="k-photo-text" data-i18n="step2_photo">Tap to take or choose a photo</span>
+        <span class="k-photo-text" data-i18n="step1_camera">Open the camera</span>
       </label>
-      <input type="file" id="k-photo" accept="image/*" hidden>
+      <input type="file" id="k-photo" accept="image/*" capture="environment" hidden>
+      <label class="k-photo-alt" for="k-photo-gallery" data-i18n="step1_gallery">or choose a photo from your gallery</label>
+      <input type="file" id="k-photo-gallery" accept="image/*" hidden>
       <div class="k-photo-preview" id="k-photo-preview"></div>
       <div class="k-cat-warning" id="k-photo-note" hidden></div>
       <button type="button" class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>
+    </div>
+
+    <div class="k-modal-step" data-step="2" hidden>
+      <h3 class="k-modal-title" data-i18n="step1_title">What's the problem?</h3>
+      <p class="k-modal-sub" data-i18n="step1_sub">Pick the closest match.</p>
+      <div class="k-cat-grid" id="k-cat-grid"></div>
       <button type="button" class="k-btn k-btn-ghost" data-goto="1" data-i18n="back">← Back</button>
     </div>
 
     <div class="k-modal-step" data-step="3" hidden>
+      <div class="k-cat-warning" id="k-cat-warning" hidden></div>
       <h3 class="k-modal-title" data-i18n="step3_title">Where is it?</h3>
       <p class="k-modal-sub" data-i18n="step3_sub">Use your location if you're there, or tap the map.</p>
       <button type="button" class="k-btn k-btn-secondary" id="k-gps-btn" data-i18n="step3_gps">⊕ Use my location</button>

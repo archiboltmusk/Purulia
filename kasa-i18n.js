@@ -25,6 +25,7 @@ window.KASA_I18N = {
     trust_4: 'For {h} hours after that, anyone at the spot can dispute it. {dq} disputes throw the claim out and the report reopens. Repeat fake claimants are blocked.',
     trust_5: 'Every photo, confirmation and dispute stays on the public record. Moderators can remove abusive content, but nobody can mark a report fixed on their own.',
 
+    step1_camera: 'Open the camera', step1_gallery: 'or choose a photo from your gallery',
     footer_groups: 'Volunteer groups', wc_groups: '● {n} volunteer group(s) active here →', wc_groups_none: 'No volunteer group here yet. Start one →',
     footer_analytics: 'Analytics', footer_methodology: 'How we count',
     fixed_num: '✓ · Verified fixes', fixed_title: 'Recently fixed',
@@ -244,6 +245,7 @@ window.KASA_I18N = {
     trust_4: 'এরপর {h} ঘণ্টা ঘটনাস্থলের যে কেউ আপত্তি জানাতে পারেন। {dq}টি আপত্তিতে দাবি বাতিল হয় এবং রিপোর্ট আবার খোলে। বারবার ভুয়ো দাবি করলে ব্লক করা হয়।',
     trust_5: 'প্রতিটি ছবি, নিশ্চিতকরণ ও আপত্তি প্রকাশ্য রেকর্ডে থাকে। মডারেটর আপত্তিকর বিষয় সরাতে পারেন, কিন্তু কেউ একা কোনো রিপোর্টকে সমাধান বলে চিহ্নিত করতে পারেন না।',
 
+    step1_camera: 'ক্যামেরা খুলুন', step1_gallery: 'অথবা গ্যালারি থেকে ছবি বাছুন',
     footer_groups: 'স্বেচ্ছাসেবী দল', wc_groups: '● এখানে {n}টি স্বেচ্ছাসেবী দল সক্রিয় →', wc_groups_none: 'এখানে এখনও কোনো স্বেচ্ছাসেবী দল নেই। একটি শুরু করুন →',
     footer_analytics: 'পরিসংখ্যান', footer_methodology: 'কীভাবে গোনা হয়',
     fixed_num: '✓ · যাচাই করা সমাধান', fixed_title: 'সম্প্রতি সমাধান হয়েছে',
@@ -462,6 +464,7 @@ window.KASA_I18N = {
     trust_4: 'इसके बाद {h} घंटे तक मौके पर मौजूद कोई भी आपत्ति कर सकता है। {dq} आपत्तियों पर दावा रद्द होता है और रिपोर्ट फिर खुलती है। बार-बार फ़र्ज़ी दावे करने वाले ब्लॉक होते हैं।',
     trust_5: 'हर फ़ोटो, पुष्टि और आपत्ति सार्वजनिक रिकॉर्ड में रहती है। मॉडरेटर आपत्तिजनक सामग्री हटा सकते हैं, पर कोई अकेले किसी रिपोर्ट को ठीक नहीं बता सकता।',
 
+    step1_camera: 'कैमरा खोलें', step1_gallery: 'या गैलरी से फ़ोटो चुनें',
     footer_groups: 'स्वयंसेवी समूह', wc_groups: '● यहाँ {n} स्वयंसेवी समूह सक्रिय →', wc_groups_none: 'यहाँ अभी कोई स्वयंसेवी समूह नहीं। एक शुरू करें →',
     footer_analytics: 'आँकड़े', footer_methodology: 'हम कैसे गिनते हैं',
     fixed_num: '✓ · जाँची गई मरम्मत', fixed_title: 'हाल में ठीक हुआ',
