@@ -81,6 +81,10 @@ Kasa takes reports from the whole district. The server places each report from i
 - Rural cleanups use `rural_verify_quorum`, `rural_min_distinct_networks` and `rural_claim_expiry_days`.
 - Village accountability shows roles (Pradhan, BDO, DM, CDPO, BMOH and others), not names. MLA and MP names are shown only for Purulia town.
 
+## Official complaint channels on reports
+
+Every report's "Take it further" panel (`renderEscalate` in `kasa.js`) links the Chief Minister's helpline, the CM grievance e-mail, CPGRAMS for central schemes, WBSEDCL for power faults, and the state RTI portal. The state helpline changed after the 2026 election (now "Apnar Sarkar Apnar Pashe", 82820 82820, asap@wb.gov.in — checked September 2026). Re-check these whenever the government or a department changes them; a wrong number wastes people's time.
+
 ## Legal notices and takedown requests
 
 1. Every request goes to the Grievance Officer (`grievance@puruliakasa.in`, see `grievance.html`). Acknowledge it within 24 hours.

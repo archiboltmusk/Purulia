@@ -1275,8 +1275,31 @@ function renderAccountability(r){
         ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
         <div class="k-acc-reps">${reps}</div>
         <div class="k-acc-hint">${esc(t('acc_tap'))}</div>
+        ${renderEscalate(r)}
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
       </div>
+    </div>`;
+}
+
+/* Official channels with their own deadlines. Numbers checked September 2026; keep them current. */
+const STATE_HELPLINE = '8282082820';
+const STATE_HELPLINE_EMAIL = 'asap@wb.gov.in';
+const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
+function renderEscalate(r){
+  const msg = reportMessage(r);
+  const items = [
+    [`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: '82820 82820' }), t('esc_state_s')],
+    [`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent('Purulia — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]
+  ];
+  if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
+  if (r.category === 'streetlight') items.push(['https://www.wbsedcl.in/', t('esc_power'), t('esc_power_s')]);
+  items.push(['https://par.wb.gov.in/rtilogin.php', t('esc_rti'), t('esc_rti_s')]);
+  return `
+    <div class="k-escalate">
+      <div class="k-acc-reps-label">${esc(t('esc_title'))}</div>
+      <p class="k-esc-note">${esc(t('esc_note'))}</p>
+      ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
 }
 

@@ -582,3 +582,11 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-ward-groups{display:block;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
 .k-ward-groups.on{color:var(--green);}
 .k-photo-alt{display:block;margin:.7rem 0 .2rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
+
+.k-escalate{margin-top:1rem;}
+.k-esc-note{font-size:.8rem;color:var(--text-md);line-height:1.5;margin:.2rem 0 .6rem;text-align:center;}
+.k-esc-item{display:block;padding:.65rem .8rem;border:1px solid var(--border);border-radius:4px;margin-top:.45rem;color:var(--text-hi);text-decoration:none;}
+.k-esc-item:hover{border-color:var(--amber);}
+.k-esc-item b{display:block;font-size:.88rem;}
+.k-esc-item small{display:block;margin-top:.15rem;font-size:.76rem;color:var(--text-md);line-height:1.4;}
+.k-esc-copy{margin-top:.6rem;width:100%;}
