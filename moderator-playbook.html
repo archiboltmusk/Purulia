@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Parishkar Purulia — Moderator Playbook</title>
+<style>
+body { font-family: Georgia, serif; font-size: 15px; line-height: 1.7; max-width: 760px; margin: 40px auto; padding: 0 24px; color: #1a1a1a; }
+h1 { font-size: 24px; border-bottom: 2px solid #8a2a1f; padding-bottom: 8px; }
+h2 { font-size: 18px; margin-top: 36px; color: #8a2a1f; }
+h3 { font-size: 15px; margin-top: 24px; }
+code { background: #f3f0ea; padding: 2px 6px; border-radius: 3px; font-family: 'Courier New', monospace; font-size: 13px; }
+ul, ol { padding-left: 24px; }
+li { margin: 6px 0; }
+.callout { background: #fbeae7; border-left: 4px solid #8a2a1f; padding: 12px 18px; margin: 20px 0; }
+.warn { background: #fef3e2; border-left: 4px solid #d97706; padding: 12px 18px; margin: 20px 0; }
+table { width: 100%; border-collapse: collapse; margin-top: 16px; }
+th, td { text-align: left; padding: 10px; border-bottom: 1px solid #ddd; }
+th { background: #f5efe6; font-family: sans-serif; font-size: 13px; text-transform: uppercase; letter-spacing: 0.04em; }
+</style>
+</head>
+<body>
+
+<h1>Moderator Playbook — Parishkar Purulia</h1>
+<p style="color: #6b5d4f;">Version 1.0 · For the first moderator. Read once, then keep this open while you work.</p>
+
+<h2>1. What this platform is</h2>
+<p>Parishkar Purulia is a public record of civic problems across Purulia district. Citizens file reports with a live photo and GPS location. When someone claims a cleanup, other independent citizens on-site must confirm it — 3 confirmations in Purulia town, 2 in villages — before the report is marked resolved.</p>
+
+<div class="callout">
+<strong>Your job is not to decide who is right.</strong> Your job is to make sure the rules are followed, and to review the small number of cases where the rules produce an ambiguous result.
+</div>
+
+<h2>2. What you can and cannot do</h2>
+
+<table>
+<tr><th>You can</th><th>You cannot</th></tr>
+<tr><td>Approve a report or cleanup claim that has passed the checks</td><td>Mark a report resolved without on-site confirmation</td></tr>
+<tr><td>Reject a cleanup claim, with a written reason</td><td>Delete a report or its history</td></tr>
+<tr><td>Hide a report, with a written reason</td><td>See who filed a report (identities aren't stored)</td></tr>
+<tr><td>Hold a claim for further review</td><td>Change the rules (that needs a settings change, logged separately)</td></tr>
+<tr><td>Publish an official reply on a report</td><td>Post as "official" without verifying the sender first</td></tr>
+</table>
+
+<h2>3. Daily workflow (about 15 minutes)</h2>
+
+<ol>
+<li>Open the admin panel (<code>admin.html</code> on the live site) and sign in.</li>
+<li>Check the queue of claims held for review — these are the ones an automatic check couldn't resolve on its own.</li>
+<li>For each held claim, look at:
+  <ul>
+    <li>The original report photo and the cleanup photo</li>
+    <li>Distance from the reported spot (claim must be within 50 m; confirmations within 100 m)</li>
+    <li>Who confirmed it, how many, and from how many different networks</li>
+    <li>Whether the same confirmers keep showing up together (the system already flags this — see §5)</li>
+  </ul>
+</li>
+<li>Decide: approve, reject with a reason, or leave it for the second moderator if you're unsure.</li>
+<li>Every decision you make is already logged automatically with your action and reason — you don't need to keep a separate log.</li>
+</ol>
+
+<h2>4. What a good claim looks like</h2>
+<ul>
+  <li>Cleanup photo taken live, on-site, with GPS accuracy of 60 m or better</li>
+  <li>The claimant was within 50 m of the reported spot</li>
+  <li>Enough on-site confirmations from independent accounts (3 in town, 2 in a village) from at least 2 different networks (1 in a village, since villages often share one tower)</li>
+  <li>None of the confirmers has confirmed the same claimant's cleanups 3+ times together in the last 30 days — the system already checks this and holds the claim for you if it applies</li>
+</ul>
+
+<h2>5. What the system already catches for you</h2>
+<p>You'll only see a claim in the queue if something needs a human look. The server has already refused or held, before it reaches you:</p>
+<ul>
+  <li>Claims or votes not taken live, on the Parishkar Purulia camera</li>
+  <li>Photos reused from elsewhere, or older than 2 hours by the time they're submitted as evidence</li>
+  <li>Confirmers who aren't at least 3 days old with some prior activity on the platform</li>
+  <li>The same confirmer pair working together 3+ times in 30 days (sent to you, not auto-rejected — it might be a genuinely small, active neighbourhood)</li>
+  <li>Report photos Google Vision flags as unsafe, showing a face, or showing nothing that looks like a civic problem at all (a selfie, food, a screenshot) — held automatically, same queue</li>
+</ul>
+<p>So when something reaches you, treat it as a real judgment call, not a rubber stamp.</p>
+
+<div class="warn">
+<strong>If you are unsure, do not approve.</strong> Leave it for the second moderator once there is one. A false approval is worse than a delayed one.
+</div>
+
+<h2>6. What not to do</h2>
+<ul>
+  <li>Never try to work out or reveal who filed a report — the platform doesn't store that in a way you can see, and it should stay that way</li>
+  <li>Never accept money, gifts, or favours from anyone about a report</li>
+  <li>Never discuss a specific pending report in a WhatsApp group or on social media before it's decided</li>
+  <li>Never approve or reject a claim from your own ward or a report you have a personal stake in — ask the other moderator instead</li>
+  <li>Never reject a claim just because you personally doubt it without a documented reason (GPS, photo reuse, confirmer pattern, etc.)</li>
+</ul>
+
+<h2>7. If someone pressures or threatens you</h2>
+<p>If a councillor, official, party worker, or anyone else pressures or threatens you over a moderation decision:</p>
+<ol>
+  <li>Do not respond to them directly.</li>
+  <li>Save the message, screenshot, or recording.</li>
+  <li>Forward it to the other moderator and to whoever is coordinating the project.</li>
+  <li>Continue moderating on the merits, as usual.</li>
+</ol>
+
+<h2>8. Who to contact</h2>
+<ul>
+  <li>Second moderator: ____________________</li>
+  <li>Project coordinator: ____________________</li>
+  <li>Grievance Officer (legal matters, takedown requests): <code>grievance@parishkarpurulia.in</code> — <strong>placeholder: this domain is not registered yet; use the real current contact until it is</strong></li>
+</ul>
+
+<h2>9. The principle</h2>
+<p>Every correctly approved claim makes the public record stronger. Every correctly rejected fake claim protects the record's credibility. Your judgment is what makes the record trustworthy — that's the whole job.</p>
+
+</body>
+</html>
