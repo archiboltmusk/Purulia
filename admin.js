@@ -25,35 +25,51 @@ document.getElementById('adLoginBtn').addEventListener('click', tryLogin);
 document.getElementById('adPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
 
 async function tryLogin(){
+  const errEl = document.getElementById('adError');
+  errEl.textContent = '';
   const email = document.getElementById('adEmail').value.trim();
   const password = document.getElementById('adPassword').value;
   if (!email || !password){
-    document.getElementById('adError').textContent = 'Email and password required.';
+    errEl.textContent = 'Email and password required.';
     return;
   }
   const btn = document.getElementById('adLoginBtn');
   btn.disabled = true; btn.textContent = 'Signing in…';
   if (TURNSTILE_SITE_KEY && !captchaToken){
-    document.getElementById('adError').textContent = 'Complete the human check first.';
+    errEl.textContent = 'Complete the human check first.';
     btn.disabled = false; btn.textContent = 'Continue →';
     return;
   }
-  const { data, error } = await sb.auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
-  captchaToken = null;
-  if (error && window.turnstile) window.turnstile.reset('#adCaptcha');
-  if (error){
-    document.getElementById('adError').textContent = error.message;
+  // Whatever happens inside here — a real error, an unexpected response shape, a dropped
+  // connection — the button must never end up stuck on "Signing in…" with no explanation.
+  try {
+    const { data, error } = await sb.auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
+    captchaToken = null;
+    if (error){
+      if (window.turnstile) window.turnstile.reset('#adCaptcha');
+      errEl.textContent = error.message;
+      return;
+    }
+    if (!data?.user){
+      errEl.textContent = 'Sign-in did not return an account. Please try again.';
+      return;
+    }
+    const { data: adminRow, error: adminErr } = await sb.from('admins').select('user_id').eq('user_id', data.user.id).maybeSingle();
+    if (adminErr){
+      errEl.textContent = 'Could not confirm admin access: ' + (adminErr.message || 'unknown error');
+      return;
+    }
+    if (!adminRow){
+      await sb.auth.signOut();
+      errEl.textContent = 'Not an admin account.';
+      return;
+    }
+    showDashboard();
+  } catch (e){
+    errEl.textContent = 'Something went wrong (' + (e?.message || String(e)) + '). Check your connection and try again.';
+  } finally {
     btn.disabled = false; btn.textContent = 'Continue →';
-    return;
   }
-  const { data: adminRow } = await sb.from('admins').select('user_id').eq('user_id', data.user.id).single();
-  if (!adminRow){
-    await sb.auth.signOut();
-    document.getElementById('adError').textContent = 'Not an admin account.';
-    btn.disabled = false; btn.textContent = 'Continue →';
-    return;
-  }
-  showDashboard();
 }
 
 document.getElementById('adSignout').addEventListener('click', async () => {
@@ -66,7 +82,7 @@ document.getElementById('adRefreshBtn').addEventListener('click', loadAll);
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
   if (session){
-    const { data: adminRow } = await sb.from('admins').select('user_id').eq('user_id', session.user.id).single();
+    const { data: adminRow } = await sb.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle();
     if (adminRow) showDashboard();
   }
 })();
