@@ -574,7 +574,7 @@ const api = {
   async events(id){
     if (state.mode !== 'v2') return [];
     const { data, error } = await sb.from('kasa_public_events')
-      .select('id,kind,actor_tag,photo_url,distance_m,detail,created_at').eq('report_id', id).order('created_at');
+      .select('id,kind,actor_tag,photo_url,distance_m,detail,created_at').eq('report_id', id).order('created_at').order('id');
     if (error){ console.warn('Kasa: events load failed', error); return []; }
     return data || [];
   }
@@ -1237,6 +1237,7 @@ function renderTimelineHTML(r){
     if (e.distance_m != null) bits.push(t('tl_dist', { d: e.distance_m }));
     if (e.kind === 'reported' && d.gps) bits.push(t('tl_gps', { a: d.accuracy_m }));
     if (e.kind === 'claim_rejected' && d.reason) bits.push(d.reason === 'disputed_on_site' ? t('rej_disputed_on_site') : String(d.reason));
+    if (e.kind === 'claim_held' && d.reason) bits.push(t('held_' + d.reason));
     if (e.kind === 'resolved') bits.push(t('tl_counts', { v: d.verify_count ?? '?', d: d.dispute_count ?? 0 }));
     if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason) + (d.suggested_category ? ' → ' + t('cat_' + d.suggested_category) : ''));
     if (e.kind === 'recategorized' && d.to) bits.push(`${t('cat_' + d.from)} → ${t('cat_' + d.to)}${d.reason ? ' · ' + d.reason : ''}`);
@@ -1680,7 +1681,7 @@ async function submitEvidence(){
     else if (res.needs_review) msg = t('ev_done_held');
     else if (res.claim_status === 'rejected') msg = t('ev_done_rejected');
     else if (res.claim_status === 'accepted') msg = t('ev_resolved');
-    else if (mode === 'verify' && res.final_after) msg = t('ev_done_quorum', { h: state.rules.challenge_hours });
+    else if (mode === 'verify' && res.final_after) msg = t('ev_done_quorum_at', { at: new Date(res.final_after).toLocaleString(undefined, { weekday: 'short', hour: 'numeric', minute: '2-digit' }) });
     else if (mode === 'verify') msg = t('ev_done_verify', { v: res.verify_count, q });
     else msg = t('ev_done_dispute', { d: res.dispute_count, dq });
     showToast(msg, 6000);

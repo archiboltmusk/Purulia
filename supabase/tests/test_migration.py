@@ -124,9 +124,11 @@ def view_row(rid):
 
 
 NEW_RULES = {'require_evidence_photo_check': 'true', 'voter_min_account_hours': '72', 'voter_min_prior_actions': '1',
-             'trusted_prior_actions': '3', 'confirm_same_claimant_days': '7', 'max_travel_kmh': '150'}
+             'trusted_prior_actions': '3', 'confirm_same_claimant_days': '7', 'max_travel_kmh': '150',
+             'quiet_start_hour': '22', 'quiet_end_hour': '6'}
 BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': '0', 'voter_min_prior_actions': '0',
-            'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000'}
+            'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000',
+            'quiet_start_hour': '0', 'quiet_end_hour': '0'}
 
 
 def set_rules(values):
@@ -297,8 +299,8 @@ check("reporter can't inflate their own report", not s3['counted'], s3)
 
 check("can't flag your own report", err(rpc, 'kasa_flag_report', uid=alice, p_report_id=str(rid), p_reason='duplicate') == 'KASA_OWN_REPORT')
 flaggers = [user() for _ in range(3)]
-for f in flaggers:
-    rpc('kasa_flag_report', uid=f, p_report_id=str(rid), p_reason='not_an_issue')
+for i, f in enumerate(flaggers):
+    rpc('kasa_flag_report', uid=f, ip=f'10.9.{i}.1', p_report_id=str(rid), p_reason='not_an_issue')
 again = rpc('kasa_flag_report', uid=flaggers[0], p_report_id=str(rid), p_reason='not_an_issue')
 row = view_row(rid)
 check('flags mark a report for review but never hide it', row and row['moderation_status'] == 'flagged' and not again['counted'], row)
@@ -915,6 +917,77 @@ check('a community registers as pending',
 check('pending communities are not public', q('select count(*) from public.kasa_public_communities')[0][0] == 0)
 check('coordinator contacts are never public',
       'coordinator_contact' not in [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_communities'")])
+
+# ─────────────────────── Claim integrity (rings, cooldown, night, flags, times) ───────────────────────
+def final_after(ts):
+    return q("select to_char(kasa_private.claim_final_after(%s::timestamptz) at time zone 'Asia/Kolkata', 'YYYY-MM-DD HH24:MI')",
+             (ts,), role='postgres')[0][0]
+
+
+set_rules(NEW_RULES)
+check('a daytime quorum becomes final 12 hours later', final_after('2026-09-25 09:00+05:30') == '2026-09-25 21:00')
+check('a quorum at 23:00 only starts counting at 06:00', final_after('2026-09-25 23:00+05:30') == '2026-09-26 18:00')
+check('a quorum at 20:00 counts 2 hours tonight and 10 tomorrow', final_after('2026-09-25 20:00+05:30') == '2026-09-26 16:00')
+check('a quorum at 03:00 is final at 18:00 the same day', final_after('2026-09-26 03:00+05:30') == '2026-09-26 18:00')
+
+set_rules(BASELINE)
+ring_a, ring_b, ring_c, ring_d = user(), user(), user(), user()
+for i in range(3):
+    sp = offset(-9000 + i * 1000, 12000)
+    rr = report(user(), where=sp)[0]['id']
+    rc = claim(user(), rr, where=sp)['claim_id']
+    vote(ring_a, rc, where=sp, ip='10.70.1.1')
+    vote(ring_b, rc, where=sp, ip='10.70.2.1')
+
+
+def ring_claim(voters, n):
+    sp = offset(-5000 + n * 1000, 12000)
+    rr = report(user(), where=sp)[0]['id']
+    rc = claim(user(), rr, where=sp)['claim_id']
+    for j, v_ in enumerate(voters):
+        vote(v_, rc, where=sp, ip=f'10.71.{j}.1')
+    return rc, admin_sql('select quorum_reached_at is not null, needs_review from kasa_private.claims where id = %s', (rc,))[0]
+
+
+rc1, st1 = ring_claim((ring_a, ring_b, ring_c), 0)
+check('two confirmers who keep confirming together send the quorum to a moderator', st1 == (True, True), st1)
+check('...and the timeline says why', any(e.get('reason') == 'confirmers_often_together'
+      for e in [r[0] for r in admin_sql("select detail from kasa_private.events where claim_id = %s and kind = 'claim_held'", (rc1,))]))
+rc2, st2 = ring_claim((ring_a, ring_c, ring_d), 1)
+check('confirmers who have not worked together pass normally', st2 == (True, False), st2)
+
+serial = user()
+for i in range(3):
+    sp = offset(-1000 + i * 1000, 12000)
+    rr = report(user(), where=sp)[0]['id']
+    admin_sql("update kasa_private.claims set status = 'rejected', decided_at = now() - interval '1 day' where id = %s",
+              (claim(serial, rr, where=sp)['claim_id'],))
+    admin_sql("update public.reports set status = 'open', claim_id = null where id::text = %s", (str(rr),))
+sp = offset(3000, 12000)
+rr = report(user(), where=sp)[0]['id']
+check('three rejected claims in 30 days pause claiming', err(claim, serial, rr, where=sp) == 'KASA_CLAIMS_PAUSED')
+admin_sql("update kasa_private.claims set decided_at = now() - interval '31 days' where claimant_id = %s", (serial,))
+check('...and the pause ends after 30 days', claim(serial, rr, where=sp)['status'] == 'claimed')
+
+set_rules(NEW_RULES)
+fl_res = report_text(user(), offset(5000, 12000), 'Pile of waste')
+for i in range(3):
+    last = rpc('kasa_flag_report', uid=user('1 day'), ip=f'10.80.{i}.1', p_report_id=str(fl_res['id']), p_reason='not_an_issue')
+check('flags from brand-new accounts are recorded but do not trigger review',
+      last['counted'] and last['weighs'] is False and view_row(fl_res['id'])['moderation_status'] == 'approved', last)
+for i in range(3):
+    last = rpc('kasa_flag_report', uid=with_history(), ip=f'10.81.0.{i + 1}', p_report_id=str(fl_res['id']), p_reason='not_an_issue')
+check('three established flaggers on one network do not trigger review',
+      last['weighs'] and view_row(fl_res['id'])['moderation_status'] == 'approved', last)
+last = rpc('kasa_flag_report', uid=with_history(), ip='10.82.0.1', p_report_id=str(fl_res['id']), p_reason='not_an_issue')
+check('established flaggers from two networks do', view_row(fl_res['id'])['moderation_status'] == 'flagged', last)
+set_rules(BASELINE)
+
+tr = view_row(fl_res['id'])
+check('public report times are rounded to the hour', tr['created_at'][14:19] == '00:00', tr['created_at'])
+ev_times = [r[0] for r in q('select to_char(created_at, \'MI:SS\') from public.kasa_public_events where report_id::text = %s',
+                            (str(fl_res['id']),))]
+check('public event times are rounded to the hour', ev_times and set(ev_times) == {'00:00'}, ev_times)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

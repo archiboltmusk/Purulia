@@ -39,7 +39,7 @@
   <a href="kasa.html" class="legal-back">← Back to Purulia Kasa</a>
 
   <h1 class="legal-title">How we <em>count</em></h1>
-  <div class="legal-meta">Rules as of 24 September 2026 · They run on the server, so the website cannot skip them</div>
+  <div class="legal-meta">Rules as of 25 September 2026 · They run on the server, so the website cannot skip them</div>
 
   <div class="legal-body">
 
@@ -54,7 +54,7 @@
       <li><strong>Same problem reported again:</strong> a report of the same category within 25 m of an open report from the last 72 hours is linked to the first one instead of counted twice. The second person counts as a witness ("seen by").</li>
       <li><strong>Came back:</strong> a report within 25 m of a problem marked fixed in the last 60 days is recorded as a recurrence of it.</li>
       <li><strong>Waiting for a moderator before it appears:</strong> encroachment and illegal-activity reports; photos showing faces or marked as AI-made; text that accuses a named person (for example "thief", "bribe", "corrupt") or contains a phone number, ID number or e-mail address. Reports with abusive words are refused.</li>
-      <li><strong>Visible but marked "under review":</strong> a report flagged by 3 people, or rated doubtful by 3 neighbours on the spot, or whose photo's own GPS is more than 500 m from the pin. It stays on the map with that label until a moderator decides.</li>
+      <li><strong>Visible but marked "under review":</strong> a report flagged by 3 established accounts (at least 3 days old, with earlier activity on Kasa) from at least 2 different networks, or rated doubtful by 3 neighbours on the spot, or whose photo's own GPS is more than 500 m from the pin. It stays on the map with that label until a moderator decides.</li>
       <li>Moderators can publish or hide a report and correct its category. They cannot mark a report fixed. Every moderator action is recorded, with its reason, in the report's public history.</li>
     </ul>
 
@@ -63,10 +63,11 @@
     <ol>
       <li><strong>Claim.</strong> Anyone, officials included, claims the cleanup with a new photo taken within 50 m of the spot, with GPS accurate to 60 m or better. The photo must pass the server photo check (reused and copied photos are refused).</li>
       <li><strong>Confirm.</strong> 3 other people, each within 100 m of the spot with a new photo of their own, confirm it. They must come from at least 2 different internet networks. Their accounts must have existed for at least 3 days before the claim and must have done something else on Kasa before. One person can confirm the same claimant's cleanups only once a week.</li>
-      <li><strong>Wait.</strong> For 12 hours after the third confirmation, anyone on the spot can still dispute it.</li>
-      <li><strong>Fixed.</strong> If nothing stops it, the report becomes fixed. If none of the confirmers has much history (fewer than 3 earlier actions), a moderator must clear it first.</li>
+      <li><strong>Wait.</strong> For 12 daytime hours after the third confirmation, anyone on the spot can still dispute it. Hours between 10 pm and 6 am don't count, so a claim confirmed late at night stays open until the next evening.</li>
+      <li><strong>Fixed.</strong> If nothing stops it, the report becomes fixed. A moderator must clear it first if none of the confirmers has much history (fewer than 3 earlier actions), or if two of the confirmers have confirmed 3 or more other cleanups together in the last 30 days.</li>
     </ol>
     <p><strong>Disputes:</strong> 2 disputes from 2 different networks throw the claim out and reopen the report. 2 disputes from one network send it to a moderator instead. A claim that doesn't get enough confirmations within 14 days expires and the report reopens.</p>
+    <p><strong>Repeated failed claims:</strong> a person with 3 claims thrown out within 30 days can't claim cleanups for the next 30 days. They can still report, confirm and dispute. After 3 claims thrown out by a moderator, they can't claim at all.</p>
     <p><strong>Fake cleanup caught:</strong> a claim thrown out by disputes or by a moderator. It is counted against the ward.</p>
 
     <h2>3. Other checks against faking</h2>
@@ -74,6 +75,8 @@
       <li>An account's actions are refused if its GPS position jumped faster than 150 km/h since its previous action.</li>
       <li>The same photo, or a near-copy taken somewhere else, can't be used twice.</li>
       <li>Photos marked as made or edited with AI can't be used as cleanup evidence.</li>
+      <li>Paying or arranging people to confirm a cleanup is against the <a href="terms.html">Terms</a> and may be a criminal offence.</li>
+      <li>Public times are shown to the nearest hour, so a report or confirmation can't be matched to when someone was at a place.</li>
       <li>Accounts are anonymous. To tell networks apart, the server keeps only a scrambled code of the first part of the internet address, never the address itself.</li>
     </ul>
     <p><strong>Limits:</strong> a determined person can still fake a phone's GPS or prepare several accounts in advance. That is why confirmations need several people, several networks, established accounts and a waiting period, and why doubtful cases go to a moderator.</p>
