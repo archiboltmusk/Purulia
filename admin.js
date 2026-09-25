@@ -198,6 +198,9 @@ async function loadSla(){
   } catch(e){ el.innerHTML = '<div class="ad-empty">Could not load.</div>'; }
 }
 
+const CATEGORY_KEYS = ['garbage', 'drain', 'road', 'streetlight', 'water', 'missing', 'encroachment',
+  'illegal_construction', 'illegal_mining', 'illegal_other', 'other'];
+
 async function loadResolutions(){
   const { data, error } = await sb.rpc('kasa_admin_queue');
   if (!error) return renderModeration(data);
@@ -231,11 +234,15 @@ function renderModeration(q){
             ${new Date(r.created_at).toLocaleString('en-IN')}
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
             ${r.moderation_labels?.text ? ' · text needs review: ' + esc(r.moderation_labels.text) : ''}
-            ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
+            ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.suggested_category ? ' → ' + esc(f.suggested_category) : '') + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
         </div>
         <div class="ad-actions">
           <button class="ad-ok" data-mod="approve" data-id="${esc(r.id)}">✓ Publish / keep</button>
           <button class="ad-bad" data-mod="hide" data-id="${esc(r.id)}">✕ Hide</button>
+          <select class="ad-recat-sel" data-recat-sel="${esc(r.id)}" aria-label="Category">
+            ${CATEGORY_KEYS.map(k => `<option value="${k}"${k === r.category ? ' selected' : ''}>${k}</option>`).join('')}
+          </select>
+          <button class="ad-ok" data-recat="${esc(r.id)}">Change category</button>
         </div>
       </div>
       <div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>
@@ -269,6 +276,14 @@ function renderModeration(q){
     '<div class="ad-empty">Nothing waiting. 🎉</div>';
 
   el.querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => moderate(b.dataset.id, b.dataset.mod)));
+  el.querySelectorAll('[data-recat]').forEach(b => b.addEventListener('click', async () => {
+    const cat = el.querySelector(`[data-recat-sel="${b.dataset.recat}"]`).value;
+    const reason = prompt('Public reason for the new category (shown in the report history):');
+    if (!reason) return;
+    const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: b.dataset.recat, p_category: cat, p_reason: reason });
+    if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+    loadResolutions();
+  }));
   el.querySelectorAll('[data-reject-claim]').forEach(b => b.addEventListener('click', () => rejectClaim(b.dataset.rejectClaim)));
   el.querySelectorAll('[data-void]').forEach(b => b.addEventListener('click', () => voidVote(b.dataset.void)));
   el.querySelectorAll('[data-clear-vote]').forEach(b => b.addEventListener('click', () => clearHeld('vote', b.dataset.clearVote)));

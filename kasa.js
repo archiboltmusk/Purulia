@@ -82,10 +82,11 @@ function repAvatar(rep, cls){
 }
 // A photo that fails to load leaves the initials showing.
 document.addEventListener('error', e => { if (e.target.classList?.contains('k-rep-photo')) e.target.remove(); }, true);
-const FLAG_REASONS = ['not_an_issue', 'wrong_location', 'duplicate', 'inappropriate', 'fake_or_old_photo', 'other'];
+const FLAG_REASONS = ['not_an_issue', 'wrong_category', 'wrong_location', 'duplicate', 'inappropriate', 'fake_or_old_photo', 'other'];
 
 /* ── State ── */
 const state = {
+  listQuery: '',
   fixConfirms: {},        // report id -> confirmations when it was verified fixed
   mode: null,              // 'v2' once the migration is live, else 'legacy'
   rules: { ...DEFAULT_RULES },
@@ -186,6 +187,7 @@ async function init(){
   renderTrust();
   mapReady.then(() => { addWardLayers(); updateMap(); });
   openDeepLink();
+  if (!location.hash && !location.search) mapReady.then(locateOnOpen);
   syncOfflineQueue();
 
   if (state.mode === 'v2'){
@@ -507,14 +509,15 @@ const api = {
     return data;
   },
 
-  async flag(r, reason, note){
+  async flag(r, reason, note, suggested){
     if (state.mode !== 'v2'){
       const { data, error } = await sb.rpc('flag_report', { p_report_id: r.id, p_reporter_hash: await getReporterHash(), p_reason: reason });
       if (error) throw rpcError(error);
       return { counted: !!data };
     }
     await ensureSession();
-    const { data, error } = await sb.rpc('kasa_flag_report', { p_report_id: r.id, p_reason: reason, p_note: note || null });
+    const { data, error } = await sb.rpc('kasa_flag_report', { p_report_id: r.id, p_reason: reason, p_note: note || null,
+      p_suggested_category: reason === 'wrong_category' ? suggested : null });
     if (error) throw rpcError(error);
     return data;
   },
@@ -798,9 +801,17 @@ function sortReports(list){
   return [...list].sort((a, b) => doubt(a) - doubt(b) || by(a, b));
 }
 
+function matchesQuery(r, q){
+  if (!q) return true;
+  if (/^\d+$/.test(q)) return r.ward === Number(q);
+  const hay = [r.landmark, r.description, t('cat_' + r.category), I18N.en['cat_' + r.category], r.ward ? t('acc_ward', { n: r.ward }) : '']
+    .join(' ').toLowerCase();
+  return q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
+}
+
 function renderList(){
   if (state.view !== 'list') return;
-  const list = sortReports(filtered().filter(onMap));
+  const list = sortReports(filtered().filter(onMap).filter(r => matchesQuery(r, state.listQuery)));
   document.getElementById('k-list-count').textContent = t('list_count', { n: list.length });
   const box = document.getElementById('k-list-items');
   if (!list.length){ box.innerHTML = `<div class="k-lb-empty">${esc(t('list_empty'))}</div>`; return; }
@@ -812,7 +823,7 @@ function renderList(){
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
         <span class="k-list-where">${esc(r.landmark || t('acc_ward', { n: r.ward ?? '?' }))}${r.landmark && r.ward ? ' · ' + esc(t('acc_ward', { n: r.ward })) : ''}</span>
-        <span class="k-list-meta">${statusChip(r)} <span>${esc(t('list_seen', { n: peopleSaw(r) }))}</span> <span>${esc(ago(r.createdAt))}</span></span>
+        <span class="k-list-meta">${statusChip(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
   }).join('');
@@ -1216,7 +1227,8 @@ function renderTimelineHTML(r){
     if (e.kind === 'reported' && d.gps) bits.push(t('tl_gps', { a: d.accuracy_m }));
     if (e.kind === 'claim_rejected' && d.reason) bits.push(d.reason === 'disputed_on_site' ? t('rej_disputed_on_site') : String(d.reason));
     if (e.kind === 'resolved') bits.push(t('tl_counts', { v: d.verify_count ?? '?', d: d.dispute_count ?? 0 }));
-    if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason));
+    if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason) + (d.suggested_category ? ' → ' + t('cat_' + d.suggested_category) : ''));
+    if (e.kind === 'recategorized' && d.to) bits.push(`${t('cat_' + d.from)} → ${t('cat_' + d.to)}${d.reason ? ' · ' + d.reason : ''}`);
     if (['reported', 'claimed', 'verified', 'disputed'].includes(e.kind)){
       if (d.capture === 'live') bits.push(t('tl_live'));
       else if (d.capture === 'file') bits.push(t('tl_file'));
@@ -1309,7 +1321,19 @@ function openFlag(id){
   const submit = document.getElementById('k-flag-submit');
   submit.disabled = true;
   submit.dataset.id = id;
-  box.onchange = () => { submit.disabled = !box.querySelector('input:checked'); };
+  const r = state.byId.get(id);
+  const catWrap = document.getElementById('k-flag-cat-wrap');
+  const catSel = document.getElementById('k-flag-cat');
+  catSel.innerHTML = `<option value="">${esc(t('flag_pick_category'))}</option>` + Object.keys(CATEGORIES)
+    .filter(k => k !== r?.category).map(k => `<option value="${k}">${CATEGORIES[k].icon} ${esc(t('cat_' + k))}</option>`).join('');
+  catWrap.hidden = true;
+  const update = () => {
+    const reason = box.querySelector('input:checked')?.value;
+    catWrap.hidden = reason !== 'wrong_category';
+    submit.disabled = !reason || (reason === 'wrong_category' && !catSel.value);
+  };
+  box.onchange = update;
+  catSel.onchange = update;
   openModal('k-flag-modal');
 }
 
@@ -1320,7 +1344,7 @@ async function submitFlag(){
   if (!r || !reason) return;
   submit.disabled = true;
   try {
-    const res = await api.flag(r, reason, document.getElementById('k-flag-note').value.trim());
+    const res = await api.flag(r, reason, document.getElementById('k-flag-note').value.trim(), document.getElementById('k-flag-cat').value);
     closeModal('k-flag-modal');
     showToast(t(res.counted ? 'flag_done' : 'flag_dup'));
     if (res.counted){ r.flags += 1; if (res.under_review) r.flagged = true; renderSheet(); }
@@ -2231,15 +2255,55 @@ function wireUI(){
   document.getElementById('k-cam-close').addEventListener('click', () => closeCamera({ error: 'cancelled' }));
   document.getElementById('k-ev-submit').addEventListener('click', submitEvidence);
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
+  document.getElementById('k-list-search').addEventListener('input', e => { state.listQuery = e.target.value.trim(); renderList(); });
+
+  // Tap a report photo to see it full screen.
+  document.addEventListener('click', e => {
+    const img = e.target.closest('.k-sheet-photo img, .k-ba img, .k-tl-photo img, .k-ev-proof img');
+    if (!img) return;
+    e.preventDefault();
+    openLightbox(img.currentSrc || img.src, img.alt);
+  });
   document.getElementById('k-qr-btn').addEventListener('click', openQR);
 
   document.addEventListener('keydown', e => {
     if (e.key !== 'Escape') return;
+    if (document.getElementById('k-lightbox')) return closeLightbox();
     if (!document.getElementById('k-cam').hidden) return closeCamera({ error: 'cancelled' });
     const open = [...document.querySelectorAll('.k-modal.open')].pop();
     if (open) closeModal(open.id);
   });
 }
+
+// Centre the map on the visitor, only if they already allowed location (no prompt on page load).
+async function locateOnOpen(){
+  try {
+    if (!navigator.geolocation || !navigator.permissions?.query) return;
+    const st = await navigator.permissions.query({ name: 'geolocation' });
+    if (st.state !== 'granted') return;
+    showToast(t('locating_you'));
+    navigator.geolocation.getCurrentPosition(p => {
+      const { latitude: lat, longitude: lng } = p.coords;
+      const b = state.rules.bbox;
+      if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)) return;
+      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
+    }, () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
+  } catch (e) {}
+}
+
+function openLightbox(src, alt){
+  closeLightbox();
+  const box = document.createElement('div');
+  box.id = 'k-lightbox';
+  box.className = 'k-lightbox';
+  box.setAttribute('role', 'dialog');
+  box.setAttribute('aria-modal', 'true');
+  box.innerHTML = `<img src="${esc(src)}" alt="${esc(alt || '')}"><button type="button" class="k-lightbox-close" aria-label="${esc(t('sheet_close'))}">✕</button>`;
+  box.addEventListener('click', closeLightbox);
+  document.body.appendChild(box);
+}
+
+function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
 
 function openModal(id){
   const m = document.getElementById(id);

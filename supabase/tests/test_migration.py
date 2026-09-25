@@ -174,7 +174,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -514,7 +514,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -893,6 +893,28 @@ check('one network is limited to 5 sign-ups an hour', err(rpc, 'p2040_submit', i
 check('sign-ups are not readable by the public', 'permission denied' in (err(q, 'select * from kasa_private.signups') or ''))
 check('only moderators can list sign-ups', 'permission denied' in (err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) or '') or
       err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) == 'KASA_NOT_ADMIN')
+
+# ─────────────────────── Wrong-category flags and communities ───────────────────────
+wc_owner, wc_flagger = user(), user()
+wc_res, _ = report(wc_owner, where=offset(8200, -4000))
+check('a wrong-category flag needs a different, valid category',
+      err(rpc, 'kasa_flag_report', uid=wc_flagger, p_report_id=str(wc_res['id']), p_reason='wrong_category', p_note=None,
+          p_suggested_category='garbage') == 'KASA_BAD_CATEGORY')
+check('a wrong-category flag with a suggestion is counted',
+      rpc('kasa_flag_report', uid=wc_flagger, p_report_id=str(wc_res['id']), p_reason='wrong_category', p_note=None,
+          p_suggested_category='road').get('counted') is True)
+check('only moderators can change a category',
+      err(rpc, 'kasa_admin_recategorize', uid=wc_flagger, p_report_id=str(wc_res['id']), p_category='road', p_reason='x') == 'KASA_NOT_ADMIN')
+check('a community needs an adult coordinator',
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', p_name='Ward 5 Youth Club', p_kind='youth_club', p_wards='{5}',
+          p_description=None, p_public_contact=None, p_coordinator_contact='x@example.com', p_adult=False) == 'KASA_ADULT_REQUIRED')
+check('a community registers as pending',
+      rpc('kasa_register_community', ip='10.50.0.1', p_name='Ward 5 Youth Club', p_kind='youth_club', p_wards='{5,6}',
+          p_description='Sunday cleanups', p_public_contact='wa.me/911234', p_coordinator_contact='x@example.com',
+          p_adult=True).get('status') == 'pending')
+check('pending communities are not public', q('select count(*) from public.kasa_public_communities')[0][0] == 0)
+check('coordinator contacts are never public',
+      'coordinator_contact' not in [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_communities'")])
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

@@ -25,6 +25,7 @@ window.KASA_I18N = {
     trust_4: 'For {h} hours after that, anyone at the spot can dispute it. {dq} disputes throw the claim out and the report reopens. Repeat fake claimants are blocked.',
     trust_5: 'Every photo, confirmation and dispute stays on the public record. Moderators can remove abusive content, but nobody can mark a report fixed on their own.',
 
+    footer_analytics: 'Analytics', footer_methodology: 'How we count',
     fixed_num: '✓ · Verified fixes', fixed_title: 'Recently fixed',
     fixed_sub: 'Problems that neighbours went back and confirmed were fixed, and how fast it happened.',
     fixed_empty: 'No verified fixes yet. The first one confirmed by neighbours will appear here.',
@@ -74,7 +75,8 @@ window.KASA_I18N = {
     done_wa: 'Notify Municipality on WhatsApp →', done_share: 'Share this report', done_close: 'Done',
 
     head_open: 'Unresolved', head_claimed: 'Cleanup claimed · verifying', head_resolved: 'Resolved', head_resolved_legacy: 'Resolved · not verified',
-    chip_pending: 'Waiting to upload', days_open: '{n}d open', list_count: '{n} reports', list_empty: 'No reports match these filters.', list_seen: '👁 {n}',
+    chip_pending: 'Waiting to upload', days_open: '{n}d open', list_count: '{n} reports', list_empty: 'No reports match these filters.', list_seen: 'Seen by {n} people', list_seen_one: 'Seen by the reporter',
+    list_search: 'Search ward number, place or problem', locating_you: 'Locating you on the map…',
     sheet_anonymous: 'All reports are anonymous', sheet_allegation: 'A citizen report — an allegation, not a verified fact.', sheet_terms: 'Terms',
     sheet_seen_btn: 'I saw this too', sheet_seen_done: 'You saw this',
     sheet_directions: 'Get directions', sheet_gps: 'Located by GPS', sheet_pinned: 'Pinned on map',
@@ -166,7 +168,8 @@ window.KASA_I18N = {
 
     flag_title: 'Flag as incorrect', flag_sub: "Flags send the report to a moderator. They can't hide or close it.",
     flag_note: 'Details (optional)', flag_submit: 'Send flag', flag_done: 'Flag sent — thank you', flag_dup: 'You already flagged this',
-    fr_not_an_issue: 'Not a real problem', fr_wrong_location: 'Wrong location', fr_duplicate: 'Duplicate of another report',
+    fr_not_an_issue: 'Not a real problem', fr_wrong_category: 'Wrong category', flag_right_category: 'What is it really?', flag_pick_category: 'Choose the right category',
+    ev_recategorized: 'Category changed by a moderator', fr_wrong_location: 'Wrong location', fr_duplicate: 'Duplicate of another report',
     fr_inappropriate: 'Inappropriate photo', fr_fake_or_old_photo: 'Fake or old photo', fr_other: 'Something else',
     seen_done: 'Counted — thank you', seen_dup: "You're already counted", seen_own: 'This is your report',
     share_text: '{cat} in Ward {ward}, Purulia — unresolved for {days} days. See it and add your voice:',
@@ -240,6 +243,7 @@ window.KASA_I18N = {
     trust_4: 'এরপর {h} ঘণ্টা ঘটনাস্থলের যে কেউ আপত্তি জানাতে পারেন। {dq}টি আপত্তিতে দাবি বাতিল হয় এবং রিপোর্ট আবার খোলে। বারবার ভুয়ো দাবি করলে ব্লক করা হয়।',
     trust_5: 'প্রতিটি ছবি, নিশ্চিতকরণ ও আপত্তি প্রকাশ্য রেকর্ডে থাকে। মডারেটর আপত্তিকর বিষয় সরাতে পারেন, কিন্তু কেউ একা কোনো রিপোর্টকে সমাধান বলে চিহ্নিত করতে পারেন না।',
 
+    footer_analytics: 'পরিসংখ্যান', footer_methodology: 'কীভাবে গোনা হয়',
     fixed_num: '✓ · যাচাই করা সমাধান', fixed_title: 'সম্প্রতি সমাধান হয়েছে',
     fixed_sub: 'যে সমস্যাগুলি প্রতিবেশীরা আবার গিয়ে সমাধান হয়েছে বলে নিশ্চিত করেছেন, আর কত তাড়াতাড়ি হয়েছে।',
     fixed_empty: 'এখনও কোনো যাচাই করা সমাধান নেই। প্রতিবেশীরা প্রথম যেটি নিশ্চিত করবেন, সেটি এখানে দেখা যাবে।',
@@ -289,7 +293,8 @@ window.KASA_I18N = {
     done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান →', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
 
     head_open: 'অমীমাংসিত', head_claimed: 'সাফাইয়ের দাবি · যাচাই চলছে', head_resolved: 'সমাধান হয়েছে', head_resolved_legacy: 'সমাধান · যাচাই হয়নি',
-    chip_pending: 'আপলোডের অপেক্ষায়', days_open: '{n} দিন খোলা', list_count: '{n}টি রিপোর্ট', list_empty: 'এই ফিল্টারে কোনো রিপোর্ট নেই।', list_seen: '👁 {n}',
+    chip_pending: 'আপলোডের অপেক্ষায়', days_open: '{n} দিন খোলা', list_count: '{n}টি রিপোর্ট', list_empty: 'এই ফিল্টারে কোনো রিপোর্ট নেই।', list_seen: '{n} জন দেখেছেন', list_seen_one: 'শুধু রিপোর্টকারী দেখেছেন',
+    list_search: 'ওয়ার্ড নম্বর, জায়গা বা সমস্যা খুঁজুন', locating_you: 'ম্যাপে আপনাকে খোঁজা হচ্ছে…',
     sheet_anonymous: 'সব রিপোর্ট বেনামি', sheet_allegation: 'এটি নাগরিকের রিপোর্ট — অভিযোগ, প্রমাণিত তথ্য নয়।', sheet_terms: 'শর্তাবলি',
     sheet_seen_btn: 'আমিও দেখেছি', sheet_seen_done: 'আপনি দেখেছেন',
     sheet_directions: 'পথনির্দেশ', sheet_gps: 'GPS দিয়ে লোকেশন', sheet_pinned: 'ম্যাপে চিহ্নিত',
@@ -381,7 +386,8 @@ window.KASA_I18N = {
 
     flag_title: 'ভুল বলে ফ্ল্যাগ করুন', flag_sub: 'ফ্ল্যাগ রিপোর্টটি মডারেটরের কাছে পাঠায়। এতে রিপোর্ট লুকানো বা বন্ধ হয় না।',
     flag_note: 'বিস্তারিত (ঐচ্ছিক)', flag_submit: 'ফ্ল্যাগ পাঠান', flag_done: 'ফ্ল্যাগ পাঠানো হয়েছে — ধন্যবাদ', flag_dup: 'আপনি আগেই ফ্ল্যাগ করেছেন',
-    fr_not_an_issue: 'আসল সমস্যা নয়', fr_wrong_location: 'ভুল জায়গা', fr_duplicate: 'অন্য রিপোর্টের পুনরাবৃত্তি',
+    fr_not_an_issue: 'আসল সমস্যা নয়', fr_wrong_category: 'ভুল বিভাগ', flag_right_category: 'আসলে এটা কী?', flag_pick_category: 'সঠিক বিভাগ বাছুন',
+    ev_recategorized: 'মডারেটর বিভাগ বদলেছেন', fr_wrong_location: 'ভুল জায়গা', fr_duplicate: 'অন্য রিপোর্টের পুনরাবৃত্তি',
     fr_inappropriate: 'আপত্তিকর ছবি', fr_fake_or_old_photo: 'ভুয়ো বা পুরোনো ছবি', fr_other: 'অন্য কিছু',
     seen_done: 'গোনা হয়েছে — ধন্যবাদ', seen_dup: 'আপনাকে আগেই গোনা হয়েছে', seen_own: 'এটি আপনার রিপোর্ট',
     share_text: 'পুরুলিয়ার ওয়ার্ড {ward}-এ {cat} — {days} দিন ধরে অমীমাংসিত। দেখুন, আপনার মত দিন:',
@@ -454,6 +460,7 @@ window.KASA_I18N = {
     trust_4: 'इसके बाद {h} घंटे तक मौके पर मौजूद कोई भी आपत्ति कर सकता है। {dq} आपत्तियों पर दावा रद्द होता है और रिपोर्ट फिर खुलती है। बार-बार फ़र्ज़ी दावे करने वाले ब्लॉक होते हैं।',
     trust_5: 'हर फ़ोटो, पुष्टि और आपत्ति सार्वजनिक रिकॉर्ड में रहती है। मॉडरेटर आपत्तिजनक सामग्री हटा सकते हैं, पर कोई अकेले किसी रिपोर्ट को ठीक नहीं बता सकता।',
 
+    footer_analytics: 'आँकड़े', footer_methodology: 'हम कैसे गिनते हैं',
     fixed_num: '✓ · जाँची गई मरम्मत', fixed_title: 'हाल में ठीक हुआ',
     fixed_sub: 'वे समस्याएँ जिन्हें पड़ोसियों ने दोबारा जाकर ठीक होने की पुष्टि की, और यह कितनी जल्दी हुआ।',
     fixed_empty: 'अभी कोई जाँची गई मरम्मत नहीं। पड़ोसियों द्वारा पुष्टि की गई पहली मरम्मत यहाँ दिखेगी।',
@@ -503,7 +510,8 @@ window.KASA_I18N = {
     done_wa: 'व्हाट्सऐप पर नगरपालिका को बताएँ →', done_share: 'यह रिपोर्ट शेयर करें', done_close: 'हो गया',
 
     head_open: 'अनसुलझी', head_claimed: 'सफ़ाई का दावा · पुष्टि जारी', head_resolved: 'सुलझ गई', head_resolved_legacy: 'सुलझी · पुष्टि नहीं',
-    chip_pending: 'अपलोड बाकी', days_open: '{n} दिन से खुली', list_count: '{n} रिपोर्ट', list_empty: 'इन फ़िल्टरों से कोई रिपोर्ट नहीं मिली।', list_seen: '👁 {n}',
+    chip_pending: 'अपलोड बाकी', days_open: '{n} दिन से खुली', list_count: '{n} रिपोर्ट', list_empty: 'इन फ़िल्टरों से कोई रिपोर्ट नहीं मिली।', list_seen: '{n} लोगों ने देखा', list_seen_one: 'सिर्फ़ रिपोर्ट करने वाले ने देखा',
+    list_search: 'वार्ड नंबर, जगह या समस्या खोजें', locating_you: 'मैप पर आपको ढूँढा जा रहा है…',
     sheet_anonymous: 'सभी रिपोर्ट गुमनाम हैं', sheet_allegation: 'यह नागरिक की रिपोर्ट है — आरोप, प्रमाणित तथ्य नहीं।', sheet_terms: 'शर्तें',
     sheet_seen_btn: 'मैंने भी देखा', sheet_seen_done: 'आपने देखा',
     sheet_directions: 'रास्ता देखें', sheet_gps: 'GPS से लोकेशन', sheet_pinned: 'मैप पर चिह्नित',
@@ -595,7 +603,8 @@ window.KASA_I18N = {
 
     flag_title: 'ग़लत बताकर फ़्लैग करें', flag_sub: 'फ़्लैग रिपोर्ट को मॉडरेटर के पास भेजता है। इससे रिपोर्ट छिपती या बंद नहीं होती।',
     flag_note: 'विवरण (वैकल्पिक)', flag_submit: 'फ़्लैग भेजें', flag_done: 'फ़्लैग भेजा गया — धन्यवाद', flag_dup: 'आप पहले ही फ़्लैग कर चुके हैं',
-    fr_not_an_issue: 'असली समस्या नहीं', fr_wrong_location: 'ग़लत जगह', fr_duplicate: 'दूसरी रिपोर्ट की नकल',
+    fr_not_an_issue: 'असली समस्या नहीं', fr_wrong_category: 'ग़लत श्रेणी', flag_right_category: 'असल में यह क्या है?', flag_pick_category: 'सही श्रेणी चुनें',
+    ev_recategorized: 'मॉडरेटर ने श्रेणी बदली', fr_wrong_location: 'ग़लत जगह', fr_duplicate: 'दूसरी रिपोर्ट की नकल',
     fr_inappropriate: 'आपत्तिजनक फ़ोटो', fr_fake_or_old_photo: 'फ़र्ज़ी या पुरानी फ़ोटो', fr_other: 'कुछ और',
     seen_done: 'गिना गया — धन्यवाद', seen_dup: 'आप पहले ही गिने जा चुके हैं', seen_own: 'यह आपकी रिपोर्ट है',
     share_text: 'पुरुलिया के वार्ड {ward} में {cat} — {days} दिन से अनसुलझी। देखें और अपनी आवाज़ जोड़ें:',

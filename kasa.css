@@ -565,3 +565,14 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
   .k-chain-node{border-top:none;border-left:2px solid var(--amber);border-radius:0 4px 4px 0;}
   .k-chain-agency{border-left-color:var(--violet);}
 }
+
+/* ── Full-screen photo ── */
+.k-sheet-photo img,.k-ba img,.k-tl-photo img{cursor:zoom-in;}
+.k-lightbox{position:fixed;inset:0;z-index:6000;background:rgba(5,4,2,.94);display:flex;align-items:center;justify-content:center;padding:1rem;cursor:zoom-out;animation:kFade .15s ease-out;}
+.k-lightbox img{max-width:100%;max-height:100%;object-fit:contain;border-radius:4px;}
+.k-lightbox-close{position:absolute;top:1rem;right:1rem;width:2.6rem;height:2.6rem;border-radius:50%;background:rgba(240,230,208,.12);color:var(--cream);font-size:1.1rem;}
+@keyframes kFade{from{opacity:0}to{opacity:1}}
+
+/* ── List search ── */
+.k-list-search{flex:1;min-width:0;max-width:340px;padding:.55rem .8rem;background:rgba(10,8,5,.94);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:11px;outline:none;}
+.k-list-search:focus{border-color:var(--amber);}

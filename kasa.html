@@ -82,6 +82,7 @@
   <div class="k-list" id="k-list" hidden>
     <div class="k-list-head">
       <span class="k-list-count" id="k-list-count"></span>
+      <input type="search" id="k-list-search" class="k-list-search" data-i18n-placeholder="list_search" placeholder="Search ward number, place or problem" aria-label="Search reports">
       <button type="button" class="k-csv-btn" data-csv="filtered" data-i18n="csv_btn">⬇ CSV</button>
       <select id="k-sort" class="k-filter-select" aria-label="Sort">
         <option value="urgent" data-i18n="sort_urgent">Most urgent</option>
@@ -204,6 +205,8 @@
     <p class="k-footer-legal"><span data-i18n="csv_license">Report data is open under</span> <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a>. <span data-i18n="csv_license_2">Credit “Purulia Kasa”. Photos are not covered.</span></p>
   </div>
   <nav class="k-footer-links" aria-label="Legal">
+    <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
+    <a href="methodology.html" data-i18n="footer_methodology">How we count</a>
     <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
     <a href="privacy.html" data-i18n="footer_privacy">Privacy Policy</a>
     <a href="grievance.html" data-i18n="footer_grievance">Grievance Officer</a>
@@ -348,6 +351,10 @@
     <h3 class="k-modal-title" id="k-flag-title" data-i18n="flag_title">Flag as incorrect</h3>
     <p class="k-modal-sub" data-i18n="flag_sub">Flags send the report to a moderator. They can't hide or close it.</p>
     <div class="k-radio-list" id="k-flag-reasons" role="radiogroup"></div>
+    <div class="k-field" id="k-flag-cat-wrap" hidden>
+      <label for="k-flag-cat" data-i18n="flag_right_category">What is it really?</label>
+      <select id="k-flag-cat" class="k-input"></select>
+    </div>
     <div class="k-field">
       <label for="k-flag-note" data-i18n="flag_note">Details (optional)</label>
       <textarea id="k-flag-note" class="k-input k-textarea" maxlength="280"></textarea>

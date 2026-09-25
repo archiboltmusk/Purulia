@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public analytics — Purulia Kasa</title>
+<meta name="description" content="Live numbers from Purulia Kasa: reports, verified fixes, how fast problems get fixed, problems that keep coming back, and every ward's record.">
+<meta property="og:title" content="Public analytics — Purulia Kasa">
+<meta property="og:description" content="How fast Purulia's civic problems get fixed, ward by ward, from neighbour-verified reports.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/analytics.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/analytics.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);}
+  .an-meta a{color:var(--amber);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.6rem 1.4rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  @media(min-width:1100px){.an-grid{grid-template-columns:1fr 1fr;}.an-span{grid-column:1 / -1;}}
+  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-chart{position:relative;margin-top:1.2rem;height:220px;}
+  .an-chart svg{display:block;width:100%;height:100%;overflow:visible;}
+  .an-tip{position:absolute;pointer-events:none;background:var(--ink3);border:1px solid var(--border2);border-radius:4px;padding:.4rem .6rem;font-family:var(--mono);font-size:11px;color:var(--text-hi);white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s;}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-table td.n,.an-table th.n{text-align:right;font-variant-numeric:tabular-nums;}
+  .an-table a{color:var(--amber);}
+  .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-details{margin-top:.8rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
+  .an-details summary{cursor:pointer;color:var(--amber);}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  .an-table td:first-child,.an-table td.n{white-space:nowrap;}
+  @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="blueprint.html">Blueprint</a>
+    <a href="map.html">Map</a>
+    <a href="kasa.html">Kasa</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">Purulia Kasa, <em>in numbers</em></h1>
+      <p class="an-sub">Live from the public record. A problem counts as fixed only when neighbours confirm it on the spot. Reports are residents' allegations, not verified facts.</p>
+    </div>
+    <div class="an-meta"><span id="an-updated">Loading…</span> · <a href="methodology.html">How we count</a></div>
+  </div>
+
+  <section class="an-tiles" aria-label="Headline numbers">
+    <div class="an-tile"><div class="an-tile-n" id="t-reports">—</div><div class="an-tile-l">Reports</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Unresolved</div><div class="an-tile-s" id="t-overdue"></div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-median">—</div><div class="an-tile-l">Typical days to fix</div><div class="an-tile-s">median of verified fixes</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-streak">—</div><div class="an-tile-l">Fix streak</div><div class="an-tile-s">days in a row with a verified fix</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-fake">—</div><div class="an-tile-l">Fake cleanups caught</div></div>
+  </section>
+
+  <div class="an-grid">
+    <section class="an-card an-span">
+      <h2>Reports filed per day</h2>
+      <p class="an-card-sub">Last 30 days, all categories.</p>
+      <div class="an-chart" id="an-chart"><div class="an-tip" id="an-tip"></div></div>
+      <details class="an-details"><summary>Show as a table</summary><div class="an-table-wrap" id="an-chart-table"></div></details>
+    </section>
+
+    <section class="an-card">
+      <h2>Fastest fixes this week</h2>
+      <p class="an-card-sub">Verified fixes in the last 7 days, quickest first.</p>
+      <div class="an-table-wrap" id="an-fast"></div>
+    </section>
+
+    <section class="an-card">
+      <h2>Problems that keep coming back</h2>
+      <p class="an-card-sub">Spots reported again within 60 days of being fixed.</p>
+      <div class="an-table-wrap" id="an-repeat"></div>
+    </section>
+
+    <section class="an-card an-span">
+      <h2>Every ward</h2>
+      <p class="an-card-sub">Ordered by unresolved reports. Tap a ward to see it on the map.</p>
+      <div class="an-table-wrap" id="an-wards"></div>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="methodology.html">How we count</a>
+    <a href="kasa.html">Report map</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+  </div>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="kasa-i18n.js"></script>
+<script defer src="analytics.js"></script>
+</body>
+</html>

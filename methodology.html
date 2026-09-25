@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Methodology — Purulia Kasa</title>
+<meta name="description" content="How Purulia Kasa counts reports, decides a problem is fixed, catches fake cleanups and computes its public numbers, and how anyone can check that the record was not changed.">
+<meta property="og:title" content="Methodology — Purulia Kasa">
+<meta property="og:description" content="How reports, fixes and ward numbers are counted, and how to check the record yourself.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/methodology.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/methodology.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="legal.css">
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="blueprint.html">Blueprint</a>
+    <a href="map.html">Map</a>
+    <a href="kasa.html">Kasa</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="legal-wrap">
+
+  <a href="kasa.html" class="legal-back">← Back to Purulia Kasa</a>
+
+  <h1 class="legal-title">How we <em>count</em></h1>
+  <div class="legal-meta">Rules as of 24 September 2026 · They run on the server, so the website cannot skip them</div>
+
+  <div class="legal-body">
+
+    <div class="legal-callout">
+      <p><strong>Reports are allegations by residents, not verified facts.</strong> What Purulia Kasa adds is a public, checkable record: who reported what, where and when, what happened next, and how many neighbours confirmed it on the spot. This page explains every rule behind the numbers, so anyone can judge them.</p>
+    </div>
+
+    <h2>1. What counts as a report</h2>
+    <ul>
+      <li>A report needs a photo, a category, a ward and a location inside Purulia town. Its GPS accuracy is recorded; a spot pinned by hand on the map is marked as pinned.</li>
+      <li>One account can file at most 5 reports an hour and 20 a day.</li>
+      <li><strong>Same problem reported again:</strong> a report of the same category within 25 m of an open report from the last 72 hours is linked to the first one instead of counted twice. The second person counts as a witness ("seen by").</li>
+      <li><strong>Came back:</strong> a report within 25 m of a problem marked fixed in the last 60 days is recorded as a recurrence of it.</li>
+      <li><strong>Waiting for a moderator before it appears:</strong> encroachment and illegal-activity reports; photos showing faces or marked as AI-made; text that accuses a named person (for example "thief", "bribe", "corrupt") or contains a phone number, ID number or e-mail address. Reports with abusive words are refused.</li>
+      <li><strong>Visible but marked "under review":</strong> a report flagged by 3 people, or rated doubtful by 3 neighbours on the spot, or whose photo's own GPS is more than 500 m from the pin. It stays on the map with that label until a moderator decides.</li>
+      <li>Moderators can publish or hide a report and correct its category. They cannot mark a report fixed. Every moderator action is recorded, with its reason, in the report's public history.</li>
+    </ul>
+
+    <h2>2. When a problem counts as fixed</h2>
+    <p>No official, party worker or moderator can close a report by saying so. A report becomes <strong>fixed</strong> only like this:</p>
+    <ol>
+      <li><strong>Claim.</strong> Anyone, officials included, claims the cleanup with a new photo taken within 50 m of the spot, with GPS accurate to 60 m or better. The photo must pass the server photo check (reused and copied photos are refused).</li>
+      <li><strong>Confirm.</strong> 3 other people, each within 100 m of the spot with a new photo of their own, confirm it. They must come from at least 2 different internet networks. Their accounts must have existed for at least 3 days before the claim and must have done something else on Kasa before. One person can confirm the same claimant's cleanups only once a week.</li>
+      <li><strong>Wait.</strong> For 12 hours after the third confirmation, anyone on the spot can still dispute it.</li>
+      <li><strong>Fixed.</strong> If nothing stops it, the report becomes fixed. If none of the confirmers has much history (fewer than 3 earlier actions), a moderator must clear it first.</li>
+    </ol>
+    <p><strong>Disputes:</strong> 2 disputes from 2 different networks throw the claim out and reopen the report. 2 disputes from one network send it to a moderator instead. A claim that doesn't get enough confirmations within 14 days expires and the report reopens.</p>
+    <p><strong>Fake cleanup caught:</strong> a claim thrown out by disputes or by a moderator. It is counted against the ward.</p>
+
+    <h2>3. Other checks against faking</h2>
+    <ul>
+      <li>An account's actions are refused if its GPS position jumped faster than 150 km/h since its previous action.</li>
+      <li>The same photo, or a near-copy taken somewhere else, can't be used twice.</li>
+      <li>Photos marked as made or edited with AI can't be used as cleanup evidence.</li>
+      <li>Accounts are anonymous. To tell networks apart, the server keeps only a scrambled code of the first part of the internet address, never the address itself.</li>
+    </ul>
+    <p><strong>Limits:</strong> a determined person can still fake a phone's GPS or prepare several accounts in advance. That is why confirmations need several people, several networks, established accounts and a waiting period, and why doubtful cases go to a moderator.</p>
+
+    <h2>4. The public numbers</h2>
+    <table class="legal-table">
+      <thead><tr><th>Number</th><th>How it is computed</th></tr></thead>
+      <tbody>
+        <tr><td>Reports</td><td>Published reports, not counting ones linked to an earlier report of the same problem.</td></tr>
+        <tr><td>Unresolved</td><td>Reports that are open or have a cleanup claim still being checked.</td></tr>
+        <tr><td>Verified fixed</td><td>Reports that became fixed through the process in section 2. Older reports closed before that process existed are not counted.</td></tr>
+        <tr><td>Overdue</td><td>Unresolved for more than 7 days.</td></tr>
+        <tr><td>Days to fix</td><td>From the time of the report to the time it became fixed. "Typical" means the median: half of the fixes were faster, half slower.</td></tr>
+        <tr><td>Seen by</td><td>The reporter plus everyone who tapped "I saw this too" or filed the same problem again.</td></tr>
+        <tr><td>Ward ranking</td><td>Wards ordered by unresolved reports; fake cleanups caught are shown next to them.</td></tr>
+      </tbody>
+    </table>
+    <p>The map shows fixed reports for 90 days; they stay in the record and in the downloads. Ward boundaries on the map are approximate. All report data can be downloaded as CSV from the Kasa page, under the <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a> licence (photos not included).</p>
+
+    <h2>5. Checking that the record wasn't changed</h2>
+    <p>Every day, a fingerprint (SHA-256) of every public report, event and reply is published in the project's public code repository, and each day's entry is chained to the one before, so no past day can be altered without it showing. Each day's file is also saved to the Internet Archive. The fingerprints contain none of the content, so a report can still be removed for a legal reason, but not quietly rewritten. The <code>record/README.md</code> file in the repository explains how to check a report yourself.</p>
+
+    <h2>6. Corrections</h2>
+    <p>If you think a number or a rule here is wrong, write to the <a href="grievance.html">Grievance Officer</a>. Corrections are recorded in the affected report's history.</p>
+
+    <div class="legal-footer-links">
+      <a href="analytics.html">Public analytics</a>
+      <a href="terms.html">Terms of Use</a>
+      <a href="privacy.html">Privacy Policy</a>
+      <a href="grievance.html">Grievance Officer</a>
+      <a href="kasa.html">Back to Kasa</a>
+    </div>
+
+  </div>
+
+</main>
+
+</body>
+</html>
