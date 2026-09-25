@@ -71,6 +71,17 @@ update kasa_private.settings set value = '12' where key = 'challenge_hours';
 
 The main ones are `verify_quorum`, `dispute_quorum`, `min_distinct_networks`, `challenge_hours`, `quiet_start_hour`/`quiet_end_hour` (night hours don't count toward the dispute window), `voter_min_account_hours`, `voter_min_prior_actions`, `trusted_prior_actions`, `ring_min_shared`/`ring_window_days` (confirmers who keep confirming together), `failed_claims_limit`/`failed_claims_window_days`/`failed_claims_block_days`, `flag_review_threshold`, `max_strikes`, and `require_live_report_photo`/`capture_token_minutes` (report photos without a valid camera token wait for a moderator). If you change one that is described on `methodology.html`, update that page too.
 
+## Photo self-moderation (Google Vision, after the fact)
+
+A report is created and published before the Google Vision check on its photo comes back — `kasa.js` fires it and moves on, so a slow connection isn't held up. When Vision's result lands (`kasa_record_photo_check`, called by the `kasa-photo-check` Edge Function), `kasa_private.self_moderate_photo` can move a still-`approved` report to `review` (never `hidden` — that stays a moderator's call) if the photo turns out unsafe, shows a face, or every label Vision returned is on the `off_topic_labels` list (selfies, pets, food, screenshots, ...) with no civic label among them. Each hold is logged as a `moderation_hold` event with its reason, in `admin.html`'s moderation queue and the report's private history.
+
+It deliberately does **not** use `garbage_score` as a general relevance filter — that score is scoped to "does this look like garbage" for the `garbage`/`drain` categories (see `clean_max_garbage_score`), and a legitimate road, streetlight, hand-pump, school or health-centre photo will always read near 0 there.
+
+- Turn it off without a deploy: `update kasa_private.settings set value = 'false' where key = 'self_moderate_photos';`
+- Edit the denylist the same way, via the `off_topic_labels` setting (a JSON array of lowercase Vision label fragments).
+- It only ever touches `reports/` photos and only while a report is still `approved`; claim/vote photos and anything a moderator or the synchronous checks already moved off `approved` are left alone.
+- If Google Vision is down or misconfigured (`GOOGLE_VISION_API_KEY` missing, API not enabled, billing off — check the Edge Function logs for `kasa-photo-check`, or a `vision 403`/`vision 401` there), `photo_checks.labels` stays empty and this simply never fires; nothing is blocked by its absence.
+
 ## District coverage and boundaries
 
 Kasa takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.

@@ -88,9 +88,9 @@ def upload(uid, folder, owner=None):
     return path
 
 
-def photo_check(path, sha=None, dhash=None, garbage=None, unsafe=False, faces=0):
+def photo_check(path, sha=None, dhash=None, garbage=None, unsafe=False, faces=0, labels=None):
     rpc('kasa_record_photo_check', role='service_role', p_path=path, p_sha256=sha or uuid.uuid4().hex,
-        p_dhash=dhash, p_garbage_score=garbage, p_labels=[], p_unsafe=unsafe, p_face_count=faces)
+        p_dhash=dhash, p_garbage_score=garbage, p_labels=labels or [], p_unsafe=unsafe, p_face_count=faces)
 
 
 def offset(meters_north, meters_east=0.0, base=SPOT):
@@ -1070,6 +1070,67 @@ quick_vil = rpc('kasa_create_report', uid=quick_vil_user, p_category=None, p_sev
 quick_vil_row = view_row(quick_vil['id'])
 check('a quick report in a village still gets its block from GPS alone',
       quick_vil_row['area_kind'] == 'rural' and quick_vil_row['category'] == 'other', quick_vil_row)
+
+# ────────────────────── Self-moderation from a late Vision result ──────────────────────
+# The report is created (and published) before Vision answers; these exercise what
+# happens once kasa_record_photo_check delivers a result afterwards. A hold moves the
+# report to "review" (same bucket as the synchronous face/AI-edited checks) — invisible
+# on the public map/events until a moderator decides — so these are read with admin_sql.
+def mod_status(rid):
+    return admin_sql('select moderation_status from public.reports where id = %s', (str(rid),))[0][0]
+
+
+def hold_reasons(rid):
+    return [r[0]['reason'] for r in admin_sql(
+        "select detail from kasa_private.events where report_id = %s and kind = 'moderation_hold' order by id", (str(rid),))]
+
+
+selfie_r, selfie_path = report(user(), category='other')
+check('a fresh report starts approved (Vision has not answered yet)',
+      selfie_r['moderation_status'] == 'approved' and view_row(selfie_r['id']) is not None, selfie_r)
+photo_check(selfie_path, labels=['Selfie', 'Person', 'Smile'])
+check('a report whose photo is entirely off-topic labels (a selfie) is held for review',
+      view_row(selfie_r['id']) is None and mod_status(selfie_r['id']) == 'review')
+check('the hold reason is on the record', hold_reasons(selfie_r['id']) == ['off_topic_photo'])
+
+mixed_r, mixed_path = report(user(), category='road')
+photo_check(mixed_path, labels=['Person', 'Road', 'Pothole'])
+check('a photo with at least one civic label is not held, even with a person in it',
+      view_row(mixed_r['id'])['moderation_status'] == 'approved')
+
+road_r, road_path = report(user(), category='road')
+photo_check(road_path, garbage=0, labels=['Road', 'Asphalt', 'Sky'])
+check('a road report scoring 0 for garbage is not held — garbage_score is not a relevance filter',
+      view_row(road_r['id'])['moderation_status'] == 'approved')
+
+unsafe_r, unsafe_path = report(user(), category='other')
+photo_check(unsafe_path, unsafe=True)
+check('a report whose photo Vision flags unsafe is held for review', mod_status(unsafe_r['id']) == 'review')
+check('the hold reason is unsafe_content, not off-topic', hold_reasons(unsafe_r['id']) == ['unsafe_content'])
+
+face_r, face_path = report(user(), category='other')
+photo_check(face_path, faces=1, labels=['Person', 'Selfie'])
+check('a report whose photo Vision finds a face in is held for review (face, not the off-topic label, is the reason)',
+      hold_reasons(face_r['id']) == ['face_detected'])
+
+held_r, held_path = report(user(), category='encroachment')
+check('an encroachment report already waits for a moderator before Vision answers', held_r['moderation_status'] == 'review')
+photo_check(held_path, labels=['Selfie'])
+check('self-moderation never re-flags (or un-flags) a report already off "approved"',
+      mod_status(held_r['id']) == 'review' and hold_reasons(held_r['id']) == [])
+
+set_rules({'self_moderate_photos': 'false'})
+off_r, off_path = report(user(), category='other')
+photo_check(off_path, labels=['Selfie', 'Person'])
+check('self-moderation can be switched off without a deploy', mod_status(off_r['id']) == 'approved')
+set_rules({'self_moderate_photos': 'true'})
+
+claim_path = upload(user(), 'claims')
+photo_check(claim_path, labels=['Selfie'])
+check('self-moderation only ever acts on report photos, never claim/vote photos',
+      admin_sql("select count(*) from kasa_private.events where kind = 'moderation_hold' and detail @> %s",
+                ('{"reason":"off_topic_photo"}',))[0][0] == 1)
+
 set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]
