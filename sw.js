@@ -2,7 +2,7 @@
    - keeps the page usable offline (reports queue and upload later)
    - shows "new report near you" alerts and opens the report when tapped */
 
-const VERSION = 'kasa-v2-36';
+const VERSION = 'kasa-v2-37';
 const SHELL = ['kasa.html', 'kasa.css', 'kasa.js', 'kasa-i18n.js', 'kasa-photo-meta.js', 'config.js', 'purulia_wards.geojson', 'purulia_blocks.geojson',
   'manifest.webmanifest', 'kasa-icon-192.png'];
 // Versioned CDN files never change, so they can be served straight from cache.
@@ -19,9 +19,17 @@ self.addEventListener('activate', (e) => {
     .then(() => self.clients.claim()));
 });
 
+// The admin panel was never meant to be an offline-capable page — it's an internal tool,
+// always used online, and always needs the current data. Let the browser handle it directly
+// (its own retry/error handling) instead of routing it through networkFirst(), which has no
+// cached fallback the first time a page is ever visited under a given VERSION and can leave
+// a hard network failure unhandled.
+const SW_EXCLUDED = /\/admin\.(html|js)(\?|$)/;
+
 self.addEventListener('fetch', (e) => {
   const req = e.request;
   if (req.method !== 'GET') return;
+  if (SW_EXCLUDED.test(req.url)) return;
   if (IMMUTABLE_CDN.test(req.url)) return e.respondWith(cacheFirst(req));
   // Supabase, map tiles and fonts go straight to the network.
   if (new URL(req.url).origin !== self.location.origin) return;
