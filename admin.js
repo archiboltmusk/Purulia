@@ -73,7 +73,14 @@ document.getElementById('adRefreshBtn').addEventListener('click', loadAll);
   if (isAdmin) showDashboard();
 })();
 
-function showDashboard(){
+let myRole = null; // 'admin' or 'moderator' — the server enforces it; this only hides what would fail
+const isSuper = () => myRole === 'admin';
+
+async function showDashboard(){
+  const { data: role } = await sb.rpc('kasa_my_role');
+  myRole = role;
+  document.getElementById('adTeamSection').hidden = !isSuper();
+  document.getElementById('adSignupsSection').hidden = !isSuper();
   document.getElementById('adLogin').classList.add('hidden');
   document.getElementById('adDash').classList.remove('hidden');
   loadAll();
@@ -84,7 +91,8 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadSignups(), loadCommunities()
+    loadResolutions(), loadAutomation(), loadCommunities(),
+    ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
 
@@ -328,7 +336,7 @@ async function findReport(){
     el.innerHTML = `<div class="ad-empty">${esc(error && error.code === 'PGRST116' ? 'No report with that link or ID.' : 'Could not load: ' + ((error && (error.details || error.message)) || 'not found'))}</div>`;
     return;
   }
-  const canDelete = r.moderation_status === 'flagged' || r.moderation_status === 'review';
+  const canDelete = isSuper() && r.moderation_status === 'flagged' || r.moderation_status === 'review';
   el.innerHTML = `
     <div class="ad-item">
       <div class="ad-item-head">
@@ -340,7 +348,7 @@ async function findReport(){
           <button class="ad-ok" data-find-mod="approve">✓ Approve / restore</button>
           <button class="ad-bad" data-find-mod="hide">✕ Hide</button>
           ${canDelete ? '<button class="ad-bad" data-find-mod="delete">🗑 Delete permanently</button>'
-            : '<span class="ad-note" style="margin:0;">Only a flagged or held-for-review report can be deleted outright — hide this one instead.</span>'}
+            : `<span class="ad-note" style="margin:0;">${isSuper() ? 'Only a flagged or held-for-review report can be deleted outright — hide this one instead.' : 'Only an admin can delete permanently — hide this one instead.'}</span>`}
         </div>
       </div>
       ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
@@ -467,6 +475,36 @@ async function loadSignups(){
       </tbody>
     </table>`;
 }
+
+async function loadTeam(){
+  const el = document.getElementById('adTeam');
+  const { data, error } = await sb.rpc('kasa_admin_team');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Email</th><th>Role</th><th>Since</th><th></th></tr></thead>
+      <tbody>
+        ${(data || []).map(m => `<tr><td>${esc(m.email)}${m.me ? ' (you)' : ''}</td><td>${esc(m.role)}</td>
+          <td>${esc(new Date(m.since).toLocaleDateString('en-IN'))}</td>
+          <td>${m.me ? '' : `<button class="ad-bad" data-team-remove="${esc(m.email)}">Remove</button>`}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-team-remove]').forEach(b => b.addEventListener('click', () => {
+    if (confirm('Remove ' + b.dataset.teamRemove + ' from the team?')) setRole(b.dataset.teamRemove, 'remove');
+  }));
+}
+
+async function setRole(email, role){
+  const { error } = await sb.rpc('kasa_admin_set_role', { p_email: email, p_role: role });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadTeam();
+}
+
+document.getElementById('adTeamForm').addEventListener('submit', (e) => {
+  e.preventDefault();
+  const email = document.getElementById('adTeamEmail').value.trim();
+  if (email) setRole(email, document.getElementById('adTeamRole').value);
+});
 
 function esc(s){
   return String(s == null ? '' : s).replace(/[&<>"']/g, c => ({

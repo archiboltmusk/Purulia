@@ -160,7 +160,18 @@ if ('serviceWorker' in navigator) {
     <div id="adCommunities"><div class="ad-loading">Loading…</div></div>
   </section>
 
-  <section class="ad-section">
+  <section class="ad-section" id="adTeamSection" hidden>
+    <h2 class="ad-section-title">Team (admins only)</h2>
+    <p class="ad-note">Admins can do everything. Moderators can review, hide and restore, but can't delete permanently, see sign-ups or manage the team.</p>
+    <form id="adTeamForm" class="ad-actions">
+      <input id="adTeamEmail" type="email" placeholder="Their sign-in email" required aria-label="Email">
+      <select id="adTeamRole" aria-label="Role"><option value="moderator">Moderator</option><option value="admin">Admin</option></select>
+      <button class="ad-ok" type="submit">Add / change</button>
+    </form>
+    <div id="adTeam"><div class="ad-loading">Loading…</div></div>
+  </section>
+
+  <section class="ad-section" id="adSignupsSection" hidden>
     <h2 class="ad-section-title">Join &amp; follow sign-ups (Purulia 2040)</h2>
     <div id="adSignups"><div class="ad-loading">Loading…</div></div>
   </section>

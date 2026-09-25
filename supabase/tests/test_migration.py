@@ -483,7 +483,7 @@ admin_sql("update kasa_private.settings set value = 'false' where key = 'require
 # ─────────────────────────────── Moderation ────────────────────────────────
 check('non-admins cannot moderate', err(rpc, 'kasa_admin_moderate', uid=bob, p_report_id=str(ill['id']), p_action='approve') == 'KASA_NOT_ADMIN')
 mod = user()
-admin_sql('insert into public.admins (user_id) values (%s)', (mod,))
+admin_sql("insert into public.admins (user_id, role) values (%s, 'admin')", (mod,))
 rpc('kasa_admin_moderate', uid=mod, p_report_id=str(ill['id']), p_action='approve', p_reason='Verified location')
 check('moderator approval publishes an illegal-activity report', view_row(ill['id']) is not None)
 check('admin can read raw reports', q('select count(*) from public.reports', uid=mod)[0][0] > 0)
@@ -909,7 +909,7 @@ check('one network is limited to 5 sign-ups an hour', err(rpc, 'p2040_submit', i
       p_name=None, p_role=None, p_location=None, p_contact='f9@example.com', p_message=None) == 'KASA_RATE_LIMIT')
 check('sign-ups are not readable by the public', 'permission denied' in (err(q, 'select * from kasa_private.signups') or ''))
 check('only moderators can list sign-ups', 'permission denied' in (err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) or '') or
-      err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) == 'KASA_NOT_ADMIN')
+      err(rpc, 'kasa_admin_signups', uid=someone, p_limit=10) == 'KASA_NOT_SUPER_ADMIN')
 
 # ─────────────────────── Wrong-category flags and communities ───────────────────────
 wc_owner, wc_flagger = user(), user()
@@ -1291,6 +1291,27 @@ for i in range(2):
 rpc('kasa_flag_report', uid=user(), ip='10.91.0.1', p_report_id=str(flagged_r['id']), p_reason='not_an_issue')
 check('the report is actually flagged before the delete test', view_row(flagged_r['id'])['moderation_status'] == 'flagged')
 check('non-admin cannot delete a report', err(rpc, 'kasa_admin_moderate', uid=user(), p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_ADMIN')
+# Moderators (the default role) can review and hide, but only an admin deletes or manages the team.
+junior = user()
+admin_sql('insert into public.admins (user_id) values (%s)', (junior,))
+check('a new team member defaults to moderator', rpc('kasa_my_role', uid=junior) == 'moderator')
+check('an admin reports their role', rpc('kasa_my_role', uid=mod) == 'admin')
+check('a moderator cannot delete a report',
+      err(rpc, 'kasa_admin_moderate', uid=junior, p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_SUPER_ADMIN')
+check('a moderator can still hide and restore', rpc('kasa_admin_moderate', uid=junior, p_report_id=str(del_r['id']), p_action='restore')['moderation_status'] == 'approved')
+check('a moderator cannot read sign-ups', err(rpc, 'kasa_admin_signups', uid=junior, p_limit=10) == 'KASA_NOT_SUPER_ADMIN')
+check('a moderator cannot see or change the team', err(rpc, 'kasa_admin_team', uid=junior) == 'KASA_NOT_SUPER_ADMIN'
+      and err(rpc, 'kasa_admin_set_role', uid=junior, p_email='x@example.com', p_role='admin') == 'KASA_NOT_SUPER_ADMIN')
+junior_email = f'{junior}@example.com'
+admin_sql('update auth.users set email = %s where id = %s', (junior_email, junior))
+rpc('kasa_admin_set_role', uid=mod, p_email=junior_email, p_role='admin')
+check('an admin can promote a moderator', rpc('kasa_my_role', uid=junior) == 'admin')
+rpc('kasa_admin_set_role', uid=mod, p_email=junior_email, p_role='remove')
+check('an admin can remove a team member', rpc('kasa_my_role', uid=junior) is None)
+mod_email = f'{mod}@example.com'
+admin_sql('update auth.users set email = %s where id = %s', (mod_email, mod))
+check('an admin cannot change their own role', err(rpc, 'kasa_admin_set_role', uid=mod, p_email=mod_email, p_role='moderator') == 'KASA_SELF')
+check('an admin sees the team', any(m['me'] for m in rpc('kasa_admin_team', uid=mod)))
 del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete')
 check('a flagged report can be hard-deleted', del_res.get('deleted') is True, del_res)
 check('deleting a report cascades its events',
