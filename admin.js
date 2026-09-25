@@ -342,11 +342,26 @@ async function findReport(){
         </div>
       </div>
       ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
+      <div class="ad-actions" style="margin-top:.8rem;">
+        <select class="ad-recat-sel" id="adFindCatSel" aria-label="Category">
+          ${CATEGORY_KEYS.map(k => `<option value="${k}"${k === r.category ? ' selected' : ''}>${k}</option>`).join('')}
+        </select>
+        <button class="ad-ok" id="adFindCatBtn">Change category</button>
+      </div>
     </div>`;
   el.querySelectorAll('[data-find-mod]').forEach(b => b.addEventListener('click', async () => {
     await moderate(r.id, b.dataset.findMod);
     findReport();
   }));
+  document.getElementById('adFindCatBtn').addEventListener('click', async () => {
+    const cat = document.getElementById('adFindCatSel').value;
+    if (cat === r.category) return;
+    const reason = prompt('Public reason for the new category (shown in the report history):');
+    if (!reason) return;
+    const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: r.id, p_category: cat, p_reason: reason });
+    if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+    findReport();
+  });
 }
 
 async function rejectClaim(id){

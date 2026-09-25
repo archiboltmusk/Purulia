@@ -1137,6 +1137,41 @@ check('self-moderation only ever acts on report photos, never claim/vote photos'
       admin_sql("select count(*) from kasa_private.events where kind = 'moderation_hold' and detail @> %s",
                 ('{"reason":"off_topic_photo"}',))[0][0] == 1)
 
+# ────────────────── Auto-categorize from the photo (fix: everything was "Other") ──────────────────
+# The zero-tap flow never lets a citizen pick a category, so an unset report always starts at
+# 'other'. These exercise the same late-Vision-result hook as self-moderation, recognizing what
+# the photo actually shows.
+def auto_cat(rid):
+    return admin_sql('select category from public.reports where id = %s', (str(rid),))[0][0]
+
+
+road_other_r, road_other_path = report(user(), category='other')
+photo_check(road_other_path, labels=['Road', 'Pothole', 'Asphalt'])
+check('an "other" report whose photo shows a pothole is recategorized to road', auto_cat(road_other_r['id']) == 'road')
+auto_ev = admin_sql("select detail from kasa_private.events where report_id = %s and kind = 'auto_recategorized'",
+                     (str(road_other_r['id']),))
+check('the auto-recategorization is on the record as its own event kind (not attributed to a moderator)',
+      len(auto_ev) == 1 and auto_ev[0][0] == {'from': 'other', 'to': 'road'}, auto_ev)
+
+garbage_other_r, garbage_other_path = report(user(), category='other')
+photo_check(garbage_other_path, labels=['Garbage', 'Trash bag', 'Street'])
+check('an "other" report whose photo shows garbage is recategorized to garbage', auto_cat(garbage_other_r['id']) == 'garbage')
+
+kept_r, kept_path = report(user(), category='road')
+photo_check(kept_path, labels=['Garbage', 'Trash'])
+check('a report the citizen/flow already gave a real category is never auto-recategorized, whatever the photo shows',
+      auto_cat(kept_r['id']) == 'road')
+
+unmatched_r, unmatched_path = report(user(), category='other')
+photo_check(unmatched_path, labels=['Sky', 'Tree', 'Cloud'])
+check('an "other" report with no matching physical-object label stays "other"', auto_cat(unmatched_r['id']) == 'other')
+
+set_rules({'auto_categorize_photos': 'false'})
+off_cat_r, off_cat_path = report(user(), category='other')
+photo_check(off_cat_path, labels=['Road', 'Pothole'])
+check('auto-categorization can be switched off without a deploy', auto_cat(off_cat_r['id']) == 'other')
+set_rules({'auto_categorize_photos': 'true'})
+
 # ────────────────────── Repeat-offender pause for reports ──────────────────────
 # Mirrors the failed-claim cooldown above (serial / KASA_CLAIMS_PAUSED), but keyed
 # to a MODERATOR hiding a report — never to a self-moderation hold or a flag, which
@@ -1347,6 +1382,12 @@ reused_path2 = upload(photo_owner, 'reports')
 school_audit(photo_owner, where=offset(17100, 15000), path=reused_path2)
 check('and the same reused photo is refused for a second audit too',
       err(school_audit, photo_owner, where=offset(17400, 15000), path=reused_path2) == 'KASA_PHOTO_REUSED')
+
+audit_for_cat = school_audit(user(), where=offset(17700, 15000), name='Not A Report School')
+audit_cat_path = admin_sql('select photo_path from public.school_audits where id::text = %s', (audit_for_cat['id'],))[0][0]
+photo_check(audit_cat_path, labels=['Road', 'Pothole', 'Asphalt'])  # must not crash — no matching row in public.reports
+check('running the photo check on a school-audit photo leaves the audit itself untouched',
+      admin_sql('select building_condition from public.school_audits where id::text = %s', (audit_for_cat['id'],))[0][0] == 'good')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

@@ -868,7 +868,8 @@ Object.assign(window.KASA_I18N.en, {
   watch_on: "Watching. We'll notify you when this report's status changes.", watch_off: 'Stopped watching this report.',
   nav_mine: 'Your reports', mine_title: 'Your reports',
   mine_sub: 'Only visible on this device — nothing here identifies you to anyone else.',
-  mine_loading: 'Loading…', mine_empty: "You haven't filed a report on this device yet."
+  mine_loading: 'Loading…', mine_empty: "You haven't filed a report on this device yet.",
+  ev_auto_recategorized: 'Category auto-detected from the photo'
 });
 Object.assign(window.KASA_I18N.bn, {
   wc_avg_fix: 'গড়ে {n} দিনে সমাধান', stat_days_overdue: '{n} দিন ধরে উপেক্ষিত',
@@ -877,7 +878,8 @@ Object.assign(window.KASA_I18N.bn, {
   watch_on: 'ফলো করা শুরু। এই রিপোর্টের অবস্থা বদলালে আপনাকে জানানো হবে।', watch_off: 'এই রিপোর্ট ফলো করা বন্ধ হয়েছে।',
   nav_mine: 'আপনার রিপোর্ট', mine_title: 'আপনার রিপোর্ট',
   mine_sub: 'শুধু এই ডিভাইসে দেখা যায় — এখানে এমন কিছু নেই যা আপনাকে অন্য কারও কাছে শনাক্ত করে।',
-  mine_loading: 'লোড হচ্ছে…', mine_empty: 'আপনি এখনও এই ডিভাইস থেকে কোনো রিপোর্ট করেননি।'
+  mine_loading: 'লোড হচ্ছে…', mine_empty: 'আপনি এখনও এই ডিভাইস থেকে কোনো রিপোর্ট করেননি।',
+  ev_auto_recategorized: 'ছবি থেকে বিভাগ স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে'
 });
 Object.assign(window.KASA_I18N.hi, {
   wc_avg_fix: 'औसतन {n} दिन में समाधान', stat_days_overdue: '{n} दिन से अनदेखा',
@@ -886,5 +888,6 @@ Object.assign(window.KASA_I18N.hi, {
   watch_on: 'फ़ॉलो शुरू। इस रिपोर्ट की स्थिति बदलने पर हम आपको बताएँगे।', watch_off: 'इस रिपोर्ट को फ़ॉलो करना बंद हुआ।',
   nav_mine: 'आपकी रिपोर्ट', mine_title: 'आपकी रिपोर्ट',
   mine_sub: 'केवल इस डिवाइस पर दिखता है — यहाँ कुछ भी आपको किसी और के सामने पहचान नहीं देता।',
-  mine_loading: 'लोड हो रहा है…', mine_empty: 'आपने अभी तक इस डिवाइस से कोई रिपोर्ट दर्ज नहीं की है।'
+  mine_loading: 'लोड हो रहा है…', mine_empty: 'आपने अभी तक इस डिवाइस से कोई रिपोर्ट दर्ज नहीं की है।',
+  ev_auto_recategorized: 'तस्वीर से श्रेणी अपने आप पहचानी गई'
 });

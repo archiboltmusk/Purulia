@@ -1479,7 +1479,7 @@ function renderTimelineHTML(r){
     if (e.kind === 'claim_held' && d.reason) bits.push(t('held_' + d.reason));
     if (e.kind === 'resolved') bits.push(t('tl_counts', { v: d.verify_count ?? '?', d: d.dispute_count ?? 0 }));
     if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason) + (d.suggested_category ? ' → ' + t('cat_' + d.suggested_category) : ''));
-    if (e.kind === 'recategorized' && d.to) bits.push(`${t('cat_' + d.from)} → ${t('cat_' + d.to)}${d.reason ? ' · ' + d.reason : ''}`);
+    if ((e.kind === 'recategorized' || e.kind === 'auto_recategorized') && d.to) bits.push(`${t('cat_' + d.from)} → ${t('cat_' + d.to)}${d.reason ? ' · ' + d.reason : ''}`);
     if (['reported', 'claimed', 'verified', 'disputed'].includes(e.kind)){
       if (d.capture === 'live') bits.push(t('tl_live'));
       else if (d.capture === 'file') bits.push(t('tl_file'));
