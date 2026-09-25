@@ -1168,6 +1168,80 @@ check('an approved (not hidden) report never counts toward the pause',
 
 set_rules(BASELINE)
 
+# ─────────────────────────── Watch this report (per-report push) ───────────────────────────
+def notify_done(ids, error=None):
+    # bigint[], not jsonb — bypass rpc()'s automatic json.dumps and let psycopg adapt the list.
+    q('select public.kasa_watch_notify_done(%s::bigint[], %s)', (ids, error), role='service_role')
+
+
+# Earlier scenarios already left plenty of 'claimed'/'quorum_reached'/... events queued for
+# notification (no watchers, so nothing was ever sent them); drain those first so the checks
+# below can rely on kasa_watch_notify_claim returning exactly what this section queues.
+while True:
+    drained = rpc('kasa_watch_notify_claim', role='service_role', p_limit=50)
+    if not drained: break
+    notify_done([e['event_id'] for e in drained])
+
+
+def watch(uid, rid_, endpoint=None, lang='en'):
+    return rpc('kasa_watch_report', uid=uid, p_report_id=str(rid_), p_endpoint=endpoint or f'https://push.example/{uuid.uuid4().hex}',
+               p_p256dh='B' * 87, p_auth='a' * 22, p_lang=lang)
+
+check('anon cannot watch a report', refused(err(rpc, 'kasa_watch_report', p_report_id=str(rid), p_endpoint='https://x/1',
+      p_p256dh='B' * 87, p_auth='a' * 22, p_lang='en')))
+check('non-https watch endpoints are refused', err(watch, bob, rid, endpoint='http://evil/1') == 'KASA_BAD_SUBSCRIPTION')
+
+watcher, claimant = user(), user()
+wr_spot = offset(9000, 15000)
+wr, _ = report(user(), where=wr_spot)
+watch(watcher, wr['id'])
+watch(claimant, wr['id'])  # claimant also watches, but is the actor of the event that follows
+claim(claimant, wr['id'], where=wr_spot)
+q1 = rpc('kasa_watch_notify_claim', role='service_role', p_limit=20)
+ours = [e for e in q1 if e['report_id'] == str(wr['id'])]
+watcher_watch_id = admin_sql('select id from kasa_private.report_watches where user_id = %s', (watcher,))[0][0]
+check('a watched status change is queued with the right target, excluding the actor',
+      len(ours) == 1 and ours[0]['kind'] == 'claimed' and {t['id'] for t in ours[0]['targets']} == {str(watcher_watch_id)}, ours)
+notify_done([ours[0]['event_id']])
+q2 = rpc('kasa_watch_notify_claim', role='service_role', p_limit=20)
+check('a sent event is not re-queued', not [e for e in q2 if e['report_id'] == str(wr['id'])])
+check('browsers cannot pull the watch queue', refused(err(rpc, 'kasa_watch_notify_claim', uid=watcher, p_limit=20)))
+
+rpc('kasa_watch_notify_result', role='service_role', p_watch_id=watcher_watch_id, p_ok=False, p_gone=True)
+check('expired watch subscriptions are deleted', admin_sql('select count(*) from kasa_private.report_watches where id = %s', (watcher_watch_id,))[0][0] == 0)
+
+unwatch_uid = user()
+uw_r, _ = report(user(), where=offset(9300, 15000))
+watch(unwatch_uid, uw_r['id'])
+uw_endpoint = admin_sql('select endpoint from kasa_private.report_watches where user_id = %s', (unwatch_uid,))[0][0]
+rpc('kasa_unwatch_report', uid=unwatch_uid, p_report_id=str(uw_r['id']), p_endpoint=uw_endpoint)
+check('unwatching removes the subscription', admin_sql('select count(*) from kasa_private.report_watches where user_id = %s', (unwatch_uid,))[0][0] == 0)
+
+resolved_r, _ = report(user(), where=offset(9600, 15000))
+watch(user(), resolved_r['id'])
+admin_sql("insert into kasa_private.events (report_id, kind, actor_id) values (%s, 'resolved', null)", (resolved_r['id'],))
+q3 = rpc('kasa_watch_notify_claim', role='service_role', p_limit=20)
+resolved_ev = [e for e in q3 if e['report_id'] == str(resolved_r['id'])][0]
+notify_done([resolved_ev['event_id']])
+check('watches are cleared once a "resolved" notification is sent',
+      admin_sql('select count(*) from kasa_private.report_watches where report_id = %s', (resolved_r['id'],))[0][0] == 0)
+
+# ─────────────────────────── Your reports ───────────────────────────
+mine_uid = user()
+visible_r, _ = report(mine_uid, where=offset(9900, 15000))
+hidden_r, _ = report(mine_uid, where=offset(10200, 15000))
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(hidden_r['id']), p_action='hide', p_reason='test')
+mine = rpc('kasa_my_reports', uid=mine_uid)
+mine_ids = {r['id'] for r in mine}
+check("your-reports lists only this caller's own reports, including a hidden one",
+      mine_ids == {str(visible_r['id']), str(hidden_r['id'])}, mine_ids)
+check('your-reports shows the true (unfiltered) moderation status, not the public view\'s',
+      [r['moderation_status'] for r in mine if r['id'] == str(hidden_r['id'])] == ['hidden'], mine)
+
+other_uid = user()
+check('a freshly signed-in device with no reports gets an empty list', rpc('kasa_my_reports', uid=other_uid) == [])
+check('a never-signed-in caller cannot call your-reports', refused(err(rpc, 'kasa_my_reports')))
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

@@ -54,6 +54,7 @@
     <a href="kasa.html" class="k-nav-active" data-i18n="nav_kasa">Parishkar</a>
   </div>
   <div class="k-nav-right">
+    <button type="button" class="k-nav-mine" data-mine data-i18n="nav_mine">Your reports</button>
     <div class="k-lang-switch" role="group" aria-label="Language">
       <button type="button" class="k-lang-btn k-lang-active" data-lang="en">EN</button>
       <button type="button" class="k-lang-btn" data-lang="bn">বাং</button>
@@ -364,6 +365,18 @@
       <textarea id="k-flag-note" class="k-input k-textarea" maxlength="280"></textarea>
     </div>
     <button type="button" class="k-btn k-btn-flag" id="k-flag-submit" disabled data-i18n="flag_submit">Send flag</button>
+  </div>
+</div>
+
+<!-- Your reports (private, device-only history) -->
+<div class="k-modal" id="k-mine-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-mine-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-mine-title" data-i18n="mine_title">Your reports</h3>
+    <p class="k-modal-sub" data-i18n="mine_sub">Only visible on this device — nothing here identifies you to anyone else.</p>
+    <div class="k-lb-list" id="k-mine-list"></div>
   </div>
 </div>
 

@@ -715,13 +715,18 @@ function wardStats(){
   const stats = {};
   for (const r of primaries()){
     if (!r.ward) continue;
-    const s = stats[r.ward] ||= { ward: r.ward, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0 };
+    const s = stats[r.ward] ||= { ward: r.ward, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0, fixDaysSum: 0, fixDaysCount: 0 };
     if (r.status === 'resolved') s.resolved++;
     else { s.open++; if (r.status === 'claimed') s.claimed++; }
     if (isOverdue(r)) s.overdue++;
     s.fake += r.rejectedClaims;
     if (r.recurrence) s.recurring++;
+    if (r.status === 'resolved' && r.resolvedAt){
+      s.fixDaysSum += Math.round((new Date(r.resolvedAt) - new Date(r.createdAt)) / 86400000);
+      s.fixDaysCount++;
+    }
   }
+  for (const s of Object.values(stats)) s.avgFixDays = s.fixDaysCount ? Math.round(s.fixDaysSum / s.fixDaysCount) : null;
   return stats;
 }
 
@@ -851,7 +856,7 @@ function renderWardCard(){
   const el = document.getElementById('k-ward-card');
   const n = state.selectedWard;
   if (!n){ el.hidden = true; return; }
-  const s = wardStats()[n] || { open: 0, resolved: 0, fake: 0 };
+  const s = wardStats()[n] || { open: 0, resolved: 0, fake: 0, avgFixDays: null };
   const w = state.wards[n] || {};
   const filteredToWard = state.filters.ward === n;
   el.innerHTML = `
@@ -863,6 +868,7 @@ function renderWardCard(){
       <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
       ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
     </div>
+    ${s.avgFixDays != null ? `<div class="k-ward-avg">${esc(t('wc_avg_fix', { n: s.avgFixDays }))}</div>` : ''}
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-ward-filter="${n}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
       <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
@@ -1116,6 +1122,10 @@ function renderSheet(){
     </div>
     <div class="k-anon">${ICON_SHIELD} ${esc(t('sheet_anonymous'))}</div>
     <div class="k-allegation">⚖ ${esc(t('sheet_allegation'))} <a href="terms.html#allegations">${esc(t('sheet_terms'))}</a></div>
+    ${!r.pending && r.status !== 'resolved' ? `
+    <button type="button" class="k-watch-btn${watchedReports().has(r.id) ? ' on' : ''}" data-watch="${esc(r.id)}" ${watchSupported() ? '' : 'hidden'}>
+      ${esc(t(watchedReports().has(r.id) ? 'watch_off_btn' : 'watch_btn'))}
+    </button>` : ''}
 
     <div class="k-sheet-place">
       <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${neighbourBadge(r)}</div>
@@ -1130,7 +1140,7 @@ function renderSheet(){
 
     <div class="k-cards">
       <div class="k-card"><b>${peopleSaw(r)}</b><span>${esc(t('stat_people'))}</span></div>
-      <div class="k-card"><b>${r.status === 'resolved' && fixDays != null ? fixDays : days}</b><span>${esc(t(r.status === 'resolved' && fixDays != null ? 'stat_days_fix' : 'stat_days_open'))}</span></div>
+      <div class="k-card${r.status !== 'resolved' && isOverdue(r) ? ' k-card-overdue' : ''}"><b>${r.status === 'resolved' && fixDays != null ? fixDays : days}</b><span>${esc(t(r.status === 'resolved' && fixDays != null ? 'stat_days_fix' : isOverdue(r) ? 'stat_days_overdue' : 'stat_days_open'))}</span></div>
       <div class="k-card k-card-wide"><b class="k-card-text">${esc(t('cat_' + r.category))}</b><span>${esc(t('stat_type'))}</span></div>
     </div>
 
@@ -1142,7 +1152,7 @@ function renderSheet(){
 
   const status = r.status === 'resolved'
     ? (fixDays != null ? t('foot_fixed', { d: fixDays }) : t('status_resolved'))
-    : t('foot_unresolved', { d: days });
+    : isOverdue(r) ? t('foot_unresolved_overdue', { d: days, sla: r.slaDays }) : t('foot_unresolved', { d: days });
   document.getElementById('k-sheet-foot').innerHTML = `
     <div class="k-foot-line">${esc(t('foot_line', { ago: ago(r.createdAt), n: peopleSaw(r), status }))}</div>
     <div class="k-foot-actions">${renderActions(r)}</div>`;
@@ -2472,6 +2482,115 @@ async function installApp(){
   renderInstallButton();
 }
 
+/* "Watch this report": push alerts about status changes on ONE report — claimed,
+   confirmed, disputed, resolved. No location grant needed (unlike nearby alerts):
+   watching a report you're already looking at needs no area, so it shares the
+   same VAPID/service-worker plumbing as toggleAlerts() but skips getPosition(). */
+function watchSupported(){
+  return !!VAPID_PUBLIC_KEY && 'serviceWorker' in navigator && 'PushManager' in window && 'Notification' in window;
+}
+function watchedReports(){
+  try { return new Set(JSON.parse(localStorage.getItem('kasa_watched_reports') || '[]')); } catch (e) { return new Set(); }
+}
+function saveWatched(set){
+  try { localStorage.setItem('kasa_watched_reports', JSON.stringify([...set])); } catch (e) {}
+}
+
+async function toggleWatch(id, btn){
+  if (!watchSupported()) return;
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.register('sw.js');
+    await navigator.serviceWorker.ready;
+    const watched = watchedReports();
+    if (watched.has(id)){
+      const sub = await reg.pushManager.getSubscription();
+      if (sub){
+        await ensureSession();
+        await sb.rpc('kasa_unwatch_report', { p_report_id: id, p_endpoint: sub.endpoint });
+      }
+      watched.delete(id);
+      saveWatched(watched);
+      showToast(t('watch_off'));
+    } else {
+      if (await Notification.requestPermission() !== 'granted') throw new KasaError('alerts_denied');
+      await ensureSession();
+      const sub = (await reg.pushManager.getSubscription()) ||
+        await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: b64ToUint8(VAPID_PUBLIC_KEY) });
+      const j = sub.toJSON();
+      const { error } = await sb.rpc('kasa_watch_report', {
+        p_report_id: id, p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth, p_lang: state.lang
+      });
+      if (error) throw rpcError(error);
+      watched.add(id);
+      saveWatched(watched);
+      showToast(t('watch_on'), 5000);
+    }
+  } catch (e){
+    showToast(errorText(e), 6000);
+  }
+  btn.disabled = false;
+  renderWatchButton();
+}
+
+function renderWatchButton(){
+  const r = state.byId.get(state.sheetId);
+  const btn = document.querySelector('[data-watch]');
+  if (!btn || !r) return;
+  btn.hidden = !watchSupported() || r.pending || r.status === 'resolved';
+  const on = watchedReports().has(r.id);
+  btn.textContent = t(on ? 'watch_off_btn' : 'watch_btn');
+  btn.classList.toggle('on', on);
+}
+
+/* "Your reports": a private history for the device's own anonymous session, reusing
+   normalize() and the public detail sheet — includes reports the public feed hides
+   (under review, hidden by a moderator) since the owner should still see their own. */
+let myReportsList = [];
+async function loadMyReports(){
+  const box = document.getElementById('k-mine-list');
+  box.innerHTML = `<div class="k-lb-empty">${esc(t('mine_loading'))}</div>`;
+  try {
+    await ensureSession();
+    const { data, error } = await sb.rpc('kasa_my_reports');
+    if (error) throw rpcError(error);
+    myReportsList = (data || []).map(normalize);
+    renderMyReports(myReportsList);
+  } catch (e){
+    box.innerHTML = `<div class="k-lb-empty">${esc(errorText(e))}</div>`;
+  }
+}
+
+function renderMyReports(list){
+  const box = document.getElementById('k-mine-list');
+  if (!list.length){ box.innerHTML = `<div class="k-lb-empty">${esc(t('mine_empty'))}</div>`; return; }
+  box.innerHTML = list.map(r => {
+    const c = CATEGORIES[r.category];
+    return `
+    <button type="button" class="k-list-item" data-mine-open="${esc(r.id)}">
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy" width="64" height="64">` : `<span class="k-list-noimg">${c.icon}</span>`}
+      <span class="k-list-main">
+        <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
+        <span class="k-list-where">${esc(r.landmark || placeLabel(r))}</span>
+        <span class="k-list-meta">${statusChip(r)} <span>${esc(ago(r.createdAt))}</span></span>
+      </span>
+    </button>`;
+  }).join('');
+}
+
+function openMine(){
+  openModal('k-mine-modal');
+  loadMyReports();
+}
+
+function openMineReport(id){
+  const r = myReportsList.find(x => x.id === id);
+  if (!r) return;
+  if (!state.byId.has(id)) state.byId.set(id, r);
+  closeModal('k-mine-modal');
+  openSheet(id);
+}
+
 /* Caches the app shell so repeat visits open instantly (see sw.js). */
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
@@ -2484,7 +2603,7 @@ function registerServiceWorker(){
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -2493,6 +2612,9 @@ function wireUI(){
     if (d.seen) return handleSeen(d.seen, el);
     if (d.rate) return handleRate(d.rate, el);
     if (d.alerts) return toggleAlerts(el);
+    if (d.watch) return toggleWatch(d.watch, el);
+    if ('mine' in d) return openMine();
+    if (d.mineOpen) return openMineReport(d.mineOpen);
     if (d.flag) return openFlag(d.flag);
     if (d.share) return shareReport(d.share);
     if (d.rti) return openRTI(d.rti);

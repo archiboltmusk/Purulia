@@ -860,3 +860,31 @@ Object.assign(window.KASA_I18N.hi, {
   esc_rti: 'सूचना का अधिकार (RTI) ऑनलाइन', esc_rti_s: 'वर्क ऑर्डर, बजट और कार्य पूर्णता प्रमाणपत्र माँगें। शुल्क ₹10।',
   esc_rti_gen: 'इस रिपोर्ट के लिए RTI आवेदन तैयार करें', esc_rti_gen_s: 'विभाग ने इस बारे में क्या किया, यह पूछने वाला भरा हुआ मसौदा — अपना नाम और पता जोड़ें, फिर ख़ुद दाख़िल करें।'
 });
+
+Object.assign(window.KASA_I18N.en, {
+  wc_avg_fix: 'Avg {n} days to fix', stat_days_overdue: 'Ignored for {n} days',
+  foot_unresolved_overdue: '{d}d unresolved — past the {sla}d target',
+  watch_btn: '🔔 Watch this report', watch_off_btn: '🔕 Watching — turn off',
+  watch_on: "Watching. We'll notify you when this report's status changes.", watch_off: 'Stopped watching this report.',
+  nav_mine: 'Your reports', mine_title: 'Your reports',
+  mine_sub: 'Only visible on this device — nothing here identifies you to anyone else.',
+  mine_loading: 'Loading…', mine_empty: "You haven't filed a report on this device yet."
+});
+Object.assign(window.KASA_I18N.bn, {
+  wc_avg_fix: 'গড়ে {n} দিনে সমাধান', stat_days_overdue: '{n} দিন ধরে উপেক্ষিত',
+  foot_unresolved_overdue: '{d} দিন অমীমাংসিত — {sla} দিনের লক্ষ্য পেরিয়ে গেছে',
+  watch_btn: '🔔 এই রিপোর্ট ফলো করুন', watch_off_btn: '🔕 ফলো করা হচ্ছে — বন্ধ করুন',
+  watch_on: 'ফলো করা শুরু। এই রিপোর্টের অবস্থা বদলালে আপনাকে জানানো হবে।', watch_off: 'এই রিপোর্ট ফলো করা বন্ধ হয়েছে।',
+  nav_mine: 'আপনার রিপোর্ট', mine_title: 'আপনার রিপোর্ট',
+  mine_sub: 'শুধু এই ডিভাইসে দেখা যায় — এখানে এমন কিছু নেই যা আপনাকে অন্য কারও কাছে শনাক্ত করে।',
+  mine_loading: 'লোড হচ্ছে…', mine_empty: 'আপনি এখনও এই ডিভাইস থেকে কোনো রিপোর্ট করেননি।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  wc_avg_fix: 'औसतन {n} दिन में समाधान', stat_days_overdue: '{n} दिन से अनदेखा',
+  foot_unresolved_overdue: '{d} दिन से अनसुलझी — {sla} दिन के लक्ष्य से आगे',
+  watch_btn: '🔔 इस रिपोर्ट को फ़ॉलो करें', watch_off_btn: '🔕 फ़ॉलो हो रहा है — बंद करें',
+  watch_on: 'फ़ॉलो शुरू। इस रिपोर्ट की स्थिति बदलने पर हम आपको बताएँगे।', watch_off: 'इस रिपोर्ट को फ़ॉलो करना बंद हुआ।',
+  nav_mine: 'आपकी रिपोर्ट', mine_title: 'आपकी रिपोर्ट',
+  mine_sub: 'केवल इस डिवाइस पर दिखता है — यहाँ कुछ भी आपको किसी और के सामने पहचान नहीं देता।',
+  mine_loading: 'लोड हो रहा है…', mine_empty: 'आपने अभी तक इस डिवाइस से कोई रिपोर्ट दर्ज नहीं की है।'
+});
