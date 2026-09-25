@@ -4,7 +4,7 @@
    ══════════════════════════════════════════════════════════ */
 window.KASA_I18N = {
   en: {
-    nav_home: 'Home', nav_blueprint: 'Blueprint', nav_map: 'Map', nav_kasa: 'Kasa', nav_report: 'Report →',
+    nav_home: 'Home', nav_blueprint: 'Blueprint', nav_map: 'Map', nav_kasa: 'Parishkar', nav_report: 'Report →',
     hero_l1: 'See a problem?', hero_l2: 'Report it in 30 seconds.',
     hero_sub: 'Garbage, blocked drains, broken roads, dark streetlights, illegal activity. Every report is public, every ward is ranked — and nothing is marked fixed until people on the spot confirm it.',
     hero_cta: 'Report Now', hero_how: 'How verification works ↓',
@@ -26,7 +26,7 @@ window.KASA_I18N = {
     trust_5: 'Every photo, confirmation and dispute stays on the public record. Moderators can remove abusive content, but nobody can mark a report fixed on their own.',
 
     step1_camera: 'Open the camera and take a photo',
-    cam_permission_denied: 'Allow the camera to file a report. Purulia Kasa only accepts photos taken with the camera on this page. You can turn it on in your browser settings.',
+    cam_permission_denied: 'Allow the camera to file a report. Parishkar Purulia only accepts photos taken with the camera on this page. You can turn it on in your browser settings.',
     cam_report_unavailable: "This browser can't open the camera. Open this page in Chrome or Safari on your phone to file a report.",
     cam_ev_denied: 'Allow the camera to send this photo. Cleanup photos must be taken with the camera on this page. You can turn it on in your browser settings.',
     cam_ev_unavailable: "This browser can't open the camera. Open this page in Chrome or Safari on your phone to send this photo.",
@@ -49,10 +49,10 @@ window.KASA_I18N = {
     chain_councillor_label: 'Your ward councillor',
     chain_councillor_text: 'Every report also names the elected councillor for its ward. Councillors answer to voters, not to this chain — which is why both are shown.',
     auth_num: '06 · Representatives', auth_title: 'Elected representatives', auth_view: 'View →',
-    footer_left: 'Purulia Kasa · A civic tool for Purulia town',
-    footer_allegation: 'Reports are citizen allegations, not verified facts. Purulia Kasa is a neutral platform and not affiliated with any party or government body.',
+    footer_left: 'Parishkar Purulia · A civic tool for Purulia town',
+    footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Purulia is a neutral platform and not affiliated with any party or government body.',
     footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer',
-    qr_btn: 'Scan QR to Report', qr_title: 'Share Purulia Kasa', qr_sub: 'Point a phone camera at this QR code to open the report page.',
+    qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Purulia', qr_sub: 'Point a phone camera at this QR code to open the report page.',
 
     grp_clean: 'Cleanliness', grp_infra: 'Roads & utilities', grp_illegal: 'Illegal activity',
     cat_garbage: 'Garbage / dumping', cat_drain: 'Blocked drain / sewage', cat_road: 'Pothole / broken road',
@@ -189,7 +189,7 @@ window.KASA_I18N = {
     wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
     wc_share: 'Share ward link', ward_share_text: 'Ward {n}, Purulia: {open} unresolved, {fixed} fixed. See every report:',
     csv_btn: '⬇ CSV', csv_all: '⬇ Download all reports (CSV)', csv_done: '{n} reports downloaded', csv_empty: 'No reports to download.',
-    csv_license: 'Report data is open under', csv_license_2: 'Credit “Purulia Kasa”. Photos are not covered.',
+    csv_license: 'Report data is open under', csv_license_2: 'Credit “Parishkar Purulia”. Photos are not covered.',
     install_btn: '📲 Install the app', install_ios: 'On iPhone: tap Share, then “Add to Home Screen”.',
 
     alerts_btn: '🔔 Alert me about reports near me', alerts_off_btn: '🔕 Nearby alerts on — turn off',
@@ -211,7 +211,7 @@ window.KASA_I18N = {
     err_KASA_PHOTO_STALE: 'Take a new photo now — older uploads can’t be used.', err_KASA_PHOTO_UNSAFE: "This photo can't be published.",
     err_KASA_PHOTO_UNCHECKED: 'Photo verification is busy. Try again in a minute.', err_KASA_PHOTO_MISSING: 'The photo did not upload. Try again.',
     err_KASA_OWN_CLAIM: 'You made this claim — other people have to confirm it.',
-    err_KASA_ACCOUNT_TOO_NEW: 'Only people who used Kasa for a few days before this cleanup was claimed can respond to it.',
+    err_KASA_ACCOUNT_TOO_NEW: 'Only people who used Parishkar for a few days before this cleanup was claimed can respond to it.',
     err_KASA_NO_HISTORY: 'Report or confirm something else first — new accounts can’t respond to cleanups yet.',
     err_KASA_TEXT_BLOCKED: 'Please remove abusive words and try again.',
     err_KASA_IMPOSSIBLE_TRAVEL: 'Your location jumped too far too quickly. Wait a few minutes and try again.',
@@ -228,7 +228,7 @@ window.KASA_I18N = {
   },
 
   bn: {
-    nav_home: 'হোম', nav_blueprint: 'ব্লুপ্রিন্ট', nav_map: 'ম্যাপ', nav_kasa: 'কাসা', nav_report: 'রিপোর্ট →',
+    nav_home: 'হোম', nav_blueprint: 'ব্লুপ্রিন্ট', nav_map: 'ম্যাপ', nav_kasa: 'পরিষ্কার', nav_report: 'রিপোর্ট →',
     hero_l1: 'সমস্যা দেখছেন?', hero_l2: '৩০ সেকেন্ডে রিপোর্ট করুন।',
     hero_sub: 'আবর্জনা, বন্ধ নর্দমা, ভাঙা রাস্তা, নিভে থাকা রাস্তার আলো, বেআইনি কাজ। প্রতিটি রিপোর্ট প্রকাশ্য, প্রতিটি ওয়ার্ডের র‍্যাঙ্ক আছে — আর ঘটনাস্থলের মানুষ নিশ্চিত না করা পর্যন্ত কিছুই "সমাধান" হিসেবে ধরা হয় না।',
     hero_cta: 'এখনই রিপোর্ট করুন', hero_how: 'যাচাই কীভাবে হয় ↓',
@@ -250,7 +250,7 @@ window.KASA_I18N = {
     trust_5: 'প্রতিটি ছবি, নিশ্চিতকরণ ও আপত্তি প্রকাশ্য রেকর্ডে থাকে। মডারেটর আপত্তিকর বিষয় সরাতে পারেন, কিন্তু কেউ একা কোনো রিপোর্টকে সমাধান বলে চিহ্নিত করতে পারেন না।',
 
     step1_camera: 'ক্যামেরা খুলে ছবি তুলুন',
-    cam_permission_denied: 'রিপোর্ট করতে ক্যামেরার অনুমতি দিন। পুরুলিয়া কাসা শুধু এই পেজের ক্যামেরায় তোলা ছবি নেয়। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
+    cam_permission_denied: 'রিপোর্ট করতে ক্যামেরার অনুমতি দিন। পরিষ্কার পুরুলিয়া শুধু এই পেজের ক্যামেরায় তোলা ছবি নেয়। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
     cam_report_unavailable: 'এই ব্রাউজারে ক্যামেরা খোলা যাচ্ছে না। রিপোর্ট করতে ফোনের Chrome বা Safari-তে এই পেজটি খুলুন।',
     cam_ev_denied: 'এই ছবি পাঠাতে ক্যামেরার অনুমতি দিন। সাফাইয়ের ছবি এই পেজের ক্যামেরা দিয়েই তুলতে হবে। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
     cam_ev_unavailable: 'এই ব্রাউজারে ক্যামেরা খোলা যাচ্ছে না। ছবি পাঠাতে ফোনের Chrome বা Safari-তে এই পেজটি খুলুন।',
@@ -273,10 +273,10 @@ window.KASA_I18N = {
     chain_councillor_label: 'আপনার ওয়ার্ড কাউন্সিলর',
     chain_councillor_text: 'প্রতিটি রিপোর্টে সেই ওয়ার্ডের নির্বাচিত কাউন্সিলরের নামও থাকে। কাউন্সিলর ভোটারদের কাছে দায়বদ্ধ, এই শৃঙ্খলের কাছে নয় — তাই দুটোই দেখানো হয়।',
     auth_num: '০৬ · জনপ্রতিনিধি', auth_title: 'নির্বাচিত জনপ্রতিনিধি', auth_view: 'দেখুন →',
-    footer_left: 'পুরুলিয়া কাসা · পুরুলিয়া শহরের নাগরিক উদ্যোগ',
-    footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পুরুলিয়া কাসা একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
+    footer_left: 'পরিষ্কার পুরুলিয়া · পুরুলিয়া শহরের নাগরিক উদ্যোগ',
+    footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার পুরুলিয়া একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
     footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক',
-    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পুরুলিয়া কাসা শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
+    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার পুরুলিয়া শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
 
     grp_clean: 'পরিচ্ছন্নতা', grp_infra: 'রাস্তা ও পরিষেবা', grp_illegal: 'বেআইনি কাজ',
     cat_garbage: 'আবর্জনা / ময়লা ফেলা', cat_drain: 'বন্ধ নর্দমা / নোংরা জল', cat_road: 'গর্ত / ভাঙা রাস্তা',
@@ -413,7 +413,7 @@ window.KASA_I18N = {
     wc_open: '{n}টি অমীমাংসিত', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
     wc_share: 'ওয়ার্ডের লিঙ্ক শেয়ার', ward_share_text: 'পুরুলিয়ার ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
     csv_btn: '⬇ CSV', csv_all: '⬇ সব রিপোর্ট ডাউনলোড (CSV)', csv_done: '{n}টি রিপোর্ট ডাউনলোড হয়েছে', csv_empty: 'ডাউনলোড করার মতো রিপোর্ট নেই।',
-    csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Purulia Kasa”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
+    csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Parishkar Purulia”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
     install_btn: '📲 অ্যাপ ইনস্টল করুন', install_ios: 'আইফোনে: শেয়ার-এ ট্যাপ করুন, তারপর “Add to Home Screen”।',
 
     alerts_btn: '🔔 কাছাকাছি রিপোর্টের খবর দিন', alerts_off_btn: '🔕 কাছের খবর চালু — বন্ধ করুন',
@@ -434,7 +434,7 @@ window.KASA_I18N = {
     err_KASA_PHOTO_STALE: 'এখনই নতুন ছবি তুলুন — পুরোনো আপলোড চলবে না।', err_KASA_PHOTO_UNSAFE: 'এই ছবি প্রকাশ করা যাবে না।',
     err_KASA_PHOTO_UNCHECKED: 'ছবি যাচাই ব্যস্ত। এক মিনিট পরে চেষ্টা করুন।', err_KASA_PHOTO_MISSING: 'ছবি আপলোড হয়নি। আবার চেষ্টা করুন।',
     err_KASA_OWN_CLAIM: 'দাবিটি আপনার — অন্যদের নিশ্চিত করতে হবে।',
-    err_KASA_ACCOUNT_TOO_NEW: 'এই সাফাই দাবির কয়েক দিন আগে থেকে যাঁরা কাসা ব্যবহার করছেন, শুধু তাঁরাই সাড়া দিতে পারেন।',
+    err_KASA_ACCOUNT_TOO_NEW: 'এই সাফাই দাবির কয়েক দিন আগে থেকে যাঁরা পরিষ্কার ব্যবহার করছেন, শুধু তাঁরাই সাড়া দিতে পারেন।',
     err_KASA_NO_HISTORY: 'আগে অন্য কিছু রিপোর্ট বা নিশ্চিত করুন — নতুন অ্যাকাউন্ট এখনই সাফাইয়ে সাড়া দিতে পারে না।',
     err_KASA_TEXT_BLOCKED: 'অপমানজনক শব্দ বাদ দিয়ে আবার চেষ্টা করুন।',
     err_KASA_IMPOSSIBLE_TRAVEL: 'আপনার লোকেশন খুব অল্প সময়ে অনেক দূরে সরে গেছে। কয়েক মিনিট পরে আবার চেষ্টা করুন।',
@@ -451,7 +451,7 @@ window.KASA_I18N = {
   },
 
   hi: {
-    nav_home: 'होम', nav_blueprint: 'ब्लूप्रिंट', nav_map: 'मैप', nav_kasa: 'कासा', nav_report: 'रिपोर्ट →',
+    nav_home: 'होम', nav_blueprint: 'ब्लूप्रिंट', nav_map: 'मैप', nav_kasa: 'परिष्कार', nav_report: 'रिपोर्ट →',
     hero_l1: 'कोई समस्या दिखी?', hero_l2: '30 सेकंड में रिपोर्ट करें।',
     hero_sub: 'कचरा, जाम नालियाँ, टूटी सड़कें, बंद स्ट्रीटलाइट, अवैध गतिविधि। हर रिपोर्ट सार्वजनिक है, हर वार्ड की रैंकिंग है — और जब तक मौके पर मौजूद लोग पुष्टि न करें, कुछ भी "ठीक" नहीं माना जाता।',
     hero_cta: 'अभी रिपोर्ट करें', hero_how: 'पुष्टि कैसे होती है ↓',
@@ -473,7 +473,7 @@ window.KASA_I18N = {
     trust_5: 'हर फ़ोटो, पुष्टि और आपत्ति सार्वजनिक रिकॉर्ड में रहती है। मॉडरेटर आपत्तिजनक सामग्री हटा सकते हैं, पर कोई अकेले किसी रिपोर्ट को ठीक नहीं बता सकता।',
 
     step1_camera: 'कैमरा खोलें और फ़ोटो लें',
-    cam_permission_denied: 'रिपोर्ट करने के लिए कैमरे की अनुमति दें। पुरुलिया कासा केवल इसी पेज के कैमरे से ली गई फ़ोटो लेता है। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
+    cam_permission_denied: 'रिपोर्ट करने के लिए कैमरे की अनुमति दें। परिष्कार पुरुलिया केवल इसी पेज के कैमरे से ली गई फ़ोटो लेता है। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
     cam_report_unavailable: 'इस ब्राउज़र में कैमरा नहीं खुल रहा। रिपोर्ट करने के लिए यह पेज फ़ोन के Chrome या Safari में खोलें।',
     cam_ev_denied: 'यह फ़ोटो भेजने के लिए कैमरे की अनुमति दें। सफ़ाई की फ़ोटो इसी पेज के कैमरे से लेनी होगी। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
     cam_ev_unavailable: 'इस ब्राउज़र में कैमरा नहीं खुल रहा। फ़ोटो भेजने के लिए यह पेज फ़ोन के Chrome या Safari में खोलें।',
@@ -496,10 +496,10 @@ window.KASA_I18N = {
     chain_councillor_label: 'आपके वार्ड पार्षद',
     chain_councillor_text: 'हर रिपोर्ट में उस वार्ड के चुने हुए पार्षद का नाम भी होता है। पार्षद मतदाताओं के प्रति जवाबदेह हैं, इस कड़ी के प्रति नहीं — इसलिए दोनों दिखाए जाते हैं।',
     auth_num: '06 · प्रतिनिधि', auth_title: 'चुने हुए प्रतिनिधि', auth_view: 'देखें →',
-    footer_left: 'पुरुलिया कासा · पुरुलिया शहर का नागरिक टूल',
-    footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। पुरुलिया कासा एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
+    footer_left: 'परिष्कार पुरुलिया · पुरुलिया शहर का नागरिक टूल',
+    footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार पुरुलिया एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
     footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी',
-    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'पुरुलिया कासा शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
+    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार पुरुलिया शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
 
     grp_clean: 'सफ़ाई', grp_infra: 'सड़क और सेवाएँ', grp_illegal: 'अवैध गतिविधि',
     cat_garbage: 'कचरा / डंपिंग', cat_drain: 'जाम नाली / सीवेज', cat_road: 'गड्ढा / टूटी सड़क',
@@ -636,7 +636,7 @@ window.KASA_I18N = {
     wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
     wc_share: 'वार्ड का लिंक शेयर करें', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
     csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड के लिए कोई रिपोर्ट नहीं।',
-    csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Purulia Kasa” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
+    csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Parishkar Purulia” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
     install_btn: '📲 ऐप इंस्टॉल करें', install_ios: 'iPhone पर: शेयर पर टैप करें, फिर “Add to Home Screen”।',
 
     alerts_btn: '🔔 पास की रिपोर्ट की सूचना दें', alerts_off_btn: '🔕 पास की सूचनाएँ चालू — बंद करें',
@@ -657,7 +657,7 @@ window.KASA_I18N = {
     err_KASA_PHOTO_STALE: 'अभी नई फ़ोटो लें — पुराने अपलोड नहीं चलेंगे।', err_KASA_PHOTO_UNSAFE: 'यह फ़ोटो प्रकाशित नहीं की जा सकती।',
     err_KASA_PHOTO_UNCHECKED: 'फ़ोटो जाँच व्यस्त है। एक मिनट बाद कोशिश करें।', err_KASA_PHOTO_MISSING: 'फ़ोटो अपलोड नहीं हुई। फिर कोशिश करें।',
     err_KASA_OWN_CLAIM: 'यह दावा आपका है — दूसरों को पुष्टि करनी होगी।',
-    err_KASA_ACCOUNT_TOO_NEW: 'इस सफ़ाई के दावे से कुछ दिन पहले से कासा इस्तेमाल करने वाले ही जवाब दे सकते हैं।',
+    err_KASA_ACCOUNT_TOO_NEW: 'इस सफ़ाई के दावे से कुछ दिन पहले से परिष्कार इस्तेमाल करने वाले ही जवाब दे सकते हैं।',
     err_KASA_NO_HISTORY: 'पहले कुछ और रिपोर्ट या पुष्टि करें — नए अकाउंट अभी सफ़ाई पर जवाब नहीं दे सकते।',
     err_KASA_TEXT_BLOCKED: 'कृपया अपमानजनक शब्द हटाकर फिर कोशिश करें।',
     err_KASA_IMPOSSIBLE_TRAVEL: 'आपकी लोकेशन बहुत कम समय में बहुत दूर चली गई। कुछ मिनट बाद फिर कोशिश करें।',
@@ -758,7 +758,7 @@ Object.assign(window.KASA_I18N.hi, {
 });
 /* District-wide: villages by block, village services, rural accountability. */
 Object.assign(window.KASA_I18N.en, {
-  footer_left: 'Purulia Kasa · A civic tool for Purulia district',
+  footer_left: 'Parishkar Purulia · A civic tool for Purulia district',
   err_KASA_OUTSIDE_AREA: 'This location is outside Purulia district.',
   acc_block: '{b} block', acc_your_block: 'Your block',
   acc_rural_reps: 'Villages fall in different assembly seats, so MLA names are not shown here. Your gram panchayat pradhan and the BDO are the first people responsible.',
@@ -777,12 +777,12 @@ Object.assign(window.KASA_I18N.en, {
   cat_hand_pump: 'Broken hand pump', cat_anganwadi: 'Anganwadi centre', cat_health_centre: 'Health centre', cat_school: 'School building or facility',
   step3_block: 'In {b} block, outside the municipality. No ward needed.',
   step3_edge: 'Near the edge of Purulia town. Choose your ward, or "Not in the municipality" if this is a village.',
-  step3_outside: 'This spot is outside Purulia district. Kasa only covers Purulia district.',
+  step3_outside: 'This spot is outside Purulia district. Parishkar only covers Purulia district.',
   step3_not_town: 'Not in the municipality',
   share_text_rural: '{cat} in {block} block, Purulia — unresolved for {days} days. See it and add your voice:'
 });
 Object.assign(window.KASA_I18N.bn, {
-  footer_left: 'পুরুলিয়া কাসা · পুরুলিয়া জেলার নাগরিক উদ্যোগ',
+  footer_left: 'পরিষ্কার পুরুলিয়া · পুরুলিয়া জেলার নাগরিক উদ্যোগ',
   err_KASA_OUTSIDE_AREA: 'জায়গাটি পুরুলিয়া জেলার বাইরে।',
   acc_block: '{b} ব্লক', acc_your_block: 'আপনার ব্লক',
   acc_rural_reps: 'গ্রামগুলি বিভিন্ন বিধানসভা কেন্দ্রে পড়ে, তাই এখানে বিধায়কের নাম দেখানো হয় না। প্রথম দায়িত্ব আপনার গ্রাম পঞ্চায়েত প্রধান ও বিডিও-র।',
@@ -801,12 +801,12 @@ Object.assign(window.KASA_I18N.bn, {
   cat_hand_pump: 'খারাপ টিউবওয়েল', cat_anganwadi: 'অঙ্গনওয়াড়ি কেন্দ্র', cat_health_centre: 'স্বাস্থ্যকেন্দ্র', cat_school: 'স্কুলের ভবন বা সুবিধা',
   step3_block: '{b} ব্লকে, পৌরসভার বাইরে। ওয়ার্ড লাগবে না।',
   step3_edge: 'পুরুলিয়া শহরের সীমানার কাছে। আপনার ওয়ার্ড বাছুন, অথবা গ্রাম হলে "পৌরসভার বাইরে" বাছুন।',
-  step3_outside: 'জায়গাটি পুরুলিয়া জেলার বাইরে। কাসা শুধু পুরুলিয়া জেলার জন্য।',
+  step3_outside: 'জায়গাটি পুরুলিয়া জেলার বাইরে। পরিষ্কার শুধু পুরুলিয়া জেলার জন্য।',
   step3_not_town: 'পৌরসভার বাইরে',
   share_text_rural: 'পুরুলিয়ার {block} ব্লকে {cat} — {days} দিন ধরে অমীমাংসিত। দেখুন, আপনার মত দিন:'
 });
 Object.assign(window.KASA_I18N.hi, {
-  footer_left: 'पुरुलिया कासा · पुरुलिया ज़िले का नागरिक टूल',
+  footer_left: 'परिष्कार पुरुलिया · पुरुलिया ज़िले का नागरिक टूल',
   err_KASA_OUTSIDE_AREA: 'यह जगह पुरुलिया ज़िले से बाहर है।',
   acc_block: '{b} ब्लॉक', acc_your_block: 'आपका ब्लॉक',
   acc_rural_reps: 'गाँव अलग-अलग विधानसभा क्षेत्रों में आते हैं, इसलिए यहाँ विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी आपके ग्राम पंचायत प्रधान और बीडीओ की है।',
@@ -825,7 +825,7 @@ Object.assign(window.KASA_I18N.hi, {
   cat_hand_pump: 'ख़राब हैंडपंप', cat_anganwadi: 'आंगनवाड़ी केंद्र', cat_health_centre: 'स्वास्थ्य केंद्र', cat_school: 'स्कूल भवन या सुविधा',
   step3_block: '{b} ब्लॉक में, नगरपालिका से बाहर। वार्ड की ज़रूरत नहीं।',
   step3_edge: 'पुरुलिया शहर की सीमा के पास। अपना वार्ड चुनें, या गाँव हो तो "नगरपालिका से बाहर" चुनें।',
-  step3_outside: 'यह जगह पुरुलिया ज़िले से बाहर है। कासा सिर्फ़ पुरुलिया ज़िले के लिए है।',
+  step3_outside: 'यह जगह पुरुलिया ज़िले से बाहर है। परिष्कार सिर्फ़ पुरुलिया ज़िले के लिए है।',
   step3_not_town: 'नगरपालिका से बाहर',
   share_text_rural: 'पुरुलिया के {block} ब्लॉक में {cat} — {days} दिन से अनसुलझी। देखें और अपनी आवाज़ जोड़ें:'
 });

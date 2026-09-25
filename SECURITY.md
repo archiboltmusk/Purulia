@@ -2,7 +2,7 @@
 
 ## Reporting Security Issues
 
-If you discover a security vulnerability in Purulia Kasa, please email **grievance@puruliakasa.in** with:
+If you discover a security vulnerability in Parishkar Purulia, please email **grievance@puruliakasa.in** with:
 - Description of the vulnerability
 - Steps to reproduce
 - Potential impact
@@ -14,7 +14,7 @@ Do not open a public GitHub issue for security vulnerabilities.
 
 ## Security Audit (2026-09-24)
 
-A comprehensive security review confirms that **Purulia Kasa is safe for public access**:
+A comprehensive security review confirms that **Parishkar Purulia is safe for public access**:
 
 ### ✅ Current Code
 - No offensive content or illegal activity
@@ -107,7 +107,7 @@ All dependencies are public and open-source:
 
 All report content (text, location, category, status) is published under **CC BY 4.0**:
 - Anyone can use the data freely
-- Must credit Purulia Kasa
+- Must credit Parishkar Purulia
 - Photos remain under stricter control (not in CC BY export)
 
 See `terms.html` for full licence terms.

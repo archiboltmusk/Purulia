@@ -1,6 +1,6 @@
-# Purulia Kasa — setup and operations
+# Parishkar Purulia — setup and operations
 
-The Kasa page (`kasa.html`) works in two modes:
+The Parishkar page (`kasa.html`) works in two modes:
 
 - **Legacy** (until the database migration is applied): the old tables and
   functions. Reporting works; cleanup proof goes to an admin for review.
@@ -74,7 +74,7 @@ Without the Vision key the function still fingerprints photos, so reused photos
 are caught.
 
 Google requires a **billing account** on the Cloud project even for the free
-tier (1,000 images a month free). To check the key, open the Kasa page and run
+tier (1,000 images a month free). To check the key, open the Parishkar page and run
 this in the browser console:
 
 ```js

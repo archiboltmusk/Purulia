@@ -1,4 +1,4 @@
-/* Public analytics for Purulia Kasa: computed in the browser from the public view. */
+/* Public analytics for Parishkar Purulia: computed in the browser from the public view. */
 (async function(){
   const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name';
   const DAY = 86400000;
@@ -134,5 +134,5 @@
     '<th>Block</th><th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>',
     brows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.block)}</td>
       <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
-    'No village reports yet. Kasa now takes reports from all 20 blocks of the district.');
+    'No village reports yet. Parishkar now takes reports from all 20 blocks of the district.');
 })();

@@ -1,4 +1,4 @@
-# Purulia Kasa runbook
+# Parishkar Purulia runbook
 
 For whoever runs the site next. Not published on the website (`*.md` files are excluded from the Pages deploy).
 
@@ -6,7 +6,7 @@ For whoever runs the site next. Not published on the website (`*.md` files are e
 
 | Part | Where | Notes |
 |---|---|---|
-| Website (Purulia 2040, Kasa map, analytics, admin) | GitHub Pages, from `main` only | `.github/workflows/github-pages.yml` deploys the repo root on every push to `main`. |
+| Website (Purulia 2040, Parishkar map, analytics, admin) | GitHub Pages, from `main` only | `.github/workflows/github-pages.yml` deploys the repo root on every push to `main`. |
 | Database, sign-in, photo storage | Supabase project `cnmikcyvyamplbldiivp` | All rules run in Postgres functions; the pages can't skip them. |
 | Edge functions | Supabase | `kasa-photo-token`, `kasa-photo-check`, `kasa-notify`, `kasa-cleanup`, `p2040-signup-alert` |
 | Claim finalisation | `pg_cron` job `kasa-finalize`, every 10 min | Calls `public.kasa_finalize_due()`. |
@@ -90,7 +90,7 @@ Deliberately keyed to a moderator's own `hide` action only — never to a `self_
 
 ## District coverage and boundaries
 
-Kasa takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.
+Parishkar takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.
 
 - Boundary data lives in `kasa_private.areas`, generated from `purulia_blocks.geojson` (OpenStreetMap blocks) and `purulia_wards.geojson` by `tools/build-areas.py`. To update it, change the GeoJSON, run the script, and put the output in a new migration.
 - `purulia_wards.geojson` has 22 of the 23 wards. Near the town edge, the reporter's chosen ward decides (within `town_ward_margin_m`).

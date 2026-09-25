@@ -147,9 +147,9 @@ Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic 
 
 ---
 
-## Civic Reporting App (Kasa)
+## Civic Reporting App (Parishkar)
 
-[Purulia Kasa](https://archiboltmusk.github.io/Purulia/kasa.html) lets residents report civic problems (garbage, drains, roads, streetlights, water, illegal activity) with a photo and location. A report is marked fixed only when neighbours confirm it on the spot.
+[Parishkar Purulia](https://archiboltmusk.github.io/Purulia/kasa.html) lets residents report civic problems (garbage, drains, roads, streetlights, water, illegal activity) with a photo and location. A report is marked fixed only when neighbours confirm it on the spot.
 
 - **Pages:** `kasa.html` + `kasa.js` (report map and flow), `admin.html` (moderators), `terms.html`, `privacy.html`, `grievance.html`.
 - **Backend:** Supabase: database rules in `supabase/migrations/`, server functions in `supabase/functions/`, tests in `supabase/tests/`.

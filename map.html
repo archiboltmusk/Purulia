@@ -348,7 +348,7 @@ body{overflow:hidden;}
     <a href="data.html" class="nl-item">Ground Truth</a>
     <a href="join.html" class="nl-item">Join</a>
     <a href="map.html" class="nl-item">Map</a>
-    <a href="kasa.html" class="nl-item">Kasa</a>
+    <a href="kasa.html" class="nl-item">Parishkar</a>
   </div>
   <div class="nav-right">
     <div class="lang-switch" role="group" aria-label="Language">
@@ -368,7 +368,7 @@ body{overflow:hidden;}
         <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
         <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
         <a href="map.html" class="nd-item nd-active">District Map <span class="nd-arrow">→</span></a>
-        <a href="kasa.html" class="nd-item">Purulia Kasa <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item">Parishkar Purulia <span class="nd-arrow">→</span></a>
       </div>
     </div>
   </div>
@@ -421,9 +421,9 @@ body{overflow:hidden;}
     <button class="rp-close" onclick="closeReportPanel()" aria-label="Close panel">✕</button>
   </div>
   <div class="rp-body">
-    <p style="color:rgba(240,230,208,.7);font-size:.95rem;line-height:1.6;margin:0 0 1rem;">Problems anywhere in Purulia district are reported on <strong>Purulia Kasa</strong>: every report is public, checked for abuse, and marked fixed only when neighbours confirm it on the spot.</p>
-    <a class="rp-submit" href="kasa.html" style="display:block;text-align:center;text-decoration:none;">Report on Purulia Kasa →</a>
-    <p style="color:rgba(240,230,208,.4);font-size:.8rem;line-height:1.5;margin:1rem 0 0;">Kasa covers the whole district: wards in Purulia town, and the 20 blocks everywhere else.</p>
+    <p style="color:rgba(240,230,208,.7);font-size:.95rem;line-height:1.6;margin:0 0 1rem;">Problems anywhere in Purulia district are reported on <strong>Parishkar Purulia</strong>: every report is public, checked for abuse, and marked fixed only when neighbours confirm it on the spot.</p>
+    <a class="rp-submit" href="kasa.html" style="display:block;text-align:center;text-decoration:none;">Report on Parishkar Purulia →</a>
+    <p style="color:rgba(240,230,208,.4);font-size:.8rem;line-height:1.5;margin:1rem 0 0;">Parishkar covers the whole district: wards in Purulia town, and the 20 blocks everywhere else.</p>
   </div>
 </div>
 
@@ -444,7 +444,7 @@ body{overflow:hidden;}
         <div class="ac-stat-l">Areas affected</div>
       </div>
     </div>
-    <div class="ac-section">Unresolved Kasa reports by area</div>
+    <div class="ac-section">Unresolved Parishkar reports by area</div>
     <div id="ac-list"></div>
     <a href="https://wa.me/?text=Purulia+civic+issue+report+via+Purulia+2040+map.+View+all+reports+at+https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fmap.html" target="_blank" rel="noopener" class="ac-wa-btn">📲 Share via WhatsApp →</a>
   </div>
@@ -579,7 +579,7 @@ function roughCentroid(rings) {
   return n ? [la / n, lo / n] : null;
 }
 
-// Block outlines ship with the site (OpenStreetMap, simplified); the same file Kasa uses to place village reports.
+// Block outlines ship with the site (OpenStreetMap, simplified); the same file Parishkar uses to place village reports.
 fetch('purulia_blocks.geojson')
   .then(r => r.json())
   .then(data => {
@@ -1007,16 +1007,16 @@ function rpRenderMarker(r) {
   const place = r.area_kind === 'rural' && r.block_name ? r.block_name + ' block' : r.ward_no ? 'Purulia town · Ward ' + r.ward_no : 'Purulia town';
   const m = L.marker([r.lat, r.lng], { icon: mkReportIcon() })
     .bindPopup(popup(
-      'Kasa report · ' + rpEsc(catLabel),
+      'Parishkar report · ' + rpEsc(catLabel),
       rpEsc(r.landmark || r.description || 'Reported problem'),
       '<span style="color:rgba(240,230,208,.45);font-size:.76rem;">' + rpEsc(place) + ' · ' + (r.status === 'claimed' ? 'cleanup being checked' : days + ' days unresolved') + '</span>'
-      + '<br><a href="kasa.html?report=' + encodeURIComponent(r.id) + '" style="color:#D4882A;">Open on Kasa →</a>'
+      + '<br><a href="kasa.html?report=' + encodeURIComponent(r.id) + '" style="color:#D4882A;">Open on Parishkar →</a>'
     ))
     .addTo(reportLayer);
   m._blockName = r.area_kind === 'rural' ? (r.block_name || 'Unknown') : 'Purulia town';
 }
 
-// Unresolved Kasa reports (public, moderated view; times are rounded to the hour).
+// Unresolved Parishkar reports (public, moderated view; times are rounded to the hour).
 (function loadKasaReports() {
   const cfg = window.KASA_CONFIG || {};
   if (!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY) return;
@@ -1097,7 +1097,7 @@ function buildAccountabilityPanel() {
   if (!listEl) return;
 
   if (sorted.length === 0) {
-    listEl.innerHTML = '<div class="ac-empty">No unresolved reports.<br><a href="kasa.html" style="color:#D4882A;">Report a problem on Kasa →</a></div>';
+    listEl.innerHTML = '<div class="ac-empty">No unresolved reports.<br><a href="kasa.html" style="color:#D4882A;">Report a problem on Parishkar →</a></div>';
     return;
   }
   listEl.innerHTML = sorted.map(([name, count], i) =>

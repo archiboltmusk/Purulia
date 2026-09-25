@@ -357,7 +357,7 @@ document.addEventListener('click',function(e){
     'data.html':'The hard data on Purulia — why this district is primed for transformation right now:',
     'join.html':'This blueprint needs people, not just readers. Here\'s how to get involved with Purulia 2040:',
     'map.html':'Explore every project and zone in the Purulia 2040 transformation plan — interactive map:',
-    'kasa.html':'Purulia Kasa — report garbage in 30 seconds and hold your ward accountable. Try it:'
+    'kasa.html':'Parishkar Purulia — report garbage in 30 seconds and hold your ward accountable. Try it:'
   };
   var page=window.location.pathname.split('/').pop()||'index.html';
   var msg=pageMsgs[page]||'A complete transformation blueprint for Purulia, West Bengal:';

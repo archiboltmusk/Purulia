@@ -187,7 +187,7 @@ async function init(){
   try { state.ratings = JSON.parse(localStorage.getItem('kasa_ratings') || '{}'); } catch (e) {}
 
   if (!window.supabase || !SUPABASE_URL || !SUPABASE_ANON_KEY){
-    console.error('Kasa: Supabase library or config.js missing');
+    console.error('Parishkar: Supabase library or config.js missing');
     showToast(t('err_config'), 8000);
     return;
   }
@@ -260,7 +260,7 @@ async function loadReports(){
     setReports([...pending.map(pendingToRow), ...rows]);
     writeCache(rows);
   } catch (e){
-    console.error('Kasa: reports load failed', e);
+    console.error('Parishkar: reports load failed', e);
     if (!state.reports.length) showToast(t('err_load'));
   }
 }
@@ -329,7 +329,7 @@ function writeCache(rows){
 
 async function loadWards(){
   const { data, error } = await sb.from('wards').select('*').order('ward_no');
-  if (error){ console.warn('Kasa: wards load failed', error); return; }
+  if (error){ console.warn('Parishkar: wards load failed', error); return; }
   state.wards = {};
   (data || []).forEach(w => { state.wards[w.ward_no] = w; });
   populateWardDropdown();
@@ -347,7 +347,7 @@ async function loadWardGeo(){
   try {
     const res = await fetch('purulia_wards.geojson');
     if (res.ok) state.wardGeo = await res.json();
-  } catch (e) { console.info('Kasa: no ward boundaries'); }
+  } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
 
 function pointInRing(pt, ring){
@@ -369,7 +369,7 @@ async function loadBlockGeo(){
   try {
     const res = await fetch('purulia_blocks.geojson');
     if (res.ok) state.blockGeo = await res.json();
-  } catch (e) { console.info('Kasa: no block boundaries'); }
+  } catch (e) { console.info('Parishkar: no block boundaries'); }
 }
 
 function detectBlock(lat, lng){
@@ -449,7 +449,7 @@ async function ensureSession(){
   const captchaToken = await getCaptchaToken();
   const { data, error } = await sb.auth.signInAnonymously(captchaToken ? { options: { captchaToken } } : undefined);
   if (error || !data?.user){
-    console.error('Kasa: anonymous sign-in failed. Enable it under Authentication → Providers → Anonymous.', error);
+    console.error('Parishkar: anonymous sign-in failed. Enable it under Authentication → Providers → Anonymous.', error);
     throw new KasaError('err_session');
   }
   return data.user.id;
@@ -495,7 +495,7 @@ function rpcError(error){
 async function uploadPhoto(folder, blob){
   const path = `${folder}/${randomName(24)}.jpg`;
   const { error } = await sb.storage.from('kasa-photos').upload(path, blob, { contentType: 'image/jpeg', upsert: false, cacheControl: '31536000' });
-  if (error){ console.error('Kasa: upload failed', error); throw new KasaError('err_upload'); }
+  if (error){ console.error('Parishkar: upload failed', error); throw new KasaError('err_upload'); }
   return path;
 }
 
@@ -505,7 +505,7 @@ async function uploadPhoto(folder, blob){
 async function sendPhotoMeta(path, meta){
   if (!meta) return;
   const { error } = await sb.rpc('kasa_photo_meta', { p_path: path, p_meta: meta });
-  if (error && error.code !== 'PGRST202') console.warn('Kasa: photo metadata not recorded', error);
+  if (error && error.code !== 'PGRST202') console.warn('Parishkar: photo metadata not recorded', error);
 }
 
 async function readPhotoMeta(file){
@@ -547,7 +547,7 @@ async function checkPhoto(path, token, lat, lng){
     if (error) return null;
     // If EXIF mismatch detected, log warning but don't reject (allow manual location).
     if (data?.exif_match === false) {
-      console.warn('Kasa: EXIF GPS mismatch detected — server will flag this photo');
+      console.warn('Parishkar: EXIF GPS mismatch detected — server will flag this photo');
     }
     return data;
   } catch (e) { return null; }
@@ -630,7 +630,7 @@ const api = {
   async replies(id){
     const { data, error } = await sb.from('kasa_public_replies')
       .select('id,responder_name,responder_role,body,verified_note,created_at').eq('report_id', id).order('created_at');
-    if (error){ console.warn('Kasa: replies load failed', error); return []; }
+    if (error){ console.warn('Parishkar: replies load failed', error); return []; }
     return data || [];
   },
 
@@ -642,7 +642,7 @@ const api = {
     if (state.mode !== 'v2') return [];
     const { data, error } = await sb.from('kasa_public_events')
       .select('id,kind,actor_tag,photo_url,distance_m,detail,created_at').eq('report_id', id).order('created_at').order('id');
-    if (error){ console.warn('Kasa: events load failed', error); return []; }
+    if (error){ console.warn('Parishkar: events load failed', error); return []; }
     return data || [];
   }
 };
@@ -651,7 +651,7 @@ async function legacyCreateReport(d){
   const hash = await getReporterHash();
   const filename = `reports/${d.clientId}.jpg`;
   const { error: upErr } = await sb.storage.from('kasa-photos').upload(filename, d.photoBlob, { contentType: 'image/jpeg', upsert: true });
-  if (upErr){ console.error('Kasa: upload failed', upErr); throw new KasaError('err_upload'); }
+  if (upErr){ console.error('Parishkar: upload failed', upErr); throw new KasaError('err_upload'); }
   const { data: urlData } = sb.storage.from('kasa-photos').getPublicUrl(filename);
   const label = d.category === 'garbage' ? '' : `[${t('cat_' + d.category)}] `;
   const details = [d.landmark, d.description].filter(Boolean).join(' — ');
@@ -752,7 +752,7 @@ function reportGeoJSON(){
 }
 
 function initMainMap(){
-  if (!window.maplibregl){ console.error('Kasa: map library missing'); return new Promise(() => {}); }
+  if (!window.maplibregl){ console.error('Parishkar: map library missing'); return new Promise(() => {}); }
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
     attributionControl: { compact: true }, cooperativeGestures: false
@@ -1304,7 +1304,7 @@ function renderEscalate(r){
 }
 
 function replyMailto(r){
-  const subject = `Right of reply — Purulia Kasa report ${r.id}`;
+  const subject = `Right of reply — Parishkar Purulia report ${r.id}`;
   const body = [
     'Report: ' + `${PAGE_URL}?report=${encodeURIComponent(r.id)}`,
     'Your name:', 'Your position (e.g. Ward Councillor, Ward ' + (r.ward ?? '?') + '):',
@@ -1476,7 +1476,7 @@ function shareReport(id){
   const text = r.area === 'rural' && r.block
     ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
     : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
-  if (navigator.share){ navigator.share({ title: 'Purulia Kasa', text, url }).catch(() => {}); return; }
+  if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
   copyText(url);
 }
 
@@ -1485,7 +1485,7 @@ function shareWard(n){
   const s = wardStats()[n] || { open: 0, resolved: 0 };
   const url = `${PAGE_URL}?ward=${n}`;
   const text = t('ward_share_text', { n, open: s.open, fixed: s.resolved });
-  if (navigator.share){ navigator.share({ title: 'Purulia Kasa', text, url }).catch(() => {}); return; }
+  if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
   copyText(url);
 }
 
@@ -1531,7 +1531,7 @@ function copyText(s){
 function reportMessage(r){
   const w = state.wards[r.ward] || {};
   return [
-    `Purulia Kasa — ${t('cat_' + r.category)}`,
+    `Parishkar Purulia — ${t('cat_' + r.category)}`,
     r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
     r.landmark ? `Near: ${r.landmark}` : '',
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
@@ -1549,7 +1549,7 @@ function openContact(spec){
   // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
   const town = r.area !== 'rural';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Purulia Kasa — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
+  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + PAGE_URL + '?report=' + encodeURIComponent(r.id))}`;
 
   let title, sub, opts = [];
@@ -2061,7 +2061,7 @@ async function submitReport(){
       showToast(errorText(e), 7000);
       return;
     }
-    console.warn('Kasa: submit failed, saving offline', e);
+    console.warn('Parishkar: submit failed, saving offline', e);
     await queuePendingReport(draft);
     afterSubmit({ offline: true }, draft);
   }
@@ -2101,7 +2101,7 @@ async function getPendingReports(){
 async function queuePendingReport(d){
   const list = await getPendingReports();
   list.push({ ...d, createdAt: new Date().toISOString() });
-  try { await window.idbKeyval.set('pending_reports_v2', list); } catch (e) { console.error('Kasa: could not save offline', e); }
+  try { await window.idbKeyval.set('pending_reports_v2', list); } catch (e) { console.error('Parishkar: could not save offline', e); }
 }
 
 async function removePendingReport(clientId){
@@ -2128,7 +2128,7 @@ async function syncOfflineQueue(){
   for (const p of list){
     try { await api.createReport(p); await removePendingReport(p.clientId); done++; }
     catch (e){
-      console.warn('Kasa: sync failed for', p.clientId, e);
+      console.warn('Parishkar: sync failed for', p.clientId, e);
       if (/^KASA_/.test(e?.message || '')) await removePendingReport(p.clientId);
     }
   }
@@ -2349,7 +2349,7 @@ async function installApp(){
 /* Caches the app shell so repeat visits open instantly (see sw.js). */
 function registerServiceWorker(){
   if (!('serviceWorker' in navigator) || location.protocol !== 'https:') return;
-  const go = () => navigator.serviceWorker.register('sw.js').catch(e => console.info('Kasa: service worker not registered', e));
+  const go = () => navigator.serviceWorker.register('sw.js').catch(e => console.info('Parishkar: service worker not registered', e));
   setTimeout(() => (window.requestIdleCallback || setTimeout)(go), 3000);
 }
 
