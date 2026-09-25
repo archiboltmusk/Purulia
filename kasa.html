@@ -226,9 +226,14 @@
   <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-step-title">
     <div class="k-modal-handle"></div>
     <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
-    <div class="k-steps-bar" aria-hidden="true"><i data-bar="1"></i><i data-bar="2"></i></div>
-
+    <!-- One screen: camera, then submit. No category, ward, severity or description fields —
+         the server works all of that out from the photo and the GPS point (see
+         kasa_create_report / kasa_private.locate). The location runs silently in the
+         background from the moment this opens (see openReport()). The old fields still
+         exist, hidden, only so the rest of the JS (edit/prefill paths, legacy fallback)
+         keeps working without change. -->
     <div class="k-modal-step" data-step="1">
+      <div class="k-cat-warning" id="k-cat-warning" hidden></div>
       <h3 class="k-modal-title" id="k-step-title" data-i18n="step2_title">Take a photo</h3>
       <p class="k-modal-sub" data-i18n="step2_sub">Show the problem clearly. Avoid people's faces and number plates.</p>
       <button type="button" class="k-photo-input" id="k-photo-btn">
@@ -237,17 +242,6 @@
       </button>
       <div class="k-photo-preview" id="k-photo-preview"></div>
       <div class="k-cat-warning" id="k-photo-note" hidden></div>
-      <button type="button" class="k-btn k-btn-primary" id="k-next-2" disabled data-i18n="continue">Continue →</button>
-    </div>
-
-    <!-- No category, ward, severity or description fields: the server works all of that
-         out from the photo and the GPS point (see kasa_create_report / kasa_private.locate).
-         The fields still exist, hidden, only so the rest of the JS (edit/prefill paths,
-         legacy fallback) keeps working without change. -->
-    <div class="k-modal-step" data-step="2" hidden>
-      <div class="k-cat-warning" id="k-cat-warning" hidden></div>
-      <h3 class="k-modal-title" data-i18n="step3_title">Confirm &amp; submit</h3>
-      <p class="k-modal-sub" data-i18n="step3_sub">Getting your location automatically — this takes a moment.</p>
       <div class="k-coords" id="k-coords" data-i18n="step3_no_loc">No location set yet</div>
       <div class="k-field-note" id="k-place" hidden></div>
       <button type="button" class="k-btn k-btn-secondary" id="k-gps-btn" data-i18n="step3_gps" hidden>⊕ Use my location</button>
@@ -276,7 +270,6 @@
         <textarea id="k-desc" class="k-input k-textarea" maxlength="500" data-i18n-placeholder="step3_desc_ph" placeholder="One sentence is enough"></textarea>
       </div>
       <button type="button" class="k-btn k-btn-primary" id="k-submit" disabled data-i18n="step3_submit">Submit Report →</button>
-      <button type="button" class="k-btn k-btn-ghost" data-goto="1" data-i18n="back">← Back</button>
       <div class="k-privacy" data-i18n="step3_privacy">🔒 Reports are anonymous. The photo, location and ward are public; nothing identifies you.</div>
       <div class="k-privacy"><span data-i18n="step3_consent">By submitting you confirm this is true to the best of your knowledge and you agree to the</span> <a href="terms.html" target="_blank" rel="noopener" data-i18n="footer_terms">Terms of Use</a>.</div>
     </div>

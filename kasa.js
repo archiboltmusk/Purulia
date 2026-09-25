@@ -1818,7 +1818,6 @@ function openReport(prefill){
   if (!state.blockGeo) loadBlockGeo().then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
   document.getElementById('k-ward-field').hidden = false;
   document.getElementById('k-place').hidden = true;
-  document.getElementById('k-next-2').disabled = true;
   document.getElementById('k-photo-preview').innerHTML = '';
   document.getElementById('k-photo-note').hidden = true;
   document.getElementById('k-landmark').value = '';
@@ -1842,16 +1841,14 @@ function openReport(prefill){
   }
   goToStep(1);
   openModal('k-modal');
+  // One screen, camera first: open it right away so "Report" really does mean
+  // "camera opens" with no extra tap. The button stays for a retake.
+  captureReportPhoto();
 }
 
 function goToStep(n){
   document.querySelectorAll('#k-modal .k-modal-step').forEach(s => { s.hidden = s.dataset.step !== String(n); });
-  document.querySelectorAll('#k-modal .k-steps-bar i').forEach(i => { i.classList.toggle('on', n === 'done' || Number(i.dataset.bar) <= Number(n)); });
   document.querySelector('#k-modal .k-modal-sheet').scrollTop = 0;
-  if (n === 2){
-    initMiniMap();
-    setTimeout(() => miniMap && miniMap.resize(), 60);
-  }
   updateSubmitState();
 }
 
@@ -1879,7 +1876,6 @@ function selectCategory(key, advance = true){
   warn.hidden = !CATEGORIES[key].review;
   warn.textContent = CATEGORIES[key].review ? t('illegal_note') : '';
   renderCategoryGrid();
-  if (advance) goToStep(2);
 }
 
 /* Report photos come only from the in-page camera: no gallery, no file picker. */
@@ -1902,7 +1898,7 @@ async function captureReportPhoto(){
   preview.innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
   note.hidden = true;
   note.textContent = '';
-  document.getElementById('k-next-2').disabled = false;
+  updateSubmitState();
 }
 
 function initMiniMap(){
@@ -2412,8 +2408,6 @@ function wireUI(){
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
-  // A prefilled report ("same problem here") already has its category; skip straight to the location.
-  document.getElementById('k-next-2').addEventListener('click', () => goToStep(2));
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
   document.getElementById('k-submit').addEventListener('click', submitReport);
