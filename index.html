@@ -2,30 +2,47 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Purulia 2040 — A District Reborn</title>
-<meta name="description" content="A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.">
-<meta property="og:title" content="Purulia 2040 — A District Reborn">
-<meta property="og:description" content="A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Parishkar Purulia — A Civic Accountability Platform for Purulia</title>
+<meta name="description" content="Parishkar Purulia is a public map of civic problems in Purulia town. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
+<meta property="og:title" content="Parishkar Purulia — The Public Record of Purulia">
+<meta property="og:description" content="A public map of civic problems in Purulia town. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Purulia 2040 — A District Reborn">
-<meta name="twitter:description" content="A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.">
+<meta name="twitter:title" content="Parishkar Purulia — The Public Record of Purulia">
+<meta name="twitter:description" content="A public map of civic problems in Purulia town. Every report is visible. Every ward is ranked.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta name="theme-color" content="#0a0805">
+
+<!-- FIX 5: SVG favicon + PNG fallback for iOS -->
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="kasa-icon-192.png">
+<link rel="icon" type="image/png" sizes="192x192" href="kasa-icon-192.png">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/">
 <link rel="stylesheet" href="styles.css">
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://archiboltmusk.github.io/Purulia/#website","url":"https://archiboltmusk.github.io/Purulia/","name":"Purulia 2040","description":"A complete transformation blueprint for Purulia, West Bengal — six pillars, a 15-year roadmap, full economics."},{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/#webpage","url":"https://archiboltmusk.github.io/Purulia/","name":"Purulia 2040 — A District Reborn","description":"A complete transformation blueprint for Purulia, West Bengal. Six pillars. Every audience. One generation's worth of will.","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"}},{"@type":"GovernmentService","name":"Purulia 2040 District Transformation Blueprint","description":"A 15-year blueprint to transform Purulia district, West Bengal into Eastern India's green economy frontier through six strategic pillars: solar energy, crafts economy, water management, infrastructure, investment climate, and connectivity.","areaServed":{"@type":"AdministrativeArea","name":"Purulia District, West Bengal, India"},"serviceType":"District Development Planning"}]}</script>
-<script>if(sessionStorage.getItem("pgt")){document.documentElement.style.opacity="0";}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://archiboltmusk.github.io/Purulia/#website","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Purulia","description":"A civic accountability platform for Purulia, West Bengal — every report public, every ward ranked, nothing marked fixed until people on the spot confirm it."},{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/#webpage","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Purulia — The Public Record of Purulia","description":"A public map of civic problems in Purulia town.","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"}},{"@type":"GovernmentService","name":"Parishkar Purulia Civic Accountability Platform","description":"A public map of civic problems in Purulia town with server-enforced verification rules, open data, and ward-level accountability.","areaServed":{"@type":"AdministrativeArea","name":"Purulia District, West Bengal, India"},"serviceType":"Civic Accountability"}]}</script>
+
+<!-- FIX 1: hard fallback so the page never stays invisible -->
+<script>
+if (sessionStorage.getItem("pgt")) {
+  document.documentElement.style.opacity = "0";
+  setTimeout(function(){
+    document.documentElement.style.opacity = "1";
+    sessionStorage.removeItem("pgt");
+  }, 2500);
+}
+</script>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
+
 <div id="loader" aria-hidden="true">
   <svg class="ld-mandala" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
     <circle cx="50" cy="50" r="44" stroke="#D4882A" stroke-width=".5" opacity=".5"/>
@@ -37,22 +54,28 @@
       <line x1="19" y1="19" x2="81" y2="81"/><line x1="81" y1="19" x2="19" y2="81"/>
     </g>
   </svg>
-  <div class="ld-label">Purulia 2040</div>
+  <div class="ld-label">Parishkar Purulia</div>
 </div>
+
 <div id="cur"></div>
 <div id="curR"></div>
 <div id="pbar"></div>
 <div id="toast"></div>
+
 <nav>
-  <div class="nav-logo">PURULIA 2040</div>
+  <a href="index.html" class="nav-logo k-wordmark" aria-label="Parishkar Purulia home">
+    <span class="k-mark" aria-hidden="true"></span>
+    <span class="k-wordmark-first">Parishkar</span>
+    <span class="k-wordmark-second">Purulia</span>
+  </a>
   <div class="nav-links">
-    <a href="index.html" class="nl-item">Home</a>
+    <a href="index.html" class="nl-item nl-active">Home</a>
+    <a href="kasa.html" class="nl-item">Report</a>
     <a href="blueprint.html" class="nl-item">Blueprint</a>
     <a href="audience.html" class="nl-item">For You</a>
-    <a href="data.html" class="nl-item">Ground Truth</a>
+    <a href="data.html" class="nl-item">Data</a>
     <a href="join.html" class="nl-item">Join</a>
     <a href="map.html" class="nl-item">Map</a>
-    <a href="kasa.html" class="nl-item">Parishkar</a>
   </div>
   <div class="nav-right">
     <div class="lang-switch" role="group" aria-label="Language">
@@ -60,24 +83,27 @@
       <button class="lang-btn" data-lang="bn">বাং</button>
       <button class="lang-btn" data-lang="hi">हिं</button>
     </div>
-    <a href="join.html#respond" class="nav-cta">Help →</a><button class="nav-cmd" aria-label="Open command palette" title="⌘K">⌘K</button>
+    <a href="kasa.html" class="nav-cta">Report →</a>
+    <button class="nav-cmd" aria-label="Open command palette" title="⌘K">⌘K</button>
     <div class="nav-mob">
-      <button class="nav-toggle" id="navToggle">
+      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
         <div class="ntg-icon"><span></span><span></span><span></span></div>
       </button>
       <div class="nav-dropdown" id="navDropdown">
-        <a href="index.html" class="nd-item">Home <span class="nd-arrow">→</span></a>
+        <a href="index.html" class="nd-item nd-active">Home <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item">Parishkar Purulia <span class="nd-arrow">→</span></a>
         <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
         <a href="audience.html" class="nd-item">For You <span class="nd-arrow">→</span></a>
-        <a href="data.html" class="nd-item">Ground Truth <span class="nd-arrow">→</span></a>
+        <a href="data.html" class="nd-item">Data <span class="nd-arrow">→</span></a>
         <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
         <a href="map.html" class="nd-item">District Map <span class="nd-arrow">→</span></a>
-        <a href="kasa.html" class="nd-item">Parishkar Purulia <span class="nd-arrow">→</span></a>
       </div>
     </div>
   </div>
 </nav>
+
 <span id="main-content" tabindex="-1"></span>
+
 <!-- ══ HERO ══ -->
 <section id="hero">
   <div class="h-bg"></div>
@@ -104,21 +130,21 @@
   <div class="h-main">
     <div class="h-kicker">
       <span data-i18n="kicker0">West Bengal, India</span>
-      <span data-i18n="kicker1">District Transformation Blueprint</span>
-      <span data-i18n="kicker2">2026 → 2040</span>
+      <span data-i18n="kicker1">Civic Accountability Platform</span>
+      <span data-i18n="kicker2">Live Now</span>
     </div>
     <h1 class="hero-h">
-      <span class="l1" data-i18n="heroL1">A District</span>
-      <span class="l2" data-i18n="heroL2">Reborn.</span>
-      <span class="l3" data-i18n="heroL3">Purulia 2040</span>
+      <span class="l1" data-i18n="heroL1">The Public Record</span>
+      <span class="l2" data-i18n="heroL2">of Purulia.</span>
+      <span class="l3" data-i18n="heroL3">Parishkar Purulia</span>
     </h1>
-    <p class="h-lead" data-i18n-html="heroLead">Purulia is not a problem to be managed.<br>It is an <strong>opportunity waiting for one generation's worth of will.</strong><br>This is the complete blueprint — for everyone who wants to play a part.</p>
+    <p class="h-lead" data-i18n-html="heroLead">Every civic problem in Purulia town — <strong>garbage, drains, roads, schools, health centres</strong> — on one public map.<br>Every report is visible. Every ward is ranked. <strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
     <div class="h-btns">
-      <a href="join.html#respond" class="btn btn-a h-btn-primary" data-i18n="heroCta">I Want to Help →</a>
+      <a href="kasa.html" class="btn btn-a h-btn-primary" data-i18n="heroCta">Report a Problem →</a>
       <div class="h-btns-sub">
-        <a href="#pillars" class="h-sub-link" data-i18n="heroSub1">Read the blueprint</a>
+        <a href="kasa.html#map" class="h-sub-link" data-i18n="heroSub1">See the live map</a>
         <span class="h-sub-sep">·</span>
-        <a href="audience.html#audience" class="h-sub-link" data-i18n="heroSub2">Find your role</a>
+        <a href="blueprint.html" class="h-sub-link" data-i18n="heroSub2">Read the blueprint</a>
       </div>
     </div>
   </div>
@@ -138,10 +164,11 @@
 <!-- ══ TICKER ══ -->
 <div class="ticker" aria-hidden="true">
   <div class="ticker-t">
-    <span class="ti">77.9% of Young Children Anaemic (NFHS-5)</span><span class="ti">46.3% of Children Under 5 Underweight</span><span class="ti">Women's Literacy 61% — Lowest in West Bengal</span><span class="ti">Improved Sanitation 29.2% — Up From 12.1%</span><span class="ti">Child Marriage Down From 43.7% to 37%</span><span class="ti">Chhau Dance on UNESCO's Heritage List</span><span class="ti">6 Transformation Pillars</span><span class="ti">20 Blocks, One District</span><span class="ti">Rare Earths: GSI Exploration Under Way</span><span class="ti">Not an Aspirational District — Yet</span><span class="ti">Purulia 2040 · West Bengal · India</span><span class="ti">77.9% of Young Children Anaemic (NFHS-5)</span><span class="ti">46.3% of Children Under 5 Underweight</span><span class="ti">Women's Literacy 61% — Lowest in West Bengal</span><span class="ti">Improved Sanitation 29.2% — Up From 12.1%</span><span class="ti">Child Marriage Down From 43.7% to 37%</span><span class="ti">Chhau Dance on UNESCO's Heritage List</span><span class="ti">6 Transformation Pillars</span><span class="ti">20 Blocks, One District</span><span class="ti">Rare Earths: GSI Exploration Under Way</span><span class="ti">Not an Aspirational District — Yet</span><span class="ti">Purulia 2040 · West Bengal · India</span>
+    <span class="ti">77.9% of Young Children Anaemic (NFHS-5)</span><span class="ti">46.3% of Children Under 5 Underweight</span><span class="ti">Women's Literacy 61% — Lowest in West Bengal</span><span class="ti">Improved Sanitation 29.2% — Up From 12.1%</span><span class="ti">Child Marriage Down From 43.7% to 37%</span><span class="ti">Chhau Dance on UNESCO's Heritage List</span><span class="ti">6 Transformation Pillars</span><span class="ti">20 Blocks, One District</span><span class="ti">Rare Earths: GSI Exploration Under Way</span><span class="ti">Not an Aspirational District — Yet</span><span class="ti">Parishkar Purulia · West Bengal · India</span><span class="ti">77.9% of Young Children Anaemic (NFHS-5)</span><span class="ti">46.3% of Children Under 5 Underweight</span><span class="ti">Women's Literacy 61% — Lowest in West Bengal</span><span class="ti">Improved Sanitation 29.2% — Up From 12.1%</span><span class="ti">Child Marriage Down From 43.7% to 37%</span><span class="ti">Chhau Dance on UNESCO's Heritage List</span><span class="ti">6 Transformation Pillars</span><span class="ti">20 Blocks, One District</span><span class="ti">Rare Earths: GSI Exploration Under Way</span><span class="ti">Not an Aspirational District — Yet</span><span class="ti">Parishkar Purulia · West Bengal · India</span>
   </div>
 </div>
-<!-- ══ CRISIS NUMBERS ══ -->
+
+<!-- ══ THE PROBLEM ══ -->
 <section id="crisis">
   <div class="crisis-intro rv">
     <div class="sl">// The Reality Before The Blueprint</div>
@@ -180,9 +207,11 @@
       <div class="cs-note">GSI has explored at the advanced G2 stage. No block auctioned yet that we could find. Forest Rights Act safeguards must come first.</div>
     </div>
   </div>
-  <div class="crisis-link rv"><a href="data.html" class="btn btn-b">Full Ground Truth Data →</a></div>
+  <div class="crisis-link rv">
+    <a href="kasa.html" class="btn btn-a">Open the live map →</a>
+    <a href="data.html" class="btn btn-b">Full Ground Truth Data →</a>
+  </div>
 </section>
-
 
 <!-- ══ REFRAME ══ -->
 <section id="reframe">
@@ -302,9 +331,9 @@
     </div>
   </div>
   <div class="mom-grid rv">
-    <div class="mom-item" style="border-top-color:rgba(184,138,219,.5);grid-column:1/-1;">
+    <div class="mom-item mom-item-wide" style="grid-column:1/-1;">
       <div class="mom-item-head">
-        <div class="mom-tag" style="color:#B88ADB;border-color:rgba(184,138,219,.38);">Politics</div>
+        <div class="mom-tag">Politics</div>
         <div class="mom-date">May 2026</div>
       </div>
       <div class="mom-title">2026 Assembly Election — A New Government, A Window to Act</div>
@@ -328,16 +357,18 @@
     </div>
     <div class="mom-item mom-item-live">
       <div class="mom-item-head">
-        <div class="mom-tag">Blueprint</div>
+        <div class="mom-tag">Platform</div>
         <div class="mom-date"><span class="mlb-dot" aria-hidden="true"></span> Now</div>
       </div>
-      <div class="mom-title">Blueprint launched. The ideas are in motion.</div>
-      <div class="mom-body">Doctors, engineers, impact investors, and Purulia-origin diaspora are reading. The Collectorate briefing has been requested. The Tribal Crafts Cluster design brief is with three architecture firms.</div>
+      <div class="mom-title">Parishkar Purulia is live. Reports are being filed.</div>
+      <div class="mom-body">The public map is open. Every report is visible, every ward is ranked, nothing is marked fixed until people on the spot confirm it. This is the record the government does not keep.</div>
     </div>
   </div>
-  <div class="rv" style="margin-top:2rem;"><a href="data.html#livefeed" class="btn btn-b">Full Live Feed →</a></div>
+  <div class="rv" style="margin-top:2rem;">
+    <a href="kasa.html" class="btn btn-a">See the live map →</a>
+    <a href="data.html#livefeed" class="btn btn-b">Full live feed →</a>
+  </div>
 
-  <!-- Voices block -->
   <div class="voices-block rv">
     <div class="voices-label">Read it. Have thoughts?</div>
     <div style="text-align:center;padding:1.5rem 0 .5rem;">
@@ -345,17 +376,23 @@
     </div>
   </div>
 </section>
+
 <!-- ══ SHARE STRIP ══ -->
 <div class="share-wrap rv">
-  <p class="share-label">If this blueprint resonates — send it to one person who should read it.</p>
-  <div id="shareStrip"></div>
+  <p class="share-label">If this resonates — send it to one person who should read it.</p>
+  <div id="shareStrip">
+    <!-- FIX 3: fallback content if script.js fails -->
+    <a class="ss-btn ss-wa" href="https://wa.me/?text=Parishkar%20Purulia%20%E2%80%94%20the%20public%20record%20of%20Purulia.%20See%20the%20live%20map%3A%20https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">WhatsApp</a>
+    <a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text=Parishkar%20Purulia%20%E2%80%94%20the%20public%20record%20of%20Purulia.&url=https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">Twitter / X</a>
+    <a class="ss-btn ss-li" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">LinkedIn</a>
+  </div>
 </div>
 
 <!-- ══ STAY UPDATED ══ -->
 <div class="follow-bar rv">
   <div class="follow-left">
     <div class="follow-title">Stay in the loop</div>
-    <div class="follow-sub">Updates when the blueprint moves. No noise — only signal.</div>
+    <div class="follow-sub">Updates when the record moves. No noise — only signal.</div>
   </div>
   <div class="follow-form" id="followForm">
     <input type="email" class="follow-input" id="followEmail" placeholder="your@email.com" aria-label="Email address">
@@ -363,30 +400,39 @@
   </div>
 </div>
 
-<a href="blueprint.html" class="next-page rv">
+<a href="kasa.html" class="next-page rv">
   <div class="np-meta">
-    <div class="np-label">Next Page</div>
-    <div class="np-title">The Blueprint — <em>Every Detail.</em></div>
+    <div class="np-label">Next</div>
+    <div class="np-title">The live map — <em>open it now.</em></div>
   </div>
   <div class="np-arrow">→</div>
 </a>
+
 <footer>
-  <div class="ft-brand">Purulia 2040<span>A District Transformation Blueprint</span></div>
+  <div class="ft-brand">
+    <div class="ft-wordmark">
+      <span class="k-mark" aria-hidden="true"></span>
+      <span class="k-wordmark-first">Parishkar</span>
+      <span class="k-wordmark-second">Purulia</span>
+    </div>
+    <span>The public record of Purulia</span>
+  </div>
   <div class="ft-mid">Eastern India's Green Economy Frontier<br>West Bengal, India · 23.33°N 86.37°E</div>
   <div class="ft-links">
-    <a href="index.html#reframe">The Case</a>
-    <a href="audience.html">For You</a>
+    <a href="kasa.html">Report a Problem</a>
+    <a href="blueprint.html">The Blueprint</a>
     <a href="data.html">Ground Truth</a>
     <a href="join.html">Join</a>
   </div>
 </footer>
+
 <script src="config.js"></script>
 <script src="script.js"></script>
 <script>
 (function(){
   var cards={
     doctor:{
-      eyebrow:'For Doctors &amp; Healthcare Professionals',
+      eyebrow:'For Doctors & Healthcare Professionals',
       title:'Purulia needs you to arrive — and be seen arriving.',
       body:'Two medical colleges, and families still travel to Kolkata or Ranchi for specialist care. The district that gets a specialist anchor gets the ecosystem. One visible arrival changes the narrative for every doctor who comes after.',
       actions:[
@@ -416,7 +462,7 @@
       ]
     },
     investor:{
-      eyebrow:'For Investors &amp; Business Leaders',
+      eyebrow:'For Investors & Business Leaders',
       title:'Eastern India\'s best solar site is uninvested.',
       body:'Dry laterite land that suits solar, Chhau and Dokra crafts with global recognition, forest produce that leaves the district raw. Clearances go through the state\'s Silpasathi single window. An early investor helps shape what gets built.',
       actions:[
@@ -431,7 +477,7 @@
       ]
     },
     politician:{
-      eyebrow:'For Politicians &amp; Civil Servants',
+      eyebrow:'For Politicians & Civil Servants',
       title:'One written guarantee changes everything.',
       body:'Stable postings for the officers who run the district, and a public tracker of stalled work — rural jobs, drinking water, Forest Rights Act titles, land mutations. The first year of a new government is the window.',
       actions:[
@@ -476,7 +522,7 @@
       ]
     },
     artist:{
-      eyebrow:'For Artists &amp; Craftspeople',
+      eyebrow:'For Artists & Craftspeople',
       title:'GI tags could triple your income — the application isn\'t filed yet.',
       body:'Dokra and Chhau artisans earn a small share of what their work sells for in cities. The crafts already hold GI tags; what is missing is a collective that owns the brand. The artisans who join first co-own it from the beginning.',
       actions:[
@@ -491,7 +537,7 @@
       ]
     },
     other:{
-      eyebrow:'For Journalists, Researchers &amp; Communicators',
+      eyebrow:'For Journalists, Researchers & Communicators',
       title:'A well-told story creates accountability that no policy can.',
       body:'A single deep-dive in a national publication reaches the exact civil servants and investors who will never see this website. Media scrutiny creates administrative accountability. Documentation creates proof. Both are urgent.',
       actions:[
