@@ -105,6 +105,16 @@
     <div id="adResolutions"><div class="ad-loading">Loading…</div></div>
   </section>
 
+  <section class="ad-section">
+    <h2 class="ad-section-title">Find a report</h2>
+    <p class="ad-note">The queue above only lists reports waiting for approval or already flagged. Paste any report's link or ID here to hide, restore, or (if it's flagged or held for review) delete it — including ones nobody has flagged.</p>
+    <div class="ad-form" style="display:flex;gap:.5rem;flex-wrap:wrap;">
+      <input class="ad-input" id="adFindInput" placeholder="Report link or ID" style="flex:1;min-width:220px;">
+      <button class="ad-btn" id="adFindBtn" type="button">Find</button>
+    </div>
+    <div id="adFindResult"></div>
+  </section>
+
   <section class="ad-section" id="adReplySection" hidden>
     <h2 class="ad-section-title">Publish an official response (right of reply)</h2>
     <p class="ad-note">Only publish responses whose sender you have confirmed — for example an email from an official address. The text is published unchanged next to the report and appears in its evidence trail. It does not change the report's status.</p>

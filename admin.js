@@ -309,6 +309,46 @@ async function moderate(id, action){
   loadAll();
 }
 
+/* Find any report by link/ID — including one nobody flagged — and hide, restore or (if
+   flagged/held for review) delete it. The moderation queue above only lists what's waiting. */
+document.getElementById('adFindBtn').addEventListener('click', findReport);
+document.getElementById('adFindInput').addEventListener('keypress', (e) => { if (e.key === 'Enter') findReport(); });
+
+async function findReport(){
+  const raw = document.getElementById('adFindInput').value.trim();
+  let id = raw;
+  try { id = new URL(raw).searchParams.get('report') || raw; } catch (_) {}
+  const el = document.getElementById('adFindResult');
+  if (!id){ el.innerHTML = ''; return; }
+  el.innerHTML = '<div class="ad-loading">Loading…</div>';
+  const { data: r, error } = await sb.from('reports').select('*').eq('id', id).single();
+  if (error || !r){
+    el.innerHTML = `<div class="ad-empty">${esc(error && error.code === 'PGRST116' ? 'No report with that link or ID.' : 'Could not load: ' + ((error && (error.details || error.message)) || 'not found'))}</div>`;
+    return;
+  }
+  const canDelete = r.moderation_status === 'flagged' || r.moderation_status === 'review';
+  el.innerHTML = `
+    <div class="ad-item">
+      <div class="ad-item-head">
+        <div>
+          <div class="ad-item-title">${esc(r.category)} · Ward ${esc(r.ward_no ?? '?')} · ${esc(r.moderation_status)} · ${esc(r.status)}</div>
+          <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>${new Date(r.created_at).toLocaleString('en-IN')}</div>
+        </div>
+        <div class="ad-actions">
+          <button class="ad-ok" data-find-mod="approve">✓ Approve / restore</button>
+          <button class="ad-bad" data-find-mod="hide">✕ Hide</button>
+          ${canDelete ? '<button class="ad-bad" data-find-mod="delete">🗑 Delete permanently</button>'
+            : '<span class="ad-note" style="margin:0;">Only a flagged or held-for-review report can be deleted outright — hide this one instead.</span>'}
+        </div>
+      </div>
+      ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
+    </div>`;
+  el.querySelectorAll('[data-find-mod]').forEach(b => b.addEventListener('click', async () => {
+    await moderate(r.id, b.dataset.findMod);
+    findReport();
+  }));
+}
+
 async function rejectClaim(id){
   const reason = prompt('Public reason for rejecting this cleanup claim (e.g. "photo is of a different street"):');
   if (!reason) return;
