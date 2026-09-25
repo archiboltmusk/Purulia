@@ -4,17 +4,17 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Parishkar Purulia — A Civic Accountability Platform for Purulia</title>
-<meta name="description" content="Parishkar Purulia is a public map of civic problems in Purulia town. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
+<meta name="description" content="Parishkar Purulia is a public map of civic problems in Purulia town and district. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
 <meta property="og:title" content="Parishkar Purulia — The Public Record of Purulia">
-<meta property="og:description" content="A public map of civic problems in Purulia town. Every report is visible. Every ward is ranked.">
+<meta property="og:description" content="A public map of civic problems in Purulia. Every report is visible. Every ward is ranked.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Parishkar Purulia — The Public Record of Purulia">
-<meta name="twitter:description" content="A public map of civic problems in Purulia town.">
+<meta name="twitter:description" content="A public map of civic problems in Purulia.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
-<meta name="theme-color" content="#0a0805">
+<meta name="theme-color" content="#0C0A05">
 
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="kasa-icon-192.png">
@@ -24,8 +24,10 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
+
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/">
 <link rel="stylesheet" href="styles.css">
+
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://archiboltmusk.github.io/Purulia/#website","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Purulia","description":"A civic accountability platform for Purulia, West Bengal."},{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/#webpage","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Purulia — The Public Record of Purulia","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"}}]}</script>
 
 <script>
@@ -80,7 +82,7 @@ if (sessionStorage.getItem("pgt")) {
     <a href="kasa.html" class="nav-cta">Report →</a>
     <button class="nav-cmd" aria-label="Open command palette" title="⌘K">⌘K</button>
     <div class="nav-mob">
-      <button class="nav-toggle" id="navToggle" aria-label="Open menu" aria-expanded="false">
+      <button class="nav-toggle" id="navToggle" aria-label="Open navigation menu" aria-expanded="false" aria-controls="navDropdown">
         <div class="ntg-icon"><span></span><span></span><span></span></div>
       </button>
       <div class="nav-dropdown" id="navDropdown">
@@ -112,8 +114,10 @@ if (sessionStorage.getItem("pgt")) {
       <circle cx="250" cy="250" r="35" stroke="#D4882A" stroke-width="1"/>
       <circle cx="250" cy="250" r="8" fill="#D4882A" opacity=".4"/>
       <g stroke="#D4882A" stroke-width=".35" opacity=".7">
-        <line x1="250" y1="10" x2="250" y2="490"/><line x1="10" y1="250" x2="490" y2="250"/>
-        <line x1="74" y1="74" x2="426" y2="426"/><line x1="426" y1="74" x2="74" y2="426"/>
+        <line x1="250" y1="10" x2="250" y2="490"/>
+        <line x1="10" y1="250" x2="490" y2="250"/>
+        <line x1="74" y1="74" x2="426" y2="426"/>
+        <line x1="426" y1="74" x2="74" y2="426"/>
       </g>
       <polygon points="250,215 285,250 250,285 215,250" stroke="#D4882A" stroke-width="1.2" fill="none"/>
     </svg>
@@ -129,7 +133,7 @@ if (sessionStorage.getItem("pgt")) {
       <span class="l2">of Purulia.</span>
       <span class="l3">Parishkar Purulia</span>
     </h1>
-    <p class="h-lead">Every civic problem in Purulia town — <strong>garbage, drains, roads, schools, health centres</strong> — on one public map.<br>Every report is visible. Every ward is ranked. <strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
+    <p class="h-lead">Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
     <div class="h-btns">
       <a href="kasa.html" class="btn btn-a h-btn-primary">Report a Problem →</a>
       <div class="h-btns-sub">
@@ -141,10 +145,10 @@ if (sessionStorage.getItem("pgt")) {
   </div>
   <div class="h-bar">
     <div class="hb"><div class="hb-n">20</div><div class="hb-l">Blocks</div></div>
+    <div class="hb"><div class="hb-n">3</div><div class="hb-l">Municipalities</div></div>
     <div class="hb"><div class="hb-n">23</div><div class="hb-l">Municipal wards</div></div>
     <div class="hb"><div class="hb-n">7</div><div class="hb-l">Issue categories</div></div>
-    <div class="hb"><div class="hb-n">3</div><div class="hb-l">Confirmations required</div></div>
-    <div class="hb"><div class="hb-n">Open</div><div class="hb-l">Public data, CC BY 4.0</div></div>
+    <div class="hb"><div class="hb-n">3M+</div><div class="hb-l">People served</div></div>
   </div>
   <div class="scroll-hint" aria-hidden="true">
     <div class="sh-line"></div>
@@ -161,14 +165,14 @@ if (sessionStorage.getItem("pgt")) {
     <span class="ti">Improved sanitation 29.2% — up from 12.1% (NFHS-4 to NFHS-5)</span>
     <span class="ti">Purulia excluded from Aspirational District Programme — Lok Sabha, August 2026</span>
     <span class="ti">Chhau dance on UNESCO's Intangible Heritage list — 2010</span>
-    <span class="ti">Purulia 2040 · West Bengal · India</span>
+    <span class="ti">Parishkar Purulia · West Bengal · India</span>
     <span class="ti">77.9% of young children anaemic — NFHS-5 (2019–21)</span>
     <span class="ti">46.3% of children under 5 underweight — NFHS-5</span>
     <span class="ti">Women's literacy 61% — lowest in West Bengal (NFHS-5)</span>
     <span class="ti">Improved sanitation 29.2% — up from 12.1% (NFHS-4 to NFHS-5)</span>
     <span class="ti">Purulia excluded from Aspirational District Programme — Lok Sabha, August 2026</span>
     <span class="ti">Chhau dance on UNESCO's Intangible Heritage list — 2010</span>
-    <span class="ti">Purulia 2040 · West Bengal · India</span>
+    <span class="ti">Parishkar Purulia · West Bengal · India</span>
   </div>
 </div>
 
@@ -206,7 +210,7 @@ if (sessionStorage.getItem("pgt")) {
       <div class="cs-note">Asked in Lok Sabha, August 2026. Government replied: "No such proposal is presently under consideration." <a href="#src-lds" class="src-link">Source</a></div>
     </div>
     <div class="crisis-stat">
-      <div class="cs-val good">UNESCO</div>
+      <div class="cs-val neutral">UNESCO</div>
       <div class="cs-label">Chhau dance listed</div>
       <div class="cs-note">Inscribed on the Representative List of the Intangible Cultural Heritage of Humanity in 2010. <a href="#src-unesco" class="src-link">Source</a></div>
     </div>
@@ -257,8 +261,13 @@ if (sessionStorage.getItem("pgt")) {
 <!-- ══ PILLARS ══ -->
 <section id="pillars">
   <div class="ph">
-    <div class="rv"><div class="sl">// 01 — Framework</div><h2 class="sh">Six Pillars.<br><em>One Transformation.</em></h2></div>
-    <div class="rv"><p class="ss">Each pillar is a standalone intervention. Together they form a flywheel. Sequence matters: power before roads, roads before industry, industry before talent retention.</p></div>
+    <div class="rv">
+      <div class="sl">// 01 — Framework</div>
+      <h2 class="sh">Six Pillars.<br><em>One Transformation.</em></h2>
+    </div>
+    <div class="rv">
+      <p class="ss">Each pillar is a standalone intervention. Together they form a flywheel. Sequence matters: power before roads, roads before industry, industry before talent retention.</p>
+    </div>
   </div>
   <div class="pgrid">
     <div class="pill rv"><div class="pill-bar"></div><div class="pill-n">01</div><div class="pill-ico">💧</div><div class="pill-t">Water & Geography</div><p class="pill-b">Harvest the monsoon. Store it. Check dams, farm ponds, watershed treatment convert a drought-prone plateau into a water-secure district.</p><div class="chips"><span class="chip">Check Dams</span><span class="chip">Pukhur Restoration</span><span class="chip">Drip Irrigation</span><span class="chip">Millet Shift</span></div></div>
@@ -275,9 +284,9 @@ if (sessionStorage.getItem("pgt")) {
   <div class="rv">
     <div class="sl">// Sources</div>
     <h2 class="sh">Every Number,<br><em>Sourced.</em></h2>
-    <p class="ss">Every factual claim on this page links to its source. If you find a claim without a source, report it via the <a href="join.html#respond">contact form</a> and it will be corrected.</p>
+    <p class="ss">Every factual claim on this page links to its source. If you find a claim without a source, report it via the <a href="join.html#respond" class="src-link">contact form</a> and it will be corrected.</p>
     <ol class="source-list">
-      <li id="src-nfhs5"><strong>National Family Health Survey (NFHS-5)</strong>, 2019–21, Government of India, Ministry of Health and Family Welfare. District factsheet for Purulia. <a href="https://rchiips.org/nfhs/" target="_blank" rel="noopener">rchiips.org/nfhs</a></li>
+      <li id="src-nfhs5"><strong>National Family Health Survey (NFHS-5), 2019–21</strong>, Government of India, Ministry of Health and Family Welfare. District factsheet for Purulia. <a href="https://rchiips.org/nfhs/" target="_blank" rel="noopener">rchiips.org/nfhs</a></li>
       <li id="src-lds"><strong>Lok Sabha Unstarred Question, August 2026</strong>, Ministry of Home Affairs / NITI Aayog, on inclusion of Purulia in the Aspirational District Programme. Reply: "No such proposal is presently under consideration of the Government."</li>
       <li id="src-unesco"><strong>UNESCO Representative List of the Intangible Cultural Heritage of Humanity</strong>, Chhau dance inscription, 2010. <a href="https://ich.unesco.org/" target="_blank" rel="noopener">ich.unesco.org</a></li>
     </ol>
@@ -292,19 +301,51 @@ if (sessionStorage.getItem("pgt")) {
     <p class="ss">One click. A personalized action card built for your role — with specific steps, not generic advice.</p>
   </div>
   <div class="pf-grid rv" id="pfGrid">
-    <div class="pf-role-card" data-role="doctor"><span class="pf-role-ico">🩺</span><div class="pf-role-name">Doctor / Healthcare</div><div class="pf-role-sub">Specialist · GP · Researcher</div></div>
-    <div class="pf-role-card" data-role="engineer"><span class="pf-role-ico">⚙️</span><div class="pf-role-name">Engineer</div><div class="pf-role-sub">Civil · Electrical · Software</div></div>
-    <div class="pf-role-card" data-role="investor"><span class="pf-role-ico">💼</span><div class="pf-role-name">Investor / Business</div><div class="pf-role-sub">Solar · Agro · Impact · VC</div></div>
-    <div class="pf-role-card" data-role="politician"><span class="pf-role-ico">🏛️</span><div class="pf-role-name">Policy / Administration</div><div class="pf-role-sub">IAS · MLA · MP · Elected</div></div>
-    <div class="pf-role-card" data-role="diaspora"><span class="pf-role-ico">🌍</span><div class="pf-role-name">Diaspora</div><div class="pf-role-sub">Purulia-origin, anywhere</div></div>
-    <div class="pf-role-card" data-role="student"><span class="pf-role-ico">📚</span><div class="pf-role-name">Student</div><div class="pf-role-sub">Undergraduate · Postgrad · Research</div></div>
-    <div class="pf-role-card" data-role="artist"><span class="pf-role-ico">🎭</span><div class="pf-role-name">Artist / Craftsperson</div><div class="pf-role-sub">Dokra · Chhau · Weaver · Maker</div></div>
-    <div class="pf-role-card" data-role="other"><span class="pf-role-ico">→</span><div class="pf-role-name">Journalist / Researcher</div><div class="pf-role-sub">Communicator · Academic</div></div>
+    <div class="pf-role-card" data-role="doctor">
+      <span class="pf-role-ico">🩺</span>
+      <div class="pf-role-name">Doctor / Healthcare</div>
+      <div class="pf-role-sub">Specialist · GP · Researcher</div>
+    </div>
+    <div class="pf-role-card" data-role="engineer">
+      <span class="pf-role-ico">⚙️</span>
+      <div class="pf-role-name">Engineer</div>
+      <div class="pf-role-sub">Civil · Electrical · Software</div>
+    </div>
+    <div class="pf-role-card" data-role="investor">
+      <span class="pf-role-ico">💼</span>
+      <div class="pf-role-name">Investor / Business</div>
+      <div class="pf-role-sub">Solar · Agro · Impact · VC</div>
+    </div>
+    <div class="pf-role-card" data-role="politician">
+      <span class="pf-role-ico">🏛️</span>
+      <div class="pf-role-name">Policy / Administration</div>
+      <div class="pf-role-sub">IAS · MLA · MP · Elected</div>
+    </div>
+    <div class="pf-role-card" data-role="diaspora">
+      <span class="pf-role-ico">🌍</span>
+      <div class="pf-role-name">Diaspora</div>
+      <div class="pf-role-sub">Purulia-origin, anywhere</div>
+    </div>
+    <div class="pf-role-card" data-role="student">
+      <span class="pf-role-ico">📚</span>
+      <div class="pf-role-name">Student</div>
+      <div class="pf-role-sub">Undergraduate · Postgrad · Research</div>
+    </div>
+    <div class="pf-role-card" data-role="artist">
+      <span class="pf-role-ico">🎭</span>
+      <div class="pf-role-name">Artist / Craftsperson</div>
+      <div class="pf-role-sub">Dokra · Chhau · Weaver · Maker</div>
+    </div>
+    <div class="pf-role-card" data-role="other">
+      <span class="pf-role-ico">→</span>
+      <div class="pf-role-name">Journalist / Researcher</div>
+      <div class="pf-role-sub">Communicator · Academic</div>
+    </div>
   </div>
   <div class="pf-result-wrap" id="pfResult"></div>
 </section>
 
-<!-- ══ MOMENTUM — CLEANED: only verifiable facts ══ -->
+<!-- ══ MOMENTUM ══ -->
 <section id="momentum">
   <div class="mom-intro rv">
     <div class="sl">// What's Already Moving</div>
@@ -361,6 +402,7 @@ if (sessionStorage.getItem("pgt")) {
     <a class="ss-btn ss-wa" href="https://wa.me/?text=Parishkar%20Purulia%20%E2%80%94%20the%20public%20record%20of%20Purulia.%20See%20the%20live%20map%3A%20https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">WhatsApp</a>
     <a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text=Parishkar%20Purulia%20%E2%80%94%20the%20public%20record%20of%20Purulia.&url=https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">Twitter / X</a>
     <a class="ss-btn ss-li" href="https://www.linkedin.com/sharing/share-offsite/?url=https%3A%2F%2Farchiboltmusk.github.io%2FPurulia%2Fkasa.html" target="_blank" rel="noopener">LinkedIn</a>
+    <button class="ss-btn" data-copy="https://archiboltmusk.github.io/Purulia/kasa.html">Copy link</button>
   </div>
 </div>
 
@@ -408,21 +450,113 @@ if (sessionStorage.getItem("pgt")) {
 <script>
 (function(){
   var cards={
-    doctor:{eyebrow:'For Doctors & Healthcare Professionals',title:'Purulia now has two medical colleges. What it needs next is specialists.',body:'Deben Mahata Government Medical College and a second medical college are operational. PG seat expansion and specialist retention are the next milestones. One visible arrival changes the narrative for every doctor who comes after.',actions:['<strong>Read the full doctor\'s brief</strong> — specific gaps, packages, and what\'s been built so far','<strong>Contact Deben Mahata GMC</strong> about PG seat expansion and specialist retention packages','<strong>Explore the Young Leaders Fellowship</strong> — 2-year paid positions for returning professionals','<strong>Connect via the form</strong> — we\'ll put you in touch with the right people in the district'],ctas:[{label:'Doctor\'s Brief →',href:'audience.html#aud-doctors'},{label:'Join Now →',href:'join.html#respond'}]},
-    engineer:{eyebrow:'For Engineers',title:'The execution gap is the opportunity.',body:'Power, roads, water, and broadband schemes already exist. The barrier is execution. An engineer who shows up in Purulia now gets to build the infrastructure of a transformed district.',actions:['<strong>See the infrastructure pipeline</strong> — power, water, broadband, roads, and what\'s still missing','<strong>Review the technical brief</strong> — what\'s already funded and what needs private execution','<strong>Explore the solar and water sectors</strong> — engineering roles available from Year 1','<strong>Connect with the team</strong> — civil, electrical, and software engineers all needed'],ctas:[{label:'Infrastructure Plan →',href:'blueprint.html#deepdives'},{label:'View the Map →',href:'map.html'}]},
-    investor:{eyebrow:'For Investors & Business Leaders',title:'Dry laterite land. UNESCO-listed crafts. Forest produce leaving the district raw.',body:'Clearances go through the state\'s Silpasathi single window. An early investor helps shape what gets built.',actions:['<strong>Model the impact</strong> — run your own projections on the sectors the blueprint prioritises','<strong>Review the funding table</strong> — our estimates of what schemes cover vs what needs private capital','<strong>Explore the industrial zones</strong> — solar, crafts, and agro-processing','<strong>Request an introduction</strong> to the District Collector and WBIDC through the form'],ctas:[{label:'Investment Case →',href:'blueprint.html#economics'},{label:'Connect Now →',href:'join.html#respond'}]},
-    politician:{eyebrow:'For Politicians & Civil Servants',title:'A public tracker of stalled work changes everything.',body:'Rural jobs, drinking water, Forest Rights Act titles, land mutations — the backlog exists. The first year of a new government is the window to clear it.',actions:['<strong>Read the full political brief</strong> — what one term of continuity can achieve','<strong>Study the five first conversations</strong> — the five people to contact this week','<strong>Review the clearance tracker idea</strong> — Purulia\'s cases on the state\'s Silpasathi single window, published','<strong>Request a briefing</strong> — a full presentation of the blueprint is available'],ctas:[{label:'Five Conversations →',href:'join.html#fivepeople'},{label:'The Blueprint →',href:'blueprint.html'}]},
-    diaspora:{eyebrow:'For the Purulia Diaspora',title:'Your city connections are Purulia\'s untapped capital.',body:'One procurement manager in Mumbai who chooses Dokra over imported brass triggers a supply chain. One Purulia-origin investor anchors a zone. You\'re already in the network.',actions:['<strong>Read the diaspora brief</strong> — what you can do from exactly where you are','<strong>Register for the Pravasi Sammelan</strong> — the gathering for Purulia-origin professionals','<strong>Map your network</strong> — who do you know who should read this?','<strong>Connect via the form</strong> — land at subsidised rates and tax holidays for diaspora enterprises'],ctas:[{label:'Diaspora Brief →',href:'audience.html#aud-diaspora'},{label:'Join the Sammelan →',href:'join.html#respond'}]},
-    student:{eyebrow:'For Students',title:'The Young Leaders Fellowship is waiting for 20 people.',body:'20 paid positions per cohort. Two years. Real work on the district transformation — not research, not observation.',actions:['<strong>Read the student brief</strong> — career paths, fellowship structure, and what\'s been built so far','<strong>Review the roadmap</strong> — where the jobs are and when they arrive','<strong>Apply for the fellowship</strong> — via the join form','<strong>Share this blueprint</strong> with one professor or career counsellor who should know about it'],ctas:[{label:'Student Brief →',href:'audience.html#aud-students'},{label:'Apply Now →',href:'join.html#respond'}]},
-    artist:{eyebrow:'For Artists & Craftspeople',title:'Chhau is UNESCO-listed. Dokra is centuries old. The infrastructure doesn\'t match the fame.',body:'GI tags exist. What\'s missing is a collective that owns the brand. The artisans who join first co-own it from the beginning.',actions:['<strong>Read the craftsperson\'s brief</strong> — GI tags, FPOs, export channels, and what exists today','<strong>See the income projections</strong> — what a collective could mean for monthly income','<strong>Connect with the crafts cluster team</strong> — the physical cluster is being designed','<strong>Share this blueprint</strong> with one artisan collective or cooperative you know'],ctas:[{label:'Artisan Brief →',href:'audience.html#aud-artists'},{label:'Connect Now →',href:'join.html#respond'}]},
-    other:{eyebrow:'For Journalists, Researchers & Communicators',title:'A well-told story creates accountability that no policy can.',body:'A single deep-dive reaches the civil servants and investors who will never see this website. Media scrutiny creates administrative accountability. Documentation creates proof.',actions:['<strong>Read the full blueprint</strong> — every claim is sourced, every statistic verifiable','<strong>Review the live momentum feed</strong> — what\'s already moved','<strong>Request a briefing or interview</strong> — we\'ll connect you with people on the ground','<strong>Use the data page</strong> — verified metrics with sources, plus the failure modes with specific answers'],ctas:[{label:'Ground Truth →',href:'data.html'},{label:'Get in Touch →',href:'join.html#respond'}]}
+    doctor:{
+      eyebrow:'For Doctors & Healthcare Professionals',
+      title:'Purulia now has two medical colleges. What it needs next is specialists.',
+      body:'Deben Mahata Government Medical College and a second medical college are operational. PG seat expansion and specialist retention are the next milestones. One visible arrival changes the narrative for every doctor who comes after.',
+      actions:[
+        '<strong>Read the full doctor\'s brief</strong> — specific gaps, packages, and what\'s been built so far',
+        '<strong>Contact Deben Mahata GMC</strong> about PG seat expansion and specialist retention packages',
+        '<strong>Explore the Young Leaders Fellowship</strong> — 2-year paid positions for returning professionals',
+        '<strong>Connect via the form</strong> — we\'ll put you in touch with the right people in the district'
+      ],
+      ctas:[{label:'Doctor\'s Brief →',href:'audience.html#aud-doctors'},{label:'Join Now →',href:'join.html#respond'}]
+    },
+    engineer:{
+      eyebrow:'For Engineers',
+      title:'The execution gap is the opportunity.',
+      body:'Power, roads, water, and broadband schemes already exist. The barrier is execution. An engineer who shows up in Purulia now gets to build the infrastructure of a transformed district.',
+      actions:[
+        '<strong>See the infrastructure pipeline</strong> — power, water, broadband, roads, and what\'s still missing',
+        '<strong>Review the technical brief</strong> — what\'s already funded and what needs private execution',
+        '<strong>Explore the solar and water sectors</strong> — engineering roles available from Year 1',
+        '<strong>Connect with the team</strong> — civil, electrical, and software engineers all needed'
+      ],
+      ctas:[{label:'Infrastructure Plan →',href:'blueprint.html#deepdives'},{label:'View the Map →',href:'map.html'}]
+    },
+    investor:{
+      eyebrow:'For Investors & Business Leaders',
+      title:'Dry laterite land. UNESCO-listed crafts. Forest produce leaving the district raw.',
+      body:'Clearances go through the state\'s Silpasathi single window. An early investor helps shape what gets built.',
+      actions:[
+        '<strong>Model the impact</strong> — run your own projections on the sectors the blueprint prioritises',
+        '<strong>Review the funding table</strong> — our estimates of what schemes cover vs what needs private capital',
+        '<strong>Explore the industrial zones</strong> — solar, crafts, and agro-processing',
+        '<strong>Request an introduction</strong> to the District Collector and WBIDC through the form'
+      ],
+      ctas:[{label:'Investment Case →',href:'blueprint.html#economics'},{label:'Connect Now →',href:'join.html#respond'}]
+    },
+    politician:{
+      eyebrow:'For Politicians & Civil Servants',
+      title:'A public tracker of stalled work changes everything.',
+      body:'Rural jobs, drinking water, Forest Rights Act titles, land mutations — the backlog exists. The first year of a new government is the window to clear it.',
+      actions:[
+        '<strong>Read the full political brief</strong> — what one term of continuity can achieve',
+        '<strong>Study the five first conversations</strong> — the five people to contact this week',
+        '<strong>Review the clearance tracker idea</strong> — Purulia\'s cases on the state\'s Silpasathi single window, published',
+        '<strong>Request a briefing</strong> — a full presentation of the blueprint is available'
+      ],
+      ctas:[{label:'Five Conversations →',href:'join.html#fivepeople'},{label:'The Blueprint →',href:'blueprint.html'}]
+    },
+    diaspora:{
+      eyebrow:'For the Purulia Diaspora',
+      title:'Your city connections are Purulia\'s untapped capital.',
+      body:'One procurement manager in Mumbai who chooses Dokra over imported brass triggers a supply chain. One Purulia-origin investor anchors a zone. You\'re already in the network.',
+      actions:[
+        '<strong>Read the diaspora brief</strong> — what you can do from exactly where you are',
+        '<strong>Register for the Pravasi Sammelan</strong> — the gathering for Purulia-origin professionals',
+        '<strong>Map your network</strong> — who do you know who should read this?',
+        '<strong>Connect via the form</strong> — land at subsidised rates and tax holidays for diaspora enterprises'
+      ],
+      ctas:[{label:'Diaspora Brief →',href:'audience.html#aud-diaspora'},{label:'Join the Sammelan →',href:'join.html#respond'}]
+    },
+    student:{
+      eyebrow:'For Students',
+      title:'The Young Leaders Fellowship is waiting for 20 people.',
+      body:'20 paid positions per cohort. Two years. Real work on the district transformation — not research, not observation.',
+      actions:[
+        '<strong>Read the student brief</strong> — career paths, fellowship structure, and what\'s been built so far',
+        '<strong>Review the roadmap</strong> — where the jobs are and when they arrive',
+        '<strong>Apply for the fellowship</strong> — via the join form',
+        '<strong>Share this blueprint</strong> with one professor or career counsellor who should know about it'
+      ],
+      ctas:[{label:'Student Brief →',href:'audience.html#aud-students'},{label:'Apply Now →',href:'join.html#respond'}]
+    },
+    artist:{
+      eyebrow:'For Artists & Craftspeople',
+      title:'Chhau is UNESCO-listed. Dokra is centuries old. The infrastructure doesn\'t match the fame.',
+      body:'GI tags exist. What\'s missing is a collective that owns the brand. The artisans who join first co-own it from the beginning.',
+      actions:[
+        '<strong>Read the craftsperson\'s brief</strong> — GI tags, FPOs, export channels, and what exists today',
+        '<strong>See the income projections</strong> — what a collective could mean for monthly income',
+        '<strong>Connect with the crafts cluster team</strong> — the physical cluster is being designed',
+        '<strong>Share this blueprint</strong> with one artisan collective or cooperative you know'
+      ],
+      ctas:[{label:'Artisan Brief →',href:'audience.html#aud-artists'},{label:'Connect Now →',href:'join.html#respond'}]
+    },
+    other:{
+      eyebrow:'For Journalists, Researchers & Communicators',
+      title:'A well-told story creates accountability that no policy can.',
+      body:'A single deep-dive reaches the civil servants and investors who will never see this website. Media scrutiny creates administrative accountability. Documentation creates proof.',
+      actions:[
+        '<strong>Read the full blueprint</strong> — every claim is sourced, every statistic verifiable',
+        '<strong>Review the live momentum feed</strong> — what\'s already moved',
+        '<strong>Request a briefing or interview</strong> — we\'ll connect you with people on the ground',
+        '<strong>Use the data page</strong> — verified metrics with sources, plus the failure modes with specific answers'
+      ],
+      ctas:[{label:'Ground Truth →',href:'data.html'},{label:'Get in Touch →',href:'join.html#respond'}]
+    }
   };
 
   window.pfSelect=function(role){
     var d=cards[role];
     if(!d) return;
-    var ctaHtml=d.ctas.map(function(c){return '<a href="'+c.href+'" class="btn btn-a">'+c.label+'</a>';}).join('');
-    var actionsHtml=d.actions.map(function(a){return '<li>'+a+'</li>';}).join('');
+    var ctaHtml=d.ctas.map(function(c){
+      return '<a href="'+c.href+'" class="btn btn-a">'+c.label+'</a>';
+    }).join('');
+    var actionsHtml=d.actions.map(function(a){
+      return '<li>'+a+'</li>';
+    }).join('');
     var html='<div class="pf-result-card">'
       +'<div class="pf-result-eyebrow">'+d.eyebrow+'</div>'
       +'<div class="pf-result-title">'+d.title+'</div>'
