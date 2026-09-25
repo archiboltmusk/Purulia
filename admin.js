@@ -239,7 +239,7 @@ function renderModeration(q){
     <div class="ad-item">
       <div class="ad-item-head">
         <div>
-          <div class="ad-item-title">${esc(r.category)} · Ward ${esc(r.ward_no ?? '?')} · ${esc(r.moderation_status === 'review' ? 'waiting for approval' : 'flagged by ' + r.flags)}</div>
+          <div class="ad-item-title">${esc(r.category)} · Ward ${esc(r.ward_no ?? '?')} · ${esc(r.moderation_status === 'review' ? 'waiting for approval' : r.moderation_status === 'approved' ? `flagged ${r.flags}× — still public` : 'under review, flagged ' + r.flags + '×')}</div>
           <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>
             ${new Date(r.created_at).toLocaleString('en-IN')}
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
