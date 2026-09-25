@@ -135,7 +135,7 @@ const state = {
   chainTab: 'sanitation'
 };
 let sb = null;
-let mainMap = null, miniMap = null, miniMarker = null;
+let mainMap = null, miniMap = null, miniMarker = null, userMovedMap = false;
 let mapReady = null;
 let draft = null;
 let ev = null;
@@ -741,6 +741,28 @@ function renderAll(){
   renderFixed();
   renderTicker();
   renderWardCard();
+  renderFilterCount();
+}
+
+/* Filters sit behind one button so the map stays clear; the badge shows how many are on. */
+function renderFilterCount(){
+  const f = state.filters;
+  const n = [f.category, f.status, f.severity, f.ward].filter(Boolean).length;
+  const el = document.getElementById('k-filter-count');
+  el.textContent = n;
+  el.hidden = !n;
+}
+
+/* Everything that isn't the map (intro, stats, wards, representatives, footer) lives in this drawer. */
+function setDrawer(open){
+  const drawer = document.getElementById('k-drawer');
+  drawer.classList.toggle('open', open);
+  drawer.toggleAttribute('inert', !open);
+  drawer.setAttribute('aria-hidden', String(!open));
+  document.getElementById('k-drawer-backdrop').hidden = !open;
+  document.getElementById('k-more-btn').setAttribute('aria-expanded', String(open));
+  if (open) document.getElementById('k-drawer-close').focus();
+  else if (drawer.contains(document.activeElement)) document.getElementById('k-more-btn').focus();
 }
 
 function markerColor(r){
@@ -779,6 +801,8 @@ function initMainMap(){
   document.addEventListener('visibilitychange', () => { if (!document.hidden) resizeMap(); });
   document.fonts?.ready.then(resizeMap);
   mainMap.once('load', resizeMap);
+  // Any drag/zoom/rotate by a person carries originalEvent; programmatic moves don't.
+  mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
 
@@ -2406,7 +2430,6 @@ function openDeepLink(){
     state.selectedWard = ward;
     document.getElementById('k-search-ward').value = ward;
     renderAll();
-    document.querySelector('.k-map-section').scrollIntoView();
   }
 }
 
@@ -2645,7 +2668,7 @@ function wireUI(){
     if (d.view) return setView(d.view);
     if (d.wardSelect){
       selectWard(Number(d.wardSelect));
-      document.querySelector('.k-map-section').scrollIntoView({ behavior: 'smooth' });
+      setDrawer(false);
       return;
     }
     if (d.wardFilter){
@@ -2661,6 +2684,19 @@ function wireUI(){
     if (d.profile) return openRepProfile(d.profile);
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }
+  });
+
+  document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
+  document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
+  document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
+  document.getElementById('k-filter-toggle').addEventListener('click', e => {
+    const bar = document.querySelector('.k-map-topbar');
+    const open = bar.classList.toggle('k-filters-open');
+    e.currentTarget.setAttribute('aria-expanded', String(open));
+  });
+  // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
+  document.getElementById('k-drawer').addEventListener('click', e => {
+    if (e.target.closest('[data-action="report"],[data-mine]')) setDrawer(false);
   });
 
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
@@ -2704,7 +2740,8 @@ function wireUI(){
     if (document.getElementById('k-lightbox')) return closeLightbox();
     if (!document.getElementById('k-cam').hidden) return closeCamera({ error: 'cancelled' });
     const open = [...document.querySelectorAll('.k-modal.open')].pop();
-    if (open) closeModal(open.id);
+    if (open) return closeModal(open.id);
+    if (document.getElementById('k-drawer').classList.contains('open')) setDrawer(false);
   });
 }
 
@@ -2719,6 +2756,7 @@ async function locateOnOpen(){
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
       if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)) return;
+      if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
       mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
     }, () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
   } catch (e) {}
