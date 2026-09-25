@@ -1,6 +1,6 @@
 /* Public analytics for Purulia Kasa: computed in the browser from the public view. */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name';
   const DAY = 86400000;
   const cfg = window.KASA_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
@@ -90,7 +90,7 @@
   const table = (head, rows, empty) => rows.length
     ? `<table class="an-table"><thead><tr>${head}</tr></thead><tbody>${rows.join('')}</tbody></table>`
     : `<div class="an-empty">${esc(empty)}</div>`;
-  const place = r => esc(r.landmark || (r.ward_no ? 'Ward ' + r.ward_no : ''));
+  const place = r => esc(r.landmark || (r.ward_no ? 'Ward ' + r.ward_no : r.block_name ? r.block_name + ' block' : ''));
 
   // Fastest fixes this week
   const week = fixed.filter(r => now - new Date(r.resolved_at) < 7 * DAY).sort((a, b) => fixDays(a) - fixDays(b)).slice(0, 10);
@@ -119,4 +119,20 @@
     rows.map(s => { const m = median(s.days); return `<tr><td><a href="kasa.html?ward=${s.ward}">Ward ${s.ward}</a></td><td>${esc(wards[s.ward]?.councillor_name || '—')}</td>
       <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
     'No wards yet.');
+
+  // Every block (reports outside Purulia town)
+  const bstats = {};
+  all.forEach(r => {
+    if (r.area_kind !== 'rural' || !r.block_name) return;
+    const s = bstats[r.block_name] ||= { block: r.block_name, open: 0, overdue: 0, fixed: 0, fake: 0, days: [] };
+    if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
+    s.fake += r.rejected_claims || 0;
+  });
+  fixed.forEach(r => { const s = bstats[r.block_name]; if (s && r.area_kind === 'rural'){ s.fixed++; s.days.push(fixDays(r)); } });
+  const brows = Object.values(bstats).sort((a, b) => b.open - a.open || b.overdue - a.overdue || a.block.localeCompare(b.block));
+  document.getElementById('an-blocks').innerHTML = table(
+    '<th>Block</th><th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>',
+    brows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.block)}</td>
+      <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
+    'No village reports yet. Kasa now takes reports from all 20 blocks of the district.');
 })();

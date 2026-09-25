@@ -71,6 +71,16 @@ update kasa_private.settings set value = '12' where key = 'challenge_hours';
 
 The main ones are `verify_quorum`, `dispute_quorum`, `min_distinct_networks`, `challenge_hours`, `quiet_start_hour`/`quiet_end_hour` (night hours don't count toward the dispute window), `voter_min_account_hours`, `voter_min_prior_actions`, `trusted_prior_actions`, `ring_min_shared`/`ring_window_days` (confirmers who keep confirming together), `failed_claims_limit`/`failed_claims_window_days`/`failed_claims_block_days`, `flag_review_threshold`, `max_strikes`, and `require_live_report_photo`/`capture_token_minutes` (report photos without a valid camera token wait for a moderator). If you change one that is described on `methodology.html`, update that page too.
 
+## District coverage and boundaries
+
+Kasa takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.
+
+- Boundary data lives in `kasa_private.areas`, generated from `purulia_blocks.geojson` (OpenStreetMap blocks) and `purulia_wards.geojson` by `tools/build-areas.py`. To update it, change the GeoJSON, run the script, and put the output in a new migration.
+- `purulia_wards.geojson` has 22 of the 23 wards. Near the town edge, the reporter's chosen ward decides (within `town_ward_margin_m`).
+- Jhalda and Raghunathpur municipalities have no ward map yet, so their reports count under their block. Adding their ward outlines to the areas data would fix that.
+- Rural cleanups use `rural_verify_quorum`, `rural_min_distinct_networks` and `rural_claim_expiry_days`.
+- Village accountability shows roles (Pradhan, BDO, DM, CDPO, BMOH and others), not names. MLA and MP names are shown only for Purulia town.
+
 ## Legal notices and takedown requests
 
 1. Every request goes to the Grievance Officer (`grievance@puruliakasa.in`, see `grievance.html`). Acknowledge it within 24 hours.

@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Purulia Kasa — Report a civic problem in 30 seconds</title>
-<meta name="description" content="A public map of civic problems in Purulia town: garbage, drains, roads, streetlights and illegal activity. Every report is public, every ward is ranked, and nothing is marked fixed until people on the spot confirm it.">
+<meta name="description" content="A public map of civic problems across Purulia district: garbage, drains, roads, streetlights, hand pumps, anganwadis, health centres, schools and illegal activity. Every report is public, every ward and block is counted, and nothing is marked fixed until people on the spot confirm it.">
 <meta name="theme-color" content="#0a0805">
 <meta property="og:title" content="Purulia Kasa — Report a civic problem in 30 seconds">
 <meta property="og:description" content="Purulia's civic problem map. Every report public. Every ward ranked. Nothing marked fixed until people on the spot confirm it.">
@@ -199,7 +199,7 @@
 
 <footer class="k-footer">
   <div>
-    <div data-i18n="footer_left">Purulia Kasa · A civic tool for Purulia town</div>
+    <div data-i18n="footer_left">Purulia Kasa · A civic tool for Purulia district</div>
     <p class="k-footer-legal" data-i18n="footer_allegation">Reports are citizen allegations, not verified facts. Purulia Kasa is a neutral platform and not affiliated with any party or government body.</p>
     <button type="button" class="k-footer-data" data-csv="all" data-i18n="csv_all">⬇ Download all reports (CSV)</button>
     <p class="k-footer-legal"><span data-i18n="csv_license">Report data is open under</span> <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a>. <span data-i18n="csv_license_2">Credit “Purulia Kasa”. Photos are not covered.</span></p>
@@ -254,13 +254,14 @@
       <button type="button" class="k-btn k-btn-secondary" id="k-gps-btn" data-i18n="step3_gps">⊕ Use my location</button>
       <div class="k-mini-map" id="k-mini-map"></div>
       <div class="k-coords" id="k-coords" data-i18n="step3_no_loc">No location set yet</div>
+      <div class="k-field-note" id="k-place" hidden></div>
       <div class="k-field-note" data-i18n="boundary_note">Ward boundaries on this map are approximate. Check the ward before you submit.</div>
       <div class="k-field">
         <label for="k-landmark" data-i18n="step3_landmark">Nearest landmark</label>
         <input type="text" id="k-landmark" class="k-input" maxlength="140" data-i18n-placeholder="step3_landmark_ph" placeholder="e.g. near Ramakrishna medical shop, RT Street">
       </div>
       <div class="k-field-row">
-        <div class="k-field">
+        <div class="k-field" id="k-ward-field">
           <label for="k-ward" data-i18n="step3_ward">Ward</label>
           <select id="k-ward" class="k-input"><option value="">—</option></select>
         </div>

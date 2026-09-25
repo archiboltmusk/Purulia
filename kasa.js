@@ -25,7 +25,7 @@ const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
-const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review';
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,area_kind,block_name,verify_needed';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -49,9 +49,13 @@ const CATEGORIES = {
   illegal_construction: { icon: '🏗️', group: 'illegal', chain: 'enforcement',  fix: 'stopped', review: true },
   illegal_mining:       { icon: '⛏️', group: 'illegal', chain: 'mining',       fix: 'stopped', review: true },
   illegal_other:        { icon: '⚠️', group: 'illegal', chain: 'police',       fix: 'stopped', review: true },
-  other:                { icon: '📍', group: 'infra',   chain: 'municipality', fix: 'fixed' }
+  other:                { icon: '📍', group: 'infra',   chain: 'municipality', fix: 'fixed' },
+  hand_pump:            { icon: '💧', group: 'services', chain: 'water',       fix: 'fixed' },
+  anganwadi:            { icon: '🧒', group: 'services', chain: 'icds',        fix: 'fixed' },
+  health_centre:        { icon: '🏥', group: 'services', chain: 'health',      fix: 'fixed' },
+  school:               { icon: '🏫', group: 'services', chain: 'education',   fix: 'repaired' }
 };
-const GROUPS = ['clean', 'infra', 'illegal'];
+const GROUPS = ['clean', 'infra', 'services', 'illegal'];
 
 /* Who answers for each kind of problem, frontline first. Roles, not names:
    individual officers aren't publicly listed. */
@@ -63,11 +67,33 @@ const CHAINS = {
   municipality: { agency: 'agency_municipality', nodes: ['eo', 'chairman'] },
   enforcement:  { agency: 'agency_municipality', nodes: ['building', 'eo', 'chairman', 'sdo'], note: 'note_police_help' },
   mining:       { agency: 'agency_district', nodes: ['bllro', 'dllro', 'dm'], note: 'note_police_help' },
-  police:       { agency: 'agency_police', nodes: ['ps', 'sdpo', 'sp'], note: 'note_112' }
+  police:       { agency: 'agency_police', nodes: ['ps', 'sdpo', 'sp'], note: 'note_112' },
+  icds:         { agency: 'agency_icds', nodes: ['cdpo', 'dpo', 'dm'] },
+  health:       { agency: 'agency_health', nodes: ['bmoh', 'cmoh', 'dm'] },
+  education:    { agency: 'agency_education', nodes: ['si_school', 'di_school', 'dm'] }
 };
+
+/* Outside Purulia town the municipality's work falls to the gram panchayat and the block. */
+function chainFor(r){
+  const base = CHAINS[CATEGORIES[r.category].chain];
+  if (r.area !== 'rural' || base.agency !== 'agency_municipality') return base;
+  const enforcement = CATEGORIES[r.category].chain === 'enforcement';
+  return { agency: 'agency_panchayat', nodes: enforcement ? ['bllro', 'bdo', 'sdo_area'] : ['pradhan', 'bdo', 'dm'], note: base.note };
+}
+
+/* "Ward 5" in town, "Jhalda I block" in a village. */
+function placeLabel(r){
+  if (r.area === 'rural' && r.block) return t('acc_block', { b: r.block });
+  return r.ward ? t('acc_ward', { n: r.ward }) : t('acc_unknown');
+}
+
+function verifyNeeded(r){
+  return r?.verifyNeeded || state.rules.verify_quorum;
+}
 const ROLE_ABBR = {
   conservancy: 'CS', si: 'SI', eo: 'EO', chairman: 'CH', sae: 'SAE', ae: 'AE', sae_elec: 'SAE',
-  waterworks: 'WW', building: 'BL', sdo: 'SDO', bllro: 'BL&LRO', dllro: 'DL&LRO', dm: 'DM', ps: 'PS', sdpo: 'SDPO', sp: 'SP'
+  waterworks: 'WW', building: 'BL', sdo: 'SDO', bllro: 'BL&LRO', dllro: 'DL&LRO', dm: 'DM', ps: 'PS', sdpo: 'SDPO', sp: 'SP',
+  pradhan: 'GP', bdo: 'BDO', sdo_area: 'SDO', cdpo: 'CDPO', dpo: 'DPO', bmoh: 'BMOH', cmoh: 'CMOH', si_school: 'SI', di_school: 'DI'
 };
 
 // photo: a file in reps/ whose license allows reuse; photoCredit: the attribution it requires; photoPos: optional crop point.
@@ -95,6 +121,7 @@ const state = {
   byId: new Map(),
   wards: {},
   wardGeo: null,
+  blockGeo: null,
   filters: { category: '', status: '', severity: '', ward: null },
   view: 'map',
   sort: 'urgent',
@@ -187,6 +214,8 @@ async function init(){
   renderAll();
   renderTrust();
   mapReady.then(() => { addWardLayers(); updateMap(); });
+  // Block outlines for village reports; not needed for the first paint.
+  Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(locateOnOpen);
   syncOfflineQueue();
@@ -249,6 +278,9 @@ function normalize(r){
     createdAt: r.created_at,
     lat: Number(r.lat), lng: Number(r.lng),
     ward: r.ward_no ? Number(r.ward_no) : null,
+    area: r.area_kind || (r.ward_no ? 'town' : null),
+    block: r.block_name || null,
+    verifyNeeded: r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
     status,
@@ -330,6 +362,38 @@ function pointInRing(pt, ring){
 function pointInPolygon(pt, geom){
   const polys = geom.type === 'MultiPolygon' ? geom.coordinates : [geom.coordinates];
   return polys.some(poly => pointInRing(pt, poly[0]) && !poly.slice(1).some(h => pointInRing(pt, h)));
+}
+
+async function loadBlockGeo(){
+  if (state.blockGeo) return;
+  try {
+    const res = await fetch('purulia_blocks.geojson');
+    if (res.ok) state.blockGeo = await res.json();
+  } catch (e) { console.info('Kasa: no block boundaries'); }
+}
+
+function detectBlock(lat, lng){
+  const f = (state.blockGeo?.features || []).find(f => pointInPolygon([lng, lat], f.geometry));
+  return f ? f.properties.block : null;
+}
+
+function nearTown(lat, lng){
+  const margin = Number(state.rules.town_ward_margin_m) || 1500;
+  return (state.wardGeo?.features || []).some(f => {
+    const polys = f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates : [f.geometry.coordinates];
+    return polys.some(p => p[0].some(([x, y]) => distanceM(lat, lng, y, x) <= margin));
+  });
+}
+
+/* Mirrors the server's kasa_private.locate(): town (in a ward), edge (near town, ward optional),
+   rural (a block), outside the district, or unknown while the maps load. The server decides. */
+function placeOf(lat, lng){
+  const ward = detectWard(lat, lng);
+  if (ward) return { kind: 'town', ward };
+  if (!state.blockGeo || !state.wardGeo) return { kind: 'unknown' };
+  const block = detectBlock(lat, lng);
+  if (nearTown(lat, lng)) return { kind: 'edge', block };
+  return block ? { kind: 'rural', block } : { kind: 'outside' };
 }
 
 function detectWard(lat, lng){
@@ -738,6 +802,17 @@ function initMainMap(){
   });
 }
 
+function addBlockLayers(){
+  if (!mainMap || !state.blockGeo || mainMap.getSource('blocks')) return;
+  mainMap.addSource('blocks', { type: 'geojson', data: state.blockGeo });
+  const below = mainMap.getLayer('wards-fill') ? 'wards-fill' : 'clusters';
+  mainMap.addLayer({ id: 'blocks-line', type: 'line', source: 'blocks',
+    paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, below);
+  mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', maxzoom: 12,
+    layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+}
+
 function addWardLayers(){
   if (!mainMap || !state.wardGeo || mainMap.getSource('wards')) return;
   mainMap.addSource('wards', { type: 'geojson', data: state.wardGeo });
@@ -818,7 +893,7 @@ function sortReports(list){
 function matchesQuery(r, q){
   if (!q) return true;
   if (/^\d+$/.test(q)) return r.ward === Number(q);
-  const hay = [r.landmark, r.description, t('cat_' + r.category), I18N.en['cat_' + r.category], r.ward ? t('acc_ward', { n: r.ward }) : '']
+  const hay = [r.landmark, r.description, t('cat_' + r.category), I18N.en['cat_' + r.category], r.ward ? t('acc_ward', { n: r.ward }) : '', r.block || '']
     .join(' ').toLowerCase();
   return q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
 }
@@ -836,7 +911,7 @@ function renderList(){
       ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy" width="64" height="64">` : `<span class="k-list-noimg">${c.icon}</span>`}
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
-        <span class="k-list-where">${esc(r.landmark || t('acc_ward', { n: r.ward ?? '?' }))}${r.landmark && r.ward ? ' · ' + esc(t('acc_ward', { n: r.ward })) : ''}</span>
+        <span class="k-list-where">${esc(r.landmark || placeLabel(r))}${r.landmark && (r.ward || r.block) ? ' · ' + esc(placeLabel(r)) : ''}</span>
         <span class="k-list-meta">${statusChip(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
@@ -931,7 +1006,7 @@ function renderFixed(){
       <span class="k-fixed-body">
         <span class="k-fixed-cat">${c.icon} ${esc(t('cat_' + r.category))}</span>
         <span class="k-fixed-speed">${esc(t(days === 0 ? 'fixed_same_day' : 'fixed_days', { n: days }))}</span>
-        <span class="k-fixed-meta">${r.ward ? esc(t('acc_ward', { n: r.ward })) : ''}${w.councillor_name ? ' · ' + esc(t('fixed_councillor', { name: w.councillor_name })) : ''}</span>
+        <span class="k-fixed-meta">${esc(r.ward || r.block ? placeLabel(r) : '')}${w.councillor_name && r.area !== 'rural' ? ' · ' + esc(t('fixed_councillor', { name: w.councillor_name })) : ''}</span>
         ${n ? `<span class="k-fixed-confirm">✓ ${esc(t('fixed_confirmed', { n }))}</span>` : ''}
       </span>
     </button>`;
@@ -945,7 +1020,7 @@ function renderTicker(){
   if (!recent.length){ track.innerHTML = `<span class="k-ticker-item">${esc(t('lb_empty'))}</span>`; return; }
   const items = recent.map(r => `
     <span class="k-ticker-item"><span class="k-ticker-dot" style="background:${markerColor(r)}"></span>
-    ${CATEGORIES[r.category].icon} ${esc(t('acc_ward', { n: r.ward ?? '?' }))} · ${esc(r.status === 'open' ? t('days_open', { n: daysSince(r.createdAt) }) : t('status_' + r.status))}</span>`).join('');
+    ${CATEGORIES[r.category].icon} ${esc(placeLabel(r))} · ${esc(r.status === 'open' ? t('days_open', { n: daysSince(r.createdAt) }) : t('status_' + r.status))}</span>`).join('');
   track.innerHTML = items + items;
 }
 
@@ -1019,7 +1094,7 @@ function renderSheet(){
     </div>`;
 
   const w = state.wards[r.ward] || {};
-  const place = r.landmark || t('acc_ward', { n: r.ward ?? '?' });
+  const place = r.landmark || placeLabel(r);
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
 
   document.getElementById('k-sheet-body').innerHTML = `
@@ -1036,7 +1111,7 @@ function renderSheet(){
     <div class="k-sheet-place">
       <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${neighbourBadge(r)}</div>
       <h3 class="k-sheet-title">${esc(place)}</h3>
-      <div class="k-sheet-wardline">${esc([r.landmark && r.ward ? t('acc_ward', { n: r.ward }) : '', w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
+      <div class="k-sheet-wardline">${esc([r.landmark && (r.ward || r.block) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
@@ -1072,7 +1147,7 @@ function renderStatusPanel(r){
   if (r.rejectedClaims) parts.push(`<div class="k-note k-note-bad">✗ ${esc(t('pn_rejected', { n: r.rejectedClaims }))}</div>`);
 
   if (r.status === 'claimed' && r.claim){
-    const q = state.rules.verify_quorum, dq = state.rules.dispute_quorum;
+    const q = verifyNeeded(r), dq = state.rules.dispute_quorum;
     const dots = Array.from({ length: q }, (_, i) => `<i class="${i < r.claim.verify ? 'on' : ''}"></i>`).join('');
     let timing;
     if (r.claim.finalAfter){
@@ -1161,7 +1236,8 @@ function beforeAfter(before, after){
 }
 
 function renderAccountability(r){
-  const chain = CHAINS[CATEGORIES[r.category].chain];
+  const chain = chainFor(r);
+  const rural = r.area === 'rural';
   const w = state.wards[r.ward] || {};
   const nodes = chain.nodes.map((role, i) => `
     ${i ? '<span class="k-tree-link" aria-hidden="true"></span>' : ''}
@@ -1169,13 +1245,14 @@ function renderAccountability(r){
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
       <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length))}</small></span>
     </button>`).join('');
-  const councillor = w.councillor_name
+  const councillor = rural ? '' : w.councillor_name
     ? `<button type="button" class="k-node k-node-elected" data-contact="councillor:${r.ward}:${esc(r.id)}">
          <span class="k-node-abbr">WC</span>
          <span class="k-node-text"><b>${esc(w.councillor_name)}</b><small>${esc(t('acc_councillor'))}${w.party ? ' · ' + esc(w.party) : ''}</small></span></button>`
     : `<div class="k-node k-node-vacant"><span class="k-node-abbr">⚠</span>
          <span class="k-node-text"><b>${esc(t('acc_councillor'))}</b><small>${esc(r.ward ? t('acc_vacant') : t('acc_unknown'))}</small></span></div>`;
-  const reps = ['mla', 'mp'].map(k => `
+  // Named MLA/MP cards are for Purulia town's seat; villages belong to several assembly seats.
+  const reps = rural ? `<div class="k-acc-rural-note">${esc(t('acc_rural_reps'))}</div>` : ['mla', 'mp'].map(k => `
     <button type="button" class="k-rep-chip" data-contact="rep:${k}:${esc(r.id)}">
       ${repAvatar(REPS[k], 'k-rep-chip-av')}
       <b>${esc(REPS[k].name)}</b><small><span class="k-party k-party-${esc(REPS[k].party.toLowerCase())}">${esc(REPS[k].party)}</span> · ${esc(k.toUpperCase())}</small>
@@ -1184,7 +1261,7 @@ function renderAccountability(r){
     <div class="k-acc">
       <div class="k-acc-label">${esc(t('acc_title'))}</div>
       <div class="k-tree">
-        <div class="k-tree-root"><small>${esc(t('acc_your_ward'))}</small><b>${esc(r.ward ? t('acc_ward', { n: r.ward }) : t('acc_unknown'))}</b></div>
+        <div class="k-tree-root"><small>${esc(t(rural ? 'acc_your_block' : 'acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
         <div class="k-tree-fork">
           <div class="k-tree-branch">
             <div class="k-node k-node-agency"><span class="k-node-abbr">${chain.agency === 'agency_police' ? '👮' : '🏛'}</span>
@@ -1192,10 +1269,10 @@ function renderAccountability(r){
             <span class="k-tree-link" aria-hidden="true"></span>
             ${nodes}
           </div>
-          <div class="k-tree-branch">${councillor}</div>
+          ${councillor ? `<div class="k-tree-branch">${councillor}</div>` : ''}
         </div>
         ${chain.note ? `<div class="k-tree-note">${esc(t(chain.note))}</div>` : ''}
-        <div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>
+        ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
         <div class="k-acc-reps">${reps}</div>
         <div class="k-acc-hint">${esc(t('acc_tap'))}</div>
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
@@ -1373,7 +1450,9 @@ function shareReport(id){
   const r = state.byId.get(id);
   if (!r) return;
   const url = `${PAGE_URL}?report=${encodeURIComponent(id)}`;
-  const text = t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
+  const text = r.area === 'rural' && r.block
+    ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
+    : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
   if (navigator.share){ navigator.share({ title: 'Purulia Kasa', text, url }).catch(() => {}); return; }
   copyText(url);
 }
@@ -1430,7 +1509,7 @@ function reportMessage(r){
   const w = state.wards[r.ward] || {};
   return [
     `Purulia Kasa — ${t('cat_' + r.category)}`,
-    `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
+    r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
     r.landmark ? `Near: ${r.landmark}` : '',
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
     r.description || '',
@@ -1444,8 +1523,10 @@ function openContact(spec){
   const r = state.byId.get(id);
   if (!r) return;
   const msg = reportMessage(r);
-  const wa = `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}`;
-  const mail = `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Purulia Kasa — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}`;
+  // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
+  const town = r.area !== 'rural';
+  const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Purulia Kasa — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + PAGE_URL + '?report=' + encodeURIComponent(r.id))}`;
 
   let title, sub, opts = [];
@@ -1454,12 +1535,12 @@ function openContact(spec){
     sub = t('ct_note_roles');
     const police = ['ps', 'sdpo', 'sp'].includes(key);
     if (police) opts.push(['tel:112', '📞 ' + t('ct_call112')]);
-    opts.push([wa, '💬 ' + t('ct_whatsapp')], [mail, '✉️ ' + t('ct_email')]);
+    opts.push([wa, '💬 ' + t('ct_whatsapp')]); if (mail) opts.push([mail, '✉️ ' + t('ct_email')]);
   } else if (kind === 'councillor'){
     const w = state.wards[key] || {};
     title = w.councillor_name || t('acc_councillor');
     sub = t('acc_councillor') + ' · ' + t('acc_ward', { n: key }) + (w.party ? ' · ' + w.party : '');
-    opts.push([wa, '💬 ' + t('ct_whatsapp')], [mail, '✉️ ' + t('ct_email')]);
+    opts.push([wa, '💬 ' + t('ct_whatsapp')]); if (mail) opts.push([mail, '✉️ ' + t('ct_email')]);
   } else {
     const rep = REPS[key];
     title = rep.name;
@@ -1491,7 +1572,7 @@ function openEvidence(spec){
   const radius = m === 'claim' ? rules.claim_radius_m : rules.vote_radius_m;
   ev.radius = radius;
   document.getElementById('k-ev-title').textContent = t('ev_title_' + m);
-  document.getElementById('k-ev-sub').textContent = t('ev_sub_' + m, { q: rules.verify_quorum, r: radius, dq: rules.dispute_quorum });
+  document.getElementById('k-ev-sub').textContent = t('ev_sub_' + m, { q: verifyNeeded(r), r: radius, dq: rules.dispute_quorum });
   document.getElementById('k-ev-loc-status').textContent = t('ev_loc_hint', { r: radius });
   document.getElementById('k-ev-loc-status').className = 'k-ev-status';
   document.getElementById('k-ev-preview').innerHTML = '';
@@ -1679,7 +1760,7 @@ async function submitEvidence(){
   try {
     const res = await api.evidence(mode, r, ev.blob, ev.pos, document.getElementById('k-ev-note').value.trim(), ev.meta);
     closeModal('k-ev-modal');
-    const q = state.rules.verify_quorum, dq = state.rules.dispute_quorum;
+    const q = res.verify_needed || verifyNeeded(r), dq = res.dispute_needed || state.rules.dispute_quorum;
     let msg;
     if (mode === 'legacy') msg = t('ev_done_legacy');
     else if (mode === 'claim') msg = t(res.needs_review ? 'ev_done_claim_held' : 'ev_done_claim', { q });
@@ -1710,6 +1791,10 @@ function newDraft(){
 
 function openReport(prefill){
   draft = newDraft();
+  // Village reports need the block map; if it arrives after the location, place the pin again.
+  if (!state.blockGeo) loadBlockGeo().then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
+  document.getElementById('k-ward-field').hidden = false;
+  document.getElementById('k-place').hidden = true;
   document.getElementById('k-next-2').disabled = true;
   document.getElementById('k-photo-preview').innerHTML = '';
   document.getElementById('k-photo-note').hidden = true;
@@ -1808,11 +1893,20 @@ function placeMiniMarker(){
 
 function setLocation(lat, lng, accuracy){
   draft.lat = lat; draft.lng = lng; draft.accuracy = accuracy;
-  const ward = detectWard(lat, lng);
-  if (ward){ draft.ward = ward; document.getElementById('k-ward').value = String(ward); }
+  const place = draft.place = placeOf(lat, lng);
+  const wardSel = document.getElementById('k-ward');
+  if (place.kind === 'town'){ draft.ward = place.ward; wardSel.value = String(place.ward); }
+  if (place.kind !== 'town' && place.kind !== 'unknown'){ draft.ward = null; wardSel.value = ''; }
+  wardSel.options[0].textContent = place.kind === 'edge' ? t('step3_not_town') : '—';
+  document.getElementById('k-ward-field').hidden = place.kind === 'rural' || place.kind === 'outside';
+  const note = document.getElementById('k-place');
+  note.hidden = !['rural', 'edge', 'outside'].includes(place.kind);
+  note.className = 'k-field-note' + (place.kind === 'outside' ? ' k-field-bad' : '');
+  note.textContent = place.kind === 'rural' ? t('step3_block', { b: place.block })
+    : place.kind === 'edge' ? t('step3_edge') : place.kind === 'outside' ? t('step3_outside') : '';
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
-    (ward ? '' : ' · ' + t('step3_pick_ward'));
+    (place.kind === 'town' || place.kind === 'rural' || place.kind === 'outside' || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   placeMiniMarker();
   if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
   updateSubmitState();
@@ -1868,16 +1962,26 @@ function setSeverity(sev){
   document.querySelectorAll('#k-severity button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sev === sev)));
 }
 
+/* A ward is needed only inside the town's ward map; villages go by block, which the server works out. */
+function draftReady(){
+  if (!draft?.category || !draft?.photoBlob || draft?.lat == null) return false;
+  const kind = draft.place?.kind || 'unknown';
+  if (kind === 'outside') return false;
+  return kind !== 'town' || !!draft.ward;
+}
+
 function updateSubmitState(){
   const btn = document.getElementById('k-submit');
   const coords = document.getElementById('k-coords');
   const hasGoodGPS = draft?.lat != null;
-  const canSubmit = draft?.category && draft?.photoBlob && hasGoodGPS && draft?.ward;
+  const canSubmit = draftReady();
 
   if (btn) {
     btn.disabled = !canSubmit;
     // Show GPS status in submit button
-    if (!draft?.ward) {
+    if (draft?.place?.kind === 'outside') {
+      btn.title = t('step3_outside');
+    } else if (draft?.place?.kind === 'town' && !draft?.ward) {
       btn.title = 'Select a ward';
     } else if (!draft?.photoBlob) {
       btn.title = 'Take a photo';
@@ -1895,7 +1999,10 @@ async function submitReport(){
   draft.landmark = document.getElementById('k-landmark').value.trim();
   draft.description = document.getElementById('k-desc').value.trim();
   const hasGoodGPS = draft.lat != null;
-  if (!draft.category || !draft.photoBlob || !hasGoodGPS || !draft.ward){ updateSubmitState(); return; }
+  if (!hasGoodGPS || !draftReady()){ updateSubmitState(); return; }
+  const kind = draft.place?.kind;
+  draft.area = kind === 'rural' || (kind === 'edge' && !draft.ward) ? 'rural' : 'town';
+  draft.block = draft.place?.block || null;
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
   btn.textContent = t('step3_uploading');
@@ -1943,7 +2050,9 @@ async function afterSubmit(res, d){
   shareBtn.hidden = !id || res.moderation === 'review';
   shareBtn.dataset.id = id || '';
   const fake = { ...d, id: id || d.clientId, createdAt: new Date().toISOString(), ward: d.ward, pending: !id };
-  document.getElementById('k-wa-escalate').href = `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(reportMessage(fake))}`;
+  document.getElementById('k-wa-escalate').href = d.area === 'rural'
+    ? `https://wa.me/?text=${encodeURIComponent(reportMessage(fake))}`
+    : `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(reportMessage(fake))}`;
   goToStep('done');
   await loadReports();
   renderAll();

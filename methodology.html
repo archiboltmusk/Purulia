@@ -49,8 +49,8 @@
 
     <h2>1. What counts as a report</h2>
     <ul>
-      <li>A report needs a photo, a category, a ward and a location inside Purulia town. Its GPS accuracy is recorded; a spot pinned by hand on the map is marked as pinned.</li>
-      <li>The photo must be taken with the camera on the Kasa page; photos can't be picked from the gallery. When the camera opens, the server issues a one-time code that expires after 30 minutes and must come back with the photo.</li>
+      <li>A report needs a photo, a category and a location inside Purulia district. The server places it from its GPS point: inside Purulia municipality it gets a ward (from an approximate ward map, or the ward the reporter picks near the town's edge); elsewhere it gets its CD block (from OpenStreetMap block outlines, simplified to about 150 m). Jhalda and Raghunathpur municipalities have no ward map yet, so reports there count under their block. Its GPS accuracy is recorded; a spot pinned by hand on the map is marked as pinned.</li>
+      <li>The photo must be taken with the camera on the Kasa page; photos can't be picked from the gallery. When the camera opens, the server issues a one-time code that expires after 3 hours and must come back with the photo.</li>
       <li>One account can file at most 5 reports an hour and 20 a day.</li>
       <li><strong>Same problem reported again:</strong> a report of the same category within 25 m of an open report from the last 72 hours is linked to the first one instead of counted twice. The second person counts as a witness ("seen by").</li>
       <li><strong>Came back:</strong> a report within 25 m of a problem marked fixed in the last 60 days is recorded as a recurrence of it.</li>
@@ -68,8 +68,9 @@
       <li><strong>Fixed.</strong> If nothing stops it, the report becomes fixed. A moderator must clear it first if none of the confirmers has much history (fewer than 3 earlier actions), or if two of the confirmers have confirmed 3 or more other cleanups together in the last 30 days.</li>
     </ol>
     <p><strong>Disputes:</strong> 2 disputes from 2 different networks throw the claim out and reopen the report. 2 disputes from one network send it to a moderator instead. A claim that doesn't get enough confirmations within 14 days expires and the report reopens.</p>
+    <p><strong>Outside Purulia town:</strong> villages have fewer Kasa users and often only one mobile network, so a cleanup there needs 2 confirmations instead of 3, they may come from the same network, and a claim stays open for 30 days instead of 14. Everything else above still applies: account age, earlier activity, the live camera, the confirmer check and moderator holds. Two disputes, even from one network, throw a village claim out.</p>
     <p><strong>Repeated failed claims:</strong> a person with 3 claims thrown out within 30 days can't claim cleanups for the next 30 days. They can still report, confirm and dispute. After 3 claims thrown out by a moderator, they can't claim at all.</p>
-    <p><strong>Fake cleanup caught:</strong> a claim thrown out by disputes or by a moderator. It is counted against the ward.</p>
+    <p><strong>Fake cleanup caught:</strong> a claim thrown out by disputes or by a moderator. It is counted against the ward or block.</p>
 
     <h2>3. Other checks against faking</h2>
     <ul>
