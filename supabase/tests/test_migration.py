@@ -128,7 +128,8 @@ NEW_RULES = {'require_evidence_photo_check': 'true', 'voter_min_account_hours': 
              'quiet_start_hour': '22', 'quiet_end_hour': '6'}
 BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': '0', 'voter_min_prior_actions': '0',
             'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000',
-            'quiet_start_hour': '0', 'quiet_end_hour': '0', 'require_live_report_photo': 'false'}
+            'quiet_start_hour': '0', 'quiet_end_hour': '0', 'require_live_report_photo': 'false',
+            'require_live_capture': 'false'}
 
 
 def set_rules(values):

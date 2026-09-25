@@ -1553,7 +1553,9 @@ async function captureEvidencePhoto(){
   // No camera in this browser (some in-app browsers) or permission refused:
   // allow a file, whose time, location and AI markers are then checked.
   if (!state.rules.require_live_capture) document.getElementById('k-ev-file-btn').hidden = false;
-  setEvStatus(document.getElementById('k-ev-photo-status'), 'bad', t(res.error === 'denied' ? 'cam_denied' : 'cam_unavailable'));
+  const live = state.rules.require_live_capture;
+  setEvStatus(document.getElementById('k-ev-photo-status'), 'bad',
+    t(res.error === 'denied' ? (live ? 'cam_ev_denied' : 'cam_denied') : (live ? 'cam_ev_unavailable' : 'cam_unavailable')));
 }
 
 async function handleEvidencePhoto(file){
