@@ -1131,6 +1131,35 @@ check('self-moderation only ever acts on report photos, never claim/vote photos'
       admin_sql("select count(*) from kasa_private.events where kind = 'moderation_hold' and detail @> %s",
                 ('{"reason":"off_topic_photo"}',))[0][0] == 1)
 
+# ────────────────────── Repeat-offender pause for reports ──────────────────────
+# Mirrors the failed-claim cooldown above (serial / KASA_CLAIMS_PAUSED), but keyed
+# to a MODERATOR hiding a report — never to a self-moderation hold or a flag, which
+# can still be false positives nobody has looked at yet.
+offender = user()
+r1 = report(offender, where=offset(6000, 15000))[0]['id']
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(r1), p_action='hide', p_reason='Not a real problem')
+check('one moderator-hidden report does not yet pause reporting',
+      report(offender, where=offset(6300, 15000))[0]['moderation_status'] == 'approved')
+r2 = report(offender, where=offset(6600, 15000))[0]['id']
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(r2), p_action='hide', p_reason='Not a real problem')
+r3 = report(offender, where=offset(6900, 15000))[0]['id']
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(r3), p_action='hide', p_reason='Not a real problem')
+check('a third moderator-hidden report within the window pauses reporting',
+      err(report, offender, where=offset(7200, 15000)) == 'KASA_REPORTS_PAUSED')
+other_r = report(user(), where=offset(7500, 15000))[0]['id']
+last = rpc('kasa_flag_report', uid=offender, p_report_id=str(other_r), p_reason='not_an_issue')
+check("a paused reporter can still flag, confirm and dispute others' reports", last['counted'])
+admin_sql("update kasa_private.events set created_at = now() - interval '31 days' "
+          "where kind = 'moderated' and detail->>'action' = 'hide' "
+          "and report_id in (select id from public.reports where user_id = %s)", (offender,))
+check('...and the pause ends after 30 days',
+      report(offender, where=offset(7800, 15000))[0]['moderation_status'] == 'approved')
+approved_offender = user()
+ar = report(approved_offender, where=offset(8100, 15000))[0]['id']
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(ar), p_action='approve', p_reason='Looks fine')
+check('an approved (not hidden) report never counts toward the pause',
+      report(approved_offender, where=offset(8400, 15000))[0]['moderation_status'] == 'approved')
+
 set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]

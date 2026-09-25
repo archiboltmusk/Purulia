@@ -698,6 +698,7 @@ Object.assign(window.KASA_I18N.en, {
   err_KASA_PHOTO_AI_EDITED: "This photo says it was made or edited with AI, so it can't be evidence. Take a new photo with the camera.",
   err_KASA_LIVE_CAMERA_REQUIRED: 'Take the photo with the camera on this page.',
   err_KASA_CLAIMS_PAUSED: "Several of your recent cleanup claims were rejected, so you can't claim cleanups for a while. You can still report, confirm and dispute.",
+  err_KASA_REPORTS_PAUSED: "A moderator removed several of your recent reports, so you can't file new reports for a while. You can still confirm, dispute and flag others' reports.",
   ev_claim_held: 'Held for a moderator', held_disputes_one_network: 'disputes came from one network', held_confirmers_often_together: 'the same confirmers often confirm together',
   ev_done_quorum_at: 'Enough confirmations. It becomes final on {at} unless disputed.'
 });
@@ -724,6 +725,7 @@ Object.assign(window.KASA_I18N.bn, {
   err_KASA_PHOTO_AI_EDITED: 'এই ছবিতে লেখা আছে এটি AI দিয়ে তৈরি বা বদলানো, তাই প্রমাণ হিসেবে চলবে না। ক্যামেরা দিয়ে নতুন ছবি তুলুন।',
   err_KASA_LIVE_CAMERA_REQUIRED: 'এই পেজের ক্যামেরা দিয়ে ছবি তুলুন।',
   err_KASA_CLAIMS_PAUSED: 'সম্প্রতি আপনার কয়েকটি সাফাইয়ের দাবি বাতিল হয়েছে, তাই কিছুদিন নতুন দাবি করা যাবে না। রিপোর্ট, নিশ্চিত ও আপত্তি করতে পারবেন।',
+  err_KASA_REPORTS_PAUSED: 'একজন মডারেটর সম্প্রতি আপনার কয়েকটি রিপোর্ট সরিয়ে দিয়েছেন, তাই কিছুদিন নতুন রিপোর্ট করা যাবে না। অন্যদের রিপোর্ট নিশ্চিত, আপত্তি বা ফ্ল্যাগ করতে পারবেন।',
   ev_claim_held: 'মডারেটরের জন্য আটকে রাখা হয়েছে', held_disputes_one_network: 'আপত্তিগুলো একই নেটওয়ার্ক থেকে এসেছে', held_confirmers_often_together: 'একই নিশ্চিতকারীরা প্রায়ই একসঙ্গে নিশ্চিত করেন',
   ev_done_quorum_at: 'যথেষ্ট নিশ্চিতকরণ। আপত্তি না এলে {at} চূড়ান্ত।'
 });
@@ -750,6 +752,7 @@ Object.assign(window.KASA_I18N.hi, {
   err_KASA_PHOTO_AI_EDITED: 'इस फ़ोटो में लिखा है कि यह AI से बनी या बदली गई है, इसलिए यह सबूत नहीं बन सकती। कैमरे से नई फ़ोटो लें।',
   err_KASA_LIVE_CAMERA_REQUIRED: 'इसी पेज के कैमरे से फ़ोटो लें।',
   err_KASA_CLAIMS_PAUSED: 'हाल में आपके कई सफ़ाई दावे ख़ारिज हुए, इसलिए कुछ समय तक नया दावा नहीं कर सकते। रिपोर्ट, पुष्टि और आपत्ति अब भी कर सकते हैं।',
+  err_KASA_REPORTS_PAUSED: 'एक मॉडरेटर ने हाल में आपकी कई रिपोर्ट हटाई हैं, इसलिए कुछ समय तक नई रिपोर्ट नहीं कर सकते। दूसरों की रिपोर्ट पुष्टि, आपत्ति या फ़्लैग कर सकते हैं।',
   ev_claim_held: 'मॉडरेटर के लिए रोका गया', held_disputes_one_network: 'आपत्तियाँ एक ही नेटवर्क से आईं', held_confirmers_often_together: 'वही पुष्टिकर्ता अक्सर साथ में पुष्टि करते हैं',
   ev_done_quorum_at: 'पर्याप्त पुष्टियाँ। आपत्ति न हुई तो {at} को अंतिम।'
 });

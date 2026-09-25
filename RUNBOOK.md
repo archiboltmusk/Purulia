@@ -82,6 +82,12 @@ It deliberately does **not** use `garbage_score` as a general relevance filter �
 - It only ever touches `reports/` photos and only while a report is still `approved`; claim/vote photos and anything a moderator or the synchronous checks already moved off `approved` are left alone.
 - If Google Vision is down or misconfigured (`GOOGLE_VISION_API_KEY` missing, API not enabled, billing off — check the Edge Function logs for `kasa-photo-check`, or a `vision 403`/`vision 401` there), `photo_checks.labels` stays empty and this simply never fires; nothing is blocked by its absence.
 
+## Repeat-offender pause for reports
+
+Mirrors the failed-claim cooldown just above it, keyed to reports instead of claims: `kasa_private.reports_paused_until`, enforced by the `guard_reports_paused` trigger on `public.reports`. A person whose reports a moderator hides (`kasa_admin_moderate`, action `hide`) `hidden_reports_limit` times within `hidden_reports_window_days` can't file a new report for `hidden_reports_block_days` — the error (`KASA_REPORTS_PAUSED`) tells them so, the same way `KASA_CLAIMS_PAUSED` does; it isn't a silent throttle. They can still confirm, dispute and flag other people's reports while paused.
+
+Deliberately keyed to a moderator's own `hide` action only — never to a `self_moderate_photo` hold (still just a flag, unreviewed) or a public flag on its own (same reasoning as `kasa_private.profiles.strikes`, which only `reject_claim` increments). Tune the three settings the same way as any other rule; no deploy needed.
+
 ## District coverage and boundaries
 
 Kasa takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.
