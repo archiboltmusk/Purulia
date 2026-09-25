@@ -1053,6 +1053,23 @@ check('an unknown category is still refused',
           p_accuracy=10.0, p_ward_no=None, p_description=None, p_landmark=None, p_photo_path=upload(vil_user, 'reports'),
           p_client_id=None) == 'KASA_BAD_CATEGORY')
 check('boundary data is private', refused(err(q, 'select * from kasa_private.areas', uid=vil_user)))
+
+# ─────────────────────────────── Quick report: camera, then submit ────────────────────────────────
+quick_user = user()
+quick = rpc('kasa_create_report', uid=quick_user, p_category=None, p_severity=None, p_lat=town_spot[0] + 0.001,
+            p_lng=town_spot[1] + 0.001, p_accuracy=10.0, p_ward_no=None, p_description=None, p_landmark=None,
+            p_photo_path=upload(quick_user, 'reports'), p_client_id=None)
+quick_row = view_row(quick['id'])
+check('a quick report with no category defaults to "other"', quick_row['category'] == 'other', quick_row)
+check('a quick report with no severity defaults to "minor"', quick_row['severity'] == 'minor', quick_row)
+check('a quick report still gets its ward from GPS alone', quick_row['area_kind'] == 'town' and quick_row['ward_no'] is not None, quick_row)
+quick_vil_user = user()
+quick_vil = rpc('kasa_create_report', uid=quick_vil_user, p_category=None, p_severity=None, p_lat=jhalda[0] + 0.01,
+                p_lng=jhalda[1] + 0.01, p_accuracy=10.0, p_ward_no=None, p_description=None, p_landmark=None,
+                p_photo_path=upload(quick_vil_user, 'reports'), p_client_id=None)
+quick_vil_row = view_row(quick_vil['id'])
+check('a quick report in a village still gets its block from GPS alone',
+      quick_vil_row['area_kind'] == 'rural' and quick_vil_row['category'] == 'other', quick_vil_row)
 set_rules(BASELINE)
 
 failed = [n for n, ok in results if not ok]

@@ -1825,7 +1825,11 @@ function openReport(prefill){
   document.getElementById('k-desc').value = '';
   document.getElementById('k-ward').value = '';
   document.getElementById('k-coords').textContent = t('step3_no_loc');
-  document.getElementById('k-gps-btn').textContent = t('step3_gps');
+  const gpsBtn = document.getElementById('k-gps-btn');
+  gpsBtn.textContent = t('step3_gps');
+  // Automatic GPS is the norm; the button/map only reappear if it fails (see useGPS()).
+  gpsBtn.hidden = true;
+  document.getElementById('k-mini-map').hidden = true;
   setSeverity('minor');
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
   renderCategoryGrid();
@@ -1844,7 +1848,7 @@ function goToStep(n){
   document.querySelectorAll('#k-modal .k-modal-step').forEach(s => { s.hidden = s.dataset.step !== String(n); });
   document.querySelectorAll('#k-modal .k-steps-bar i').forEach(i => { i.classList.toggle('on', n === 'done' || Number(i.dataset.bar) <= Number(n)); });
   document.querySelector('#k-modal .k-modal-sheet').scrollTop = 0;
-  if (n === 3){
+  if (n === 2){
     initMiniMap();
     setTimeout(() => miniMap && miniMap.resize(), 60);
   }
@@ -1852,7 +1856,10 @@ function goToStep(n){
 }
 
 function renderCategoryGrid(){
+  // No-op once the create-report flow drops the category step; #k-cat-grid no longer
+  // exists in the DOM. Left callable so init()/setLang() don't need special-casing.
   const grid = document.getElementById('k-cat-grid');
+  if (!grid) return;
   grid.innerHTML = GROUPS.map(g => `
     <div class="k-cat-group">
       <div class="k-cat-group-label">${esc(t('grp_' + g))}</div>
@@ -1872,7 +1879,7 @@ function selectCategory(key, advance = true){
   warn.hidden = !CATEGORIES[key].review;
   warn.textContent = CATEGORIES[key].review ? t('illegal_note') : '';
   renderCategoryGrid();
-  if (advance) goToStep(3);
+  if (advance) goToStep(2);
 }
 
 /* Report photos come only from the in-page camera: no gallery, no file picker. */
@@ -1974,6 +1981,11 @@ async function useGPS(){
   const err = await Promise.all([quick, precise]).then(([, e]) => e);
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
+    // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
+    btn.hidden = false;
+    document.getElementById('k-mini-map').hidden = false;
+    initMiniMap();
+    setTimeout(() => miniMap && miniMap.resize(), 60);
     showToast(err?.code === 1
       ? 'Location permission denied. Tap the map to pin the spot.'
       : 'Could not get location. Tap the map to pin the spot.');
@@ -1985,9 +1997,10 @@ function setSeverity(sev){
   document.querySelectorAll('#k-severity button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sev === sev)));
 }
 
-/* A ward is needed only inside the town's ward map; villages go by block, which the server works out. */
+/* No category to pick any more — the server assigns it. A ward is needed only inside the
+   town's ward map (auto-detected from GPS); villages go by block, which the server works out. */
 function draftReady(){
-  if (!draft?.category || !draft?.photoBlob || draft?.lat == null) return false;
+  if (!draft?.photoBlob || draft?.lat == null) return false;
   const kind = draft.place?.kind || 'unknown';
   if (kind === 'outside') return false;
   return kind !== 'town' || !!draft.ward;
@@ -2005,11 +2018,11 @@ function updateSubmitState(){
     if (draft?.place?.kind === 'outside') {
       btn.title = t('step3_outside');
     } else if (draft?.place?.kind === 'town' && !draft?.ward) {
-      btn.title = 'Select a ward';
+      btn.title = 'Finding your ward…';
     } else if (!draft?.photoBlob) {
       btn.title = 'Take a photo';
     } else if (draft.lat == null) {
-      btn.title = 'Get your location or tap the map';
+      btn.title = 'Getting your location…';
     } else {
       btn.title = '';
     }
@@ -2072,7 +2085,10 @@ async function afterSubmit(res, d){
   const shareBtn = document.getElementById('k-done-share');
   shareBtn.hidden = !id || res.moderation === 'review';
   shareBtn.dataset.id = id || '';
-  const fake = { ...d, id: id || d.clientId, createdAt: new Date().toISOString(), ward: d.ward, pending: !id };
+  // d.category is null for a quick report (never chosen by the user); the server
+  // stores it as 'other', so match that here for the share text and WhatsApp message.
+  const fake = { ...d, id: id || d.clientId, createdAt: new Date().toISOString(), ward: d.ward,
+    category: d.category || 'other', pending: !id };
   document.getElementById('k-wa-escalate').href = d.area === 'rural'
     ? `https://wa.me/?text=${encodeURIComponent(reportMessage(fake))}`
     : `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(reportMessage(fake))}`;
@@ -2397,7 +2413,7 @@ function wireUI(){
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
   // A prefilled report ("same problem here") already has its category; skip straight to the location.
-  document.getElementById('k-next-2').addEventListener('click', () => goToStep(draft?.category ? 3 : 2));
+  document.getElementById('k-next-2').addEventListener('click', () => goToStep(2));
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
   document.getElementById('k-submit').addEventListener('click', submitReport);
