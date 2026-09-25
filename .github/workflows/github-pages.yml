@@ -31,7 +31,7 @@ jobs:
           rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude 'supabase' \
             --exclude 'tests' --exclude 'tools' --exclude 'deploy' --exclude '*.md' --exclude 'og-card.html' \
             --exclude 'founding-document.html' --exclude 'moderator-playbook.html' \
-            --exclude '.gitignore' ./ deploy/
+            --exclude '.gitignore' --exclude 'vercel.json' ./ deploy/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
