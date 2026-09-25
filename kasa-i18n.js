@@ -7,7 +7,7 @@ window.KASA_I18N = {
     nav_home: 'Home', nav_blueprint: 'Blueprint', nav_map: 'Map', nav_kasa: 'Parishkar', nav_report: 'Report →',
     hero_l1: 'See a problem?', hero_l2: 'Report it in 30 seconds.',
     hero_sub: 'Garbage, blocked drains, broken roads, dark streetlights, illegal activity. Every report is public, every ward is ranked — and nothing is marked fixed until people on the spot confirm it.',
-    hero_cta: 'Report Now', nav_more: 'More', filters_btn: 'Filters', hero_how: 'How verification works ↓',
+    hero_cta: 'Report Now', nav_more: 'More', filters_btn: 'Filters', nearby_btn: 'Near me', nearby_permission: 'Allow location access to see reports within 5 km.', nearby_on: 'Showing reports near you', nearby_off: 'Showing all reports', hero_how: 'How verification works ↓',
     offline_banner: 'Offline — reports will queue and upload when connected',
     view_map: 'Map', view_list: 'List',
     sort_urgent: 'Most urgent', sort_newest: 'Newest', sort_seen: 'Most seen', sort_oldest: 'Longest unresolved',
@@ -243,7 +243,7 @@ window.KASA_I18N = {
     stat_reports: 'রিপোর্ট', stat_open: 'অমীমাংসিত', stat_resolved: 'যাচাই করা সমাধান', stat_fake: 'ধরা পড়া ভুয়ো সাফাই',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
-    trust_sub: 'কোনো আধিকারিক, দলীয় কর্মী বা মডারেটর মুখে বলে রিপোর্ট বন্ধ করতে পারেন না। এই নিয়ম সার্ভারে চলে — ওয়েবসাইট এড়াতে পারে না।',
+    trust_sub: 'কোনো আধিকারিক, দলীয় কর্মী বা মডারেটর মুখে ব���ে রিপোর্ট বন্ধ করতে পারেন না। এই নিয়ম সার্ভারে চলে — ওয়েবসাইট এড়াতে পারে না।',
     trust_1: 'যে কেউ ছবি ও লোকেশন দিয়ে সমস্যা জানাতে পারেন। সঙ্গে সঙ্গে তা প্রকাশ্য হয় — বেআইনি কাজের রিপোর্ট আগে মডারেটর দেখেন।',
     trust_2: 'যিনি ঠিক করেন — আধিকারিকসহ — তিনি জায়গা থেকে {cr} মিটারের মধ্যে তোলা ছবি দিয়ে সাফাইয়ের দাবি করেন। এতে রিপোর্ট বন্ধ হয় না।',
     trust_3: 'আরও {q} জনকে ঘটনাস্থলে দাঁড়িয়ে নিজের নতুন ছবি দিয়ে তা নিশ্চিত করতে হয়। দাবিদার নিজের দাবি নিশ্চিত করতে পারেন না, আর নিশ্চিতকরণ একাধিক নেটওয়ার্ক থেকে আসতে হয়।',
@@ -266,7 +266,7 @@ window.KASA_I18N = {
     lb_num: '০৪ · জবাবদিহি', lb_title: 'ওয়ার্ডের জবাবদিহি',
     lb_sub: 'অমীমাংসিত রিপোর্টের সংখ্যা অনুযায়ী। জনগণের ধরা ভুয়ো সাফাইয়ের দাবি ওয়ার্ডের বিরুদ্ধে গোনা হয়।',
     lb_loading: 'লোড হচ্ছে…', lb_empty: 'এখনও কোনো রিপোর্ট নেই — প্রথম আপনিই হোন', lb_all_clear: 'এখন কিছুই অমীমাংসিত নেই',
-    lb_overdue: '{n}টি সময়সীমা পার', lb_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', lb_recurring: '{n}টি ফিরে এসেছে', lb_fixed: '{n}টি সমাধান', lb_vacant: 'কাউন্সিলর পদ শূন্য',
+    lb_overdue: '{n}টি সময়সীমা পার', lb_fake: '{n}টি ভুয়ো ��াফাই ধরা পড়েছে', lb_recurring: '{n}টি ফিরে এসেছে', lb_fixed: '{n}টি সমাধান', lb_vacant: 'কাউন্সিলর পদ শূন্য',
     chain_num: '০৫ · দায়িত্ব', chain_title: 'কে দায়ী',
     chain_sub: 'প্রতিটি ধরনের সমস্যার আলাদা দায়িত্বের শৃঙ্খল আছে — মাঠের আধিকারিক থেকে শীর্ষ পর্যন্ত।',
     chaintab_sanitation: 'আবর্জনা ও নর্দমা', chaintab_engineering: 'রাস্তা ও সম্পত্তি', chaintab_lighting: 'রাস্তার আলো',
@@ -303,7 +303,7 @@ window.KASA_I18N = {
     done_title_recur: 'বারবার হওয়া সমস্যা হিসেবে নথিভুক্ত', done_sub_recur: 'এই জায়গাটি সম্প্রতি সমাধান বলে চিহ্নিত হয়েছিল। আবার ফিরে আসাটা এখন রেকর্ডে আছে।',
     done_title_review: 'যাচাইয়ের জন্য পাঠানো হয়েছে', done_sub_review: 'প্রকাশের আগে মডারেটর এই রিপোর্টগুলো দেখেন।',
     done_title_offline: 'অফলাইনে সেভ হয়েছে', done_sub_offline: 'অনলাইন হলে নিজে থেকেই আপলোড হবে।',
-    done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান →', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
+    done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান ���', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
 
     head_open: 'অমীমাংসিত', head_claimed: 'সাফাইয়ের দাবি · যাচাই চলছে', head_resolved: 'সমাধান হয়েছে', head_resolved_legacy: 'সমাধান · যাচাই হয়নি',
     chip_pending: 'আপলোডের অপেক্ষায়', days_open: '{n} দিন খোলা', list_count: '{n}টি রিপোর্ট', list_empty: 'এই ফিল্টারে কোনো রিপোর্ট নেই।', list_seen: '{n} জন দেখেছেন', list_seen_one: 'শুধু রিপোর্টকারী দেখেছেন',
@@ -350,7 +350,7 @@ window.KASA_I18N = {
     role_eo: 'এক্সিকিউটিভ অফিসার', role_eo_s: 'পৌরসভার প্রশাসনিক প্রধান',
     role_chairman: 'চেয়ারম্যান', role_chairman_s: 'পৌরসভার নির্বাচিত প্রধান',
     role_sae: 'সাব-অ্যাসিস্ট্যান্ট ইঞ্জিনিয়ার', role_sae_s: 'ওয়ার্ডের রাস্তা ও নর্দমা',
-    role_ae: 'অ্যাসিস্ট্যান্ট ইঞ্জিনিয়ার', role_ae_s: 'ইঞ্জিনিয়ারিং তত্ত্বাবধান',
+    role_ae: 'অ্যাসিস্��্যান্ট ইঞ্জিনিয়ার', role_ae_s: 'ইঞ্জিনিয়ারিং তত্ত্বাবধান',
     role_sae_elec: 'সাব-অ্যাসিস্ট্যান্ট ইঞ্জিনিয়ার (বিদ্যুৎ)', role_sae_elec_s: 'রাস্তার আলো',
     role_waterworks: 'ওয়াটার ওয়ার্কস বিভাগ', role_waterworks_s: 'পৌর জল সরবরাহ',
     role_building: 'বিল্ডিং ও লাইসেন্স বিভাগ', role_building_s: 'নির্মাণের অনুমতি ও দখল',
@@ -375,7 +375,7 @@ window.KASA_I18N = {
     ev_claim_rejected: 'সাফাইয়ের দাবি বাতিল', ev_claim_expired: 'দাবির মেয়াদ শেষ — যথেষ্ট নিশ্চিতকরণ নেই',
     ev_recurred: 'আবার ফিরে এসেছে — আবার রিপোর্ট', ev_flagged: 'ফ্ল্যাগ করা হয়েছে', ev_moderated: 'মডারেটরের পদক্ষেপ', ev_vote_voided: 'মডারেটর একটি ভোট বাতিল করেছেন',
     ev_neighbours_verified: 'প্রতিবেশীদের দ্বারা যাচাই', ev_neighbours_doubted: 'প্রতিবেশীদের সন্দেহ',
-    ev_official_reply: 'সরকারি জবাব প্রকাশিত', ev_reply_hidden: 'সরকারি জবাব সরানো হয়েছে',
+    ev_official_reply: 'সরকারি ��বাব প্রকাশিত', ev_reply_hidden: 'সরকারি জবাব সরানো হয়েছে',
     foot_line: 'রিপোর্ট {ago} · {n} জন দেখেছেন · {status}', foot_unresolved: '{d} দিন অমীমাংসিত', foot_fixed: '{d} দিনে সমাধান',
 
     act_verify: 'সাফাই যাচাই করুন', act_flag: 'ভুল বলে ফ্ল্যাগ করুন', act_confirm: 'ঠিক হয়েছে — নিশ্চিত করুন', act_dispute: 'এখনও ঠিক হয়নি', act_again: 'আবার ফিরে এসেছে — রিপোর্ট করুন',
@@ -429,11 +429,11 @@ window.KASA_I18N = {
     err_generic: 'কিছু ভুল হয়েছে। আবার চেষ্টা করুন।', err_load: 'রিপোর্ট লোড হলো না। সেভ করা তথ্য দেখানো হচ্ছে।',
     err_upload: 'ছবি আপলোড হলো না। সংযোগ দেখুন।', err_session: 'নিরাপদ সেশন শুরু করা গেল না। একটু পরে চেষ্টা করুন।',
     err_captcha: 'মানুষ-যাচাই শেষ হয়নি। আবার চেষ্টা করুন।', err_photo_read: 'ছবিটি পড়া গেল না। অন্য ছবি দিন।',
-    err_KASA_TOO_FAR: 'আপনি জায়গা থেকে {d} মিটার দূরে। {limit} মিটারের মধ্যে আসুন।', err_KASA_GPS_WEAK: 'GPS দুর্বল (±{a} মি)। খোলা জায়গায় গিয়ে চেষ্টা করুন।',
+    err_KASA_TOO_FAR: 'আপনি জায়গা থেকে {d} মিটার দূরে। {limit} মিটারের মধ্যে আসুন।', err_KASA_GPS_WEAK: 'GPS দুর্বল (±{a} মি)। খোলা জা��়গায় গিয়ে চেষ্টা করুন।',
     err_KASA_GPS_REQUIRED: 'লোকেশন চালু করুন — আপনাকে ঘটনাস্থলে থাকতে হবে।',
-    err_KASA_STILL_DIRTY: 'ছবিতে সমস্যাটা এখনও দেখা যাচ্ছে।', err_KASA_LOOKS_CLEAN: 'আপনার ছবিতে সমস্যাটা দেখা যাচ্ছে না। যা এখনও আছে তার ছবি তুলুন।',
+    err_KASA_STILL_DIRTY: 'ছবিতে সমস্যাটা এখনও দে���া যাচ্ছে।', err_KASA_LOOKS_CLEAN: 'আপনার ছবিতে সমস্যাটা দেখা যাচ্ছে না। যা এখনও আছে তার ছবি তুলুন।',
     err_KASA_PHOTO_REUSED: 'এই ছবি আগেই ব্যবহার হয়েছে। নতুন ছবি তুলুন।', err_KASA_PHOTO_ELSEWHERE: 'এই ছবি অন্য জায়গায় তোলা একটি ছবির সঙ্গে মেলে।',
-    err_KASA_PHOTO_STALE: 'এখনই নতুন ছবি তুলুন — পুরোনো আপলোড চলবে না।', err_KASA_PHOTO_UNSAFE: 'এই ছবি প্রকাশ করা যাবে না।',
+    err_KASA_PHOTO_STALE: 'এ���নই নতুন ছবি তুলুন — পুরোনো আপলোড চলবে না।', err_KASA_PHOTO_UNSAFE: 'এই ছবি প্রকাশ করা যাবে না।',
     err_KASA_PHOTO_UNCHECKED: 'ছবি যাচাই ব্যস্ত। এক মিনিট পরে চেষ্টা করুন।', err_KASA_PHOTO_MISSING: 'ছবি আপলোড হয়নি। আবার চেষ্টা করুন।',
     err_KASA_OWN_CLAIM: 'দাবিটি আপনার — অন্যদের নিশ্চিত করতে হবে।',
     err_KASA_ACCOUNT_TOO_NEW: 'এই সাফাই দাবির কয়েক দিন আগে থেকে যাঁরা পরিষ্কার ব্যবহার করছেন, শুধু তাঁরাই সাড়া দিতে পারেন।',
@@ -602,7 +602,7 @@ window.KASA_I18N = {
     ev_official_reply: 'आधिकारिक जवाब प्रकाशित', ev_reply_hidden: 'आधिकारिक जवाब हटाया गया',
     foot_line: 'रिपोर्ट {ago} · {n} लोगों ने देखा · {status}', foot_unresolved: '{d} दिन से अनसुलझी', foot_fixed: '{d} दिन में ठीक',
 
-    act_verify: 'सफ़ाई की पुष्टि करें', act_flag: 'ग़लत बताकर फ़्लैग करें', act_confirm: 'ठीक हो गया — पुष्टि करें', act_dispute: 'अभी भी ठीक नहीं', act_again: 'फिर से हुई — दोबारा रिपोर्ट करें',
+    act_verify: 'सफ़��ई की पुष्टि करें', act_flag: 'ग़लत बताकर फ़्लैग करें', act_confirm: 'ठीक हो गया — पुष्टि करें', act_dispute: 'अभी भी ठीक नहीं', act_again: 'फिर से हुई — दोबारा रिपोर्ट करें',
     ev_title_claim: 'सफ़ाई की पुष्टि करें',
     ev_sub_claim: 'ठीक हो गया? मौके पर खड़े होकर अभी फ़ोटो लें। इसके बाद {q} और लोगों को मौके पर जाकर पुष्टि करनी होगी।',
     ev_title_verify: 'ठीक हो गया — पुष्टि करें',
@@ -638,7 +638,7 @@ window.KASA_I18N = {
     rep_open: 'अनसुलझी', rep_resolved: 'पुष्टि से सुलझी', rep_wards: 'प्रभावित वार्ड', rep_worst: 'सबसे ज़्यादा अनसुलझी रिपोर्ट वाले वार्ड', rep_none: 'कोई अनसुलझी रिपोर्ट नहीं।',
     wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
     wc_share: 'वार्ड का लिंक शेयर करें', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
-    csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड के लिए कोई रिपोर्ट नहीं।',
+    csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड ���े लिए कोई रिपोर्ट नहीं।',
     csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Parishkar Purulia” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
     install_btn: '📲 ऐप इंस्टॉल करें', install_ios: 'iPhone पर: शेयर पर टैप करें, फिर “Add to Home Screen”।',
 
@@ -729,7 +729,7 @@ Object.assign(window.KASA_I18N.bn, {
   err_KASA_LIVE_CAMERA_REQUIRED: 'এই পেজের ক্যামেরা দিয়ে ছবি তুলুন।',
   err_KASA_CLAIMS_PAUSED: 'সম্প্রতি আপনার কয়েকটি সাফাইয়ের দাবি বাতিল হয়েছে, তাই কিছুদিন নতুন দাবি করা যাবে না। রিপোর্ট, নিশ্চিত ও আপত্তি করতে পারবেন।',
   err_KASA_REPORTS_PAUSED: 'একজন মডারেটর সম্প্রতি আপনার কয়েকটি রিপোর্ট সরিয়ে দিয়েছেন, তাই কিছুদিন নতুন রিপোর্ট করা যাবে না। অন্যদের রিপোর্ট নিশ্চিত, আপত্তি বা ফ্ল্যাগ করতে পারবেন।',
-  ev_claim_held: 'মডারেটরের জন্য আটকে রাখা হয়েছে', held_disputes_one_network: 'আপত্তিগুলো একই নেটওয়ার্ক থেকে এসেছে', held_confirmers_often_together: 'একই নিশ্চিতকারীরা প্রায়ই একসঙ্গে নিশ্চিত করেন',
+  ev_claim_held: 'মডারেটরের জন্য আটকে রাখ�� হয়েছে', held_disputes_one_network: 'আপত্তিগুলো একই নেটওয়ার্ক থেকে এসেছে', held_confirmers_often_together: 'একই নিশ্চিতকারীরা প্রায়ই একসঙ্গে নিশ্চিত করেন',
   ev_done_quorum_at: 'যথেষ্ট নিশ্চিতকরণ। আপত্তি না এলে {at} চূড়ান্ত।'
 });
 Object.assign(window.KASA_I18N.hi, {
@@ -828,7 +828,7 @@ Object.assign(window.KASA_I18N.hi, {
   cat_hand_pump: 'ख़राब हैंडपंप', cat_anganwadi: 'आंगनवाड़ी केंद्र', cat_health_centre: 'स्वास्थ्य केंद्र', cat_school: 'स्कूल भवन या सुविधा',
   step3_block: '{b} ब्लॉक में, नगरपालिका से बाहर। वार्ड की ज़रूरत नहीं।',
   step3_edge: 'पुरुलिया शहर की सीमा के पास। अपना वार्ड चुनें, या गाँव हो तो "नगरपालिका से बाहर" चुनें।',
-  step3_outside: 'यह जगह पुरुलिया ज़िले से बाहर है। परिष्कार सिर्फ़ पुरुलिया ज़िले के लिए है।',
+  step3_outside: 'यह जगह पुरुलिया ज़िले से बाहर है। परिष्कार सिर्फ��� पुरुलिया ज़िले के लिए है।',
   step3_not_town: 'नगरपालिका से बाहर',
   share_text_rural: 'पुरुलिया के {block} ब्लॉक में {cat} — {days} दिन से अनसुलझी। देखें और अपनी आवाज़ जोड़ें:'
 });
@@ -876,7 +876,7 @@ Object.assign(window.KASA_I18N.bn, {
   foot_unresolved_overdue: '{d} দিন অমীমাংসিত — {sla} দিনের লক্ষ্য পেরিয়ে গেছে',
   watch_btn: '🔔 এই রিপোর্ট ফলো করুন', watch_off_btn: '🔕 ফলো করা হচ্ছে — বন্ধ করুন',
   watch_on: 'ফলো করা শুরু। এই রিপোর্টের অবস্থা বদলালে আপনাকে জানানো হবে।', watch_off: 'এই রিপোর্ট ফলো করা বন্ধ হয়েছে।',
-  nav_mine: 'আপনার রিপোর্ট', mine_title: 'আপনার রিপোর্ট',
+  nav_mine: 'আপনার রিপ��র্ট', mine_title: 'আপনার রিপোর্ট',
   mine_sub: 'শুধু এই ডিভাইসে দেখা যায় — এখানে এমন কিছু নেই যা আপনাকে অন্য কারও কাছে শনাক্ত করে।',
   mine_loading: 'লোড হচ্ছে…', mine_empty: 'আপনি এখনও এই ডিভাইস থেকে কোনো রিপোর্ট করেননি।',
   ev_auto_recategorized: 'ছবি থেকে বিভাগ স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে'
@@ -885,7 +885,7 @@ Object.assign(window.KASA_I18N.hi, {
   wc_avg_fix: 'औसतन {n} दिन में समाधान', stat_days_overdue: '{n} दिन से अनदेखा',
   foot_unresolved_overdue: '{d} दिन से अनसुलझी — {sla} दिन के लक्ष्य से आगे',
   watch_btn: '🔔 इस रिपोर्ट को फ़ॉलो करें', watch_off_btn: '🔕 फ़ॉलो हो रहा है — बंद करें',
-  watch_on: 'फ़ॉलो शुरू। इस रिपोर्ट की स्थिति बदलने पर हम आपको बताएँगे।', watch_off: 'इस रिपोर्ट को फ़ॉलो करना बंद हुआ।',
+  watch_on: 'फ़ॉलो शुरू। इस रिपोर्ट की स्थिति बदलने पर हम आपको बताएँग���।', watch_off: 'इस रिपोर्ट को फ़ॉलो करना बंद हुआ।',
   nav_mine: 'आपकी रिपोर्ट', mine_title: 'आपकी रिपोर्ट',
   mine_sub: 'केवल इस डिवाइस पर दिखता है — यहाँ कुछ भी आपको किसी और के सामने पहचान नहीं देता।',
   mine_loading: 'लोड हो रहा है…', mine_empty: 'आपने अभी तक इस डिवाइस से कोई रिपोर्ट दर्ज नहीं की है।',

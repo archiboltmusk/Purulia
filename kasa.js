@@ -123,6 +123,8 @@ const state = {
   wardGeo: null,
   blockGeo: null,
   filters: { category: '', status: '', severity: '', ward: null },
+  nearbyOnly: false,
+  userLocation: null,
   view: 'map',
   sort: 'urgent',
   lang: 'en',
@@ -697,13 +699,20 @@ function onMap(r){
   return true;
 }
 
+function distanceMeters(aLat, aLng, bLat, bLng){
+  const rad = n => n * Math.PI / 180;
+  const a = Math.sin(rad(bLat - aLat) / 2) ** 2 + Math.cos(rad(aLat)) * Math.cos(rad(bLat)) * Math.sin(rad(bLng - aLng) / 2) ** 2;
+  return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+}
+
 function filtered(){
   const f = state.filters;
   return state.reports.filter(r =>
     (!f.category || r.category === f.category) &&
     (!f.status || r.status === f.status) &&
     (!f.severity || r.severity === f.severity) &&
-    (!f.ward || r.ward === f.ward));
+    (!f.ward || r.ward === f.ward) &&
+    (!state.nearbyOnly || (state.userLocation && distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) <= 5000)));
 }
 
 const primaries = () => state.reports.filter(r => !r.duplicate);
@@ -747,7 +756,7 @@ function renderAll(){
 /* Filters sit behind one button so the map stays clear; the badge shows how many are on. */
 function renderFilterCount(){
   const f = state.filters;
-  const n = [f.category, f.status, f.severity, f.ward].filter(Boolean).length;
+  const n = [f.category, f.status, f.severity, f.ward].filter(Boolean).length + (state.nearbyOnly ? 1 : 0);
   const el = document.getElementById('k-filter-count');
   el.textContent = n;
   el.hidden = !n;
@@ -2693,6 +2702,22 @@ function wireUI(){
     const bar = document.querySelector('.k-map-topbar');
     const open = bar.classList.toggle('k-filters-open');
     e.currentTarget.setAttribute('aria-expanded', String(open));
+  });
+  document.getElementById('k-nearby-btn').addEventListener('click', () => {
+    if (state.nearbyOnly) {
+      state.nearbyOnly = false;
+      document.getElementById('k-nearby-btn').setAttribute('aria-pressed', 'false');
+      showToast(t('nearby_off'));
+      return renderAll();
+    }
+    if (!navigator.geolocation) return showToast(t('nearby_permission'));
+    navigator.geolocation.getCurrentPosition(pos => {
+      state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      state.nearbyOnly = true;
+      document.getElementById('k-nearby-btn').setAttribute('aria-pressed', 'true');
+      showToast(t('nearby_on'));
+      renderAll();
+    }, () => showToast(t('nearby_permission')), { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
   });
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {

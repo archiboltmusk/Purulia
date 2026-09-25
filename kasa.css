@@ -641,6 +641,8 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 
 .k-filter-toggle{display:flex;align-items:center;gap:.4rem;padding:.5rem .8rem;background:rgba(10,8,5,.94);border:1px solid var(--border);border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--text-hi);flex-shrink:0;}
 .k-filter-toggle[aria-expanded="true"]{border-color:var(--amber);color:var(--amber);}
+.k-nearby-btn{padding:.5rem .8rem;background:rgba(10,8,5,.94);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:11px;letter-spacing:.06em;white-space:nowrap;}
+.k-nearby-btn:hover,.k-nearby-btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
 .k-filter-count{background:var(--amber);color:var(--ink);border-radius:9px;padding:0 .4rem;font-size:10px;line-height:1.5;}
 .k-map-topbar .k-filter-bar{display:none;}
 .k-map-topbar.k-filters-open .k-filter-bar{display:flex;}
