@@ -1099,3 +1099,46 @@ window.followSubmit=async function(){
     });
   });
 })();
+
+/* ── Hero canvas stability fix ──
+   Delay canvas init until the loader has cleared, and only resize
+   the canvas when the container's size actually changes. This stops
+   the "up-down up-down" bounce during page load. */
+(function(){
+  var cv = document.getElementById('heroCanvas');
+  if (!cv) return;
+
+  var container = cv.parentElement;
+  var lastW = 0, lastH = 0;
+
+  function measure(){
+    var rect = container.getBoundingClientRect();
+    var w = Math.round(rect.width);
+    var h = Math.round(rect.height);
+    if (w === lastW && h === lastH) return false;
+    lastW = w; lastH = h;
+    var dpr = window.devicePixelRatio || 1;
+    cv.width = w * dpr;
+    cv.height = h * dpr;
+    cv.style.width = w + 'px';
+    cv.style.height = h + 'px';
+    return true;
+  }
+
+  /* Only start measuring after the loader is gone */
+  function start(){
+    if (document.getElementById('loader')) {
+      setTimeout(start, 150);
+      return;
+    }
+    measure();
+  }
+  start();
+
+  /* Resize only when the container actually changes size (not every frame) */
+  if (window.ResizeObserver){
+    new ResizeObserver(function(){ measure(); }).observe(container);
+  } else {
+    window.addEventListener('resize', measure, { passive: true });
+  }
+})();
