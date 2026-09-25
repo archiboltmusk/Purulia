@@ -25,7 +25,7 @@ const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
-const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,area_kind,block_name,verify_needed';
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -312,7 +312,7 @@ function normalize(r){
       id: r.claim_id, photo: safeUrl(r.claim_photo_url), createdAt: r.claim_created_at,
       verify: Number(r.claim_verify_count || 0), dispute: Number(r.claim_dispute_count || 0),
       quorumAt: r.claim_quorum_reached_at, finalAfter: r.claim_finalize_after, distance: r.claim_distance_m,
-      held: !!r.claim_needs_review
+      held: !!r.claim_needs_review, reviewedAt: r.claim_reviewed_at || null
     } : null,
     ratings: Number(r.rating_count || 0),
     onsiteRatings: Number(r.onsite_rating_count || 0),
@@ -1148,6 +1148,21 @@ function renderSheet(){
     <div class="k-foot-actions">${renderActions(r)}</div>`;
 }
 
+/* "Resolved by 3 confirmers · Verified by moderator · Ward 12 · SLA met" — a small credit
+   line for a community-verified resolution, built only from what's actually on the record. */
+function resolutionCaption(r){
+  if (r.status !== 'resolved' || r.resolution === 'legacy_unverified') return '';
+  const bits = [];
+  if (r.claim?.verify) bits.push(t('cap_confirmers', { n: r.claim.verify }));
+  if (r.claim?.reviewedAt) bits.push(t('cap_moderator'));
+  bits.push(placeLabel(r));
+  if (r.resolvedAt){
+    const fixDays = Math.max(0, Math.round((new Date(r.resolvedAt) - new Date(r.createdAt)) / 86400000));
+    bits.push(fixDays <= r.slaDays ? t('cap_sla_met') : t('cap_sla_missed', { d: fixDays }));
+  }
+  return bits.join(' · ');
+}
+
 function renderStatusPanel(r){
   const parts = [];
   if (r.pending) parts.push(`<div class="k-note">${esc(t('pn_pending'))}</div>`);
@@ -1192,6 +1207,7 @@ function renderStatusPanel(r){
         <div class="k-panel-title">✓ ${esc(t('pn_resolved_title'))}</div>
         ${beforeAfter(r.photo, r.resolvedPhoto)}
         <div class="k-panel-meta">${esc(t('pn_resolved_meta', { date: fmtDate(r.resolvedAt), days: fixDays }))}</div>
+        <div class="k-panel-caption">${esc(resolutionCaption(r))}</div>
       </div>`);
   }
   return parts.join('');

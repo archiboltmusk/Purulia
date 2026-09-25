@@ -169,7 +169,7 @@ check('anon cannot write through the public view',
       'permission denied' in view_write or 'cannot update view' in view_write, view_write)
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
-PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review',
+PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review', 'claim_reviewed_at',
                          'area_kind', 'block_name', 'verify_needed'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
@@ -356,6 +356,9 @@ check('anyone (even anon) can trigger finalisation of due claims', rpc('kasa_fin
 row = view_row(rid)
 check('after the challenge window the report is resolved by the community',
       row['status'] == 'resolved' and row['resolution_method'] == 'community' and row['resolved_photo_url'], row)
+check('a resolved report still shows its claim id and confirmer count (for the resolution caption)',
+      row['claim_id'] is not None and isinstance(row['claim_verify_count'], int) and row['claim_verify_count'] >= 1, row)
+check('a resolution nobody had to clear leaves claim_reviewed_at empty', row['claim_reviewed_at'] is None, row)
 kinds = [r[0] for r in q("select kind from public.kasa_public_events where report_id::text = %s order by id", (str(rid),))]
 check('full evidence trail is public', kinds[:1] == ['reported'] and kinds[-1] == 'resolved' and kinds.count('verified') == 4, kinds)
 check('"seen" on a resolved report is refused (file a recurrence instead)',
@@ -771,7 +774,10 @@ admin_sql("update kasa_private.claims set quorum_reached_at = now() - interval '
 rpc('kasa_finalize_due')
 check('a held claim is not resolved even after quorum and the challenge window', view_row(rid_b)['status'] == 'claimed')
 rpc('kasa_admin_clear_claim', uid=mod, p_claim_id=cid_b, p_note='Photo matches the spot; phone had a stale location')
-check('once cleared, it resolves normally', view_row(rid_b)['status'] == 'resolved')
+row_b = view_row(rid_b)
+check('once cleared, it resolves normally', row_b['status'] == 'resolved')
+check('a resolution a moderator had to clear shows claim_reviewed_at (for "verified by moderator")',
+      row_b['claim_reviewed_at'] is not None, row_b)
 
 # Report C: nobody reviews a held claim → it expires and the report reopens
 spot_c = offset(-8000, 2000)

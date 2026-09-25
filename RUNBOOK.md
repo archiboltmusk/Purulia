@@ -88,6 +88,12 @@ Mirrors the failed-claim cooldown just above it, keyed to reports instead of cla
 
 Deliberately keyed to a moderator's own `hide` action only — never to a `self_moderate_photo` hold (still just a flag, unreviewed) or a public flag on its own (same reasoning as `kasa_private.profiles.strikes`, which only `reject_claim` increments). Tune the three settings the same way as any other rule; no deploy needed.
 
+## Resolution captions
+
+`kasa_public_reports` joins a report's claim without filtering by `c.status`, so a resolved report keeps its final `claim_verify_count`, `claim_needs_review` and `claim_reviewed_at` instead of losing them the moment the claim moves off `pending` (it used to filter on `c.status = 'pending'`, which is why these went null right when a report resolved — `reports.claim_id` itself is never cleared on acceptance, only on rejection or expiry, so dropping that filter is all it took). `claim_reviewed_at` is set only when a moderator actually clears a held claim (`kasa_admin_clear_claim`) and never unset afterwards, so `resolutionCaption()` in `kasa.js` uses "is it null" as the signal for whether to show "Verified by moderator" on a resolved report's panel — never claimed for a claim that resolved on its own.
+
+If you ever need to widen `kasa_public_reports` again: `create or replace view` can only *append* new columns, not insert one in the middle of the existing list — Postgres refuses with "cannot change name of view column" otherwise. Add new columns at the end.
+
 ## District coverage and boundaries
 
 Parishkar takes reports from the whole district. The server places each report from its GPS point (`kasa_private.locate`): inside a Purulia municipality ward it's "town" with that ward; otherwise it's "rural" with its CD block; outside every block it's refused.

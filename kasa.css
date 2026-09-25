@@ -374,6 +374,7 @@ select.k-input{background-color:var(--ink3);}
 .k-panel-legacy{border-color:rgba(232,138,74,.3);background:rgba(232,138,74,.05);}
 .k-panel-title{font-family:var(--serif);font-weight:700;font-size:1.05rem;}
 .k-panel-meta{margin-top:.5rem;font-size:.85rem;color:var(--text-md);line-height:1.5;}
+.k-panel-caption{margin-top:.4rem;font-family:var(--mono);font-size:11px;letter-spacing:.04em;color:var(--green);}
 .k-ba{display:grid;grid-template-columns:1fr 1fr;gap:.5rem;margin-top:.7rem;}
 .k-ba figure{margin:0;}
 .k-ba img{width:100%;height:120px;object-fit:cover;border-radius:6px;border:1px solid var(--border);}
