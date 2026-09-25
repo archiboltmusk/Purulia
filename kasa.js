@@ -152,6 +152,15 @@ function t(key, vars){
   return s;
 }
 
+/* Always English, regardless of the viewer's chosen language — for documents (like the RTI
+   draft) that must stay in one consistent, correctly-formatted language throughout rather than
+   mixing translated labels into English legal boilerplate. */
+function tEN(key, vars){
+  let s = I18N.en[key] ?? key;
+  if (vars) s = s.replace(/\{(\w+)\}/g, (m, k) => (vars[k] ?? m));
+  return s;
+}
+
 function loadLang(){
   try { state.lang = localStorage.getItem('kasa_lang') || 'en'; } catch (e) { state.lang = 'en'; }
   if (!I18N[state.lang]) state.lang = 'en';
@@ -1299,8 +1308,109 @@ function renderEscalate(r){
       <div class="k-acc-reps-label">${esc(t('esc_title'))}</div>
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
+      ${isOverdue(r) ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
+}
+
+/* RTI application generator. Produces a filled draft the citizen reviews, signs with their
+   own name/address, and files themselves — never auto-submitted, never sent by this site.
+   RTI legally needs a named, addressed applicant, which cuts against how reports are filed
+   here (anonymous); this stays a template a human completes, not an automated escalation. */
+function rtiAgencyLine(r){
+  const chain = chainFor(r);
+  const path = chain.nodes.map(n => tEN('role_' + n + '_s')).join(' → ');
+  return `${tEN(chain.agency)} (${path})`;
+}
+
+/* English-only place label for documents; mirrors placeLabel() but never follows the viewer's language. */
+function placeLabelEN(r){
+  if (r.area === 'rural' && r.block) return tEN('acc_block', { b: r.block });
+  return r.ward ? tEN('acc_ward', { n: r.ward }) : tEN('acc_unknown');
+}
+
+function rtiHTML(r){
+  const catLabel = tEN('cat_' + r.category);
+  const place = placeLabelEN(r);
+  const filed = new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
+  const days = daysSince(r.createdAt);
+  const link = `${PAGE_URL}?report=${encodeURIComponent(r.id)}`;
+  const agencyLine = rtiAgencyLine(r);
+  return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
+<title>RTI application — ${esc(catLabel)}, ${esc(place)}</title>
+<style>
+body{font-family:'Times New Roman',Georgia,serif;font-size:15px;line-height:1.7;max-width:760px;margin:40px auto;padding:0 24px;color:#1a1a1a;}
+h1{font-size:19px;text-align:center;margin-bottom:2px;}
+.sub{text-align:center;font-size:13px;color:#666;margin-top:0;}
+.banner{background:#fef3e2;border:2px solid #d97706;border-radius:6px;padding:14px 18px;margin-bottom:28px;font-family:Georgia,serif;font-size:13px;line-height:1.6;}
+.banner strong{color:#92400e;}
+@media print{.banner{display:none;}}
+.blank{border-bottom:1px solid #333;display:inline-block;min-width:260px;}
+.block{border:1px solid #999;border-radius:4px;padding:10px 14px;margin:16px 0;}
+ol{padding-left:22px;}
+li{margin:6px 0;}
+.foot{font-size:12px;color:#666;margin-top:40px;border-top:1px solid #ccc;padding-top:14px;}
+</style></head><body>
+
+<div class="banner">
+<strong>This is a filled draft, not a submitted application.</strong> Fill in your name and address below (RTI legally requires a named, addressed applicant — the report itself stays anonymous; this is a separate document you choose to file). Attach the ₹10 fee (postal order/court fee stamp/online, per the office's process; fee-exempt if you hold a BPL card). Confirm you have the correct Public Information Officer for the office named below before sending — this line is generated from the report's category, not verified against a live PIO directory. Then post or hand-deliver it, or use the office's own RTI portal if it has one.
+</div>
+
+<h1>APPLICATION UNDER THE RIGHT TO INFORMATION ACT, 2005</h1>
+<p class="sub">Section 6(1)</p>
+
+<p>To,<br>
+The Public Information Officer,<br>
+<strong>${esc(agencyLine)}</strong><br>
+Purulia, West Bengal — <span class="blank">&nbsp;</span></p>
+
+<p>From,<br>
+Name: <span class="blank">&nbsp;</span><br>
+Address: <span class="blank">&nbsp;</span><br>
+Phone / e-mail (optional): <span class="blank">&nbsp;</span></p>
+
+<p><strong>Subject: Request for information regarding an unresolved civic report — ${esc(catLabel)}, ${esc(place)}</strong></p>
+
+<p>Sir/Madam,</p>
+<p>Under Section 6(1) of the Right to Information Act, 2005, I request the following information from your office.</p>
+
+<div class="block">
+<strong>Reference</strong><br>
+A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Purulia on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
+<span class="blank">${esc(link)}</span>
+</div>
+
+<p>I request the following information:</p>
+<ol>
+  <li>Whether a complaint or report regarding the above civic problem, at the location described, has been received by your office or department, through any channel, as of the date of this application.</li>
+  <li>If received, a copy of the action-taken report, inspection report, or file noting recorded in response to it.</li>
+  <li>The name and designation of the officer to whom the matter has been, or would be, assigned.</li>
+  <li>The expected timeline for resolving the matter, if one has been recorded.</li>
+  <li>If no such complaint has been received through any other channel, a written confirmation of that fact.</li>
+</ol>
+
+<p>I am enclosing the prescribed fee of ₹10 (Indian Postal Order / Court Fee Stamp / as accepted by your office). <em>[Delete this line if applying under the BPL fee exemption, and attach your BPL certificate instead.]</em></p>
+
+<p>I request the information be provided within 30 days as required under Section 7(1) of the Act.</p>
+
+<p style="margin-top:32px;">Date: <span class="blank">&nbsp;</span></p>
+<p>Place: Purulia</p>
+<p style="margin-top:24px;">Signature: <span class="blank">&nbsp;</span></p>
+
+<p class="foot">
+Generated from a public report on Parishkar Purulia. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
+</p>
+
+</body></html>`;
+}
+
+function openRTI(reportId){
+  const r = state.byId.get(reportId);
+  if (!r) return;
+  const blob = new Blob([rtiHTML(r)], { type: 'text/html' });
+  const url = URL.createObjectURL(blob);
+  window.open(url, '_blank');
+  setTimeout(() => URL.revokeObjectURL(url), 60000);
 }
 
 function replyMailto(r){
@@ -2358,7 +2468,7 @@ function registerServiceWorker(){
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -2369,6 +2479,7 @@ function wireUI(){
     if (d.alerts) return toggleAlerts(el);
     if (d.flag) return openFlag(d.flag);
     if (d.share) return shareReport(d.share);
+    if (d.rti) return openRTI(d.rti);
     if (d.evidence) return openEvidence(d.evidence);
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);

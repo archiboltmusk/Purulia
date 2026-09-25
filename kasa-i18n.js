@@ -836,7 +836,8 @@ Object.assign(window.KASA_I18N.en, {
   esc_state_mail: 'E-mail the Chief Minister\'s grievance cell',
   esc_cpgrams: 'Central grievance portal (CPGRAMS)', esc_cpgrams_s: 'For central schemes — roads, drinking water, health, ICDS, schools. Replies are due within 21 days.',
   esc_power: 'WBSEDCL (power supply)', esc_power_s: 'For faults on the electricity supply itself',
-  esc_rti: 'Right to Information (RTI) online', esc_rti_s: 'Ask for the work order, the budget and the completion certificate. ₹10 fee.'
+  esc_rti: 'Right to Information (RTI) online', esc_rti_s: 'Ask for the work order, the budget and the completion certificate. ₹10 fee.',
+  esc_rti_gen: 'Generate an RTI application for this report', esc_rti_gen_s: "A filled draft asking the department what's been done about this — add your name and address, then file it yourself."
 });
 Object.assign(window.KASA_I18N.bn, {
   esc_title: 'আরও এগিয়ে নিন', esc_note: 'সরকারি চ্যানেলে অভিযোগ নথিভুক্ত হয় এবং উত্তর দিতে হয়। রিপোর্টের লিঙ্ক দিন, যাতে ছবি ও ইতিহাস দেখা যায়।',
@@ -844,7 +845,8 @@ Object.assign(window.KASA_I18N.bn, {
   esc_state_mail: 'মুখ্যমন্ত্রীর অভিযোগ সেলে ই-মেল করুন',
   esc_cpgrams: 'কেন্দ্রীয় অভিযোগ পোর্টাল (CPGRAMS)', esc_cpgrams_s: 'কেন্দ্রীয় প্রকল্পের জন্য — রাস্তা, পানীয় জল, স্বাস্থ্য, আইসিডিএস, স্কুল। ২১ দিনের মধ্যে উত্তর দেওয়ার কথা।',
   esc_power: 'WBSEDCL (বিদ্যুৎ সরবরাহ)', esc_power_s: 'বিদ্যুৎ সরবরাহের ত্রুটির জন্য',
-  esc_rti: 'তথ্যের অধিকার (RTI) অনলাইন', esc_rti_s: 'ওয়ার্ক অর্ডার, বাজেট ও কাজ শেষের শংসাপত্র চান। ফি ১০ টাকা।'
+  esc_rti: 'তথ্যের অধিকার (RTI) অনলাইন', esc_rti_s: 'ওয়ার্ক অর্ডার, বাজেট ও কাজ শেষের শংসাপত্র চান। ফি ১০ টাকা।',
+  esc_rti_gen: 'এই রিপোর্টের জন্য একটি RTI আবেদন তৈরি করুন', esc_rti_gen_s: 'এই বিষয়ে দপ্তর কী করেছে তা জিজ্ঞাসা করা একটি পূরণ করা খসড়া — নিজের নাম ও ঠিকানা যোগ করে নিজেই জমা দিন।'
 });
 Object.assign(window.KASA_I18N.hi, {
   esc_title: 'आगे ले जाएँ', esc_note: 'सरकारी चैनल शिकायत दर्ज करते हैं और उन्हें जवाब देना होता है। रिपोर्ट का लिंक दें, ताकि फ़ोटो और इतिहास दिखे।',
@@ -852,5 +854,6 @@ Object.assign(window.KASA_I18N.hi, {
   esc_state_mail: 'मुख्यमंत्री शिकायत प्रकोष्ठ को ई-मेल करें',
   esc_cpgrams: 'केंद्रीय शिकायत पोर्टल (CPGRAMS)', esc_cpgrams_s: 'केंद्रीय योजनाओं के लिए — सड़क, पेयजल, स्वास्थ्य, आईसीडीएस, स्कूल। 21 दिन में जवाब देना होता है।',
   esc_power: 'WBSEDCL (बिजली आपूर्ति)', esc_power_s: 'बिजली आपूर्ति की ख़राबी के लिए',
-  esc_rti: 'सूचना का अधिकार (RTI) ऑनलाइन', esc_rti_s: 'वर्क ऑर्डर, बजट और कार्य पूर्णता प्रमाणपत्र माँगें। शुल्क ₹10।'
+  esc_rti: 'सूचना का अधिकार (RTI) ऑनलाइन', esc_rti_s: 'वर्क ऑर्डर, बजट और कार्य पूर्णता प्रमाणपत्र माँगें। शुल्क ₹10।',
+  esc_rti_gen: 'इस रिपोर्ट के लिए RTI आवेदन तैयार करें', esc_rti_gen_s: 'विभाग ने इस बारे में क्या किया, यह पूछने वाला भरा हुआ मसौदा — अपना नाम और पता जोड़ें, फिर ख़ुद दाख़िल करें।'
 });

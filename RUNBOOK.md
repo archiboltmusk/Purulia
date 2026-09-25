@@ -102,6 +102,8 @@ Parishkar takes reports from the whole district. The server places each report f
 
 Every report's "Take it further" panel (`renderEscalate` in `kasa.js`) links the Chief Minister's helpline, the CM grievance e-mail, CPGRAMS for central schemes, WBSEDCL for power faults, and the state RTI portal. The state helpline changed after the 2026 election (now "Apnar Sarkar Apnar Pashe", 82820 82820, asap@wb.gov.in — checked September 2026). Re-check these whenever the government or a department changes them; a wrong number wastes people's time.
 
+On a report that's overdue (`isOverdue`: open past its `sla_days`), the panel adds one more option: "Generate an RTI application" (`openRTI`/`rtiHTML` in `kasa.js`). It builds a filled RTI draft — addressed using the report's own authority chain (`chainFor`/`CHAINS`), with the report's category, location, filed date and public link already in it — and opens it as a standalone HTML page for the person to print, sign with their own name and address, and file themselves. It is never auto-submitted and this site is never the applicant: RTI legally needs a named, addressed applicant, which the anonymous report itself deliberately isn't. Don't add auto-filing, auto-escalation timers, or anything that submits on a person's behalf without them reviewing and choosing to send it — that was a deliberate call, not an oversight, given the platform's anonymity model and the legal exposure of filing on someone's behalf without review.
+
 ## Legal notices and takedown requests
 
 1. Every request goes to the Grievance Officer (`grievance@puruliakasa.in`, see `grievance.html`). Acknowledge it within 24 hours.
