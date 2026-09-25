@@ -202,6 +202,8 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .gt-card-val.bad{color:#E05050;}
 .gt-card-val.ok{color:var(--amber2);}
 .gt-card-val.good{color:#6DB88A;}
+.gt-card-note{border-style:dashed;}
+.gt-card-note .gt-card-desc a{color:var(--amber2);}
 .gt-card-desc{font-size:.95rem;line-height:1.6;color:rgba(240,230,208,.55);}
 .gt-card-src{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.12em;color:rgba(240,230,208,.2);text-transform:uppercase;margin-top:.8rem;}
 .gt-compare{background:rgba(139,37,37,.07);border:1px solid rgba(139,37,37,.22);padding:2.5rem;margin-top:2rem;}

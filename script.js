@@ -138,16 +138,16 @@ function showAud(id,btn){
 
 /* ── Share section ── */
 var shareMsgs={
-  doctors:'Zero oncologists within 250km. 3.5 million people. This blueprint changes that — send to every doctor from Purulia you know:',
+  doctors:'77.9% of young children anaemic. 38 infant deaths per 1,000 births, twice the state rate. Purulia needs doctors — send this to every doctor from Purulia you know:',
   engineers:'Build water systems from scratch. Design solar grids for tribal hamlets. First-principles engineering that actually matters. Purulia 2040:',
   architects:'A district being redesigned from zero. Medical college, railway station, crafts cluster — all open briefs, right now. Purulia 2040:',
-  politicians:'₹3,500Cr of central scheme money sitting undrawn in Purulia. No new budget needed. This blueprint shows exactly how it gets spent:',
+  politicians:'The schemes exist. Purulia still ranks last in West Bengal on child anaemia and women\'s literacy. This blueprint shows how to deliver:',
   students:'Every system is telling young people from Purulia to leave. This is the counter-argument — share with every student you know:',
   entrepreneurs:'Structural gaps mean first-mover advantages. The enterprise case for Purulia 2040:',
-  business:'Pre-cleared land, 300 sunny days, and a single-window clearance being built. The manufacturing case for Purulia 2040:',
-  artists:'Chhau is UNESCO-listed. Dokra is 4,000 years old. The world wants what Purulia has — it just doesn\'t know where to find it yet:',
+  business:'Dry laterite land, a state single window for clearances, and forest produce that leaves the district raw. The business case for Purulia 2040:',
+  artists:'Chhau is on UNESCO\'s heritage list. Dokra is an ancient lost-wax craft. The world wants what Purulia has — it just doesn\'t know where to find it yet:',
   diaspora:'For everyone from Purulia who left. The sentence "there\'s nothing here for someone with ambition" is becoming past tense:',
-  impact:'If this model works in Purulia, it works in 200 similar districts. The most leveraged use of impact capital in India right now:'
+  impact:'If this model works in Purulia, it can work in similar districts across India. A case for patient impact capital:'
 };
 
 function shareSection(id){
