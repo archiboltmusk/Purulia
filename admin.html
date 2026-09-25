@@ -35,8 +35,6 @@ if ('serviceWorker' in navigator) {
 <style>
 .ad-wrap{max-width:1200px;margin:0 auto;padding:2rem 1.6rem 4rem;}
 .ad-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border);margin-bottom:2.4rem;}
-.ad-title{font-family:var(--serif);font-size:1.8rem;font-weight:700;color:var(--cream);letter-spacing:-.015em;}
-.ad-title em{font-style:italic;color:var(--amber);}
 .ad-sub{font-family:var(--mono);font-size:11px;color:var(--text-lo);letter-spacing:.14em;text-transform:uppercase;margin-top:.4rem;}
 .ad-refresh{padding:.6rem 1.1rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;border-radius:3px;transition:all .2s;}
 .ad-refresh:hover{background:var(--amber2);}
@@ -66,7 +64,6 @@ if ('serviceWorker' in navigator) {
 .ad-loading{padding:3rem 1rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text-lo);letter-spacing:.14em;text-transform:uppercase;}
 .ad-empty{padding:2rem 1rem;text-align:center;color:var(--text-lo);font-size:.9rem;background:rgba(212,136,42,.02);border:1px dashed var(--border);border-radius:4px;}
 .ad-login{max-width:400px;margin:6rem auto;padding:2.4rem 2rem;background:var(--ink2);border:1px solid var(--border2);border-radius:6px;text-align:center;}
-.ad-login-title{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--cream);margin-bottom:.6rem;}
 .ad-login-sub{font-size:.88rem;color:var(--text-md);margin-bottom:1.6rem;line-height:1.6;}
 .ad-input{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;outline:none;border-radius:4px;margin-bottom:1rem;}
 .ad-input:focus{border-color:var(--amber);}
@@ -98,7 +95,11 @@ if ('serviceWorker' in navigator) {
 <body>
 
 <div id="adLogin" class="ad-login">
-  <div class="ad-login-title">Parishkar Purulia <em>Admin</em></div>
+  <div class="k-wordmark-lg">
+    <span class="k-mark" aria-hidden="true"></span>
+    <span class="k-wordmark"><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span></span>
+  </div>
+  <div class="k-section-num" style="text-align:center;">Admin</div>
   <div class="ad-login-sub">Sign in with your admin account.</div>
   <input type="email" id="adEmail" class="ad-input" placeholder="Email" autocomplete="username">
   <input type="password" id="adPassword" class="ad-input" placeholder="Password" autocomplete="current-password">
@@ -109,7 +110,11 @@ if ('serviceWorker' in navigator) {
 <div id="adDash" class="ad-wrap hidden">
   <header class="ad-header">
     <div>
-      <div class="ad-title">Parishkar <em>Purulia</em> — Admin</div>
+      <a href="kasa.html" class="k-wordmark" aria-label="Parishkar Purulia" style="font-size:1.8rem;">
+        <span class="k-mark" aria-hidden="true"></span>
+        <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span>
+      </a>
+      <div class="k-section-num" style="margin:.3rem 0 0;">Admin</div>
       <div class="ad-sub" id="adTimestamp">—</div>
     </div>
     <div>
