@@ -1823,7 +1823,7 @@ async function handleEvidencePhoto(file){
    could slip in. (Someone determined can still fake it; the people
    confirming on the spot are the real check.)
    ══════════════════════════════════════════════════════════ */
-const camera = { stream: null, blob: null, resolve: null };
+const camera = { stream: null, blob: null, resolve: null, posPromise: null };
 
 function cameraSupported(){
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext !== false;
@@ -1884,6 +1884,9 @@ function closeCamera(result){
 async function takeCameraShot(){
   const video = document.getElementById('k-cam-video');
   if (!video.videoWidth) return;
+  // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
+  // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
+  camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
   const scale = Math.min(1, PHOTO_MAX_PX / Math.max(video.videoWidth, video.videoHeight));
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(video.videoWidth * scale);
@@ -2040,9 +2043,15 @@ async function captureReportPhoto(){
   updateSubmitState();
   // GPS started fetching when the report modal opened, before the camera did — if the
   // photo is taken somewhere else (opened the app, walked to the actual spot, shot it),
-  // that first fix is now stale. Re-check now that the photo is the real anchor point.
+  // that first fix is stale. Use the fix requested at the exact shutter click instead
+  // (takeCameraShot), so the report lands where the photo was actually taken.
   // "Report again" pins deliberately reuse the original spot and must stay untouched.
-  if (!draft.locked) useGPS();
+  if (!draft.locked){
+    const pos = camera.posPromise ? await camera.posPromise : null;
+    if (!draft) return;
+    if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
+    else useGPS();
+  }
 }
 
 function initMiniMap(){
