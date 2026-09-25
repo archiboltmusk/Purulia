@@ -87,6 +87,7 @@ const FLAG_REASONS = ['not_an_issue', 'wrong_category', 'wrong_location', 'dupli
 /* ── State ── */
 const state = {
   listQuery: '',
+  groupsByWard: {},
   fixConfirms: {},        // report id -> confirmations when it was verified fixed
   mode: null,              // 'v2' once the migration is live, else 'legacy'
   rules: { ...DEFAULT_RULES },
@@ -182,7 +183,7 @@ async function init(){
   }
 
   mapReady = initMainMap();
-  await Promise.all([loadReports(), loadWards(), loadWardGeo()]);
+  await Promise.all([loadReports(), loadWards(), loadWardGeo(), loadCommunities()]);
   renderAll();
   renderTrust();
   mapReady.then(() => { addWardLayers(); updateMap(); });
@@ -300,6 +301,14 @@ async function loadWards(){
   state.wards = {};
   (data || []).forEach(w => { state.wards[w.ward_no] = w; });
   populateWardDropdown();
+}
+
+async function loadCommunities(){
+  if (!sb) return;
+  const { data, error } = await sb.from('kasa_public_communities').select('wards');
+  if (error) return;
+  state.groupsByWard = {};
+  for (const g of data || []) for (const w of g.wards || []) state.groupsByWard[w] = (state.groupsByWard[w] || 0) + 1;
 }
 
 async function loadWardGeo(){
@@ -771,6 +780,8 @@ function renderWardCard(){
       <button type="button" class="k-ward-filter" data-ward-filter="${n}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
       <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
     </div>
+    <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
+      ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
   el.hidden = false;
 }

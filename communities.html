@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Volunteer groups — Purulia Kasa</title>
+<meta name="description" content="Cleanup groups working in Purulia town: NSS units, puja committees, youth clubs, residents' groups and NGOs. Find one in your ward, or register yours.">
+<meta property="og:title" content="Volunteer groups — Purulia Kasa">
+<meta property="og:description" content="Find a cleanup group in your ward, or register yours.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/communities.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/communities.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .cm-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .cm-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .cm-title em{font-style:italic;color:var(--amber);}
+  .cm-sub{margin-top:.8rem;color:var(--text-md);max-width:720px;line-height:1.6;}
+  .cm-layout{display:grid;grid-template-columns:1fr;gap:2rem;margin-top:2.2rem;align-items:start;}
+  @media(min-width:1100px){.cm-layout{grid-template-columns:1.6fr 1fr;}.cm-form-card{position:sticky;top:96px;}}
+  .cm-bar{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;justify-content:space-between;margin-bottom:1rem;}
+  .cm-count{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
+  .cm-select,.cm-input,.cm-textarea{width:100%;padding:.65rem .8rem;background:rgba(10,8,5,.94);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:12px;outline:none;}
+  .cm-select:focus,.cm-input:focus,.cm-textarea:focus{border-color:var(--amber);}
+  .cm-bar .cm-select{width:auto;min-width:180px;}
+  .cm-list{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:1rem;}
+  .cm-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.3rem 1.4rem;min-width:0;}
+  .cm-kind{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);}
+  .cm-name{margin-top:.4rem;font-family:var(--serif);font-size:1.3rem;font-weight:700;color:var(--cream);line-height:1.2;overflow-wrap:anywhere;}
+  .cm-desc{margin-top:.5rem;font-size:.92rem;color:var(--text-md);line-height:1.55;white-space:pre-line;overflow-wrap:anywhere;}
+  .cm-wards{margin-top:.8rem;display:flex;flex-wrap:wrap;gap:.35rem;}
+  .cm-ward{font-family:var(--mono);font-size:10.5px;padding:.2rem .5rem;border:1px solid var(--border2);border-radius:10px;color:var(--text-hi);}
+  .cm-contact{margin-top:.8rem;font-family:var(--mono);font-size:11.5px;color:var(--text-hi);overflow-wrap:anywhere;}
+  .cm-contact a{color:var(--amber);}
+  .cm-empty{padding:2.4rem 1.4rem;text-align:center;color:var(--text-lo);font-family:var(--mono);font-size:12px;border:1px dashed var(--border);border-radius:6px;}
+  .cm-form-card{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;padding:1.5rem;}
+  .cm-form-card h2{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--cream);}
+  .cm-form-card p.cm-note{margin-top:.4rem;font-size:.86rem;color:var(--text-md);line-height:1.55;}
+  .cm-field{margin-top:1rem;}
+  .cm-field label{display:block;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);margin-bottom:.4rem;}
+  .cm-hint{margin-top:.35rem;font-size:.78rem;color:var(--text-lo);line-height:1.45;}
+  .cm-wardpick{display:grid;grid-template-columns:repeat(6,1fr);gap:.3rem;}
+  .cm-wardpick label{display:flex;align-items:center;justify-content:center;gap:0;margin:0;padding:.45rem 0;border:1px solid var(--border);border-radius:3px;font-size:11px;letter-spacing:0;color:var(--text-hi);cursor:pointer;}
+  .cm-wardpick input{position:absolute;opacity:0;pointer-events:none;}
+  .cm-wardpick label:has(input:checked){background:var(--amber);border-color:var(--amber);color:var(--ink);}
+  .cm-check{display:flex;gap:.6rem;align-items:flex-start;margin-top:1rem;font-size:.86rem;color:var(--text-hi);line-height:1.5;}
+  .cm-check input{margin-top:.25rem;accent-color:var(--amber);}
+  .cm-submit{margin-top:1.2rem;width:100%;padding:.9rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;border-radius:3px;}
+  .cm-submit:disabled{opacity:.5;}
+  .cm-msg{margin-top:.8rem;font-size:.88rem;line-height:1.5;}
+  .cm-msg.ok{color:var(--green);} .cm-msg.bad{color:var(--red);}
+  .cm-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .cm-footer a{color:var(--amber);}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="blueprint.html">Blueprint</a>
+    <a href="map.html">Map</a>
+    <a href="kasa.html">Kasa</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="cm-wrap">
+  <h1 class="cm-title">Volunteer <em>groups</em></h1>
+  <p class="cm-sub">NSS units, puja committees, youth clubs, residents' groups and NGOs already clean up Purulia. Find one working in your ward, or register yours so neighbours can find you. Groups appear after a moderator checks them.</p>
+
+  <div class="cm-layout">
+    <section aria-label="Registered groups">
+      <div class="cm-bar">
+        <span class="cm-count" id="cm-count">Loading…</span>
+        <select class="cm-select" id="cm-ward" aria-label="Filter by ward"><option value="">All wards</option></select>
+      </div>
+      <div class="cm-list" id="cm-list"></div>
+    </section>
+
+    <section class="cm-form-card" aria-labelledby="cm-form-title">
+      <h2 id="cm-form-title">Register your group</h2>
+      <p class="cm-note">The group must be registered by an adult coordinator. Don't list students or children by name.</p>
+      <form id="cm-form" novalidate>
+        <div class="cm-field">
+          <label for="cm-name">Group name</label>
+          <input class="cm-input" id="cm-name" maxlength="120" required>
+        </div>
+        <div class="cm-field">
+          <label for="cm-kind">Kind of group</label>
+          <select class="cm-select" id="cm-kind" required>
+            <option value="">Choose…</option>
+            <option value="nss">NSS unit</option>
+            <option value="school_college">School or college club</option>
+            <option value="puja_committee">Puja committee</option>
+            <option value="youth_club">Youth club</option>
+            <option value="residents">Residents' group</option>
+            <option value="ngo">NGO</option>
+            <option value="other">Other</option>
+          </select>
+        </div>
+        <div class="cm-field">
+          <label>Wards where you work</label>
+          <div class="cm-wardpick" id="cm-wardpick"></div>
+        </div>
+        <div class="cm-field">
+          <label for="cm-desc">What you do (optional)</label>
+          <textarea class="cm-textarea" id="cm-desc" rows="3" maxlength="800" placeholder="For example: cleanup drive every Sunday morning near the station"></textarea>
+        </div>
+        <div class="cm-field">
+          <label for="cm-public">Public contact (optional)</label>
+          <input class="cm-input" id="cm-public" maxlength="200" placeholder="Group page, WhatsApp group link or group email">
+          <div class="cm-hint">Shown to everyone. Use a group contact, not a personal phone number.</div>
+        </div>
+        <div class="cm-field">
+          <label for="cm-coord">Coordinator's phone or email</label>
+          <input class="cm-input" id="cm-coord" maxlength="200" required>
+          <div class="cm-hint">Private: only moderators see it, to check the group is real.</div>
+        </div>
+        <label class="cm-check"><input type="checkbox" id="cm-adult"> I am 18 or older and I coordinate this group.</label>
+        <button type="submit" class="cm-submit" id="cm-submit">Register group</button>
+        <div class="cm-msg" id="cm-msg" role="status"></div>
+      </form>
+    </section>
+  </div>
+
+  <div class="cm-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="methodology.html">How we count</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+  </div>
+</main>
+
+<script defer src="config.js"></script>
+<script defer src="communities.js"></script>
+</body>
+</html>

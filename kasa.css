@@ -576,3 +576,5 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 /* ── List search ── */
 .k-list-search{flex:1;min-width:0;max-width:340px;padding:.55rem .8rem;background:rgba(10,8,5,.94);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:11px;outline:none;}
 .k-list-search:focus{border-color:var(--amber);}
+.k-ward-groups{display:block;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
+.k-ward-groups.on{color:var(--green);}
