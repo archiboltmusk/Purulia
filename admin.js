@@ -5,25 +5,21 @@
 const SUPABASE_URL = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_URL) || '';
 const SUPABASE_ANON_KEY = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_ANON_KEY) || '';
 
-const TURNSTILE_SITE_KEY = (window.KASA_CONFIG && window.KASA_CONFIG.TURNSTILE_SITE_KEY) || '';
+// If config.js or the Supabase library failed to load, fail loudly here rather than
+// throwing a cryptic error later — the page-wide error banner (admin.html) shows this.
+if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.supabase){
+  throw new Error('config.js or the Supabase library did not load — reload the page.');
+}
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-/* When CAPTCHA protection is on in Supabase Auth, every sign-in needs a Turnstile token. */
-let captchaToken = null;
-if (TURNSTILE_SITE_KEY){
-  const s = document.createElement('script');
-  s.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
-  s.onload = () => window.turnstile.render('#adCaptcha', {
-    sitekey: TURNSTILE_SITE_KEY, theme: 'dark', action: 'kasa-admin',
-    callback: (t) => { captchaToken = t; }, 'expired-callback': () => { captchaToken = null; }
-  });
-  document.head.appendChild(s);
-}
 
 document.getElementById('adLoginBtn').addEventListener('click', tryLogin);
 document.getElementById('adPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
 
+/* Two steps, nothing else: sign in, then ask the database (not a client-side table read)
+   whether this account is an admin — the same kasa_private.is_admin() every other admin
+   action already trusts. Whatever happens, the button always ends up usable again and
+   something is always shown — never a silent hang. */
 async function tryLogin(){
   const errEl = document.getElementById('adError');
   errEl.textContent = '';
@@ -35,18 +31,9 @@ async function tryLogin(){
   }
   const btn = document.getElementById('adLoginBtn');
   btn.disabled = true; btn.textContent = 'Signing in…';
-  if (TURNSTILE_SITE_KEY && !captchaToken){
-    errEl.textContent = 'Complete the human check first.';
-    btn.disabled = false; btn.textContent = 'Continue →';
-    return;
-  }
-  // Whatever happens inside here — a real error, an unexpected response shape, a dropped
-  // connection — the button must never end up stuck on "Signing in…" with no explanation.
   try {
-    const { data, error } = await sb.auth.signInWithPassword({ email, password, options: captchaToken ? { captchaToken } : undefined });
-    captchaToken = null;
+    const { data, error } = await sb.auth.signInWithPassword({ email, password });
     if (error){
-      if (window.turnstile) window.turnstile.reset('#adCaptcha');
       errEl.textContent = error.message;
       return;
     }
@@ -54,12 +41,12 @@ async function tryLogin(){
       errEl.textContent = 'Sign-in did not return an account. Please try again.';
       return;
     }
-    const { data: adminRow, error: adminErr } = await sb.from('admins').select('user_id').eq('user_id', data.user.id).maybeSingle();
+    const { data: isAdmin, error: adminErr } = await sb.rpc('kasa_is_admin');
     if (adminErr){
       errEl.textContent = 'Could not confirm admin access: ' + (adminErr.message || 'unknown error');
       return;
     }
-    if (!adminRow){
+    if (!isAdmin){
       await sb.auth.signOut();
       errEl.textContent = 'Not an admin account.';
       return;
@@ -81,10 +68,9 @@ document.getElementById('adRefreshBtn').addEventListener('click', loadAll);
 
 (async () => {
   const { data: { session } } = await sb.auth.getSession();
-  if (session){
-    const { data: adminRow } = await sb.from('admins').select('user_id').eq('user_id', session.user.id).maybeSingle();
-    if (adminRow) showDashboard();
-  }
+  if (!session) return;
+  const { data: isAdmin } = await sb.rpc('kasa_is_admin');
+  if (isAdmin) showDashboard();
 })();
 
 function showDashboard(){
