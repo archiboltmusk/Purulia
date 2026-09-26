@@ -109,11 +109,18 @@
     const worst = checked.filter(match).sort((a, b) => (a.score / a.score_of) - (b.score / b.score_of) || a.name.localeCompare(b.name));
     document.getElementById('sc-checked').innerHTML = worst.length ? worst.map(row).join('')
       : `<div class="an-empty">${checked.length ? 'No checked school matches.' : 'No school has been checked yet. Be the first: stand at a school and tap “Check a school”.'}</div>`;
+    // A short list: one line per school, 10 at a time, so the page stays easy to scroll.
     const todo = all.filter(s => !s.audits && match(s));
-    const shown = todo.slice(0, 100);
+    const key = block + '|' + q;
+    if (render.todoKey !== key){ render.todoKey = key; render.todoLimit = 10; }
+    const shown = todo.slice(0, render.todoLimit);
     document.getElementById('sc-unchecked').innerHTML = shown.length
-      ? shown.map(row).join('') + (todo.length > shown.length ? `<div class="an-empty sc-more">${todo.length - shown.length} more — choose a block or search to narrow the list.</div>` : '')
+      ? `<ul class="sc-todo">${shown.map(s => `<li><span><strong>${esc(s.name)}</strong> <small>${esc([s.village, s.block_name].filter(Boolean).join(', '))}</small></span>
+          <span class="sc-todo-acts"><a href="${checkUrl(s.udise_code)}">Check</a><a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">${s.lat != null || s.seen_lat != null ? 'Fix pin' : 'Put on map'}</a></span></li>`).join('')}</ul>`
+        + (todo.length > shown.length ? `<button type="button" class="sc-more-btn" id="sc-more">Show ${Math.min(20, todo.length - shown.length)} more · ${todo.length - shown.length} left</button>` : '')
       : '<div class="an-empty">Every school here has been checked.</div>';
+    const more = document.getElementById('sc-more');
+    if (more) more.onclick = () => { render.todoLimit += 20; render(); };
   }
 
   const byBlock = {};
