@@ -14,7 +14,9 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
-const OVERPASS = 'https://overpass-api.de/api/interpreter';
+// Public Overpass servers, tried in order (some refuse requests from cloud hosts).
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter',
+                  'https://overpass.kumi.systems/api/interpreter'];
 const UA = 'ParishkarPurulia/1.0 (civic reporting; https://github.com/archiboltmusk/Purulia)';
 
 const reply = (status: number, body: unknown) =>
@@ -49,9 +51,14 @@ async function lookup(lat: number, lng: number): Promise<string | null> {
      nwr(around:120,${a})["name"]["healthcare"];
      node(around:400,${a})["place"]["name"];);
     out tags geom 60;`;
-  const res = await fetch(OVERPASS, { method: 'POST', headers: { 'User-Agent': UA, 'Content-Type': 'application/x-www-form-urlencoded' },
-                                      body: 'data=' + encodeURIComponent(q) });
-  if (!res.ok) throw new Error(`overpass ${res.status}`);
+  let res: Response | null = null;
+  for (const url of OVERPASS) {
+    res = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(q),
+                             headers: { 'User-Agent': UA, 'Accept': 'application/json',
+                                        'Content-Type': 'application/x-www-form-urlencoded' } }).catch(() => null);
+    if (res?.ok) break;
+  }
+  if (!res?.ok) throw new Error(`overpass ${res?.status ?? 503}`);
   const els = ((await res.json()).elements ?? []) as El[];
   const scored = els.filter(e => nameOf(e.tags)).map(e => ({ e, d: nearest(e, lat, lng), name: nameOf(e.tags) }));
   const by = (f: (e: El) => boolean) => scored.filter(s => f(s.e)).sort((x, y) => x.d - y.d)[0];
@@ -77,7 +84,7 @@ Deno.serve(async (req) => {
     if (i) await new Promise(ok => setTimeout(ok, 2500));  // be gentle with the public Overpass server
     let address: string | null = null, retry = false;
     try { address = await lookup(Number(r.lat), Number(r.lng)); }
-    catch (e) { console.error('geocode failed', r.id, e); retry = busy = /overpass (429|50\d)/.test(String(e)); }
+    catch (e) { console.error('geocode failed', r.id, e); retry = busy = /overpass (4\d\d|50\d)/.test(String(e)); }
     await admin.rpc('kasa_geocode_done', { p_id: r.id, p_address: address, p_retry: retry });
     if (address) done++;
   }
