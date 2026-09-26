@@ -197,12 +197,39 @@ function setLang(lang){
   if (state.sheetId) renderSheet();
 }
 
+function loadTheme(){
+  try { state.theme = localStorage.getItem('kasa_theme'); } catch (e) {}
+  if (state.theme && ['light', 'dark'].includes(state.theme)){
+    document.documentElement.setAttribute('data-theme', state.theme);
+  } else {
+    document.documentElement.removeAttribute('data-theme');
+    state.theme = null;
+  }
+  const btn = document.getElementById('k-theme-toggle');
+  if (btn) btn.innerHTML = '<span aria-hidden="true">' + (state.theme === 'light' ? '🌙' : '☀️') + '</span>';
+}
+
+function setTheme(theme){
+  if (!['light', 'dark'].includes(theme)) return;
+  state.theme = theme;
+  document.documentElement.setAttribute('data-theme', theme);
+  try { localStorage.setItem('kasa_theme', theme); } catch (e) {}
+  const btn = document.getElementById('k-theme-toggle');
+  if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
+}
+
+function toggleTheme(){
+  const newTheme = (state.theme === 'light') ? 'dark' : 'light';
+  setTheme(newTheme);
+}
+
 /* ══════════════════════════════════════════════════════════
    BOOT
    ══════════════════════════════════════════════════════════ */
 async function init(){
   loadLang();
   applyLang();
+  loadTheme();
   try { state.seen = new Set(JSON.parse(localStorage.getItem('kasa_seen') || '[]')); } catch (e) {}
   try { state.ratings = JSON.parse(localStorage.getItem('kasa_ratings') || '{}'); } catch (e) {}
 
@@ -887,6 +914,7 @@ function watchMapStyleLoad(map){
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
+    minZoom: 10, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
   // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
@@ -3394,6 +3422,7 @@ function wireUI(){
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-fab-menu').addEventListener('click', () => setDrawer(true));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
+  document.getElementById('k-theme-toggle').addEventListener('click', toggleTheme);
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');
     const open = bar.classList.toggle('k-filters-open');
