@@ -53,10 +53,11 @@ async function lookup(lat: number, lng: number): Promise<string | null> {
     out tags geom 60;`;
   let res: Response | null = null;
   for (const url of OVERPASS) {
-    res = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(q),
+    res = await fetch(url, { method: 'POST', body: 'data=' + encodeURIComponent(q), signal: AbortSignal.timeout(15000),
                              headers: { 'User-Agent': UA, 'Accept': 'application/json',
                                         'Content-Type': 'application/x-www-form-urlencoded' } }).catch(() => null);
     if (res?.ok) break;
+    console.warn('overpass', url, res?.status ?? 'timeout');
   }
   if (!res?.ok) throw new Error(`overpass ${res?.status ?? 503}`);
   const els = ((await res.json()).elements ?? []) as El[];
