@@ -833,9 +833,13 @@ def with_history(created_ago='30 days'):
     return uid
 
 
-def checked(uid, folder):
+def checked(uid, folder, garbage=0.3):
+    # Default score is clean enough to pass (below clean_max_garbage_score) but not so
+    # clean it trips the photo-confident fast lane (above fast_max_garbage_score) — a
+    # plain "Vision looked at it and it's fine", not a special case. Tests that care about
+    # a specific score set one explicitly; garbage=None exercises "Vision couldn't score it".
     path = upload(uid, folder)
-    photo_check(path)
+    photo_check(path, garbage=garbage)
     return path
 
 
@@ -894,6 +898,24 @@ cl4_spot = offset(7900, -5000)
 cid4 = claim(cl3, nr4['id'], where=cl4_spot, path=checked(cl3, 'claims'))['claim_id']
 check('one person cannot keep confirming the same claimant',
       err(vote, v1, cid4, v='verify', where=cl4_spot, path=checked(v1, 'votes')) == 'KASA_CONFIRM_LIMIT')
+
+# A photo check that ran but couldn't score the photo (no Vision key, over its free quota, or
+# an outage) must not be read as "definitely clean" — that would silently stop screening
+# cleanups the moment the free tier runs out. It's held for a moderator instead.
+nspot5 = offset(8100, -5000)
+nr5 = report_text(user(), nspot5, 'Pile of waste')
+cl5 = user()
+unscored_path = upload(cl5, 'claims'); photo_check(unscored_path, garbage=None)
+unscored_claim = claim(cl5, nr5['id'], where=nspot5, path=unscored_path)
+check('a claim photo Vision could not score is held for a moderator instead of assumed clean',
+      unscored_claim['needs_review'] is True, unscored_claim)
+uv = with_history()
+unscored_vote_path = upload(uv, 'votes'); photo_check(unscored_vote_path, garbage=None)
+unscored_vote = vote(uv, unscored_claim['claim_id'], v='verify', where=nspot5, path=unscored_vote_path)
+check('an unscored confirmation photo is held for review and does not count toward quorum',
+      unscored_vote['needs_review'] is True and
+      admin_sql('select verify_count from kasa_private.claims where id = %s', (unscored_claim['claim_id'],))[0][0] == 0,
+      unscored_vote)
 set_rules(BASELINE)
 
 # ─────────────────────────────── Join / follow sign-ups ───────────────────────────────
@@ -1487,7 +1509,7 @@ def fl_claim_of(uid, rid, where, path):
 
 
 def fl_vote(uid, cid, where, v='verify'):
-    return rpc('kasa_vote_claim', uid=uid, ip=str(uuid.uuid4()), p_claim_id=cid, p_vote=v, p_photo_path=checked(uid, 'votes'),
+    return rpc('kasa_vote_claim', uid=uid, ip=str(uuid.uuid4()), p_claim_id=cid, p_vote=v, p_photo_path=checked(uid, 'votes', garbage=0.05),
                p_lat=where[0], p_lng=where[1], p_accuracy=10.0, p_note=None)
 
 
