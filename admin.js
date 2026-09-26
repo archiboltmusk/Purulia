@@ -13,8 +13,7 @@ if (!SUPABASE_URL || !SUPABASE_ANON_KEY || !window.supabase){
 
 const sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-document.getElementById('adLoginBtn').addEventListener('click', tryLogin);
-document.getElementById('adPassword').addEventListener('keypress', (e) => { if (e.key === 'Enter') tryLogin(); });
+document.getElementById('adLoginForm').addEventListener('submit', (e) => { e.preventDefault(); tryLogin(); });
 
 /* Two steps, nothing else: sign in, then ask the database (not a client-side table read)
    whether this account is an admin — the same kasa_private.is_admin() every other admin
