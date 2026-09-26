@@ -1279,11 +1279,12 @@ check('a never-signed-in caller cannot call your-reports', refused(err(rpc, 'kas
 
 # ─────────────────────────── Admin delete (flagged/review reports only) ───────────────────────────
 del_r, _ = report(user(), where=offset(12700, 15000))
-check('a clean approved report cannot be hard-deleted',
-      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
-rpc('kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='hide', p_reason='test')
-check('a hidden (not flagged/review) report cannot be hard-deleted either',
-      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
+check('deleting a report needs a reason',
+      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_REASON_REQUIRED')
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete', p_reason='exact repeat of another report')
+check('an admin can delete any report, and the deletion is logged',
+      admin_sql('select count(*) from public.reports where id::text = %s', (str(del_r['id']),))[0][0] == 0
+      and admin_sql('select reason from kasa_private.deleted_reports where report_id = %s', (str(del_r['id']),))[0][0] == 'exact repeat of another report')
 
 flagged_r, _ = report(user(), where=offset(13000, 15000))
 for i in range(2):
@@ -1323,7 +1324,7 @@ check('a new team member defaults to moderator', rpc('kasa_my_role', uid=junior)
 check('an admin reports their role', rpc('kasa_my_role', uid=mod) == 'admin')
 check('a moderator cannot delete a report',
       err(rpc, 'kasa_admin_moderate', uid=junior, p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_SUPER_ADMIN')
-check('a moderator can still hide and restore', rpc('kasa_admin_moderate', uid=junior, p_report_id=str(del_r['id']), p_action='restore')['moderation_status'] == 'approved')
+check('a moderator can still hide and restore', rpc('kasa_admin_moderate', uid=junior, p_report_id=str(flagged_r['id']), p_action='restore')['moderation_status'] == 'approved')
 check('a moderator cannot read sign-ups', err(rpc, 'kasa_admin_signups', uid=junior, p_limit=10) == 'KASA_NOT_SUPER_ADMIN')
 check('a moderator cannot see or change the team', err(rpc, 'kasa_admin_team', uid=junior) == 'KASA_NOT_SUPER_ADMIN'
       and err(rpc, 'kasa_admin_set_role', uid=junior, p_email='x@example.com', p_role='admin') == 'KASA_NOT_SUPER_ADMIN')
@@ -1337,7 +1338,7 @@ mod_email = f'{mod}@example.com'
 admin_sql('update auth.users set email = %s where id = %s', (mod_email, mod))
 check('an admin cannot change their own role', err(rpc, 'kasa_admin_set_role', uid=mod, p_email=mod_email, p_role='moderator') == 'KASA_SELF')
 check('an admin sees the team', any(m['me'] for m in rpc('kasa_admin_team', uid=mod)))
-del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete')
+del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete', p_reason='flagged as not an issue')
 check('a flagged report can be hard-deleted', del_res.get('deleted') is True, del_res)
 check('deleting a report cascades its events',
       admin_sql('select count(*) from kasa_private.events where report_id::text = %s', (str(flagged_r['id']),))[0][0] == 0)
@@ -1710,8 +1711,8 @@ check('the public cannot list report photos for removal',
       refused(err(rpc, 'kasa_admin_report_photos', p_report_id=str(q1['id']))))
 ph_mod = user()
 admin_sql("insert into public.admins (user_id, role) values (%s, 'moderator')", (ph_mod,))
-check('a moderator cannot remove photos',
-      err(rpc, 'kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo') == 'KASA_NOT_ADMIN')
+check('an ordinary person cannot remove photos',
+      err(rpc, 'kasa_admin_remove_photo', uid=user(), p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo') == 'KASA_NOT_ADMIN')
 check('removing a photo needs a reason',
       err(rpc, 'kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason=' ') == 'KASA_REASON_NEEDED')
 rpc('kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo twice')
@@ -1761,6 +1762,51 @@ lim = user()
 for i in range(3):
     adopt(lim, f'Spot keeper {i}', offset(-3800 - i * 200, 1800))
 check('one person can look after at most three spots', err(adopt, lim, 'Spot keeper 4', offset(-4600, 1800)) == 'KASA_ADOPT_LIMIT')
+
+# Moderators decide repeats: keep a join, undo a wrong one, or join a missed one.
+mr_spot = offset(-2600, -2600)
+m1 = quick(user(), mr_spot)
+m2 = quick(user(), offset(12, 0, base=mr_spot))
+up_before = admin_sql('select upvotes from public.reports where id = %s', (m1['id'],))[0][0]
+check('the automatic check joined the second report', admin_sql('select is_duplicate from public.reports where id = %s', (m2['id'],))[0][0] is True)
+check('an ordinary person cannot undo a join', err(rpc, 'kasa_admin_unlink_duplicate', uid=user(), p_report_id=str(m2['id'])) == 'KASA_NOT_ADMIN')
+check('the join waits for a moderator', any(x['id'] == str(m2['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+rpc('kasa_admin_unlink_duplicate', uid=ph_mod, p_report_id=str(m2['id']), p_reason='Different pile')
+row = admin_sql('select is_duplicate, parent_report_id from public.reports where id = %s', (m2['id'],))[0]
+check('a moderator can undo a wrong join', row == (False, None), row)
+check('undoing takes back the "people saw this" it added',
+      admin_sql('select upvotes from public.reports where id = %s', (m1['id'],))[0][0] == up_before - 1)
+check('an undone join leaves the review list', not any(x['id'] == str(m2['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+check('the undo is on the public timeline',
+      admin_sql("select count(*) from kasa_private.events where report_id = %s and detail ->> 'action' = 'unlink_duplicate'", (m1['id'],))[0][0] == 1)
+rpc('kasa_admin_link_duplicate', uid=ph_mod, p_report_id=str(m2['id']), p_parent_id=str(m1['id']))
+check('a moderator can join a report the check missed',
+      admin_sql('select is_duplicate, parent_report_id::text from public.reports where id = %s', (m2['id'],))[0] == (True, str(m1['id'])))
+check('a report cannot join a repeat', err(rpc, 'kasa_admin_link_duplicate', uid=ph_mod, p_report_id=str(m1['id']), p_parent_id=str(m2['id'])) == 'KASA_BAD_ACTION')
+m3 = quick(user(), offset(20, 0, base=mr_spot))
+rpc('kasa_admin_confirm_duplicate', uid=ph_mod, p_report_id=str(m3['id']))
+check('a confirmed join stays and leaves the review list',
+      admin_sql('select is_duplicate from public.reports where id = %s', (m3['id'],))[0][0] is True
+      and not any(x['id'] == str(m3['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+rpc('kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(m1['id']), p_kind='duplicate', p_ref=str(m3['id']), p_reason='same photo again')
+check('a moderator can delete a repeat photo', admin_sql('select count(*) from public.reports where id = %s', (m3['id'],))[0][0] == 0)
+
+# An admin can accept a cleanup after checking the photos; moderators can add public notes.
+ac_spot = offset(-1800, -2900)
+ac_r = quick(user(), ac_spot)
+ac_u = user()
+ac_c = rpc('kasa_claim_cleanup', uid=ac_u, p_report_id=str(ac_r['id']), p_photo_path=upload(ac_u, 'claims'), p_lat=ac_spot[0], p_lng=ac_spot[1], p_accuracy=10.0)
+ac_cid = ac_c['claim_id'] if isinstance(ac_c, dict) and 'claim_id' in ac_c else admin_sql("select id from kasa_private.claims where report_id::text = %s", (str(ac_r['id']),))[0][0]
+check('a moderator cannot accept a cleanup', err(rpc, 'kasa_admin_accept_claim', uid=ph_mod, p_claim_id=str(ac_cid), p_note='looks clean') == 'KASA_NOT_ADMIN')
+check('accepting needs a note', err(rpc, 'kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='') == 'KASA_REASON_REQUIRED')
+rpc('kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='Both photos show the same wall, now clean')
+row = admin_sql('select status, resolution_method from public.reports where id = %s', (ac_r['id'],))[0]
+check('an admin can accept a cleanup, marked as accepted by a moderator', row == ('resolved', 'moderator'), row)
+check('an accepted claim cannot be accepted again', err(rpc, 'kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='again') == 'KASA_CLAIM_CLOSED')
+rpc('kasa_admin_note', uid=ph_mod, p_report_id=str(ac_r['id']), p_note='The bin next to it is still broken')
+check('a moderator note is on the public timeline',
+      admin_sql("select count(*) from kasa_private.events where report_id = %s and detail ->> 'action' = 'note'", (ac_r['id'],))[0][0] == 1)
+check('an ordinary person cannot add a moderator note', err(rpc, 'kasa_admin_note', uid=user(), p_report_id=str(ac_r['id']), p_note='hello') == 'KASA_NOT_ADMIN')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

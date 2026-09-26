@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(),
+    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -322,6 +322,7 @@ function renderModeration(q){
             ${CATEGORY_KEYS.map(k => `<option value="${k}"${k === r.category ? ' selected' : ''}>${k}</option>`).join('')}
           </select>
           <button class="ad-ok" data-recat="${esc(r.id)}">Change category</button>
+          <button class="ad-ok" data-note="${esc(r.id)}">💬 Add note</button>
         </div>
       </div>
       <div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>
@@ -337,7 +338,9 @@ function renderModeration(q){
         </div>
         <div class="ad-actions">
           ${c.needs_review ? `<button class="ad-ok" data-clear-claim="${esc(c.id)}">✓ Clear photo</button>` : ''}
-          <button class="ad-bad" data-reject-claim="${esc(c.id)}">✕ Reject claim</button>
+          ${isSuper() ? `<button class="ad-ok" data-accept-claim="${esc(c.id)}" title="The photos show it is cleaned: mark the report fixed now">✓ Accept cleanup</button>` : ''}
+          <button class="ad-bad" data-reject-claim="${esc(c.id)}" title="The claim photo is fake or shows a different place">✕ Reject claim</button>
+          <button class="ad-ok" data-note="${esc(c.report_id)}" title="Add a public note to this report's history">💬 Add note</button>
         </div>
       </div>
       <div class="ad-photos">
@@ -347,7 +350,7 @@ function renderModeration(q){
           <figcaption>${v.vote === 'verify' ? '✓ confirm' : '✗ dispute'} · ${esc(v.distance_m)} m
             ${photoMetaText(v.photo_meta) ? '<br>' + esc(photoMetaText(v.photo_meta)) : ''}
             ${v.needs_review ? '<br><strong>⏸ held — not counted</strong> <button data-clear-vote="' + esc(v.id) + '">clear</button>' : ''}
-            <button data-void="${esc(v.id)}">void</button></figcaption></figure>`).join('')}
+            <button data-void="${esc(v.id)}" title="Don't count this confirmation or dispute">✕ Don't count</button></figcaption></figure>`).join('')}
       </div>
     </div>`).join('');
   el.innerHTML = (reportHtml ? '<div class="ad-sub-title">Reports</div>' + reportHtml : '') +
@@ -364,6 +367,8 @@ function renderModeration(q){
     loadResolutions();
   }));
   el.querySelectorAll('[data-reject-claim]').forEach(b => b.addEventListener('click', () => rejectClaim(b.dataset.rejectClaim)));
+  el.querySelectorAll('[data-accept-claim]').forEach(b => b.addEventListener('click', () => acceptClaim(b.dataset.acceptClaim)));
+  el.querySelectorAll('[data-note]').forEach(b => b.addEventListener('click', () => addNote(b.dataset.note)));
   el.querySelectorAll('[data-void]').forEach(b => b.addEventListener('click', () => voidVote(b.dataset.void)));
   el.querySelectorAll('[data-clear-vote]').forEach(b => b.addEventListener('click', () => clearHeld('vote', b.dataset.clearVote)));
   el.querySelectorAll('[data-clear-claim]').forEach(b => b.addEventListener('click', () => clearHeld('claim', b.dataset.clearClaim)));
@@ -381,8 +386,10 @@ async function clearHeld(kind, id){
 }
 
 async function moderate(id, action){
-  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:' : 'Optional public note:') ;
-  if (action === 'hide' && !reason) return;
+  if (action === 'delete' && !confirm('Delete this report and its photo from the site for good? This cannot be undone.')) return;
+  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:'
+    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:');
+  if ((action === 'hide' || action === 'delete') && !(reason && reason.trim().length >= 3)) return;
   const { error } = await sb.rpc('kasa_admin_moderate', { p_report_id: id, p_action: action, p_reason: reason || null });
   if (error){ alert('Failed: ' + (error.details || error.message)); return; }
   loadAll();
@@ -405,7 +412,7 @@ async function findReport(){
     el.innerHTML = `<div class="ad-empty">${esc(error && error.code === 'PGRST116' ? 'No report with that link or ID.' : 'Could not load: ' + ((error && (error.details || error.message)) || 'not found'))}</div>`;
     return;
   }
-  const canDelete = isSuper() && r.moderation_status === 'flagged' || r.moderation_status === 'review';
+  const canDelete = isSuper();
   el.innerHTML = `
     <div class="ad-item">
       <div class="ad-item-head">
@@ -416,8 +423,9 @@ async function findReport(){
         <div class="ad-actions">
           <button class="ad-ok" data-find-mod="approve">✓ Approve / restore</button>
           <button class="ad-bad" data-find-mod="hide">✕ Hide</button>
+          <button class="ad-ok" id="adFindNote">💬 Add note</button>
           ${canDelete ? '<button class="ad-bad" data-find-mod="delete">🗑 Delete permanently</button>'
-            : `<span class="ad-note" style="margin:0;">${isSuper() ? 'Only a flagged or held-for-review report can be deleted outright — hide this one instead.' : 'Only an admin can delete permanently — hide this one instead.'}</span>`}
+            : '<span class="ad-note" style="margin:0;">Only an admin can delete permanently — hide this one instead.</span>'}
         </div>
       </div>
       ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
@@ -433,6 +441,7 @@ async function findReport(){
     await moderate(r.id, b.dataset.findMod);
     findReport();
   }));
+  document.getElementById('adFindNote').addEventListener('click', () => addNote(r.id));
   document.getElementById('adFindCatBtn').addEventListener('click', async () => {
     const cat = document.getElementById('adFindCatSel').value;
     if (cat === r.category) return;
@@ -445,59 +454,95 @@ async function findReport(){
   loadReportPhotos(r.id);
 }
 
-/* Admins keep reports readable: remove an extra photo or a duplicate report that repeats
-   the same picture. The first photo always stays; every removal needs a public reason. */
+/* Moderators keep reports readable and correct. The automatic check joins reports of the
+   same kind within 40 m, and it can be wrong, so a person decides: keep the join, undo it,
+   join a report the check missed, or delete a repeat photo. The report's first photo always
+   stays; every change shows on the report's public timeline. */
 async function removePhoto(reportId, kind, ref){
-  const reason = prompt('Public reason for removing this photo (e.g. "same photo as the first"):');
+  const reason = prompt('Public reason for deleting this photo (e.g. "same photo as the first"):');
   if (!reason || reason.trim().length < 3) return false;
   const { error } = await sb.rpc('kasa_admin_remove_photo', { p_report_id: reportId, p_kind: kind, p_ref: String(ref), p_reason: reason });
   if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
   return true;
 }
 
+async function repeatAction(action, childId, parentId){
+  if (action === 'delete') return removePhoto(parentId, 'duplicate', childId);
+  let res;
+  if (action === 'keep') res = await sb.rpc('kasa_admin_confirm_duplicate', { p_report_id: childId });
+  else {
+    const reason = prompt('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")') ;
+    if (reason === null) return false;
+    res = await sb.rpc('kasa_admin_unlink_duplicate', { p_report_id: childId, p_reason: reason || null });
+  }
+  if (res.error){ alert('Failed: ' + (res.error.details || res.error.message)); return false; }
+  return true;
+}
+
+const REPEAT_BTNS = `<button class="ad-ok" data-act="keep" title="Both photos show the same problem">✓ Same</button>
+  <button class="ad-bad" data-act="split" title="Different problems: make it its own report again">✕ Not the same</button>
+  <button class="ad-bad" data-act="delete" title="Delete this repeat photo from the site">🗑 Delete</button>`;
+
 async function loadReportPhotos(id){
   const el = document.getElementById('adFindPhotos');
   if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_report_photos', { p_report_id: id });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load photos: ${esc(error.details || error.message)}</div>`; return; }
-  const items = [
-    ...(data.extras || []).map(p => ({ kind: 'extra', ref: p.position, url: p.photo_url, label: `Extra photo ${p.position}` })),
-    ...(data.duplicates || []).map(d => ({ kind: 'duplicate', ref: d.id, url: d.photo_url,
-      label: `Joined ${new Date(d.created_at).toLocaleDateString('en-IN')}` })),
-  ];
-  if (!items.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="ad-photos">${items.map((p, i) => `<figure>
-      ${p.url ? `<img src="${esc(p.url)}" alt="" loading="lazy">` : ''}
-      <figcaption>${esc(p.label)}${isSuper() ? ` <button class="ad-bad" data-rm="${i}">Remove</button>` : ''}</figcaption>
-    </figure>`).join('')}</div>
-    ${isSuper() ? '' : '<p class="ad-note">Only an admin can remove photos.</p>'}`;
-  el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', async () => {
-    const p = items[+b.dataset.rm];
-    if (await removePhoto(id, p.kind, p.ref)){ loadReportPhotos(id); loadRepeatPhotos(); }
+  const extras = data.extras || [], dups = data.duplicates || [];
+  el.innerHTML = `
+    ${extras.length ? `<div class="ad-photos">${extras.map((p, i) => `<figure>
+      <img src="${esc(p.photo_url)}" alt="" loading="lazy">
+      <figcaption>Extra photo ${esc(p.position)} <button class="ad-bad" data-rm-extra="${i}">🗑 Delete</button></figcaption>
+    </figure>`).join('')}</div>` : ''}
+    ${dups.length ? `<p class="ad-note" style="margin-top:.8rem;">Reports joined to this one as repeats:</p>
+    <div class="ad-photos">${dups.map((d, i) => `<figure data-dup="${i}">
+      ${d.photo_url ? `<img src="${esc(d.photo_url)}" alt="" loading="lazy">` : ''}
+      <figcaption>Joined ${esc(new Date(d.created_at).toLocaleDateString('en-IN'))}<br>${REPEAT_BTNS}</figcaption>
+    </figure>`).join('')}</div>` : ''}
+    <div class="ad-actions" style="margin-top:.8rem;">
+      <input type="text" id="adJoinTo" placeholder="Same problem as report (link or ID)" style="flex:1;min-width:14rem;">
+      <button class="ad-ok" id="adJoinBtn">Join as a repeat</button>
+    </div>`;
+  el.querySelectorAll('[data-rm-extra]').forEach(b => b.addEventListener('click', async () => {
+    if (await removePhoto(id, 'extra', extras[+b.dataset.rmExtra].position)) loadReportPhotos(id);
   }));
+  el.querySelectorAll('[data-dup] [data-act]').forEach(b => b.addEventListener('click', async () => {
+    const d = dups[+b.closest('[data-dup]').dataset.dup];
+    if (await repeatAction(b.dataset.act, d.id, id)){ loadReportPhotos(id); loadRepeatPhotos(); }
+  }));
+  document.getElementById('adJoinBtn').addEventListener('click', async () => {
+    const raw = document.getElementById('adJoinTo').value.trim();
+    let parent = raw;
+    try { parent = new URL(raw).searchParams.get('report') || raw; } catch (_) {}
+    if (!parent) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_link_duplicate', { p_report_id: String(id), p_parent_id: parent });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    alert('Joined. This report now counts as a repeat of the other one.');
+    findReport(); loadRepeatPhotos();
+  });
 }
 
 async function loadRepeatPhotos(){
   const el = document.getElementById('adRepeatPhotos');
   const { data, error } = await sb.rpc('kasa_admin_repeat_photos', { p_limit: 60 });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No repeat photos.</div>'; return; }
-  const img = u => u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a>` : '—';
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing to check.</div>'; return; }
+  const img = u => u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:4px;"></a>` : '—';
   el.innerHTML = `
     <table class="ad-table">
-      <thead><tr><th>First photo</th><th>Repeat</th><th>Report</th><th></th></tr></thead>
+      <thead><tr><th>Earlier report</th><th>Joined to it</th><th>Details</th><th>Is it the same problem?</th></tr></thead>
       <tbody>
-        ${data.map((d, i) => `<tr>
+        ${data.map((d, i) => `<tr data-row="${i}">
           <td>${img(d.parent_photo_url)}</td>
           <td>${img(d.photo_url)}</td>
-          <td>${esc(d.category)} · Ward ${esc(d.ward_no ?? '?')} ${esc(d.block_name || '')}<br><small>${esc(new Date(d.created_at).toLocaleString('en-IN'))} · <a href="kasa.html?report=${encodeURIComponent(d.parent_id)}" target="_blank" rel="noopener">open</a></small></td>
-          <td>${isSuper() ? `<button class="ad-bad" data-rp="${i}">Remove repeat</button>` : '<small>Admin only</small>'}</td>
+          <td>${esc(d.category)} · Ward ${esc(d.ward_no ?? '?')} ${esc(d.block_name || '')}<br><small>${esc(d.distance_m ?? '?')} m apart · ${esc(new Date(d.created_at).toLocaleString('en-IN'))} · <a href="kasa.html?report=${encodeURIComponent(d.parent_id)}" target="_blank" rel="noopener">earlier</a> · <a href="kasa.html?report=${encodeURIComponent(d.id)}" target="_blank" rel="noopener">joined</a></small></td>
+          <td style="white-space:nowrap;">${REPEAT_BTNS}</td>
         </tr>`).join('')}
       </tbody>
     </table>`;
-  el.querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', async () => {
-    const d = data[+b.dataset.rp];
-    if (await removePhoto(d.parent_id, 'duplicate', d.id)) loadRepeatPhotos();
+  el.querySelectorAll('[data-row] [data-act]').forEach(b => b.addEventListener('click', async () => {
+    const d = data[+b.closest('[data-row]').dataset.row];
+    if (await repeatAction(b.dataset.act, d.id, d.parent_id)) loadRepeatPhotos();
   }));
 }
 
@@ -526,6 +571,53 @@ async function loadAdoptions(){
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadAdoptions();
   }));
+}
+
+/* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
+async function loadLatest(){
+  const el = document.getElementById('adLatest');
+  const { data, error } = await sb.from('reports').select('id,created_at,category,ward_no,block_name,landmark,photo_url,moderation_status,is_duplicate')
+    .order('created_at', { ascending: false }).limit(20);
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `<p class="ad-note" style="margin-top:1rem;">Latest reports</p>
+    <table class="ad-table"><tbody>
+      ${data.map((r, i) => `<tr data-latest="${i}">
+        <td>${r.photo_url ? `<a href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a>` : ''}</td>
+        <td>${esc(r.category)} · ${esc(r.ward_no ? 'Ward ' + r.ward_no : (r.block_name || ''))} ${esc(r.landmark || '')}<br>
+          <small>${esc(new Date(r.created_at).toLocaleString('en-IN'))} · ${esc(r.moderation_status)}${r.is_duplicate ? ' · repeat' : ''}</small></td>
+        <td style="white-space:nowrap;">
+          <button class="ad-ok" data-latest-act="open">Open</button>
+          ${isSuper() ? '<button class="ad-bad" data-latest-act="delete">🗑 Delete</button>' : ''}
+        </td></tr>`).join('')}
+    </tbody></table>`;
+  el.querySelectorAll('[data-latest-act]').forEach(b => b.addEventListener('click', async () => {
+    const r = data[+b.closest('[data-latest]').dataset.latest];
+    if (b.dataset.latestAct === 'open'){
+      document.getElementById('adFindInput').value = r.id;
+      findReport();
+      document.getElementById('adFindResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      await moderate(r.id, 'delete');
+    }
+  }));
+}
+
+async function acceptClaim(id){
+  const note = prompt('Why do the photos show it is cleaned? (shown publicly on the report, e.g. "same wall, garbage gone")');
+  if (!note || note.trim().length < 3) return;
+  const { error } = await sb.rpc('kasa_admin_accept_claim', { p_claim_id: id, p_note: note });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
+}
+
+async function addNote(reportId){
+  const note = prompt('Note to add under this report (shown publicly on its history):');
+  if (!note || note.trim().length < 3) return false;
+  const { error } = await sb.rpc('kasa_admin_note', { p_report_id: String(reportId), p_note: note });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
+  alert('Note added to the report\'s public history.');
+  return true;
 }
 
 async function rejectClaim(id){
