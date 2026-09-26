@@ -168,6 +168,8 @@
     <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
     <button type="button" data-school-check data-i18n="nav_school_check">🏫 Check a school</button>
     <a href="schools.html" data-i18n="nav_schools">Schools</a>
+    <button type="button" data-adopt data-i18n="nav_adopt">🤝 Adopt this spot</button>
+    <a href="adopt.html" data-i18n="nav_adopted">Adopted spots</a>
     <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
     <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
     <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
@@ -413,6 +415,24 @@
     <div class="k-ev-status" id="k-sf-loc"></div>
     <button type="button" class="k-btn k-btn-primary" id="k-sf-submit" disabled data-i18n="sf_submit">📍 The school is here</button>
     <div class="k-privacy" data-i18n="sf_note">Stand at the school gate. The pin goes where most recent visitors stood, so one wrong tap can't move it far.</div>
+  </div>
+</div>
+
+<!-- Adopt the spot where you stand -->
+<div class="k-modal" id="k-ad-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-ad-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-ad-title" data-i18n="ad_title">Look after this spot</h3>
+    <p class="k-modal-sub" data-i18n="ad_sub">Your shop, school, club or family keeps the 50 m around where you are standing clean. The name goes on the public list with how the spot is doing.</p>
+    <div class="k-field">
+      <label for="k-ad-name" data-i18n="ad_name">Public name</label>
+      <input type="text" id="k-ad-name" class="k-input" maxlength="60" data-i18n-placeholder="ad_name_ph" placeholder="e.g. Netaji Youth Club, Station Road shops">
+    </div>
+    <div class="k-ev-status" id="k-ad-loc"></div>
+    <button type="button" class="k-btn k-btn-primary" id="k-ad-submit" disabled data-i18n="ad_submit">🤝 We look after this spot</button>
+    <div class="k-privacy" data-i18n="ad_note">Only the name you type is public, never your account. You can let the spot go any time from the Adopted spots page.</div>
   </div>
 </div>
 
