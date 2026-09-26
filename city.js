@@ -31,6 +31,20 @@ window.KASA_CITY = {
     chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta', photo: 'reps/chairman-nabendu-mahali.jpg', photoCredit: '', photoPos: '62% 38%' }
   },
 
+  // MLA / MP leaderboard on analytics.html. Town reports (with a ward) go to the
+  // constituency marked `town: true`; village reports go by CD block. A block
+  // split between two assembly seats is listed under the one holding most of it
+  // (see `note`). Anything not listed shows as "Not mapped yet" — never guess:
+  // a wrong row blames the wrong person. Check against the Delimitation Order /
+  // CEO West Bengal and update after every election.
+  constituencies: [
+    { no: 242, name: 'Purulia', mla: 'mla', lokSabha: 'Purulia', town: true, blocks: [] }
+  ],
+  // Lok Sabha seats: `mp` names a key in `reps`, or give { name, party } directly.
+  lokSabha: {
+    Purulia: { mp: 'mp' }
+  },
+
   // Official channels shown under "Take it further". Checked September 2026; keep current.
   stateHelpline: '8282082820',
   stateHelplineDisplay: '82820 82820',

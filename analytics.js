@@ -136,6 +136,40 @@
       <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
     'No village reports yet. Parishkar now takes reports from all 20 blocks of the district.');
 
+  // MLA / MP leaderboard, from the constituency table in city.js.
+  const city = window.KASA_CITY || {};
+  const seats = city.constituencies || [], reps = city.reps || {};
+  const person = p => typeof p === 'string' ? reps[p] : p;
+  const townSeat = seats.find(c => c.town);
+  const byBlock = {}; seats.forEach(c => (c.blocks || []).forEach(b => { byBlock[b.toLowerCase()] = c; }));
+  const seatOf = r => r.area_kind === 'rural' ? byBlock[(r.block_name || '').toLowerCase()] : (r.ward_no ? townSeat : null);
+  const blank = () => ({ open: 0, overdue: 0, fixed: 0, fake: 0, days: [] });
+  const cstats = new Map(seats.map(c => [c, blank()])), unmapped = blank();
+  const add = (s, r) => {
+    if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
+    else if (r.resolution_method === 'community' && r.resolved_at){ s.fixed++; s.days.push(fixDays(r)); }
+    s.fake += r.rejected_claims || 0;
+  };
+  all.forEach(r => { const c = seatOf(r); add(c ? cstats.get(c) : unmapped, r); });
+  const cells = s => { const m = median(s.days); return `<td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td>`; };
+  const nums = '<th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>';
+  const who = p => p ? `${esc(p.name)}${p.party ? ` <small>(${esc(p.party)})</small>` : ''}` : '<small>not listed</small>';
+  const order = (a, b) => b[1].open - a[1].open || b[1].overdue - a[1].overdue;
+  const mlaRows = [...cstats].sort(order).map(([c, s]) => `<tr><td>${esc(c.name)}${c.no ? ` <small>(No. ${c.no})</small>` : ''}</td><td>${who(person(c.mla))}</td>${cells(s)}</tr>`);
+  if (unmapped.open + unmapped.fixed + unmapped.fake) mlaRows.push(`<tr><td><em>Not mapped yet</em></td><td><small>villages in blocks not yet assigned to a seat</small></td>${cells(unmapped)}</tr>`);
+  document.getElementById('an-mla').innerHTML = table('<th>Assembly seat</th><th>MLA</th>' + nums, mlaRows, 'No constituencies set up yet.');
+  const lstats = new Map();
+  cstats.forEach((s, c) => {
+    if (!c.lokSabha) return;
+    const t = lstats.get(c.lokSabha) || blank();
+    t.open += s.open; t.overdue += s.overdue; t.fixed += s.fixed; t.fake += s.fake; t.days.push(...s.days);
+    lstats.set(c.lokSabha, t);
+  });
+  document.getElementById('an-mp').innerHTML = table('<th>Lok Sabha seat</th><th>MP</th>' + nums,
+    [...lstats].sort(order).map(([ls, s]) => `<tr><td>${esc(ls)}</td><td>${who(person((city.lokSabha || {})[ls]?.mp))}</td>${cells(s)}</tr>`),
+    'No Lok Sabha seats set up yet.');
+  set('an-mla-note', 'Town reports count toward the town\'s assembly seat; village reports count by CD block. Blocks split between two seats are counted under the one covering most of the block, so treat village rows as approximate. Seats and names come from public election records — spotted a mistake? Write to the Grievance Officer.');
+
   // Moderation in public: monthly counts only, no IDs (kasa_public_transparency).
   const { data: tr, error: trErr } = await sb.rpc('kasa_public_transparency');
   if (trErr || !tr){ document.getElementById('an-mod').innerHTML = '<div class="an-empty">Could not load moderation counts.</div>'; return; }
