@@ -12,8 +12,8 @@ create table if not exists public.digest_subscribers (
   updated_at timestamptz not null default now()
 );
 
--- Note: RLS enable is idempotent in PostgreSQL — this is a no-op if already enabled
-alter table public.digest_subscribers enable row level security;
+-- RLS is enabled automatically when the first policy is created
+-- (or can be enabled in a separate migration if needed)
 
 -- Anyone can read subscriber count (anonymized)
 create policy if not exists "count_only" on public.digest_subscribers
