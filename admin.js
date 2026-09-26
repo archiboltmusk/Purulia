@@ -211,8 +211,78 @@ async function loadSla(){
 const CATEGORY_KEYS = ['garbage', 'drain', 'road', 'streetlight', 'water', 'missing', 'encroachment',
   'illegal_construction', 'illegal_mining', 'illegal_other', 'other'];
 
+/* Count tiles over the queue: waiting now, hidden, and this month's decisions (the same
+   public counts analytics.html shows, so the team and the public see one set of numbers). */
+async function loadModTiles(q){
+  const el = document.getElementById('adModTiles');
+  const { data: tr } = await sb.rpc('kasa_public_transparency');
+  const m = tr?.months?.[0] || {}, now = tr?.now || {};
+  const waiting = (q?.reports?.length || 0) + (q?.claims?.length || 0);
+  el.innerHTML = [
+    [waiting, 'Waiting now', waiting ? 'warn' : 'good'],
+    [now.hidden ?? '—', 'Hidden', 'bad'],
+    [m.kept ?? '—', 'Kept this month', 'good'],
+    [m.flagged ?? '—', 'Flags this month', ''],
+  ].map(([n, l, c]) => `<div class="ad-mod-tile ${c}"><b>${esc(n)}</b><span>${esc(l)}</span></div>`).join('');
+}
+
+/* Hidden: everything currently hidden, newest first, with Restore (and Delete for admins,
+   which the server only allows for flagged / held reports). Kept: reports a moderator
+   approved or restored, from the public evidence trail, with Hide. */
+async function loadModTab(tab){
+  const el = document.getElementById('adModOther');
+  el.innerHTML = '<div class="ad-loading">Loading…</div>';
+  let rows = [];
+  if (tab === 'hidden'){
+    const { data, error } = await sb.from('reports').select('id,created_at,updated_at,category,ward_no,block_name,landmark,description,photo_url,flags,moderation_status')
+      .eq('moderation_status', 'hidden').order('updated_at', { ascending: false }).limit(50);
+    if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.message)}</div>`; return; }
+    rows = data || [];
+  } else {
+    const { data: ev, error } = await sb.from('kasa_public_events').select('report_id,detail,created_at')
+      .eq('kind', 'moderated').order('created_at', { ascending: false }).limit(200);
+    if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.message)}</div>`; return; }
+    const ids = [...new Set((ev || []).filter(e => ['approve', 'restore'].includes(e.detail?.action)).map(e => e.report_id))].slice(0, 50);
+    if (ids.length){
+      const { data } = await sb.from('reports').select('id,created_at,category,ward_no,block_name,landmark,description,photo_url,flags,moderation_status')
+        .in('id', ids).eq('moderation_status', 'approved');
+      rows = ids.map(id => (data || []).find(r => String(r.id) === String(id))).filter(Boolean);
+    }
+  }
+  if (!rows.length){ el.innerHTML = `<div class="ad-empty">${tab === 'hidden' ? 'Nothing hidden.' : 'No reports kept after review yet.'}</div>`; return; }
+  el.innerHTML = rows.map(r => `
+    <div class="ad-item">
+      <div class="ad-item-head">
+        <div>
+          <div class="ad-item-title">${esc(r.category)} · ${esc(r.ward_no ? 'Ward ' + r.ward_no : r.block_name ? r.block_name + ' block' : '?')} · flagged ${esc(r.flags || 0)}×</div>
+          <div class="ad-item-meta">${esc(r.landmark || '')} ${esc(r.description || '')}<br>${new Date(r.created_at).toLocaleString('en-IN')}
+            · <a href="kasa.html?report=${encodeURIComponent(r.id)}" target="_blank" rel="noopener" style="color:var(--amber)">open</a></div>
+        </div>
+        <div class="ad-actions">
+          ${tab === 'hidden'
+            ? `<button class="ad-ok" data-tabmod="restore" data-id="${esc(r.id)}">↺ Restore</button>`
+            : `<button class="ad-bad" data-tabmod="hide" data-id="${esc(r.id)}">✕ Hide</button>`}
+        </div>
+      </div>
+      ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"></figure></div>` : ''}
+    </div>`).join('');
+  el.querySelectorAll('[data-tabmod]').forEach(b => b.addEventListener('click', async () => {
+    await moderate(b.dataset.id, b.dataset.tabmod);
+    loadModTab(tab);
+  }));
+}
+
+document.querySelectorAll('[data-modtab]').forEach(b => b.addEventListener('click', () => {
+  const tab = b.dataset.modtab;
+  document.querySelectorAll('[data-modtab]').forEach(x => x.setAttribute('aria-selected', String(x === b)));
+  document.getElementById('adResolutions').hidden = tab !== 'waiting';
+  document.getElementById('adModOther').hidden = tab === 'waiting';
+  if (tab !== 'waiting') loadModTab(tab);
+}));
+
 async function loadResolutions(){
   const { data, error } = await sb.rpc('kasa_admin_queue');
+  loadModTiles(error ? null : data);
   if (!error) return renderModeration(data);
   document.getElementById('adResolutions').innerHTML = `<div class="ad-empty">${esc(error.code === 'KASA_NOT_ADMIN' || /KASA_NOT_ADMIN/.test(error.message)
     ? 'This account is not a moderator.' : 'Could not load the moderation queue: ' + (error.details || error.message))}</div>`;

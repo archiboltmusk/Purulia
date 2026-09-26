@@ -86,6 +86,21 @@ if ('serviceWorker' in navigator) {
 .ad-held img{outline:2px solid var(--amber);outline-offset:1px;}
 .ad-photos figcaption [data-clear-vote]{color:var(--green);}
 .ad-photos figcaption button{color:var(--red);font-family:var(--mono);font-size:10px;}
+/* Moderation: count tiles, Waiting / Hidden / Kept tabs, thumb-sized buttons on phones */
+.ad-mod-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem;}
+.ad-mod-tile{border:1px solid var(--border);border-radius:6px;padding:.8rem .9rem;background:rgba(212,136,42,.03);}
+.ad-mod-tile b{display:block;font-family:var(--serif);font-size:1.7rem;line-height:1;color:var(--cream);}
+.ad-mod-tile span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);}
+.ad-mod-tile.warn b{color:var(--amber);} .ad-mod-tile.bad b{color:var(--red);} .ad-mod-tile.good b{color:var(--green);}
+.ad-tabs{display:flex;gap:.3rem;margin-bottom:1rem;border-bottom:1px solid var(--border);}
+.ad-tabs button{padding:.6rem .9rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);border-bottom:2px solid transparent;}
+.ad-tabs button[aria-selected="true"]{color:var(--amber);border-bottom-color:var(--amber);}
+@media(max-width:640px){
+  .ad-mod-tiles{grid-template-columns:repeat(2,1fr);}
+  .ad-item .ad-actions{width:100%;}
+  .ad-item .ad-actions button{flex:1 1 45%;padding:.8rem .6rem;font-size:12px;}
+  .ad-item .ad-actions select{flex:1 1 100%;}
+}
 .ad-form{display:grid;gap:.7rem;max-width:640px;}
 .ad-form .ad-input{margin-bottom:0;}
 .ad-form textarea.ad-input{min-height:120px;resize:vertical;}
@@ -128,7 +143,14 @@ if ('serviceWorker' in navigator) {
   <section class="ad-section">
     <h2 class="ad-section-title">Moderation queue</h2>
     <p class="ad-note" id="adModNote"></p>
+    <div class="ad-mod-tiles" id="adModTiles"></div>
+    <div class="ad-tabs" role="tablist" aria-label="Moderation">
+      <button type="button" role="tab" data-modtab="waiting" aria-selected="true">Waiting</button>
+      <button type="button" role="tab" data-modtab="hidden" aria-selected="false">Hidden</button>
+      <button type="button" role="tab" data-modtab="kept" aria-selected="false">Kept after review</button>
+    </div>
     <div id="adResolutions"><div class="ad-loading">Loading…</div></div>
+    <div id="adModOther" hidden></div>
   </section>
 
   <section class="ad-section">
