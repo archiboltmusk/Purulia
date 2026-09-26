@@ -2,8 +2,8 @@
 //
 // The database pings this after every new report, and hourly. It only works on
 // reports the database hands out (kasa_geocode_claim), so calling it directly
-// can't write an address anyone chose. For each one it asks Overpass for the
-// nearest named road (within 150 m) and the nearest named place (within 120 m),
+// can't write an address anyone chose. For each one it asks Photon (Overpass if
+// Photon is down) for the nearest named road and named place (within 120 m),
 // e.g. "NC Dasgupta Road · near Town Hall". Nothing found → no address; the app
 // falls back to the ward or block.
 //
@@ -38,7 +38,47 @@ function nearest(el: El, lat: number, lng: number): number {
 
 const nameOf = (t: Record<string, string> = {}) => (t['name:en'] || t.name || '').trim();
 
+const PHOTON = 'https://photon.komoot.io/reverse';
+const POI_TAGS = ['amenity', 'shop', 'office', 'leisure', 'tourism', 'building', 'healthcare'];
+
+interface PF { properties: Record<string, unknown>; geometry: { coordinates: [number, number] } }
+
+async function photon(params: string): Promise<PF[]> {
+  const res = await fetch(`${PHOTON}?${params}`, { headers: { 'User-Agent': UA, 'Accept': 'application/json' },
+                                                   signal: AbortSignal.timeout(15000) });
+  if (!res.ok) throw new Error(`photon ${res.status}`);
+  return ((await res.json()).features ?? []) as PF[];
+}
+
+// Photon (komoot's OpenStreetMap search): nearest named road whose extent covers the
+// spot (padded ~150 m), and the nearest named place within 120 m.
+async function lookupPhoton(lat: number, lng: number): Promise<string | null> {
+  const base = `lat=${lat}&lon=${lng}&lang=en`;
+  const [roads, pois] = await Promise.all([
+    photon(`${base}&limit=3&osm_tag=highway`),
+    photon(`${base}&limit=3&radius=0.12&` + POI_TAGS.map(t => `osm_tag=${t}`).join('&')),
+  ]);
+  const pad = 0.0014;
+  const road = roads.find(f => {
+    const e = f.properties.extent as number[] | undefined;
+    if (!f.properties.name) return false;
+    if (!e) return dist(lat, lng, f.geometry.coordinates[1], f.geometry.coordinates[0]) <= 150;
+    const [w, n, east, s] = e;
+    return lng >= Math.min(w, east) - pad && lng <= Math.max(w, east) + pad && lat >= Math.min(n, s) - pad && lat <= Math.max(n, s) + pad;
+  });
+  const poi = pois.find(f => f.properties.name && dist(lat, lng, f.geometry.coordinates[1], f.geometry.coordinates[0]) <= 120);
+  const parts: string[] = [];
+  if (road) parts.push(String(road.properties.name));
+  if (poi && poi.properties.name !== road?.properties.name) parts.push('near ' + String(poi.properties.name));
+  return parts.length ? parts.join(' · ').slice(0, 120) : null;
+}
+
 async function lookup(lat: number, lng: number): Promise<string | null> {
+  try { return await lookupPhoton(lat, lng); }
+  catch (e) { console.warn('photon failed, trying overpass', String(e)); return await lookupOverpass(lat, lng); }
+}
+
+async function lookupOverpass(lat: number, lng: number): Promise<string | null> {
   const a = `${lat},${lng}`;
   const q = `[out:json][timeout:20];
     (way(around:150,${a})["highway"]["name"];
@@ -82,10 +122,10 @@ Deno.serve(async (req) => {
   let done = 0, busy = false;
   for (const [i, r] of rows.entries()) {
     if (busy) { await admin.rpc('kasa_geocode_done', { p_id: r.id, p_address: null, p_retry: true }); continue; }
-    if (i) await new Promise(ok => setTimeout(ok, 2500));  // be gentle with the public Overpass server
+    if (i) await new Promise(ok => setTimeout(ok, 1200));  // be gentle with the free public servers
     let address: string | null = null, retry = false;
     try { address = await lookup(Number(r.lat), Number(r.lng)); }
-    catch (e) { console.error('geocode failed', r.id, e); retry = busy = /overpass (4\d\d|50\d)/.test(String(e)); }
+    catch (e) { console.error('geocode failed', r.id, e); retry = busy = /(overpass|photon) (4\d\d|50\d)/.test(String(e)); }
     await admin.rpc('kasa_geocode_done', { p_id: r.id, p_address: address, p_retry: retry });
     if (address) done++;
   }
