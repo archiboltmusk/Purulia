@@ -885,11 +885,11 @@ function initMainMapNow(){
       // A critical report weighs more than a minor one, so the worst streets glow brightest.
       mainMap.addLayer({ id: 'reports-heat', type: 'heatmap', source: 'reports', layout: { visibility: 'none' }, paint: {
         'heatmap-weight': ['match', ['get', 'severity'], 'critical', 1, 'severe', .6, .3],
-        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, .6, 16, 2],
-        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 12, 16, 32],
-        'heatmap-opacity': .75,
+        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1.4, 16, 3],
+        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 22, 16, 42],
+        'heatmap-opacity': .9,
         'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
-          0, 'rgba(10,8,5,0)', .2, '#3a2a14', .4, '#7a3f16', .6, '#d4882a', .8, '#e8524a', 1, '#ff2e1a']
+          0, 'rgba(10,8,5,0)', .1, '#7a3f16', .3, '#d4882a', .55, '#e88a4a', .8, '#e8524a', 1, '#ff2e1a']
       }});
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
         'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
