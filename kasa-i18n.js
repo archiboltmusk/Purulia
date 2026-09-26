@@ -90,7 +90,7 @@ window.KASA_I18N = {
     done_title_recur: 'Recorded as recurring', done_sub_recur: 'This spot was marked fixed recently. The recurrence is now on its record.',
     done_title_review: 'Sent for review', done_sub_review: "A moderator checks these reports before they're public.",
     done_title_offline: 'Saved offline', done_sub_offline: "It will upload automatically when you're back online.",
-    done_watch: '🔔 Tell me when it’s fixed', done_watch_on: '✓ We’ll tell you when it’s fixed', done_wa: 'Notify Municipality on WhatsApp →', done_share: 'Share this report', done_close: 'Done',
+    quick_schools: 'Schools', quick_adopt: 'Spots people look after', quick_numbers: 'Numbers for every ward', tip_lang: 'বাংলায় দেখুন · हिंदी में देखें', tip_lang_menu: 'বাংলা · हिंदी — মেনুতে ☰ / मेनू में ☰', tip_report: 'See a problem? Tap here and take a photo. That’s all.', tip_quick: 'Schools, spots people look after, and the numbers for every ward.', tip_next: 'Next', tip_done: 'Got it', tip_skip: 'Skip', join_n: '👥 Join {n} people keeping Purulia clean', join_first: '👥 Be one of the first people keeping Purulia clean', loc_outside: 'You’re outside Purulia district', done_watch: '🔔 Tell me when it’s fixed', done_watch_on: '✓ We’ll tell you when it’s fixed', done_wa: 'Notify Municipality on WhatsApp →', done_share: 'Share this report', done_close: 'Done',
 
     head_open: 'Unresolved', head_claimed: 'Cleanup claimed · verifying', head_resolved: 'Resolved', head_resolved_legacy: 'Resolved · not verified',
     chip_pending: 'Waiting to upload', days_open: '{n}d open', list_count: '{n} reports', list_empty: 'No reports match these filters.', list_seen: 'Seen by {n} people', list_seen_one: 'Seen by the reporter',
@@ -329,7 +329,7 @@ window.KASA_I18N = {
     done_title_recur: 'বারবার হওয়া সমস্যা হিসেবে নথিভুক্ত', done_sub_recur: 'এই জায়গাটি সম্প্রতি সমাধান বলে চিহ্নিত হয়েছিল। আবার ফিরে আসাটা এখন রেকর্ডে আছে।',
     done_title_review: 'যাচাইয়ের জন্য পাঠানো হয়েছে', done_sub_review: 'প্রকাশের আগে মডারেটর এই রিপোর্টগুলো দেখেন।',
     done_title_offline: 'অফলাইনে সেভ হয়েছে', done_sub_offline: 'অনলাইন হলে নিজে থেকেই আপলোড হবে।',
-    done_watch: '🔔 ঠিক হলে আমাকে জানান', done_watch_on: '✓ ঠিক হলে আপনাকে জানাব', done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান ���', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
+    quick_schools: 'স্কুল', quick_adopt: 'মানুষ যে জায়গার দেখাশোনা করেন', quick_numbers: 'প্রতিটি ওয়ার্ডের হিসাব', tip_lang: 'English · हिंदी', tip_lang_menu: 'English · हिंदी — মেনুতে ☰', tip_report: 'সমস্যা দেখছেন? এখানে ট্যাপ করে একটা ছবি তুলুন। ব্যস।', tip_quick: 'স্কুল, মানুষ যে জায়গার দেখাশোনা করেন, আর প্রতিটি ওয়ার্ডের হিসাব।', tip_next: 'পরের', tip_done: 'বুঝেছি', tip_skip: 'থাক', join_n: '👥 পুরুলিয়া পরিষ্কার রাখা {n} জনের সঙ্গে যোগ দিন', join_first: '👥 পুরুলিয়া পরিষ্কার রাখা প্রথম মানুষদের একজন হোন', loc_outside: 'আপনি পুরুলিয়া জেলার বাইরে আছেন', done_watch: '🔔 ঠিক হলে আমাকে জানান', done_watch_on: '✓ ঠিক হলে আপনাকে জানাব', done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান ���', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
 
     head_open: 'অমীমাংসিত', head_claimed: 'সাফাইয়ের দাবি · যাচাই চলছে', head_resolved: 'সমাধান হয়েছে', head_resolved_legacy: 'সমাধান · যাচাই হয়নি',
     chip_pending: 'আপলোডের অপেক্ষায়', days_open: '{n} দিন খোলা', list_count: '{n}টি রিপোর্ট', list_empty: 'এই ফিল্টারে কোনো রিপোর্ট নেই।', list_seen: '{n} জন দেখেছেন', list_seen_one: 'শুধু রিপোর্টকারী দেখেছেন',
@@ -567,7 +567,7 @@ window.KASA_I18N = {
     done_title_recur: 'दोबारा हुई समस्या के रूप में दर्ज', done_sub_recur: 'यह जगह हाल ही में ठीक बताई गई थी। दोबारा होना अब उसके रिकॉर्ड में है।',
     done_title_review: 'जाँच के लिए भेजा गया', done_sub_review: 'सार्वजनिक होने से पहले मॉडरेटर ये रिपोर्ट देखते हैं।',
     done_title_offline: 'ऑफ़लाइन सेव हुई', done_sub_offline: 'ऑनलाइन होते ही अपने-आप अपलोड हो जाएगी।',
-    done_watch: '🔔 ठीक होने पर मुझे बताएँ', done_watch_on: '✓ ठीक होने पर हम आपको बताएँगे', done_wa: 'व्हाट्सऐप पर नगरपालिका को बताएँ →', done_share: 'यह रिपोर्ट शेयर करें', done_close: 'हो गया',
+    quick_schools: 'स्कूल', quick_adopt: 'जिन जगहों की लोग देखभाल करते हैं', quick_numbers: 'हर वार्ड के आँकड़े', tip_lang: 'English · বাংলা', tip_lang_menu: 'English · বাংলা — मेनू में ☰', tip_report: 'कोई समस्या दिखी? यहाँ टैप करें और फ़ोटो लें। बस।', tip_quick: 'स्कूल, जिन जगहों की लोग देखभाल करते हैं, और हर वार्ड के आँकड़े।', tip_next: 'आगे', tip_done: 'समझ गया', tip_skip: 'छोड़ें', join_n: '👥 पुरुलिया को साफ़ रखने वाले {n} लोगों से जुड़ें', join_first: '👥 पुरुलिया को साफ़ रखने वाले पहले लोगों में शामिल हों', loc_outside: 'आप पुरुलिया ज़िले से बाहर हैं', done_watch: '🔔 ठीक होने पर मुझे बताएँ', done_watch_on: '✓ ठीक होने पर हम आपको बताएँगे', done_wa: 'व्हाट्सऐप पर नगरपालिका को बताएँ →', done_share: 'यह रिपोर्ट शेयर करें', done_close: 'हो गया',
 
     head_open: 'अनसुलझी', head_claimed: 'सफ़ाई का दावा · पुष्टि जारी', head_resolved: 'सुलझ गई', head_resolved_legacy: 'सुलझी · पुष्टि नहीं',
     chip_pending: 'अपलोड बाकी', days_open: '{n} दिन से खुली', list_count: '{n} रिपोर्ट', list_empty: 'इन फ़िल्टरों से कोई रिपोर्ट नहीं मिली।', list_seen: '{n} लोगों ने देखा', list_seen_one: 'सिर्फ़ रिपोर्ट करने वाले ने देखा',

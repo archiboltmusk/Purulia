@@ -126,6 +126,24 @@
   <div class="k-ward-card" id="k-ward-card" hidden></div>
   <div class="k-still" id="k-still" hidden role="dialog" aria-live="polite"></div>
 
+  <div class="k-join" id="k-join" hidden>
+    <button type="button" class="k-join-text" id="k-join-text" data-action="report"></button>
+    <button type="button" class="k-join-x" id="k-join-x" aria-label="Close">✕</button>
+  </div>
+
+  <nav class="k-quick" id="k-quick" aria-label="More on Parishkar">
+    <a href="schools.html" class="k-quick-btn" data-i18n-title="quick_schools" title="Schools"><span aria-hidden="true">🏫</span></a>
+    <a href="adopt.html" class="k-quick-btn" data-i18n-title="quick_adopt" title="Adopted spots"><span aria-hidden="true">🤝</span></a>
+    <a href="analytics.html" class="k-quick-btn" data-i18n-title="quick_numbers" title="Numbers for every ward"><span aria-hidden="true">📊</span></a>
+  </nav>
+  <div class="k-tip" id="k-tip" hidden role="dialog" aria-live="polite">
+    <div class="k-tip-text" id="k-tip-text"></div>
+    <div class="k-tip-actions">
+      <button type="button" class="k-tip-skip" id="k-tip-skip" data-i18n="tip_skip">Skip</button>
+      <button type="button" class="k-tip-next" id="k-tip-next"></button>
+    </div>
+  </div>
+
   <button type="button" class="k-fixed-chip" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
     ✓ <span id="k-fixed-chip-n"></span> <span data-i18n="fixed_chip">fixed</span>
   </button>
