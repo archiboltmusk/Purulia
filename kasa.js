@@ -887,6 +887,7 @@ function watchMapStyleLoad(map){
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
+    minZoom: 10, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
   // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
