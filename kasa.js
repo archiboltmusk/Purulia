@@ -1637,15 +1637,99 @@ async function submitFlag(){
   }
 }
 
-function shareReport(id){
+async function shareReport(id){
   const r = state.byId.get(id);
   if (!r) return;
   const url = `${PAGE_URL}?report=${encodeURIComponent(id)}`;
   const text = r.area === 'rural' && r.block
     ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
     : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
+  // A picture travels on WhatsApp where a bare link doesn't: send the card with the link.
+  const card = await shareCard(r).catch(() => null);
+  const file = card && new File([card], `parishkar-${id.slice(0, 8)}.png`, { type: 'image/png' });
+  if (file && navigator.canShare?.({ files: [file] })){
+    try { await navigator.share({ files: [file], title: 'Parishkar Purulia', text: `${text} ${url}` }); } catch (e) {}
+    return;
+  }
   if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
-  copyText(url);
+  // Desktop: save the card and copy the link, ready to paste into WhatsApp Web.
+  if (card){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(card);
+    a.download = file.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+  copyText(url, card ? 'share_card_saved' : 'ct_copied');
+}
+
+/* Which assembly seat a report falls in, from city.js (null for split or unmapped blocks). */
+function seatFor(r){
+  const seats = CITY.constituencies || [];
+  if (r.area !== 'rural') return r.ward ? seats.find(c => c.town) || null : null;
+  const b = (r.block || '').toLowerCase();
+  return seats.find(c => (c.blocks || []).some(x => x.toLowerCase() === b)) || null;
+}
+
+/* 1080×1350 share card: the photo, how long it's been open, who is responsible, the link. */
+async function shareCard(r){
+  const W = 1080, H = 1350, PH = 820, PAD = 64;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  await document.fonts?.ready;
+  g.fillStyle = '#0a0805'; g.fillRect(0, 0, W, H);
+  if (r.photo){
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image(); i.crossOrigin = 'anonymous';
+      i.onload = () => resolve(i); i.onerror = reject; i.src = r.photo;
+    }).catch(() => null);
+    if (img){
+      const s = Math.max(W / img.width, PH / img.height);
+      g.save(); g.beginPath(); g.rect(0, 0, W, PH); g.clip();
+      g.drawImage(img, (W - img.width * s) / 2, (PH - img.height * s) / 2, img.width * s, img.height * s);
+      g.restore();
+    }
+  }
+  const fixed = r.status === 'resolved', days = daysSince(r.createdAt);
+  const serif = '"EB Garamond", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
+  const mono = '"DM Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
+  // Status badge over the photo
+  const badge = fixed ? t('card_fixed') : days < 1 ? t('card_today') : t(isOverdue(r) ? 'card_overdue' : 'card_open', { d: days });
+  g.font = `500 34px ${mono}`;
+  const bw = g.measureText(badge).width + 48;
+  g.fillStyle = fixed ? COLORS.resolved : isOverdue(r) ? COLORS.critical : COLORS.minor;
+  g.fillRect(PAD, PH - 90, bw, 64);
+  g.fillStyle = '#0a0805'; g.textBaseline = 'middle';
+  g.fillText(badge, PAD + 24, PH - 58);
+  // Text block
+  const wrap = (txt, x, y, maxW, lh, maxLines) => {
+    const words = String(txt).split(/\s+/); let line = '', n = 0;
+    for (const w of words){
+      const next = line ? line + ' ' + w : w;
+      if (g.measureText(next).width > maxW && line){ g.fillText(line, x, y); y += lh; line = w; if (++n >= maxLines - 1) break; }
+      else line = next;
+    }
+    if (line) g.fillText(line, x, y);
+    return y + lh;
+  };
+  g.textBaseline = 'alphabetic';
+  let y = PH + 100;
+  g.fillStyle = '#f0e6d0'; g.font = `700 72px ${serif}`;
+  y = wrap(t('cat_' + r.category), PAD, y, W - 2 * PAD, 80, 2);
+  g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `400 40px ${serif}`;
+  y = wrap(r.landmark ? `${r.landmark} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
+  const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
+  g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
+  y = wrap(`${t('card_responsible')}: ${t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
+  if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
+  // Footer
+  g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+  g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`;
+  g.fillText('Parishkar ' + CITY_NAME, PAD, H - 68);
+  g.font = `500 28px ${mono}`;
+  g.fillText(t(fixed ? 'card_cta_fixed' : 'card_cta'), PAD, H - 28);
+  return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
 }
 
 /* A ward link opens the map filtered to that ward: something a councillor can share. */
