@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(),
+    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -421,6 +421,7 @@ async function findReport(){
         </div>
       </div>
       ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
+      <div id="adFindPhotos"></div>
       <div class="ad-actions" style="margin-top:.8rem;">
         <select class="ad-recat-sel" id="adFindCatSel" aria-label="Category">
           ${CATEGORY_KEYS.map(k => `<option value="${k}"${k === r.category ? ' selected' : ''}>${k}</option>`).join('')}
@@ -441,6 +442,63 @@ async function findReport(){
     if (error){ alert('Failed: ' + (error.details || error.message)); return; }
     findReport();
   });
+  loadReportPhotos(r.id);
+}
+
+/* Admins keep reports readable: remove an extra photo or a duplicate report that repeats
+   the same picture. The first photo always stays; every removal needs a public reason. */
+async function removePhoto(reportId, kind, ref){
+  const reason = prompt('Public reason for removing this photo (e.g. "same photo as the first"):');
+  if (!reason || reason.trim().length < 3) return false;
+  const { error } = await sb.rpc('kasa_admin_remove_photo', { p_report_id: reportId, p_kind: kind, p_ref: String(ref), p_reason: reason });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
+  return true;
+}
+
+async function loadReportPhotos(id){
+  const el = document.getElementById('adFindPhotos');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_report_photos', { p_report_id: id });
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load photos: ${esc(error.details || error.message)}</div>`; return; }
+  const items = [
+    ...(data.extras || []).map(p => ({ kind: 'extra', ref: p.position, url: p.photo_url, label: `Extra photo ${p.position}` })),
+    ...(data.duplicates || []).map(d => ({ kind: 'duplicate', ref: d.id, url: d.photo_url,
+      label: `Joined ${new Date(d.created_at).toLocaleDateString('en-IN')}` })),
+  ];
+  if (!items.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `<div class="ad-photos">${items.map((p, i) => `<figure>
+      ${p.url ? `<img src="${esc(p.url)}" alt="" loading="lazy">` : ''}
+      <figcaption>${esc(p.label)}${isSuper() ? ` <button class="ad-bad" data-rm="${i}">Remove</button>` : ''}</figcaption>
+    </figure>`).join('')}</div>
+    ${isSuper() ? '' : '<p class="ad-note">Only an admin can remove photos.</p>'}`;
+  el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', async () => {
+    const p = items[+b.dataset.rm];
+    if (await removePhoto(id, p.kind, p.ref)){ loadReportPhotos(id); loadRepeatPhotos(); }
+  }));
+}
+
+async function loadRepeatPhotos(){
+  const el = document.getElementById('adRepeatPhotos');
+  const { data, error } = await sb.rpc('kasa_admin_repeat_photos', { p_limit: 60 });
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No repeat photos.</div>'; return; }
+  const img = u => u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a>` : '—';
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>First photo</th><th>Repeat</th><th>Report</th><th></th></tr></thead>
+      <tbody>
+        ${data.map((d, i) => `<tr>
+          <td>${img(d.parent_photo_url)}</td>
+          <td>${img(d.photo_url)}</td>
+          <td>${esc(d.category)} · Ward ${esc(d.ward_no ?? '?')} ${esc(d.block_name || '')}<br><small>${esc(new Date(d.created_at).toLocaleString('en-IN'))} · <a href="kasa.html?report=${encodeURIComponent(d.parent_id)}" target="_blank" rel="noopener">open</a></small></td>
+          <td>${isSuper() ? `<button class="ad-bad" data-rp="${i}">Remove repeat</button>` : '<small>Admin only</small>'}</td>
+        </tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', async () => {
+    const d = data[+b.dataset.rp];
+    if (await removePhoto(d.parent_id, 'duplicate', d.id)) loadRepeatPhotos();
+  }));
 }
 
 async function rejectClaim(id){

@@ -1697,6 +1697,33 @@ check("the first report counts the second person as having seen it",
 q3 = quick(user(), offset(400, 0, base=dd_spot))
 check('a report 400 m away stays separate', admin_sql('select is_duplicate from public.reports where id = %s', (q3['id'],))[0][0] is False)
 
+# Admins decide which photos stay: repeat photos can be removed, with a public reason.
+ph_admin = user()
+admin_sql("insert into public.admins (user_id, role) values (%s, 'admin')", (ph_admin,))
+admin_sql("insert into kasa_private.report_photos (report_id, position, photo_path, photo_url) values (%s, 2, 'reports/x/extra.jpg', 'https://x/extra.jpg')", (q1['id'],))
+lst = rpc('kasa_admin_report_photos', uid=ph_admin, p_report_id=str(q1['id']))
+check('an admin sees a report\'s extra photos and joined duplicates',
+      len(lst['extras']) == 1 and any(d['id'] == str(q2['id']) for d in lst['duplicates']), lst)
+check('the repeat-photo list shows recent duplicates',
+      any(d['id'] == str(q2['id']) for d in rpc('kasa_admin_repeat_photos', uid=ph_admin)))
+check('the public cannot list report photos for removal',
+      refused(err(rpc, 'kasa_admin_report_photos', p_report_id=str(q1['id']))))
+ph_mod = user()
+admin_sql("insert into public.admins (user_id, role) values (%s, 'moderator')", (ph_mod,))
+check('a moderator cannot remove photos',
+      err(rpc, 'kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo') == 'KASA_NOT_ADMIN')
+check('removing a photo needs a reason',
+      err(rpc, 'kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason=' ') == 'KASA_REASON_NEEDED')
+rpc('kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo twice')
+rpc('kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='duplicate', p_ref=str(q2['id']), p_reason='same pile, same angle')
+check('an admin removed the extra photo and the duplicate',
+      admin_sql('select count(*) from kasa_private.report_photos where report_id = %s', (q1['id'],))[0][0] == 0
+      and admin_sql('select count(*) from public.reports where id = %s', (q2['id'],))[0][0] == 0)
+check('each removal is on the report timeline with its reason',
+      admin_sql("select count(*) from kasa_private.events where report_id = %s and kind = 'moderated' and detail ->> 'reason' is not null", (q1['id'],))[0][0] == 2)
+check('the original report and its photo stay',
+      admin_sql('select photo_url is not null from public.reports where id = %s', (q1['id'],))[0][0])
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
