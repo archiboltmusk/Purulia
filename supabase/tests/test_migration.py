@@ -1440,6 +1440,22 @@ check('anyone can read the moderation counts', len(tr['months']) == 12 and tr['m
 check('moderation counts include hides and the team size', sum(m['hidden'] for m in tr['months']) > 0 and tr['now']['admins'] >= 1, tr['now'])
 check('moderation counts carry no ids', 'user_id' not in json.dumps(tr) and 'report_id' not in json.dumps(tr))
 
+# Weekly digest: claimed once per week, public data only, team-only until an address is set.
+if admin_sql("select to_regclass('public.wards') is not null")[0][0]:
+    dg_r, _ = report(user(), where=offset(0, 0))
+    admin_sql("update public.reports set is_duplicate = false, parent_report_id = null, created_at = date_trunc('week', now() at time zone 'Asia/Kolkata') at time zone 'Asia/Kolkata' - interval '3 days' where id = %s", (dg_r['id'],))
+    admin_sql("delete from kasa_private.digest_sends")
+    dg = rpc('kasa_weekly_digest_claim', role='service_role')
+    check('the weekly digest can be claimed', dg is not None and 'wards' in dg, dg)
+    check('with no address set it goes to the team only', dg['to'] == [] and len(dg['team']) >= 1, dg)
+    check('the digest counts last week\'s new report', any(w['new'] >= 1 for w in dg['wards']), dg['wards'][:3])
+    check('a week\'s digest is not claimed twice', rpc('kasa_weekly_digest_claim', role='service_role') is None)
+    rpc('kasa_weekly_digest_done', role='service_role', p_week=dg['week_start'])
+    admin_sql("update kasa_private.settings set value = '\"a@example.org, b@example.org\"' where key = 'weekly_digest_to'")
+    admin_sql("delete from kasa_private.digest_sends")
+    check('the digest goes to the configured addresses', rpc('kasa_weekly_digest_claim', role='service_role')['to'] == ['a@example.org', 'b@example.org'])
+    check('the public cannot claim the digest', refused(err(rpc, 'kasa_weekly_digest_claim', uid=user())))
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

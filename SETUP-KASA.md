@@ -147,6 +147,16 @@ A moderator is any Supabase Auth user listed in `public.admins`. They use
 votes, and publish officials' responses (right of reply).
 
 
+**Weekly ward digest by email.** Every Monday at 9:00 IST the
+`kasa-weekly-digest` Edge Function emails last week's numbers per town ward
+(public data only). Until you set a recipient it goes to the team only, marked
+*Preview*. To send it to the municipality (the team stays copied):
+
+    update kasa_private.settings set value = '"office@example.gov.in"'
+    where key = 'weekly_digest_to';
+
+It uses the same `RESEND_API_KEY`; `DIGEST_FROM` sets the sender.
+
 **Flag alerts by email.** Every flag emails the whole team (admins and
 moderators, at the email they sign in with) one summary, through the
 `kasa-flag-alert` Edge Function. It needs the same `RESEND_API_KEY` secret as
