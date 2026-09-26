@@ -1661,6 +1661,42 @@ check('a school placed by its checks shows on the map', cov2['19210199904']['loc
 check('an official location is marked as official', cov2['19210199902']['located'] == 'official')
 check('a school with no location stays off the map', cov2['19210199905']['located'] is None and cov2['19210199905']['lat'] is None)
 
+# Fixing a school's pin: people standing at the school mark it; the pin is the median of recent positions.
+def mark(uid, code, where, acc=10.0):
+    return rpc('kasa_mark_school_location', uid=uid, p_udise_code=code, p_lat=where[0], p_lng=where[1], p_accuracy=acc)
+right = offset(400, 0, base=sc_where)
+check('the public cannot move a school without signing in',
+      'permission denied' in (err(rpc, 'kasa_mark_school_location', p_udise_code='19210199904', p_lat=right[0], p_lng=right[1], p_accuracy=10.0) or ''))
+check('a weak GPS fix cannot move a school', err(mark, user(), '19210199904', right, 500.0) == 'KASA_GPS_WEAK')
+m1 = user()
+mark(m1, '19210199904', right)
+check('the same person can only place a school once a day', err(mark, m1, '19210199904', right) == 'KASA_ALREADY_MARKED')
+mark(user(), '19210199904', right)
+res = mark(user(), '19210199904', right)
+check('when most recent positions agree, the pin moves there',
+      abs(res['lat'] - right[0]) < 0.0001 and abs(res['lng'] - right[1]) < 0.0001, res)
+troll = offset(2500, 0, base=sc_where)
+if admin_sql("select kasa_private.locate(%s, %s, null) ->> 'block'", troll)[0][0] == sc_block:
+    res2 = mark(user(), '19210199904', troll)
+    check('one mark far away does not drag the pin', abs(res2['lat'] - right[0]) < 0.0001, res2)
+
+# Duplicates caught after the photo check names the category (quick reports arrive as "other").
+dd_spot = offset(-2200, 900)
+def quick(uid, where):
+    path = upload(uid, 'reports')
+    r_ = rpc('kasa_create_report', uid=uid, p_category=None, p_severity=None, p_lat=where[0], p_lng=where[1], p_accuracy=10.0,
+             p_ward_no=None, p_description=None, p_landmark=None, p_photo_path=path)
+    photo_check(path, labels=['Waste', 'Litter', 'Plastic'])
+    return r_
+q1 = quick(user(), dd_spot)
+q2 = quick(user(), offset(15, 10, base=dd_spot))
+row2 = admin_sql('select category, is_duplicate, parent_report_id::text from public.reports where id = %s', (q2['id'],))[0]
+check('a second quick garbage photo of the same pile joins the first', row2 == ('garbage', True, str(q1['id'])), row2)
+check("the first report counts the second person as having seen it",
+      admin_sql('select upvotes from public.reports where id = %s', (q1['id'],))[0][0] >= 1)
+q3 = quick(user(), offset(400, 0, base=dd_spot))
+check('a report 400 m away stays separate', admin_sql('select is_duplicate from public.reports where id = %s', (q3['id'],))[0][0] is False)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

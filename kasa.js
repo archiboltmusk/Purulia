@@ -2441,7 +2441,7 @@ async function openSchoolCheck(code){
   openModal('k-sc-modal');
   checkSchoolLocation();
   if (code){
-    const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village').eq('udise_code', code).maybeSingle();
+    const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village,lat,seen_lat').eq('udise_code', code).maybeSingle();
     if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
   }
 }
@@ -2498,7 +2498,7 @@ async function loadSchoolBlock(block){
   sc.school = null;
   document.getElementById('k-sc-picked').textContent = '';
   if (!block){ sel.hidden = find.hidden = true; updateSchoolSubmit(); return; }
-  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village').eq('block_name', block).order('name').limit(1000);
+  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat').eq('block_name', block).order('name').limit(1000);
   sc.schools = data || [];
   find.value = '';
   sel.hidden = find.hidden = false;
@@ -2519,7 +2519,8 @@ function pickSchool(code){
   sc.school = s;
   document.getElementById('k-sc-school').value = code;
   setEvStatus(document.getElementById('k-sc-picked'), 'ok',
-    `✓ ${s.name} · ${[s.village, s.panchayat].filter(Boolean).join(', ')} · UDISE ${s.udise_code}`);
+    `✓ ${s.name} · ${[s.village, s.panchayat].filter(Boolean).join(', ')} · UDISE ${s.udise_code}` +
+    (s.lat == null && s.seen_lat == null ? ' — ' + t('sc_will_place') : ''));
   updateSchoolSubmit();
 }
 
@@ -2593,6 +2594,48 @@ async function submitSchoolCheck(){
   updateSchoolSubmit();
 }
 
+/* "The school is here": someone standing at a school puts it on the map, or corrects its pin. */
+let sf = null;
+async function openSchoolFix(code){
+  const { data: s } = await sb.from('schools').select('udise_code,name,block_name,village').eq('udise_code', code).maybeSingle();
+  if (!s) return;
+  sf = { school: s, pos: null };
+  document.getElementById('k-sf-sub').textContent = `${s.name} · ${[s.village, s.block_name].filter(Boolean).join(', ')} · UDISE ${s.udise_code}`;
+  document.getElementById('k-sf-submit').disabled = true;
+  openModal('k-sf-modal');
+  const status = document.getElementById('k-sf-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sf) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    sf.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    document.getElementById('k-sf-submit').disabled = false;
+  } catch (e){
+    if (sf) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitSchoolFix(){
+  if (!sf?.pos) return;
+  const btn = document.getElementById('k-sf-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_mark_school_location', {
+      p_udise_code: sf.school.udise_code, p_lat: sf.pos.lat, p_lng: sf.pos.lng, p_accuracy: sf.pos.accuracy });
+    if (error) throw rpcError(error);
+    closeModal('k-sf-modal');
+    showToast(t('sf_done'), 6000);
+    sf = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -2605,6 +2648,7 @@ function initSchoolCheck(){
   document.getElementById('k-sc-loc-btn').addEventListener('click', checkSchoolLocation);
   document.getElementById('k-sc-cam-btn').addEventListener('click', captureSchoolPhoto);
   document.getElementById('k-sc-submit').addEventListener('click', submitSchoolCheck);
+  document.getElementById('k-sf-submit').addEventListener('click', submitSchoolFix);
   document.getElementById('k-sc-qs').addEventListener('click', e => {
     const b = e.target.closest('[data-v]'), g = b?.closest('[data-scq]');
     if (!b || !g || !sc) return;
@@ -2614,7 +2658,9 @@ function initSchoolCheck(){
     updateSchoolSubmit();
   });
   const q = new URLSearchParams(location.search), code = q.get('school');
-  if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
+  const fix = q.get('fix');
+  if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
+  else if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
   else if (q.get('check') === 'school') openSchoolCheck();
 }
 

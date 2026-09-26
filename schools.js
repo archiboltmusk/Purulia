@@ -95,6 +95,7 @@
           <a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>
           ${s.audits && problems(s).length ? `<button type="button" data-rti="${esc(s.udise_code)}">Draft an RTI</button>` : ''}
           ${weak ? `<a href="${VIDYANJALI}" target="_blank" rel="noopener">Help this school on Vidyanjali ↗</a>` : ''}
+          <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">${s.lat != null ? 'Pin in the wrong place? Fix it' : 'Put it on the map'}</a>
         </div>
         <div class="sc-rti" hidden></div>
       </div>
@@ -202,7 +203,8 @@
           `<strong>${esc(s.name)}</strong><br>${esc([s.village, s.block_name].filter(Boolean).join(', '))}<br>` +
           (s.audits ? `Score ${s.score}/${s.score_of} · checked ${esc(fmt(s.last_audit_at))}` : 'Not checked yet') +
           (s.located === 'checks' ? '<br><small>Location from residents’ checks</small>' : '') +
-          `<br><a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>`).addTo(map);
+          `<br><a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>` +
+          ` · <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">Wrong place? Fix it</a>`).addTo(map);
       });
       for (const l of ['school-pins', 'block-fill']){
         map.on('mouseenter', l, () => { map.getCanvas().style.cursor = 'pointer'; });
