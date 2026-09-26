@@ -31,18 +31,36 @@ window.KASA_CITY = {
     chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta', photo: 'reps/chairman-nabendu-mahali.jpg', photoCredit: '', photoPos: '62% 38%' }
   },
 
-  // MLA / MP leaderboard on analytics.html. Town reports (with a ward) go to the
-  // constituency marked `town: true`; village reports go by CD block. A block
-  // split between two assembly seats is listed under the one holding most of it
-  // (see `note`). Anything not listed shows as "Not mapped yet" — never guess:
-  // a wrong row blames the wrong person. Check against the Delimitation Order /
-  // CEO West Bengal and update after every election.
+  // MLA / MP leaderboard on analytics.html.
+  // Seats and their areas: Delimitation Commission Order No. 18 (15 Feb 2006).
+  // MLAs: 2026 West Bengal assembly election. MPs: 2024 Lok Sabha election.
+  // Checked September 2026 — update after every election. Block names must match
+  // purulia_blocks.geojson (hence "Bagmundi", "Bundwan", "Jaipur").
+  // Town reports (with a ward) count toward the seat marked `town: true`; village
+  // reports count by CD block. A block split between seats is never guessed: it
+  // gets its own row under `splitBlocks`.
   constituencies: [
-    { no: 242, name: 'Purulia', mla: 'mla', lokSabha: 'Purulia', town: true, blocks: [] }
+    { no: 238, name: 'Bandwan (ST)',      mla: { name: 'Labsen Baskey', party: 'BJP' },       lokSabha: 'Jhargram', blocks: ['Bundwan', 'Barabazar', 'Manbazar II'] },
+    { no: 239, name: 'Balarampur',        mla: { name: 'Jaladhar Mahato', party: 'BJP' },     lokSabha: 'Purulia',  blocks: ['Balarampur'] },
+    { no: 240, name: 'Baghmundi',         mla: { name: 'Rahidas Mahato', party: 'BJP' },      lokSabha: 'Purulia',  blocks: ['Bagmundi', 'Jhalda I'] },
+    { no: 241, name: 'Joypur',            mla: { name: 'Biswajit Mahato', party: 'BJP' },     lokSabha: 'Purulia',  blocks: ['Jaipur', 'Jhalda II'] },
+    { no: 242, name: 'Purulia',           mla: { name: 'Sudip Kumar Mukherjee', party: 'BJP' }, lokSabha: 'Purulia', town: true, blocks: ['Purulia II'] },
+    { no: 243, name: 'Manbazar (ST)',     mla: { name: 'Mayna Murmu', party: 'BJP' },         lokSabha: 'Purulia',  blocks: ['Manbazar I', 'Puncha'] },
+    { no: 244, name: 'Kashipur',          mla: { name: 'Kamalakanta Hansda', party: 'BJP' },  lokSabha: 'Purulia',  blocks: ['Kashipur'] },
+    { no: 245, name: 'Para (SC)',         mla: { name: 'Nadiar Chand Bouri', party: 'BJP' },  lokSabha: 'Purulia',  blocks: ['Para', 'Raghunathpur II'] },
+    { no: 246, name: 'Raghunathpur (SC)', mla: { name: 'Mamoni Bauri', party: 'BJP' },        lokSabha: 'Bankura',  blocks: ['Raghunathpur I', 'Neturia', 'Santuri'] }
   ],
+  // Blocks whose gram panchayats are divided between assembly seats.
+  splitBlocks: {
+    'Arsha':     { seats: [239, 240, 241], lokSabha: 'Purulia' },
+    'Purulia I': { seats: [239, 242],      lokSabha: 'Purulia' },
+    'Hura':      { seats: [243, 244],      lokSabha: 'Purulia' }
+  },
   // Lok Sabha seats: `mp` names a key in `reps`, or give { name, party } directly.
   lokSabha: {
-    Purulia: { mp: 'mp' }
+    Purulia:  { mp: 'mp' },
+    Jhargram: { mp: { name: 'Kalipada Soren', party: 'AITC' } },
+    Bankura:  { mp: { name: 'Arup Chakraborty', party: 'AITC' } }
   },
 
   // Official channels shown under "Take it further". Checked September 2026; keep current.
