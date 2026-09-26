@@ -103,4 +103,6 @@ returns table(email text, unsubscribe_token text) as $$
   limit p_limit;
 $$ language sql stable security definer set search_path = '';
 
+-- Revoke default permissions to keep this function private (service role only)
 revoke all on function kasa_private.digest_subscribers_for_send(int) from public, anon, authenticated;
+grant execute on function kasa_private.digest_subscribers_for_send(int) to service_role;
