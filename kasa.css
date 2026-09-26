@@ -370,6 +370,8 @@ select.k-input{background-color:var(--ink3);}
 .k-card b.k-card-text{font-size:1.05rem;line-height:1.25;word-break:break-word;}
 .k-card span{display:block;margin-top:.3rem;font-family:var(--mono);font-size:10.5px;color:var(--text-lo);}
 @media(max-width:420px){.k-cards{grid-template-columns:1fr 1fr;}.k-card-wide{grid-column:1/-1;}}
+.k-sla-clock{margin-top:.6rem;padding:.5rem .8rem;border:1px solid var(--border);border-radius:6px;background:rgba(240,230,208,.02);font-family:var(--mono);font-size:11.5px;letter-spacing:.03em;color:var(--text-md);text-align:center;}
+.k-sla-clock.k-sla-overdue{border-color:rgba(232,82,74,.4);background:rgba(232,82,74,.06);color:var(--red);}
 
 .k-note{margin-top:.8rem;padding:.65rem .85rem;border-radius:6px;background:rgba(240,230,208,.04);font-size:.86rem;color:var(--text-md);line-height:1.5;}
 .k-note-warn{background:rgba(232,138,74,.09);color:#f2b48a;}

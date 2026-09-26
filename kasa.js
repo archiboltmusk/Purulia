@@ -768,6 +768,17 @@ const daysSince = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso).ge
 const isOverdue = (r) => r.status !== 'resolved' && daysSince(r.createdAt) > r.slaDays;
 const peopleSaw = (r) => r.seen + 1;
 
+/* The visible clock: how long until (or past) the deadline the severity sets — hours once
+   under a day, so a 24-hour critical SLA doesn't just read "0 days" until it's already blown. */
+function slaCountdown(r){
+  const dueAt = new Date(r.createdAt).getTime() + r.slaDays * 86400000;
+  const ms = dueAt - Date.now();
+  const over = ms < 0;
+  const h = Math.abs(ms) / 3600000;
+  const value = h < 48 ? t('sla_hours', { n: Math.max(0, Math.round(h)) }) : t('sla_days', { n: Math.round(h / 24) });
+  return { over, text: t(over ? 'sla_overdue_by' : 'sla_due_in', { t: value }) };
+}
+
 function wardStats(){
   const stats = {};
   for (const r of primaries()){
@@ -1197,12 +1208,26 @@ function renderTrust(){
 /* ══════════════════════════════════════════════════════════
    REPORT SHEET (Namma-Kasa-style detail)
    ══════════════════════════════════════════════════════════ */
+/* Ticks the open sheet's countdown once a minute — cheap since it only touches one small
+   element's text, not a full re-render, and only runs while a sheet is actually open. */
+function updateSlaClock(){
+  const el = document.getElementById('k-sla-clock');
+  if (!el) return;
+  const r = state.byId.get(state.sheetId);
+  if (!r) return;
+  const { over, text } = slaCountdown(r);
+  el.textContent = text;
+  el.classList.toggle('k-sla-overdue', over);
+}
+
 function openSheet(id){
   const r = state.byId.get(String(id));
   if (!r) return;
   state.sheetId = r.id;
   renderSheet();
   openModal('k-sheet');
+  clearInterval(openSheet._tick);
+  openSheet._tick = setInterval(updateSlaClock, 60000);
   document.getElementById('k-sheet-body').scrollTop = 0;
   if (!r.pending) try { history.replaceState(null, '', `?report=${encodeURIComponent(r.id)}`); } catch (e) {}
   if (!r.pending && state.mode === 'v2' && !state.photos.has(r.id)){
@@ -1228,6 +1253,7 @@ function openSheet(id){
 
 function closeSheet(){
   state.sheetId = null;
+  clearInterval(openSheet._tick);
   try { history.replaceState(null, '', location.pathname); } catch (e) {}
 }
 
@@ -1293,12 +1319,15 @@ function renderSheet(){
       <div class="k-card${r.status !== 'resolved' && isOverdue(r) ? ' k-card-overdue' : ''}"><b>${r.status === 'resolved' && fixDays != null ? fixDays : days}</b><span>${esc(t(r.status === 'resolved' && fixDays != null ? 'stat_days_fix' : isOverdue(r) ? 'stat_days_overdue' : 'stat_days_open'))}</span></div>
       <div class="k-card k-card-wide"><b class="k-card-text">${esc(t('cat_' + r.category))}</b><span>${esc(t('stat_type'))}</span></div>
     </div>
+    ${!r.pending && r.status !== 'resolved' ? `<div class="k-sla-clock" id="k-sla-clock"></div>` : ''}
 
     ${renderStatusPanel(r)}
     ${renderRating(r)}
     <div id="k-replies">${renderRepliesHTML(r)}</div>
     ${renderAccountability(r)}
     <div id="k-timeline">${renderTimelineHTML(r)}</div>`;
+
+  updateSlaClock();
 
   const status = r.status === 'resolved'
     ? (fixDays != null ? t('foot_fixed', { d: fixDays }) : t('status_resolved'))

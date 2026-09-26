@@ -1853,6 +1853,20 @@ tl, _ = report(user(), category='toilet', where=offset(-2500, 3200))
 check('a public toilet problem can be reported',
       admin_sql('select category from public.reports where id = %s', (tl['id'],))[0][0] == 'toilet')
 
+# The SLA target now varies by severity instead of a flat 7 days for everything.
+sev_where = offset(-2600, 3300)
+sev_user = user()
+crit = rpc('kasa_create_report', uid=sev_user, p_category='garbage', p_severity='critical',
+           p_lat=sev_where[0], p_lng=sev_where[1], p_accuracy=10.0, p_ward_no=5,
+           p_description='Pile of waste', p_landmark=None, p_photo_path=upload(sev_user, 'reports'), p_client_id=None)
+minr = rpc('kasa_create_report', uid=sev_user, p_category='garbage', p_severity='minor',
+           p_lat=offset(-2700, 3300)[0], p_lng=offset(-2700, 3300)[1], p_accuracy=10.0, p_ward_no=5,
+           p_description='Pile of waste', p_landmark=None, p_photo_path=upload(sev_user, 'reports'), p_client_id=None)
+check('a critical report gets the critical SLA (1 day)',
+      admin_sql('select sla_days from public.reports where id = %s', (crit['id'],))[0][0] == 1)
+check('a minor report gets the minor SLA (7 days)',
+      admin_sql('select sla_days from public.reports where id = %s', (minr['id'],))[0][0] == 7)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
