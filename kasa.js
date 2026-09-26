@@ -16,11 +16,14 @@ const SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY || '';
 const TURNSTILE_SITE_KEY = CFG.TURNSTILE_SITE_KEY || '';
 const VAPID_PUBLIC_KEY = CFG.VAPID_PUBLIC_KEY || '';
 const GRIEVANCE_EMAIL = CFG.GRIEVANCE_EMAIL || 'thelosthillproject@gmail.com';
-const MUNICIPALITY_PHONE = '919046003666';
-const MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
-const MLA_TWITTER_HANDLE = 'SudipKMukherjee';
-const MAP_CENTER = [86.3654, 23.3320];
-const MAP_ZOOM = 13;
+// Local names, places and contacts come from city.js (see DEPLOY.md).
+const CITY = window.KASA_CITY || {};
+const CITY_NAME = CITY.name || 'Purulia';
+const MUNICIPALITY_PHONE = CITY.municipalityPhone || '';
+const MUNICIPALITY_EMAIL = CITY.municipalityEmail || '';
+const MLA_TWITTER_HANDLE = CITY.mlaTwitterHandle || '';
+const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
+const MAP_ZOOM = CITY.mapZoom || 13;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
@@ -96,12 +99,8 @@ const ROLE_ABBR = {
   pradhan: 'GP', bdo: 'BDO', sdo_area: 'SDO', cdpo: 'CDPO', dpo: 'DPO', bmoh: 'BMOH', cmoh: 'CMOH', si_school: 'SI', di_school: 'DI'
 };
 
-// photo: a file in reps/ whose license allows reuse; photoCredit: the attribution it requires; photoPos: optional crop point.
-const REPS = {
-  mla: { name: 'Sudip Kumar Mukherjee', role: 'rep_mla_role', party: 'BJP', initials: 'SKM', photo: 'reps/mla-sudip-kumar-mukherjee.jpg', photoCredit: '' },
-  mp: { name: 'Jyotirmay Singh Mahato', role: 'rep_mp_role', party: 'BJP', initials: 'JSM', photo: 'reps/mp-jyotirmay-singh-mahato.webp', photoCredit: '' },
-  chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta', photo: 'reps/chairman-nabendu-mahali.jpg', photoCredit: '', photoPos: '62% 38%' }
-};
+// Elected representatives, from city.js.
+const REPS = CITY.reps || {};
 
 function repAvatar(rep, cls){
   return `<span class="${cls}"><span>${esc(rep.initials)}</span>${rep.photo ? `<img class="k-rep-photo" src="${esc(rep.photo)}" alt="" loading="lazy"${rep.photoPos ? ` style="object-position:${esc(rep.photoPos)}"` : ''}>` : ''}</span>`;
@@ -356,7 +355,7 @@ async function loadCommunities(){
 
 async function loadWardGeo(){
   try {
-    const res = await fetch('purulia_wards.geojson');
+    const res = await fetch(CITY.wardsGeojson || 'purulia_wards.geojson');
     if (res.ok) state.wardGeo = await res.json();
   } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
@@ -378,7 +377,7 @@ function pointInPolygon(pt, geom){
 async function loadBlockGeo(){
   if (state.blockGeo) return;
   try {
-    const res = await fetch('purulia_blocks.geojson');
+    const res = await fetch(CITY.blocksGeojson || 'purulia_blocks.geojson');
     if (res.ok) state.blockGeo = await res.json();
   } catch (e) { console.info('Parishkar: no block boundaries'); }
 }
@@ -1349,25 +1348,25 @@ function renderAccountability(r){
     </div>`;
 }
 
-/* Official channels with their own deadlines. Numbers checked September 2026; keep them current. */
-const STATE_HELPLINE = '8282082820';
-const STATE_HELPLINE_EMAIL = 'asap@wb.gov.in';
+/* Official channels with their own deadlines, from city.js. */
+const STATE_HELPLINE = CITY.stateHelpline || '';
+const STATE_HELPLINE_EMAIL = CITY.stateHelplineEmail || '';
 const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
 function renderEscalate(r){
   const msg = reportMessage(r);
-  const items = [
-    [`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: '82820 82820' }), t('esc_state_s')],
-    [`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent('Purulia — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]
-  ];
+  const items = [];
+  if (STATE_HELPLINE) items.push([`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: CITY.stateHelplineDisplay || STATE_HELPLINE }), t('esc_state_s')]);
+  if (STATE_HELPLINE_EMAIL) items.push([`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent(CITY_NAME + ' — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]);
   if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
-  if (r.category === 'streetlight') items.push(['https://www.wbsedcl.in/', t('esc_power'), t('esc_power_s')]);
-  items.push(['https://par.wb.gov.in/rtilogin.php', t('esc_rti'), t('esc_rti_s')]);
+  if (r.category === 'streetlight' && CITY.powerUtilityUrl) items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);
+  if (CITY.rtiPortalUrl) items.push([CITY.rtiPortalUrl, t('esc_rti'), t('esc_rti_s')]);
   return `
     <div class="k-escalate">
       <div class="k-acc-reps-label">${esc(t('esc_title'))}</div>
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
       ${isOverdue(r) ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
 }
@@ -1693,8 +1692,8 @@ function downloadCSV(scope){
   showToast(t('csv_done', { n: rows.length }));
 }
 
-function copyText(s){
-  (navigator.clipboard?.writeText(s) || Promise.reject()).then(() => showToast(t('ct_copied')), () => showToast(s, 6000));
+function copyText(s, done = 'ct_copied'){
+  (navigator.clipboard?.writeText(s) || Promise.reject()).then(() => showToast(t(done)), () => showToast(s, 6000));
 }
 
 function reportMessage(r){
@@ -2709,7 +2708,7 @@ function registerServiceWorker(){
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -2727,6 +2726,7 @@ function wireUI(){
     if (d.evidence) return openEvidence(d.evidence);
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
+    if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
     if (d.copyLink) return copyText(`${PAGE_URL}?report=${encodeURIComponent(d.copyLink)}`);
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
