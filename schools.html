@@ -68,7 +68,6 @@
   .sc-acts{display:flex;flex-wrap:wrap;gap:.9rem;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;}
   .sc-acts a,.sc-acts button{color:var(--amber);background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline;}
   .sc-rti{margin-top:.7rem;white-space:pre-wrap;font-size:.84rem;line-height:1.55;background:rgba(240,230,208,.03);border:1px solid var(--border);border-radius:4px;padding:.8rem .9rem;color:var(--text-hi);}
-  .sc-more{margin-top:1rem;}
   #sc-map{height:clamp(320px,55vh,560px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
   .sc-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;margin-top:.7rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
   .sc-legend i{display:inline-block;width:.8rem;height:.8rem;border-radius:50%;vertical-align:-.1rem;margin-right:.3rem;}
@@ -82,7 +81,12 @@
   .sc-todo small{font-size:.8rem;color:var(--text-md);}
   .sc-todo-acts{display:flex;gap:.9rem;flex-shrink:0;font-family:var(--mono);font-size:11px;}
   .sc-todo-acts a{color:var(--amber);}
-  .sc-more-btn{margin-top:.9rem;padding:.55rem .9rem;background:none;border:1px solid var(--border2,var(--border));color:var(--amber);font-family:var(--mono);font-size:11px;border-radius:3px;cursor:pointer;}
+  .sc-unchecked-count{color:var(--text-md);font-size:.9rem;}
+  .sc-unchecked-pick{display:flex;flex-wrap:wrap;gap:.6rem;margin-top:.7rem;}
+  .sc-unchecked-pick select{flex:1;min-width:14rem;background:var(--ink2,#14100b);color:var(--text-hi);border:1px solid var(--border2,var(--border));border-radius:4px;padding:.55rem .7rem;font:inherit;font-size:.9rem;}
+  .sc-unchecked-go{padding:.55rem 1rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;cursor:pointer;}
+  .sc-unchecked-go:disabled{background:none;border:1px solid var(--border2,var(--border));color:var(--text-lo);cursor:not-allowed;}
+  .sc-unchecked-fix{align-self:center;font-family:var(--mono);font-size:11px;color:var(--amber);}
   .sc-near{margin-bottom:1.4rem;}
   .sc-near-btn{margin-top:.9rem;padding:.8rem 1.3rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;cursor:pointer;}
 </style>

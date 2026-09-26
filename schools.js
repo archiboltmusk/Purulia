@@ -113,18 +113,33 @@
     document.getElementById('sc-checked').hidden = !checked.length;
     document.getElementById('sc-checked').innerHTML = worst.length ? worst.map(row).join('')
       : `<div class="an-empty">${checked.length ? 'No checked school matches.' : 'No school has been checked yet. Be the first: stand at a school and tap “Check a school”.'}</div>`;
-    // A short list: one line per school, 10 at a time, so the page stays easy to scroll.
+    // One dropdown of every unchecked school matching the filters above, not a long scrolling
+    // list — choose one, then Check or Fix pin for just that school.
     const todo = all.filter(s => !s.audits && match(s));
-    const key = block + '|' + q;
-    if (render.todoKey !== key){ render.todoKey = key; render.todoLimit = 10; }
-    const shown = todo.slice(0, render.todoLimit);
-    document.getElementById('sc-unchecked').innerHTML = shown.length
-      ? `<ul class="sc-todo">${shown.map(s => `<li><span><strong>${esc(s.name)}</strong> <small>${esc([s.village, s.block_name].filter(Boolean).join(', '))}</small></span>
-          <span class="sc-todo-acts"><a href="${checkUrl(s.udise_code)}">Check</a><a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">${s.lat != null || s.seen_lat != null ? 'Fix pin' : 'Put on map'}</a></span></li>`).join('')}</ul>`
-        + (todo.length > shown.length ? `<button type="button" class="sc-more-btn" id="sc-more">Show ${Math.min(20, todo.length - shown.length)} more · ${todo.length - shown.length} left</button>` : '')
+    document.getElementById('sc-unchecked').innerHTML = todo.length
+      ? `<p class="sc-unchecked-count">${todo.length.toLocaleString('en-IN')} school${todo.length === 1 ? '' : 's'} not checked yet.</p>
+         <div class="sc-unchecked-pick">
+           <select id="sc-unchecked-sel" aria-label="Choose an unchecked school">
+             <option value="">Choose a school…</option>
+             ${todo.map(s => `<option value="${esc(s.udise_code)}">${esc(s.name)} — ${esc([s.village, s.block_name].filter(Boolean).join(', ')) || 'no village on record'}</option>`).join('')}
+           </select>
+           <button type="button" class="sc-unchecked-go" id="sc-unchecked-go" disabled>Check</button>
+           <a class="sc-unchecked-fix" id="sc-unchecked-fix" hidden>Put on map</a>
+         </div>`
       : '<div class="an-empty">Every school here has been checked.</div>';
-    const more = document.getElementById('sc-more');
-    if (more) more.onclick = () => { render.todoLimit += 20; render(); };
+    const uSel = document.getElementById('sc-unchecked-sel');
+    const uGo = document.getElementById('sc-unchecked-go');
+    const uFix = document.getElementById('sc-unchecked-fix');
+    if (uSel) uSel.addEventListener('change', () => {
+      const s = todo.find(x => x.udise_code === uSel.value);
+      uGo.disabled = !s;
+      if (s){
+        uFix.hidden = false;
+        uFix.href = `kasa.html?fix=${encodeURIComponent(s.udise_code)}`;
+        uFix.textContent = s.lat != null || s.seen_lat != null ? 'Fix pin' : 'Put on map';
+      } else uFix.hidden = true;
+    });
+    if (uGo) uGo.addEventListener('click', () => { if (uSel.value) location.href = checkUrl(uSel.value); });
   }
 
   // "Schools near me": the block you stand in and the schools placed nearby, nearest first.
