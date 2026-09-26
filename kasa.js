@@ -815,8 +815,9 @@ function setDrawer(open){
   drawer.setAttribute('aria-hidden', String(!open));
   document.getElementById('k-drawer-backdrop').hidden = !open;
   document.getElementById('k-more-btn').setAttribute('aria-expanded', String(open));
+  document.getElementById('k-fab-menu').setAttribute('aria-expanded', String(open));
   if (open) document.getElementById('k-drawer-close').focus();
-  else if (drawer.contains(document.activeElement)) document.getElementById('k-more-btn').focus();
+  else if (drawer.contains(document.activeElement)) document.getElementById('k-fab-menu').focus();
 }
 
 function markerColor(r){
@@ -3305,6 +3306,7 @@ function wireUI(){
   initVoice();
   initSchoolCheck();
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
+  document.getElementById('k-fab-menu').addEventListener('click', () => setDrawer(true));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');
@@ -3329,7 +3331,7 @@ function wireUI(){
   });
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {
-    if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check]')) setDrawer(false);
+    if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
@@ -3421,7 +3423,7 @@ async function locateOnOpen(){
 /* First-visit tips: a few small bubbles that point at a feature and say what it does.
    Shown once per device, after the location question, and never while a form is open. */
 const TIPS = [
-  { key: () => visible('.k-lang-switch') ? 'tip_lang' : 'tip_lang_menu', target: () => visible('.k-lang-switch') || visible('#k-more-btn'), when: () => state.lang === 'en' },
+  { key: 'tip_lang_menu', target: () => visible('#k-fab-menu'), when: () => state.lang === 'en' },
   { key: 'tip_report', target: () => visible('.k-map-report-btn') },
   { key: 'tip_quick', target: () => visible('#k-quick') },
 ];

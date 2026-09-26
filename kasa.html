@@ -162,6 +162,9 @@
     <span><i class="k-dot k-dot-claimed"></i> <span data-i18n="status_claimed">Verifying</span></span>
     <span><i class="k-dot k-dot-resolved"></i> <span data-i18n="status_resolved">Resolved</span></span>
   </div>
+  <button type="button" class="k-fab-menu" id="k-fab-menu" aria-controls="k-drawer" data-i18n-title="nav_more" title="Menu">
+    <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
+  </button>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
     <span aria-hidden="true">📷</span> <span data-i18n="map_report">Report</span>
   </button>
@@ -178,21 +181,24 @@
     <button type="button" class="k-drawer-close" id="k-drawer-close" aria-label="Close">✕</button>
   </div>
   <nav class="k-drawer-links">
+    <button type="button" data-action="report" data-i18n="nav_report_menu">📷 Report a problem</button>
     <button type="button" data-mine data-i18n="nav_mine">Your reports</button>
-    <button type="button" data-school-check data-i18n="nav_school_check">🏫 Check a school</button>
-    <button type="button" data-adopt data-i18n="nav_adopt">🤝 Adopt this spot</button>
-    <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
+    <button type="button" data-view="list" data-i18n="nav_list">📋 List of reports</button>
     <a href="schools.html" data-i18n="nav_schools">Schools</a>
+    <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
     <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
+    <a href="adopt.html" data-i18n="nav_adopt_page">🤝 Adopt a spot</a>
   </nav>
-  <nav class="k-drawer-more">
+  <nav class="k-drawer-more" aria-label="About">
     <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
-    <a href="adopt.html" data-i18n="nav_adopted">Adopted spots</a>
     <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
     <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
+    <a href="rules.html" data-i18n="footer_rules">Rules</a>
+    <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
+    <a href="privacy.html" data-i18n="footer_privacy">Privacy</a>
+    <a href="grievance.html" data-i18n="footer_grievance">Grievance Officer</a>
     <a href="index.html" data-i18n="nav_home">Home</a>
     <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
-    <a href="map.html" data-i18n="nav_map">Map</a>
   </nav>
 <header class="k-hero">
   <div class="k-wordmark-lg">
