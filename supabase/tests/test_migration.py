@@ -1279,11 +1279,12 @@ check('a never-signed-in caller cannot call your-reports', refused(err(rpc, 'kas
 
 # ─────────────────────────── Admin delete (flagged/review reports only) ───────────────────────────
 del_r, _ = report(user(), where=offset(12700, 15000))
-check('a clean approved report cannot be hard-deleted',
-      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
-rpc('kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='hide', p_reason='test')
-check('a hidden (not flagged/review) report cannot be hard-deleted either',
-      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_NOT_DELETABLE')
+check('deleting a report needs a reason',
+      err(rpc, 'kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete') == 'KASA_REASON_REQUIRED')
+rpc('kasa_admin_moderate', uid=mod, p_report_id=str(del_r['id']), p_action='delete', p_reason='exact repeat of another report')
+check('an admin can delete any report, and the deletion is logged',
+      admin_sql('select count(*) from public.reports where id::text = %s', (str(del_r['id']),))[0][0] == 0
+      and admin_sql('select reason from kasa_private.deleted_reports where report_id = %s', (str(del_r['id']),))[0][0] == 'exact repeat of another report')
 
 flagged_r, _ = report(user(), where=offset(13000, 15000))
 for i in range(2):
@@ -1323,7 +1324,7 @@ check('a new team member defaults to moderator', rpc('kasa_my_role', uid=junior)
 check('an admin reports their role', rpc('kasa_my_role', uid=mod) == 'admin')
 check('a moderator cannot delete a report',
       err(rpc, 'kasa_admin_moderate', uid=junior, p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_SUPER_ADMIN')
-check('a moderator can still hide and restore', rpc('kasa_admin_moderate', uid=junior, p_report_id=str(del_r['id']), p_action='restore')['moderation_status'] == 'approved')
+check('a moderator can still hide and restore', rpc('kasa_admin_moderate', uid=junior, p_report_id=str(flagged_r['id']), p_action='restore')['moderation_status'] == 'approved')
 check('a moderator cannot read sign-ups', err(rpc, 'kasa_admin_signups', uid=junior, p_limit=10) == 'KASA_NOT_SUPER_ADMIN')
 check('a moderator cannot see or change the team', err(rpc, 'kasa_admin_team', uid=junior) == 'KASA_NOT_SUPER_ADMIN'
       and err(rpc, 'kasa_admin_set_role', uid=junior, p_email='x@example.com', p_role='admin') == 'KASA_NOT_SUPER_ADMIN')
@@ -1337,7 +1338,7 @@ mod_email = f'{mod}@example.com'
 admin_sql('update auth.users set email = %s where id = %s', (mod_email, mod))
 check('an admin cannot change their own role', err(rpc, 'kasa_admin_set_role', uid=mod, p_email=mod_email, p_role='moderator') == 'KASA_SELF')
 check('an admin sees the team', any(m['me'] for m in rpc('kasa_admin_team', uid=mod)))
-del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete')
+del_res = rpc('kasa_admin_moderate', uid=mod, p_report_id=str(flagged_r['id']), p_action='delete', p_reason='flagged as not an issue')
 check('a flagged report can be hard-deleted', del_res.get('deleted') is True, del_res)
 check('deleting a report cascades its events',
       admin_sql('select count(*) from kasa_private.events where report_id::text = %s', (str(flagged_r['id']),))[0][0] == 0)

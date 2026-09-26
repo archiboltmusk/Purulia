@@ -158,12 +158,13 @@ if ('serviceWorker' in navigator) {
 
   <section class="ad-section">
     <h2 class="ad-section-title">Find a report</h2>
-    <p class="ad-note">The queue above only lists reports waiting for approval or already flagged. Paste any report's link or ID here to hide, restore, or (if it's flagged or held for review) delete it — including ones nobody has flagged.</p>
+    <p class="ad-note">Pick one of the latest reports below, or paste any report's link or ID. You can then hide or restore it, add a note, remove extra photos, and (admins only) delete it for good, for example an exact repeat.</p>
     <div class="ad-form" style="display:flex;gap:.5rem;flex-wrap:wrap;">
       <input class="ad-input" id="adFindInput" placeholder="Report link or ID" style="flex:1;min-width:220px;">
       <button class="ad-btn" id="adFindBtn" type="button">Find</button>
     </div>
     <div id="adFindResult"></div>
+    <div id="adLatest"><div class="ad-loading">Loading…</div></div>
   </section>
 
   <section class="ad-section" id="adReplySection" hidden>

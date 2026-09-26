@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(),
+    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -386,8 +386,10 @@ async function clearHeld(kind, id){
 }
 
 async function moderate(id, action){
-  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:' : 'Optional public note:') ;
-  if (action === 'hide' && !reason) return;
+  if (action === 'delete' && !confirm('Delete this report and its photo from the site for good? This cannot be undone.')) return;
+  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:'
+    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:');
+  if ((action === 'hide' || action === 'delete') && !(reason && reason.trim().length >= 3)) return;
   const { error } = await sb.rpc('kasa_admin_moderate', { p_report_id: id, p_action: action, p_reason: reason || null });
   if (error){ alert('Failed: ' + (error.details || error.message)); return; }
   loadAll();
@@ -410,7 +412,7 @@ async function findReport(){
     el.innerHTML = `<div class="ad-empty">${esc(error && error.code === 'PGRST116' ? 'No report with that link or ID.' : 'Could not load: ' + ((error && (error.details || error.message)) || 'not found'))}</div>`;
     return;
   }
-  const canDelete = isSuper() && r.moderation_status === 'flagged' || r.moderation_status === 'review';
+  const canDelete = isSuper();
   el.innerHTML = `
     <div class="ad-item">
       <div class="ad-item-head">
@@ -423,7 +425,7 @@ async function findReport(){
           <button class="ad-bad" data-find-mod="hide">✕ Hide</button>
           <button class="ad-ok" id="adFindNote">💬 Add note</button>
           ${canDelete ? '<button class="ad-bad" data-find-mod="delete">🗑 Delete permanently</button>'
-            : `<span class="ad-note" style="margin:0;">${isSuper() ? 'Only a flagged or held-for-review report can be deleted outright — hide this one instead.' : 'Only an admin can delete permanently — hide this one instead.'}</span>`}
+            : '<span class="ad-note" style="margin:0;">Only an admin can delete permanently — hide this one instead.</span>'}
         </div>
       </div>
       ${r.photo_url ? `<div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>` : ''}
@@ -568,6 +570,36 @@ async function loadAdoptions(){
     const { error: e2 } = await sb.rpc('kasa_admin_remove_adoption', { p_id: a.id, p_reason: reason });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadAdoptions();
+  }));
+}
+
+/* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
+async function loadLatest(){
+  const el = document.getElementById('adLatest');
+  const { data, error } = await sb.from('reports').select('id,created_at,category,ward_no,block_name,landmark,photo_url,moderation_status,is_duplicate')
+    .order('created_at', { ascending: false }).limit(20);
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = ''; return; }
+  el.innerHTML = `<p class="ad-note" style="margin-top:1rem;">Latest reports</p>
+    <table class="ad-table"><tbody>
+      ${data.map((r, i) => `<tr data-latest="${i}">
+        <td>${r.photo_url ? `<a href="${esc(r.photo_url)}" target="_blank" rel="noopener"><img src="${esc(r.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a>` : ''}</td>
+        <td>${esc(r.category)} · ${esc(r.ward_no ? 'Ward ' + r.ward_no : (r.block_name || ''))} ${esc(r.landmark || '')}<br>
+          <small>${esc(new Date(r.created_at).toLocaleString('en-IN'))} · ${esc(r.moderation_status)}${r.is_duplicate ? ' · repeat' : ''}</small></td>
+        <td style="white-space:nowrap;">
+          <button class="ad-ok" data-latest-act="open">Open</button>
+          ${isSuper() ? '<button class="ad-bad" data-latest-act="delete">🗑 Delete</button>' : ''}
+        </td></tr>`).join('')}
+    </tbody></table>`;
+  el.querySelectorAll('[data-latest-act]').forEach(b => b.addEventListener('click', async () => {
+    const r = data[+b.closest('[data-latest]').dataset.latest];
+    if (b.dataset.latestAct === 'open'){
+      document.getElementById('adFindInput').value = r.id;
+      findReport();
+      document.getElementById('adFindResult').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    } else {
+      await moderate(r.id, 'delete');
+    }
   }));
 }
 
