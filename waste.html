@@ -63,7 +63,16 @@
   .ws-btn{margin-top:.8rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;padding:.6rem 1rem;font:inherit;font-weight:600;cursor:pointer;}
   .ws-src{margin-top:.5rem;font-size:.8rem;color:var(--text-lo);}
   .ws-src a,.an-card a,.ws-link a{color:var(--amber);}
+  .ws-map{margin-top:1rem;height:340px;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  .ws-dumps{list-style:none;margin-top:.8rem;}
+  .ws-dumps li{padding:.55rem 0;border-bottom:1px solid var(--border);color:var(--text-md);font-size:.9rem;}
+  .ws-dumps a{color:var(--amber);}
+  a.ws-btn{display:inline-block;text-decoration:none;}
+  .maplibregl-popup-content{background:#14100b;color:#f0e6d0;border:1px solid rgba(240,230,208,.15);}
+  .maplibregl-popup-content a{color:#d4882a;}
+  .maplibregl-popup-tip{display:none;}
 </style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 </head>
 <body>
 
@@ -123,6 +132,14 @@
   </div>
 
   <div class="an-grid">
+    <section class="an-card an-span" id="ws-dumps">
+      <h2>Where the waste is dumped: reported by residents</h2>
+      <p class="an-card-sub">Nobody has published where Purulia's collected waste ends up. Seen trucks or carts unloading somewhere? Stand there and report it as <strong>🚛 Dumping ground</strong>: a live photo and your location, confirmed by others on the spot like every report.</p>
+      <div id="ws-map" class="ws-map" role="region" aria-label="Map of reported dumping grounds"></div>
+      <ul class="ws-dumps" id="ws-dump-list"><li>Loading…</li></ul>
+      <a class="ws-btn" href="kasa.html?report=new&amp;category=dumpsite" id="ws-report">🚛 Report a dumping ground</a>
+    </section>
+
     <section class="an-card an-span" id="ws-rti">
       <h2>Ask for the missing answers (RTI)</h2>
       <p class="an-card-sub">Anyone who is an Indian citizen can send this. Fill in your name and address, attach the ₹10 fee (postal order or court-fee stamp), and post it or hand it in at the municipality office. The officer must reply within 30 days. When the reply comes, <a href="grievance.html">send it to us</a> and we will add the facts to this page with the reply as the source.</p>
@@ -166,6 +183,10 @@ Date:</div>
   </div>
 </main>
 
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="waste.js"></script>
 <script>
   document.getElementById('ws-copy').addEventListener('click', async (e) => {
     try { await navigator.clipboard.writeText(document.getElementById('ws-rti-text').textContent); e.target.textContent = 'Copied'; }

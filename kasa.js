@@ -44,6 +44,7 @@ const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claim
 const CATEGORIES = {
   garbage:              { icon: '🗑️', group: 'clean',   chain: 'sanitation',   fix: 'cleaned' },
   drain:                { icon: '🌊', group: 'clean',   chain: 'sanitation',   fix: 'cleared' },
+  dumpsite:             { icon: '🚛', group: 'clean',   chain: 'sanitation',   fix: 'cleared' },
   road:                 { icon: '🚧', group: 'infra',   chain: 'engineering',  fix: 'repaired' },
   streetlight:          { icon: '💡', group: 'infra',   chain: 'lighting',     fix: 'working' },
   water:                { icon: '🚰', group: 'infra',   chain: 'water',        fix: 'fixed' },
@@ -2278,8 +2279,8 @@ function selectCategory(key, advance = true){
   if (!CATEGORIES[key]) return;
   draft.category = key;
   const warn = document.getElementById('k-cat-warning');
-  warn.hidden = !CATEGORIES[key].review;
-  warn.textContent = CATEGORIES[key].review ? t('illegal_note') : '';
+  warn.hidden = !CATEGORIES[key].review && key !== 'dumpsite';
+  warn.textContent = CATEGORIES[key].review ? t('illegal_note') : key === 'dumpsite' ? t('dumpsite_note') : '';
   renderCategoryGrid();
 }
 
@@ -3041,6 +3042,12 @@ function populateWardDropdown(){
 function openDeepLink(){
   const q = new URLSearchParams(location.search);
   const id = q.get('report');
+  // kasa.html?report=new&category=dumpsite — open the camera with the kind already chosen.
+  if (id === 'new'){
+    openReport();
+    if (CATEGORIES[q.get('category')]) selectCategory(q.get('category'), false);
+    return;
+  }
   if (id && state.byId.has(id)) return openSheet(id);
   const at = (q.get('at') || '').split(',').map(Number);
   if (at.length === 2 && at.every(Number.isFinite)){
