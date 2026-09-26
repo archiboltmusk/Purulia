@@ -17,6 +17,7 @@
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <link rel="stylesheet" href="kasa.css">
 <style>
   .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
@@ -68,6 +69,13 @@
   .sc-acts a,.sc-acts button{color:var(--amber);background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline;}
   .sc-rti{margin-top:.7rem;white-space:pre-wrap;font-size:.84rem;line-height:1.55;background:rgba(240,230,208,.03);border:1px solid var(--border);border-radius:4px;padding:.8rem .9rem;color:var(--text-hi);}
   .sc-more{margin-top:1rem;}
+  #sc-map{height:clamp(320px,55vh,560px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .sc-legend{display:flex;flex-wrap:wrap;gap:.4rem 1rem;margin-top:.7rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
+  .sc-legend i{display:inline-block;width:.8rem;height:.8rem;border-radius:50%;vertical-align:-.1rem;margin-right:.3rem;}
+  .sc-legend i.sq{border-radius:2px;}
+  .maplibregl-popup-content{background:var(--ink2,#14100b);color:var(--text-hi);font-family:inherit;border:1px solid var(--border);}
+  .maplibregl-popup-content a{color:var(--amber);}
+  .maplibregl-popup-tip{display:none;}
 </style>
 </head>
 <body>
@@ -102,6 +110,19 @@
 
   <div class="an-grid">
     <section class="an-card an-span">
+      <h2>Map</h2>
+      <p class="an-card-sub" id="sc-map-sub">Blocks are shaded by the share of their schools residents have checked; tap one to list its schools. Pins show schools whose location is known — from the official list, or learned from residents' checks.</p>
+      <div id="sc-map" role="region" aria-label="Map of schools"></div>
+      <div class="sc-legend">
+        <span><i style="background:#5fae6b"></i>Checked, 5–6 of 6</span>
+        <span><i style="background:#d4882a"></i>Checked, 3–4</span>
+        <span><i style="background:#d9594c"></i>Checked, 0–2</span>
+        <span><i style="background:#8a8272"></i>Not checked yet</span>
+        <span><i class="sq" style="background:rgba(212,136,42,.55)"></i>Block: more of its schools checked</span>
+      </div>
+    </section>
+
+    <section class="an-card an-span" id="sc-list">
       <h2>Checked schools, worst first</h2>
       <p class="an-card-sub">Score out of 6: drinking water, toilets, boundary wall, electricity, mid-day meal kitchen, building in good shape. Each school shows its latest check.</p>
       <div class="sc-filters">
@@ -136,6 +157,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
 <script defer src="city.js"></script>
+<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="schools.js"></script>
 </body>
 </html>
