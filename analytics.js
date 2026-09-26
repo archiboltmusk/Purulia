@@ -121,6 +121,18 @@
     repeat.map(r => `<tr><td><a href="${reportLink(r)}">${esc(cat(r.category))}</a></td><td>${place(r)}</td><td class="n">${r.recurrence_count}×</td><td>${r.status === 'resolved' ? 'fixed' : 'unresolved'}</td></tr>`),
     'No problem has come back after being fixed yet.');
 
+  // Spots that keep filling up (grouped on the server; places, never people)
+  sb.rpc('kasa_problem_spots', { p_days: 90 }).then(({ data, error }) => {
+    const el = document.getElementById('an-spots');
+    if (error){ el.innerHTML = '<div class="an-empty">Could not load problem spots.</div>'; return; }
+    const where = s => esc(s.landmark || (s.ward_no ? 'Ward ' + s.ward_no : s.block_name ? s.block_name + ' block' : 'Near ' + s.lat + ', ' + s.lng));
+    el.innerHTML = table('<th>Where</th><th>Mostly</th><th class="n">Reports</th><th class="n">Still open</th><th class="n">Fixed</th><th class="n">Came back after a fix</th><th>Last report</th>',
+      (data || []).map(s => `<tr><td><a href="kasa.html?report=${encodeURIComponent(s.report_id)}">${where(s)}</a></td><td>${esc(cat(s.category))}</td>
+        <td class="n">${s.reports}</td><td class="n">${s.open}</td><td class="n">${s.fixed}</td><td class="n">${s.came_back}</td>
+        <td>${esc(new Date(s.last_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }))}</td></tr>`),
+      'No place has 3 or more reports in the last 90 days.');
+  });
+
   // Every ward
   const stats = {};
   for (let w = 1; w <= 23; w++) stats[w] = { ward: w, open: 0, overdue: 0, fixed: 0, fake: 0, days: [] };

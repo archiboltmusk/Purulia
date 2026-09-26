@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(),
+    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -498,6 +498,33 @@ async function loadRepeatPhotos(){
   el.querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', async () => {
     const d = data[+b.dataset.rp];
     if (await removePhoto(d.parent_id, 'duplicate', d.id)) loadRepeatPhotos();
+  }));
+}
+
+async function loadAdoptions(){
+  const el = document.getElementById('adAdoptions');
+  const { data, error } = await sb.rpc('kasa_adopted_spots');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No adopted spots.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Name</th><th>Where</th><th>Since</th><th>Open problems</th><th></th></tr></thead>
+      <tbody>
+        ${data.map((a, i) => `<tr>
+          <td><strong>${esc(a.name)}</strong></td>
+          <td><a href="kasa.html?at=${esc(a.lat)},${esc(a.lng)}" target="_blank" rel="noopener">${esc(a.ward_no ? 'Ward ' + a.ward_no : a.block_name || 'map')}</a></td>
+          <td>${esc(new Date(a.since).toLocaleDateString('en-IN'))}</td>
+          <td>${esc(a.open)}</td>
+          <td><button class="ad-bad" data-adopt-rm="${i}">Remove</button></td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-adopt-rm]').forEach(b => b.addEventListener('click', async () => {
+    const a = data[+b.dataset.adoptRm];
+    const reason = prompt(`Reason for removing "${a.name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_remove_adoption', { p_id: a.id, p_reason: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadAdoptions();
   }));
 }
 

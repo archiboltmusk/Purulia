@@ -2636,6 +2636,45 @@ async function submitSchoolFix(){
   }
 }
 
+/* "We look after this spot": a shop, school or club standing at a spot adopts the 50 m around it. */
+let ad = null;
+async function openAdopt(){
+  ad = { pos: null };
+  const btn = document.getElementById('k-ad-submit'), status = document.getElementById('k-ad-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-ad-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!ad) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    ad.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (ad) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitAdopt(){
+  if (!ad?.pos) return;
+  const btn = document.getElementById('k-ad-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_adopt_spot', {
+      p_name: document.getElementById('k-ad-name').value, p_lat: ad.pos.lat, p_lng: ad.pos.lng, p_accuracy: ad.pos.accuracy });
+    if (error) throw rpcError(error);
+    closeModal('k-ad-modal');
+    showToast(t('ad_done'), 7000);
+    ad = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -2649,6 +2688,8 @@ function initSchoolCheck(){
   document.getElementById('k-sc-cam-btn').addEventListener('click', captureSchoolPhoto);
   document.getElementById('k-sc-submit').addEventListener('click', submitSchoolCheck);
   document.getElementById('k-sf-submit').addEventListener('click', submitSchoolFix);
+  document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
+  document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-sc-qs').addEventListener('click', e => {
     const b = e.target.closest('[data-v]'), g = b?.closest('[data-scq]');
     if (!b || !g || !sc) return;
@@ -2659,7 +2700,8 @@ function initSchoolCheck(){
   });
   const q = new URLSearchParams(location.search), code = q.get('school');
   const fix = q.get('fix');
-  if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
+  if (q.get('adopt') === '1') openAdopt();
+  else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
   else if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
   else if (q.get('check') === 'school') openSchoolCheck();
 }
@@ -2972,6 +3014,11 @@ function openDeepLink(){
   const q = new URLSearchParams(location.search);
   const id = q.get('report');
   if (id && state.byId.has(id)) return openSheet(id);
+  const at = (q.get('at') || '').split(',').map(Number);
+  if (at.length === 2 && at.every(Number.isFinite)){
+    mapReady.then(() => mainMap.flyTo({ center: [at[1], at[0]], zoom: 17, duration: 1200 }));
+    return;
+  }
   const ward = Number(q.get('ward'));
   if (Number.isInteger(ward) && ward >= 1 && ward <= 23){
     state.filters.ward = ward;

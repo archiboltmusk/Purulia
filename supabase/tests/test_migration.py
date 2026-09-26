@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1723,6 +1723,44 @@ check('each removal is on the report timeline with its reason',
       admin_sql("select count(*) from kasa_private.events where report_id = %s and kind = 'moderated' and detail ->> 'reason' is not null", (q1['id'],))[0][0] == 2)
 check('the original report and its photo stay',
       admin_sql('select photo_url is not null from public.reports where id = %s', (q1['id'],))[0][0])
+
+# Spots that keep filling up: a place with several reports shows once, with its count.
+ps_spot = offset(-3000, -1500)
+for i in range(3):
+    quick(user(), offset(i * 8, 0, base=ps_spot))
+spots = rpc('kasa_problem_spots', p_days=30)
+hit = [x for x in spots if abs(x['lat'] - ps_spot[0]) < 0.0006 and abs(x['lng'] - ps_spot[1]) < 0.0006]
+check('a spot with three reports is listed as a problem spot', hit and sum(x['reports'] for x in hit) >= 3, spots)
+check('problem spots never name a person', all('user_id' not in x for x in spots))
+
+# Adopting a spot: stand there, give a public name; one adopter per spot.
+def adopt(uid, name, where, acc=10.0):
+    return rpc('kasa_adopt_spot', uid=uid, p_name=name, p_lat=where[0], p_lng=where[1], p_accuracy=acc)
+ad_spot = offset(-3400, 1800)
+check('the public cannot adopt a spot without signing in',
+      refused(err(rpc, 'kasa_adopt_spot', p_name='Club', p_lat=ad_spot[0], p_lng=ad_spot[1], p_accuracy=10.0)))
+ad1 = user()
+check('a weak GPS fix cannot adopt a spot', err(adopt, ad1, 'Netaji Club', ad_spot, 500.0) == 'KASA_GPS_WEAK')
+check('an adoption needs a real name', err(adopt, ad1, 'x', ad_spot) == 'KASA_NAME_LENGTH')
+a1 = adopt(ad1, '  Netaji   Club ', ad_spot)
+check('someone standing at a spot can adopt it', a1['name'] == 'Netaji Club', a1)
+check('a second person cannot adopt the same spot', err(adopt, user(), 'Other Club', offset(20, 0, base=ad_spot)) == 'KASA_ALREADY_ADOPTED')
+quick(user(), offset(10, 0, base=ad_spot))
+lst = [x for x in rpc('kasa_adopted_spots') if x['id'] == a1['id']]
+check('the adopted spot is public with its open problems', lst and lst[0]['name'] == 'Netaji Club' and lst[0]['open'] >= 1, lst)
+check('the public list does not show who adopted it', lst and set(lst[0]) >= {'mine'} and lst[0]['mine'] is not True)
+check('only the adopter can let a spot go', err(rpc, 'kasa_leave_spot', uid=user(), p_id=a1['id']) == 'KASA_NOT_FOUND')
+check('an ordinary person cannot remove an adoption',
+      err(rpc, 'kasa_admin_remove_adoption', uid=user(), p_id=a1['id'], p_reason='rude name') == 'KASA_NOT_ADMIN')
+rpc('kasa_leave_spot', uid=ad1, p_id=a1['id'])
+check('a spot let go leaves the list', not any(x['id'] == a1['id'] for x in rpc('kasa_adopted_spots')))
+a2 = adopt(user(), 'Some Name', ad_spot)
+rpc('kasa_admin_remove_adoption', uid=mod, p_id=a2['id'], p_reason='not a real group')
+check('a moderator can remove a bad adoption', not any(x['id'] == a2['id'] for x in rpc('kasa_adopted_spots')))
+lim = user()
+for i in range(3):
+    adopt(lim, f'Spot keeper {i}', offset(-3800 - i * 200, 1800))
+check('one person can look after at most three spots', err(adopt, lim, 'Spot keeper 4', offset(-4600, 1800)) == 'KASA_ADOPT_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
