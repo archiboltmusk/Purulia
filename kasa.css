@@ -727,3 +727,4 @@ body.k-drawer-open{overflow:hidden;}
 .k-voice-text:empty{display:none;}
 .k-voice-text{font-size:.9rem;line-height:1.5;padding:.6rem .75rem;border-radius:10px;background:var(--k-surface-2,rgba(255,255,255,.06));}
 #k-voice-btn[aria-pressed="true"]{border-color:#c0392b;color:#c0392b;}
+.k-link{background:none;border:0;padding:0;color:inherit;text-decoration:underline;font:inherit;cursor:pointer;}

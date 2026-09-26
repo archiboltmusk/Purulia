@@ -287,6 +287,14 @@ async function loadReports(){
 function setReports(rows){
   state.reports = rows.map(normalize);
   state.byId = new Map(state.reports.map(r => [r.id, r]));
+  // Fixes that didn't last: reported again at the spot within fixMustLastDays of being fixed.
+  const days = CITY.fixMustLastDays || 14;
+  for (const c of state.reports){
+    const p = c.parentId && !c.duplicate && state.byId.get(c.parentId);
+    if (!p || p.status !== 'resolved' || !p.resolvedAt) continue;
+    const gap = new Date(c.createdAt) - new Date(p.resolvedAt);
+    if (gap >= -3600000 && gap <= days * 86400000){ p.relapsed = true; p.relapsedBy = p.relapsedBy || c.id; }
+  }
 }
 
 function normalize(r){
@@ -306,6 +314,7 @@ function normalize(r){
     status,
     description: r.description || '',
     landmark: r.landmark || '',
+    parentId: r.parent_report_id != null ? String(r.parent_report_id) : null,
     address: state.addresses?.[String(r.id)] || '',
     photo: safeUrl(r.photo_url),
     seen: Number(r.upvotes || 0),
@@ -1065,7 +1074,7 @@ function renderLeaderboard(){
 // Verified fixes, newest first, with how long they took and who confirmed them.
 function recentFixes(){
   return primaries()
-    .filter(r => r.status === 'resolved' && (r.resolution === 'community' || r.resolution === 'photo_check') && r.resolvedAt)
+    .filter(r => r.status === 'resolved' && (r.resolution === 'community' || r.resolution === 'photo_check') && r.resolvedAt && !r.relapsed)
     .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
     .slice(0, 6);
 }
@@ -1320,6 +1329,7 @@ function renderStatusPanel(r){
         ${beforeAfter(r.photo, r.resolvedPhoto)}
         <div class="k-panel-meta">${esc(t('pn_resolved_meta', { date: fmtDate(r.resolvedAt), days: fixDays }))}</div>
         <div class="k-panel-caption">${esc(resolutionCaption(r))}</div>
+        ${r.relapsed ? `<div class="k-note k-note-bad">↻ ${esc(t('pn_relapsed', { n: CITY.fixMustLastDays || 14 }))} <button type="button" class="k-link" data-open="${esc(r.relapsedBy)}">${esc(t('pn_relapsed_open'))}</button></div>` : ''}
       </div>`);
   }
   return parts.join('');

@@ -93,6 +93,7 @@ window.KASA_I18N = {
 
     pn_pending: 'Waiting to upload — saved on this phone.',
     pn_flagged: 'Flagged by {n} people — a moderator is reviewing it. It stays visible meanwhile.',
+    pn_relapsed: 'Didn\'t last: it was reported again within {n} days of being fixed, so this fix doesn\'t count.', pn_relapsed_open: 'See the new report',
     pn_recurring: 'This spot has come back {n} time(s) after being marked fixed.',
     pn_rejected: '{n} cleanup claim(s) here were rejected by people on the spot.',
     pn_claim_title: 'Cleanup claimed — needs on-site confirmation',
@@ -320,6 +321,7 @@ window.KASA_I18N = {
 
     pn_pending: 'আপলোডের অপেক্ষায় — এই ফোনে সেভ আছে।',
     pn_flagged: '{n} জন ফ্ল্যাগ করেছেন — মডারেটর দেখছেন। ততক্ষণ এটি দেখা যাবে।',
+    pn_relapsed: 'টেকেনি: সমাধানের {n} দিনের মধ্যে আবার রিপোর্ট হয়েছে, তাই এই সমাধান গোনা হয় না।', pn_relapsed_open: 'নতুন রিপোর্ট দেখুন',
     pn_recurring: 'সমাধান বলার পরেও এই জায়গায় সমস্যাটি {n} বার ফিরে এসেছে।',
     pn_rejected: 'এখানে {n}টি সাফাইয়ের দাবি ঘটনাস্থলের মানুষ বাতিল করেছেন।',
     pn_claim_title: 'সাফাইয়ের দাবি — ঘটনাস্থলে নিশ্চিতকরণ দরকার',
@@ -546,6 +548,7 @@ window.KASA_I18N = {
 
     pn_pending: 'अपलोड बाकी — इस फ़ोन में सेव है।',
     pn_flagged: '{n} लोगों ने फ़्लैग किया — मॉडरेटर देख रहे हैं। तब तक यह दिखती रहेगी।',
+    pn_relapsed: 'टिका नहीं: ठीक होने के {n} दिनों में फिर से रिपोर्ट हुआ, इसलिए यह सुधार नहीं गिना जाता।', pn_relapsed_open: 'नई रिपोर्ट देखें',
     pn_recurring: 'ठीक बताए जाने के बाद यह जगह {n} बार फिर बिगड़ी।',
     pn_rejected: 'यहाँ {n} सफ़ाई दावे मौके पर मौजूद लोगों ने ख़ारिज किए।',
     pn_claim_title: 'सफ़ाई का दावा — मौके पर पुष्टि ज़रूरी',

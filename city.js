@@ -13,6 +13,9 @@ window.KASA_CITY = {
   mapCenter: [86.3654, 23.3320],
   mapZoom: 13,
 
+  // A fix only counts if the problem isn't reported again at the spot within this many days.
+  fixMustLastDays: 14,
+
   // Ward outlines (town) and CD-block outlines (villages). GeoJSON, properties
   // `ward` / `block` respectively.
   wardsGeojson: 'purulia_wards.geojson',

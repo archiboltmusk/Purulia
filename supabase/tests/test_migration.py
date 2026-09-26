@@ -1598,6 +1598,27 @@ cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.ka
 check('an audit at a listed school counts for it', cov['19210199901']['audits'] == 1, cov.get('19210199901'))
 check('a school nobody visited shows no audits', cov['19210199902']['audits'] == 0 and cov['19210199902']['last_audit_at'] is None)
 
+# A fix that didn't last: reported again at the spot within 14 days → the weekly digest doesn't count it as fixed.
+fl_spot = offset(-1100, -600)
+fl_fix, _ = report(user(), category='drain', where=fl_spot)
+LAST_WEEK_MID = "(date_trunc('week', now() at time zone 'Asia/Kolkata') - interval '4 days') at time zone 'Asia/Kolkata'"
+admin_sql(f"update public.reports set status = 'resolved', resolution_method = 'community', resolved_at = {LAST_WEEK_MID}, "
+          f"created_at = {LAST_WEEK_MID} - interval '3 days' where id = %s", (fl_fix['id'],))
+def digest_fixed(rid_):
+    admin_sql("delete from kasa_private.digest_sends")
+    dg = rpc('kasa_weekly_digest_claim', role='service_role')
+    w = admin_sql('select ward_no from public.reports where id = %s', (rid_,))[0][0]
+    return next((x['fixed'] for x in dg['wards'] if x['ward'] == w), 0)
+HAS_WARDS = admin_sql("select to_regclass('public.wards') is not null")[0][0]
+before = digest_fixed(fl_fix['id']) if HAS_WARDS else None
+again, _ = report(user(), category='drain', where=fl_spot)
+check('reporting a fixed spot again links it as a recurrence',
+      str(admin_sql('select parent_report_id from public.reports where id = %s', (again['id'],))[0][0]) == str(fl_fix['id']))
+admin_sql(f"update public.reports set created_at = {LAST_WEEK_MID} + interval '1 day' where id = %s", (again['id'],))
+if HAS_WARDS:
+    check('the fix counts before anything comes back', before >= 1, before)
+    check("the weekly digest stops counting a fix that didn't last", digest_fixed(fl_fix['id']) == before - 1, (before,))
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

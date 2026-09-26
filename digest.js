@@ -1,8 +1,22 @@
 /* Weekly ward digest: one ward's (or block's) Monday–Sunday week, from the public view.
    digest.html?ward=5 · digest.html?block=Arsha · add &week=YYYY-MM-DD (a Monday) for an earlier week. */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,rejected_claims,area_kind,block_name';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,rejected_claims,area_kind,block_name,parent_report_id';
   const DAY = 86400000, IST = 330 * 60000;
+
+  // Fixes that didn't last: a new report at the spot (a recurrence) within fixMustLastDays of the fix.
+  // Times are public to the hour, so allow an hour of slack.
+  const LAST_DAYS = (window.KASA_CITY && window.KASA_CITY.fixMustLastDays) || 14;
+  function relapsedIds(rows){
+    const byId = new Map(rows.map(r => [String(r.id), r])), out = new Set();
+    for (const c of rows){
+      const p = c.parent_report_id != null && !c.is_duplicate && byId.get(String(c.parent_report_id));
+      if (!p || p.status !== 'resolved' || !p.resolved_at) continue;
+      const gap = Date.parse(c.created_at) - Date.parse(p.resolved_at);
+      if (gap >= -3600000 && gap <= LAST_DAYS * DAY) out.add(String(p.id));
+    }
+    return out;
+  }
   const cfg = window.KASA_CONFIG || {}, city = window.KASA_CITY || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
   const L = (window.KASA_I18N && window.KASA_I18N.en) || {};
@@ -28,6 +42,7 @@
     sb.from('wards').select('ward_no,councillor_name,party').order('ward_no')
   ]);
   if (rep.error){ set('an-updated', 'Could not load the data. Please try again later.'); return; }
+  const relapsed = relapsedIds(rep.data || []);
   const all = (rep.data || []).filter(r => !r.is_duplicate);
   const wards = wardRes.data || [];
 
@@ -38,7 +53,7 @@
   const inArea = r => area.kind === 'ward'
     ? r.area_kind !== 'rural' && Number(r.ward_no) === area.id
     : r.area_kind === 'rural' && (r.block_name || '').toLowerCase() === area.id.toLowerCase();
-  const isFix = r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at;
+  const isFix = r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at && !relapsed.has(String(r.id));
 
   function render(){
     const end = start + 7 * DAY, soFar = end > Date.now(), cut = Math.min(end, Date.now());
