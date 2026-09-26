@@ -682,3 +682,30 @@ body.k-drawer-open{overflow:hidden;}
 .k-sc-chip strong{font-size:.92rem;}
 .k-sc-chip span{font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
 .k-sc-chip:hover,.k-sc-chip:focus-visible{border-color:var(--amber);}
+
+/* ── Quiet home: the map and one big Report button. "Your reports", filters' colour key
+   and the rest live in the menu. ── */
+body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-right > .k-nav-cta{display:none;}
+.k-map-legend{display:none;}
+.k-map-report-btn{left:50%;right:auto;transform:translateX(-50%);bottom:1.4rem;padding:1.1rem 2.6rem;font-size:14px;border-radius:40px;white-space:nowrap;}
+.k-map-report-btn:hover{transform:translateX(-50%);}
+.k-map-pill{bottom:.9rem;}
+@media(max-width:640px){.k-map-pill{bottom:5.6rem;left:50%;transform:translateX(-50%);white-space:nowrap;}}
+
+/* Small round buttons for the other parts of Parishkar (schools, adopted spots, numbers). */
+.k-quick{position:absolute;left:.9rem;bottom:1.4rem;z-index:5;display:flex;flex-direction:column;gap:.45rem;}
+.k-quick-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(10,8,5,.94);border:1px solid var(--border2);border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.35);}
+.k-quick-btn:hover{border-color:var(--amber);}
+@media(min-width:641px){.k-map-pill{left:4.4rem;bottom:1.4rem;}}
+
+/* "Join N people" line at the top of the map. */
+.k-join{position:absolute;top:3.6rem;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:.2rem;max-width:calc(100% - 1.8rem);padding:.2rem .3rem .2rem .9rem;background:rgba(10,8,5,.94);border:1px solid rgba(212,136,42,.45);border-radius:40px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
+.k-join-text{font-family:var(--serif);font-size:.95rem;color:var(--cream);text-align:left;padding:.3rem 0;}
+.k-join-x{padding:.3rem .55rem;color:var(--text-md);font-size:.9rem;}
+@media(max-width:640px){.k-join{top:7rem;}.k-join-text{font-size:.86rem;}}
+
+/* First-visit tips. */
+.k-tip{position:fixed;z-index:900;width:min(280px,calc(100vw - 16px));padding:.8rem .9rem;background:var(--cream);color:var(--ink);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-family:var(--serif);font-size:1rem;line-height:1.45;}
+.k-tip-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:.6rem;}
+.k-tip-skip{font-family:var(--mono);font-size:11px;color:#6b5a40;}
+.k-tip-next{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:.4rem .9rem;background:var(--ink);color:var(--cream);border-radius:20px;}

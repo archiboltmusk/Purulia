@@ -177,6 +177,7 @@ function applyLang(){
   document.documentElement.lang = state.lang;
   document.querySelectorAll('[data-i18n]').forEach(el => { el.textContent = t(el.dataset.i18n); });
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
+  document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); el.setAttribute('aria-label', el.title); });
   document.querySelectorAll('.k-lang-btn').forEach(b => b.classList.toggle('k-lang-active', b.dataset.lang === state.lang));
 }
 
@@ -234,6 +235,9 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(locateOnOpen);
+  if (state.mode === 'v2') showJoin();
+  // Tips also start on their own if the location question didn't run (a shared link, for example).
+  setTimeout(startTips, 5000);
   syncOfflineQueue();
 
   if (state.mode === 'v2'){
@@ -2847,6 +2851,16 @@ async function afterSubmit(res, d){
   document.getElementById('k-done-title').textContent = t(title);
   document.getElementById('k-done-sub').textContent = t(sub);
   const id = res.duplicateOf ? String(res.duplicateOf) : res.id;
+  // One tap to hear back: watch the report (or the one it joined) for the "Fixed" message.
+  const watchBtn = document.getElementById('k-done-watch');
+  const canWatch = !!id && res.moderation !== 'review' && watchSupported() && !watchedReports().has(id);
+  watchBtn.hidden = !canWatch;
+  watchBtn.disabled = false;
+  watchBtn.textContent = t('done_watch');
+  watchBtn.onclick = async () => {
+    await toggleWatch(id, watchBtn);
+    if (watchedReports().has(id)){ watchBtn.textContent = t('done_watch_on'); watchBtn.disabled = true; }
+  };
   const shareBtn = document.getElementById('k-done-share');
   shareBtn.hidden = !id || res.moderation === 'review';
   shareBtn.dataset.id = id || '';
@@ -3378,21 +3392,75 @@ function wireUI(){
 }
 
 // Centre the map on the visitor, only if they already allowed location (no prompt on page load).
+/* On the first visit the phone asks for location straight away (once per device), so the
+   map opens where the person stands. After that it only uses location already allowed.
+   The position stays on the phone; nothing is sent until they file a report. */
 async function locateOnOpen(){
   try {
-    if (!navigator.geolocation || !navigator.permissions?.query) return;
-    const st = await navigator.permissions.query({ name: 'geolocation' });
-    if (st.state !== 'granted') return;
+    if (!navigator.geolocation) return;
+    const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
+    if (st === 'denied') return startTips();
+    if (st === 'prompt'){
+      let asked = false;
+      try { asked = localStorage.getItem('kasa_loc_asked') === '1'; localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {}
+      if (asked) return startTips();
+    }
     showToast(t('locating_you'));
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
-      if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)) return;
+      if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
       askStillThere(lat, lng, p.coords.accuracy);
+      startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
       mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
-    }, () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
-  } catch (e) {}
+    }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
+  } catch (e) { startTips(); }
+}
+
+/* First-visit tips: a few small bubbles that point at a feature and say what it does.
+   Shown once per device, after the location question, and never while a form is open. */
+const TIPS = [
+  { key: () => visible('.k-lang-switch') ? 'tip_lang' : 'tip_lang_menu', target: () => visible('.k-lang-switch') || visible('#k-more-btn'), when: () => state.lang === 'en' },
+  { key: 'tip_report', target: () => visible('.k-map-report-btn') },
+  { key: 'tip_quick', target: () => visible('#k-quick') },
+];
+function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
+function startTips(){
+  if (startTips.started) return;
+  startTips.started = true;
+  try { if (localStorage.getItem('kasa_tips_done') === '1') return; } catch (e) { return; }
+  const list = TIPS.filter(x => (!x.when || x.when()) && x.target());
+  const box = document.getElementById('k-tip'), next = document.getElementById('k-tip-next');
+  let i = 0;
+  const finish = () => { box.hidden = true; try { localStorage.setItem('kasa_tips_done', '1'); } catch (e) {} };
+  const show = () => {
+    if (i >= list.length) return finish();
+    const el = list[i].target();
+    if (!el || document.querySelector('.k-modal.open')) return finish();
+    const k = list[i].key;
+    document.getElementById('k-tip-text').textContent = t(typeof k === 'function' ? k() : k);
+    next.textContent = t(i === list.length - 1 ? 'tip_done' : 'tip_next');
+    box.hidden = false;
+    const r = el.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
+    const below = r.top < window.innerHeight / 2;
+    box.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
+    box.style.top = (below ? r.bottom + 10 : r.top - h - 10) + 'px';
+    box.dataset.dir = below ? 'down' : 'up';
+  };
+  next.onclick = () => { i++; show(); };
+  document.getElementById('k-tip-skip').onclick = finish;
+  setTimeout(show, 600);
+}
+
+/* "Join N people keeping Purulia clean" — a small, closable line on the map. */
+async function showJoin(){
+  try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
+  const { data: n } = await sb.rpc('kasa_people_count');
+  const el = document.getElementById('k-join');
+  document.getElementById('k-join-text').textContent = n >= 20 ? t('join_n', { n }) : t('join_first');
+  el.hidden = false;
+  document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }
 
 /* "Still there?" Someone who already shares their location, standing within 100 m of an

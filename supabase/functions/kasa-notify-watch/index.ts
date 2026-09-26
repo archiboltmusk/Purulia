@@ -54,8 +54,13 @@ Deno.serve(async (req) => {
   // Per-target sends are reported individually (kasa_watch_notify_result), so one
   // dead subscription never fails the whole event — only an unexpected error here does.
   async function sendEvent(ev: QueuedEvent): Promise<string | null> {
+    let image: string | null = null;
+    if (ev.kind === 'resolved'){
+      const { data: r } = await admin.from('reports').select('resolved_photo_url').eq('id', ev.report_id).maybeSingle();
+      image = r?.resolved_photo_url ?? null;
+    }
     for (const target of ev.targets ?? []) {
-      const msg = buildMessage({ report_id: ev.report_id, kind: ev.kind }, target.lang, PAGE_URL);
+      const msg = buildMessage({ report_id: ev.report_id, kind: ev.kind, image }, target.lang, PAGE_URL);
       let ok = false, gone = false;
       try {
         await webpush.sendNotification({ endpoint: target.endpoint, keys: { p256dh: target.p256dh, auth: target.auth } },
