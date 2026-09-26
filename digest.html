@@ -60,6 +60,8 @@
   .dg-list li{padding:.55rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:1rem;font-size:.92rem;color:var(--text-hi);}
   .dg-list li a{color:var(--amber);}
   .dg-list li small{color:var(--text-lo);font-family:var(--mono);font-size:11px;white-space:nowrap;}
+  .dg-empty{margin-top:1.4rem;padding:2rem 1.6rem;border:1px dashed var(--border2,var(--border));border-radius:6px;font-family:var(--serif);font-size:1.25rem;color:var(--cream);line-height:1.5;}
+  .dg-empty a{color:var(--amber);}
 </style>
 </head>
 <body>
@@ -93,7 +95,8 @@
     <button type="button" class="dg-share" id="dg-share">Share this digest</button>
   </div>
 
-  <section class="an-tiles" aria-label="This week">
+  <div class="dg-empty" id="dg-empty" hidden></div>
+  <section class="an-tiles" aria-label="This week" id="dg-tiles">
     <div class="an-tile"><div class="an-tile-n" id="t-new">—</div><div class="an-tile-l">New reports</div><div class="an-tile-s">this week</div></div>
     <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div><div class="an-tile-s">this week</div></div>
     <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Still unresolved</div><div class="an-tile-s" id="t-open-when">at the end of the week</div></div>
@@ -101,7 +104,7 @@
     <div class="an-tile"><div class="an-tile-n" id="t-fake">—</div><div class="an-tile-l">Fake cleanups caught</div><div class="an-tile-s">in this area, all time</div></div>
   </section>
 
-  <div class="an-grid">
+  <div class="an-grid" id="dg-grid">
     <section class="an-card">
       <h2>Reported this week</h2>
       <ul class="dg-list" id="dg-new"></ul>

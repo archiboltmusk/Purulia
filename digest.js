@@ -90,6 +90,14 @@
       r => { const d = Math.floor((cut - Date.parse(r.created_at)) / DAY); return `${d < 1 ? 'today' : d === 1 ? '1 day' : d + ' days'}${(cut - Date.parse(r.created_at)) / DAY > (r.sla_days || 7) ? ' · overdue' : ''}`; },
       'Nothing waiting. 🎉');
 
+    // A quiet week is one line and an invitation, not a page of zeros.
+    const quiet = !opened.length && !fixed.length && !openAtEnd.length;
+    document.getElementById('dg-empty').hidden = !quiet;
+    document.getElementById('dg-tiles').hidden = quiet;
+    document.getElementById('dg-grid').hidden = quiet;
+    if (quiet) document.getElementById('dg-empty').innerHTML =
+      `Nothing was reported in ${esc(place)} this week. See a problem there? <a href="kasa.html">Report it — it takes 30 seconds.</a>`;
+
     document.getElementById('dg-next').disabled = start >= thisWeek;
     sel.value = `${area.kind}:${area.id}`;
     const p = new URLSearchParams({ [area.kind]: area.id });

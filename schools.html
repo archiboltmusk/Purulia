@@ -83,6 +83,8 @@
   .sc-todo-acts{display:flex;gap:.9rem;flex-shrink:0;font-family:var(--mono);font-size:11px;}
   .sc-todo-acts a{color:var(--amber);}
   .sc-more-btn{margin-top:.9rem;padding:.55rem .9rem;background:none;border:1px solid var(--border2,var(--border));color:var(--amber);font-family:var(--mono);font-size:11px;border-radius:3px;cursor:pointer;}
+  .sc-near{margin-bottom:1.4rem;}
+  .sc-near-btn{margin-top:.9rem;padding:.8rem 1.3rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;cursor:pointer;}
 </style>
 </head>
 <body>
@@ -107,6 +109,13 @@
     </div>
     <div class="an-meta"><span id="sc-updated">Loading…</span></div>
   </div>
+
+  <section class="an-card sc-near" id="sc-near">
+    <h2>Check a school near you</h2>
+    <p class="an-card-sub" id="sc-near-text">Stand at a school, answer six questions and take one photo. It takes about two minutes.</p>
+    <button type="button" class="sc-near-btn" id="sc-near-btn">📍 Find schools near me</button>
+    <ul class="sc-todo" id="sc-near-list"></ul>
+  </section>
 
   <section class="an-tiles" aria-label="Headline numbers">
     <div class="an-tile"><div class="an-tile-n" id="sc-t-listed">—</div><div class="an-tile-l">Schools listed</div></div>

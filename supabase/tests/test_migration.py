@@ -1812,6 +1812,16 @@ check('an ordinary person cannot add a moderator note', err(rpc, 'kasa_admin_not
 n_people = rpc('kasa_people_count')
 check('the public can see how many people take part', isinstance(n_people, int) and n_people > 0, n_people)
 
+# Placing a school by dragging the map: the pin may move only a short way from the phone's GPS.
+far_pin = offset(400, 0, base=sc_where)
+check('a school pin cannot be dragged far from where the phone is',
+      err(rpc, 'kasa_mark_school_location', uid=user(), p_udise_code='19210199904', p_lat=far_pin[0], p_lng=far_pin[1],
+          p_accuracy=10.0, p_gps_lat=sc_where[0], p_gps_lng=sc_where[1]) == 'KASA_PIN_TOO_FAR')
+near_pin = offset(60, 0, base=sc_where)
+ok_pin = rpc('kasa_mark_school_location', uid=user(), p_udise_code='19210199904', p_lat=near_pin[0], p_lng=near_pin[1],
+             p_accuracy=10.0, p_gps_lat=sc_where[0], p_gps_lng=sc_where[1])
+check('a school pin dragged a short way is accepted', ok_pin.get('points', 0) >= 1, ok_pin)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
