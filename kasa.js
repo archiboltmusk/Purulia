@@ -3329,7 +3329,7 @@ function wireUI(){
   });
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {
-    if (e.target.closest('[data-action="report"],[data-mine]')) setDrawer(false);
+    if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check]')) setDrawer(false);
   });
 
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
