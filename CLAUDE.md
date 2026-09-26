@@ -5,3 +5,7 @@
 - Don't create or push a `gh-pages` branch; Pages uses GitHub Actions, not a branch.
 - Database changes go in `supabase/migrations/` and must also be applied to the live project; check the live function signatures match what the pages call.
 - `record/` is an append-only public record written by `.github/workflows/public-record.yml`. Never edit, reorder or delete anything in it; only the workflow adds files.
+
+# Changelog
+
+- Every user-visible change adds a line at the top of `changelog.html` (newest date first, plain words a reporter would use). Internal-only changes (CI, refactors, config) don't need one.

@@ -135,4 +135,20 @@
     brows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.block)}</td>
       <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
     'No village reports yet. Parishkar now takes reports from all 20 blocks of the district.');
+
+  // Moderation in public: monthly counts only, no IDs (kasa_public_transparency).
+  const { data: tr, error: trErr } = await sb.rpc('kasa_public_transparency');
+  if (trErr || !tr){ document.getElementById('an-mod').innerHTML = '<div class="an-empty">Could not load moderation counts.</div>'; return; }
+  const n = tr.now || {};
+  set('an-mod-now', `Right now: ${n.waiting_review ?? 0} waiting for a moderator · ${n.hidden ?? 0} hidden · team of ${n.admins ?? 0} admin${n.admins === 1 ? '' : 's'} and ${n.moderators ?? 0} moderator${n.moderators === 1 ? '' : 's'}. Reasons are shown on each report's own evidence trail.`);
+  const MOD_COLS = [['reported', 'Reports'], ['flagged', 'Flags'], ['hidden', 'Hidden'], ['kept', 'Kept after review'],
+    ['recategorized', 'Category fixed by moderator'], ['auto_recategorized', 'Category fixed automatically'],
+    ['claims_rejected', 'Fake cleanups thrown out'], ['claims_expired', 'Cleanup claims expired'],
+    ['votes_voided', 'Confirmations voided'], ['official_replies', 'Official replies']];
+  const months = (tr.months || []).filter(m => MOD_COLS.some(([k]) => m[k]));
+  document.getElementById('an-mod').innerHTML = table(
+    '<th>Month</th>' + MOD_COLS.map(([, l]) => `<th class="n">${esc(l)}</th>`).join(''),
+    months.map(m => `<tr><td>${esc(new Date(m.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }))}</td>`
+      + MOD_COLS.map(([k]) => `<td class="n">${m[k] || 0}</td>`).join('') + '</tr>'),
+    'Nothing yet in the last 12 months.');
 })();
