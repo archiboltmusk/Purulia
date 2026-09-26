@@ -69,9 +69,9 @@ exception when others then
   );
 end $$;
 
--- RPC: Get subscriber count (public)
+-- RPC: Get subscriber count (public, bypasses RLS via security definer)
 create or replace function public.kasa_digest_subscriber_count()
-returns bigint language sql stable as $$
+returns bigint language sql stable security definer set search_path = '' as $$
   select count(*) from public.digest_subscribers where is_active;
 $$;
 
