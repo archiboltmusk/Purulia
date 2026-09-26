@@ -2403,6 +2403,168 @@ function initVoice(){
   document.getElementById('k-voice-btn').addEventListener('click', toggleVoice);
 }
 
+/* ══════════════════════════════════════════════════════════
+   SCHOOL CHECK — one listed school (by UDISE code), six answers,
+   a live photo and GPS. The server applies the same photo and
+   location checks as reports, and holds checks that look wrong.
+   ══════════════════════════════════════════════════════════ */
+const SC_QUESTIONS = ['water', 'toilets', 'boundary', 'electricity', 'mdm'];
+let sc = null;
+
+async function openSchoolCheck(code){
+  sc = { schools: [], school: null, ans: {}, cond: null, pos: null, blob: null, meta: null };
+  setDrawer(false);
+  document.getElementById('k-sc-qs').innerHTML = SC_QUESTIONS.map(k => `
+    <div class="k-sc-row"><span>${esc(t('sc_q_' + k))}</span>
+      <div class="k-seg k-seg-yn" role="radiogroup" data-scq="${k}">
+        <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
+      </div></div>`).join('') + `
+    <div class="k-sc-row"><span>${esc(t('sc_q_building'))}</span>
+      <div class="k-seg k-seg-yn" role="radiogroup" data-scq="building">
+        <button type="button" role="radio" aria-checked="false" data-v="good">${esc(t('sc_good'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="needs_repair">${esc(t('sc_repair'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="unsafe">${esc(t('sc_unsafe'))}</button>
+      </div></div>`;
+  document.getElementById('k-sc-preview').innerHTML = '';
+  document.getElementById('k-sc-photo-status').className = 'k-ev-status';
+  document.getElementById('k-sc-photo-status').textContent = t('sc_photo_hint');
+  document.getElementById('k-sc-picked').textContent = '';
+  const blockSel = document.getElementById('k-sc-block');
+  const { data } = await sb.rpc('kasa_school_blocks');
+  blockSel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
+    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)} (${b.schools})</option>`).join('');
+  document.getElementById('k-sc-find').hidden = true;
+  document.getElementById('k-sc-school').hidden = true;
+  updateSchoolSubmit();
+  openModal('k-sc-modal');
+  checkSchoolLocation();
+  if (code){
+    const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village').eq('udise_code', code).maybeSingle();
+    if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
+  }
+}
+
+async function loadSchoolBlock(block){
+  const sel = document.getElementById('k-sc-school'), find = document.getElementById('k-sc-find');
+  sc.school = null;
+  document.getElementById('k-sc-picked').textContent = '';
+  if (!block){ sel.hidden = find.hidden = true; updateSchoolSubmit(); return; }
+  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village').eq('block_name', block).order('name').limit(1000);
+  sc.schools = data || [];
+  find.value = '';
+  sel.hidden = find.hidden = false;
+  renderSchoolOptions();
+  updateSchoolSubmit();
+}
+
+function renderSchoolOptions(){
+  const q = document.getElementById('k-sc-find').value.trim().toLowerCase();
+  const list = sc.schools.filter(s => !q || `${s.name} ${s.village || ''} ${s.panchayat || ''}`.toLowerCase().includes(q));
+  document.getElementById('k-sc-school').innerHTML = list.slice(0, 300).map(s =>
+    `<option value="${esc(s.udise_code)}">${esc(s.name)}${s.village ? ' — ' + esc(s.village) : ''}</option>`).join('');
+}
+
+function pickSchool(code){
+  const s = sc.schools.find(x => x.udise_code === code);
+  if (!s) return;
+  sc.school = s;
+  document.getElementById('k-sc-school').value = code;
+  setEvStatus(document.getElementById('k-sc-picked'), 'ok',
+    `✓ ${s.name} · ${[s.village, s.panchayat].filter(Boolean).join(', ')} · UDISE ${s.udise_code}`);
+  updateSchoolSubmit();
+}
+
+async function checkSchoolLocation(){
+  const status = document.getElementById('k-sc-loc-status'), btn = document.getElementById('k-sc-loc-btn');
+  const want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 20000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sc) return;
+    if (pos.accuracy > want){ sc.pos = null; setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) })); }
+    else { sc.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (!sc) return;
+    sc.pos = null;
+    setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  btn.disabled = false;
+  updateSchoolSubmit();
+}
+
+async function captureSchoolPhoto(){
+  if (!sc) return;
+  const res = await openLiveCamera();
+  if (!sc) return;
+  const status = document.getElementById('k-sc-photo-status');
+  if (res.blob){
+    sc.blob = res.blob;
+    sc.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-sc-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateSchoolSubmit();
+}
+
+function updateSchoolSubmit(){
+  if (!sc) return;
+  const answered = SC_QUESTIONS.every(k => typeof sc.ans[k] === 'boolean') && !!sc.cond;
+  document.getElementById('k-sc-submit').disabled = !(sc.school && answered && sc.pos && sc.blob);
+}
+
+async function submitSchoolCheck(){
+  if (!sc) return;
+  const btn = document.getElementById('k-sc-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', sc.blob);
+    await sendPhotoMeta(path, sc.meta);
+    await checkPhoto(path, null, sc.pos.lat, sc.pos.lng);
+    const { data, error } = await sb.rpc('kasa_school_check', {
+      p_udise_code: sc.school.udise_code, p_lat: sc.pos.lat, p_lng: sc.pos.lng, p_accuracy: sc.pos.accuracy,
+      p_water_ok: sc.ans.water, p_toilets_ok: sc.ans.toilets, p_boundary_ok: sc.ans.boundary,
+      p_electricity_ok: sc.ans.electricity, p_mdm_ok: sc.ans.mdm, p_building_condition: sc.cond,
+      p_photo_path: path, p_client_id: randomName(16)
+    });
+    if (error) throw rpcError(error);
+    closeModal('k-sc-modal');
+    showToast(t(data.moderation_status === 'approved' ? 'sc_done' : 'sc_done_review'), 7000);
+    sc = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('sc_submit');
+  updateSchoolSubmit();
+}
+
+function initSchoolCheck(){
+  document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
+  document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
+  document.getElementById('k-sc-find').addEventListener('input', renderSchoolOptions);
+  document.getElementById('k-sc-school').addEventListener('change', e => pickSchool(e.target.value));
+  document.getElementById('k-sc-loc-btn').addEventListener('click', checkSchoolLocation);
+  document.getElementById('k-sc-cam-btn').addEventListener('click', captureSchoolPhoto);
+  document.getElementById('k-sc-submit').addEventListener('click', submitSchoolCheck);
+  document.getElementById('k-sc-qs').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]'), g = b?.closest('[data-scq]');
+    if (!b || !g || !sc) return;
+    g.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    if (g.dataset.scq === 'building') sc.cond = b.dataset.v;
+    else sc.ans[g.dataset.scq] = b.dataset.v === 'yes';
+    updateSchoolSubmit();
+  });
+  const q = new URLSearchParams(location.search), code = q.get('school');
+  if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
+  else if (q.get('check') === 'school') openSchoolCheck();
+}
+
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -2979,6 +3141,7 @@ function wireUI(){
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
   initVoice();
+  initSchoolCheck();
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-filter-toggle').addEventListener('click', e => {

@@ -166,6 +166,8 @@
     <a href="map.html" data-i18n="nav_map">Map</a>
     <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
     <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
+    <button type="button" data-school-check data-i18n="nav_school_check">🏫 Check a school</button>
+    <a href="schools.html" data-i18n="nav_schools">Schools</a>
     <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
     <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
     <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
@@ -397,6 +399,53 @@
     </div>
     <button type="button" class="k-btn k-btn-primary" id="k-ev-submit" disabled></button>
     <div class="k-privacy" data-i18n="ev_privacy">🔒 Your photo and distance from the spot go on the public record under a pseudonym. Your identity and exact position don't.</div>
+  </div>
+</div>
+
+<!-- Check a school -->
+<div class="k-modal" id="k-sc-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-sc-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-sc-title" data-i18n="sc_title">Check a school</h3>
+    <p class="k-modal-sub" data-i18n="sc_sub">Stand at the school, answer six questions and take one photo. Your check goes on the school's public record.</p>
+    <div class="k-ev-step">
+      <div class="k-ev-num">1</div>
+      <div class="k-ev-body">
+        <label class="k-ev-label" for="k-sc-block" data-i18n="sc_which">Which school?</label>
+        <select id="k-sc-block" class="k-input"><option value="" data-i18n="sc_block_pick">Choose the block…</option></select>
+        <input type="search" id="k-sc-find" class="k-input" data-i18n-placeholder="sc_find_ph" placeholder="Type the school or village name" hidden>
+        <select id="k-sc-school" class="k-input" size="6" hidden></select>
+        <div class="k-ev-status" id="k-sc-picked"></div>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">2</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="sc_questions">What did you find?</div>
+        <div class="k-sc-q" id="k-sc-qs"></div>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">3</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="ev_loc">Be at the spot</div>
+        <div class="k-ev-status" id="k-sc-loc-status"></div>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-sc-loc-btn" data-i18n="ev_loc_btn">📍 Check my location</button>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">4</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="sc_photo">Take a photo of the school now</div>
+        <div class="k-ev-status" id="k-sc-photo-status" data-i18n="sc_photo_hint">Show what you checked, such as the toilets, water point or building. No faces, please.</div>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-sc-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
+        <div class="k-photo-preview" id="k-sc-preview"></div>
+      </div>
+    </div>
+    <button type="button" class="k-btn k-btn-primary" id="k-sc-submit" disabled data-i18n="sc_submit">Save the school check</button>
+    <div class="k-privacy"><a href="schools.html" data-i18n="sc_see_all">See every school's checks →</a></div>
   </div>
 </div>
 

@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(),
+    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -524,6 +524,35 @@ async function loadCommunities(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_community', { p_id: b.dataset.group, p_action: b.dataset.groupAct, p_note: note });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadCommunities();
+  }));
+}
+
+const HOLD_TEXT = { other_block: 'filed from another block', far_from_school: "far from the school's location" };
+async function loadSchoolChecks(){
+  const el = document.getElementById('adSchoolChecks');
+  const { data, error } = await sb.rpc('kasa_admin_school_audit_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  const yn = v => v == null ? '—' : v ? '✓' : '✗';
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Photo</th><th>School</th><th>Why held</th><th>Water · Toilets · Wall · Power · MDM · Building</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(a => `<tr>
+          <td><a href="${esc(a.photo_url)}" target="_blank" rel="noopener"><img src="${esc(a.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a></td>
+          <td><strong>${esc(a.school_name)}</strong><br><small>${esc(a.udise_code || '')} · filed in ${esc(a.block_name || '?')} · ${esc(new Date(a.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(HOLD_TEXT[a.hold] || (a.moderation_status === 'flagged' ? `flagged ${a.flags}×` : 'photo check'))}</td>
+          <td>${[a.water_ok, a.toilets_ok, a.boundary_ok, a.electricity_ok, a.mdm_ok].map(yn).join(' · ')} · ${esc(a.building_condition)}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-sa="${esc(a.id)}" data-sa-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-sa="${esc(a.id)}" data-sa-act="hide">✕ Hide</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-sa]').forEach(b => b.addEventListener('click', async () => {
+    const { error: e2 } = await sb.rpc('kasa_admin_moderate_school_audit', { p_audit_id: b.dataset.sa, p_action: b.dataset.saAct });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadSchoolChecks();
   }));
 }
 
