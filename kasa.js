@@ -2209,6 +2209,7 @@ function openReport(prefill){
   document.getElementById('k-photo-note').hidden = true;
   document.getElementById('k-landmark').value = '';
   document.getElementById('k-desc').value = '';
+  stopVoice(); document.getElementById('k-voice-text').textContent = '';
   document.getElementById('k-ward').value = '';
   document.getElementById('k-coords').textContent = t('step3_no_loc');
   const gpsBtn = document.getElementById('k-gps-btn');
@@ -2359,6 +2360,39 @@ function setLocation(lat, lng, accuracy){
 }
 
 /* Fast Wi-Fi/cached fix — usually under a second, even on Macs without GPS. */
+/* Voice typing for the description, using the phone's own speech recognition
+   (in the page's language). Hidden where the browser has none. */
+const Speech = window.SpeechRecognition || window.webkitSpeechRecognition;
+let voiceRec = null;
+function stopVoice(){
+  if (voiceRec){ try { voiceRec.stop(); } catch (e) {} }
+}
+function toggleVoice(){
+  if (voiceRec) return stopVoice();
+  const btn = document.getElementById('k-voice-btn'), out = document.getElementById('k-voice-text'), desc = document.getElementById('k-desc');
+  const rec = new Speech();
+  rec.lang = { bn: 'bn-IN', hi: 'hi-IN' }[state.lang] || 'en-IN';
+  rec.interimResults = true;
+  rec.continuous = false;
+  const before = desc.value.trim();
+  rec.onresult = (e) => {
+    const said = Array.from(e.results).map(r => r[0].transcript).join(' ').trim();
+    desc.value = [before, said].filter(Boolean).join(' ').slice(0, 500);
+    out.textContent = desc.value;
+  };
+  rec.onerror = (e) => { if (e.error === 'not-allowed' || e.error === 'service-not-allowed') showToast(t('voice_denied')); };
+  rec.onend = () => { voiceRec = null; btn.textContent = t('voice_btn'); btn.setAttribute('aria-pressed', 'false'); };
+  try { rec.start(); } catch (e) { return; }
+  voiceRec = rec;
+  btn.textContent = t('voice_stop');
+  btn.setAttribute('aria-pressed', 'true');
+}
+function initVoice(){
+  if (!Speech) return;
+  document.getElementById('k-voice').hidden = false;
+  document.getElementById('k-voice-btn').addEventListener('click', toggleVoice);
+}
+
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -2934,6 +2968,7 @@ function wireUI(){
   document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
+  initVoice();
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-filter-toggle').addEventListener('click', e => {

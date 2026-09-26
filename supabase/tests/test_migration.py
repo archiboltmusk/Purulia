@@ -1571,6 +1571,20 @@ rd3, rd3_path = report(user(), category='garbage', where=offset(19200, 15000))
 photo_check(rd3_path, labels=['Waste', 'Plastic'])
 check('the road check leaves other categories alone', mod_status(rd3['id']) == 'approved')
 
+# Photo shrinking: photos of problems fixed long ago are handed out once, to the service only.
+sh_r, sh_path = report(user(), where=offset(19500, 15000))
+admin_sql("update public.reports set status = 'resolved', resolved_at = now() - interval '100 days' where id = %s", (sh_r['id'],))
+new_r, new_path = report(user(), where=offset(19800, 15000))
+admin_sql("update public.reports set status = 'resolved', resolved_at = now() - interval '10 days' where id = %s", (new_r['id'],))
+check('the public cannot claim photos to shrink', refused(err(rpc, 'kasa_shrink_claim', uid=user())))
+sh = rpc('kasa_shrink_claim', role='service_role', p_limit=50)
+check('photos of long-fixed problems are handed out for shrinking', sh_path in sh['paths'] and sh['max_px'] == 1024, sh)
+check('recently fixed problems keep full-size photos', new_path not in sh['paths'])
+check('a photo being shrunk is not handed out twice', sh_path not in rpc('kasa_shrink_claim', role='service_role', p_limit=50)['paths'])
+rpc('kasa_shrink_done', role='service_role', p_path=sh_path, p_before=400000, p_after=120000)
+admin_sql("update kasa_private.photo_shrinks set claimed_at = now() - interval '2 hours' where photo_path = %s", (sh_path,))
+check('a shrunk photo is never shrunk again', sh_path not in rpc('kasa_shrink_claim', role='service_role', p_limit=50)['paths'])
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
