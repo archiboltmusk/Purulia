@@ -129,6 +129,7 @@ const state = {
   lang: 'en',
   sheetId: null,
   events: new Map(),
+  photos: new Map(),   // report id → extra photo URLs (kasa_report_photos)
   seen: new Set(),
   ratings: {},
   replies: new Map(),
@@ -579,8 +580,29 @@ const api = {
       p_photo_path: path, p_client_id: d.clientId
     });
     if (error) throw rpcError(error);
+    if (!data.replayed && d.extraPhotos?.length) await api.addPhotos(String(data.id), d);
     if (data.moderation_status === 'approved' && !data.duplicate_of && !data.replayed) api.notify(String(data.id));
     return { id: String(data.id), moderation: data.moderation_status, duplicateOf: data.duplicate_of, recurrenceOf: data.recurrence_of };
+  },
+
+  // Extra photos never block the report: one that fails is reported and skipped.
+  async addPhotos(id, d){
+    let failed = 0;
+    for (const x of d.extraPhotos){
+      try {
+        const path = await uploadPhoto('reports', x.blob);
+        await sendPhotoMeta(path, x.meta);
+        await checkPhoto(path, null, d.lat, d.lng);
+        const { error } = await sb.rpc('kasa_add_report_photo', { p_report_id: id, p_photo_path: path });
+        if (error) throw rpcError(error);
+      } catch (e){ failed++; console.warn('Parishkar: extra photo not added', e); }
+    }
+    if (failed) showToast(t('photo_extra_failed', { n: failed }), 6000);
+  },
+
+  async reportPhotos(id){
+    const { data, error } = await sb.rpc('kasa_report_photos', { p_report_id: id });
+    return error ? [] : (data || []).map(p => safeUrl(p.photo_url)).filter(Boolean);
   },
 
   async markSeen(r, pos){
@@ -1122,6 +1144,13 @@ function openSheet(id){
   openModal('k-sheet');
   document.getElementById('k-sheet-body').scrollTop = 0;
   if (!r.pending) try { history.replaceState(null, '', `?report=${encodeURIComponent(r.id)}`); } catch (e) {}
+  if (!r.pending && state.mode === 'v2' && !state.photos.has(r.id)){
+    api.reportPhotos(r.id).then(list => {
+      state.photos.set(r.id, list);
+      const el = document.getElementById('k-sheet-more');
+      if (state.sheetId === r.id && el) el.innerHTML = list.map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join('');
+    });
+  }
   if (!r.pending && state.mode === 'v2'){
     api.events(r.id).then(list => {
       state.events.set(r.id, list);
@@ -1179,6 +1208,7 @@ function renderSheet(){
         ${ICON_EYE}<span>${esc(t(seenByMe ? 'sheet_seen_done' : 'sheet_seen_btn'))}</span>
       </button>`}
     </div>
+    <div class="k-sheet-more" id="k-sheet-more">${(state.photos.get(r.id) || []).map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join('')}</div>
     <div class="k-anon">${ICON_SHIELD} ${esc(t('sheet_anonymous'))}</div>
     <div class="k-allegation">⚖ ${esc(t('sheet_allegation'))} <a href="terms.html#allegations">${esc(t('sheet_terms'))}</a></div>
     ${!r.pending && r.status !== 'resolved' ? `
@@ -2148,7 +2178,7 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, photoMeta: null, lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '', locked: false };
+  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '', locked: false };
 }
 
 function openReport(prefill){
@@ -2161,6 +2191,7 @@ function openReport(prefill){
   document.getElementById('k-ward-field').hidden = false;
   document.getElementById('k-place').hidden = true;
   document.getElementById('k-photo-preview').innerHTML = '';
+  renderExtraPhotos();
   document.getElementById('k-photo-note').hidden = true;
   document.getElementById('k-landmark').value = '';
   document.getElementById('k-desc').value = '';
@@ -2238,6 +2269,7 @@ async function captureReportPhoto(){
   const old = preview.querySelector('img');
   if (old) URL.revokeObjectURL(old.src);
   preview.innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+  renderExtraPhotos();
   note.hidden = true;
   note.textContent = '';
   updateSubmitState();
@@ -2252,6 +2284,26 @@ async function captureReportPhoto(){
     if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
     else useGPS();
   }
+}
+
+/* Up to 2 more photos, from the same in-page camera. They're attached right after the
+   report is created (kasa_add_report_photo), each checked like the first. */
+const MAX_EXTRA_PHOTOS = 2;
+async function captureExtraPhoto(){
+  if (!draft?.photoBlob || draft.extraPhotos.length >= MAX_EXTRA_PHOTOS) return;
+  const res = await openLiveCamera();
+  if (!draft || !res.blob) return;
+  draft.extraPhotos.push({ blob: res.blob, meta: { capture: 'live', capture_token: res.token || undefined }, url: URL.createObjectURL(res.blob) });
+  renderExtraPhotos();
+}
+
+function renderExtraPhotos(){
+  const box = document.getElementById('k-photo-extras');
+  const extras = draft?.extraPhotos || [];
+  box.innerHTML = extras.map((x, i) => `<span class="k-photo-extra"><img src="${x.url}" alt=""><button type="button" data-extra-remove="${i}" aria-label="${esc(t('photo_remove'))}">✕</button></span>`).join('');
+  const more = document.getElementById('k-photo-more');
+  more.hidden = !draft?.photoBlob || extras.length >= MAX_EXTRA_PHOTOS;
+  more.textContent = t('photo_more', { n: extras.length + 2 });
 }
 
 function initMiniMap(){
@@ -2907,6 +2959,14 @@ function wireUI(){
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
+  document.getElementById('k-photo-more').addEventListener('click', captureExtraPhoto);
+  document.getElementById('k-photo-extras').addEventListener('click', e => {
+    const b = e.target.closest('[data-extra-remove]');
+    if (!b || !draft) return;
+    const [x] = draft.extraPhotos.splice(Number(b.dataset.extraRemove), 1);
+    if (x) URL.revokeObjectURL(x.url);
+    renderExtraPhotos();
+  });
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
   document.getElementById('k-submit').addEventListener('click', submitReport);
@@ -2930,7 +2990,7 @@ function wireUI(){
 
   // Tap a report photo to see it full screen.
   document.addEventListener('click', e => {
-    const img = e.target.closest('.k-sheet-photo img, .k-ba img, .k-tl-photo img, .k-ev-proof img');
+    const img = e.target.closest('.k-sheet-photo img, .k-sheet-more img, .k-ba img, .k-tl-photo img, .k-ev-proof img');
     if (!img) return;
     e.preventDefault();
     openLightbox(img.currentSrc || img.src, img.alt);

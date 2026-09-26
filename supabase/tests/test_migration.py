@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1455,6 +1455,31 @@ if admin_sql("select to_regclass('public.wards') is not null")[0][0]:
     admin_sql("delete from kasa_private.digest_sends")
     check('the digest goes to the configured addresses', rpc('kasa_weekly_digest_claim', role='service_role')['to'] == ['a@example.org', 'b@example.org'])
     check('the public cannot claim the digest', refused(err(rpc, 'kasa_weekly_digest_claim', uid=user())))
+
+# Up to 3 photos per report: same person, right after, each checked like the first.
+mp_owner = user()
+mp_r, mp_first = report(mp_owner, where=offset(15500, 15000))
+extra1, extra2, extra3 = upload(mp_owner, 'reports'), upload(mp_owner, 'reports'), upload(mp_owner, 'reports')
+check('a second photo can be added', rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra1)['position'] == 2)
+check('a third photo can be added', rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra2)['position'] == 3)
+check('a fourth photo is refused', err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra3) == 'KASA_TOO_MANY_PHOTOS')
+check('someone else cannot add photos to your report',
+      err(rpc, 'kasa_add_report_photo', uid=user(), p_report_id=str(mp_r['id']), p_photo_path=upload(user(), 'reports')) == 'KASA_NOT_FOUND')
+mp_r2, _ = report(mp_owner, where=offset(15800, 15000))
+check('a photo already on one report cannot be reused on another',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=extra1) == 'KASA_PHOTO_REUSED')
+check('a photo someone else uploaded cannot be added',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+face = upload(mp_owner, 'reports'); photo_check(face, faces=1)
+rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=face)
+check('an extra photo with a face sends the report back to review',
+      admin_sql('select moderation_status from public.reports where id::text = %s', (str(mp_r2['id']),))[0][0] == 'review')
+check('extra photos are public for visible reports', len(rpc('kasa_report_photos', p_report_id=str(mp_r['id']))) == 2)
+check('extra photos of a report under review stay private', rpc('kasa_report_photos', p_report_id=str(mp_r2['id'])) == [])
+check('extra photos are never treated as orphans', extra1 not in {r[0] for r in q('select * from public.kasa_orphan_photos(1000)', role='service_role')})
+admin_sql("update public.reports set created_at = now() - interval '2 hours' where id = %s", (mp_r2['id'],))
+check('photos cannot be added long after reporting',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=upload(mp_owner, 'reports')) == 'KASA_TOO_LATE')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
