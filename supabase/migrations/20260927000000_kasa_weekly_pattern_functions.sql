@@ -68,7 +68,7 @@ returns table(chain text, opened bigint, resolved bigint) as $$
   order by chain;
 $$ language sql stable;
 
--- 4. Recurrence: same issue at same spot within 60 days
+-- 4. Recurrence: same issue at same spot within 60 days (pure SQL distance, no PostGIS)
 create or replace function kasa_weekly_recurrence(p_days int = 60)
 returns table(id uuid, ward_no int, category text, landmark text, recurrence_count int) as $$
   select
@@ -81,10 +81,9 @@ returns table(id uuid, ward_no int, category text, landmark text, recurrence_cou
   inner join public.reports rp on (
     rp.category = r.category
     and rp.ward_no = r.ward_no
-    and abs(st_distance(
-      st_point(r.lng, r.lat)::geography,
-      st_point(rp.lng, rp.lat)::geography
-    )) < 100  -- within 100m
+    -- Rough distance check: within ~100m means <0.001 degrees (at equator ~111m per degree)
+    and abs(rp.lat - r.lat) < 0.001
+    and abs(rp.lng - r.lng) < 0.001
     and rp.resolved_at > now() - (p_days || ' days')::interval
     and rp.created_at > r.created_at  -- rp is newer
   )
