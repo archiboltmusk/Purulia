@@ -860,6 +860,18 @@ function initMainMap(){
   return mapLibrary().then(initMainMapNow);
 }
 
+// The map tile source (OpenFreeMap) has no key and no usage cap, but it's still one host:
+// if its style JSON never loads, people would otherwise just see an empty grey box with no
+// clue why. One friendly notice per page load, not one per map instance.
+let mapStyleWarned = false;
+function watchMapStyleLoad(map){
+  setTimeout(() => {
+    if (mapStyleWarned || !map || map.isStyleLoaded()) return;
+    mapStyleWarned = true;
+    showToast(t('map_tiles_down'), 6000);
+  }, 8000);
+}
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
@@ -875,6 +887,7 @@ function initMainMapNow(){
   mainMap.once('load', resizeMap);
   // Any drag/zoom/rotate by a person carries originalEvent; programmatic moves don't.
   mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
+  watchMapStyleLoad(mainMap);
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
 
@@ -2368,6 +2381,7 @@ function initMiniMap(){
     center: draft.lng != null ? [draft.lng, draft.lat] : MAP_CENTER, zoom: draft.lng != null ? 16 : MAP_ZOOM, attributionControl: false
   });
   miniMap.on('click', e => setLocation(e.lngLat.lat, e.lngLat.lng, null));
+  watchMapStyleLoad(miniMap);
   if (draft.lng != null) placeMiniMarker();
 }
 
@@ -2650,6 +2664,7 @@ async function openSchoolFix(code){
     if (window.maplibregl){
       if (sf.map) sf.map.remove();
       sf.map = new maplibregl.Map({ container: 'k-sf-map', style: MAP_STYLE, center: [pos.lng, pos.lat], zoom: 18, attributionControl: false });
+      watchMapStyleLoad(sf.map);
     }
   } catch (e){
     if (sf) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
