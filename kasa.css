@@ -701,3 +701,14 @@ body.k-drawer-open{overflow:hidden;}
 .k-fixed-strip-list .k-fixed-speed{font-size:1.1rem;}
 .k-fixed-strip-list .k-fixed-photos{aspect-ratio:auto;height:140px;}
 .k-fixed-strip-list .k-fixed-photos img{min-height:0;}
+
+/* "Still there?" — asked when you're standing near an old unresolved report */
+.k-still{position:absolute;left:.9rem;right:.9rem;bottom:6rem;z-index:9;max-width:380px;display:flex;gap:.8rem;align-items:flex-start;background:rgba(15,12,7,.97);border:1px solid var(--border2);border-radius:6px;padding:.8rem;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:kFade .2s ease;}
+.k-still img{width:64px;height:64px;object-fit:cover;border-radius:4px;flex-shrink:0;cursor:pointer;}
+.k-still-q{font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--cream);}
+.k-still-m{font-family:var(--mono);font-size:11px;color:var(--text-md);margin-top:.15rem;}
+.k-still-a{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem;}
+.k-still-a button{padding:.45rem .7rem;border-radius:3px;font-family:var(--mono);font-size:11px;border:1px solid var(--border2);color:var(--text-hi);}
+.k-still-a .k-still-yes{background:var(--amber);color:var(--ink);border-color:var(--amber);}
+.k-still-a .k-still-gone{border-color:rgba(109,184,138,.5);color:var(--green);}
+@media(max-width:640px){.k-still{bottom:3.6rem;}}

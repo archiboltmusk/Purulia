@@ -1298,6 +1298,22 @@ rpc('kasa_admin_moderate', uid=mod, p_report_id=str(one_flag_r['id']), p_action=
 check('keeping a flagged report clears it from the queue', not in_queue())
 rpc('kasa_flag_report', uid=user(), ip='10.92.0.2', p_report_id=str(one_flag_r['id']), p_reason='duplicate')
 check('a new flag after review puts it back in the queue', in_queue())
+# Flag alerts: every flag is claimed once, with the team's emails, and never twice.
+while rpc('kasa_flag_alerts_claim', role='service_role', p_limit=200)['flags']:
+    pass  # drain flags raised earlier in the suite
+alert_r, _ = report(user(), where=offset(13600, 15000))
+admin_sql("update auth.users set email = 'mod-alert@example.com' where id = %s", (mod,))
+rpc('kasa_flag_report', uid=user(), ip='10.93.0.1', p_report_id=str(alert_r['id']), p_reason='duplicate')
+claim = rpc('kasa_flag_alerts_claim', role='service_role', p_limit=50)
+check('a new flag is claimed for the moderator email', [f['report_id'] for f in claim['flags']] == [str(alert_r['id'])], claim)
+check('the alert goes to the team', 'mod-alert@example.com' in claim['to'], claim['to'])
+check('the alert does not name who flagged', 'note' not in json.dumps(claim['flags']))
+check('a claimed flag is not handed out twice', rpc('kasa_flag_alerts_claim', role='service_role', p_limit=50)['flags'] == [])
+rpc('kasa_flag_alerts_done', role='service_role', p_keys=[{'report_id': f['report_id'], 'user_id': f['user_id']} for f in claim['flags']])
+check('a sent alert is marked sent',
+      admin_sql('select count(*) from kasa_private.flags where report_id::text = %s and alerted_at is not null', (str(alert_r['id']),))[0][0] == 1)
+check('the public cannot claim flag alerts', refused(err(rpc, 'kasa_flag_alerts_claim', uid=user(), p_limit=5)))
+
 check('the report is actually flagged before the delete test', view_row(flagged_r['id'])['moderation_status'] == 'flagged')
 check('non-admin cannot delete a report', err(rpc, 'kasa_admin_moderate', uid=user(), p_report_id=str(flagged_r['id']), p_action='delete') == 'KASA_NOT_ADMIN')
 # Moderators (the default role) can review and hide, but only an admin deletes or manages the team.

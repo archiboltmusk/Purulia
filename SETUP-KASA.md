@@ -146,6 +146,15 @@ A moderator is any Supabase Auth user listed in `public.admins`. They use
 `admin.html` to publish or hide reports, reject fake cleanup claims, void fake
 votes, and publish officials' responses (right of reply).
 
+
+**Flag alerts by email.** Every flag emails the whole team (admins and
+moderators, at the email they sign in with) one summary, through the
+`kasa-flag-alert` Edge Function. It needs the same `RESEND_API_KEY` secret as
+the sign-up alerts: Supabase → Edge Functions → Secrets. Until a domain is
+verified in Resend, the default sender only delivers to the Resend account's
+own address; set `FLAG_ALERT_FROM` once it is. Flags raised while email isn't
+set up are sent with the next one.
+
 ## 10. Evidence photos
 
 Cleanup claims, confirmations and disputes are photographed with the camera
