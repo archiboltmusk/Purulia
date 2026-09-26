@@ -15,19 +15,19 @@ create table if not exists public.digest_subscribers (
 alter table public.digest_subscribers enable row level security;
 
 -- Anyone can read subscriber count (anonymized)
-create policy "count_only" on public.digest_subscribers
+create policy if not exists "count_only" on public.digest_subscribers
   for select
   to public, anon, authenticated
   using (false);  -- Cannot read rows, but COUNT(*) still works
 
 -- Anyone can insert their email (subscribe)
-create policy "subscribe_only" on public.digest_subscribers
+create policy if not exists "subscribe_only" on public.digest_subscribers
   for insert
   to public, anon, authenticated
   with check (true);
 
 -- Can only see their own record if they know the unsubscribe token
-create policy "view_own" on public.digest_subscribers
+create policy if not exists "view_own" on public.digest_subscribers
   for select
   to authenticated
   using (auth.uid()::text = id::text);  -- In practice, unsubscribe uses token in URL
