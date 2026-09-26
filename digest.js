@@ -1,5 +1,6 @@
 /* Weekly ward digest: one ward's (or block's) Monday–Sunday week, from the public view.
-   digest.html?ward=5 · digest.html?block=Arsha · add &week=YYYY-MM-DD (a Monday) for an earlier week. */
+   digest.html?ward=5 · digest.html?block=Arsha · digest.html?all=district|town|villages (the default
+   is all of Purulia) · add &week=YYYY-MM-DD (a Monday) for an earlier week. */
 (async function(){
   const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,rejected_claims,area_kind,block_name,parent_report_id';
   const DAY = 86400000, IST = 330 * 60000;
@@ -33,7 +34,10 @@
 
   const q = new URLSearchParams(location.search);
   const blocks = [...new Set([...(city.constituencies || []).flatMap(c => c.blocks || []), ...Object.keys(city.splitBlocks || {})])].sort();
-  let area = q.get('block') ? { kind: 'block', id: q.get('block') } : { kind: 'ward', id: Number(q.get('ward')) || 1 };
+  const ALL = { district: 'All of Purulia', town: 'All of Purulia town', villages: 'All villages' };
+  let area = q.get('block') ? { kind: 'block', id: q.get('block') }
+    : q.get('ward') ? { kind: 'ward', id: Number(q.get('ward')) || 1 }
+    : { kind: 'all', id: ALL[q.get('all')] ? q.get('all') : 'district' };
   const w = q.get('week') && Date.parse(q.get('week') + 'T00:00:00+05:30');
   let start = Number.isFinite(w) ? mondayOf(w) : lastFullWeek;
 
@@ -47,10 +51,13 @@
   const wards = wardRes.data || [];
 
   const sel = document.getElementById('dg-area');
-  sel.innerHTML = '<optgroup label="Purulia town">' + wards.map(x => `<option value="ward:${x.ward_no}">Ward ${x.ward_no}</option>`).join('')
+  sel.innerHTML = '<optgroup label="Everything">' + Object.entries(ALL).map(([k, v]) => `<option value="all:${k}">${v}</option>`).join('') + '</optgroup>'
+    + '<optgroup label="Purulia town">' + wards.map(x => `<option value="ward:${x.ward_no}">Ward ${x.ward_no}</option>`).join('')
     + '</optgroup><optgroup label="Villages, by block">' + blocks.map(b => `<option value="block:${esc(b)}">${esc(b)} block</option>`).join('') + '</optgroup>';
 
-  const inArea = r => area.kind === 'ward'
+  const inArea = r => area.kind === 'all'
+    ? area.id === 'district' || (area.id === 'town' ? r.area_kind !== 'rural' : r.area_kind === 'rural')
+    : area.kind === 'ward'
     ? r.area_kind !== 'rural' && Number(r.ward_no) === area.id
     : r.area_kind === 'rural' && (r.block_name || '').toLowerCase() === area.id.toLowerCase();
   const isFix = r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at && !relapsed.has(String(r.id));
@@ -63,7 +70,7 @@
     const openAtEnd = mine.filter(r => Date.parse(r.created_at) < end && !(r.status === 'resolved' && (!r.resolved_at || Date.parse(r.resolved_at) < end)));
     const overdue = openAtEnd.filter(r => (cut - Date.parse(r.created_at)) / DAY > (r.sla_days || 7));
     const ward = area.kind === 'ward' && wards.find(x => x.ward_no === area.id);
-    const place = area.kind === 'ward' ? `Ward ${area.id}` : `${area.id} block`;
+    const place = area.kind === 'all' ? ALL[area.id] : area.kind === 'ward' ? `Ward ${area.id}` : `${area.id} block`;
     const week = `${fmt(start, { day: 'numeric', month: 'short' })} – ${fmt(end - 1, { day: 'numeric', month: 'short', year: 'numeric' })}${soFar ? ' (so far)' : ''}`;
 
     set('dg-place', place); set('dg-week', week);
@@ -79,7 +86,7 @@
       : `<li><small>${esc(empty)}</small></li>`; };
     list('dg-new', opened, r => fmt(r.created_at, { weekday: 'short', day: 'numeric', month: 'short' }), 'No new reports this week.');
     list('dg-fixed', fixed, r => { const d = Math.round((Date.parse(r.resolved_at) - Date.parse(r.created_at)) / DAY); return d < 1 ? 'fixed same day' : `fixed in ${d} days`; }, 'Nothing verified fixed this week.');
-    list('dg-oldest', [...openAtEnd].sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).slice(0, 8),
+    list('dg-oldest', [...openAtEnd].sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at)).slice(0, area.kind === 'all' ? 15 : 8),
       r => { const d = Math.floor((cut - Date.parse(r.created_at)) / DAY); return `${d < 1 ? 'today' : d === 1 ? '1 day' : d + ' days'}${(cut - Date.parse(r.created_at)) / DAY > (r.sla_days || 7) ? ' · overdue' : ''}`; },
       'Nothing waiting. 🎉');
 
