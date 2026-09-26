@@ -2958,10 +2958,54 @@ async function locateOnOpen(){
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
       if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)) return;
+      askStillThere(lat, lng, p.coords.accuracy);
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
       mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
     }, () => {}, { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
   } catch (e) {}
+}
+
+/* "Still there?" Someone who already shares their location, standing within 100 m of an
+   unresolved report at least 2 days old, is asked once (per report, per week, per phone)
+   whether it's still there. "Yes" is an on-site sighting; "It's been cleaned" starts the
+   usual photo-proof cleanup claim. Nothing is asked of people who haven't allowed location. */
+const STILL_RADIUS_M = 100, STILL_MIN_DAYS = 2, STILL_REASK_DAYS = 7;
+function askStillThere(lat, lng, accuracy){
+  if (askStillThere.done || accuracy > STILL_RADIUS_M) return;
+  let asked = {};
+  try { asked = JSON.parse(localStorage.getItem('kasa_still_asked') || '{}'); } catch (e) {}
+  const now = Date.now();
+  const r = primaries()
+    .filter(x => x.status === 'open' && !x.pending && !state.seen.has(x.id) && daysSince(x.createdAt) >= STILL_MIN_DAYS
+      && !(asked[x.id] && now - asked[x.id] < STILL_REASK_DAYS * 86400000))
+    .map(x => ({ x, d: distanceM(lat, lng, x.lat, x.lng) }))
+    .filter(o => o.d <= STILL_RADIUS_M)
+    .sort((a, b) => a.d - b.d)[0]?.x;
+  if (!r) return;
+  askStillThere.done = true;
+  asked[r.id] = now;
+  try { localStorage.setItem('kasa_still_asked', JSON.stringify(asked)); } catch (e) {}
+  const el = document.getElementById('k-still');
+  el.innerHTML = `
+    ${r.photo ? `<img src="${esc(r.photo)}" alt="" data-open="${esc(r.id)}">` : ''}
+    <div>
+      <div class="k-still-q">${esc(t('still_q', { cat: t('cat_' + r.category) }))}</div>
+      <div class="k-still-m">${esc(t('still_meta', { d: daysSince(r.createdAt), place: r.landmark || placeLabel(r) }))}</div>
+      <div class="k-still-a">
+        <button type="button" class="k-still-yes" data-still="yes">${esc(t('still_yes'))}</button>
+        <button type="button" class="k-still-gone" data-still="gone">${esc(t('still_gone'))}</button>
+        <button type="button" data-still="no">${esc(t('still_later'))}</button>
+      </div>
+    </div>`;
+  el.hidden = false;
+  el.onclick = e => {
+    const b = e.target.closest('[data-still]');
+    if (e.target.closest('[data-open]')) el.hidden = true;
+    if (!b) return;
+    el.hidden = true;
+    if (b.dataset.still === 'yes') handleSeen(r.id, b);
+    else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+  };
 }
 
 function openLightbox(src, alt){
