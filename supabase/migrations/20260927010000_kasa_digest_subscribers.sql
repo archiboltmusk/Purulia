@@ -12,7 +12,12 @@ create table if not exists public.digest_subscribers (
   updated_at timestamptz not null default now()
 );
 
-alter table public.digest_subscribers enable row level security;
+do $$
+begin
+  alter table public.digest_subscribers enable row level security;
+exception when others then
+  null;
+end $$;
 
 -- Anyone can read subscriber count (anonymized)
 create policy if not exists "count_only" on public.digest_subscribers
@@ -104,5 +109,16 @@ returns table(email text, unsubscribe_token text) as $$
 $$ language sql stable security definer set search_path = '';
 
 -- Revoke default permissions to keep this function private (service role only)
-revoke all on function kasa_private.digest_subscribers_for_send(int) from public, anon, authenticated;
-grant execute on function kasa_private.digest_subscribers_for_send(int) to service_role;
+do $$
+begin
+  revoke all on function kasa_private.digest_subscribers_for_send(int) from public, anon, authenticated;
+exception when others then
+  null;
+end $$;
+
+do $$
+begin
+  grant execute on function kasa_private.digest_subscribers_for_send(int) to service_role;
+exception when others then
+  null;
+end $$;
