@@ -13,25 +13,37 @@ create table if not exists public.digest_subscribers (
 );
 
 -- RLS is enabled automatically when the first policy is created
--- (or can be enabled in a separate migration if needed)
+alter table public.digest_subscribers enable row level security;
 
 -- Anyone can read subscriber count (anonymized)
-create policy if not exists "count_only" on public.digest_subscribers
-  for select
-  to public, anon, authenticated
-  using (false);  -- Cannot read rows, but COUNT(*) still works
+do $$
+begin
+  create policy "count_only" on public.digest_subscribers
+    for select
+    to public, anon, authenticated
+    using (false);  -- Cannot read rows, but COUNT(*) still works
+exception when duplicate_object then null;
+end $$;
 
 -- Anyone can insert their email (subscribe)
-create policy if not exists "subscribe_only" on public.digest_subscribers
-  for insert
-  to public, anon, authenticated
-  with check (true);
+do $$
+begin
+  create policy "subscribe_only" on public.digest_subscribers
+    for insert
+    to public, anon, authenticated
+    with check (true);
+exception when duplicate_object then null;
+end $$;
 
 -- Can only see their own record if they know the unsubscribe token
-create policy if not exists "view_own" on public.digest_subscribers
-  for select
-  to authenticated
-  using (auth.uid()::text = id::text);  -- In practice, unsubscribe uses token in URL
+do $$
+begin
+  create policy "view_own" on public.digest_subscribers
+    for select
+    to authenticated
+    using (auth.uid()::text = id::text);  -- In practice, unsubscribe uses token in URL
+exception when duplicate_object then null;
+end $$;
 
 create index if not exists idx_digest_subscribers_email on public.digest_subscribers(email);
 create index if not exists idx_digest_subscribers_active on public.digest_subscribers(is_active);
