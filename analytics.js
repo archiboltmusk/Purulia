@@ -135,4 +135,68 @@
     brows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.block)}</td>
       <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
     'No village reports yet. Parishkar now takes reports from all 20 blocks of the district.');
+
+  // MLA / MP leaderboard, from the constituency table in city.js.
+  const city = window.KASA_CITY || {};
+  const seats = city.constituencies || [], reps = city.reps || {}, splits = city.splitBlocks || {};
+  const person = p => typeof p === 'string' ? reps[p] : p;
+  const townSeat = seats.find(c => c.town);
+  const key = b => (b || '').toLowerCase();
+  const byBlock = {}; seats.forEach(c => (c.blocks || []).forEach(b => { byBlock[key(b)] = c; }));
+  const splitByKey = {}; Object.entries(splits).forEach(([name, v]) => { splitByKey[key(name)] = { name, ...v }; });
+  const blank = () => ({ open: 0, overdue: 0, fixed: 0, fake: 0, days: [] });
+  const add = (s, r) => {
+    if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
+    else if (r.resolution_method === 'community' && r.resolved_at){ s.fixed++; s.days.push(fixDays(r)); }
+    s.fake += r.rejected_claims || 0;
+  };
+  const cstats = new Map(seats.map(c => [c, blank()])), sstats = new Map(), unmapped = blank();
+  all.forEach(r => {
+    const rural = r.area_kind === 'rural';
+    const seat = rural ? byBlock[key(r.block_name)] : (r.ward_no ? townSeat : null);
+    if (seat) return add(cstats.get(seat), r);
+    const sp = rural && splitByKey[key(r.block_name)];
+    if (sp){ if (!sstats.has(sp)) sstats.set(sp, blank()); return add(sstats.get(sp), r); }
+    add(unmapped, r);
+  });
+  const cells = s => { const m = median(s.days); return `<td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td>`; };
+  const nums = '<th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>';
+  const who = p => p ? `${esc(p.name)}${p.party ? ` <small>(${esc(p.party)})</small>` : ''}` : '<small>not listed</small>';
+  const order = (a, b) => b[1].open - a[1].open || b[1].overdue - a[1].overdue;
+  const seatName = no => (seats.find(c => c.no === no) || {}).name || no;
+  const any = s => s.open + s.fixed + s.fake;
+  const mlaRows = [...cstats].sort(order).map(([c, s]) => `<tr><td>${esc(c.name)}${c.no ? ` <small>(No. ${c.no})</small>` : ''}</td><td>${who(person(c.mla))}</td>${cells(s)}</tr>`);
+  [...sstats].filter(([, s]) => any(s)).sort(order).forEach(([sp, s]) => mlaRows.push(
+    `<tr><td>${esc(sp.name)} block</td><td><small>split between ${esc(sp.seats.map(seatName).join(', '))}</small></td>${cells(s)}</tr>`));
+  if (any(unmapped)) mlaRows.push(`<tr><td><em>Not mapped yet</em></td><td><small>no ward or block recorded</small></td>${cells(unmapped)}</tr>`);
+  document.getElementById('an-mla').innerHTML = table('<th>Assembly seat</th><th>MLA</th>' + nums, mlaRows, 'No constituencies set up yet.');
+  const lstats = new Map();
+  const addTo = (ls, s) => {
+    if (!ls) return;
+    const t = lstats.get(ls) || blank();
+    t.open += s.open; t.overdue += s.overdue; t.fixed += s.fixed; t.fake += s.fake; t.days.push(...s.days);
+    lstats.set(ls, t);
+  };
+  cstats.forEach((s, c) => addTo(c.lokSabha, s));
+  sstats.forEach((s, sp) => addTo(sp.lokSabha, s));
+  document.getElementById('an-mp').innerHTML = table('<th>Lok Sabha seat</th><th>MP</th>' + nums,
+    [...lstats].sort(order).map(([ls, s]) => `<tr><td>${esc(ls)}</td><td>${who(person((city.lokSabha || {})[ls]?.mp))}</td>${cells(s)}</tr>`),
+    'No Lok Sabha seats set up yet.');
+  set('an-mla-note', 'Town reports count toward the Purulia seat; village reports count by CD block. Arsha, Purulia I and Hura blocks are divided between assembly seats by gram panchayat, so they have their own rows. Seats: Delimitation Commission Order No. 18 (2006). MLAs: 2026 assembly election. MPs: 2024 Lok Sabha election. Spotted a mistake? Write to the Grievance Officer.');
+
+  // Moderation in public: monthly counts only, no IDs (kasa_public_transparency).
+  const { data: tr, error: trErr } = await sb.rpc('kasa_public_transparency');
+  if (trErr || !tr){ document.getElementById('an-mod').innerHTML = '<div class="an-empty">Could not load moderation counts.</div>'; return; }
+  const n = tr.now || {};
+  set('an-mod-now', `Right now: ${n.waiting_review ?? 0} waiting for a moderator · ${n.hidden ?? 0} hidden · team of ${n.admins ?? 0} admin${n.admins === 1 ? '' : 's'} and ${n.moderators ?? 0} moderator${n.moderators === 1 ? '' : 's'}. Reasons are shown on each report's own evidence trail.`);
+  const MOD_COLS = [['reported', 'Reports'], ['flagged', 'Flags'], ['hidden', 'Hidden'], ['kept', 'Kept after review'],
+    ['recategorized', 'Category fixed by moderator'], ['auto_recategorized', 'Category fixed automatically'],
+    ['claims_rejected', 'Fake cleanups thrown out'], ['claims_expired', 'Cleanup claims expired'],
+    ['votes_voided', 'Confirmations voided'], ['official_replies', 'Official replies']];
+  const months = (tr.months || []).filter(m => MOD_COLS.some(([k]) => m[k]));
+  document.getElementById('an-mod').innerHTML = table(
+    '<th>Month</th>' + MOD_COLS.map(([, l]) => `<th class="n">${esc(l)}</th>`).join(''),
+    months.map(m => `<tr><td>${esc(new Date(m.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }))}</td>`
+      + MOD_COLS.map(([k]) => `<td class="n">${m[k] || 0}</td>`).join('') + '</tr>'),
+    'Nothing yet in the last 12 months.');
 })();

@@ -1,0 +1,11 @@
+// Cloudflare Workers Builds serves the static site from the repo root.
+// What gets left out lives in .assetsignore (mirrors github-pages.yml).
+{
+  "name": "purulia",
+  "compatibility_date": "2026-09-01",
+  "assets": {
+    "directory": "."
+  },
+  // Required by `wrangler preview` (the per-branch preview builds).
+  "previews": {}
+}

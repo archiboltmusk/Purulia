@@ -1,0 +1,17 @@
+# Not published — keep in step with the rsync excludes in .github/workflows/github-pages.yml
+.git
+.github
+.wrangler
+node_modules
+supabase
+tests
+tools
+deploy
+*.md
+og-card.html
+founding-document.html
+moderator-playbook.html
+.gitignore
+.assetsignore
+vercel.json
+wrangler.jsonc

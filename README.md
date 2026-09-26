@@ -155,6 +155,7 @@ Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic 
 - **Backend:** Supabase: database rules in `supabase/migrations/`, server functions in `supabase/functions/`, tests in `supabase/tests/`.
 - **Deployment:** pushing to `main` publishes the site to GitHub Pages through `.github/workflows/github-pages.yml`.
 - **Public record:** a daily tamper-evident fingerprint of all public data is kept in `record/` (see `record/README.md`).
+- **Run it in your own town:** see [`DEPLOY.md`](DEPLOY.md). Everything town-specific the app shows lives in `city.js`.
 
 ---
 

@@ -3,13 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Public analytics — Parishkar Purulia</title>
-<meta name="description" content="Live numbers from Parishkar Purulia: reports, verified fixes, how fast problems get fixed, problems that keep coming back, and every ward's record.">
-<meta property="og:title" content="Public analytics — Parishkar Purulia">
-<meta property="og:description" content="How fast Purulia's civic problems get fixed, ward by ward, from neighbour-verified reports.">
+<title>Weekly ward digest — Parishkar Purulia</title>
+<meta name="description" content="Each ward's week on Parishkar Purulia: new reports, verified fixes, what is overdue and what is still waiting.">
+<meta property="og:title" content="Weekly ward digest — Parishkar Purulia">
+<meta property="og:description" content="What happened in your ward this week: new reports, verified fixes, overdue problems.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
-<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/analytics.html">
-<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/analytics.html">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/digest.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/digest.html">
 <meta name="theme-color" content="#0a0805">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -52,6 +52,14 @@
   .an-footer a{color:var(--amber);}
   .an-table td:first-child,.an-table td.n{white-space:nowrap;}
   @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+  .dg-controls{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-bottom:1.4rem;}
+  .dg-controls select,.dg-controls button{padding:.55rem .8rem;background:var(--ink2);border:1px solid var(--border2);color:var(--text-hi);font-family:var(--mono);font-size:12px;border-radius:3px;}
+  .dg-controls button:disabled{opacity:.35;}
+  .dg-share{background:var(--amber)!important;color:var(--ink)!important;border-color:var(--amber)!important;margin-left:auto;}
+  .dg-list{list-style:none;margin-top:.8rem;}
+  .dg-list li{padding:.55rem 0;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;gap:1rem;font-size:.92rem;color:var(--text-hi);}
+  .dg-list li a{color:var(--amber);}
+  .dg-list li small{color:var(--text-lo);font-family:var(--mono);font-size:11px;white-space:nowrap;}
 </style>
 </head>
 <body>
@@ -72,75 +80,47 @@
 <main class="an-wrap">
   <div class="an-head">
     <div>
-      <h1 class="an-title">Parishkar Purulia, <em>in numbers</em></h1>
-      <p class="an-sub">Live from the public record. A problem counts as fixed only when neighbours confirm it on the spot. Reports are residents' allegations, not verified facts.</p>
+      <h1 class="an-title"><span id="dg-place">Your ward</span>, <em id="dg-week">this week</em></h1>
+      <p class="an-sub" id="dg-sub">A new digest every Monday, from the public record. A problem counts as fixed only when neighbours confirm it on the spot.</p>
     </div>
     <div class="an-meta"><span id="an-updated">Loading…</span> · <a href="methodology.html">How we count</a></div>
   </div>
 
-  <section class="an-tiles" aria-label="Headline numbers">
-    <div class="an-tile"><div class="an-tile-n" id="t-reports">—</div><div class="an-tile-l">Reports</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Unresolved</div><div class="an-tile-s" id="t-overdue"></div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-median">—</div><div class="an-tile-l">Typical days to fix</div><div class="an-tile-s">median of verified fixes</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-streak">—</div><div class="an-tile-l">Fix streak</div><div class="an-tile-s">days in a row with a verified fix</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-fake">—</div><div class="an-tile-l">Fake cleanups caught</div></div>
+  <div class="dg-controls">
+    <select id="dg-area" aria-label="Ward or block"></select>
+    <button type="button" id="dg-prev" aria-label="Previous week">← Earlier</button>
+    <button type="button" id="dg-next" aria-label="Next week">Later →</button>
+    <button type="button" class="dg-share" id="dg-share">Share this digest</button>
+  </div>
+
+  <section class="an-tiles" aria-label="This week">
+    <div class="an-tile"><div class="an-tile-n" id="t-new">—</div><div class="an-tile-l">New reports</div><div class="an-tile-s">this week</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div><div class="an-tile-s">this week</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Still unresolved</div><div class="an-tile-s" id="t-open-when">at the end of the week</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-overdue">—</div><div class="an-tile-l">Overdue</div><div class="an-tile-s">past their deadline</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-fake">—</div><div class="an-tile-l">Fake cleanups caught</div><div class="an-tile-s">in this area, all time</div></div>
   </section>
 
   <div class="an-grid">
-    <section class="an-card an-span">
-      <h2>Reports filed per day</h2>
-      <p class="an-card-sub">Last 30 days, all categories.</p>
-      <div class="an-chart" id="an-chart"><div class="an-tip" id="an-tip"></div></div>
-      <details class="an-details"><summary>Show as a table</summary><div class="an-table-wrap" id="an-chart-table"></div></details>
-    </section>
-
     <section class="an-card">
-      <h2>Fastest fixes this week</h2>
-      <p class="an-card-sub">Verified fixes in the last 7 days, quickest first.</p>
-      <div class="an-table-wrap" id="an-fast"></div>
+      <h2>Reported this week</h2>
+      <ul class="dg-list" id="dg-new"></ul>
     </section>
-
     <section class="an-card">
-      <h2>Problems that keep coming back</h2>
-      <p class="an-card-sub">Spots reported again within 60 days of being fixed.</p>
-      <div class="an-table-wrap" id="an-repeat"></div>
+      <h2>Fixed this week</h2>
+      <ul class="dg-list" id="dg-fixed"></ul>
     </section>
-
     <section class="an-card an-span">
-      <h2>Every ward in Purulia town</h2>
-      <p class="an-card-sub">Ordered by unresolved reports. Tap a ward to see it on the map.</p>
-      <div class="an-table-wrap" id="an-wards"></div>
-    </section>
-
-    <section class="an-card an-span">
-      <h2>Every block</h2>
-      <p class="an-card-sub">Reports from villages, outside Purulia town, by CD block. Ordered by unresolved reports.</p>
-      <div class="an-table-wrap" id="an-blocks"></div>
-    </section>
-
-    <section class="an-card an-span">
-      <h2>By MLA and MP</h2>
-      <p class="an-card-sub">Every report, grouped by the assembly seat and Lok Sabha seat it falls in. Ordered by unresolved reports.</p>
-      <div class="an-table-wrap" id="an-mla"></div>
-      <div class="an-table-wrap" id="an-mp" style="margin-top:1rem"></div>
-      <p class="an-card-sub" id="an-mla-note"></p>
-    </section>
-
-    <section class="an-card an-span">
-      <h2>What moderators and automatic checks did</h2>
-      <p class="an-card-sub" id="an-mod-now">Every moderator action and automatic check is counted here, month by month. Reasons are shown on each report's own evidence trail.</p>
-      <div class="an-table-wrap" id="an-mod"></div>
+      <h2>Waiting longest</h2>
+      <p class="an-card-sub">Unresolved at the end of the week, oldest first.</p>
+      <ul class="dg-list" id="dg-oldest"></ul>
     </section>
   </div>
 
   <div class="an-footer">
-    <a href="digest.html">Weekly ward digest</a>
-    <a href="changelog.html">What's new</a>
-    <a href="methodology.html">How we count</a>
     <a href="kasa.html">Report map</a>
-    <a href="terms.html">Terms</a>
-    <a href="privacy.html">Privacy</a>
+    <a href="analytics.html">All numbers</a>
+    <a href="changelog.html">What's new</a>
     <a href="grievance.html">Grievance Officer</a>
   </div>
 </main>
@@ -149,6 +129,6 @@
 <script defer src="config.js"></script>
 <script defer src="city.js"></script>
 <script defer src="kasa-i18n.js"></script>
-<script defer src="analytics.js"></script>
+<script defer src="digest.js"></script>
 </body>
 </html>

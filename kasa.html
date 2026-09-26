@@ -31,6 +31,7 @@
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
 <script defer src="config.js"></script>
+<script defer src="city.js"></script>
 <script defer src="kasa-i18n.js"></script>
 <script defer src="kasa-photo-meta.js"></script>
 <script defer src="kasa.js"></script>
@@ -123,6 +124,17 @@
 
   <div class="k-ward-card" id="k-ward-card" hidden></div>
 
+  <button type="button" class="k-fixed-chip" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+    ✓ <span id="k-fixed-chip-n"></span> <span data-i18n="fixed_chip">fixed</span>
+  </button>
+  <div class="k-fixed-strip" id="k-fixed-strip" hidden>
+    <div class="k-fixed-strip-head">
+      <span data-i18n="fixed_title">Recently fixed</span>
+      <button type="button" class="k-fixed-strip-close" id="k-fixed-strip-close" aria-label="Close">✕</button>
+    </div>
+    <div class="k-fixed-strip-list" id="k-fixed-strip-list"></div>
+  </div>
+
   <div class="k-map-legend" aria-hidden="true">
     <span><i class="k-dot k-dot-minor"></i> <span data-i18n="sev_minor">Minor</span></span>
     <span><i class="k-dot k-dot-severe"></i> <span data-i18n="sev_severe">Severe</span></span>
@@ -152,6 +164,9 @@
     <a href="map.html" data-i18n="nav_map">Map</a>
     <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
     <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
+    <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
+    <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
+    <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
   </nav>
 <header class="k-hero">
   <div class="k-wordmark-lg">
@@ -251,6 +266,8 @@
   <nav class="k-footer-links" aria-label="Legal">
     <a href="communities.html" data-i18n="footer_groups">Volunteer groups</a>
     <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
+    <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
+    <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
     <a href="methodology.html" data-i18n="footer_methodology">How we count</a>
     <a href="rules.html" data-i18n="footer_rules">Rules</a>
     <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
@@ -451,6 +468,10 @@
     <video id="k-cam-video" playsinline muted autoplay></video>
     <img id="k-cam-still" alt="" hidden>
     <div class="k-cam-msg" id="k-cam-msg"></div>
+    <div class="k-cam-tools" id="k-cam-tools" hidden>
+      <button type="button" class="k-cam-flash" id="k-cam-flash" aria-pressed="false" hidden aria-label="Flash">⚡</button>
+      <div class="k-cam-zoom" id="k-cam-zoom" role="group" aria-label="Zoom"></div>
+    </div>
   </div>
   <div class="k-cam-bar">
     <button type="button" class="k-cam-shutter" id="k-cam-shutter" aria-label="Take photo" disabled></button>

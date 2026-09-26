@@ -16,11 +16,14 @@ const SUPABASE_ANON_KEY = CFG.SUPABASE_ANON_KEY || '';
 const TURNSTILE_SITE_KEY = CFG.TURNSTILE_SITE_KEY || '';
 const VAPID_PUBLIC_KEY = CFG.VAPID_PUBLIC_KEY || '';
 const GRIEVANCE_EMAIL = CFG.GRIEVANCE_EMAIL || 'thelosthillproject@gmail.com';
-const MUNICIPALITY_PHONE = '919046003666';
-const MUNICIPALITY_EMAIL = 'puruliamunicipality@gmail.com';
-const MLA_TWITTER_HANDLE = 'SudipKMukherjee';
-const MAP_CENTER = [86.3654, 23.3320];
-const MAP_ZOOM = 13;
+// Local names, places and contacts come from city.js (see DEPLOY.md).
+const CITY = window.KASA_CITY || {};
+const CITY_NAME = CITY.name || 'Purulia';
+const MUNICIPALITY_PHONE = CITY.municipalityPhone || '';
+const MUNICIPALITY_EMAIL = CITY.municipalityEmail || '';
+const MLA_TWITTER_HANDLE = CITY.mlaTwitterHandle || '';
+const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
+const MAP_ZOOM = CITY.mapZoom || 13;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
@@ -96,12 +99,8 @@ const ROLE_ABBR = {
   pradhan: 'GP', bdo: 'BDO', sdo_area: 'SDO', cdpo: 'CDPO', dpo: 'DPO', bmoh: 'BMOH', cmoh: 'CMOH', si_school: 'SI', di_school: 'DI'
 };
 
-// photo: a file in reps/ whose license allows reuse; photoCredit: the attribution it requires; photoPos: optional crop point.
-const REPS = {
-  mla: { name: 'Sudip Kumar Mukherjee', role: 'rep_mla_role', party: 'BJP', initials: 'SKM', photo: 'reps/mla-sudip-kumar-mukherjee.jpg', photoCredit: '' },
-  mp: { name: 'Jyotirmay Singh Mahato', role: 'rep_mp_role', party: 'BJP', initials: 'JSM', photo: 'reps/mp-jyotirmay-singh-mahato.webp', photoCredit: '' },
-  chairman: { name: 'Nabendu Mahali', role: 'rep_chair_role', party: 'AITC', initials: 'NM', meta: 'rep_chair_meta', photo: 'reps/chairman-nabendu-mahali.jpg', photoCredit: '', photoPos: '62% 38%' }
-};
+// Elected representatives, from city.js.
+const REPS = CITY.reps || {};
 
 function repAvatar(rep, cls){
   return `<span class="${cls}"><span>${esc(rep.initials)}</span>${rep.photo ? `<img class="k-rep-photo" src="${esc(rep.photo)}" alt="" loading="lazy"${rep.photoPos ? ` style="object-position:${esc(rep.photoPos)}"` : ''}>` : ''}</span>`;
@@ -356,7 +355,7 @@ async function loadCommunities(){
 
 async function loadWardGeo(){
   try {
-    const res = await fetch('purulia_wards.geojson');
+    const res = await fetch(CITY.wardsGeojson || 'purulia_wards.geojson');
     if (res.ok) state.wardGeo = await res.json();
   } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
@@ -378,7 +377,7 @@ function pointInPolygon(pt, geom){
 async function loadBlockGeo(){
   if (state.blockGeo) return;
   try {
-    const res = await fetch('purulia_blocks.geojson');
+    const res = await fetch(CITY.blocksGeojson || 'purulia_blocks.geojson');
     if (res.ok) state.blockGeo = await res.json();
   } catch (e) { console.info('Parishkar: no block boundaries'); }
 }
@@ -905,6 +904,7 @@ function renderWardCard(){
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-ward-filter="${n}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
       <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
+      <a class="k-ward-filter" href="digest.html?ward=${n}">${esc(t('wc_digest'))}</a>
     </div>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
@@ -1037,6 +1037,11 @@ function renderFixed(){
   const el = document.getElementById('k-fixed-list');
   if (!el) return;
   const fixes = recentFixes();
+  // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
+  const chip = document.getElementById('k-fixed-chip');
+  chip.hidden = !fixes.length;
+  document.getElementById('k-fixed-chip-n').textContent = fixes.length;
+  if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
     const c = CATEGORIES[r.category];
@@ -1059,7 +1064,13 @@ function renderFixed(){
       </span>
     </button>`;
   }).join('');
+  document.getElementById('k-fixed-strip-list').innerHTML = el.innerHTML;
   loadFixConfirmations();
+}
+
+function setFixedStrip(open){
+  document.getElementById('k-fixed-strip').hidden = !open;
+  document.getElementById('k-fixed-chip').setAttribute('aria-expanded', String(open));
 }
 
 function renderTicker(){
@@ -1349,25 +1360,25 @@ function renderAccountability(r){
     </div>`;
 }
 
-/* Official channels with their own deadlines. Numbers checked September 2026; keep them current. */
-const STATE_HELPLINE = '8282082820';
-const STATE_HELPLINE_EMAIL = 'asap@wb.gov.in';
+/* Official channels with their own deadlines, from city.js. */
+const STATE_HELPLINE = CITY.stateHelpline || '';
+const STATE_HELPLINE_EMAIL = CITY.stateHelplineEmail || '';
 const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
 function renderEscalate(r){
   const msg = reportMessage(r);
-  const items = [
-    [`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: '82820 82820' }), t('esc_state_s')],
-    [`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent('Purulia — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]
-  ];
+  const items = [];
+  if (STATE_HELPLINE) items.push([`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: CITY.stateHelplineDisplay || STATE_HELPLINE }), t('esc_state_s')]);
+  if (STATE_HELPLINE_EMAIL) items.push([`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent(CITY_NAME + ' — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]);
   if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
-  if (r.category === 'streetlight') items.push(['https://www.wbsedcl.in/', t('esc_power'), t('esc_power_s')]);
-  items.push(['https://par.wb.gov.in/rtilogin.php', t('esc_rti'), t('esc_rti_s')]);
+  if (r.category === 'streetlight' && CITY.powerUtilityUrl) items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);
+  if (CITY.rtiPortalUrl) items.push([CITY.rtiPortalUrl, t('esc_rti'), t('esc_rti_s')]);
   return `
     <div class="k-escalate">
       <div class="k-acc-reps-label">${esc(t('esc_title'))}</div>
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
       ${isOverdue(r) ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
 }
@@ -1638,15 +1649,99 @@ async function submitFlag(){
   }
 }
 
-function shareReport(id){
+async function shareReport(id){
   const r = state.byId.get(id);
   if (!r) return;
   const url = `${PAGE_URL}?report=${encodeURIComponent(id)}`;
   const text = r.area === 'rural' && r.block
     ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
     : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
+  // A picture travels on WhatsApp where a bare link doesn't: send the card with the link.
+  const card = await shareCard(r).catch(() => null);
+  const file = card && new File([card], `parishkar-${id.slice(0, 8)}.png`, { type: 'image/png' });
+  if (file && navigator.canShare?.({ files: [file] })){
+    try { await navigator.share({ files: [file], title: 'Parishkar Purulia', text: `${text} ${url}` }); } catch (e) {}
+    return;
+  }
   if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
-  copyText(url);
+  // Desktop: save the card and copy the link, ready to paste into WhatsApp Web.
+  if (card){
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(card);
+    a.download = file.name;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 5000);
+  }
+  copyText(url, card ? 'share_card_saved' : 'ct_copied');
+}
+
+/* Which assembly seat a report falls in, from city.js (null for split or unmapped blocks). */
+function seatFor(r){
+  const seats = CITY.constituencies || [];
+  if (r.area !== 'rural') return r.ward ? seats.find(c => c.town) || null : null;
+  const b = (r.block || '').toLowerCase();
+  return seats.find(c => (c.blocks || []).some(x => x.toLowerCase() === b)) || null;
+}
+
+/* 1080×1350 share card: the photo, how long it's been open, who is responsible, the link. */
+async function shareCard(r){
+  const W = 1080, H = 1350, PH = 820, PAD = 64;
+  const c = document.createElement('canvas');
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  await document.fonts?.ready;
+  g.fillStyle = '#0a0805'; g.fillRect(0, 0, W, H);
+  if (r.photo){
+    const img = await new Promise((resolve, reject) => {
+      const i = new Image(); i.crossOrigin = 'anonymous';
+      i.onload = () => resolve(i); i.onerror = reject; i.src = r.photo;
+    }).catch(() => null);
+    if (img){
+      const s = Math.max(W / img.width, PH / img.height);
+      g.save(); g.beginPath(); g.rect(0, 0, W, PH); g.clip();
+      g.drawImage(img, (W - img.width * s) / 2, (PH - img.height * s) / 2, img.width * s, img.height * s);
+      g.restore();
+    }
+  }
+  const fixed = r.status === 'resolved', days = daysSince(r.createdAt);
+  const serif = '"EB Garamond", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
+  const mono = '"DM Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
+  // Status badge over the photo
+  const badge = fixed ? t('card_fixed') : days < 1 ? t('card_today') : t(isOverdue(r) ? 'card_overdue' : 'card_open', { d: days });
+  g.font = `500 34px ${mono}`;
+  const bw = g.measureText(badge).width + 48;
+  g.fillStyle = fixed ? COLORS.resolved : isOverdue(r) ? COLORS.critical : COLORS.minor;
+  g.fillRect(PAD, PH - 90, bw, 64);
+  g.fillStyle = '#0a0805'; g.textBaseline = 'middle';
+  g.fillText(badge, PAD + 24, PH - 58);
+  // Text block
+  const wrap = (txt, x, y, maxW, lh, maxLines) => {
+    const words = String(txt).split(/\s+/); let line = '', n = 0;
+    for (const w of words){
+      const next = line ? line + ' ' + w : w;
+      if (g.measureText(next).width > maxW && line){ g.fillText(line, x, y); y += lh; line = w; if (++n >= maxLines - 1) break; }
+      else line = next;
+    }
+    if (line) g.fillText(line, x, y);
+    return y + lh;
+  };
+  g.textBaseline = 'alphabetic';
+  let y = PH + 100;
+  g.fillStyle = '#f0e6d0'; g.font = `700 72px ${serif}`;
+  y = wrap(t('cat_' + r.category), PAD, y, W - 2 * PAD, 80, 2);
+  g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `400 40px ${serif}`;
+  y = wrap(r.landmark ? `${r.landmark} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
+  const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
+  g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
+  y = wrap(`${t('card_responsible')}: ${t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
+  if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
+  // Footer
+  g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+  g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`;
+  g.fillText('Parishkar ' + CITY_NAME, PAD, H - 68);
+  g.font = `500 28px ${mono}`;
+  g.fillText(t(fixed ? 'card_cta_fixed' : 'card_cta'), PAD, H - 28);
+  return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
 }
 
 /* A ward link opens the map filtered to that ward: something a councillor can share. */
@@ -1693,8 +1788,8 @@ function downloadCSV(scope){
   showToast(t('csv_done', { n: rows.length }));
 }
 
-function copyText(s){
-  (navigator.clipboard?.writeText(s) || Promise.reject()).then(() => showToast(t('ct_copied')), () => showToast(s, 6000));
+function copyText(s, done = 'ct_copied'){
+  (navigator.clipboard?.writeText(s) || Promise.reject()).then(() => showToast(t(done)), () => showToast(s, 6000));
 }
 
 function reportMessage(r){
@@ -1856,7 +1951,7 @@ async function handleEvidencePhoto(file){
    could slip in. (Someone determined can still fake it; the people
    confirming on the spot are the real check.)
    ══════════════════════════════════════════════════════════ */
-const camera = { stream: null, blob: null, resolve: null, posPromise: null };
+const camera = { stream: null, blob: null, resolve: null, posPromise: null, torch: false, zoom: 1, hwZoom: null };
 
 function cameraSupported(){
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext !== false;
@@ -1868,6 +1963,7 @@ function showCameraState(s){
   document.getElementById('k-cam-shutter').hidden = s !== 'live';
   document.getElementById('k-cam-retake').hidden = s !== 'still';
   document.getElementById('k-cam-use').hidden = s !== 'still';
+  document.getElementById('k-cam-tools').hidden = s !== 'live' || !camera.stream;
 }
 
 function openCamera(){
@@ -1895,12 +1991,64 @@ async function startCameraStream(){
     await video.play().catch(() => {});
     document.getElementById('k-cam-msg').textContent = '';
     document.getElementById('k-cam-shutter').disabled = false;
+    setupCameraTools();
   } catch (e){
     closeCamera({ error: e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'denied' : 'unavailable' });
   }
 }
 
+/* Flash and zoom. Hardware torch/zoom where the browser exposes them (mostly Chrome on
+   Android); otherwise zoom is digital — the preview is scaled and the shot cropped to
+   match, so what you see is what gets sent. iOS Safari has no torch control at all. */
+const ZOOM_STEPS = [1, 2, 4];
+
+function setupCameraTools(){
+  const track = camera.stream?.getVideoTracks()[0];
+  let caps = {};
+  try { caps = track?.getCapabilities?.() || {}; } catch (e) {}
+  camera.torch = false;
+  camera.zoom = 1;
+  camera.hwZoom = caps.zoom && caps.zoom.max > caps.zoom.min ? caps.zoom : null;
+  const flash = document.getElementById('k-cam-flash');
+  flash.hidden = !caps.torch;
+  flash.setAttribute('aria-pressed', 'false');
+  // Digital zoom past 2× throws away too many pixels to be useful evidence.
+  const maxZoom = camera.hwZoom ? camera.hwZoom.max : 2;
+  const steps = ZOOM_STEPS.filter(z => z <= maxZoom);
+  const box = document.getElementById('k-cam-zoom');
+  box.innerHTML = steps.map(z => `<button type="button" data-zoom="${z}" aria-pressed="${z === 1}">${z}×</button>`).join('');
+  box.hidden = steps.length < 2;
+  applyCameraZoom(1);
+  document.getElementById('k-cam-tools').hidden = false;
+}
+
+async function toggleTorch(){
+  const track = camera.stream?.getVideoTracks()[0];
+  if (!track) return;
+  const on = !camera.torch;
+  try {
+    await track.applyConstraints({ advanced: [{ torch: on }] });
+    camera.torch = on;
+  } catch (e) { showToast(t('cam_flash_fail')); }
+  document.getElementById('k-cam-flash').setAttribute('aria-pressed', String(camera.torch));
+}
+
+async function applyCameraZoom(z){
+  const track = camera.stream?.getVideoTracks()[0];
+  const video = document.getElementById('k-cam-video');
+  camera.zoom = z;
+  if (camera.hwZoom && track){
+    const v = Math.min(camera.hwZoom.max, Math.max(camera.hwZoom.min, z));
+    try { await track.applyConstraints({ advanced: [{ zoom: v }] }); video.style.transform = ''; }
+    catch (e) { camera.hwZoom = null; }
+  }
+  if (!camera.hwZoom) video.style.transform = z > 1 ? `scale(${z})` : '';
+  document.querySelectorAll('#k-cam-zoom [data-zoom]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.zoom) === z)));
+}
+
 function stopCameraStream(){
+  camera.torch = false;
+  document.getElementById('k-cam-video').style.transform = '';
   if (camera.stream) camera.stream.getTracks().forEach(tr => tr.stop());
   camera.stream = null;
   document.getElementById('k-cam-video').srcObject = null;
@@ -1920,11 +2068,15 @@ async function takeCameraShot(){
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
-  const scale = Math.min(1, PHOTO_MAX_PX / Math.max(video.videoWidth, video.videoHeight));
+  // Digital zoom: crop the centre to match the scaled preview.
+  const dz = camera.hwZoom ? 1 : camera.zoom;
+  const sw = video.videoWidth / dz, sh = video.videoHeight / dz;
+  const sx = (video.videoWidth - sw) / 2, sy = (video.videoHeight - sh) / 2;
+  const scale = Math.min(1, PHOTO_MAX_PX / Math.max(sw, sh));
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(video.videoWidth * scale);
-  canvas.height = Math.round(video.videoHeight * scale);
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.width = Math.round(sw * scale);
+  canvas.height = Math.round(sh * scale);
+  canvas.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
   try {
     camera.blob = await new Promise((resolve, reject) =>
       canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.85));
@@ -2652,7 +2804,7 @@ function registerServiceWorker(){
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -2670,6 +2822,7 @@ function wireUI(){
     if (d.evidence) return openEvidence(d.evidence);
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
+    if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
     if (d.copyLink) return copyText(`${PAGE_URL}?report=${encodeURIComponent(d.copyLink)}`);
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
@@ -2695,6 +2848,9 @@ function wireUI(){
     if (d.sev){ setSeverity(d.sev); return; }
   });
 
+  document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
+  document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
+  document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
@@ -2747,6 +2903,11 @@ function wireUI(){
   document.getElementById('k-cam-retake').addEventListener('click', () => showCameraState('live'));
   document.getElementById('k-cam-use').addEventListener('click', () => closeCamera({ blob: camera.blob }));
   document.getElementById('k-cam-close').addEventListener('click', () => closeCamera({ error: 'cancelled' }));
+  document.getElementById('k-cam-flash').addEventListener('click', toggleTorch);
+  document.getElementById('k-cam-zoom').addEventListener('click', e => {
+    const b = e.target.closest('[data-zoom]');
+    if (b) applyCameraZoom(Number(b.dataset.zoom));
+  });
   document.getElementById('k-ev-submit').addEventListener('click', submitEvidence);
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
   document.getElementById('k-list-search').addEventListener('input', e => { state.listQuery = e.target.value.trim(); renderList(); });

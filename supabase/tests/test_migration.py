@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1418,6 +1418,11 @@ audit_cat_path = admin_sql('select photo_path from public.school_audits where id
 photo_check(audit_cat_path, labels=['Road', 'Pothole', 'Asphalt'])  # must not crash — no matching row in public.reports
 check('running the photo check on a school-audit photo leaves the audit itself untouched',
       admin_sql('select building_condition from public.school_audits where id::text = %s', (audit_for_cat['id'],))[0][0] == 'good')
+
+tr = rpc('kasa_public_transparency')
+check('anyone can read the moderation counts', len(tr['months']) == 12 and tr['months'][0]['reported'] > 0, tr['months'][:1])
+check('moderation counts include hides and the team size', sum(m['hidden'] for m in tr['months']) > 0 and tr['now']['admins'] >= 1, tr['now'])
+check('moderation counts carry no ids', 'user_id' not in json.dumps(tr) and 'report_id' not in json.dumps(tr))
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
