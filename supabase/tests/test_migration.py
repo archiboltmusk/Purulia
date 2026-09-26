@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1480,6 +1480,65 @@ check('extra photos are never treated as orphans', extra1 not in {r[0] for r in 
 admin_sql("update public.reports set created_at = now() - interval '2 hours' where id = %s", (mp_r2['id'],))
 check('photos cannot be added long after reporting',
       err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=upload(mp_owner, 'reports')) == 'KASA_TOO_LATE')
+
+def fl_claim_of(uid, rid, where, path):
+    return rpc('kasa_claim_cleanup', uid=uid, p_report_id=str(rid), p_photo_path=path, p_lat=where[0], p_lng=where[1], p_accuracy=10.0)
+
+
+def fl_vote(uid, cid, where, v='verify'):
+    return rpc('kasa_vote_claim', uid=uid, ip=str(uuid.uuid4()), p_claim_id=cid, p_vote=v, p_photo_path=checked(uid, 'votes'),
+               p_lat=where[0], p_lng=where[1], p_accuracy=10.0, p_note=None)
+
+
+# Photo-check fast lane: a clean Vision score needs 1 confirmer, or closes alone after photo_only_days.
+fl_rep = user()
+fl_r, _ = report(fl_rep, where=offset(16500, 15000))
+fl_where = offset(16500, 15000)
+fl_c = with_history()
+fl_path = checked(fl_c, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (fl_path,))
+fl_claim = fl_claim_of(fl_c, fl_r['id'], where=fl_where, path=fl_path)
+check('a clean cleanup photo is photo-confident and needs 1 confirmation',
+      fl_claim.get('photo_confident') is True and fl_claim['verify_needed'] == 1, fl_claim)
+check('the map is told which claims are photo-confident',
+      any(x['claim_id'] == str(fl_claim['claim_id']) and x['need'] == 1 for x in rpc('kasa_fast_claims')))
+fl_v = with_history()
+fl_vote(fl_v, fl_claim['claim_id'], fl_where)
+check('one on-site confirmation reaches quorum on a photo-confident claim',
+      admin_sql('select quorum_reached_at is not null from kasa_private.claims where id = %s', (fl_claim['claim_id'],))[0][0])
+
+fl_r2, _ = report(fl_rep, where=offset(16800, 15000))
+fl_c2 = with_history()
+p2 = checked(fl_c2, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (p2,))
+fl_claim2 = fl_claim_of(fl_c2, fl_r2['id'], where=offset(16800, 15000), path=p2)
+rpc('kasa_finalize_due')
+check('a photo-only claim does not close early', admin_sql('select status from public.reports where id = %s', (fl_r2['id'],))[0][0] == 'claimed')
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim2['claim_id'],))
+rpc('kasa_finalize_due')
+check('an unchallenged photo-confident claim closes on the photo check after 3 days',
+      admin_sql('select status, resolution_method from public.reports where id = %s', (fl_r2['id'],))[0] == ('resolved', 'photo_check'))
+
+fl_r3, _ = report(fl_rep, where=offset(17100, 15000))
+fl_c3 = with_history()
+p3 = checked(fl_c3, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.4 where photo_path = %s", (p3,))
+fl_claim3 = fl_claim_of(fl_c3, fl_r3['id'], where=offset(17100, 15000), path=p3)
+check('an unsure photo needs the full quorum', fl_claim3.get('photo_confident') is False and fl_claim3['verify_needed'] >= 2, fl_claim3)
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim3['claim_id'],))
+rpc('kasa_finalize_due')
+check('an unsure photo never closes on its own', admin_sql('select status from public.reports where id = %s', (fl_r3['id'],))[0][0] == 'claimed')
+
+fl_r4, _ = report(fl_rep, where=offset(17400, 15000))
+fl_c4 = with_history()
+p4 = checked(fl_c4, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (p4,))
+fl_claim4 = fl_claim_of(fl_c4, fl_r4['id'], where=offset(17400, 15000), path=p4)
+fl_d = with_history()
+fl_vote(fl_d, fl_claim4['claim_id'], offset(17400, 15000), v='dispute')
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim4['claim_id'],))
+rpc('kasa_finalize_due')
+check('a disputed claim never closes on the photo alone', admin_sql('select resolution_method from public.reports where id = %s', (fl_r4['id'],))[0][0] is None)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

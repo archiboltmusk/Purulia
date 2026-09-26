@@ -266,7 +266,8 @@ async function loadRules(){
 
 async function loadReports(){
   try {
-    const rows = await fetchRows();
+    const [rows, fast] = await Promise.all([fetchRows(), sb.rpc('kasa_fast_claims').then(r => r.data, () => null)]);
+    state.fast = new Map((Array.isArray(fast) ? fast : []).map(f => [String(f.claim_id), f]));
     const pending = await getPendingReports();
     setReports([...pending.map(pendingToRow), ...rows]);
     writeCache(rows);
@@ -283,6 +284,7 @@ function setReports(rows){
 
 function normalize(r){
   let status = r.status === 'pending_verification' ? 'claimed' : r.status;
+  const fast = r.claim_id ? state.fast?.get(String(r.claim_id)) : null;
   if (!['open', 'claimed', 'resolved'].includes(status)) status = 'open';
   return {
     id: String(r.id),
@@ -291,7 +293,7 @@ function normalize(r){
     ward: r.ward_no ? Number(r.ward_no) : null,
     area: r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
-    verifyNeeded: r.verify_needed ? Number(r.verify_needed) : null,
+    verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
     status,
@@ -314,7 +316,8 @@ function normalize(r){
       id: r.claim_id, photo: safeUrl(r.claim_photo_url), createdAt: r.claim_created_at,
       verify: Number(r.claim_verify_count || 0), dispute: Number(r.claim_dispute_count || 0),
       quorumAt: r.claim_quorum_reached_at, finalAfter: r.claim_finalize_after, distance: r.claim_distance_m,
-      held: !!r.claim_needs_review, reviewedAt: r.claim_reviewed_at || null
+      held: !!r.claim_needs_review, reviewedAt: r.claim_reviewed_at || null,
+      fast: !!fast, photoOnlyAt: fast?.photo_only_at || null
     } : null,
     ratings: Number(r.rating_count || 0),
     onsiteRatings: Number(r.onsite_rating_count || 0),
@@ -1054,7 +1057,7 @@ function renderLeaderboard(){
 // Verified fixes, newest first, with how long they took and who confirmed them.
 function recentFixes(){
   return primaries()
-    .filter(r => r.status === 'resolved' && r.resolution === 'community' && r.resolvedAt)
+    .filter(r => r.status === 'resolved' && (r.resolution === 'community' || r.resolution === 'photo_check') && r.resolvedAt)
     .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
     .slice(0, 6);
 }
@@ -1252,7 +1255,8 @@ function renderSheet(){
 function resolutionCaption(r){
   if (r.status !== 'resolved' || r.resolution === 'legacy_unverified') return '';
   const bits = [];
-  if (r.claim?.verify) bits.push(t('cap_confirmers', { n: r.claim.verify }));
+  if (r.resolution === 'photo_check') bits.push(t('cap_photo_check'));
+  else if (r.claim?.verify) bits.push(t('cap_confirmers', { n: r.claim.verify }));
   if (r.claim?.reviewedAt) bits.push(t('cap_moderator'));
   bits.push(placeLabel(r));
   if (r.resolvedAt){
@@ -1289,6 +1293,7 @@ function renderStatusPanel(r){
           <span>${esc(t('pn_progress', { v: r.claim.verify, q, d: r.claim.dispute, dq }))}</span></div>
         <div class="k-panel-meta">${esc(timing)}</div>
         ${r.claim.held ? `<div class="k-note k-note-warn">⏸ ${esc(t('pn_claim_held'))}</div>` : ''}
+        ${r.claim.fast && !r.claim.held ? `<div class="k-note">📷 ${esc(t(r.claim.photoOnlyAt && !r.claim.verify && !r.claim.dispute ? 'pn_fast_photo_only' : 'pn_fast', { n: q, date: r.claim.photoOnlyAt ? fmtDate(new Date(r.claim.photoOnlyAt)) : '' }))}</div>` : ''}
       </div>`);
   } else if (r.status === 'claimed'){
     parts.push(`<div class="k-panel k-panel-claim"><div class="k-panel-meta">${esc(t('pn_legacy_review'))}</div></div>`);
@@ -1303,7 +1308,7 @@ function renderStatusPanel(r){
     const fixDays = Math.max(0, Math.round((new Date(r.resolvedAt) - new Date(r.createdAt)) / 86400000));
     parts.push(`
       <div class="k-panel k-panel-resolved">
-        <div class="k-panel-title">✓ ${esc(t('pn_resolved_title'))}</div>
+        <div class="k-panel-title">✓ ${esc(t(r.resolution === 'photo_check' ? 'pn_resolved_photo_title' : 'pn_resolved_title'))}</div>
         ${beforeAfter(r.photo, r.resolvedPhoto)}
         <div class="k-panel-meta">${esc(t('pn_resolved_meta', { date: fmtDate(r.resolvedAt), days: fixDays }))}</div>
         <div class="k-panel-caption">${esc(resolutionCaption(r))}</div>
