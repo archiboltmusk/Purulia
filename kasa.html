@@ -332,6 +332,10 @@
         <label for="k-desc" data-i18n="step3_desc">What's wrong? (optional)</label>
         <textarea id="k-desc" class="k-input k-textarea" maxlength="500" data-i18n-placeholder="step3_desc_ph" placeholder="One sentence is enough"></textarea>
       </div>
+      <div class="k-voice" id="k-voice" hidden>
+        <button type="button" class="k-btn k-btn-secondary" id="k-voice-btn" aria-pressed="false" data-i18n="voice_btn">🎤 Say what's wrong (optional)</button>
+        <div class="k-voice-text" id="k-voice-text" aria-live="polite"></div>
+      </div>
       <button type="button" class="k-btn k-btn-primary" id="k-submit" disabled data-i18n="step3_submit">Submit Report →</button>
       <div class="k-privacy" data-i18n="step3_privacy">🔒 Reports are anonymous. The photo, location and ward are public; nothing identifies you.</div>
       <div class="k-privacy"><span data-i18n="step3_consent">By submitting you confirm this is true to the best of your knowledge and you agree to the</span> <a href="terms.html" target="_blank" rel="noopener" data-i18n="footer_terms">Terms of Use</a>.</div>
