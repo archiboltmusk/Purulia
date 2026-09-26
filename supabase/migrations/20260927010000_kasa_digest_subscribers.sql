@@ -105,7 +105,12 @@ returns table(email text, unsubscribe_token text) as $$
   limit p_limit;
 $$ language sql stable security definer set search_path = '';
 
--- Revoke public access but allow service role (via security definer)
+-- Grant execute permission to anon and authenticated roles
+grant execute on function public.kasa_digest_subscribe(text) to anon, authenticated;
+grant execute on function public.kasa_digest_subscriber_count() to anon, authenticated;
+grant execute on function public.kasa_digest_unsubscribe(text) to anon, authenticated;
+
+-- Revoke public access (keep granted to anon/authenticated via security definer)
 revoke all on function public.kasa_digest_subscribe(text) from public;
 revoke all on function public.kasa_digest_subscriber_count() from public;
 revoke all on function public.kasa_digest_unsubscribe(text) from public;
