@@ -1790,6 +1790,23 @@ check('a confirmed join stays and leaves the review list',
 rpc('kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(m1['id']), p_kind='duplicate', p_ref=str(m3['id']), p_reason='same photo again')
 check('a moderator can delete a repeat photo', admin_sql('select count(*) from public.reports where id = %s', (m3['id'],))[0][0] == 0)
 
+# An admin can accept a cleanup after checking the photos; moderators can add public notes.
+ac_spot = offset(-1800, -2900)
+ac_r = quick(user(), ac_spot)
+ac_u = user()
+ac_c = rpc('kasa_claim_cleanup', uid=ac_u, p_report_id=str(ac_r['id']), p_photo_path=upload(ac_u, 'claims'), p_lat=ac_spot[0], p_lng=ac_spot[1], p_accuracy=10.0)
+ac_cid = ac_c['claim_id'] if isinstance(ac_c, dict) and 'claim_id' in ac_c else admin_sql("select id from kasa_private.claims where report_id::text = %s", (str(ac_r['id']),))[0][0]
+check('a moderator cannot accept a cleanup', err(rpc, 'kasa_admin_accept_claim', uid=ph_mod, p_claim_id=str(ac_cid), p_note='looks clean') == 'KASA_NOT_ADMIN')
+check('accepting needs a note', err(rpc, 'kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='') == 'KASA_REASON_REQUIRED')
+rpc('kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='Both photos show the same wall, now clean')
+row = admin_sql('select status, resolution_method from public.reports where id = %s', (ac_r['id'],))[0]
+check('an admin can accept a cleanup, marked as accepted by a moderator', row == ('resolved', 'moderator'), row)
+check('an accepted claim cannot be accepted again', err(rpc, 'kasa_admin_accept_claim', uid=ph_admin, p_claim_id=str(ac_cid), p_note='again') == 'KASA_CLAIM_CLOSED')
+rpc('kasa_admin_note', uid=ph_mod, p_report_id=str(ac_r['id']), p_note='The bin next to it is still broken')
+check('a moderator note is on the public timeline',
+      admin_sql("select count(*) from kasa_private.events where report_id = %s and detail ->> 'action' = 'note'", (ac_r['id'],))[0][0] == 1)
+check('an ordinary person cannot add a moderator note', err(rpc, 'kasa_admin_note', uid=user(), p_report_id=str(ac_r['id']), p_note='hello') == 'KASA_NOT_ADMIN')
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

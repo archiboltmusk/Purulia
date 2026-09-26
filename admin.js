@@ -322,6 +322,7 @@ function renderModeration(q){
             ${CATEGORY_KEYS.map(k => `<option value="${k}"${k === r.category ? ' selected' : ''}>${k}</option>`).join('')}
           </select>
           <button class="ad-ok" data-recat="${esc(r.id)}">Change category</button>
+          <button class="ad-ok" data-note="${esc(r.id)}">💬 Add note</button>
         </div>
       </div>
       <div class="ad-photos"><figure><img src="${esc(r.photo_url)}" alt="" loading="lazy"><figcaption>Report photo</figcaption></figure></div>
@@ -337,7 +338,9 @@ function renderModeration(q){
         </div>
         <div class="ad-actions">
           ${c.needs_review ? `<button class="ad-ok" data-clear-claim="${esc(c.id)}">✓ Clear photo</button>` : ''}
-          <button class="ad-bad" data-reject-claim="${esc(c.id)}">✕ Reject claim</button>
+          ${isSuper() ? `<button class="ad-ok" data-accept-claim="${esc(c.id)}" title="The photos show it is cleaned: mark the report fixed now">✓ Accept cleanup</button>` : ''}
+          <button class="ad-bad" data-reject-claim="${esc(c.id)}" title="The claim photo is fake or shows a different place">✕ Reject claim</button>
+          <button class="ad-ok" data-note="${esc(c.report_id)}" title="Add a public note to this report's history">💬 Add note</button>
         </div>
       </div>
       <div class="ad-photos">
@@ -347,7 +350,7 @@ function renderModeration(q){
           <figcaption>${v.vote === 'verify' ? '✓ confirm' : '✗ dispute'} · ${esc(v.distance_m)} m
             ${photoMetaText(v.photo_meta) ? '<br>' + esc(photoMetaText(v.photo_meta)) : ''}
             ${v.needs_review ? '<br><strong>⏸ held — not counted</strong> <button data-clear-vote="' + esc(v.id) + '">clear</button>' : ''}
-            <button data-void="${esc(v.id)}">void</button></figcaption></figure>`).join('')}
+            <button data-void="${esc(v.id)}" title="Don't count this confirmation or dispute">✕ Don't count</button></figcaption></figure>`).join('')}
       </div>
     </div>`).join('');
   el.innerHTML = (reportHtml ? '<div class="ad-sub-title">Reports</div>' + reportHtml : '') +
@@ -364,6 +367,8 @@ function renderModeration(q){
     loadResolutions();
   }));
   el.querySelectorAll('[data-reject-claim]').forEach(b => b.addEventListener('click', () => rejectClaim(b.dataset.rejectClaim)));
+  el.querySelectorAll('[data-accept-claim]').forEach(b => b.addEventListener('click', () => acceptClaim(b.dataset.acceptClaim)));
+  el.querySelectorAll('[data-note]').forEach(b => b.addEventListener('click', () => addNote(b.dataset.note)));
   el.querySelectorAll('[data-void]').forEach(b => b.addEventListener('click', () => voidVote(b.dataset.void)));
   el.querySelectorAll('[data-clear-vote]').forEach(b => b.addEventListener('click', () => clearHeld('vote', b.dataset.clearVote)));
   el.querySelectorAll('[data-clear-claim]').forEach(b => b.addEventListener('click', () => clearHeld('claim', b.dataset.clearClaim)));
@@ -416,6 +421,7 @@ async function findReport(){
         <div class="ad-actions">
           <button class="ad-ok" data-find-mod="approve">✓ Approve / restore</button>
           <button class="ad-bad" data-find-mod="hide">✕ Hide</button>
+          <button class="ad-ok" id="adFindNote">💬 Add note</button>
           ${canDelete ? '<button class="ad-bad" data-find-mod="delete">🗑 Delete permanently</button>'
             : `<span class="ad-note" style="margin:0;">${isSuper() ? 'Only a flagged or held-for-review report can be deleted outright — hide this one instead.' : 'Only an admin can delete permanently — hide this one instead.'}</span>`}
         </div>
@@ -433,6 +439,7 @@ async function findReport(){
     await moderate(r.id, b.dataset.findMod);
     findReport();
   }));
+  document.getElementById('adFindNote').addEventListener('click', () => addNote(r.id));
   document.getElementById('adFindCatBtn').addEventListener('click', async () => {
     const cat = document.getElementById('adFindCatSel').value;
     if (cat === r.category) return;
@@ -562,6 +569,23 @@ async function loadAdoptions(){
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadAdoptions();
   }));
+}
+
+async function acceptClaim(id){
+  const note = prompt('Why do the photos show it is cleaned? (shown publicly on the report, e.g. "same wall, garbage gone")');
+  if (!note || note.trim().length < 3) return;
+  const { error } = await sb.rpc('kasa_admin_accept_claim', { p_claim_id: id, p_note: note });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return; }
+  loadAll();
+}
+
+async function addNote(reportId){
+  const note = prompt('Note to add under this report (shown publicly on its history):');
+  if (!note || note.trim().length < 3) return false;
+  const { error } = await sb.rpc('kasa_admin_note', { p_report_id: String(reportId), p_note: note });
+  if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
+  alert('Note added to the report\'s public history.');
+  return true;
 }
 
 async function rejectClaim(id){

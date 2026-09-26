@@ -1273,6 +1273,7 @@ function resolutionCaption(r){
   if (r.status !== 'resolved' || r.resolution === 'legacy_unverified') return '';
   const bits = [];
   if (r.resolution === 'photo_check') bits.push(t('cap_photo_check'));
+  else if (r.resolution === 'moderator') bits.push(t('cap_mod_accepted'));
   else if (r.claim?.verify) bits.push(t('cap_confirmers', { n: r.claim.verify }));
   if (r.claim?.reviewedAt) bits.push(t('cap_moderator'));
   bits.push(placeLabel(r));
@@ -1325,7 +1326,7 @@ function renderStatusPanel(r){
     const fixDays = Math.max(0, Math.round((new Date(r.resolvedAt) - new Date(r.createdAt)) / 86400000));
     parts.push(`
       <div class="k-panel k-panel-resolved">
-        <div class="k-panel-title">✓ ${esc(t(r.resolution === 'photo_check' ? 'pn_resolved_photo_title' : 'pn_resolved_title'))}</div>
+        <div class="k-panel-title">✓ ${esc(t(r.resolution === 'photo_check' ? 'pn_resolved_photo_title' : r.resolution === 'moderator' ? 'pn_resolved_mod_title' : 'pn_resolved_title'))}</div>
         ${beforeAfter(r.photo, r.resolvedPhoto)}
         <div class="k-panel-meta">${esc(t('pn_resolved_meta', { date: fmtDate(r.resolvedAt), days: fixDays }))}</div>
         <div class="k-panel-caption">${esc(resolutionCaption(r))}</div>
@@ -1590,6 +1591,7 @@ function renderTimelineHTML(r){
     if (e.kind === 'claim_rejected' && d.reason) bits.push(d.reason === 'disputed_on_site' ? t('rej_disputed_on_site') : String(d.reason));
     if (e.kind === 'claim_held' && d.reason) bits.push(t('held_' + d.reason));
     if (e.kind === 'resolved') bits.push(t('tl_counts', { v: d.verify_count ?? '?', d: d.dispute_count ?? 0 }));
+    if (e.kind === 'resolved' && d.by === 'moderator' && d.reason) bits.push(String(d.reason));
     if (e.kind === 'flagged' && d.reason) bits.push(t('fr_' + d.reason) + (d.suggested_category ? ' → ' + t('cat_' + d.suggested_category) : ''));
     if ((e.kind === 'recategorized' || e.kind === 'auto_recategorized') && d.to) bits.push(`${t('cat_' + d.from)} → ${t('cat_' + d.to)}${d.reason ? ' · ' + d.reason : ''}`);
     if (['reported', 'claimed', 'verified', 'disputed'].includes(e.kind)){
@@ -1608,7 +1610,7 @@ function renderTimelineHTML(r){
       <li class="k-tl-item k-tl-${esc(e.kind)}">
         <span class="k-tl-dot"></span>
         <div class="k-tl-main">
-          <div class="k-tl-kind">${esc(t('ev_' + e.kind))}<time>${esc(ago(e.created_at))}</time></div>
+          <div class="k-tl-kind">${esc(t(e.kind === 'resolved' && d.by === 'photo_check' ? 'ev_resolved_photo' : e.kind === 'resolved' && d.by === 'moderator' ? 'ev_resolved_mod' : 'ev_' + e.kind))}<time>${esc(ago(e.created_at))}</time></div>
           ${bits.length ? `<div class="k-tl-meta">${esc(bits.join(' · '))}</div>` : ''}
         </div>
         ${photo && e.kind !== 'reported' ? `<a href="${esc(photo)}" target="_blank" rel="noopener" class="k-tl-photo"><img src="${esc(photo)}" alt="" loading="lazy"></a>` : ''}
