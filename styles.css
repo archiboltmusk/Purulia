@@ -1618,7 +1618,7 @@ a:focus-visible{
 }
 
 #waFloat{
-  position: relative;
+  /* stays position:fixed (set above); fixed already anchors the absolute .wa-close */
   padding-right: 2.2rem;
 }
 

@@ -795,8 +795,23 @@ function reportGeoJSON(){
   };
 }
 
+/* The map library loads in parallel (async script), so buttons, list and reports don't wait for it. */
+function mapLibrary(){
+  if (window.maplibregl) return Promise.resolve();
+  const tag = document.getElementById('k-maplibre');
+  return new Promise(resolve => {
+    if (!tag){ console.error('Parishkar: map library missing'); return; }
+    tag.addEventListener('load', () => resolve());
+    tag.addEventListener('error', () => console.error('Parishkar: map library failed to load'));
+    if (window.maplibregl) resolve();
+  });
+}
+
 function initMainMap(){
-  if (!window.maplibregl){ console.error('Parishkar: map library missing'); return new Promise(() => {}); }
+  return mapLibrary().then(initMainMapNow);
+}
+
+function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
     attributionControl: { compact: true }, cooperativeGestures: false
@@ -2240,7 +2255,8 @@ async function captureReportPhoto(){
 }
 
 function initMiniMap(){
-  if (miniMap || !window.maplibregl) return;
+  if (miniMap) return;
+  if (!window.maplibregl){ mapLibrary().then(initMiniMap); return; }
   miniMap = new maplibregl.Map({
     container: 'k-mini-map', style: MAP_STYLE,
     center: draft.lng != null ? [draft.lng, draft.lat] : MAP_CENTER, zoom: draft.lng != null ? 16 : MAP_ZOOM, attributionControl: false
