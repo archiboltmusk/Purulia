@@ -70,6 +70,16 @@ python3 tools/build-areas.py > areas.sql
 
 and run `areas.sql` in the Supabase SQL editor. It replaces Purulia's areas.
 
+### Schools (optional)
+
+Ask the district education office (Samagra Shiksha District Project Office, or the DI of Schools) for the UDISE+ school list, ideally with latitude and longitude (without them, schools are listed by block, panchayat and village). An .xlsx or .csv both work:
+
+```
+python3 tools/load-schools.py School_List.xlsx > schools.sql
+```
+
+and run `schools.sql` in the Supabase SQL editor. Rows with a bad UDISE code or a location outside your district are skipped and listed. Re-run with a newer list any time; it updates schools by UDISE code. `kasa_school_coverage()` then shows which schools have been audited.
+
 ## 4. `city.js` — your town's details
 
 Everything local the app shows lives in `city.js`: town name, map centre and zoom, the municipality's WhatsApp number and email, the MLA's X handle, your MLA / MP / municipal chairperson (with photos in `reps/` — only use photos whose licence allows it), and the official complaint channels under "Take it further" (state helpline, power utility, RTI portal). Leave a channel empty to hide it.

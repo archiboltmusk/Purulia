@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1584,6 +1584,19 @@ check('a photo being shrunk is not handed out twice', sh_path not in rpc('kasa_s
 rpc('kasa_shrink_done', role='service_role', p_path=sh_path, p_before=400000, p_after=120000)
 admin_sql("update kasa_private.photo_shrinks set claimed_at = now() - interval '2 hours' where photo_path = %s", (sh_path,))
 check('a shrunk photo is never shrunk again', sh_path not in rpc('kasa_shrink_claim', role='service_role', p_limit=50)['paths'])
+
+# Official school list: public to read, not writable from the browser; audits nearby count toward coverage.
+sc_where = offset(20500, 15000)
+admin_sql("insert into public.schools (udise_code, name, lat, lng, block_name) values "
+          "('19210199901', 'Test Listed School', %s, %s, 'Hura'), ('19210199902', 'Unvisited School', %s, %s, 'Hura') "
+          "on conflict do nothing", (sc_where[0], sc_where[1], sc_where[0] + 0.05, sc_where[1]))
+check('anyone can read the school list', len(q("select * from public.schools where udise_code like '192101999%%'")) == 2)
+check('browsers cannot add schools',
+      'permission denied' in (err(q, "insert into public.schools (udise_code, name, lat, lng) values ('19210199903', 'x', 23.3, 86.3)", uid=user()) or ''))
+school_audit(user(), where=offset(40, 0, base=sc_where), name='Test Listed School')
+cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}
+check('an audit at a listed school counts for it', cov['19210199901']['audits'] == 1, cov.get('19210199901'))
+check('a school nobody visited shows no audits', cov['19210199902']['audits'] == 0 and cov['19210199902']['last_audit_at'] is None)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

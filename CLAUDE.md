@@ -9,3 +9,7 @@
 # Changelog
 
 - Every user-visible change adds a line at the top of `changelog.html` (newest date first, plain words a reporter would use). Internal-only changes (CI, refactors, config) don't need one.
+
+# Pull requests
+
+- Merge your own PRs once every check has passed; don't wait to be asked. If a check fails, fix it first; if you can't, leave the PR open and say why.
