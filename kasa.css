@@ -739,3 +739,9 @@ body[data-app-layout] .k-nav{display:none;}
 .k-join{top:4.4rem;}
 @media(max-width:640px){.k-join{top:auto;bottom:8.6rem;}}
 .k-map-section:has(#k-list:not([hidden])) :is(.k-quick,.k-map-legend,.k-join){display:none;}
+
+/* "The school is here": drag the map under a fixed pin. */
+.k-sf-mapwrap{position:relative;margin-top:.9rem;height:240px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);}
+.k-sf-map{position:absolute;inset:0;}
+.k-sf-pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);font-size:34px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.6));}
+.k-sf-hint{position:absolute;left:50%;bottom:.5rem;transform:translateX(-50%);padding:.3rem .7rem;background:rgba(10,8,5,.9);border-radius:20px;font-family:var(--mono);font-size:10.5px;color:var(--cream);white-space:nowrap;pointer-events:none;}

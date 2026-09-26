@@ -107,6 +107,10 @@
     const match = s => (!block || s.block_name === block)
       && (!q || `${s.name} ${s.village || ''} ${s.panchayat || ''} ${s.udise_code}`.toLowerCase().includes(q));
     const worst = checked.filter(match).sort((a, b) => (a.score / a.score_of) - (b.score / b.score_of) || a.name.localeCompare(b.name));
+    // Until a school is checked there is nothing to rank: the section only keeps its filters.
+    document.querySelector('#sc-list h2').textContent = checked.length ? 'Checked schools, worst first' : 'Find a school';
+    document.querySelector('#sc-list .an-card-sub').hidden = !checked.length;
+    document.getElementById('sc-checked').hidden = !checked.length;
     document.getElementById('sc-checked').innerHTML = worst.length ? worst.map(row).join('')
       : `<div class="an-empty">${checked.length ? 'No checked school matches.' : 'No school has been checked yet. Be the first: stand at a school and tap “Check a school”.'}</div>`;
     // A short list: one line per school, 10 at a time, so the page stays easy to scroll.
@@ -122,6 +126,31 @@
     const more = document.getElementById('sc-more');
     if (more) more.onclick = () => { render.todoLimit += 20; render(); };
   }
+
+  // "Schools near me": the block you stand in and the schools placed nearby, nearest first.
+  set('sc-near-text', `${all.length.toLocaleString('en-IN')} schools in Purulia, ${checked.length.toLocaleString('en-IN')} checked so far. Stand at one, answer six questions and take one photo: about two minutes.`);
+  document.getElementById('sc-near-btn').addEventListener('click', () => {
+    const btn = document.getElementById('sc-near-btn'), out = document.getElementById('sc-near-list');
+    if (!navigator.geolocation){ set('sc-near-text', 'This phone cannot share its location. Choose your block below instead.'); return; }
+    btn.disabled = true; btn.textContent = 'Finding you…';
+    navigator.geolocation.getCurrentPosition(async p => {
+      const { data } = await sb.rpc('kasa_nearby_schools', { p_lat: p.coords.latitude, p_lng: p.coords.longitude });
+      btn.hidden = true;
+      const blk = data?.block;
+      const near = (data?.near || []).map(n => ({ ...n, audits: all.find(s => s.udise_code === n.udise_code)?.audits || 0 }));
+      const inBlock = blk ? all.filter(s => s.block_name === blk && !s.audits).slice(0, near.length ? 0 : 5) : [];
+      const rows = [...near.map(n => ({ s: n, note: `${n.distance_m < 1000 ? n.distance_m + ' m' : (n.distance_m / 1000).toFixed(1) + ' km'} away${n.audits ? ' · checked' : ''}` })),
+                    ...inBlock.map(s => ({ s, note: s.village || '' }))];
+      const inTown = data?.area === 'town';
+      set('sc-near-text', blk ? `You are in ${blk} block: ${all.filter(s => s.block_name === blk).length} schools, ${all.filter(s => s.block_name === blk && s.audits).length} checked.`
+        : inTown ? 'You are in Purulia town. Few town schools are on the list yet; pick one below or check the one you are standing at.'
+        : 'You seem to be outside Purulia district. Choose a block below to see its schools.');
+      out.innerHTML = rows.map(({ s, note }) => `<li><span><strong>${esc(s.name)}</strong> <small>${esc(note)}</small></span>
+        <span class="sc-todo-acts"><a href="${checkUrl(s.udise_code)}">Check</a></span></li>`).join('');
+      if (blk && sel.querySelector(`option[value="${CSS.escape(blk)}"]`)){ sel.value = blk; render(); }
+    }, () => { btn.disabled = false; btn.textContent = '📍 Find schools near me'; set('sc-near-text', 'Location is off. Choose your block below to see its schools.'); },
+    { enableHighAccuracy: true, timeout: 15000, maximumAge: 60000 });
+  });
 
   const byBlock = {};
   for (const s of all){

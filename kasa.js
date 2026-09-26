@@ -2606,7 +2606,9 @@ let sf = null;
 async function openSchoolFix(code){
   const { data: s } = await sb.from('schools').select('udise_code,name,block_name,village').eq('udise_code', code).maybeSingle();
   if (!s) return;
-  sf = { school: s, pos: null };
+  if (sf?.map) sf.map.remove();
+  document.getElementById('k-sf-mapwrap').hidden = true;
+  sf = { school: s, pos: null, map: null };
   document.getElementById('k-sf-sub').textContent = `${s.name} · ${[s.village, s.block_name].filter(Boolean).join(', ')} · UDISE ${s.udise_code}`;
   document.getElementById('k-sf-submit').disabled = true;
   openModal('k-sf-modal');
@@ -2620,6 +2622,13 @@ async function openSchoolFix(code){
     sf.pos = pos;
     setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
     document.getElementById('k-sf-submit').disabled = false;
+    // Like food-delivery apps: a pin fixed in the middle; move the map until it sits on the gate.
+    const wrap = document.getElementById('k-sf-mapwrap');
+    wrap.hidden = false;
+    if (window.maplibregl){
+      if (sf.map) sf.map.remove();
+      sf.map = new maplibregl.Map({ container: 'k-sf-map', style: MAP_STYLE, center: [pos.lng, pos.lat], zoom: 18, attributionControl: false });
+    }
   } catch (e){
     if (sf) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
   }
@@ -2631,8 +2640,10 @@ async function submitSchoolFix(){
   btn.disabled = true;
   try {
     await ensureSession();
+    const c = sf.map ? sf.map.getCenter() : { lat: sf.pos.lat, lng: sf.pos.lng };
     const { error } = await sb.rpc('kasa_mark_school_location', {
-      p_udise_code: sf.school.udise_code, p_lat: sf.pos.lat, p_lng: sf.pos.lng, p_accuracy: sf.pos.accuracy });
+      p_udise_code: sf.school.udise_code, p_lat: c.lat, p_lng: c.lng, p_accuracy: sf.pos.accuracy,
+      p_gps_lat: sf.pos.lat, p_gps_lng: sf.pos.lng });
     if (error) throw rpcError(error);
     closeModal('k-sf-modal');
     showToast(t('sf_done'), 6000);
