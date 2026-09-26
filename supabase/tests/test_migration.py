@@ -1680,6 +1680,23 @@ if admin_sql("select kasa_private.locate(%s, %s, null) ->> 'block'", troll)[0][0
     res2 = mark(user(), '19210199904', troll)
     check('one mark far away does not drag the pin', abs(res2['lat'] - right[0]) < 0.0001, res2)
 
+# Duplicates caught after the photo check names the category (quick reports arrive as "other").
+dd_spot = offset(-2200, 900)
+def quick(uid, where):
+    path = upload(uid, 'reports')
+    r_ = rpc('kasa_create_report', uid=uid, p_category=None, p_severity=None, p_lat=where[0], p_lng=where[1], p_accuracy=10.0,
+             p_ward_no=None, p_description=None, p_landmark=None, p_photo_path=path)
+    photo_check(path, labels=['Waste', 'Litter', 'Plastic'])
+    return r_
+q1 = quick(user(), dd_spot)
+q2 = quick(user(), offset(15, 10, base=dd_spot))
+row2 = admin_sql('select category, is_duplicate, parent_report_id::text from public.reports where id = %s', (q2['id'],))[0]
+check('a second quick garbage photo of the same pile joins the first', row2 == ('garbage', True, str(q1['id'])), row2)
+check("the first report counts the second person as having seen it",
+      admin_sql('select upvotes from public.reports where id = %s', (q1['id'],))[0][0] >= 1)
+q3 = quick(user(), offset(400, 0, base=dd_spot))
+check('a report 400 m away stays separate', admin_sql('select is_duplicate from public.reports where id = %s', (q3['id'],))[0][0] is False)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
