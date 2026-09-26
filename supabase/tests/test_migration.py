@@ -1655,6 +1655,12 @@ check("a held check doesn't place its school", '19210199905' not in codes, nb)
 check('nearby is nearest first', [x['distance_m'] for x in nb['near']] == sorted(x['distance_m'] for x in nb['near']))
 check('nearby says which block you are in', nb['block'] == sc_block, (nb['block'], sc_block))
 
+# School map: coverage gives official locations, else ones learned from checks.
+cov2 = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}
+check('a school placed by its checks shows on the map', cov2['19210199904']['located'] == 'checks' and cov2['19210199904']['lat'] is not None, cov2['19210199904'])
+check('an official location is marked as official', cov2['19210199902']['located'] == 'official')
+check('a school with no location stays off the map', cov2['19210199905']['located'] is None and cov2['19210199905']['lat'] is None)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
