@@ -90,6 +90,11 @@ function placeLabel(r){
   return r.ward ? t('acc_ward', { n: r.ward }) : t('acc_unknown');
 }
 
+// What a person would call the spot: their own landmark, else the map address, else the ward/block.
+function placeText(r){
+  return r.landmark || r.address || placeLabel(r);
+}
+
 function verifyNeeded(r){
   return r?.verifyNeeded || state.rules.verify_quorum;
 }
@@ -266,8 +271,10 @@ async function loadRules(){
 
 async function loadReports(){
   try {
-    const [rows, fast] = await Promise.all([fetchRows(), sb.rpc('kasa_fast_claims').then(r => r.data, () => null)]);
+    const [rows, fast, addrs] = await Promise.all([fetchRows(), sb.rpc('kasa_fast_claims').then(r => r.data, () => null),
+                                                   sb.rpc('kasa_report_addresses').then(r => r.data, () => null)]);
     state.fast = new Map((Array.isArray(fast) ? fast : []).map(f => [String(f.claim_id), f]));
+    if (addrs && typeof addrs === 'object') state.addresses = addrs;
     const pending = await getPendingReports();
     setReports([...pending.map(pendingToRow), ...rows]);
     writeCache(rows);
@@ -299,6 +306,7 @@ function normalize(r){
     status,
     description: r.description || '',
     landmark: r.landmark || '',
+    address: state.addresses?.[String(r.id)] || '',
     photo: safeUrl(r.photo_url),
     seen: Number(r.upvotes || 0),
     seenOnSite: Number(r.seen_on_site || 0),
@@ -981,7 +989,7 @@ function sortReports(list){
 function matchesQuery(r, q){
   if (!q) return true;
   if (/^\d+$/.test(q)) return r.ward === Number(q);
-  const hay = [r.landmark, r.description, t('cat_' + r.category), I18N.en['cat_' + r.category], r.ward ? t('acc_ward', { n: r.ward }) : '', r.block || '']
+  const hay = [r.landmark, r.address, r.description, t('cat_' + r.category), I18N.en['cat_' + r.category], r.ward ? t('acc_ward', { n: r.ward }) : '', r.block || '']
     .join(' ').toLowerCase();
   return q.toLowerCase().split(/\s+/).every(w => hay.includes(w));
 }
@@ -999,7 +1007,7 @@ function renderList(){
       ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy" width="64" height="64">` : `<span class="k-list-noimg">${c.icon}</span>`}
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
-        <span class="k-list-where">${esc(r.landmark || placeLabel(r))}${r.landmark && (r.ward || r.block) ? ' · ' + esc(placeLabel(r)) : ''}</span>
+        <span class="k-list-where">${esc(placeText(r))}${(r.landmark || r.address) && (r.ward || r.block) ? ' · ' + esc(placeLabel(r)) : ''}</span>
         <span class="k-list-meta">${statusChip(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
@@ -1200,7 +1208,7 @@ function renderSheet(){
     </div>`;
 
   const w = state.wards[r.ward] || {};
-  const place = r.landmark || placeLabel(r);
+  const place = placeText(r);
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
 
   document.getElementById('k-sheet-body').innerHTML = `
@@ -1222,7 +1230,7 @@ function renderSheet(){
     <div class="k-sheet-place">
       <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${neighbourBadge(r)}</div>
       <h3 class="k-sheet-title">${esc(place)}</h3>
-      <div class="k-sheet-wardline">${esc([r.landmark && (r.ward || r.block) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
+      <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
@@ -1780,7 +1788,7 @@ async function shareCard(r){
   g.fillStyle = '#f0e6d0'; g.font = `700 72px ${serif}`;
   y = wrap(t('cat_' + r.category), PAD, y, W - 2 * PAD, 80, 2);
   g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `400 40px ${serif}`;
-  y = wrap(r.landmark ? `${r.landmark} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
+  y = wrap(r.landmark || r.address ? `${placeText(r)} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
   const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
   g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
   y = wrap(`${t('card_responsible')}: ${t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
@@ -1848,6 +1856,7 @@ function reportMessage(r){
     `Parishkar Purulia — ${t('cat_' + r.category)}`,
     r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
     r.landmark ? `Near: ${r.landmark}` : '',
+    r.address && r.address !== r.landmark ? `Address: ${r.address}` : '',
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
     r.description || '',
     `Map: https://www.google.com/maps?q=${r.lat},${r.lng}`,
@@ -2845,7 +2854,7 @@ function renderMyReports(list){
       ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy" width="64" height="64">` : `<span class="k-list-noimg">${c.icon}</span>`}
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
-        <span class="k-list-where">${esc(r.landmark || placeLabel(r))}</span>
+        <span class="k-list-where">${esc(placeText(r))}</span>
         <span class="k-list-meta">${statusChip(r)} <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
@@ -3055,7 +3064,7 @@ function askStillThere(lat, lng, accuracy){
     ${r.photo ? `<img src="${esc(r.photo)}" alt="" data-open="${esc(r.id)}">` : ''}
     <div>
       <div class="k-still-q">${esc(t('still_q', { cat: t('cat_' + r.category) }))}</div>
-      <div class="k-still-m">${esc(t('still_meta', { d: daysSince(r.createdAt), place: r.landmark || placeLabel(r) }))}</div>
+      <div class="k-still-m">${esc(t('still_meta', { d: daysSince(r.createdAt), place: placeText(r) }))}</div>
       <div class="k-still-a">
         <button type="button" class="k-still-yes" data-still="yes">${esc(t('still_yes'))}</button>
         <button type="button" class="k-still-gone" data-still="gone">${esc(t('still_gone'))}</button>
