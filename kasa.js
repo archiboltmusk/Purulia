@@ -2430,6 +2430,7 @@ async function openSchoolCheck(code){
   document.getElementById('k-sc-photo-status').className = 'k-ev-status';
   document.getElementById('k-sc-photo-status').textContent = t('sc_photo_hint');
   document.getElementById('k-sc-picked').textContent = '';
+  document.getElementById('k-sc-near').innerHTML = `<div class="k-ev-status">${esc(t('sc_near_wait'))}</div>`;
   const blockSel = document.getElementById('k-sc-block');
   const { data } = await sb.rpc('kasa_school_blocks');
   blockSel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
@@ -2443,6 +2444,53 @@ async function openSchoolCheck(code){
     const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village').eq('udise_code', code).maybeSingle();
     if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
   }
+}
+
+/* Like the UTS app's nearby stations: once GPS is in, fill in the block and list the
+   schools around you — ones with a known location (official, or learned from earlier
+   checks) by distance, plus schools in the villages OpenStreetMap names around you. */
+const blockKey = b => String(b || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/II/g, '2').replace(/I/g, '1');
+const placeKey = v => String(v || '').toLowerCase().replace(/[^a-z]/g, '');
+
+async function loadNearbySchools(pos){
+  sc.nearLoaded = true;
+  const box = document.getElementById('k-sc-near');
+  const [{ data: nb }, places] = await Promise.all([
+    sb.rpc('kasa_nearby_schools', { p_lat: pos.lat, p_lng: pos.lng }),
+    fetch(`https://photon.komoot.io/reverse?lat=${pos.lat}&lon=${pos.lng}&lang=en&limit=10&radius=3`)
+      .then(r => r.ok ? r.json() : { features: [] }).catch(() => ({ features: [] }))
+  ]);
+  if (!sc) return;
+  const blockSel = document.getElementById('k-sc-block');
+  if (nb?.block && !blockSel.value){
+    const opt = [...blockSel.options].find(o => o.value && blockKey(o.value) === blockKey(nb.block));
+    if (opt){ blockSel.value = opt.value; await loadSchoolBlock(opt.value); }
+  }
+  if (!sc) return;
+  const near = (nb?.near || []).map(s => ({ ...s, why: t(s.learned ? 'sc_near_seen' : 'sc_near_dist', { d: s.distance_m < 1000 ? s.distance_m + ' m' : (s.distance_m / 1000).toFixed(1) + ' km' }) }));
+  const names = new Set();
+  for (const f of places.features || []){
+    for (const k of ['name', 'city', 'locality', 'district']) if (f.properties?.[k]) names.add(placeKey(f.properties[k]));
+  }
+  names.delete('');
+  const seen = new Set(near.map(s => s.udise_code));
+  const inVillage = sc.schools.filter(s => s.village && names.has(placeKey(s.village)) && !seen.has(s.udise_code))
+    .map(s => ({ ...s, block_name: blockSel.value, inVillage: true, why: t('sc_near_village', { v: s.village }) }));
+  const list = [...near, ...inVillage].slice(0, 10);
+  box.innerHTML = list.length
+    ? `<div class="k-ev-label">${esc(t('sc_near_title'))}</div><div class="k-sc-chips">${list.map(s =>
+        `<button type="button" class="k-sc-chip" data-near="${esc(s.udise_code)}" data-near-block="${esc(s.block_name || '')}">
+           <strong>${esc(s.name)}</strong><span>${esc(s.why)}${s.village && !s.inVillage ? ' · ' + esc(s.village) : ''}</span></button>`).join('')}</div>`
+    : `<div class="k-ev-status">${esc(t('sc_near_none'))}</div>`;
+}
+
+async function pickNearby(code, block){
+  const blockSel = document.getElementById('k-sc-block');
+  if (block && blockKey(block) !== blockKey(blockSel.value)){
+    const opt = [...blockSel.options].find(o => o.value && blockKey(o.value) === blockKey(block));
+    if (opt){ blockSel.value = opt.value; await loadSchoolBlock(opt.value); }
+  }
+  pickSchool(code);
 }
 
 async function loadSchoolBlock(block){
@@ -2486,6 +2534,7 @@ async function checkSchoolLocation(){
     if (!sc) return;
     if (pos.accuracy > want){ sc.pos = null; setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) })); }
     else { sc.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+    if (!sc.nearLoaded) loadNearbySchools(pos);
   } catch (e){
     if (!sc) return;
     sc.pos = null;
@@ -2548,6 +2597,10 @@ function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
   document.getElementById('k-sc-find').addEventListener('input', renderSchoolOptions);
+  document.getElementById('k-sc-near').addEventListener('click', e => {
+    const b = e.target.closest('[data-near]');
+    if (b && sc) pickNearby(b.dataset.near, b.dataset.nearBlock);
+  });
   document.getElementById('k-sc-school').addEventListener('change', e => pickSchool(e.target.value));
   document.getElementById('k-sc-loc-btn').addEventListener('click', checkSchoolLocation);
   document.getElementById('k-sc-cam-btn').addEventListener('click', captureSchoolPhoto);
