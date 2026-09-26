@@ -917,7 +917,9 @@ Object.assign(window.KASA_I18N.en, {
   nav_mine: 'Your reports', mine_title: 'Your reports',
   mine_sub: 'Only visible on this device — nothing here identifies you to anyone else.',
   mine_loading: 'Loading…', mine_empty: "You haven't filed a report on this device yet.",
-  ev_auto_recategorized: 'Category auto-detected from the photo'
+  ev_auto_recategorized: 'Category auto-detected from the photo',
+  sla_hours: '{n}h', sla_days: '{n}d',
+  sla_due_in: '⏱ Due in {t}', sla_overdue_by: '⏱ {t} overdue'
 });
 Object.assign(window.KASA_I18N.bn, {
   wc_avg_fix: 'গড়ে {n} দিনে সমাধান', stat_days_overdue: '{n} দিন ধরে উপেক্ষিত',
@@ -927,7 +929,9 @@ Object.assign(window.KASA_I18N.bn, {
   nav_mine: 'আপনার রিপ��র্ট', mine_title: 'আপনার রিপোর্ট',
   mine_sub: 'শুধু এই ডিভাইসে দেখা যায় — এখানে এমন কিছু নেই যা আপনাকে অন্য কারও কাছে শনাক্ত করে।',
   mine_loading: 'লোড হচ্ছে…', mine_empty: 'আপনি এখনও এই ডিভাইস থেকে কোনো রিপোর্ট করেননি।',
-  ev_auto_recategorized: 'ছবি থেকে বিভাগ স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে'
+  ev_auto_recategorized: 'ছবি থেকে বিভাগ স্বয়ংক্রিয়ভাবে শনাক্ত হয়েছে',
+  sla_hours: '{n} ঘণ্টা', sla_days: '{n} দিন',
+  sla_due_in: '⏱ বাকি {t}', sla_overdue_by: '⏱ {t} দেরি হয়ে গেছে'
 });
 Object.assign(window.KASA_I18N.hi, {
   wc_avg_fix: 'औसतन {n} दिन में समाधान', stat_days_overdue: '{n} दिन से अनदेखा',
@@ -937,5 +941,7 @@ Object.assign(window.KASA_I18N.hi, {
   nav_mine: 'आपकी रिपोर्ट', mine_title: 'आपकी रिपोर्ट',
   mine_sub: 'केवल इस डिवाइस पर दिखता है — यहाँ कुछ भी आपको किसी और के सामने पहचान नहीं देता।',
   mine_loading: 'लोड हो रहा है…', mine_empty: 'आपने अभी तक इस डिवाइस से कोई रिपोर्ट दर्ज नहीं की है।',
-  ev_auto_recategorized: 'तस्वीर से श्रेणी अपने आप पहचानी गई'
+  ev_auto_recategorized: 'तस्वीर से श्रेणी अपने आप पहचानी गई',
+  sla_hours: '{n} घंटे', sla_days: '{n} दिन',
+  sla_due_in: '⏱ {t} बाकी', sla_overdue_by: '⏱ {t} देर हो चुकी'
 });
