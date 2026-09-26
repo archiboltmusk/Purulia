@@ -213,8 +213,7 @@ img{display:block;max-width:100%;}
 .k-chain-note-text{font-size:.88rem;line-height:1.6;color:var(--text-md);}
 @media(max-width:768px){.k-chain,.k-chain-tabs{padding:0 1.2rem;}}
 
-.k-auth-grid{max-width:1080px;margin:2.2rem auto 0;padding:0 1.6rem;display:grid;grid-template-columns:repeat(3,1fr);gap:1rem;}
-@media(max-width:900px){.k-auth-grid{grid-template-columns:1fr;padding:0 1.2rem;}}
+.k-auth-grid{max-width:1080px;margin:2.2rem auto 0;padding:0 1.6rem;display:grid;grid-template-columns:1fr;gap:1rem;}
 .k-auth-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:4px;padding:1.3rem 1.4rem;display:flex;align-items:center;justify-content:space-between;gap:1rem;}
 .k-auth-card > div{flex:1;min-width:0;}
 .k-auth-avatar{width:3.4rem;height:3.4rem;font-size:1rem;}
