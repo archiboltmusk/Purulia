@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1618,6 +1618,33 @@ admin_sql(f"update public.reports set created_at = {LAST_WEEK_MID} + interval '1
 if HAS_WARDS:
     check('the fix counts before anything comes back', before >= 1, before)
     check("the weekly digest stops counting a fix that didn't last", digest_fixed(fl_fix['id']) == before - 1, (before,))
+
+# School checks by UDISE code: every audit check applies, plus block/location sanity.
+def school_check(uid, code, where, **ans):
+    a = dict(p_water_ok=True, p_toilets_ok=False, p_boundary_ok=True, p_electricity_ok=False, p_mdm_ok=True,
+             p_building_condition='needs_repair')
+    a.update(ans)
+    return rpc('kasa_school_check', uid=uid, p_udise_code=code, p_lat=where[0], p_lng=where[1], p_accuracy=10.0,
+               p_photo_path=upload(uid, 'reports'), **a)
+sc_block = admin_sql("select a.block_name from public.school_audits a where a.school_name = 'Test Listed School' limit 1")[0][0]
+admin_sql("insert into public.schools (udise_code, name, block_name) values ('19210199904', 'No-location School', %s), "
+          "('19210199905', 'Other Block School', 'NOWHERE-II') on conflict do nothing", (sc_block,))
+check('the public cannot file a school check without signing in',
+      'permission denied' in (err(rpc, 'kasa_school_check', p_udise_code='19210199904', p_lat=1.0, p_lng=1.0, p_accuracy=1.0,
+                                  p_water_ok=True, p_toilets_ok=True, p_boundary_ok=True, p_electricity_ok=True, p_mdm_ok=True,
+                                  p_building_condition='good', p_photo_path='x') or ''))
+check('a school not on the list is refused', err(school_check, user(), '19210199999', sc_where) == 'KASA_NOT_FOUND')
+chk = school_check(user(), '19210199904', offset(60, 0, base=sc_where))
+check('a check at a school in the same block goes straight up', chk['moderation_status'] == 'approved' and chk['hold'] is None, chk)
+chk2 = school_check(user(), '19210199905', offset(90, 0, base=sc_where))
+check('a check filed from a different block goes to review', chk2['moderation_status'] == 'review' and chk2['hold'] == 'other_block', chk2)
+chk3 = school_check(user(), '19210199901', offset(9000, 0, base=sc_where))
+check('a check far from a school with a known location goes to review', chk3['hold'] == 'far_from_school', chk3)
+check("a school's visible checks are public", len(rpc('kasa_school_checks', p_udise_code='19210199904')) == 1)
+check('checks under review stay private', rpc('kasa_school_checks', p_udise_code='19210199905') == [])
+cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}
+check('coverage counts a check by its school code and scores it out of 6',
+      cov['19210199904']['audits'] == 1 and cov['19210199904']['score'] == 3 and cov['19210199904']['score_of'] == 6, cov['19210199904'])
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
