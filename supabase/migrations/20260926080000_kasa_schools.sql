@@ -2,7 +2,7 @@
 -- PURULIA KASA — the official school list, for school-audit coverage
 --
 -- public.schools holds the district's UDISE+ school list (code, name,
--- location, block, management), loaded by tools/load-schools.py from the
+-- location when known, block, panchayat, village), loaded by tools/load-schools.py from the
 -- spreadsheet the district education office keeps. It is public
 -- information. kasa_school_coverage() gives, for every school, how many
 -- visible audits were filed within school_match_m of it and when the latest
@@ -23,6 +23,9 @@ create table if not exists public.schools (
   category    text,
   updated_at  timestamptz not null default now()
 );
+-- The district's list gives block, panchayat and village but often no coordinates.
+alter table public.schools alter column lat drop not null, alter column lng drop not null;
+alter table public.schools add column if not exists panchayat text, add column if not exists village text;
 create index if not exists kasa_schools_lat_idx on public.schools (lat, lng);
 alter table public.schools enable row level security;
 drop policy if exists kasa_schools_public_read on public.schools;
@@ -34,11 +37,12 @@ insert into kasa_private.settings (key, value, note) values
   ('school_match_m', '150', 'An audit counts for a listed school when filed within this many metres of it')
 on conflict (key) do nothing;
 
+drop function if exists public.kasa_school_coverage();
 create or replace function public.kasa_school_coverage() returns table (
-  udise_code text, name text, lat double precision, lng double precision, block_name text,
+  udise_code text, name text, lat double precision, lng double precision, block_name text, panchayat text, village text,
   management text, category text, audits integer, last_audit_at timestamptz)
 language sql stable security definer set search_path = '' as $$
-  select s.udise_code, s.name, s.lat, s.lng, s.block_name, s.management, s.category,
+  select s.udise_code, s.name, s.lat, s.lng, s.block_name, s.panchayat, s.village, s.management, s.category,
          count(a.id)::integer, date_trunc('hour', max(a.created_at))
   from public.schools s
   left join public.school_audits a

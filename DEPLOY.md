@@ -72,10 +72,10 @@ and run `areas.sql` in the Supabase SQL editor. It replaces Purulia's areas.
 
 ### Schools (optional)
 
-Ask the district education office (Samagra Shiksha District Project Office, or the DI of Schools) for the UDISE+ school list with latitude and longitude, and save it as CSV. Then:
+Ask the district education office (Samagra Shiksha District Project Office, or the DI of Schools) for the UDISE+ school list, ideally with latitude and longitude (without them, schools are listed by block, panchayat and village). An .xlsx or .csv both work:
 
 ```
-python3 tools/load-schools.py schools.csv > schools.sql
+python3 tools/load-schools.py School_List.xlsx > schools.sql
 ```
 
 and run `schools.sql` in the Supabase SQL editor. Rows with a bad UDISE code or a location outside your district are skipped and listed. Re-run with a newer list any time; it updates schools by UDISE code. `kasa_school_coverage()` then shows which schools have been audited.
