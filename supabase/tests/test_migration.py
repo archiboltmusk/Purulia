@@ -1848,6 +1848,11 @@ check('a school pin dragged a short way is accepted', ok_pin.get('points', 0) >=
 ds, _ = report(user(), category='dumpsite', where=offset(-2400, 3100))
 check('a dumping ground can be reported', admin_sql('select category from public.reports where id = %s', (ds['id'],))[0][0] == 'dumpsite')
 
+# Public toilets are their own kind of report too — not scored for garbage like a dumpsite.
+tl, _ = report(user(), category='toilet', where=offset(-2500, 3200))
+check('a public toilet problem can be reported',
+      admin_sql('select category from public.reports where id = %s', (tl['id'],))[0][0] == 'toilet')
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)

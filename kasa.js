@@ -57,7 +57,8 @@ const CATEGORIES = {
   hand_pump:            { icon: '💧', group: 'services', chain: 'water',       fix: 'fixed' },
   anganwadi:            { icon: '🧒', group: 'services', chain: 'icds',        fix: 'fixed' },
   health_centre:        { icon: '🏥', group: 'services', chain: 'health',      fix: 'fixed' },
-  school:               { icon: '🏫', group: 'services', chain: 'education',   fix: 'repaired' }
+  school:               { icon: '🏫', group: 'services', chain: 'education',   fix: 'repaired' },
+  toilet:               { icon: '🚻', group: 'services', chain: 'sanitation',  fix: 'fixed' }
 };
 const GROUPS = ['clean', 'infra', 'services', 'illegal'];
 
@@ -2309,12 +2310,14 @@ function renderCategoryGrid(){
     </div>`).join('');
 }
 
+// Categories that need a one-line "what to photograph" reminder beyond the review warning.
+const CATEGORY_NOTES = { dumpsite: 'dumpsite_note', toilet: 'toilet_note' };
 function selectCategory(key, advance = true){
   if (!CATEGORIES[key]) return;
   draft.category = key;
   const warn = document.getElementById('k-cat-warning');
-  warn.hidden = !CATEGORIES[key].review && key !== 'dumpsite';
-  warn.textContent = CATEGORIES[key].review ? t('illegal_note') : key === 'dumpsite' ? t('dumpsite_note') : '';
+  warn.hidden = !CATEGORIES[key].review && !CATEGORY_NOTES[key];
+  warn.textContent = CATEGORIES[key].review ? t('illegal_note') : CATEGORY_NOTES[key] ? t(CATEGORY_NOTES[key]) : '';
   renderCategoryGrid();
 }
 

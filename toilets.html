@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Public toilets — Parishkar Purulia</title>
+<meta name="description" content="Purulia was the only urban area in India not declared Open Defecation Free as of 2021. Report a public toilet that is locked, unusable, unclean or without water, and see every one residents have reported.">
+<meta property="og:title" content="Public toilets — Parishkar Purulia">
+<meta property="og:description" content="Built doesn't mean usable. Report a public toilet that's locked, dry or unclean.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/toilets.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/toilets.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  @media(min-width:1100px){.an-grid{grid-template-columns:1fr 1fr;}.an-span{grid-column:1 / -1;}}
+  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  @media(max-width:600px){.an-card{padding:1.1rem 1rem;}}
+  .ws-status{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:.2rem .5rem;border-radius:3px;border:1px solid rgba(212,136,42,.45);color:var(--amber);}
+  .ws-rti{margin-top:.8rem;white-space:pre-wrap;font-size:.86rem;line-height:1.6;background:rgba(240,230,208,.03);border:1px solid var(--border);border-radius:4px;padding:1rem;color:var(--text-hi);}
+  .ws-btn{margin-top:.8rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;padding:.6rem 1rem;font:inherit;font-weight:600;cursor:pointer;}
+  .ws-src{margin-top:.5rem;font-size:.8rem;color:var(--text-lo);}
+  .ws-src a,.an-card a{color:var(--amber);}
+  .ws-map{margin-top:1rem;height:340px;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
+  .ws-dumps{list-style:none;margin-top:.8rem;}
+  .ws-dumps li{padding:.55rem 0;border-bottom:1px solid var(--border);color:var(--text-md);font-size:.9rem;}
+  .ws-dumps a{color:var(--amber);}
+  a.ws-btn{display:inline-block;text-decoration:none;}
+  .maplibregl-popup-content{background:#14100b;color:#f0e6d0;border:1px solid rgba(240,230,208,.15);}
+  .maplibregl-popup-content a{color:#d4882a;}
+  .maplibregl-popup-tip{display:none;}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="#tl-rti" class="k-nav-cta">Ask by RTI →</a>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">Public toilets: built <em>doesn't mean usable</em></h1>
+      <p class="an-sub">Purulia was the only urban area in India not declared Open Defecation Free as of 2021. Government toilets exist, but many go unused — no water supply, poor construction, or simply kept locked. A built toilet nobody can use is, in practice, no toilet at all.</p>
+    </div>
+  </div>
+
+  <div class="an-grid">
+    <section class="an-card an-span" id="tl-toilets">
+      <h2>Reported by residents</h2>
+      <p class="an-card-sub">Found a public toilet that's locked, dry, unclean or otherwise unusable? Report it as <strong>🚻 Public toilet</strong>: a live photo and your location, confirmed by others on the spot like every report. Once it's genuinely fixed, anyone can confirm that too.</p>
+      <div id="tl-map" class="ws-map" role="region" aria-label="Map of reported public toilets"></div>
+      <ul class="ws-dumps" id="tl-list"><li>Loading…</li></ul>
+      <a class="ws-btn" href="kasa.html?report=new&amp;category=toilet" id="tl-report">🚻 Report a public toilet</a>
+    </section>
+
+    <section class="an-card an-span" id="tl-rti">
+      <h2>Ask for the missing answers (RTI)</h2>
+      <p class="an-card-sub">Anyone who is an Indian citizen can send this. Fill in your name and address, attach the ₹10 fee (postal order or court-fee stamp), and post it or hand it in at the municipality office. The officer must reply within 30 days. When the reply comes, <a href="grievance.html">send it to us</a> and we will add the facts to this page with the reply as the source.</p>
+      <div class="ws-rti" id="tl-rti-text">To,
+The Public Information Officer,
+Purulia Municipality, Purulia, West Bengal
+
+Subject: Request for information under Section 6(1) of the Right to Information Act, 2005
+
+Please provide the following information about public toilets in Purulia Municipality:
+
+1. The total number of public/community toilets built or maintained by the municipality, ward by ward, with their locations.
+2. For each, whether it currently has a working water supply, and the date it was last inspected or repaired.
+3. The number of these toilets that are locked, non-functional, or otherwise not usable by the public, and why.
+4. Any plan and timeline to make every public toilet in the municipality usable, and the funds allocated for this under Swachh Bharat Mission (Urban) 2.0 for the last three financial years.
+5. The steps taken, if any, following the Ministry of Housing and Urban Affairs not declaring Purulia Open Defecation Free, and the municipality's current ODF status.
+
+I am a citizen of India. The fee of ₹10 is enclosed.
+
+Name:
+Address:
+Date:</div>
+      <button type="button" class="ws-btn" id="tl-copy">Copy the RTI text</button>
+    </section>
+
+    <section class="an-card an-span">
+      <h2>What every one of us can do</h2>
+      <p class="an-card-sub">A toilet that's locked or dry stays that way until someone puts it on the record. Report the ones you find, and confirm on the spot once one is genuinely fixed — that's what makes "usable" a fact instead of a claim.</p>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="waste.html">Where the waste goes</a>
+    <a href="changelog.html">What's new</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+  </div>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="toilets.js"></script>
+<script>
+  document.getElementById('tl-copy').addEventListener('click', async (e) => {
+    try { await navigator.clipboard.writeText(document.getElementById('tl-rti-text').textContent); e.target.textContent = 'Copied'; }
+    catch (_) { e.target.textContent = 'Select the text above and copy it'; }
+  });
+</script>
+</body>
+</html>
