@@ -2847,6 +2847,16 @@ async function afterSubmit(res, d){
   document.getElementById('k-done-title').textContent = t(title);
   document.getElementById('k-done-sub').textContent = t(sub);
   const id = res.duplicateOf ? String(res.duplicateOf) : res.id;
+  // One tap to hear back: watch the report (or the one it joined) for the "Fixed" message.
+  const watchBtn = document.getElementById('k-done-watch');
+  const canWatch = !!id && res.moderation !== 'review' && watchSupported() && !watchedReports().has(id);
+  watchBtn.hidden = !canWatch;
+  watchBtn.disabled = false;
+  watchBtn.textContent = t('done_watch');
+  watchBtn.onclick = async () => {
+    await toggleWatch(id, watchBtn);
+    if (watchedReports().has(id)){ watchBtn.textContent = t('done_watch_on'); watchBtn.disabled = true; }
+  };
   const shareBtn = document.getElementById('k-done-share');
   shareBtn.hidden = !id || res.moderation === 'review';
   shareBtn.dataset.id = id || '';

@@ -682,3 +682,12 @@ body.k-drawer-open{overflow:hidden;}
 .k-sc-chip strong{font-size:.92rem;}
 .k-sc-chip span{font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
 .k-sc-chip:hover,.k-sc-chip:focus-visible{border-color:var(--amber);}
+
+/* ── Quiet home: the map and one big Report button. "Your reports", filters' colour key
+   and the rest live in the menu. ── */
+body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-right > .k-nav-cta{display:none;}
+.k-map-legend{display:none;}
+.k-map-report-btn{left:50%;right:auto;transform:translateX(-50%);bottom:1.4rem;padding:1.1rem 2.6rem;font-size:14px;border-radius:40px;white-space:nowrap;}
+.k-map-report-btn:hover{transform:translateX(-50%);}
+.k-map-pill{bottom:.9rem;}
+@media(max-width:640px){.k-map-pill{bottom:5.6rem;left:50%;transform:translateX(-50%);white-space:nowrap;}}

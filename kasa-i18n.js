@@ -90,7 +90,7 @@ window.KASA_I18N = {
     done_title_recur: 'Recorded as recurring', done_sub_recur: 'This spot was marked fixed recently. The recurrence is now on its record.',
     done_title_review: 'Sent for review', done_sub_review: "A moderator checks these reports before they're public.",
     done_title_offline: 'Saved offline', done_sub_offline: "It will upload automatically when you're back online.",
-    done_wa: 'Notify Municipality on WhatsApp →', done_share: 'Share this report', done_close: 'Done',
+    done_watch: '🔔 Tell me when it’s fixed', done_watch_on: '✓ We’ll tell you when it’s fixed', done_wa: 'Notify Municipality on WhatsApp →', done_share: 'Share this report', done_close: 'Done',
 
     head_open: 'Unresolved', head_claimed: 'Cleanup claimed · verifying', head_resolved: 'Resolved', head_resolved_legacy: 'Resolved · not verified',
     chip_pending: 'Waiting to upload', days_open: '{n}d open', list_count: '{n} reports', list_empty: 'No reports match these filters.', list_seen: 'Seen by {n} people', list_seen_one: 'Seen by the reporter',
@@ -329,7 +329,7 @@ window.KASA_I18N = {
     done_title_recur: 'বারবার হওয়া সমস্যা হিসেবে নথিভুক্ত', done_sub_recur: 'এই জায়গাটি সম্প্রতি সমাধান বলে চিহ্নিত হয়েছিল। আবার ফিরে আসাটা এখন রেকর্ডে আছে।',
     done_title_review: 'যাচাইয়ের জন্য পাঠানো হয়েছে', done_sub_review: 'প্রকাশের আগে মডারেটর এই রিপোর্টগুলো দেখেন।',
     done_title_offline: 'অফলাইনে সেভ হয়েছে', done_sub_offline: 'অনলাইন হলে নিজে থেকেই আপলোড হবে।',
-    done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান ���', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
+    done_watch: '🔔 ঠিক হলে আমাকে জানান', done_watch_on: '✓ ঠিক হলে আপনাকে জানাব', done_wa: 'হোয়াটসঅ্যাপে পৌরসভাকে জানান ���', done_share: 'রিপোর্টটি শেয়ার করুন', done_close: 'সম্পন্ন',
 
     head_open: 'অমীমাংসিত', head_claimed: 'সাফাইয়ের দাবি · যাচাই চলছে', head_resolved: 'সমাধান হয়েছে', head_resolved_legacy: 'সমাধান · যাচাই হয়নি',
     chip_pending: 'আপলোডের অপেক্ষায়', days_open: '{n} দিন খোলা', list_count: '{n}টি রিপোর্ট', list_empty: 'এই ফিল্টারে কোনো রিপোর্ট নেই।', list_seen: '{n} জন দেখেছেন', list_seen_one: 'শুধু রিপোর্টকারী দেখেছেন',
@@ -567,7 +567,7 @@ window.KASA_I18N = {
     done_title_recur: 'दोबारा हुई समस्या के रूप में दर्ज', done_sub_recur: 'यह जगह हाल ही में ठीक बताई गई थी। दोबारा होना अब उसके रिकॉर्ड में है।',
     done_title_review: 'जाँच के लिए भेजा गया', done_sub_review: 'सार्वजनिक होने से पहले मॉडरेटर ये रिपोर्ट देखते हैं।',
     done_title_offline: 'ऑफ़लाइन सेव हुई', done_sub_offline: 'ऑनलाइन होते ही अपने-आप अपलोड हो जाएगी।',
-    done_wa: 'व्हाट्सऐप पर नगरपालिका को बताएँ →', done_share: 'यह रिपोर्ट शेयर करें', done_close: 'हो गया',
+    done_watch: '🔔 ठीक होने पर मुझे बताएँ', done_watch_on: '✓ ठीक होने पर हम आपको बताएँगे', done_wa: 'व्हाट्सऐप पर नगरपालिका को बताएँ →', done_share: 'यह रिपोर्ट शेयर करें', done_close: 'हो गया',
 
     head_open: 'अनसुलझी', head_claimed: 'सफ़ाई का दावा · पुष्टि जारी', head_resolved: 'सुलझ गई', head_resolved_legacy: 'सुलझी · पुष्टि नहीं',
     chip_pending: 'अपलोड बाकी', days_open: '{n} दिन से खुली', list_count: '{n} रिपोर्ट', list_empty: 'इन फ़िल्टरों से कोई रिपोर्ट नहीं मिली।', list_seen: '{n} लोगों ने देखा', list_seen_one: 'सिर्फ़ रिपोर्ट करने वाले ने देखा',
