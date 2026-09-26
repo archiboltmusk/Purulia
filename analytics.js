@@ -1,7 +1,21 @@
 /* Public analytics for Parishkar Purulia: computed in the browser from the public view. */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name,parent_report_id';
   const DAY = 86400000;
+
+  // Fixes that didn't last: a new report at the spot (a recurrence) within fixMustLastDays of the fix.
+  // Times are public to the hour, so allow an hour of slack.
+  const LAST_DAYS = (window.KASA_CITY && window.KASA_CITY.fixMustLastDays) || 14;
+  function relapsedIds(rows){
+    const byId = new Map(rows.map(r => [String(r.id), r])), out = new Set();
+    for (const c of rows){
+      const p = c.parent_report_id != null && !c.is_duplicate && byId.get(String(c.parent_report_id));
+      if (!p || p.status !== 'resolved' || !p.resolved_at) continue;
+      const gap = Date.parse(c.created_at) - Date.parse(p.resolved_at);
+      if (gap >= -3600000 && gap <= LAST_DAYS * DAY) out.add(String(p.id));
+    }
+    return out;
+  }
   const cfg = window.KASA_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
   const L = (window.KASA_I18N && window.KASA_I18N.en) || {};
@@ -18,11 +32,12 @@
     sb.from('wards').select('ward_no,councillor_name').order('ward_no'),
   ]);
   if (rep.error){ set('an-updated', 'Could not load the data. Please try again later.'); return; }
+  const relapsed = relapsedIds(rep.data || []);
   const all = (rep.data || []).filter(r => !r.is_duplicate);
   const wards = {}; (wardRes.data || []).forEach(w => { wards[w.ward_no] = w; });
   const now = Date.now();
   const open = all.filter(r => r.status !== 'resolved');
-  const fixed = all.filter(r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at);
+  const fixed = all.filter(r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at && !relapsed.has(String(r.id)));
   const overdue = open.filter(r => (now - new Date(r.created_at)) / DAY > (r.sla_days || 7));
 
   // Headline numbers
@@ -32,7 +47,7 @@
   set('t-overdue', overdue.length ? `${overdue.length} overdue (over 7 days)` : 'none overdue');
   set('t-fixed', fixed.length);
   const byPhoto = fixed.filter(r => r.resolution_method === 'photo_check').length;
-  set('t-fixed-how', `${fixed.length - byPhoto} by neighbours · ${byPhoto} by photo check`);
+  set('t-fixed-how', `${fixed.length - byPhoto} by neighbours · ${byPhoto} by photo check` + (relapsed.size ? ` · ${relapsed.size} more didn't last` : ''));
   const med = median(fixed.map(fixDays));
   set('t-median', med == null ? '—' : med < 1 ? '< 1' : String(Math.round(med)));
   set('t-fake', all.reduce((n, r) => n + (r.rejected_claims || 0), 0));
@@ -149,7 +164,7 @@
   const blank = () => ({ open: 0, overdue: 0, fixed: 0, fake: 0, days: [] });
   const add = (s, r) => {
     if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
-    else if (['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at){ s.fixed++; s.days.push(fixDays(r)); }
+    else if (['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at && !relapsed.has(String(r.id))){ s.fixed++; s.days.push(fixDays(r)); }
     s.fake += r.rejected_claims || 0;
   };
   const cstats = new Map(seats.map(c => [c, blank()])), sstats = new Map(), unmapped = blank();
