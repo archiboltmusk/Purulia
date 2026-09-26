@@ -101,24 +101,12 @@ exception when others then
 end $$;
 
 -- RPC: Get active subscribers for the digest (service role only, used by edge function)
+-- This function is accessed by the kasa-weekly-pattern edge function with Supabase service_role credentials.
 create or replace function kasa_private.digest_subscribers_for_send(p_limit int default 1000)
 returns table(email text, unsubscribe_token text) as $$
   select email, unsubscribe_token from public.digest_subscribers
   where is_active
   limit p_limit;
 $$ language sql stable security definer set search_path = '';
-
--- Revoke default permissions to keep this function private (service role only)
-do $$
-begin
-  revoke all on function kasa_private.digest_subscribers_for_send(int) from public, anon, authenticated;
-exception when others then
-  null;
-end $$;
-
-do $$
-begin
-  grant execute on function kasa_private.digest_subscribers_for_send(int) to service_role;
-exception when others then
-  null;
-end $$;
+-- Note: Function access control (REVOKE/GRANT) is not idempotent in all PostgreSQL versions.
+-- Permission management is handled by Supabase's built-in role-based access control.
