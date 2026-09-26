@@ -124,6 +124,17 @@
 
   <div class="k-ward-card" id="k-ward-card" hidden></div>
 
+  <button type="button" class="k-fixed-chip" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+    ✓ <span id="k-fixed-chip-n"></span> <span data-i18n="fixed_chip">fixed</span>
+  </button>
+  <div class="k-fixed-strip" id="k-fixed-strip" hidden>
+    <div class="k-fixed-strip-head">
+      <span data-i18n="fixed_title">Recently fixed</span>
+      <button type="button" class="k-fixed-strip-close" id="k-fixed-strip-close" aria-label="Close">✕</button>
+    </div>
+    <div class="k-fixed-strip-list" id="k-fixed-strip-list"></div>
+  </div>
+
   <div class="k-map-legend" aria-hidden="true">
     <span><i class="k-dot k-dot-minor"></i> <span data-i18n="sev_minor">Minor</span></span>
     <span><i class="k-dot k-dot-severe"></i> <span data-i18n="sev_severe">Severe</span></span>

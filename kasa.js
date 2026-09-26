@@ -1036,6 +1036,11 @@ function renderFixed(){
   const el = document.getElementById('k-fixed-list');
   if (!el) return;
   const fixes = recentFixes();
+  // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
+  const chip = document.getElementById('k-fixed-chip');
+  chip.hidden = !fixes.length;
+  document.getElementById('k-fixed-chip-n').textContent = fixes.length;
+  if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
     const c = CATEGORIES[r.category];
@@ -1058,7 +1063,13 @@ function renderFixed(){
       </span>
     </button>`;
   }).join('');
+  document.getElementById('k-fixed-strip-list').innerHTML = el.innerHTML;
   loadFixConfirmations();
+}
+
+function setFixedStrip(open){
+  document.getElementById('k-fixed-strip').hidden = !open;
+  document.getElementById('k-fixed-chip').setAttribute('aria-expanded', String(open));
 }
 
 function renderTicker(){
@@ -2836,6 +2847,9 @@ function wireUI(){
     if (d.sev){ setSeverity(d.sev); return; }
   });
 
+  document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
+  document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
+  document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
