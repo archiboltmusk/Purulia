@@ -30,6 +30,11 @@ interface Pattern {
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
 
+interface Subscriber {
+  email: string;
+  unsubscribe_token: string;
+}
+
 async function getPatterns(admin: any): Promise<Pattern[]> {
   const patterns: Pattern[] = [];
   const weekAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString();
@@ -100,7 +105,16 @@ async function getPatterns(admin: any): Promise<Pattern[]> {
   return patterns;
 }
 
-function renderEmail(patterns: Pattern[], isPreview: boolean): { subject: string; text: string } {
+async function getSubscribers(admin: any): Promise<Subscriber[]> {
+  const { data, error } = await admin.rpc('kasa_private.digest_subscribers_for_send', { p_limit: 5000 });
+  if (error) {
+    console.error('Error fetching subscribers:', error);
+    return [];
+  }
+  return data || [];
+}
+
+function renderEmail(patterns: Pattern[], isPreview: boolean, unsubscribeToken?: string): { subject: string; text: string } {
   const week = new Date().toLocaleDateString('en-IN', {
     weekday: 'long',
     month: 'short',
@@ -162,8 +176,13 @@ function renderEmail(patterns: Pattern[], isPreview: boolean): { subject: string
     'Action: Click links to filter the map and coordinate with departments.',
     `All data: ${SITE}/analytics.html`,
     '',
-    'This is a SQL-based pattern summary, not verified fact. Every pattern needs on-site confirmation.'
+    'This is a SQL-based pattern summary, not verified fact. Every pattern needs on-site confirmation.',
+    ''
   );
+
+  if (unsubscribeToken) {
+    lines.push(`Unsubscribe: ${SITE}/kasa-unsubscribe?token=${unsubscribeToken}`);
+  }
 
   return {
     subject: `Purulia weekly patterns — ${patterns.length} finding${patterns.length === 1 ? '' : 's'}`,
@@ -180,32 +199,84 @@ Deno.serve(async (req) => {
   // Get patterns
   const patterns = await getPatterns(admin);
 
-  // If no recipients configured, send preview to team (placeholder)
-  const recipients = TO.length ? TO : ['team@parishkar.local'];
-  const isPreview = !TO.length;
+  // Get municipal recipients
+  const officialRecipients = TO.length ? TO : [];
 
-  const { subject, text } = renderEmail(patterns, isPreview);
+  // Get community subscribers
+  const subscribers = await getSubscribers(admin);
 
-  if (!recipients.length || recipients[0] === 'team@parishkar.local') {
-    return reply(200, { sent: false, reason: 'no recipients configured (set PATTERN_DIGEST_TO)', patterns: patterns.length });
+  const isPreview = !officialRecipients.length && !subscribers.length;
+
+  if (!officialRecipients.length && !subscribers.length) {
+    return reply(200, {
+      sent: false,
+      reason: 'no recipients (set PATTERN_DIGEST_TO or wait for community subscribers)',
+      patterns: patterns.length,
+      subscribers: 0,
+    });
   }
 
-  const res = await fetch('https://api.resend.com/emails', {
-    method: 'POST',
-    headers: {
-      Authorization: `Bearer ${RESEND_KEY}`,
-      'Content-Type': 'application/json',
-      'Idempotency-Key': `kasa-pattern-${new Date().toISOString().split('T')[0]}`,
-    },
-    body: JSON.stringify({
-      from: FROM,
-      to: recipients,
-      subject,
-      text,
-    }),
-  }).catch(e => ({ ok: false, status: 0, text: async () => String(e) }) as Response);
+  // Send to all recipients
+  let sentCount = 0;
+  let failCount = 0;
 
-  const err = res.ok ? null : `Resend ${res.status}: ${(await res.text()).slice(0, 200)}`;
+  // Send to officials (no unsubscribe token)
+  const { subject, text: officialText } = renderEmail(patterns, isPreview);
 
-  return reply(err ? 502 : 200, err ? { error: err } : { sent: true, patterns: patterns.length, preview: isPreview });
+  for (const email of officialRecipients) {
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to: [email],
+        subject,
+        text: officialText,
+      }),
+    }).catch(e => ({ ok: false, status: 0, text: async () => String(e) }) as Response);
+
+    if (res.ok) {
+      sentCount++;
+    } else {
+      failCount++;
+    }
+  }
+
+  // Send to community subscribers (with unsubscribe token)
+  for (const subscriber of subscribers) {
+    const { text: subscriberText } = renderEmail(patterns, isPreview, subscriber.unsubscribe_token);
+
+    const res = await fetch('https://api.resend.com/emails', {
+      method: 'POST',
+      headers: {
+        Authorization: `Bearer ${RESEND_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        from: FROM,
+        to: [subscriber.email],
+        subject,
+        text: subscriberText,
+      }),
+    }).catch(e => ({ ok: false, status: 0, text: async () => String(e) }) as Response);
+
+    if (res.ok) {
+      sentCount++;
+    } else {
+      failCount++;
+    }
+  }
+
+  return reply(200, {
+    sent: sentCount > 0,
+    patterns: patterns.length,
+    recipients: officialRecipients.length + subscribers.length,
+    sent_count: sentCount,
+    fail_count: failCount,
+    community_subscribers: subscribers.length,
+    officials: officialRecipients.length,
+  });
 });
