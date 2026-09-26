@@ -38,7 +38,7 @@
   const inArea = r => area.kind === 'ward'
     ? r.area_kind !== 'rural' && Number(r.ward_no) === area.id
     : r.area_kind === 'rural' && (r.block_name || '').toLowerCase() === area.id.toLowerCase();
-  const isFix = r => r.status === 'resolved' && r.resolution_method === 'community' && r.resolved_at;
+  const isFix = r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at;
 
   function render(){
     const end = start + 7 * DAY, soFar = end > Date.now(), cut = Math.min(end, Date.now());

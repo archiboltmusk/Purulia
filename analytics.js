@@ -22,7 +22,7 @@
   const wards = {}; (wardRes.data || []).forEach(w => { wards[w.ward_no] = w; });
   const now = Date.now();
   const open = all.filter(r => r.status !== 'resolved');
-  const fixed = all.filter(r => r.status === 'resolved' && r.resolution_method === 'community' && r.resolved_at);
+  const fixed = all.filter(r => r.status === 'resolved' && ['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at);
   const overdue = open.filter(r => (now - new Date(r.created_at)) / DAY > (r.sla_days || 7));
 
   // Headline numbers
@@ -31,6 +31,8 @@
   set('t-open', open.length);
   set('t-overdue', overdue.length ? `${overdue.length} overdue (over 7 days)` : 'none overdue');
   set('t-fixed', fixed.length);
+  const byPhoto = fixed.filter(r => r.resolution_method === 'photo_check').length;
+  set('t-fixed-how', `${fixed.length - byPhoto} by neighbours · ${byPhoto} by photo check`);
   const med = median(fixed.map(fixDays));
   set('t-median', med == null ? '—' : med < 1 ? '< 1' : String(Math.round(med)));
   set('t-fake', all.reduce((n, r) => n + (r.rejected_claims || 0), 0));
@@ -147,7 +149,7 @@
   const blank = () => ({ open: 0, overdue: 0, fixed: 0, fake: 0, days: [] });
   const add = (s, r) => {
     if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
-    else if (r.resolution_method === 'community' && r.resolved_at){ s.fixed++; s.days.push(fixDays(r)); }
+    else if (['community', 'photo_check'].includes(r.resolution_method) && r.resolved_at){ s.fixed++; s.days.push(fixDays(r)); }
     s.fake += r.rejected_claims || 0;
   };
   const cstats = new Map(seats.map(c => [c, blank()])), sstats = new Map(), unmapped = blank();

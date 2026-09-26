@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1439,6 +1439,106 @@ tr = rpc('kasa_public_transparency')
 check('anyone can read the moderation counts', len(tr['months']) == 12 and tr['months'][0]['reported'] > 0, tr['months'][:1])
 check('moderation counts include hides and the team size', sum(m['hidden'] for m in tr['months']) > 0 and tr['now']['admins'] >= 1, tr['now'])
 check('moderation counts carry no ids', 'user_id' not in json.dumps(tr) and 'report_id' not in json.dumps(tr))
+
+# Weekly digest: claimed once per week, public data only, team-only until an address is set.
+if admin_sql("select to_regclass('public.wards') is not null")[0][0]:
+    dg_r, _ = report(user(), where=offset(0, 0))
+    admin_sql("update public.reports set is_duplicate = false, parent_report_id = null, created_at = date_trunc('week', now() at time zone 'Asia/Kolkata') at time zone 'Asia/Kolkata' - interval '3 days' where id = %s", (dg_r['id'],))
+    admin_sql("delete from kasa_private.digest_sends")
+    dg = rpc('kasa_weekly_digest_claim', role='service_role')
+    check('the weekly digest can be claimed', dg is not None and 'wards' in dg, dg)
+    check('with no address set it goes to the team only', dg['to'] == [] and len(dg['team']) >= 1, dg)
+    check('the digest counts last week\'s new report', any(w['new'] >= 1 for w in dg['wards']), dg['wards'][:3])
+    check('a week\'s digest is not claimed twice', rpc('kasa_weekly_digest_claim', role='service_role') is None)
+    rpc('kasa_weekly_digest_done', role='service_role', p_week=dg['week_start'])
+    admin_sql("update kasa_private.settings set value = '\"a@example.org, b@example.org\"' where key = 'weekly_digest_to'")
+    admin_sql("delete from kasa_private.digest_sends")
+    check('the digest goes to the configured addresses', rpc('kasa_weekly_digest_claim', role='service_role')['to'] == ['a@example.org', 'b@example.org'])
+    check('the public cannot claim the digest', refused(err(rpc, 'kasa_weekly_digest_claim', uid=user())))
+
+# Up to 3 photos per report: same person, right after, each checked like the first.
+mp_owner = user()
+mp_r, mp_first = report(mp_owner, where=offset(15500, 15000))
+extra1, extra2, extra3 = upload(mp_owner, 'reports'), upload(mp_owner, 'reports'), upload(mp_owner, 'reports')
+check('a second photo can be added', rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra1)['position'] == 2)
+check('a third photo can be added', rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra2)['position'] == 3)
+check('a fourth photo is refused', err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r['id']), p_photo_path=extra3) == 'KASA_TOO_MANY_PHOTOS')
+check('someone else cannot add photos to your report',
+      err(rpc, 'kasa_add_report_photo', uid=user(), p_report_id=str(mp_r['id']), p_photo_path=upload(user(), 'reports')) == 'KASA_NOT_FOUND')
+mp_r2, _ = report(mp_owner, where=offset(15800, 15000))
+check('a photo already on one report cannot be reused on another',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=extra1) == 'KASA_PHOTO_REUSED')
+check('a photo someone else uploaded cannot be added',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+face = upload(mp_owner, 'reports'); photo_check(face, faces=1)
+rpc('kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=face)
+check('an extra photo with a face sends the report back to review',
+      admin_sql('select moderation_status from public.reports where id::text = %s', (str(mp_r2['id']),))[0][0] == 'review')
+check('extra photos are public for visible reports', len(rpc('kasa_report_photos', p_report_id=str(mp_r['id']))) == 2)
+check('extra photos of a report under review stay private', rpc('kasa_report_photos', p_report_id=str(mp_r2['id'])) == [])
+check('extra photos are never treated as orphans', extra1 not in {r[0] for r in q('select * from public.kasa_orphan_photos(1000)', role='service_role')})
+admin_sql("update public.reports set created_at = now() - interval '2 hours' where id = %s", (mp_r2['id'],))
+check('photos cannot be added long after reporting',
+      err(rpc, 'kasa_add_report_photo', uid=mp_owner, p_report_id=str(mp_r2['id']), p_photo_path=upload(mp_owner, 'reports')) == 'KASA_TOO_LATE')
+
+def fl_claim_of(uid, rid, where, path):
+    return rpc('kasa_claim_cleanup', uid=uid, p_report_id=str(rid), p_photo_path=path, p_lat=where[0], p_lng=where[1], p_accuracy=10.0)
+
+
+def fl_vote(uid, cid, where, v='verify'):
+    return rpc('kasa_vote_claim', uid=uid, ip=str(uuid.uuid4()), p_claim_id=cid, p_vote=v, p_photo_path=checked(uid, 'votes'),
+               p_lat=where[0], p_lng=where[1], p_accuracy=10.0, p_note=None)
+
+
+# Photo-check fast lane: a clean Vision score needs 1 confirmer, or closes alone after photo_only_days.
+fl_rep = user()
+fl_r, _ = report(fl_rep, where=offset(16500, 15000))
+fl_where = offset(16500, 15000)
+fl_c = with_history()
+fl_path = checked(fl_c, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (fl_path,))
+fl_claim = fl_claim_of(fl_c, fl_r['id'], where=fl_where, path=fl_path)
+check('a clean cleanup photo is photo-confident and needs 1 confirmation',
+      fl_claim.get('photo_confident') is True and fl_claim['verify_needed'] == 1, fl_claim)
+check('the map is told which claims are photo-confident',
+      any(x['claim_id'] == str(fl_claim['claim_id']) and x['need'] == 1 for x in rpc('kasa_fast_claims')))
+fl_v = with_history()
+fl_vote(fl_v, fl_claim['claim_id'], fl_where)
+check('one on-site confirmation reaches quorum on a photo-confident claim',
+      admin_sql('select quorum_reached_at is not null from kasa_private.claims where id = %s', (fl_claim['claim_id'],))[0][0])
+
+fl_r2, _ = report(fl_rep, where=offset(16800, 15000))
+fl_c2 = with_history()
+p2 = checked(fl_c2, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (p2,))
+fl_claim2 = fl_claim_of(fl_c2, fl_r2['id'], where=offset(16800, 15000), path=p2)
+rpc('kasa_finalize_due')
+check('a photo-only claim does not close early', admin_sql('select status from public.reports where id = %s', (fl_r2['id'],))[0][0] == 'claimed')
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim2['claim_id'],))
+rpc('kasa_finalize_due')
+check('an unchallenged photo-confident claim closes on the photo check after 3 days',
+      admin_sql('select status, resolution_method from public.reports where id = %s', (fl_r2['id'],))[0] == ('resolved', 'photo_check'))
+
+fl_r3, _ = report(fl_rep, where=offset(17100, 15000))
+fl_c3 = with_history()
+p3 = checked(fl_c3, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.4 where photo_path = %s", (p3,))
+fl_claim3 = fl_claim_of(fl_c3, fl_r3['id'], where=offset(17100, 15000), path=p3)
+check('an unsure photo needs the full quorum', fl_claim3.get('photo_confident') is False and fl_claim3['verify_needed'] >= 2, fl_claim3)
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim3['claim_id'],))
+rpc('kasa_finalize_due')
+check('an unsure photo never closes on its own', admin_sql('select status from public.reports where id = %s', (fl_r3['id'],))[0][0] == 'claimed')
+
+fl_r4, _ = report(fl_rep, where=offset(17400, 15000))
+fl_c4 = with_history()
+p4 = checked(fl_c4, 'claims')
+admin_sql("update kasa_private.photo_checks set garbage_score = 0.05 where photo_path = %s", (p4,))
+fl_claim4 = fl_claim_of(fl_c4, fl_r4['id'], where=offset(17400, 15000), path=p4)
+fl_d = with_history()
+fl_vote(fl_d, fl_claim4['claim_id'], offset(17400, 15000), v='dispute')
+admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim4['claim_id'],))
+rpc('kasa_finalize_due')
+check('a disputed claim never closes on the photo alone', admin_sql('select resolution_method from public.reports where id = %s', (fl_r4['id'],))[0][0] is None)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
