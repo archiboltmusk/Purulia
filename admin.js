@@ -445,59 +445,95 @@ async function findReport(){
   loadReportPhotos(r.id);
 }
 
-/* Admins keep reports readable: remove an extra photo or a duplicate report that repeats
-   the same picture. The first photo always stays; every removal needs a public reason. */
+/* Moderators keep reports readable and correct. The automatic check joins reports of the
+   same kind within 40 m, and it can be wrong, so a person decides: keep the join, undo it,
+   join a report the check missed, or delete a repeat photo. The report's first photo always
+   stays; every change shows on the report's public timeline. */
 async function removePhoto(reportId, kind, ref){
-  const reason = prompt('Public reason for removing this photo (e.g. "same photo as the first"):');
+  const reason = prompt('Public reason for deleting this photo (e.g. "same photo as the first"):');
   if (!reason || reason.trim().length < 3) return false;
   const { error } = await sb.rpc('kasa_admin_remove_photo', { p_report_id: reportId, p_kind: kind, p_ref: String(ref), p_reason: reason });
   if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
   return true;
 }
 
+async function repeatAction(action, childId, parentId){
+  if (action === 'delete') return removePhoto(parentId, 'duplicate', childId);
+  let res;
+  if (action === 'keep') res = await sb.rpc('kasa_admin_confirm_duplicate', { p_report_id: childId });
+  else {
+    const reason = prompt('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")') ;
+    if (reason === null) return false;
+    res = await sb.rpc('kasa_admin_unlink_duplicate', { p_report_id: childId, p_reason: reason || null });
+  }
+  if (res.error){ alert('Failed: ' + (res.error.details || res.error.message)); return false; }
+  return true;
+}
+
+const REPEAT_BTNS = `<button class="ad-ok" data-act="keep" title="Both photos show the same problem">✓ Same</button>
+  <button class="ad-bad" data-act="split" title="Different problems: make it its own report again">✕ Not the same</button>
+  <button class="ad-bad" data-act="delete" title="Delete this repeat photo from the site">🗑 Delete</button>`;
+
 async function loadReportPhotos(id){
   const el = document.getElementById('adFindPhotos');
   if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_report_photos', { p_report_id: id });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load photos: ${esc(error.details || error.message)}</div>`; return; }
-  const items = [
-    ...(data.extras || []).map(p => ({ kind: 'extra', ref: p.position, url: p.photo_url, label: `Extra photo ${p.position}` })),
-    ...(data.duplicates || []).map(d => ({ kind: 'duplicate', ref: d.id, url: d.photo_url,
-      label: `Joined ${new Date(d.created_at).toLocaleDateString('en-IN')}` })),
-  ];
-  if (!items.length){ el.innerHTML = ''; return; }
-  el.innerHTML = `<div class="ad-photos">${items.map((p, i) => `<figure>
-      ${p.url ? `<img src="${esc(p.url)}" alt="" loading="lazy">` : ''}
-      <figcaption>${esc(p.label)}${isSuper() ? ` <button class="ad-bad" data-rm="${i}">Remove</button>` : ''}</figcaption>
-    </figure>`).join('')}</div>
-    ${isSuper() ? '' : '<p class="ad-note">Only an admin can remove photos.</p>'}`;
-  el.querySelectorAll('[data-rm]').forEach(b => b.addEventListener('click', async () => {
-    const p = items[+b.dataset.rm];
-    if (await removePhoto(id, p.kind, p.ref)){ loadReportPhotos(id); loadRepeatPhotos(); }
+  const extras = data.extras || [], dups = data.duplicates || [];
+  el.innerHTML = `
+    ${extras.length ? `<div class="ad-photos">${extras.map((p, i) => `<figure>
+      <img src="${esc(p.photo_url)}" alt="" loading="lazy">
+      <figcaption>Extra photo ${esc(p.position)} <button class="ad-bad" data-rm-extra="${i}">🗑 Delete</button></figcaption>
+    </figure>`).join('')}</div>` : ''}
+    ${dups.length ? `<p class="ad-note" style="margin-top:.8rem;">Reports joined to this one as repeats:</p>
+    <div class="ad-photos">${dups.map((d, i) => `<figure data-dup="${i}">
+      ${d.photo_url ? `<img src="${esc(d.photo_url)}" alt="" loading="lazy">` : ''}
+      <figcaption>Joined ${esc(new Date(d.created_at).toLocaleDateString('en-IN'))}<br>${REPEAT_BTNS}</figcaption>
+    </figure>`).join('')}</div>` : ''}
+    <div class="ad-actions" style="margin-top:.8rem;">
+      <input type="text" id="adJoinTo" placeholder="Same problem as report (link or ID)" style="flex:1;min-width:14rem;">
+      <button class="ad-ok" id="adJoinBtn">Join as a repeat</button>
+    </div>`;
+  el.querySelectorAll('[data-rm-extra]').forEach(b => b.addEventListener('click', async () => {
+    if (await removePhoto(id, 'extra', extras[+b.dataset.rmExtra].position)) loadReportPhotos(id);
   }));
+  el.querySelectorAll('[data-dup] [data-act]').forEach(b => b.addEventListener('click', async () => {
+    const d = dups[+b.closest('[data-dup]').dataset.dup];
+    if (await repeatAction(b.dataset.act, d.id, id)){ loadReportPhotos(id); loadRepeatPhotos(); }
+  }));
+  document.getElementById('adJoinBtn').addEventListener('click', async () => {
+    const raw = document.getElementById('adJoinTo').value.trim();
+    let parent = raw;
+    try { parent = new URL(raw).searchParams.get('report') || raw; } catch (_) {}
+    if (!parent) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_link_duplicate', { p_report_id: String(id), p_parent_id: parent });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    alert('Joined. This report now counts as a repeat of the other one.');
+    findReport(); loadRepeatPhotos();
+  });
 }
 
 async function loadRepeatPhotos(){
   const el = document.getElementById('adRepeatPhotos');
   const { data, error } = await sb.rpc('kasa_admin_repeat_photos', { p_limit: 60 });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No repeat photos.</div>'; return; }
-  const img = u => u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a>` : '—';
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing to check.</div>'; return; }
+  const img = u => u ? `<a href="${esc(u)}" target="_blank" rel="noopener"><img src="${esc(u)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:4px;"></a>` : '—';
   el.innerHTML = `
     <table class="ad-table">
-      <thead><tr><th>First photo</th><th>Repeat</th><th>Report</th><th></th></tr></thead>
+      <thead><tr><th>Earlier report</th><th>Joined to it</th><th>Details</th><th>Is it the same problem?</th></tr></thead>
       <tbody>
-        ${data.map((d, i) => `<tr>
+        ${data.map((d, i) => `<tr data-row="${i}">
           <td>${img(d.parent_photo_url)}</td>
           <td>${img(d.photo_url)}</td>
-          <td>${esc(d.category)} · Ward ${esc(d.ward_no ?? '?')} ${esc(d.block_name || '')}<br><small>${esc(new Date(d.created_at).toLocaleString('en-IN'))} · <a href="kasa.html?report=${encodeURIComponent(d.parent_id)}" target="_blank" rel="noopener">open</a></small></td>
-          <td>${isSuper() ? `<button class="ad-bad" data-rp="${i}">Remove repeat</button>` : '<small>Admin only</small>'}</td>
+          <td>${esc(d.category)} · Ward ${esc(d.ward_no ?? '?')} ${esc(d.block_name || '')}<br><small>${esc(d.distance_m ?? '?')} m apart · ${esc(new Date(d.created_at).toLocaleString('en-IN'))} · <a href="kasa.html?report=${encodeURIComponent(d.parent_id)}" target="_blank" rel="noopener">earlier</a> · <a href="kasa.html?report=${encodeURIComponent(d.id)}" target="_blank" rel="noopener">joined</a></small></td>
+          <td style="white-space:nowrap;">${REPEAT_BTNS}</td>
         </tr>`).join('')}
       </tbody>
     </table>`;
-  el.querySelectorAll('[data-rp]').forEach(b => b.addEventListener('click', async () => {
-    const d = data[+b.dataset.rp];
-    if (await removePhoto(d.parent_id, 'duplicate', d.id)) loadRepeatPhotos();
+  el.querySelectorAll('[data-row] [data-act]').forEach(b => b.addEventListener('click', async () => {
+    const d = data[+b.closest('[data-row]').dataset.row];
+    if (await repeatAction(b.dataset.act, d.id, d.parent_id)) loadRepeatPhotos();
   }));
 }
 

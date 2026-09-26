@@ -1710,8 +1710,8 @@ check('the public cannot list report photos for removal',
       refused(err(rpc, 'kasa_admin_report_photos', p_report_id=str(q1['id']))))
 ph_mod = user()
 admin_sql("insert into public.admins (user_id, role) values (%s, 'moderator')", (ph_mod,))
-check('a moderator cannot remove photos',
-      err(rpc, 'kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo') == 'KASA_NOT_ADMIN')
+check('an ordinary person cannot remove photos',
+      err(rpc, 'kasa_admin_remove_photo', uid=user(), p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo') == 'KASA_NOT_ADMIN')
 check('removing a photo needs a reason',
       err(rpc, 'kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason=' ') == 'KASA_REASON_NEEDED')
 rpc('kasa_admin_remove_photo', uid=ph_admin, p_report_id=str(q1['id']), p_kind='extra', p_ref='2', p_reason='same photo twice')
@@ -1761,6 +1761,34 @@ lim = user()
 for i in range(3):
     adopt(lim, f'Spot keeper {i}', offset(-3800 - i * 200, 1800))
 check('one person can look after at most three spots', err(adopt, lim, 'Spot keeper 4', offset(-4600, 1800)) == 'KASA_ADOPT_LIMIT')
+
+# Moderators decide repeats: keep a join, undo a wrong one, or join a missed one.
+mr_spot = offset(-2600, -2600)
+m1 = quick(user(), mr_spot)
+m2 = quick(user(), offset(12, 0, base=mr_spot))
+up_before = admin_sql('select upvotes from public.reports where id = %s', (m1['id'],))[0][0]
+check('the automatic check joined the second report', admin_sql('select is_duplicate from public.reports where id = %s', (m2['id'],))[0][0] is True)
+check('an ordinary person cannot undo a join', err(rpc, 'kasa_admin_unlink_duplicate', uid=user(), p_report_id=str(m2['id'])) == 'KASA_NOT_ADMIN')
+check('the join waits for a moderator', any(x['id'] == str(m2['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+rpc('kasa_admin_unlink_duplicate', uid=ph_mod, p_report_id=str(m2['id']), p_reason='Different pile')
+row = admin_sql('select is_duplicate, parent_report_id from public.reports where id = %s', (m2['id'],))[0]
+check('a moderator can undo a wrong join', row == (False, None), row)
+check('undoing takes back the "people saw this" it added',
+      admin_sql('select upvotes from public.reports where id = %s', (m1['id'],))[0][0] == up_before - 1)
+check('an undone join leaves the review list', not any(x['id'] == str(m2['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+check('the undo is on the public timeline',
+      admin_sql("select count(*) from kasa_private.events where report_id = %s and detail ->> 'action' = 'unlink_duplicate'", (m1['id'],))[0][0] == 1)
+rpc('kasa_admin_link_duplicate', uid=ph_mod, p_report_id=str(m2['id']), p_parent_id=str(m1['id']))
+check('a moderator can join a report the check missed',
+      admin_sql('select is_duplicate, parent_report_id::text from public.reports where id = %s', (m2['id'],))[0] == (True, str(m1['id'])))
+check('a report cannot join a repeat', err(rpc, 'kasa_admin_link_duplicate', uid=ph_mod, p_report_id=str(m1['id']), p_parent_id=str(m2['id'])) == 'KASA_BAD_ACTION')
+m3 = quick(user(), offset(20, 0, base=mr_spot))
+rpc('kasa_admin_confirm_duplicate', uid=ph_mod, p_report_id=str(m3['id']))
+check('a confirmed join stays and leaves the review list',
+      admin_sql('select is_duplicate from public.reports where id = %s', (m3['id'],))[0][0] is True
+      and not any(x['id'] == str(m3['id']) for x in rpc('kasa_admin_repeat_photos', uid=ph_mod)))
+rpc('kasa_admin_remove_photo', uid=ph_mod, p_report_id=str(m1['id']), p_kind='duplicate', p_ref=str(m3['id']), p_reason='same photo again')
+check('a moderator can delete a repeat photo', admin_sql('select count(*) from public.reports where id = %s', (m3['id'],))[0][0] == 0)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
