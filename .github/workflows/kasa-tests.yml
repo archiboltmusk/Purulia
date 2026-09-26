@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax check
-        run: for f in kasa.js kasa-i18n.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js; do node --check "$f"; done
+        run: for f in kasa.js kasa-i18n.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js waste.js; do node --check "$f"; done
       - name: Photo metadata reader (three time zones)
         run: for tz in UTC Asia/Kolkata America/New_York; do TZ=$tz node tests/kasa_photo_meta.test.mjs; done
       - name: Photo fingerprint + Vision scoring

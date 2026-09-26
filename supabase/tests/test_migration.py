@@ -1822,6 +1822,10 @@ ok_pin = rpc('kasa_mark_school_location', uid=user(), p_udise_code='19210199904'
              p_accuracy=10.0, p_gps_lat=sc_where[0], p_gps_lng=sc_where[1])
 check('a school pin dragged a short way is accepted', ok_pin.get('points', 0) >= 1, ok_pin)
 
+# Dumping grounds are their own kind of report.
+ds, _ = report(user(), category='dumpsite', where=offset(-2400, 3100))
+check('a dumping ground can be reported', admin_sql('select category from public.reports where id = %s', (ds['id'],))[0][0] == 'dumpsite')
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
