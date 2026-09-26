@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Suggest a Feature — Parishkar Purulia</title>
+<meta name="description" content="Help shape Purulia's civic reporting tool. Share your ideas and suggestions.">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="stylesheet" href="kasa.css">
+<style>
+.suggest-wrap{max-width:800px;margin:0 auto;padding:4rem clamp(1.2rem,4vw,3rem);}
+.suggest-head{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--cream);margin-bottom:1rem;letter-spacing:-.02em;}
+.suggest-intro{font-size:1.05rem;color:var(--text-hi);line-height:1.7;margin-bottom:2.4rem;max-width:600px;}
+.suggest-card{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:8px;padding:2rem;margin-bottom:2rem;}
+.suggest-card h3{font-family:var(--serif);font-size:1.3rem;color:var(--cream);margin-bottom:.8rem;font-weight:600;}
+.suggest-card p{color:var(--text-md);line-height:1.6;margin-bottom:.6rem;font-size:.95rem;}
+.suggest-list{list-style:none;padding:0;margin:1.2rem 0;}
+.suggest-list li{color:var(--text-md);padding-left:1.8rem;position:relative;margin-bottom:.6rem;line-height:1.6;}
+.suggest-list li::before{content:'→';position:absolute;left:0;color:var(--amber);font-weight:700;}
+.suggest-form-group{margin-bottom:1.4rem;}
+.suggest-label{font-family:var(--mono);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-lo);display:block;margin-bottom:.6rem;}
+.suggest-input{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;border-radius:4px;outline:none;box-sizing:border-box;}
+.suggest-textarea{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;border-radius:4px;outline:none;resize:vertical;min-height:140px;box-sizing:border-box;}
+.suggest-input:focus,.suggest-textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(212,136,42,.1);}
+.suggest-input::placeholder,.suggest-textarea::placeholder{color:var(--text-lo);}
+.suggest-btn{width:100%;padding:1rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;border:none;border-radius:4px;cursor:pointer;transition:all .2s;font-weight:500;}
+.suggest-btn:hover{background:var(--amber2);transform:translateY(-1px);}
+.suggest-btn:active{transform:translateY(0);}
+.suggest-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
+.suggest-message{padding:1rem;border-radius:4px;margin-top:1rem;font-size:.9rem;display:none;}
+.suggest-message.success{display:block;background:rgba(109,184,138,.1);border:1px solid rgba(109,184,138,.3);color:var(--green);}
+.suggest-message.error{display:block;background:rgba(232,82,74,.1);border:1px solid rgba(232,82,74,.3);color:var(--red);}
+.suggest-category{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.4rem;}
+.suggest-category label{display:flex;align-items:center;padding:.8rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .2s;font-size:.95rem;color:var(--text-md);}
+.suggest-category label:hover{border-color:var(--amber);background:rgba(212,136,42,.08);}
+.suggest-category input[type="radio"]{margin-right:.6rem;accent-color:var(--amber);}
+.suggest-category input[type="radio"]:checked+span{color:var(--cream);font-weight:600;}
+.suggest-examples{background:rgba(212,136,42,.02);border-left:3px solid var(--amber);padding:1.2rem;border-radius:4px;margin-bottom:2rem;font-size:.95rem;color:var(--text-md);}
+.suggest-examples strong{color:var(--cream);display:block;margin-bottom:.6rem;}
+.suggest-footer{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);color:var(--text-lo);font-size:.85rem;line-height:1.7;}
+.suggest-footer a{color:var(--amber);}
+.suggest-counter{font-size:.85rem;color:var(--text-lo);margin-top:.4rem;text-align:right;}
+</style>
+</head>
+<body>
+<div class="suggest-wrap">
+  <h1 class="suggest-head">Suggest a Feature</h1>
+  <p class="suggest-intro">Help us build a better civic reporting tool. Your ideas matter. Share what features or improvements you'd like to see in Parishkar Purulia.</p>
+
+  <div class="suggest-examples">
+    <strong>Examples:</strong>
+    "Let me filter reports by date range" • "Show me reports resolved in the last week" • "Add a notification when someone comments on my report" • "Let me rate departments" • "Show statistics by ward"
+  </div>
+
+  <form id="suggestForm" class="suggest-card" style="padding:0;">
+    <div style="padding:2rem;">
+      <h3>Your Suggestion</h3>
+
+      <div class="suggest-form-group">
+        <label class="suggest-label">Category</label>
+        <div class="suggest-category">
+          <label><input type="radio" name="category" value="feature" required checked> <span>New Feature</span></label>
+          <label><input type="radio" name="category" value="improvement"> <span>Improvement</span></label>
+          <label><input type="radio" name="category" value="reporting"> <span>Report a Bug</span></label>
+          <label><input type="radio" name="category" value="other"> <span>Other</span></label>
+        </div>
+      </div>
+
+      <div class="suggest-form-group">
+        <label class="suggest-label" for="suggestTitle">Title (one sentence)</label>
+        <input
+          type="text"
+          id="suggestTitle"
+          class="suggest-input"
+          placeholder="What would you like to see?"
+          required
+          maxlength="100"
+        >
+        <div class="suggest-counter"><span id="titleCount">0</span>/100</div>
+      </div>
+
+      <div class="suggest-form-group">
+        <label class="suggest-label" for="suggestDescription">Description</label>
+        <textarea
+          id="suggestDescription"
+          class="suggest-textarea"
+          placeholder="Tell us more about your idea. Why would this be useful? Who would benefit?"
+          required
+          maxlength="1000"
+        ></textarea>
+        <div class="suggest-counter"><span id="descCount">0</span>/1000</div>
+      </div>
+
+      <div class="suggest-form-group">
+        <label class="suggest-label" for="suggestEmail">Email (optional)</label>
+        <input
+          type="email"
+          id="suggestEmail"
+          class="suggest-input"
+          placeholder="your@email.com"
+          autocomplete="email"
+        >
+        <p style="color:var(--text-lo);font-size:.85rem;margin-top:.4rem;">We'll only use this to follow up if we need clarification</p>
+      </div>
+
+      <button type="submit" class="suggest-btn">Send Suggestion</button>
+      <div id="suggestMessage" class="suggest-message"></div>
+    </div>
+  </form>
+
+  <div class="suggest-card">
+    <h3>Coming Soon</h3>
+    <p>Popular suggestions that pass initial review will be published here, along with their status (reviewing, planned, in progress, done).</p>
+  </div>
+
+  <div class="suggest-footer">
+    <p><strong>Thank you</strong> for helping us improve. Every suggestion is reviewed, and the most valuable ones become features. <a href="/kasa.html">Back to map</a> • <a href="/analytics.html">View analytics</a></p>
+  </div>
+</div>
+
+<script>
+const form = document.getElementById('suggestForm');
+const titleInput = document.getElementById('suggestTitle');
+const descInput = document.getElementById('suggestDescription');
+const titleCount = document.getElementById('titleCount');
+const descCount = document.getElementById('descCount');
+const message = document.getElementById('suggestMessage');
+
+// Character counters
+titleInput.addEventListener('input', () => {
+  titleCount.textContent = titleInput.value.length;
+});
+
+descInput.addEventListener('input', () => {
+  descCount.textContent = descInput.value.length;
+});
+
+// Form submission
+form.addEventListener('submit', async (e) => {
+  e.preventDefault();
+
+  const btn = form.querySelector('button[type="submit"]');
+  btn.disabled = true;
+  message.className = 'suggest-message';
+  message.textContent = '';
+
+  try {
+    if (typeof window.supabase === 'undefined') {
+      throw new Error('Service not available. Please try again later.');
+    }
+
+    const category = form.querySelector('input[name="category"]:checked').value;
+    const title = titleInput.value;
+    const description = descInput.value;
+    const email = document.getElementById('suggestEmail').value || null;
+
+    const { data, error } = await window.supabase.rpc('kasa_submit_suggestion', {
+      p_category: category,
+      p_title: title,
+      p_description: description,
+      p_email: email
+    });
+
+    if (error) throw new Error(error.message || 'Failed to submit suggestion');
+    if (!data || !data.success) throw new Error(data?.error || 'Unknown error');
+
+    message.className = 'suggest-message success';
+    message.textContent = '✓ Thank you! Your suggestion has been recorded and will be reviewed.';
+    form.reset();
+    titleCount.textContent = '0';
+    descCount.textContent = '0';
+  } catch (err) {
+    message.className = 'suggest-message error';
+    message.textContent = `⚠ Unable to submit: ${err.message}. Please try again.`;
+  } finally {
+    btn.disabled = false;
+  }
+});
+</script>
+</body>
+</html>
