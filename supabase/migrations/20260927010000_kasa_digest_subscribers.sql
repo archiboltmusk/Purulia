@@ -104,5 +104,8 @@ returns table(email text, unsubscribe_token text) as $$
   where is_active
   limit p_limit;
 $$ language sql stable security definer set search_path = '';
--- Note: Function access control (REVOKE/GRANT) is not idempotent in all PostgreSQL versions.
--- Permission management is handled by Supabase's built-in role-based access control.
+
+-- Revoke public access but allow service role (via security definer)
+revoke all on function public.kasa_digest_subscribe(text) from public;
+revoke all on function public.kasa_digest_subscriber_count() from public;
+revoke all on function public.kasa_digest_unsubscribe(text) from public;
