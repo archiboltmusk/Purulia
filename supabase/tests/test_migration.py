@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1539,6 +1539,37 @@ fl_vote(fl_d, fl_claim4['claim_id'], offset(17400, 15000), v='dispute')
 admin_sql("update kasa_private.claims set created_at = now() - interval '4 days' where id = %s", (fl_claim4['claim_id'],))
 rpc('kasa_finalize_due')
 check('a disputed claim never closes on the photo alone', admin_sql('select resolution_method from public.reports where id = %s', (fl_r4['id'],))[0][0] is None)
+
+# Written addresses: only the service can claim and write them; visible reports' addresses are public.
+ad_r, _ = report(user(), where=offset(18000, 15000))
+check('the public cannot claim reports to geocode', refused(err(rpc, 'kasa_geocode_claim', uid=user())))
+check('the public cannot write an address',
+      refused(err(rpc, 'kasa_geocode_done', uid=user(), p_id=str(ad_r['id']), p_address='Fake Street')))
+got = rpc('kasa_geocode_claim', role='service_role', p_limit=40)
+check('new reports are handed out for an address lookup', any(g['id'] == str(ad_r['id']) for g in got))
+again = rpc('kasa_geocode_claim', role='service_role', p_limit=40)
+check('a report being looked up is not handed out twice', not any(g['id'] == str(ad_r['id']) for g in again))
+rpc('kasa_geocode_done', role='service_role', p_id=str(ad_r['id']), p_address='NC Dasgupta Road · near <b>Town Hall</b>')
+check('the address is public, with markup stripped',
+      rpc('kasa_report_addresses').get(str(ad_r['id'])) == 'NC Dasgupta Road · near  b Town Hall /b ',
+      rpc('kasa_report_addresses').get(str(ad_r['id'])))
+bz_r, _ = report(user(), where=offset(18300, 15000))
+rpc('kasa_geocode_claim', role='service_role', p_limit=40)
+rpc('kasa_geocode_done', role='service_role', p_id=str(bz_r['id']), p_address=None, p_retry=True)
+check('a busy lookup service does not use up a try',
+      admin_sql('select address_tries from public.reports where id = %s', (bz_r['id'],))[0][0] == 0)
+
+# Road check: a road report whose photo shows nothing road-like goes to review.
+rd_r, rd_path = report(user(), category='road', where=offset(18600, 15000))
+photo_check(rd_path, labels=['Tree', 'Sky', 'Plant'])
+check('a road report with no road in the photo goes to review', mod_status(rd_r['id']) == 'review')
+check('the hold says why', 'no_road_in_photo' in hold_reasons(rd_r['id']), hold_reasons(rd_r['id']))
+rd2, rd2_path = report(user(), category='road', where=offset(18900, 15000))
+photo_check(rd2_path, labels=['Road surface', 'Asphalt', 'Pothole'])
+check('a road report showing a road stays up', mod_status(rd2['id']) == 'approved')
+rd3, rd3_path = report(user(), category='garbage', where=offset(19200, 15000))
+photo_check(rd3_path, labels=['Waste', 'Plastic'])
+check('the road check leaves other categories alone', mod_status(rd3['id']) == 'approved')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
