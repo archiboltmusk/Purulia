@@ -1856,7 +1856,7 @@ async function handleEvidencePhoto(file){
    could slip in. (Someone determined can still fake it; the people
    confirming on the spot are the real check.)
    ══════════════════════════════════════════════════════════ */
-const camera = { stream: null, blob: null, resolve: null, posPromise: null };
+const camera = { stream: null, blob: null, resolve: null, posPromise: null, torch: false, zoom: 1, hwZoom: null };
 
 function cameraSupported(){
   return !!(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) && window.isSecureContext !== false;
@@ -1868,6 +1868,7 @@ function showCameraState(s){
   document.getElementById('k-cam-shutter').hidden = s !== 'live';
   document.getElementById('k-cam-retake').hidden = s !== 'still';
   document.getElementById('k-cam-use').hidden = s !== 'still';
+  document.getElementById('k-cam-tools').hidden = s !== 'live' || !camera.stream;
 }
 
 function openCamera(){
@@ -1895,12 +1896,64 @@ async function startCameraStream(){
     await video.play().catch(() => {});
     document.getElementById('k-cam-msg').textContent = '';
     document.getElementById('k-cam-shutter').disabled = false;
+    setupCameraTools();
   } catch (e){
     closeCamera({ error: e && (e.name === 'NotAllowedError' || e.name === 'SecurityError') ? 'denied' : 'unavailable' });
   }
 }
 
+/* Flash and zoom. Hardware torch/zoom where the browser exposes them (mostly Chrome on
+   Android); otherwise zoom is digital — the preview is scaled and the shot cropped to
+   match, so what you see is what gets sent. iOS Safari has no torch control at all. */
+const ZOOM_STEPS = [1, 2, 4];
+
+function setupCameraTools(){
+  const track = camera.stream?.getVideoTracks()[0];
+  let caps = {};
+  try { caps = track?.getCapabilities?.() || {}; } catch (e) {}
+  camera.torch = false;
+  camera.zoom = 1;
+  camera.hwZoom = caps.zoom && caps.zoom.max > caps.zoom.min ? caps.zoom : null;
+  const flash = document.getElementById('k-cam-flash');
+  flash.hidden = !caps.torch;
+  flash.setAttribute('aria-pressed', 'false');
+  // Digital zoom past 2× throws away too many pixels to be useful evidence.
+  const maxZoom = camera.hwZoom ? camera.hwZoom.max : 2;
+  const steps = ZOOM_STEPS.filter(z => z <= maxZoom);
+  const box = document.getElementById('k-cam-zoom');
+  box.innerHTML = steps.map(z => `<button type="button" data-zoom="${z}" aria-pressed="${z === 1}">${z}×</button>`).join('');
+  box.hidden = steps.length < 2;
+  applyCameraZoom(1);
+  document.getElementById('k-cam-tools').hidden = false;
+}
+
+async function toggleTorch(){
+  const track = camera.stream?.getVideoTracks()[0];
+  if (!track) return;
+  const on = !camera.torch;
+  try {
+    await track.applyConstraints({ advanced: [{ torch: on }] });
+    camera.torch = on;
+  } catch (e) { showToast(t('cam_flash_fail')); }
+  document.getElementById('k-cam-flash').setAttribute('aria-pressed', String(camera.torch));
+}
+
+async function applyCameraZoom(z){
+  const track = camera.stream?.getVideoTracks()[0];
+  const video = document.getElementById('k-cam-video');
+  camera.zoom = z;
+  if (camera.hwZoom && track){
+    const v = Math.min(camera.hwZoom.max, Math.max(camera.hwZoom.min, z));
+    try { await track.applyConstraints({ advanced: [{ zoom: v }] }); video.style.transform = ''; }
+    catch (e) { camera.hwZoom = null; }
+  }
+  if (!camera.hwZoom) video.style.transform = z > 1 ? `scale(${z})` : '';
+  document.querySelectorAll('#k-cam-zoom [data-zoom]').forEach(b => b.setAttribute('aria-pressed', String(Number(b.dataset.zoom) === z)));
+}
+
 function stopCameraStream(){
+  camera.torch = false;
+  document.getElementById('k-cam-video').style.transform = '';
   if (camera.stream) camera.stream.getTracks().forEach(tr => tr.stop());
   camera.stream = null;
   document.getElementById('k-cam-video').srcObject = null;
@@ -1920,11 +1973,15 @@ async function takeCameraShot(){
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
-  const scale = Math.min(1, PHOTO_MAX_PX / Math.max(video.videoWidth, video.videoHeight));
+  // Digital zoom: crop the centre to match the scaled preview.
+  const dz = camera.hwZoom ? 1 : camera.zoom;
+  const sw = video.videoWidth / dz, sh = video.videoHeight / dz;
+  const sx = (video.videoWidth - sw) / 2, sy = (video.videoHeight - sh) / 2;
+  const scale = Math.min(1, PHOTO_MAX_PX / Math.max(sw, sh));
   const canvas = document.createElement('canvas');
-  canvas.width = Math.round(video.videoWidth * scale);
-  canvas.height = Math.round(video.videoHeight * scale);
-  canvas.getContext('2d').drawImage(video, 0, 0, canvas.width, canvas.height);
+  canvas.width = Math.round(sw * scale);
+  canvas.height = Math.round(sh * scale);
+  canvas.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
   try {
     camera.blob = await new Promise((resolve, reject) =>
       canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.85));
@@ -2747,6 +2804,11 @@ function wireUI(){
   document.getElementById('k-cam-retake').addEventListener('click', () => showCameraState('live'));
   document.getElementById('k-cam-use').addEventListener('click', () => closeCamera({ blob: camera.blob }));
   document.getElementById('k-cam-close').addEventListener('click', () => closeCamera({ error: 'cancelled' }));
+  document.getElementById('k-cam-flash').addEventListener('click', toggleTorch);
+  document.getElementById('k-cam-zoom').addEventListener('click', e => {
+    const b = e.target.closest('[data-zoom]');
+    if (b) applyCameraZoom(Number(b.dataset.zoom));
+  });
   document.getElementById('k-ev-submit').addEventListener('click', submitEvidence);
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
   document.getElementById('k-list-search').addEventListener('input', e => { state.listQuery = e.target.value.trim(); renderList(); });
