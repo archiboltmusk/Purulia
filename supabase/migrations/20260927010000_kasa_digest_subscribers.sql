@@ -32,9 +32,9 @@ create policy "view_own" on public.digest_subscribers
   to authenticated
   using (auth.uid()::text = id::text);  -- In practice, unsubscribe uses token in URL
 
-create index idx_digest_subscribers_email on public.digest_subscribers(email);
-create index idx_digest_subscribers_active on public.digest_subscribers(is_active);
-create index idx_digest_subscribers_token on public.digest_subscribers(unsubscribe_token);
+create index if not exists idx_digest_subscribers_email on public.digest_subscribers(email);
+create index if not exists idx_digest_subscribers_active on public.digest_subscribers(is_active);
+create index if not exists idx_digest_subscribers_token on public.digest_subscribers(unsubscribe_token);
 
 -- RPC: Subscribe a user (returns count of active subscribers)
 create or replace function public.kasa_digest_subscribe(p_email text)
