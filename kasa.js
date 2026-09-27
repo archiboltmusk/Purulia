@@ -1637,12 +1637,14 @@ function renderAccountability(r){
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const w = state.wards[r.ward] || {};
-  const nodes = chain.nodes.map((role, i) => `
-    ${i ? '<span class="k-tree-link" aria-hidden="true"></span>' : ''}
+  const node = (role, i) => `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
       <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length))}</small></span>
-    </button>`).join('');
+    </button>`;
+  // The tree shows two people: who fixes it first, and who you elected. Everyone above
+  // them, the reps and the escalation routes sit behind one tap.
+  const [first, ...above] = chain.nodes;
   const councillor = rural ? '' : w.councillor_name
     ? `<button type="button" class="k-node k-node-elected" data-contact="councillor:${r.ward}:${esc(r.id)}">
          <span class="k-node-abbr">WC</span>
@@ -1660,21 +1662,21 @@ function renderAccountability(r){
       <div class="k-acc-label">${esc(t('acc_title'))}</div>
       <div class="k-tree">
         <div class="k-tree-root"><small>${esc(t(rural ? 'acc_your_block' : 'acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
-        <div class="k-tree-fork">
-          <div class="k-tree-branch">
-            <div class="k-node k-node-agency"><span class="k-node-abbr">${chain.agency === 'agency_police' ? '👮' : '🏛'}</span>
-              <span class="k-node-text"><b>${esc(t(chain.agency))}</b><small>${esc(t('acc_frontline_first'))}</small></span></div>
-            <span class="k-tree-link" aria-hidden="true"></span>
-            ${nodes}
-          </div>
+        <div class="k-tree-fork${councillor ? '' : ' k-tree-fork-one'}">
+          <div class="k-tree-branch">${first ? node(first, 0) : ''}</div>
           ${councillor ? `<div class="k-tree-branch">${councillor}</div>` : ''}
         </div>
-        ${chain.note ? `<div class="k-tree-note">${esc(t(chain.note))}</div>` : ''}
-        ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
-        <div class="k-acc-reps">${reps}</div>
         <div class="k-acc-hint">${esc(t('acc_tap'))}</div>
-        ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
-        ${renderEscalate(r)}
+        <details class="k-acc-more">
+          <summary>${esc(t('acc_more'))}</summary>
+          ${above.length ? `<div class="k-acc-reps-label">${esc(t('acc_escalate_chain'))}</div>
+          <div class="k-acc-above">${above.map((role, i) => node(role, i + 1)).join('')}</div>` : ''}
+          ${chain.note ? `<div class="k-tree-note">${esc(t(chain.note))}</div>` : ''}
+          ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
+          <div class="k-acc-reps">${reps}</div>
+          ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
+          ${renderEscalate(r)}
+        </details>
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
       </div>
     </div>`;
@@ -2671,6 +2673,8 @@ function initVoice(){
    location checks as reports, and holds checks that look wrong.
    ══════════════════════════════════════════════════════════ */
 const SC_QUESTIONS = ['water', 'toilets', 'boundary', 'electricity', 'mdm'];
+// Answered yes / no / can't tell: "can't tell" (school closed, no access) stays out of the score.
+const SC_MAYBE = ['girls_toilet', 'meal_today'];
 let sc = null;
 
 async function openSchoolCheck(code){
@@ -2681,7 +2685,15 @@ async function openSchoolCheck(code){
       <div class="k-seg k-seg-yn" role="radiogroup" data-scq="${k}">
         <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
+      </div></div>`).join('') + SC_MAYBE.map(k => `
+    <div class="k-sc-row"><span>${esc(t('sc_q_' + k))}</span>
+      <div class="k-seg k-seg-yn" role="radiogroup" data-scq="${k}">
+        <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="unknown">${esc(t('sc_cant_tell'))}</button>
       </div></div>`).join('') + `
+    <div class="k-sc-row"><label for="k-sc-teachers">${esc(t('sc_q_teachers'))}</label>
+      <input type="number" id="k-sc-teachers" class="k-input" inputmode="numeric" min="0" max="200" step="1" placeholder="${esc(t('sc_teachers_ph'))}"></div>
     <div class="k-sc-row"><span>${esc(t('sc_q_building'))}</span>
       <div class="k-seg k-seg-yn" role="radiogroup" data-scq="building">
         <button type="button" role="radio" aria-checked="false" data-v="good">${esc(t('sc_good'))}</button>
@@ -2825,8 +2837,15 @@ async function captureSchoolPhoto(){
 
 function updateSchoolSubmit(){
   if (!sc) return;
-  const answered = SC_QUESTIONS.every(k => typeof sc.ans[k] === 'boolean') && !!sc.cond;
+  const answered = SC_QUESTIONS.every(k => typeof sc.ans[k] === 'boolean') && SC_MAYBE.every(k => k in sc.ans) && !!sc.cond;
   document.getElementById('k-sc-submit').disabled = !(sc.school && answered && sc.pos && sc.blob);
+}
+
+// Optional: blank means the resident did not count, not zero teachers.
+function schoolTeachersSeen(){
+  const v = document.getElementById('k-sc-teachers')?.value.trim();
+  const n = v === '' || v == null ? null : Math.round(Number(v));
+  return Number.isFinite(n) && n >= 0 && n <= 200 ? n : null;
 }
 
 async function submitSchoolCheck(){
@@ -2843,7 +2862,8 @@ async function submitSchoolCheck(){
       p_udise_code: sc.school.udise_code, p_lat: sc.pos.lat, p_lng: sc.pos.lng, p_accuracy: sc.pos.accuracy,
       p_water_ok: sc.ans.water, p_toilets_ok: sc.ans.toilets, p_boundary_ok: sc.ans.boundary,
       p_electricity_ok: sc.ans.electricity, p_mdm_ok: sc.ans.mdm, p_building_condition: sc.cond,
-      p_photo_path: path, p_client_id: randomName(16)
+      p_photo_path: path, p_client_id: randomName(16),
+      p_girls_toilet_ok: sc.ans.girls_toilet, p_meal_today_ok: sc.ans.meal_today, p_teachers_seen: schoolTeachersSeen()
     });
     if (error) throw rpcError(error);
     closeModal('k-sc-modal');
@@ -2970,7 +2990,7 @@ function initSchoolCheck(){
     if (!b || !g || !sc) return;
     g.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', String(x === b)));
     if (g.dataset.scq === 'building') sc.cond = b.dataset.v;
-    else sc.ans[g.dataset.scq] = b.dataset.v === 'yes';
+    else sc.ans[g.dataset.scq] = b.dataset.v === 'unknown' ? null : b.dataset.v === 'yes';
     updateSchoolSubmit();
   });
   const q = new URLSearchParams(location.search), code = q.get('school');

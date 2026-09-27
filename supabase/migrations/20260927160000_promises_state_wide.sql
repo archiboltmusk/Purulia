@@ -1,0 +1,45 @@
+-- promises.html: state-wide promises that also cover Purulia (BJP's 2026 West Bengal manifesto),
+-- each with its source and, where something has happened, its own evidence link and date.
+-- Links checked on 27 Sep 2026. They wait in admin.html for a moderator to publish, like every promise.
+insert into public.promises (who, role, promise, area, made_on, due_by, source_url, source_name,
+                             status, status_note, status_source_url, status_date)
+select v.who, v.role, v.promise, 'All of West Bengal', v.made_on::date, v.due_by::date, v.source_url, v.source_name,
+       v.status, v.status_note, v.status_source_url, v.status_date::date
+from (values
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   '₹3,000 a month into the bank account of every woman.',
+   '2026-04-10', null,
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'in_progress', 'Annapurna Yojana: the first ₹3,000 reached about 28 lakh women on 3 Jun 2026. It covers women aged 25 to 60, not every woman.',
+   'https://newsonair.gov.in/west-bengal-launches-annapurna-yojana-beneficiaries-to-receive-%E2%82%B93000-directly-in-bank-accounts/', '2026-06-03'),
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   '7th Pay Commission for all state government employees and pensioners within 45 days of forming the government.',
+   '2026-04-10', '2026-06-23',
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'in_progress', 'The commission was set up on 22 Jul 2026, chaired by Atanu Chakraborty, with six months to report. New pay has not started yet.',
+   'https://newsonair.gov.in/west-bengal-govt-constitutes-seventh-pay-commission-for-revision-of-wages/', '2026-07-22'),
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   'Dearness allowance (DA) for all state government employees and pensioners.',
+   '2026-04-10', null,
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'in_progress', 'Budget of 22 Jun 2026: DA goes up by 20 points to 38% from 1 Oct 2026.',
+   'https://newsonair.gov.in/west-bengal-government-announces-recruitment-of-1-lakh-vacant-posts-in-budget-2026-27/', '2026-06-22'),
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   '₹3,000 to every unemployed young person.',
+   '2026-04-10', null,
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'in_progress', 'Budget of 22 Jun 2026 announced the "Bharosa" scheme from October: ₹3,000 a month for jobless graduates from families earning under ₹1 lakh a year, ₹2,000 for other eligible jobless people. No payments reported yet.',
+   'https://www.tribuneindia.com/news/india/bengal-budget-bjp-promises-jobs-welfare-push/', '2026-06-22'),
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   '33% of all West Bengal government jobs reserved for women, including the state police.',
+   '2026-04-10', null,
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'in_progress', 'Budget of 22 Jun 2026: 1 lakh vacant posts to be filled, a third of them for women (50,000 in education, 20,000 in police).',
+   'https://newsonair.gov.in/west-bengal-government-announces-recruitment-of-1-lakh-vacant-posts-in-budget-2026-27/', '2026-06-22'),
+  ('BJP (Sankalp Patra)', 'Election manifesto, released by Amit Shah; now the Suvendu Adhikari government',
+   'One crore new jobs and self-employment opportunities over five years.',
+   '2026-04-10', null,
+   'https://www.businesstoday.in/elections/west-bengal/story/7th-pay-commission-for-govt-employees-33-quota-for-women-in-govt-jobs-key-promises-in-bjps-sankalp-patra-for-bengal-525038-2026-04-10', 'Business Today',
+   'promised', null, null, null)
+) as v(who, role, promise, made_on, due_by, source_url, source_name, status, status_note, status_source_url, status_date)
+where not exists (select 1 from public.promises p where p.who = v.who and p.promise = v.promise);
