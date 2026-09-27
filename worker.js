@@ -15,15 +15,17 @@ const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': 
 
 async function reportPage(id, env, url){
   const target = `${url.origin}/kasa.html?report=${encodeURIComponent(id)}`;
-  let r = null;
+  let r = null, why = 'not found';
   try {
     const q = `${env.SUPABASE_URL}/rest/v1/kasa_public_reports?id=eq.${encodeURIComponent(id)}`
       + '&select=id,created_at,category,status,landmark,ward_no,block_name,photo_url,resolved_photo_url&limit=1';
     const res = await fetch(q, { headers: { apikey: env.SUPABASE_ANON_KEY, Authorization: `Bearer ${env.SUPABASE_ANON_KEY}` },
                                  cf: { cacheTtl: 300, cacheEverything: true } });
     if (res.ok) r = (await res.json())[0] || null;
-  } catch (e) {}
-  if (!r) return Response.redirect(target, 302);
+    else why = `database ${res.status}`;
+  } catch (e) { why = String(e).slice(0, 100); }
+  // Falls back to the plain report link; the header says why, for debugging from the outside.
+  if (!r) return new Response(null, { status: 302, headers: { Location: target, 'X-Preview-Fallback': why } });
 
   const fixed = r.status === 'resolved';
   const days = Math.max(0, Math.floor((Date.now() - Date.parse(r.created_at)) / 86400000));
