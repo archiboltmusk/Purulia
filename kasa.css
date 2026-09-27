@@ -576,14 +576,16 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 
 /* Live camera (evidence photos) */
 .k-cam{position:fixed;inset:0;z-index:2000;background:#000;display:flex;flex-direction:column;}
-.k-cam-top{display:flex;align-items:center;justify-content:space-between;padding:.9rem 1.1rem;padding-top:max(.9rem,env(safe-area-inset-top));font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);}
-.k-cam-close{width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:var(--cream);font-size:16px;}
-.k-cam-stage{position:relative;flex:1;min-height:0;display:flex;align-items:center;justify-content:center;overflow:hidden;}
+.k-cam-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;padding:.9rem 1.1rem;padding-top:max(.9rem,env(safe-area-inset-top));font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);}
+.k-cam-head{display:flex;flex-direction:column;gap:.35rem;min-width:0;}
+.k-cam-hint{font-family:var(--serif);font-size:15px;line-height:1.35;letter-spacing:0;text-transform:none;color:rgba(245,235,215,.8);}
+.k-cam-close{flex:none;width:40px;height:40px;border-radius:50%;background:rgba(255,255,255,.12);color:var(--cream);font-size:16px;}
+.k-cam-body{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.9rem;}
+/* A square the size of the saved photo: object-fit:cover shows the same centred square takeCameraShot keeps. */
+.k-cam-stage{position:relative;flex:none;width:min(100vw,calc(100vh - 300px));width:min(100vw,calc(100dvh - 300px - env(safe-area-inset-top) - env(safe-area-inset-bottom)));aspect-ratio:1;overflow:hidden;background:#111;}
 /* Shades out what won't be in the saved photo — the shot itself is a centre-cropped square, not the sensor's full 16:9 frame. */
-.k-cam-crop{position:absolute;inset:0;z-index:1;display:flex;flex-direction:column;pointer-events:none;}
-.k-cam-crop i{flex:1;background:rgba(0,0,0,.55);}
-.k-cam-crop b{width:100%;aspect-ratio:1;flex:none;border-top:1px solid rgba(255,255,255,.55);border-bottom:1px solid rgba(255,255,255,.55);}
-.k-cam-stage video,.k-cam-stage img{width:100%;height:100%;object-fit:contain;background:#000;}
+.k-cam-stage video,.k-cam-stage img{display:block;width:100%;height:100%;object-fit:cover;background:#000;}
+.k-cam-check{position:absolute;z-index:2;left:.8rem;right:.8rem;bottom:.8rem;padding:.6rem .8rem;border-radius:10px;background:rgba(0,0,0,.72);border:1px solid var(--amber);color:var(--cream);font-size:14px;line-height:1.4;text-align:center;}
 .k-cam-msg{position:absolute;left:1rem;right:1rem;bottom:1rem;text-align:center;font-family:var(--mono);font-size:12px;line-height:1.6;color:var(--cream);}
 .k-cam-msg:empty{display:none;}
 .k-cam-bar{display:flex;align-items:center;justify-content:center;gap:.8rem;padding:1.1rem 1rem;padding-bottom:max(1.1rem,env(safe-area-inset-bottom));min-height:108px;}
@@ -729,9 +731,8 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 body.k-drawer-open{overflow:hidden;}
 
 /* Camera flash + zoom (shown only while the live view is up) */
-.k-cam-tools{position:absolute;z-index:3;left:0;right:0;bottom:.9rem;display:flex;flex-direction:column;align-items:center;gap:.7rem;pointer-events:none;}
-.k-cam-tools > *{pointer-events:auto;}
-.k-cam-flash{position:fixed;top:max(4.2rem,calc(env(safe-area-inset-top) + 3.4rem));right:1.1rem;width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:var(--cream);font-size:18px;}
+.k-cam-tools{display:flex;align-items:center;justify-content:center;gap:.8rem;min-height:44px;}
+.k-cam-flash{width:44px;height:44px;border-radius:50%;background:rgba(0,0,0,.55);border:1px solid rgba(255,255,255,.25);color:var(--cream);font-size:18px;}
 .k-cam-flash[aria-pressed="true"]{background:var(--amber);color:var(--ink);border-color:var(--amber);}
 .k-cam-zoom{display:flex;gap:.4rem;background:rgba(0,0,0,.5);border-radius:22px;padding:4px;}
 .k-cam-zoom button{min-width:44px;height:36px;border-radius:18px;font-family:var(--mono);font-size:12px;color:var(--cream);}

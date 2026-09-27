@@ -741,6 +741,7 @@ window.KASA_I18N = {
 Object.assign(window.KASA_I18N.en, {
   done_title_saved: 'Saved on this phone', done_sub_saved: "We couldn't reach the report service just now. Your report will upload automatically the next time you open this page.",
   trust_6: 'Evidence photos are taken with the camera on this page. Photos marked as AI-edited, or taken earlier, are refused; a photo whose location data is far from the spot waits for a moderator.',
+  cam_hint: 'Show the whole problem, and something nearby (a shop, road or landmark) so it can be found.', cam_too_dark: 'This photo looks too dark. Try the flash or more light, then retake.', cam_blurry: 'This photo looks blurry. Hold the phone still and retake.',
   cam_title: 'Take the photo', cam_starting: 'Starting camera…', cam_capture: 'Take photo', cam_retake: 'Retake', cam_use: 'Use this photo',
   cam_denied: 'Camera permission is off. Allow it in your browser settings, or choose a photo instead.',
   cam_unavailable: "This browser can't open the camera here. Choose a photo instead — its time and location data will be checked.",
@@ -770,6 +771,7 @@ Object.assign(window.KASA_I18N.en, {
 Object.assign(window.KASA_I18N.bn, {
   done_title_saved: 'এই ফোনে সেভ হয়েছে', done_sub_saved: 'এই মুহূর্তে রিপোর্ট পরিষেবায় পৌঁছানো গেল না। পরের বার এই পেজ খুললে রিপোর্ট নিজে থেকেই আপলোড হবে।',
   trust_6: 'প্রমাণের ছবি এই পেজের ক্যামেরা দিয়েই তোলা হয়। AI দিয়ে বদলানো বা আগে তোলা ছবি বাতিল হয়; যে ছবির লোকেশন তথ্য জায়গা থেকে দূরে, তা মডারেটরের যাচাইয়ের অপেক্ষায় থাকে।',
+  cam_hint: 'পুরো সমস্যাটা দেখান, সঙ্গে কাছের কিছু (দোকান, রাস্তা বা চেনা জায়গা) যাতে জায়গাটা খুঁজে পাওয়া যায়।', cam_too_dark: 'ছবিটা খুব অন্ধকার লাগছে। ফ্ল্যাশ বা আরও আলো দিয়ে আবার তুলুন।', cam_blurry: 'ছবিটা ঝাপসা লাগছে। ফোন স্থির রেখে আবার তুলুন।',
   cam_title: 'ছবি তুলুন', cam_starting: 'ক্যামেরা চালু হচ্ছে…', cam_capture: 'ছবি তুলুন', cam_retake: 'আবার তুলুন', cam_use: 'এই ছবি ব্যবহার করুন',
   cam_denied: 'ক্যামেরার অনুমতি বন্ধ। ব্রাউজারের সেটিংসে চালু করুন, অথবা একটি ছবি বেছে নিন।',
   cam_unavailable: 'এই ব্রাউজারে এখানে ক্যামেরা খোলা যাচ্ছে না। একটি ছবি বেছে নিন — তার সময় ও লোকেশন তথ্য যাচাই করা হবে।',
@@ -799,6 +801,7 @@ Object.assign(window.KASA_I18N.bn, {
 Object.assign(window.KASA_I18N.hi, {
   done_title_saved: 'इस फ़ोन में सेव हो गया', done_sub_saved: 'अभी रिपोर्ट सेवा तक नहीं पहुँच सके। अगली बार यह पेज खोलने पर रिपोर्ट अपने-आप अपलोड हो जाएगी।',
   trust_6: 'सबूत की फ़ोटो इसी पेज के कैमरे से ली जाती है। AI से बदली गई या पहले ली गई फ़ोटो अस्वीकार होती है; जिस फ़ोटो का लोकेशन डेटा जगह से दूर हो, वह मॉडरेटर की जाँच का इंतज़ार करती है।',
+  cam_hint: 'पूरी समस्या दिखाएँ, और पास की कोई चीज़ (दुकान, सड़क या पहचान की जगह) ताकि जगह मिल सके।', cam_too_dark: 'फ़ोटो बहुत अँधेरी लग रही है। फ़्लैश या ज़्यादा रोशनी में फिर से लें।', cam_blurry: 'फ़ोटो धुँधली लग रही है। फ़ोन स्थिर रखकर फिर से लें।',
   cam_title: 'फ़ोटो लें', cam_starting: 'कैमरा चालू हो रहा है…', cam_capture: 'फ़ोटो लें', cam_retake: 'फिर से लें', cam_use: 'यही फ़ोटो इस्तेमाल करें',
   cam_denied: 'कैमरे की अनुमति बंद है। ब्राउज़र की सेटिंग में चालू करें, या कोई फ़ोटो चुनें।',
   cam_unavailable: 'इस ब्राउज़र में यहाँ कैमरा नहीं खुल रहा। कोई फ़ोटो चुनें — उसका समय और लोकेशन डेटा जाँचा जाएगा।',
