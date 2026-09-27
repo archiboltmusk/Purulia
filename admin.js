@@ -792,13 +792,13 @@ async function loadSchoolChecks(){
   const yn = v => v == null ? '—' : v ? '✓' : '✗';
   el.innerHTML = `
     <table class="ad-table">
-      <thead><tr><th>Photo</th><th>School</th><th>Why held</th><th>Water · Toilets · Wall · Power · MDM · Building</th><th></th></tr></thead>
+      <thead><tr><th>Photo</th><th>School</th><th>Why held</th><th>Water · Toilets · Wall · Power · MDM kitchen · Girls' toilet · Meal today · Building · Teachers seen</th><th></th></tr></thead>
       <tbody>
         ${data.map(a => `<tr>
           <td><a href="${esc(a.photo_url)}" target="_blank" rel="noopener"><img src="${esc(a.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a></td>
           <td><strong>${esc(a.school_name)}</strong><br><small>${esc(a.udise_code || '')} · filed in ${esc(a.block_name || '?')} · ${esc(new Date(a.created_at).toLocaleString('en-IN'))}</small></td>
           <td>${esc(HOLD_TEXT[a.hold] || (a.moderation_status === 'flagged' ? `flagged ${a.flags}×` : 'photo check'))}</td>
-          <td>${[a.water_ok, a.toilets_ok, a.boundary_ok, a.electricity_ok, a.mdm_ok].map(yn).join(' · ')} · ${esc(a.building_condition)}</td>
+          <td>${[a.water_ok, a.toilets_ok, a.boundary_ok, a.electricity_ok, a.mdm_ok, a.girls_toilet_ok, a.meal_today_ok].map(yn).join(' · ')} · ${esc(a.building_condition)} · ${a.teachers_seen ?? '—'}</td>
           <td style="white-space:nowrap;">
             <button class="ad-ok" data-sa="${esc(a.id)}" data-sa-act="approve">✓ Approve</button>
             <button class="ad-bad" data-sa="${esc(a.id)}" data-sa-act="hide">✕ Hide</button>

@@ -20,11 +20,19 @@ loosely, so the usual UDISE+ exports work as they are:
   management  (management, school_management)                 optional
   category    (category, school_category)                     optional
 
+Official UDISE+ figures, when the export carries them, are stored in
+schools.official and shown on the schools page next to what residents found
+(give the data year with --year 2024-25, or an academic_year column):
+  enrolment, teachers, classrooms                              whole numbers
+  drinking_water, girls_toilet, boys_toilet, electricity,
+  handwash, library, playground, ramp, boundary_wall           yes/no (functional where the export says so)
+
 Rows with a bad code are skipped, and locations outside Purulia district are
 dropped (the school is kept); both are listed on stderr so you can fix them.
 A trailing "-<code>" some names carry is removed.
 """
 import csv
+import json
 import re
 import sys
 
@@ -40,7 +48,34 @@ ALIASES = {
     'village': ('village', 'village_name'),
     'management': ('management', 'school_management', 'managment'),
     'category': ('category', 'school_category'),
+    'year': ('academic_year', 'year', 'ac_year'),
 }
+# Official UDISE+ figures kept in schools.official. "Functional" columns win over plain availability.
+OFFICIAL_NUM = {
+    'enrolment': ('total_enrolment', 'enrolment', 'total_students', 'enrollment', 'total_enrollment'),
+    'teachers': ('total_teachers', 'teachers', 'no_of_teachers', 'teacher_count'),
+    'classrooms': ('total_classrooms', 'classrooms', 'no_of_classrooms', 'classroom_count'),
+}
+OFFICIAL_YN = {
+    'drinking_water': ('functional_drinking_water', 'drinking_water_functional', 'drinking_water'),
+    'girls_toilet': ('functional_girls_toilet', 'girls_toilet_functional', 'girls_toilet'),
+    'boys_toilet': ('functional_boys_toilet', 'boys_toilet_functional', 'boys_toilet'),
+    'electricity': ('functional_electricity', 'electricity_functional', 'electricity'),
+    'handwash': ('handwash', 'hand_wash', 'hand_wash_facility', 'handwash_facility'),
+    'library': ('library', 'library_book_bank_reading_corner', 'library_facility'),
+    'playground': ('playground', 'play_ground'),
+    'ramp': ('ramp', 'ramps'),
+    'boundary_wall': ('boundary_wall', 'boundarywall'),
+}
+
+
+def yes_no(v):
+    v = v.strip().lower()
+    if re.match(r'^(1|y|yes|true)\b', v) or v.startswith('1-'):
+        return True
+    if re.match(r'^(0|2|n|no|false)\b', v) or v.startswith(('0-', '2-')):
+        return False
+    return None
 
 
 def key(h):
@@ -64,7 +99,7 @@ def read_rows(path):
         return list(csv.reader(f))
 
 
-def main(path):
+def main(path, year=None):
     raw = read_rows(path)
     # The header is the first row naming a UDISE code column and a name column.
     hi = next((i for i, r in enumerate(raw)
@@ -73,6 +108,8 @@ def main(path):
         sys.exit('No header row with a UDISE code column and a school name column was found.')
     cols = {key(h): j for j, h in enumerate(raw[hi]) if h}
     pick = {field: next((cols[n] for n in names if n in cols), None) for field, names in ALIASES.items()}
+    opick = {field: next((cols[n] for n in names if n in cols), None)
+             for field, names in {**OFFICIAL_NUM, **OFFICIAL_YN}.items()}
 
     rows, skipped, unplaced = [], 0, 0
     for n, r in enumerate(raw[hi + 1:], start=hi + 2):
@@ -95,23 +132,43 @@ def main(path):
         except ValueError:
             loc = 'null, null'
             unplaced += 1
+        off = {}
+        for field, j in opick.items():
+            v = r[j].strip() if j is not None and j < len(r) else ''
+            if not v:
+                continue
+            if field in OFFICIAL_NUM:
+                if re.fullmatch(r'\d+(\.0+)?', v):
+                    off[field] = int(float(v))
+            elif yes_no(v) is not None:
+                off[field] = yes_no(v)
+        oyear = (get('year') or year or '')[:20]
         rows.append(f"({q(code)}, {q(name[:200])}, {loc}, {q(get('block_name')[:80])}, {q(get('panchayat')[:80])}, "
-                    f"{q(get('village')[:120])}, {q(get('management')[:80])}, {q(get('category')[:80])})")
+                    f"{q(get('village')[:120])}, {q(get('management')[:80])}, {q(get('category')[:80])}, "
+                    f"{q(json.dumps(off)) + '::jsonb' if off else 'null'}, {q(oyear) if off else 'null'})")
 
     print('begin;')
     for i in range(0, len(rows), 500):
-        print('insert into public.schools (udise_code, name, lat, lng, block_name, panchayat, village, management, category) values')
+        print('insert into public.schools (udise_code, name, lat, lng, block_name, panchayat, village, management, category, official, official_year) values')
         print(',\n'.join(rows[i:i + 500]))
         print('on conflict (udise_code) do update set name = excluded.name,')
         print('  lat = coalesce(excluded.lat, public.schools.lat), lng = coalesce(excluded.lng, public.schools.lng),')
         print('  block_name = excluded.block_name, panchayat = excluded.panchayat, village = excluded.village,')
         print('  management = coalesce(excluded.management, public.schools.management),')
-        print('  category = coalesce(excluded.category, public.schools.category), updated_at = now();')
+        print('  category = coalesce(excluded.category, public.schools.category),')
+        print('  official = coalesce(excluded.official, public.schools.official),')
+        print('  official_year = coalesce(excluded.official_year, public.schools.official_year), updated_at = now();')
     print('commit;')
     print(f'{len(rows)} schools written ({unplaced} without a location), {skipped} skipped.', file=sys.stderr)
 
 
 if __name__ == '__main__':
-    if len(sys.argv) != 2:
+    args = sys.argv[1:]
+    yr = None
+    if '--year' in args:
+        i = args.index('--year')
+        yr = args[i + 1] if i + 1 < len(args) else sys.exit('--year needs a value, e.g. --year 2024-25')
+        del args[i:i + 2]
+    if len(args) != 1:
         sys.exit(__doc__)
-    main(sys.argv[1])
+    main(args[0], yr)
