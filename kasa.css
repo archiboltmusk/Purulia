@@ -518,6 +518,14 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-rep-chip small{font-size:.76rem;color:var(--text-md);}
 .k-party{font-weight:600;}
 .k-party-bjp{color:#f08a3c;} .k-party-aitc{color:#4fbf7a;} .k-party-inc{color:#5fa8e8;}
+.k-tree-fork-one{grid-template-columns:1fr;}
+.k-tree-fork-one::before{left:50%;right:auto;width:0;border-radius:0;border-width:0 0 0 1.5px;}
+.k-acc-more{margin-top:.8rem;border-top:1px dashed var(--border);padding-top:.7rem;}
+.k-acc-more>summary{cursor:pointer;text-align:center;font-size:.84rem;color:var(--amber);list-style:none;}
+.k-acc-more>summary::-webkit-details-marker{display:none;}
+.k-acc-more>summary::after{content:' +';font-family:var(--mono);}
+.k-acc-more[open]>summary::after{content:' −';}
+.k-acc-above{display:grid;grid-template-columns:repeat(auto-fit,minmax(110px,1fr));gap:.4rem;}
 .k-acc-hint{margin-top:.6rem;text-align:center;font-size:.8rem;color:var(--text-lo);}
 .k-respond{display:block;margin-top:.7rem;text-align:center;font-size:.82rem;color:#8fb5ff;}
 
