@@ -3645,7 +3645,7 @@ async function locateOnOpen(){
 /* First-visit tips: a few small bubbles that point at a feature and say what it does.
    Shown once per device, after the location question, and never while a form is open. */
 const TIPS = [
-  { key: 'tip_lang_menu', target: () => visible('#k-fab-menu'), when: () => state.lang === 'en' },
+  { key: 'tip_lang_menu', target: () => visible('#k-more-btn'), when: () => state.lang === 'en' },
   { key: 'tip_report', target: () => visible('.k-map-report-btn') },
 ];
 function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }

@@ -639,7 +639,7 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 .k-nav-more[aria-expanded="true"] .k-menu-icon i:nth-child(2){opacity:0;}
 .k-nav-more[aria-expanded="true"] .k-menu-icon i:nth-child(3){transform:translateY(-5px) rotate(-45deg);}
 @media(max-width:768px){
-  body[data-app-layout] .k-nav-right > .k-lang-switch,body[data-app-layout] .k-nav-right > .k-nav-mine{display:none;}
+  body[data-app-layout] .k-nav-right > .k-nav-mine{display:none;}
   .k-nav-more{padding:.45rem .6rem;font-size:10px;}
 }
 @media(max-width:380px){.k-nav-more [data-i18n]{display:none;}}
@@ -750,12 +750,10 @@ body.k-drawer-open{overflow:hidden;}
 .k-sc-chip span{font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
 .k-sc-chip:hover,.k-sc-chip:focus-visible{border-color:var(--amber);}
 
-/* ── Quiet home: the map and one big Report button. "Your reports", filters' colour key
-   and the rest live in the menu. ── */
-body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-right > .k-nav-cta{display:none;}
+/* ── Quiet home: the map and one Report button, bottom-right. "Your reports", filters'
+   colour key and the rest live in the menu. ── */
+body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-right > .k-nav-cta,body[data-app-layout] .k-theme-toggle{display:none;}
 .k-map-legend{display:none;}
-.k-map-report-btn{left:50%;right:auto;transform:translateX(-50%);bottom:1.4rem;padding:1.1rem 2.6rem;font-size:14px;border-radius:40px;white-space:nowrap;}
-.k-map-report-btn:hover{transform:translateX(-50%);}
 
 /* "Join N people" line at the top of the map. */
 .k-join{position:absolute;top:3.6rem;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:.2rem;max-width:calc(100% - 1.8rem);padding:.2rem .3rem .2rem .9rem;background:rgba(10,8,5,.94);border:1px solid rgba(212,136,42,.45);border-radius:40px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
@@ -769,31 +767,27 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 .k-tip-skip{font-family:var(--mono);font-size:11px;color:#6b5a40;}
 .k-tip-next{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:.4rem .9rem;background:var(--ink);color:var(--cream);border-radius:20px;}
 
-/* The map is the whole screen: logo and ☰ only. Pages, language and the rest are in the menu. */
+/* The map is the whole screen below the nav: logo and More only — our three-language switch
+   doesn't fit the nav row, so language stays in the menu along with the other pages. */
 body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-switch{display:none;}
 /* "Near me" narrows the list; on the map the ⌖ button already centres on you. */
 .k-map-section:has(#k-list[hidden]) .k-nearby-btn{display:none;}
-/* In the menu: no second "Report" pitch and no ticker — the big button on the map is enough. */
+/* In the menu: no second "Report" pitch and no ticker — the map's own Report button is enough. */
 .k-drawer .k-hero-title,.k-drawer .k-hero-sub,.k-drawer .k-hero-cta,.k-drawer .k-ticker{display:none;}
 .k-drawer .k-hero{padding-top:.4rem;padding-bottom:.8rem;}
 
-/* ── Map-only screen: no top bar. A floating ☰ opens the menu; Filters stays reachable
-   top-left (its Status option includes Resolved — no separate button needed), the numbers
-   sit top-right below ☰ (clear of Filters), the colour key bottom-left, the Report button
-   bottom-centre. Map/List only shows once you're already in the list (opened from the menu). ── */
-body[data-app-layout] .k-nav{display:none;}
-.k-fab-menu{position:absolute;top:.9rem;right:.9rem;z-index:7;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:rgba(10,8,5,.94);color:var(--cream);border:1px solid var(--border2);border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.4);}
-.k-fab-menu:hover{border-color:var(--amber);}
+/* ── Map screen: the nav stays (logo, language, More) — no floating ☰ menu duplicating it.
+   Filters stays reachable top-left (its Status option includes Resolved — no separate button
+   needed), the live counts float centred over the map, the Report button stays bottom-right.
+   Map/List only shows once you're already in the list (opened from the menu). ── */
+.k-fab-menu{display:none;}
 .k-map-section:has(#k-list[hidden]) .k-view-toggle{display:none;}
-.k-map-section:has(#k-list:not([hidden])) .k-map-topbar{right:4.4rem;}
-.k-map-pill{top:4.4rem;bottom:auto;left:auto;right:.9rem;transform:none;white-space:nowrap;}
+.k-map-pill{top:4.4rem;bottom:auto;left:50%;right:auto;transform:translateX(-50%);white-space:nowrap;}
 .k-map-section:has(#k-list:not([hidden])) .k-map-pill{display:none;}
-/* The open filter bar can wrap to reach this corner on narrow screens; step aside while it's open. */
+/* The open filter bar can wrap to reach the middle of the screen on narrow screens; step aside while it's open. */
 .k-map-topbar.k-filters-open ~ .k-map-pill{display:none;}
-.k-map-legend{display:flex;left:.9rem;bottom:1.4rem;flex-wrap:wrap;}
-@media(max-width:640px){.k-map-legend{display:flex;bottom:5.6rem;right:auto;max-width:calc(100% - 1.8rem);gap:.35rem .7rem;font-size:9.5px;}}
 
-.k-join{top:4.4rem;}
+.k-join{top:6.8rem;}
 @media(max-width:640px){.k-join{top:auto;bottom:8.6rem;}}
 .k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend,.k-join){display:none;}
 
