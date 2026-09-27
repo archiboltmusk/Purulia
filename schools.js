@@ -8,10 +8,21 @@
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const QS = [
     ['water_ok', 'Drinking water'], ['toilets_ok', 'Toilets'], ['boundary_ok', 'Boundary wall'],
-    ['electricity_ok', 'Electricity'], ['mdm_ok', 'Mid-day meal kitchen']
+    ['electricity_ok', 'Electricity'], ['mdm_ok', 'Mid-day meal kitchen'],
+    ['girls_toilet_ok', "Girls' toilet"], ['meal_today_ok', 'Meal cooked today']
   ];
   const PROBLEM = { water_ok: 'no drinking water', toilets_ok: 'no usable toilets', boundary_ok: 'no boundary wall',
-                    electricity_ok: 'no working electricity', mdm_ok: 'no mid-day meal kitchen or utensils' };
+                    electricity_ok: 'no working electricity', mdm_ok: 'no mid-day meal kitchen or utensils',
+                    girls_toilet_ok: "no usable separate girls' toilet", meal_today_ok: 'no mid-day meal cooked that day' };
+  // Official UDISE+ facility keys (schools.official) beside the resident answer that checks the same thing.
+  const OFFICIAL = [['drinking_water', 'drinking water', 'water_ok'], ['girls_toilet', "girls' toilet", 'girls_toilet_ok'],
+                    ['boys_toilet', "boys' toilet", null], ['electricity', 'electricity', 'electricity_ok'],
+                    ['boundary_wall', 'boundary wall', 'boundary_ok'], ['handwash', 'hand-wash', null],
+                    ['library', 'library', null], ['playground', 'playground', null], ['ramp', 'ramp', null]];
+  // State and national figures from the UDISE+ 2024-25 report (tools/udise-benchmarks.py).
+  const bench = await fetch('schools-benchmarks.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  const bm = key => bench?.indicators.find(i => i.key === key);
+  const pct = v => v == null ? '—' : `${v}%`;
   const COND = { good: 'Building good', needs_repair: 'Building needs repair', unsafe: 'Building unsafe' };
   const VIDYANJALI = 'https://vidyanjali.education.gov.in/';
   const checkUrl = code => `kasa.html?school=${encodeURIComponent(code)}`;
@@ -26,6 +37,7 @@
     if (!data || data.length < 1000) break;
   }
   const checked = all.filter(s => s.audits > 0);
+  const official = all.filter(s => s.official);
   set('sc-updated', 'Updated ' + new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }));
   set('sc-t-listed', all.length.toLocaleString('en-IN'));
   set('sc-t-checked', checked.length.toLocaleString('en-IN'));
@@ -79,7 +91,33 @@
     const tags = QS.filter(([k]) => s[k] != null).map(([k, label]) =>
       `<span class="${s[k] ? 'sc-ok' : 'sc-bad'}">${s[k] ? '✓' : '✗'} ${esc(label)}</span>`);
     if (s.building_condition) tags.push(`<span class="${s.building_condition === 'good' ? 'sc-ok' : 'sc-bad'}">${esc(COND[s.building_condition])}</span>`);
+    if (s.teachers_seen != null) tags.push(`<span>${s.teachers_seen} teacher${s.teachers_seen === 1 ? '' : 's'} seen teaching</span>`);
     return tags.join('');
+  }
+
+  // What the school's own UDISE+ return says, and where a resident found otherwise.
+  function officialLine(s){
+    const o = s.official;
+    if (!o) return '';
+    const nums = [
+      o.enrolment != null ? `${o.enrolment} pupils` : '',
+      o.teachers != null ? `${o.teachers} teacher${o.teachers === 1 ? '' : 's'}` : '',
+      o.enrolment != null && o.teachers ? `${Math.round(o.enrolment / o.teachers)} pupils per teacher` : '',
+      o.classrooms != null ? `${o.classrooms} classrooms` : ''
+    ].filter(Boolean);
+    const has = OFFICIAL.filter(([k]) => typeof o[k] === 'boolean').map(([k, label]) => `${o[k] ? '✓' : '✗'} ${label}`);
+    const gaps = OFFICIAL.filter(([k, , r]) => r && o[k] === true && s[r] === false).map(([, label]) => label);
+    if (o.teachers != null && s.teachers_seen != null && s.teachers_seen < o.teachers) gaps.push(`teachers (${s.teachers_seen} of ${o.teachers} seen)`);
+    return `<div class="sc-off">Official record (UDISE+${s.official_year ? ' ' + esc(s.official_year) : ''}): ${esc([...nums, ...has].join(' · '))}</div>` +
+      (gaps.length ? `<div class="sc-gap">Records say yes, the latest check found no: ${esc(gaps.join(', '))}</div>` : '');
+  }
+
+  // For each thing found missing, how common it is across West Bengal's schools.
+  function stateLine(s){
+    const miss = [['water_ok', 'water'], ['girls_toilet_ok', 'girls_toilet'], ['electricity_ok', 'electricity']]
+      .filter(([k, b]) => s[k] === false && bm(b));
+    if (!miss.length) return '';
+    return `<div class="sc-bench">Across West Bengal, ${esc(miss.map(([, b]) => `${bm(b).west_bengal}% of schools report ${bm(b).label.toLowerCase()}`).join(', '))} (UDISE+ ${esc(bench.source.year)}).</div>`;
   }
 
   function row(s){
@@ -91,6 +129,7 @@
         <div class="sc-name">${esc(s.name)}${s.score != null ? `<span class="sc-score">${s.score}/${s.score_of}</span>` : ''}</div>
         <div class="sc-where">${esc(where)} · UDISE ${esc(s.udise_code)}${s.audits ? ` · checked ${s.audits}× · latest ${esc(fmt(s.last_audit_at))}` : ''}</div>
         ${s.audits ? `<div class="sc-ans">${answers(s)}</div>` : ''}
+        ${officialLine(s)}${s.audits ? stateLine(s) : ''}
         <div class="sc-acts">
           <a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>
           ${s.audits && problems(s).length ? `<button type="button" data-rti="${esc(s.udise_code)}">Draft an RTI</button>` : ''}
@@ -111,6 +150,10 @@
     document.querySelector('#sc-list h2').textContent = checked.length ? 'Checked schools, worst first' : 'Find a school';
     document.querySelector('#sc-list .an-card-sub').hidden = !checked.length;
     document.getElementById('sc-checked').hidden = !checked.length;
+    const ranked = [...checked].sort((a, b) => (b.score / b.score_of) - (a.score / a.score_of));
+    document.getElementById('sc-bestworst').innerHTML = ranked.length > 1
+      ? `Best checked: <a href="#s-${esc(ranked[0].udise_code)}">${esc(ranked[0].name)}</a> (${ranked[0].score}/${ranked[0].score_of}) · Worst: <a href="#s-${esc(ranked.at(-1).udise_code)}">${esc(ranked.at(-1).name)}</a> (${ranked.at(-1).score}/${ranked.at(-1).score_of})`
+      : '';
     document.getElementById('sc-checked').innerHTML = worst.length ? worst.map(row).join('')
       : `<div class="an-empty">${checked.length ? 'No checked school matches.' : 'No school has been checked yet. Be the first: stand at a school and tap “Check a school”.'}</div>`;
     // One dropdown of every unchecked school matching the filters above, not a long scrolling
@@ -143,7 +186,7 @@
   }
 
   // "Schools near me": the block you stand in and the schools placed nearby, nearest first.
-  set('sc-near-text', `${all.length.toLocaleString('en-IN')} schools in Purulia, ${checked.length.toLocaleString('en-IN')} checked so far. Stand at one, answer six questions and take one photo: about two minutes.`);
+  set('sc-near-text', `${all.length.toLocaleString('en-IN')} schools in Purulia, ${checked.length.toLocaleString('en-IN')} checked so far. Stand at one, answer a few questions and take one photo: about two minutes.`);
   document.getElementById('sc-near-btn').addEventListener('click', () => {
     const btn = document.getElementById('sc-near-btn'), out = document.getElementById('sc-near-list');
     if (!navigator.geolocation){ set('sc-near-text', 'This phone cannot share its location. Choose your block below instead.'); return; }
@@ -197,7 +240,42 @@
     if (s){ if (s.block_name) sel.value = s.block_name; document.getElementById('sc-find').value = want; }
   }
   render();
+  drawCompare();
   drawMap();
+
+  /* How Purulia compares: residents' checks and official records here, beside West Bengal, India and the best and worst state. */
+  function drawCompare(){
+    const box = document.getElementById('sc-compare');
+    if (!bench){ box.innerHTML = '<div class="an-empty">The state and national figures could not be loaded.</div>'; return; }
+    const RES = { water: 'water_ok', girls_toilet: 'girls_toilet_ok', electricity: 'electricity_ok' };
+    const OFF = { water: 'drinking_water', girls_toilet: 'girls_toilet', boys_toilet: 'boys_toilet', electricity: 'electricity',
+                  handwash: 'handwash', library: 'library', playground: 'playground', ramp: 'ramp' };
+    const share = (list, get) => {
+      const vals = list.map(get).filter(v => typeof v === 'boolean');
+      return vals.length ? `${(100 * vals.filter(Boolean).length / vals.length).toFixed(1)}% <small>of ${vals.length}</small>` : '—';
+    };
+    const ptr = (() => {
+      const w = official.filter(s => s.official.enrolment != null && s.official.teachers);
+      if (!w.length) return '—';
+      const e = w.reduce((a, s) => a + s.official.enrolment, 0), t = w.reduce((a, s) => a + s.official.teachers, 0);
+      return `${Math.round(e / t)} <small>all classes, ${w.length} school${w.length === 1 ? '' : 's'}</small>`;
+    })();
+    const rows = bench.indicators.map(i => {
+      const low = i.better === 'low', f = v => low ? String(v) : pct(v);
+      const res = RES[i.key] ? share(checked, s => s[RES[i.key]]) : '<small>not checked</small>';
+      const off = OFF[i.key] ? share(official, s => s.official[OFF[i.key]]) : i.key === 'ptr_primary' ? ptr : '—';
+      return `<tr><td>${esc(i.label)}</td><td class="n">${res}</td><td class="n">${off}</td>
+        <td class="n"><strong>${f(i.west_bengal)}</strong> <small>#${i.west_bengal_rank} of ${i.of}</small></td><td class="n">${f(i.india)}</td>
+        <td>${esc(i.best.name)} <small>${f(i.best.value)}</small></td><td>${esc(i.worst.name)} <small>${f(i.worst.value)}</small></td></tr>`;
+    }).join('');
+    box.innerHTML = `<div class="an-table-wrap"><table class="an-table sc-cmp"><thead><tr><th>Indicator</th>
+      <th class="n">Purulia: residents found</th><th class="n">Purulia: official</th><th class="n">West Bengal</th><th class="n">India</th>
+      <th>Best state/UT</th><th>Worst state/UT</th></tr></thead><tbody>${rows}</tbody></table></div>
+      <details class="an-details"><summary>Where these numbers come from</summary>
+        <p>West Bengal, India and the best and worst of ${bench.indicators[0].of} states and union territories: <a href="${esc(bench.source.url)}" target="_blank" rel="noopener">${esc(bench.source.title)}</a>, ${esc(bench.source.publisher)}. ${esc(bench.source.note)} Each row is read from the report: ${esc(bench.indicators.map(i => `${i.label}: ${i.cite}, p. ${i.page}`).join('; '))}. Pupils per teacher: lower is better.</p>
+        <p>Purulia, residents found: the latest check of each school that answered that question. Purulia, official: the schools' own UDISE+ returns, where loaded${official.length ? ` (${official.length.toLocaleString('en-IN')} schools)` : ' (not loaded yet)'}. A resident's check is what one person saw on one day; UDISE+ is what schools report about themselves. A gap between the two is worth asking about, not proof.</p>
+      </details>`;
+  }
 
   /* Map: blocks shaded by the share of schools checked; pins for schools with a known location. */
   function drawMap(){
