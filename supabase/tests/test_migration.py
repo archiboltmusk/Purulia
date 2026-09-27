@@ -1669,6 +1669,22 @@ cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.ka
 check('coverage counts a check by its school code and scores it out of 6',
       cov['19210199904']['audits'] == 1 and cov['19210199904']['score'] == 3 and cov['19210199904']['score_of'] == 6, cov['19210199904'])
 
+# Fuller checks: girls' toilet and today's meal count when answered; teachers seen is shown, not scored.
+check('a teacher count out of range is refused',
+      err(school_check, user(), '19210199904', offset(70, 0, base=sc_where), p_teachers_seen=500) == 'KASA_BAD_TEACHERS')
+full = school_check(user(), '19210199904', offset(75, 0, base=sc_where), p_girls_toilet_ok=False, p_meal_today_ok=True, p_teachers_seen=3)
+check('a fuller check goes straight up like any other', full['moderation_status'] == 'approved', full)
+cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}
+c4 = cov['19210199904']
+check("the girls' toilet and today's meal count toward the score",
+      c4['score'] == 4 and c4['score_of'] == 8 and c4['girls_toilet_ok'] is False and c4['meal_today_ok'] is True, c4)
+check('teachers seen is public, next to the answers', c4['teachers_seen'] == 3 and rpc('kasa_school_checks', p_udise_code='19210199904')[0]['teachers_seen'] == 3)
+cant_tell = school_check(user(), '19210199904', offset(80, 0, base=sc_where))
+c4b = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}['19210199904']
+check("\"can't tell\" is left out of the score, not counted as a failure", c4b['score_of'] == 6, c4b)
+check('official school figures are public when loaded',
+      'official' in c4b and 'official_year' in c4b, c4b)
+
 # Nearby schools: official locations, and locations learned from approved checks.
 nb = rpc('kasa_nearby_schools', p_lat=sc_where[0], p_lng=sc_where[1])
 codes = {x['udise_code']: x for x in nb['near']}
