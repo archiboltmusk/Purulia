@@ -57,7 +57,7 @@ window.KASA_I18N = {
     auth_num: '06 · Representatives', auth_title: 'Elected representatives', auth_view: 'View →',
     footer_left: 'Parishkar Purulia · A civic tool for Purulia town',
     footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Purulia is a neutral platform and not affiliated with any party or government body.',
-    footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer', footer_coffee: 'Buy me a coffee',
+    footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer', footer_coffee: 'Buy me a coffee', footer_bug: 'Report a bug',
     qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Purulia', qr_sub: 'Point a phone camera at this QR code to open the report page.',
 
     grp_clean: 'Cleanliness', grp_infra: 'Roads & utilities', grp_illegal: 'Illegal activity',
@@ -312,7 +312,7 @@ window.KASA_I18N = {
     auth_num: '০৬ · জনপ্রতিনিধি', auth_title: 'নির্বাচিত জনপ্রতিনিধি', auth_view: 'দেখুন →',
     footer_left: 'পরিষ্কার পুরুলিয়া · পুরুলিয়া শহরের নাগরিক উদ্যোগ',
     footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার পুরুলিয়া একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
-    footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক', footer_coffee: 'আমাকে এক কাপ কফি দিন',
+    footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক', footer_coffee: 'আমাকে এক কাপ কফি দিন', footer_bug: 'সমস্যা জানান',
     qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার পুরুলিয়া শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
 
     grp_clean: 'পরিচ্ছন্নতা', grp_infra: 'রাস্তা ও পরিষেবা', grp_illegal: 'বেআইনি কাজ',
@@ -566,7 +566,7 @@ window.KASA_I18N = {
     auth_num: '06 · प्रतिनिधि', auth_title: 'चुने हुए प्रतिनिधि', auth_view: 'देखें →',
     footer_left: 'परिष्कार पुरुलिया · पुरुलिया शहर का नागरिक टूल',
     footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार पुरुलिया एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
-    footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी', footer_coffee: 'मुझे एक कॉफ़ी पिलाएँ',
+    footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी', footer_coffee: 'मुझे एक कॉफ़ी पिलाएँ', footer_bug: 'बग बताएं',
     qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार पुरुलिया शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
 
     grp_clean: 'सफ़ाई', grp_infra: 'सड़क और सेवाएँ', grp_illegal: 'अवैध गतिविधि',

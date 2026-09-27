@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2064,6 +2064,34 @@ for i in range(3):
     err(rpc, 'kasa_demand_submit', ip='10.8.9.9', **dm_new, p_for_community=True)
 check('one network can post at most three demands a day',
       err(rpc, 'kasa_demand_submit', ip='10.8.9.9', **dm_new, p_for_community=True) == 'KASA_RATE_LIMIT')
+
+# ── Report a bug ────────────────────────────────────────────────────────
+bug = rpc('kasa_bug_submit', ip='10.9.0.1', p_what='The share button does nothing', p_email='a@b.in',
+          p_page_url='https://x/kasa.html', p_user_agent='UA', p_device={'vw': 390},
+          p_errors=['TypeError: x is undefined'] * 15)
+check('the public cannot read bug reports', refused(err(q, 'select * from public.bug_reports')))
+check('a bug report needs a description', err(rpc, 'kasa_bug_submit', ip='10.9.0.2', p_what='') == 'KASA_BAD_INPUT')
+check('a bad email is refused', err(rpc, 'kasa_bug_submit', ip='10.9.0.2', p_what='Broken page', p_email='nope') == 'KASA_BAD_EMAIL')
+check('non-moderators cannot read the bug queue', err(rpc, 'kasa_admin_bugs', uid=bob) == 'KASA_NOT_ADMIN')
+got = next(x for x in rpc('kasa_admin_bugs', uid=mod) if x['id'] == bug['id'])
+check('moderators see the bug with its page and at most 10 errors, not the network',
+      got['page_url'] == 'https://x/kasa.html' and len(got['errors']) == 10 and 'ip_hash' not in got, got)
+rpc('kasa_admin_bug_close', uid=mod, p_id=bug['id'], p_status='fixed')
+check('a fixed bug leaves the queue', not any(x['id'] == bug['id'] for x in rpc('kasa_admin_bugs', uid=mod)))
+while rpc('kasa_bug_alerts_claim', role='service_role', p_limit=200)['bugs']:
+    pass
+bug2 = rpc('kasa_bug_submit', ip='10.9.0.3', p_what='Language switch is stuck')
+bc = rpc('kasa_bug_alerts_claim', role='service_role', p_limit=50)
+check('a new bug report is handed out for the team email', [b['id'] for b in bc['bugs']] == [bug2['id']], bc)
+check('a claimed bug report is not handed out twice', rpc('kasa_bug_alerts_claim', role='service_role', p_limit=50)['bugs'] == [])
+rpc('kasa_bug_alerts_done', role='service_role', p_ids=[bug2['id']])
+check('the public cannot claim bug alerts', refused(err(rpc, 'kasa_bug_alerts_claim', uid=user(), p_limit=5)))
+check('the admin queue hides the alert bookkeeping',
+      'alerted_at' not in next(x for x in rpc('kasa_admin_bugs', uid=mod) if x['id'] == bug2['id']))
+for i in range(5):
+    err(rpc, 'kasa_bug_submit', ip='10.9.9.9', p_what='Map is blank again')
+check('one network can send at most five bug reports an hour',
+      err(rpc, 'kasa_bug_submit', ip='10.9.9.9', p_what='Map is blank again') == 'KASA_RATE_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
