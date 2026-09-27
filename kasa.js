@@ -296,6 +296,7 @@ async function init(){
   renderChainSection();
   renderReps();
   setupOfflineDetection();
+  setupInAppBrowser();
 
   const cached = readCache();
   if (cached){
@@ -2532,6 +2533,8 @@ function openReport(prefill){
     document.getElementById('k-landmark').value = prefill.landmark || '';
   } else {
     useGPS();
+    // Inside Instagram and similar apps GPS rarely answers; offer the map pin right away.
+    if (IN_APP) showPinMap();
   }
   goToStep(1);
   openModal('k-modal');
@@ -3183,6 +3186,43 @@ function initSchoolCheck(){
   else if (q.get('check') === 'school') openSchoolCheck();
 }
 
+/* Instagram, Facebook and similar apps open links in their own browser, where location
+   usually doesn't work. On Android the page is handed to Chrome once, automatically; everywhere
+   a small bar offers one tap to the real browser. Pinning on the map works in any case. */
+const UA = navigator.userAgent;
+const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Barcelona|Snapchat|musical_ly|Bytedance|LinkedInApp|Line\//i.test(UA);
+const IS_ANDROID = /Android/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
+
+function browserUrl(){
+  const u = location.href.split('#')[0];
+  if (IS_ANDROID) return 'intent://' + u.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u) + ';end';
+  if (IS_IOS) return 'x-safari-' + u; // opens Safari on iOS 17+; older phones use the ⋯ menu
+  return null;
+}
+
+function setupInAppBrowser(){
+  if (!IN_APP) return;
+  const url = browserUrl();
+  if (IS_ANDROID && url){
+    let tried = true;
+    try { tried = sessionStorage.getItem('kasa_iab_tried') === '1'; sessionStorage.setItem('kasa_iab_tried', '1'); } catch (e) {}
+    if (!tried){ location.href = url; }
+  }
+  const bar = document.getElementById('k-iab');
+  bar.querySelector('#k-iab-hint').hidden = !IS_IOS;
+  const open = bar.querySelector('#k-iab-open');
+  if (url) open.href = url; else open.hidden = true;
+  bar.querySelector('#k-iab-close').addEventListener('click', () => { bar.hidden = true; });
+  bar.hidden = false;
+}
+
+function showPinMap(){
+  document.getElementById('k-gps-btn').hidden = false;
+  document.getElementById('k-mini-map').hidden = false;
+  initMiniMap();
+  setTimeout(() => miniMap && miniMap.resize(), 60);
+}
+
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -3222,13 +3262,8 @@ async function useGPS(){
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
     // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
-    btn.hidden = false;
-    document.getElementById('k-mini-map').hidden = false;
-    initMiniMap();
-    setTimeout(() => miniMap && miniMap.resize(), 60);
-    showToast(err?.code === 1
-      ? 'Location permission denied. Tap the map to pin the spot.'
-      : 'Could not get location. Tap the map to pin the spot.');
+    showPinMap();
+    showToast(t(err?.code === 1 ? 'loc_denied_pin' : 'loc_fail_pin'));
   }
 }
 
