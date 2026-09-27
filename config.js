@@ -15,6 +15,10 @@ window.KASA_CONFIG = {
   // Leave empty to fall back to WAQI's shared "demo" token, which is rate-limited and may return no stations.
   WAQI_API_KEY: '8b116d06bed9fc883f02ff38515f53f4b490547c',
 
+  // Address of the Cloudflare worker (worker.js), e.g. 'https://purulia.example.workers.dev'. When set, shared
+  // report links go through it so WhatsApp/X/Facebook previews show the report's photo. Empty = plain links.
+  SHARE_URL: '',
+
   // Published on the legal pages and used for "Right of reply" requests.
   GRIEVANCE_EMAIL: 'thelosthillproject@gmail.com'
 };

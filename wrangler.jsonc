@@ -1,10 +1,19 @@
 // Cloudflare Workers Builds serves the static site from the repo root.
 // What gets left out lives in .assetsignore (mirrors github-pages.yml).
+// worker.js only handles /r/<id> (link previews for shared reports); everything else is the static files.
 {
   "name": "purulia",
   "compatibility_date": "2026-09-01",
+  "main": "worker.js",
   "assets": {
-    "directory": "."
+    "directory": ".",
+    "binding": "ASSETS",
+    "run_worker_first": ["/r/*"]
+  },
+  // Public values, the same ones config.js ships to every browser.
+  "vars": {
+    "SUPABASE_URL": "https://cnmikcyvyamplbldiivp.supabase.co",
+    "SUPABASE_ANON_KEY": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubWlrY3l2eWFtcGxibGRpaXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMzY0MDEsImV4cCI6MjEwNTgxMjQwMX0.h4nOvb0GWz92A_GuH-RPX90wUIRvza4RvsD9TA-XiM0"
   },
   // Required by `wrangler preview` (the per-branch preview builds).
   "previews": {}

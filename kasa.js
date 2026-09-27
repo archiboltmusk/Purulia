@@ -26,6 +26,10 @@ const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
 const MAP_ZOOM = CITY.mapZoom || 13;
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
+// Links people share. With SHARE_URL set (the Cloudflare worker, worker.js), /r/<id> shows the
+// report's photo in WhatsApp/X/Facebook previews and then opens the report here.
+const SHARE_URL = (window.KASA_CONFIG?.SHARE_URL || '').replace(/\/$/, '');
+const reportLink = id => SHARE_URL ? `${SHARE_URL}/r/${encodeURIComponent(id)}` : `${PAGE_URL}?report=${encodeURIComponent(id)}`;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
 const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type';
@@ -161,6 +165,7 @@ function getSLAHours(categoryKey, boundaryType){
 /* ── State ── */
 const state = {
   listQuery: '',
+  lbQuery: '',
   groupsByWard: {},
   fixConfirms: {},        // report id -> confirmations when it was verified fixed
   mode: null,              // 'v2' once the migration is live, else 'legacy'
@@ -1200,8 +1205,15 @@ function updateStats(){
 function renderLeaderboard(){
   const el = document.getElementById('k-lb-list');
   if (!state.reports.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('lb_empty'))}</div>`; return; }
-  const rows = Object.values(wardStats()).filter(s => s.open > 0 || s.fake > 0).sort((a, b) => b.open - a.open || b.fake - a.fake);
-  if (!rows.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('lb_all_clear'))}</div>`; return; }
+  const stats = wardStats();
+  // Searching shows every ward that matches, even ones with nothing open, so people can find their own.
+  const q = state.lbQuery.toLowerCase();
+  const rows = (q
+    ? Object.keys(state.wards).map(Number).map(n => stats[n] || { ward: n, open: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0 })
+        .filter(s => String(s.ward) === q.replace(/^ward\s*/, '') || (state.wards[s.ward]?.councillor_name || '').toLowerCase().includes(q))
+    : Object.values(stats).filter(s => s.open > 0 || s.fake > 0)
+  ).sort((a, b) => b.open - a.open || b.fake - a.fake || a.ward - b.ward);
+  if (!rows.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t(q ? 'lb_no_match' : 'lb_all_clear'))}</div>`; return; }
   const max = Math.max(1, rows[0].open);
   el.innerHTML = rows.map((s, i) => {
     const w = state.wards[s.ward] || {};
@@ -1686,7 +1698,7 @@ function rtiHTML(r){
   const place = placeLabelEN(r);
   const filed = new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'long', year: 'numeric' });
   const days = daysSince(r.createdAt);
-  const link = `${PAGE_URL}?report=${encodeURIComponent(r.id)}`;
+  const link = reportLink(r.id);
   const agencyLine = rtiAgencyLine(r);
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8">
 <title>RTI application — ${esc(catLabel)}, ${esc(place)}</title>
@@ -1768,7 +1780,7 @@ function openRTI(reportId){
 function replyMailto(r){
   const subject = `Right of reply — Parishkar Purulia report ${r.id}`;
   const body = [
-    'Report: ' + `${PAGE_URL}?report=${encodeURIComponent(r.id)}`,
+    'Report: ' + reportLink(r.id),
     'Your name:', 'Your position (e.g. Ward Councillor, Ward ' + (r.ward ?? '?') + '):',
     'Your response:', '',
     '(Please write from an official or otherwise verifiable address. We publish responses alongside the report.)'
@@ -1935,7 +1947,7 @@ async function submitFlag(){
 async function shareReport(id){
   const r = state.byId.get(id);
   if (!r) return;
-  const url = `${PAGE_URL}?report=${encodeURIComponent(id)}`;
+  const url = reportLink(id);
   const text = r.area === 'rural' && r.block
     ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
     : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
@@ -2056,7 +2068,7 @@ function downloadCSV(scope){
     r.id, r.createdAt, r.ward, r.category, r.severity, r.status, r.resolution, r.resolvedAt,
     r.status === 'resolved' ? null : daysSince(r.createdAt), isOverdue(r), r.lat, r.lng, r.landmark, r.description,
     peopleSaw(r), r.rejectedClaims, r.recurrence, r.duplicate, r.photo, r.resolvedPhoto,
-    `${PAGE_URL}?report=${encodeURIComponent(r.id)}`
+    reportLink(r.id)
   ].map(csvCell).join(','));
   // The BOM makes Excel read Bengali and Hindi text as UTF-8.
   const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
@@ -2085,7 +2097,7 @@ function reportMessage(r){
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
     r.description || '',
     `Map: https://www.google.com/maps?q=${r.lat},${r.lng}`,
-    r.pending ? '' : `Report: ${PAGE_URL}?report=${encodeURIComponent(r.id)}`
+    r.pending ? '' : `Report: ${reportLink(r.id)}`
   ].filter(Boolean).join('\n');
 }
 
@@ -2098,7 +2110,7 @@ function openContact(spec){
   const town = r.area !== 'rural';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
-  const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + PAGE_URL + '?report=' + encodeURIComponent(r.id))}`;
+  const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + reportLink(r.id))}`;
 
   let title, sub, opts = [];
   if (kind === 'role'){
@@ -3496,7 +3508,7 @@ function wireUI(){
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
     if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
-    if (d.copyLink) return copyText(`${PAGE_URL}?report=${encodeURIComponent(d.copyLink)}`);
+    if (d.copyLink) return copyText(reportLink(d.copyLink));
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
     if (d.lang) return setLang(d.lang);
@@ -3623,6 +3635,7 @@ function wireUI(){
   document.getElementById('k-ev-submit').addEventListener('click', submitEvidence);
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
   document.getElementById('k-list-search').addEventListener('input', e => { state.listQuery = e.target.value.trim(); renderList(); });
+  document.getElementById('k-lb-search').addEventListener('input', e => { state.lbQuery = e.target.value.trim(); renderLeaderboard(); });
 
   // Tap a report photo to see it full screen; a gallery photo also gets prev/next.
   document.addEventListener('click', e => {
