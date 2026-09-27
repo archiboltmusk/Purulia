@@ -17,8 +17,7 @@ exception when duplicate_object then null; end $$;
 create index if not exists kasa_reports_boundary_type_idx on public.reports (boundary_type);
 
 -- Update public view to include boundary_type for analytics and routing visibility
-drop view if exists public.kasa_public_reports;
-create view public.kasa_public_reports as
+create or replace view public.kasa_public_reports as
 select r.id,
        date_trunc('hour', r.created_at) as created_at,
        r.lat, r.lng, r.ward_no, r.category, r.severity, r.status, r.description, r.landmark, r.photo_url,
