@@ -100,6 +100,8 @@
   </div>
 </div>
 
+<script src="config.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
 const SUPABASE_URL = window.KASA_CONFIG?.SUPABASE_URL || '';
 const SUPABASE_ANON_KEY = window.KASA_CONFIG?.SUPABASE_ANON_KEY || '';
@@ -163,16 +165,6 @@ if (!createClient) {
   // Reload stats every 30 seconds
   setInterval(loadStats, 30000);
 }
-</script>
-
-<!-- Load Supabase client (same as kasa.html) -->
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-// Load configuration from city.js
-const script = document.createElement('script');
-script.src = '/city.js';
-script.onerror = () => console.warn('city.js not found, using defaults');
-document.head.appendChild(script);
 </script>
 </body>
 </html>
