@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_support', 'kasa_demand_reply_suggest'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_support', 'kasa_demand_reply_suggest'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1923,6 +1923,54 @@ admin_sql("select public.kasa_promise_news_ingest(%s::jsonb)", (json.dumps([
 news = rpc('kasa_promises')['news']
 check('daily headlines are stored, tagged with the person, bad links dropped',
       len(news) == 1 and news[0]['who'] == 'Test Minister', news)
+
+# ─────────────────────────────── Demands noticeboard ─────────────────────
+dm_new = dict(p_leader_role='mla', p_leader_name='Test MLA', p_leader_area='Purulia (242)',
+              p_title='A footbridge over the canal at Ward 5', p_details='Children walk two kilometres around the canal to reach the school every day.',
+              p_place='Ward 5')
+check('a demand must be ticked as for the whole community',
+      err(rpc, 'kasa_demand_submit', ip='10.8.0.1', **dm_new) == 'KASA_NOT_COMMUNITY')
+check('a demand needs a proper title',
+      err(rpc, 'kasa_demand_submit', ip='10.8.0.1', **{**dm_new, 'p_title': 'fix'}, p_for_community=True) == 'KASA_BAD_INPUT')
+check('a demand is addressed to a known kind of leader',
+      err(rpc, 'kasa_demand_submit', ip='10.8.0.1', **{**dm_new, 'p_leader_role': 'king'}, p_for_community=True) == 'KASA_BAD_INPUT')
+dm = rpc('kasa_demand_submit', ip='10.8.0.1', **dm_new, p_for_community=True)
+check('a posted demand is not public until reviewed', not any(x['id'] == dm['id'] for x in rpc('kasa_demands')))
+check('the public cannot read the demands table', refused(err(q, 'select * from public.demands')))
+check('the public cannot read who supported a demand', refused(err(q, 'select * from public.demand_supports')))
+check('+1 on an unpublished demand is refused',
+      err(rpc, 'kasa_demand_support', p_id=dm['id'], p_device='device-aaaaaaaaaaaa1') == 'KASA_NOT_FOUND')
+check('non-moderators cannot publish a demand',
+      err(rpc, 'kasa_admin_demand_review', uid=bob, p_id=dm['id'], p_action='publish') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_demand_review', uid=mod, p_id=dm['id'], p_action='publish')
+check('a moderator publishes a demand', any(x['id'] == dm['id'] for x in rpc('kasa_demands')))
+s1 = rpc('kasa_demand_support', ip='10.8.1.1', p_id=dm['id'], p_device='device-aaaaaaaaaaaa1')
+s2 = rpc('kasa_demand_support', ip='10.8.1.1', p_id=dm['id'], p_device='device-aaaaaaaaaaaa1')
+s3 = rpc('kasa_demand_support', ip='10.8.2.1', p_id=dm['id'], p_device='device-bbbbbbbbbbbb2')
+check('+1 counts once per device', s1['supports'] == 1 and not s2['counted'] and s3['supports'] == 2, (s1, s2, s3))
+check('+1 needs a device id', err(rpc, 'kasa_demand_support', p_id=dm['id'], p_device='x') == 'KASA_BAD_INPUT')
+for i in range(40):
+    err(rpc, 'kasa_demand_support', ip='10.8.3.1', p_id=dm['id'], p_device=f'device-cccccccccc{i:03d}')
+check('one network cannot inflate a demand past 40 a day',
+      err(rpc, 'kasa_demand_support', ip='10.8.3.1', p_id=dm['id'], p_device='device-cccccccccc999') == 'KASA_RATE_LIMIT')
+check('a reply needs a source link',
+      err(rpc, 'kasa_demand_reply_suggest', ip='10.8.4.1', p_demand=dm['id'], p_reply='We will build it next year.',
+          p_said_on='2026-09-20', p_source_url='nope') == 'KASA_BAD_INPUT')
+rp = rpc('kasa_demand_reply_suggest', ip='10.8.4.1', p_demand=dm['id'], p_reply='We will build it next year.',
+         p_said_on='2026-09-20', p_source_url='https://example.com/reply')
+check('a reply waits for review', next(x for x in rpc('kasa_demands') if x['id'] == dm['id'])['replies'] == [])
+rpc('kasa_admin_demand_reply_review', uid=mod, p_id=rp['id'], p_action='publish')
+check('a published reply shows with its link',
+      next(x for x in rpc('kasa_demands') if x['id'] == dm['id'])['replies'][0]['source_url'] == 'https://example.com/reply')
+rpc('kasa_admin_demand_edit', uid=mod, p_id=dm['id'], p_promise=pr['id'])
+got = next(x for x in rpc('kasa_demands') if x['id'] == dm['id'])
+check('a demand linked to a promise shows its status', got['promise'] and got['promise']['status'] == 'delivered', got)
+rpc('kasa_admin_demand_edit', uid=mod, p_id=dm['id'], p_take_down=True)
+check('a moderator can take a demand down', not any(x['id'] == dm['id'] for x in rpc('kasa_demands')))
+for i in range(3):
+    err(rpc, 'kasa_demand_submit', ip='10.8.9.9', **dm_new, p_for_community=True)
+check('one network can post at most three demands a day',
+      err(rpc, 'kasa_demand_submit', ip='10.8.9.9', **dm_new, p_for_community=True) == 'KASA_RATE_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
