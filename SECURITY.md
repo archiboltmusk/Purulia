@@ -27,7 +27,9 @@ A comprehensive security review confirms that **Parishkar Purulia is safe for pu
 ### ⚠️ Git History (Historical)
 Old commits (pre-2026) contain exposed secrets **not in current code**:
 - **Google Cloud Vision API key** (commits a176743, dd016bd) — **ROTATED** ✓
-- **Admin passwords** (commits e1eb537, fdca62b) — deprecated, not in use
+- **Admin passwords** (commits e1eb537, fdca62b) — deprecated, not in use. Treat them as public: never reuse them for any account.
+
+History is not rewritten (it would break every fork and clone), so anything that was ever committed must be rotated, not deleted.
 
 ### 🔄 Required Action: Google Cloud Vision API Key Rotation
 

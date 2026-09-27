@@ -70,4 +70,4 @@ Everyone taking part follows the [Code of Conduct](CODE_OF_CONDUCT.md).
 
 - [@archiboltmusk](https://github.com/archiboltmusk) — reviews and merges pull requests, applies database migrations, holds the Supabase and GitHub admin access.
 
-Decisions are made by the maintainers in public issues and pull requests. If you'd like to become a maintainer after a few merged contributions, say so in an issue.
+How decisions are made and how to become a maintainer: [GOVERNANCE.md](GOVERNANCE.md). The project is looking for a second maintainer; if that could be you, say so in an issue.

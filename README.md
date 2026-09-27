@@ -159,7 +159,7 @@ Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic 
 
 ## Contributing
 
-Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (local setup, tests, rules for database changes) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md).
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (local setup, tests, rules for database changes) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md). How the project is run: [GOVERNANCE.md](GOVERNANCE.md).
 
 ## Licence
 
