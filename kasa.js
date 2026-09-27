@@ -296,6 +296,7 @@ async function init(){
   renderChainSection();
   renderReps();
   setupOfflineDetection();
+  setupInAppBrowser();
 
   const cached = readCache();
   if (cached){
@@ -2522,6 +2523,9 @@ function openReport(prefill){
   // Automatic GPS is the norm; the button/map only reappear if it fails (see useGPS()).
   gpsBtn.hidden = true;
   document.getElementById('k-mini-map').hidden = true;
+  document.getElementById('k-iab-report').hidden = true;
+  document.getElementById('k-iab-report-note').hidden = true;
+  document.getElementById('k-iab-report-copy').hidden = true;
   setSeverity('minor');
   setWasteType(null);
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
@@ -3183,6 +3187,60 @@ function initSchoolCheck(){
   else if (q.get('check') === 'school') openSchoolCheck();
 }
 
+/* Instagram, Facebook and similar apps open links in their own browser, where location
+   usually doesn't work. On Android the page is handed to Chrome once, automatically; everywhere
+   a small bar offers one tap to the real browser. Pinning on the map works in any case. */
+const UA = navigator.userAgent;
+const IN_APP = /Instagram|FBAN|FBAV|FB_IAB|FBIOS|Barcelona|Snapchat|musical_ly|Bytedance|LinkedInApp|Line\//i.test(UA);
+const IS_ANDROID = /Android/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
+
+function browserUrl(){
+  const u = location.href.split('#')[0];
+  if (IS_ANDROID) return 'intent://' + u.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u) + ';end';
+  // Instagram's own "open in external browser" link is the exit it doesn't block; other apps
+  // get x-safari-https (iOS 17+). Both need a real tap, so they only sit behind buttons.
+  if (IS_IOS) return /Instagram/i.test(UA) ? 'instagram://extbrowser/?url=' + encodeURIComponent(u) : 'x-safari-' + u;
+  return null;
+}
+
+function setupInAppBrowser(){
+  if (!IN_APP) return;
+  const url = browserUrl();
+  if (IS_ANDROID && url){
+    let tried = true;
+    try { tried = sessionStorage.getItem('kasa_iab_tried') === '1'; sessionStorage.setItem('kasa_iab_tried', '1'); } catch (e) {}
+    if (!tried){ location.href = url; }
+  }
+  const bar = document.getElementById('k-iab');
+  bar.querySelector('#k-iab-hint').hidden = !IS_IOS;
+  const open = bar.querySelector('#k-iab-open');
+  if (url){ open.href = url; document.getElementById('k-iab-report').href = url; } else open.hidden = true;
+  bar.querySelector('#k-iab-close').addEventListener('click', () => { bar.hidden = true; });
+  document.querySelectorAll('[data-iab-copy]').forEach(b => b.addEventListener('click', copyPageLink));
+  bar.hidden = false;
+}
+
+/* The one exit every in-app browser allows: paste the link into Safari or Chrome. */
+async function copyPageLink(){
+  const u = location.href.split('#')[0];
+  let ok = false;
+  try { await navigator.clipboard.writeText(u); ok = true; } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = u; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+    ta.remove();
+  }
+  showToast(ok ? t('iab_copied') : u, 6000);
+}
+
+function showPinMap(){
+  document.getElementById('k-gps-btn').hidden = false;
+  document.getElementById('k-mini-map').hidden = false;
+  initMiniMap();
+  setTimeout(() => miniMap && miniMap.resize(), 60);
+}
+
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -3222,13 +3280,17 @@ async function useGPS(){
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
     // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
-    btn.hidden = false;
-    document.getElementById('k-mini-map').hidden = false;
-    initMiniMap();
-    setTimeout(() => miniMap && miniMap.resize(), 60);
-    showToast(err?.code === 1
-      ? 'Location permission denied. Tap the map to pin the spot.'
-      : 'Could not get location. Tap the map to pin the spot.');
+    // Inside Instagram and similar apps a live GPS fix is the only proof of place we get, so
+    // send people to their real browser instead of offering a hand-placed pin.
+    if (IN_APP){
+      btn.hidden = false;
+      document.getElementById('k-iab-report').hidden = !browserUrl();
+      document.getElementById('k-iab-report-note').hidden = false;
+      document.getElementById('k-iab-report-copy').hidden = false;
+      return;
+    }
+    showPinMap();
+    showToast(t(err?.code === 1 ? 'loc_denied_pin' : 'loc_fail_pin'));
   }
 }
 
