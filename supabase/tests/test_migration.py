@@ -1720,6 +1720,43 @@ check('an older report card does not replace a newer one', cov_rc['official_year
 used = admin_sql('select photo_path from kasa_private.school_report_cards where id = %s', (rc['id'],))[0][0]
 check("a report card's picture cannot be reused", err(card, card_uid, path=used) == 'KASA_PHOTO_REUSED')
 
+# Missing schools: a resident at the school sends a live gate photo; a moderator adds it with its UDISE code.
+ns_uid = user()
+def suggest(uid, name='Gopalpur New Primary School', block=None, where=None, acc=10.0, hint=None, path=None):
+    w = where or sc_where
+    return rpc('kasa_suggest_school', uid=uid, p_name=name, p_block=block or sc_block, p_village='Gopalpur',
+               p_lat=w[0], p_lng=w[1], p_accuracy=acc, p_photo_path=path or upload(uid, 'reports'), p_udise_hint=hint)
+check('the public cannot add a school without signing in',
+      refused(err(rpc, 'kasa_suggest_school', p_name='X school', p_block=sc_block, p_village=None, p_lat=sc_where[0],
+                  p_lng=sc_where[1], p_accuracy=10.0, p_photo_path='reports/x.jpg')))
+check('a new school needs a name', err(suggest, ns_uid, name='  ') == 'KASA_BAD_INPUT')
+check('a new school needs a real block', err(suggest, ns_uid, block='Nowhere') == 'KASA_BAD_INPUT')
+check('a new school needs a good GPS fix', err(suggest, ns_uid, acc=900.0) == 'KASA_GPS_REQUIRED')
+check('a school already on the list cannot be added again', err(suggest, ns_uid, hint='19210199902') == 'KASA_SCHOOL_EXISTS')
+check("a new school needs the sender's own photo", err(suggest, ns_uid, path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+sg = suggest(ns_uid)
+check('a new school waits for a moderator', sg['status'] == 'pending'
+      and not q("select 1 from public.schools where name = 'Gopalpur New Primary School'"), sg)
+check('non-moderators cannot see or approve new schools',
+      err(rpc, 'kasa_admin_school_suggestion_queue', uid=user()) == 'KASA_NOT_ADMIN'
+      and err(rpc, 'kasa_admin_moderate_school_suggestion', uid=user(), p_id=str(sg['id']), p_action='approve', p_udise_code='19210199977') == 'KASA_NOT_ADMIN')
+sq = rpc('kasa_admin_school_suggestion_queue', uid=mod)
+check('moderators see the photo and schools already listed nearby',
+      any(x['id'] == sg['id'] and x['photo_url'] and isinstance(x['nearby'], list) for x in sq), sq)
+check('approving needs a UDISE code', err(rpc, 'kasa_admin_moderate_school_suggestion', uid=mod, p_id=str(sg['id']), p_action='approve') == 'KASA_BAD_INPUT')
+check('approving with a code already listed is refused',
+      err(rpc, 'kasa_admin_moderate_school_suggestion', uid=mod, p_id=str(sg['id']), p_action='approve', p_udise_code='19210199902') == 'KASA_SCHOOL_EXISTS')
+rpc('kasa_admin_moderate_school_suggestion', uid=mod, p_id=str(sg['id']), p_action='approve', p_udise_code='19210199977')
+row = q("select row_to_json(s) from public.schools s where udise_code = '19210199977'")
+check('an approved school joins the list, placed where the resident stood',
+      row and row[0][0]['name'] == 'Gopalpur New Primary School' and row[0][0]['lat'] is None
+      and row[0][0]['seen_lat'] is not None and row[0][0]['added_by_residents'] is True, row)
+used_sg = admin_sql('select photo_path from kasa_private.school_suggestions where id = %s', (sg['id'],))[0][0]
+check("a new school's photo cannot be reused", err(suggest, ns_uid, path=used_sg) == 'KASA_PHOTO_REUSED')
+sg2 = suggest(ns_uid, name='Some other school')
+rpc('kasa_admin_moderate_school_suggestion', uid=mod, p_id=str(sg2['id']), p_action='reject')
+check('a rejected school stays off the list', not q("select 1 from public.schools where name = 'Some other school'"))
+
 # Nearby schools: official locations, and locations learned from approved checks.
 nb = rpc('kasa_nearby_schools', p_lat=sc_where[0], p_lng=sc_where[1])
 codes = {x['udise_code']: x for x in nb['near']}

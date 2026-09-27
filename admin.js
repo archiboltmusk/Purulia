@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -883,6 +883,41 @@ async function loadReportCards(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_report_card', { p_id: b.dataset.card, p_action: b.dataset.cardAct });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadReportCards();
+  }));
+}
+
+async function loadSchoolSuggestions(){
+  const el = document.getElementById('adSchoolSuggestions');
+  const { data, error } = await sb.rpc('kasa_admin_school_suggestion_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Photo</th><th>School</th><th>Already listed nearby</th><th>UDISE code</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(g => `<tr>
+          <td><a href="${esc(g.photo_url)}" target="_blank" rel="noopener"><img src="${esc(g.photo_url)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:4px;"></a></td>
+          <td><input class="ad-input" data-sg-name="${esc(g.id)}" value="${esc(g.name)}" style="width:100%;"><br>
+            <small>${esc([g.village, g.block_name].filter(Boolean).join(', '))} · <a href="https://www.openstreetmap.org/?mlat=${g.lat}&mlon=${g.lng}#map=18/${g.lat}/${g.lng}" target="_blank" rel="noopener">map (±${Math.round(g.accuracy || 0)} m)</a> · sent ${esc(new Date(g.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${g.nearby.length ? g.nearby.map(s => `${esc(s.name)} <small>${esc(s.udise_code)}</small>`).join('<br>') : '—'}</td>
+          <td><input class="ad-input" data-sg-code="${esc(g.id)}" value="${esc(g.udise_hint || '')}" inputmode="numeric" maxlength="11" placeholder="11 digits" style="width:9em;">
+            <br><a href="https://kys.udiseplus.gov.in/" target="_blank" rel="noopener"><small>Find on Know Your School</small></a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-sg="${esc(g.id)}" data-sg-act="approve">✓ Add to the list</button>
+            <button class="ad-bad" data-sg="${esc(g.id)}" data-sg-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-sg]').forEach(b => b.addEventListener('click', async () => {
+    const id = b.dataset.sg, approve = b.dataset.sgAct === 'approve';
+    const code = el.querySelector(`[data-sg-code="${id}"]`).value.trim();
+    if (approve && !/^\d{11}$/.test(code)){ alert('Enter the 11-digit UDISE code first.'); return; }
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_moderate_school_suggestion', {
+      p_id: id, p_action: b.dataset.sgAct, p_udise_code: approve ? code : null,
+      p_name: approve ? el.querySelector(`[data-sg-name="${id}"]`).value : null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadSchoolSuggestions();
   }));
 }
 

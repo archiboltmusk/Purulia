@@ -18,6 +18,10 @@ async function stubSchools(page, seen = {}){
     seen.card = route.request().postDataJSON();
     return json(route, { id: 'c1', status: 'pending' });
   });
+  await page.route('**/rest/v1/rpc/kasa_suggest_school', route => {
+    seen.suggest = route.request().postDataJSON();
+    return json(route, { id: 's1', status: 'pending' });
+  });
   return seen;
 }
 
@@ -72,4 +76,27 @@ test('a photo of a problem found in a school check goes on the report map', asyn
   expect(report.p_description).toContain('19141300203');
   expect(seen.check.p_toilets_ok).toBe(false);
   expect(seen.check.p_girls_toilet_ok).toBe(null);
+});
+
+test('a school missing from the list is sent with a gate photo for checking', async ({ page, backend }) => {
+  const seen = await stubSchools(page);
+  await page.goto('kasa.html?school=19141300203');
+  await expect(page.locator('#k-sc-picked')).toContainText('ACHKODA PRY.');
+  await page.locator('#k-sc-missing').click();
+  await expect(page.locator('#k-ns-modal')).toHaveAttribute('aria-hidden', 'false');
+  const submit = page.locator('#k-ns-submit');
+  await page.locator('#k-ns-name').fill('Gopalpur New Primary School');
+  await page.locator('#k-ns-block').selectOption('NETURIA');
+  await expect(submit).toBeDisabled();
+  await page.locator('#k-ns-cam-btn').click();
+  await shoot(page);
+  await page.locator('#k-ns-udise').fill('123');
+  await expect(submit).toBeDisabled();
+  await page.locator('#k-ns-udise').fill('');
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  await expect.poll(() => seen.suggest)
+    .toMatchObject({ p_name: 'Gopalpur New Primary School', p_block: 'NETURIA', p_udise_hint: null });
+  expect(seen.suggest.p_photo_path).toMatch(/^reports\//);
+  expect(typeof seen.suggest.p_lat).toBe('number');
 });
