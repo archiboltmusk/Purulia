@@ -49,8 +49,20 @@ grant select on public.kasa_public_reports to anon, authenticated;
 notify pgrst, 'reload schema';
 
 -- Update kasa_create_report function to accept and store boundary_type parameter
--- PostgreSQL allows CREATE OR REPLACE when adding a parameter with a default value
-create or replace function public.kasa_create_report(
+-- Drop both old and new versions for idempotency
+do $$
+begin
+  drop function if exists public.kasa_create_report(
+    text, text, double precision, double precision, double precision, integer,
+    text, text, text, text);
+  drop function if exists public.kasa_create_report(
+    text, text, double precision, double precision, double precision, integer,
+    text, text, text, text, text);
+exception when others then
+  null;
+end $$;
+
+create function public.kasa_create_report(
   p_category text, p_severity text, p_lat double precision, p_lng double precision,
   p_accuracy double precision, p_ward_no integer, p_description text, p_landmark text,
   p_photo_path text, p_client_id text default null, p_boundary_type text default null)
