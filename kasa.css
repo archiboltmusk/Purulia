@@ -511,11 +511,7 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-act-again{background:var(--amber);color:var(--ink);}
 .k-foot-actions:has(> :only-child){grid-template-columns:1fr;}
 
-/* QR + representative profile */
-.k-qr-sheet{text-align:center;}
-.k-qr-wrap{display:flex;justify-content:center;padding:1.4rem 0;min-height:240px;}
-.k-qr-wrap canvas{border-radius:4px;padding:.6rem;background:var(--cream);}
-.k-qr-url{font-family:var(--mono);font-size:11px;color:var(--text-lo);word-break:break-all;}
+/* Representative profile */
 .k-rep-header{display:flex;align-items:center;gap:1.1rem;margin-bottom:1.4rem;padding-bottom:1.4rem;border-bottom:1px solid var(--border);}
 .k-rep-avatar{width:3.8rem;height:3.8rem;border-radius:50%;background:rgba(212,136,42,.08);border:1px solid var(--border2);display:flex;align-items:center;justify-content:center;font-family:var(--serif);font-size:1.1rem;font-weight:700;color:var(--amber);flex-shrink:0;}
 .k-rep-name{font-family:var(--serif);font-size:1.35rem;font-weight:700;line-height:1.2;}
@@ -550,7 +546,6 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-cam-shutter:active{transform:scale(.92);}
 .k-cam-shutter:disabled{opacity:.35;}
 .k-ev-fallback{display:block;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;color:var(--amber);text-decoration:underline;cursor:pointer;}
-
 
 /* ── Recently fixed ── */
 .k-fixed-list{max-width:1080px;margin:2rem auto 0;padding:0 1.6rem;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:1rem;}
@@ -639,8 +634,8 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 
 .k-filter-toggle{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text-hi);flex-shrink:0;transition:all .15s;}
 .k-filter-toggle[aria-expanded="true"]{border-color:var(--amber);color:var(--amber);}
-.k-nearby-btn,.k-heat-btn{padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;transition:all .15s;}
-.k-nearby-btn:hover,.k-nearby-btn[aria-pressed="true"],.k-heat-btn:hover,.k-heat-btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
+.k-nearby-btn{padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;transition:all .15s;}
+.k-nearby-btn:hover,.k-nearby-btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
 .k-filter-count{background:var(--amber);color:var(--ink);border-radius:9px;padding:0 .4rem;font-size:10px;line-height:1.5;}
 .k-map-topbar .k-filter-bar{display:none;}
 .k-map-topbar.k-filters-open .k-filter-bar{display:flex;}
@@ -662,12 +657,7 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 .k-wordmark-text{letter-spacing:-.01em;}
 .k-drawer-banner{padding:1rem 1.2rem;background:rgba(212,136,42,.05);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem;font-size:.95rem;color:var(--text-hi);}
 .k-drawer-banner span:first-child{font-size:1.3rem;flex-shrink:0;}
-.k-drawer-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:1.2rem;border-bottom:1px solid var(--border);}
-.k-stat-pill{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.6rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;}
-.k-stat-urgent .k-stat-num{color:#e85244;}
-.k-stat-success .k-stat-num{color:#6db88a;}
-.k-stat-num{font-family:var(--mono);font-size:1.2rem;font-weight:500;color:var(--amber);}
-.k-stat-text{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-lo);}
+
 .k-drawer-main{display:flex;flex-direction:column;padding:1.2rem;gap:.8rem;border-bottom:1px solid var(--border);}
 .k-drawer-item{display:flex;align-items:flex-start;gap:.9rem;padding:.9rem 1rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;font-family:inherit;font-size:.95rem;color:var(--cream);text-align:left;}
 .k-drawer-item:hover{border-color:var(--amber);background:rgba(212,136,42,.08);}
@@ -758,9 +748,6 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 @media(max-width:640px){.k-map-pill{bottom:5.6rem;left:50%;transform:translateX(-50%);white-space:nowrap;}}
 
 /* Small round buttons for the other parts of Parishkar (schools, adopted spots, numbers). */
-.k-quick{position:absolute;left:.9rem;bottom:1.4rem;z-index:5;display:flex;flex-direction:column;gap:.45rem;}
-.k-quick-btn{width:44px;height:44px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;background:rgba(10,8,5,.94);border:1px solid var(--border2);border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.35);}
-.k-quick-btn:hover{border-color:var(--amber);}
 @media(min-width:641px){.k-map-pill{left:4.4rem;bottom:1.4rem;}}
 
 /* "Join N people" line at the top of the map. */
@@ -779,8 +766,6 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-switch{display:none;}
 /* "Near me" narrows the list; on the map the ⌖ button already centres on you. */
 .k-map-section:has(#k-list[hidden]) .k-nearby-btn{display:none;}
-/* Heatmap is a map-only view, the mirror of "Near me": shown on the map, hidden once the list is open. */
-.k-map-section:has(#k-list:not([hidden])) .k-heat-btn{display:none;}
 /* In the menu: no second "Report" pitch and no ticker — the big button on the map is enough. */
 .k-drawer .k-hero-title,.k-drawer .k-hero-sub,.k-drawer .k-hero-cta,.k-drawer .k-ticker{display:none;}
 .k-drawer .k-hero{padding-top:.4rem;padding-bottom:.8rem;}
@@ -799,10 +784,10 @@ body[data-app-layout] .k-nav{display:none;}
 .k-map-section:has(#k-list:not([hidden])) .k-map-pill{display:none;}
 .k-map-legend{display:flex;left:.9rem;bottom:1.4rem;flex-wrap:wrap;}
 @media(max-width:640px){.k-map-legend{display:flex;bottom:5.6rem;right:auto;max-width:calc(100% - 1.8rem);gap:.35rem .7rem;font-size:9.5px;}}
-.k-quick{left:auto;right:.9rem;top:4.4rem;bottom:auto;}
+
 .k-join{top:4.4rem;}
 @media(max-width:640px){.k-join{top:auto;bottom:8.6rem;}}
-.k-map-section:has(#k-list:not([hidden])) :is(.k-quick,.k-map-legend,.k-join){display:none;}
+.k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend,.k-join){display:none;}
 
 /* "The school is here": drag the map under a fixed pin. */
 .k-sf-mapwrap{position:relative;margin-top:.9rem;height:240px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);}

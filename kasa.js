@@ -172,7 +172,6 @@ const state = {
   blockGeo: null,
   filters: { category: '', status: '', severity: '', ward: null },
   nearbyOnly: false,
-  heatmap: false,
   userLocation: null,
   view: 'map',
   sort: 'urgent',
@@ -1010,16 +1009,6 @@ function initMainMapNow(){
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
-      // Density view: same source, no clustering needed since heatmap blends points itself.
-      // A critical report weighs more than a minor one, so the worst streets glow brightest.
-      mainMap.addLayer({ id: 'reports-heat', type: 'heatmap', source: 'reports', layout: { visibility: 'none' }, paint: {
-        'heatmap-weight': ['match', ['get', 'severity'], 'critical', 1, 'severe', .6, .3],
-        'heatmap-intensity': ['interpolate', ['linear'], ['zoom'], 10, 1.4, 16, 3],
-        'heatmap-radius': ['interpolate', ['linear'], ['zoom'], 10, 22, 16, 42],
-        'heatmap-opacity': .9,
-        'heatmap-color': ['interpolate', ['linear'], ['heatmap-density'],
-          0, 'rgba(10,8,5,0)', .1, '#7a3f16', .3, '#d4882a', .55, '#e88a4a', .8, '#e8524a', 1, '#ff2e1a']
-      }});
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
         'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
@@ -1113,16 +1102,6 @@ function renderWardCard(){
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
   el.hidden = false;
-}
-
-function setHeatmap(on){
-  state.heatmap = on;
-  document.getElementById('k-heat-btn').setAttribute('aria-pressed', String(on));
-  if (!mainMap || !mainMap.getLayer('reports-heat')) return;
-  mainMap.setLayoutProperty('reports-heat', 'visibility', on ? 'visible' : 'none');
-  for (const layer of ['clusters', 'cluster-count', 'report-halo', 'report-points']){
-    mainMap.setLayoutProperty(layer, 'visibility', on ? 'none' : 'visible');
-  }
 }
 
 function setView(view){
@@ -3154,7 +3133,7 @@ function setupOfflineDetection(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   STATIC SECTIONS — chains, representatives, QR
+   STATIC SECTIONS — chains, representatives
    ══════════════════════════════════════════════════════════ */
 function renderChainSection(){
   const tabs = document.getElementById('k-chain-tabs');
@@ -3215,25 +3194,6 @@ function openRepProfile(key){
     ${worst.length ? worst.map(([w, n]) => `<div class="k-rep-worst-item"><span>${esc(t('acc_ward', { n: w }))} · ${esc(state.wards[w]?.councillor_name || '—')}</span><span class="k-rep-worst-count">${n}</span></div>`).join('')
       : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`;
   openModal('k-rep-modal');
-}
-
-async function openQR(){
-  const wrap = document.getElementById('k-qr-wrap');
-  document.getElementById('k-qr-url').textContent = PAGE_URL;
-  openModal('k-qr-modal');
-  if (!window.QRCode){
-    await new Promise(resolve => {
-      const s = document.createElement('script');
-      s.src = 'https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js';
-      s.onload = s.onerror = resolve;
-      document.head.appendChild(s);
-    });
-  }
-  wrap.innerHTML = '';
-  if (!window.QRCode){ wrap.textContent = PAGE_URL; return; }
-  const canvas = document.createElement('canvas');
-  wrap.appendChild(canvas);
-  window.QRCode.toCanvas(canvas, PAGE_URL, { width: 220, margin: 1, color: { dark: '#0a0805', light: '#f0e6d0' } });
 }
 
 function populateCategoryFilter(){
@@ -3572,7 +3532,6 @@ function wireUI(){
       renderAll();
     }, () => showToast(t('nearby_permission')), { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
   });
-  document.getElementById('k-heat-btn').addEventListener('click', () => setHeatmap(!state.heatmap));
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
@@ -3631,7 +3590,6 @@ function wireUI(){
       openLightbox([img.currentSrc || img.src], 0, img.alt);
     }
   });
-  document.getElementById('k-qr-btn').addEventListener('click', openQR);
 
   document.addEventListener('keydown', e => {
     const box = document.getElementById('k-lightbox');
@@ -3677,7 +3635,6 @@ async function locateOnOpen(){
 const TIPS = [
   { key: 'tip_lang_menu', target: () => visible('#k-fab-menu'), when: () => state.lang === 'en' },
   { key: 'tip_report', target: () => visible('.k-map-report-btn') },
-  { key: 'tip_quick', target: () => visible('#k-quick') },
 ];
 function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
 function startTips(){
