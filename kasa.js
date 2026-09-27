@@ -509,6 +509,15 @@ function detectWard(lat, lng){
   return n ? parseInt(String(n).replace(/\D/g, ''), 10) : null;
 }
 
+/* Detects whether a location falls under Municipality (town) or Gram Panchayat (rural/edge).
+   Uses placeOf to determine location type, then maps to administrative boundary. */
+function detectBoundary(lat, lng){
+  const place = placeOf(lat, lng);
+  if (place.kind === 'town') return 'municipality';
+  if (place.kind === 'edge' || place.kind === 'rural') return 'gram_panchayat';
+  return null; // outside district
+}
+
 /* ══════════════════════════════════════════════════════════
    API — v2 (server-enforced rules) with a legacy fallback
    ══════════════════════════════════════════════════════════ */
@@ -673,7 +682,7 @@ const api = {
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
-      p_photo_path: path, p_client_id: d.clientId
+      p_photo_path: path, p_client_id: d.clientId, p_boundary_type: d.boundary_type
     });
     if (error) throw rpcError(error);
     if (!data.replayed && d.extraPhotos?.length) await api.addPhotos(String(data.id), d);
@@ -2959,6 +2968,7 @@ async function submitReport(){
   const kind = draft.place?.kind;
   draft.area = kind === 'rural' || (kind === 'edge' && !draft.ward) ? 'rural' : 'town';
   draft.block = draft.place?.block || null;
+  draft.boundary_type = detectBoundary(draft.lat, draft.lng);
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
   btn.textContent = t('step3_uploading');
