@@ -11,160 +11,24 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="digest-sheet.css">
 <style>
-.sub-wrap{max-width:800px;margin:0 auto;padding:4rem clamp(1.2rem,4vw,3rem);}
-.sub-head{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--cream);margin-bottom:1rem;letter-spacing:-.02em;}
-.sub-intro{font-size:1.05rem;color:var(--text-hi);line-height:1.7;margin-bottom:2.4rem;max-width:600px;}
-.sub-card{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:8px;padding:2rem;margin-bottom:2rem;}
-.sub-card h3{font-family:var(--serif);font-size:1.3rem;color:var(--cream);margin-bottom:.8rem;font-weight:600;}
-.sub-card p{color:var(--text-md);line-height:1.6;margin-bottom:.6rem;font-size:.95rem;}
-.sub-list{list-style:none;padding:0;margin:1.2rem 0;}
-.sub-list li{color:var(--text-md);padding-left:1.8rem;position:relative;margin-bottom:.6rem;line-height:1.6;}
-.sub-list li::before{content:'✓';position:absolute;left:0;color:var(--amber);font-weight:700;}
-.sub-form-group{margin-bottom:1.4rem;}
-.sub-label{font-family:var(--mono);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-lo);display:block;margin-bottom:.6rem;}
-.sub-input{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;border-radius:4px;outline:none;}
-.sub-input:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(212,136,42,.1);}
-.sub-input::placeholder{color:var(--text-lo);}
-.sub-btn{width:100%;padding:1rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;border:none;border-radius:4px;cursor:pointer;transition:all .2s;font-weight:500;}
-.sub-btn:hover{background:var(--amber2);transform:translateY(-1px);}
-.sub-btn:active{transform:translateY(0);}
-.sub-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.sub-message{padding:1rem;border-radius:4px;margin-top:1rem;font-size:.9rem;display:none;}
-.sub-message.success{display:block;background:rgba(109,184,138,.1);border:1px solid rgba(109,184,138,.3);color:var(--green);}
-.sub-message.error{display:block;background:rgba(232,82,74,.1);border:1px solid rgba(232,82,74,.3);color:var(--red);}
-.sub-stats{display:grid;grid-template-columns:1fr 1fr;gap:1rem;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);}
-.sub-stat{text-align:center;padding:1.4rem;}
-.sub-stat-num{font-family:var(--serif);font-size:2.4rem;font-weight:700;color:var(--amber);line-height:1;}
-.sub-stat-label{font-family:var(--mono);font-size:.8rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);margin-top:.6rem;}
-.sub-footer{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);color:var(--text-lo);font-size:.85rem;line-height:1.7;}
+.sub-wrap{max-width:600px;margin:0 auto;padding:3rem 16px 4rem;}
+.sub-back{display:inline-block;margin-bottom:1.4rem;font-family:var(--mono);font-size:12px;letter-spacing:.1em;color:var(--amber);}
+.sub-footer{margin-top:2.4rem;color:var(--text-lo);font-size:.9rem;line-height:1.7;text-align:center;}
 .sub-footer a{color:var(--amber);}
 </style>
 </head>
 <body>
 <div class="sub-wrap">
-  <h1 class="sub-head">Weekly Civic Digest</h1>
-  <p class="sub-intro">Every Monday morning, get an analysis of Purulia's civic reports: what's being reported, what's stuck, and what patterns matter.</p>
-
-  <div class="sub-card">
-    <h3>What you'll get</h3>
-    <ul class="sub-list">
-      <li><strong>Problem clusters:</strong> Multiple reports of the same issue in one area</li>
-      <li><strong>Overdue alerts:</strong> Reports waiting too long for fixes</li>
-      <li><strong>Recurring issues:</strong> The same problem at the same spot, again</li>
-      <li><strong>Department performance:</strong> Who's keeping up and who's falling behind</li>
-    </ul>
-  </div>
-
-  <form id="subForm" class="sub-card" style="padding:0;">
-    <div style="padding:2rem;">
-      <h3>Subscribe</h3>
-      <div class="sub-form-group">
-        <label class="sub-label" for="subEmail">Email address</label>
-        <input
-          type="email"
-          id="subEmail"
-          class="sub-input"
-          placeholder="your@email.com"
-          required
-          autocomplete="email"
-        >
-      </div>
-      <button type="submit" class="sub-btn">Get Weekly Digest</button>
-      <div id="subMessage" class="sub-message"></div>
-    </div>
-  </form>
-
-  <div class="sub-card">
-    <p style="color:var(--text-lo);margin:0;">
-      Every email includes an unsubscribe link. We won't share your email with anyone.
-      <a href="/privacy.html">Privacy policy</a> •
-      <a href="/terms.html">Terms</a>
-    </p>
-  </div>
-
-  <div class="sub-stats">
-    <div class="sub-stat">
-      <div class="sub-stat-num" id="subscriberCount">—</div>
-      <div class="sub-stat-label">People subscribed</div>
-    </div>
-    <div class="sub-stat">
-      <div class="sub-stat-num" id="reportsCount">—</div>
-      <div class="sub-stat-label">Reports this week</div>
-    </div>
-  </div>
-
+  <a class="sub-back" href="kasa.html">← Parishkar Purulia</a>
+  <div id="dgs-root"><noscript><p style="padding:1.4rem">Turn on JavaScript to subscribe.</p></noscript></div>
   <div class="sub-footer">
-    <p><strong>Parishkar Purulia</strong> is a civic reporting tool. Residents report problems (garbage, roads, streetlights, water, illegal activity) with photos and location. Fixes are marked only when neighbors confirm them on the spot.</p>
-    <p>View the map: <a href="/kasa.html">kasa.html</a> • Analytics: <a href="/analytics.html">analytics.html</a> • <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a></p>
+    <p>We won't share your email with anyone. <a href="privacy.html">Privacy policy</a> · <a href="terms.html">Terms</a></p>
+    <p><a href="digest.html">See this week's digest</a> · <a href="kasa.html">Open the map</a> · <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a></p>
   </div>
 </div>
-
 <script src="config.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script>
-const SUPABASE_URL = window.KASA_CONFIG?.SUPABASE_URL || '';
-const SUPABASE_ANON_KEY = window.KASA_CONFIG?.SUPABASE_ANON_KEY || '';
-
-// Initialize Supabase
-const { createClient } = window.supabase || {};
-if (!createClient) {
-  console.error('Supabase JS client not loaded');
-  document.getElementById('subForm').style.display = 'none';
-} else {
-  const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
-  // Load subscriber count
-  async function loadStats() {
-    try {
-      const { data: count, error } = await supabase.rpc('kasa_digest_subscriber_count');
-      if (!error && count !== null) {
-        document.getElementById('subscriberCount').textContent = count.toLocaleString();
-      }
-    } catch (e) {
-      console.error('Error loading subscriber count:', e);
-    }
-  }
-
-  // Handle form submission
-  document.getElementById('subForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    const email = document.getElementById('subEmail').value;
-    const btn = e.target.querySelector('button');
-    const msg = document.getElementById('subMessage');
-
-    btn.disabled = true;
-    msg.className = 'sub-message';
-    msg.textContent = 'Subscribing...';
-
-    try {
-      const { data, error } = await supabase.rpc('kasa_digest_subscribe', { p_email: email });
-
-      if (error) {
-        msg.className = 'sub-message error';
-        msg.textContent = 'Error: ' + (error.message || 'Could not subscribe');
-      } else if (data?.success) {
-        msg.className = 'sub-message success';
-        msg.textContent = '✓ Subscribed! Check your email for confirmation.';
-        document.getElementById('subEmail').value = '';
-        document.getElementById('subscriberCount').textContent = data.total_subscribers || '—';
-      } else {
-        msg.className = 'sub-message error';
-        msg.textContent = data?.message || 'Could not subscribe';
-      }
-    } catch (e) {
-      msg.className = 'sub-message error';
-      msg.textContent = 'Error: ' + e.message;
-    } finally {
-      btn.disabled = false;
-    }
-  });
-
-  // Load stats on page load
-  loadStats();
-  // Reload stats every 30 seconds
-  setInterval(loadStats, 30000);
-}
-</script>
+<script defer src="digest-sheet.js" data-inline="#dgs-root"></script>
 </body>
 </html>
