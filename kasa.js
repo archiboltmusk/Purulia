@@ -2284,7 +2284,7 @@ function cameraSupported(){
 function showCameraState(s){
   document.getElementById('k-cam-video').hidden = s !== 'live';
   document.getElementById('k-cam-still').hidden = s !== 'still';
-  document.getElementById('k-cam-crop').hidden = s !== 'live';
+  document.getElementById('k-cam-check').hidden = true;
   document.getElementById('k-cam-shutter').hidden = s !== 'live';
   document.getElementById('k-cam-retake').hidden = s !== 'still';
   document.getElementById('k-cam-use').hidden = s !== 'still';
@@ -2404,6 +2404,7 @@ async function takeCameraShot(){
   canvas.width = Math.round(sw * scale);
   canvas.height = Math.round(sh * scale);
   canvas.getContext('2d').drawImage(video, sx, sy, sw, sh, 0, 0, canvas.width, canvas.height);
+  const problem = photoProblem(canvas);
   try {
     camera.blob = await new Promise((resolve, reject) =>
       canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.85));
@@ -2415,6 +2416,42 @@ async function takeCameraShot(){
   if (still.src) URL.revokeObjectURL(still.src);
   still.src = URL.createObjectURL(camera.blob);
   showCameraState('still');
+  if (problem){
+    const check = document.getElementById('k-cam-check');
+    check.textContent = t(problem === 'dark' ? 'cam_too_dark' : 'cam_blurry');
+    check.hidden = false;
+  }
+}
+
+/* A warning only, never a block: 'dark' when the average brightness is very low,
+   'blurry' when there's almost no edge detail (variance of a Laplacian on a small
+   grey copy). Thresholds are deliberately loose so a plain wall or a night shot with
+   some light doesn't trip them. */
+function photoProblem(src){
+  const N = 128;
+  const c = document.createElement('canvas');
+  c.width = N; c.height = N;
+  const ctx = c.getContext('2d', { willReadFrequently: true });
+  let px;
+  try { ctx.drawImage(src, 0, 0, N, N); px = ctx.getImageData(0, 0, N, N).data; }
+  catch (e) { return null; }
+  const g = new Float32Array(N * N);
+  let sum = 0;
+  for (let i = 0; i < N * N; i++){
+    g[i] = 0.299 * px[i * 4] + 0.587 * px[i * 4 + 1] + 0.114 * px[i * 4 + 2];
+    sum += g[i];
+  }
+  if (sum / (N * N) < 40) return 'dark';
+  let n = 0, m = 0, m2 = 0;
+  for (let y = 1; y < N - 1; y++){
+    for (let x = 1; x < N - 1; x++){
+      const i = y * N + x;
+      const l = g[i - 1] + g[i + 1] + g[i - N] + g[i + N] - 4 * g[i];
+      n++; m += l; m2 += l * l;
+    }
+  }
+  const variance = m2 / n - (m / n) * (m / n);
+  return variance < 25 ? 'blurry' : null;
 }
 
 function updateEvidenceSubmit(){

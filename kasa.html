@@ -632,17 +632,23 @@
 <!-- Live camera for evidence photos: no gallery, no editing step -->
 <div class="k-cam" id="k-cam" hidden role="dialog" aria-modal="true" aria-labelledby="k-cam-title">
   <div class="k-cam-top">
-    <span id="k-cam-title" data-i18n="cam_title">Take the photo</span>
+    <div class="k-cam-head">
+      <span id="k-cam-title" data-i18n="cam_title">Take the photo</span>
+      <span class="k-cam-hint" data-i18n="cam_hint">Show the whole problem, and something nearby (a shop, road or landmark) so it can be found.</span>
+    </div>
     <button type="button" class="k-cam-close" id="k-cam-close" aria-label="Close">✕</button>
   </div>
-  <div class="k-cam-stage">
-    <video id="k-cam-video" playsinline muted autoplay></video>
-    <img id="k-cam-still" alt="" hidden>
-    <div class="k-cam-crop" id="k-cam-crop" aria-hidden="true"><i></i><b></b><i></i></div>
-    <div class="k-cam-msg" id="k-cam-msg"></div>
+  <div class="k-cam-body">
+    <!-- Square frame: exactly what gets saved (the shot is a centred square). -->
+    <div class="k-cam-stage">
+      <video id="k-cam-video" playsinline muted autoplay></video>
+      <img id="k-cam-still" alt="" hidden>
+      <div class="k-cam-msg" id="k-cam-msg"></div>
+      <div class="k-cam-check" id="k-cam-check" role="status" hidden></div>
+    </div>
     <div class="k-cam-tools" id="k-cam-tools" hidden>
-      <button type="button" class="k-cam-flash" id="k-cam-flash" aria-pressed="false" hidden aria-label="Flash">⚡</button>
       <div class="k-cam-zoom" id="k-cam-zoom" role="group" aria-label="Zoom"></div>
+      <button type="button" class="k-cam-flash" id="k-cam-flash" aria-pressed="false" hidden aria-label="Flash">⚡</button>
     </div>
   </div>
   <div class="k-cam-bar">
