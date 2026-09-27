@@ -3422,6 +3422,16 @@ function wireUI(){
   document.getElementById('k-drawer-close').addEventListener('click', () => setDrawer(false));
   document.getElementById('k-fab-menu').addEventListener('click', () => setDrawer(true));
   document.getElementById('k-drawer-backdrop').addEventListener('click', () => setDrawer(false));
+  const drawerToggle = document.getElementById('k-drawer-toggle-more');
+  if (drawerToggle) {
+    const moreList = document.querySelector('.k-drawer-more-list');
+    drawerToggle.addEventListener('click', () => {
+      const isExpanded = moreList.hasAttribute('hidden');
+      if (isExpanded) moreList.removeAttribute('hidden');
+      else moreList.setAttribute('hidden', '');
+      drawerToggle.setAttribute('aria-expanded', String(isExpanded));
+    });
+  }
   document.getElementById('k-theme-toggle').addEventListener('click', toggleTheme);
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');
