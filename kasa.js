@@ -1705,7 +1705,7 @@ li{margin:6px 0;}
 </style></head><body>
 
 <div class="banner">
-<strong>This is a filled draft, not a submitted application.</strong> Fill in your name and address below (RTI legally requires a named, addressed applicant — the report itself stays anonymous; this is a separate document you choose to file). Attach the ₹10 fee (postal order/court fee stamp/online, per the office's process; fee-exempt if you hold a BPL card). Confirm you have the correct Public Information Officer for the office named below before sending — this line is generated from the report's category, not verified against a live PIO directory. Then post or hand-deliver it, or use the office's own RTI portal if it has one.
+<strong>This is a filled draft, not a submitted application.</strong> Fill in your name and address below (RTI legally requires a named, addressed applicant — the report itself stays anonymous; this is a separate document you choose to file). Attach the ₹10 fee (postal order/court fee stamp, per the office's process; fee-exempt if you hold a BPL card). <strong>For Purulia Municipality: file this offline (by post or in person) to the Purulia Municipality office, not through any state or online portal.</strong> Confirm you have the correct Public Information Officer for the office named below before sending — this line is generated from the report's category, not verified against a live PIO directory.
 </div>
 
 <h1>APPLICATION UNDER THE RIGHT TO INFORMATION ACT, 2005</h1>
