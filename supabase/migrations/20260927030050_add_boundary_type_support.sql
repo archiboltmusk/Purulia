@@ -1,13 +1,46 @@
--- Update kasa_create_report function to support boundary_type parameter
--- Split into separate migration to isolate function update from schema changes
+-- Add boundary_type support: index, view update, function signature
+-- Consolidates view and function updates to ensure proper ordering
 
 begin;
 
--- Drop both old (10-param) and new (11-param) versions of the function for idempotency
--- This ensures the migration can run multiple times without errors
+-- Create index for boundary-based queries
+create index if not exists kasa_reports_boundary_type_idx on public.reports (boundary_type);
+
+-- Update public view to include boundary_type
+create or replace view public.kasa_public_reports as
+select r.id,
+       date_trunc('hour', r.created_at) as created_at,
+       r.lat, r.lng, r.ward_no, r.category, r.severity, r.status, r.description, r.landmark, r.photo_url,
+       coalesce(r.upvotes, 0) as upvotes, r.seen_on_site, coalesce(r.flags, 0) as flags, r.moderation_status,
+       coalesce(r.is_duplicate, false) as is_duplicate, r.parent_report_id, r.recurrence_count, r.rejected_claims,
+       date_trunc('hour', r.resolved_at) as resolved_at,
+       r.resolved_photo_url, r.resolution_method, coalesce(r.sla_days, 7) as sla_days,
+       (r.accuracy_m is not null) as gps_verified,
+       c.id as claim_id, c.photo_url as claim_photo_url,
+       date_trunc('hour', c.created_at) as claim_created_at,
+       c.verify_count as claim_verify_count, c.dispute_count as claim_dispute_count,
+       date_trunc('hour', c.quorum_reached_at) as claim_quorum_reached_at,
+       date_trunc('hour', c.final_after + interval '59 minutes 59 seconds') as claim_finalize_after,
+       round(c.distance_m::numeric) as claim_distance_m,
+       r.rating_count, r.onsite_rating_count, r.authenticity_avg, r.severity_avg, r.neighbour_status, r.reply_count,
+       c.needs_review as claim_needs_review,
+       r.area_kind, r.block_name,
+       (select (s.value #>> '{}')::integer from kasa_private.settings s
+        where s.key = case when r.area_kind = 'rural' then 'rural_verify_quorum' else 'verify_quorum' end) as verify_needed,
+       date_trunc('hour', c.reviewed_at) as claim_reviewed_at,
+       r.boundary_type
+from public.reports r
+left join kasa_private.claims c on c.id = r.claim_id
+where r.moderation_status in ('approved', 'flagged');
+
+revoke all on public.kasa_public_reports from public, anon, authenticated;
+grant select on public.kasa_public_reports to anon, authenticated;
+
+notify pgrst, 'reload schema';
+
+-- Drop both old function signatures for idempotency
 do $$
 begin
-  -- Drop 10-parameter version (the version from previous migrations)
   drop function if exists public.kasa_create_report(
     text, text, double precision, double precision, double precision, integer,
     text, text, text, text);
@@ -17,7 +50,6 @@ end $$;
 
 do $$
 begin
-  -- Drop 11-parameter version (in case this migration has run before)
   drop function if exists public.kasa_create_report(
     text, text, double precision, double precision, double precision, integer,
     text, text, text, text, text);
@@ -25,7 +57,7 @@ exception when others then
   null;
 end $$;
 
--- Create the new 11-parameter version of kasa_create_report
+-- Create the new function with boundary_type support
 create function public.kasa_create_report(
   p_category text, p_severity text, p_lat double precision, p_lng double precision,
   p_accuracy double precision, p_ward_no integer, p_description text, p_landmark text,
