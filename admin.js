@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -823,6 +823,32 @@ async function loadDemands(){
   el.querySelectorAll('[data-dem-down]').forEach(b => b.addEventListener('click', () => {
     if (confirm('Take this demand off the noticeboard?')) run('kasa_admin_demand_edit', { p_id: b.dataset.demDown, p_take_down: true });
   }));
+}
+
+async function loadBugs(){
+  const el = document.getElementById('adBugs');
+  const { data, error } = await sb.rpc('kasa_admin_bugs');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const bugs = data || [];
+  const dev = (d) => Object.entries(d || {}).map(([k, v]) => `${esc(k)}: ${esc(v)}`).join(' · ');
+  el.innerHTML = `
+    <h3 class="ad-note" style="margin-top:0;"><strong>Open (${bugs.length})</strong></h3>
+    ${bugs.length ? `<table class="ad-table"><thead><tr><th>When and where</th><th>What went wrong</th><th></th></tr></thead><tbody>
+      ${bugs.map(b => `<tr><td><small>${esc(new Date(b.created_at).toLocaleString())}</small><br>${b.page_url ? extLink(b.page_url, b.page_url.replace(/^https?:\/\/[^/]+\//, '/')) : ''}
+          ${b.email ? `<br><small>Reply to: <a href="mailto:${esc(b.email)}" style="color:var(--amber);">${esc(b.email)}</a></small>` : ''}</td>
+        <td><span style="white-space:pre-wrap;">${esc(b.what)}</span>
+          <details><summary><small>Browser, device${b.errors && b.errors.length ? ` and ${b.errors.length} error${b.errors.length === 1 ? '' : 's'}` : ''}</small></summary>
+          <small>${esc(b.user_agent || '')}<br>${dev(b.device)}</small>
+          ${b.errors && b.errors.length ? `<pre style="white-space:pre-wrap;font-size:11px;margin:6px 0 0;">${b.errors.map(esc).join('\n')}</pre>` : ''}</details></td>
+        <td style="white-space:nowrap;"><button class="ad-ok" data-bug-fixed="${esc(b.id)}">✓ Fixed</button>
+        <button class="ad-bad" data-bug-dismiss="${esc(b.id)}">✕ Dismiss</button></td></tr>`).join('')}</tbody></table>` : '<div class="ad-empty">No open bugs.</div>'}`;
+  const run = async (id, status) => {
+    const { error: e2 } = await sb.rpc('kasa_admin_bug_close', { p_id: id, p_status: status });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadBugs();
+  };
+  el.querySelectorAll('[data-bug-fixed]').forEach(b => b.addEventListener('click', () => run(b.dataset.bugFixed, 'fixed')));
+  el.querySelectorAll('[data-bug-dismiss]').forEach(b => b.addEventListener('click', () => run(b.dataset.bugDismiss, 'dismissed')));
 }
 
 async function loadCommunities(){
