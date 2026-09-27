@@ -51,9 +51,9 @@ notify pgrst, 'reload schema';
 -- Update kasa_create_report function to accept and store boundary_type parameter
 -- This is a modified version of the original function from 20260924120000_kasa_v2_accountability.sql
 -- Only change: added p_boundary_type parameter and included it in the INSERT statement
--- Drop both old and new signatures to ensure idempotency on fresh and legacy databases
-drop function if exists public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text);
-drop function if exists public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text);
+-- Drop both old and new signatures for idempotent migration
+drop function if exists public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text) cascade;
+drop function if exists public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text) cascade;
 
 create function public.kasa_create_report(
   p_category text, p_severity text, p_lat double precision, p_lng double precision,
