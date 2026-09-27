@@ -56,13 +56,21 @@
   const esc = s => String(s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const store = (k, v) => { try { v === undefined ? (v = localStorage.getItem(k)) : localStorage.setItem(k, v); } catch (e) { v = null; } return v; };
 
-  function rpc(fn, args) {
+  // A form-encoded POST with the key in the query string is a "simple" CORS request: no
+  // preflight, which some iPhone setups fail with "Load failed". Retried once on a network error.
+  function rpc(fn, args, retry) {
     if (!CFG.SUPABASE_URL || !CFG.SUPABASE_ANON_KEY) return Promise.reject(new Error('not configured'));
-    return fetch(CFG.SUPABASE_URL + '/rest/v1/rpc/' + fn, {
+    const body = new URLSearchParams();
+    Object.entries(args || {}).forEach(([k, v]) => { if (v != null) body.set(k, v); });
+    return fetch(CFG.SUPABASE_URL + '/rest/v1/rpc/' + fn + '?apikey=' + encodeURIComponent(CFG.SUPABASE_ANON_KEY), {
       method: 'POST',
-      headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + CFG.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' },
-      body: JSON.stringify(args || {}),
-    }).then(r => r.ok ? r.json() : r.json().then(j => Promise.reject(new Error(j.message || r.statusText))));
+      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      body: body.toString(),
+    }).then(
+      r => r.ok ? r.json() : r.json().catch(() => ({})).then(j => Promise.reject(new Error(j.message || r.statusText))),
+      err => retry === false ? Promise.reject(Object.assign(err, { network: true }))
+                             : new Promise(ok => setTimeout(ok, 800)).then(() => rpc(fn, args, false))
+    );
   }
 
   let count = null;
@@ -108,7 +116,7 @@
       e.preventDefault();
       if (!valid()) return;
       btn.disabled = true; btn.textContent = t('busy'); msg.className = 'dgs-msg'; msg.textContent = '';
-      rpc('kasa_digest_subscribe', { p_email: email.value.trim(), p_name: name.value.trim() || null })
+      rpc('kasa_digest_join', { p_email: email.value.trim(), p_name: name.value.trim() || null })
         .then(d => {
           if (!d || !d.success) throw new Error(d && d.message);
           store(HIDE_KEY, 'subscribed');
@@ -119,7 +127,7 @@
         .catch(err => {
           btn.disabled = false; btn.textContent = t('btn');
           msg.className = 'dgs-msg err';
-          msg.textContent = (err && err.message && err.message !== 'not configured') ? err.message : t('fail');
+          msg.textContent = (err && err.message && !err.network && err.message !== 'not configured') ? err.message : t('fail');
         });
     });
     return email;
