@@ -646,8 +646,8 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 
 .k-filter-toggle{display:flex;align-items:center;gap:.5rem;padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;font-family:var(--mono);font-size:12px;letter-spacing:.06em;color:var(--text-hi);flex-shrink:0;transition:all .15s;}
 .k-filter-toggle[aria-expanded="true"]{border-color:var(--amber);color:var(--amber);}
-.k-nearby-btn,.k-resolved-btn{padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;transition:all .15s;}
-.k-nearby-btn:hover,.k-nearby-btn[aria-pressed="true"],.k-resolved-btn:hover,.k-resolved-btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
+.k-nearby-btn{padding:.6rem 1rem;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;color:var(--text-hi);font-family:var(--mono);font-size:12px;letter-spacing:.06em;white-space:nowrap;transition:all .15s;}
+.k-nearby-btn:hover,.k-nearby-btn[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);}
 .k-filter-count{background:var(--amber);color:var(--ink);border-radius:9px;padding:0 .4rem;font-size:10px;line-height:1.5;}
 .k-map-topbar .k-filter-bar{display:none;}
 .k-map-topbar.k-filters-open .k-filter-bar{display:flex;}
@@ -756,11 +756,6 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 .k-map-legend{display:none;}
 .k-map-report-btn{left:50%;right:auto;transform:translateX(-50%);bottom:1.4rem;padding:1.1rem 2.6rem;font-size:14px;border-radius:40px;white-space:nowrap;}
 .k-map-report-btn:hover{transform:translateX(-50%);}
-.k-map-pill{bottom:.9rem;}
-@media(max-width:640px){.k-map-pill{bottom:5.6rem;left:50%;transform:translateX(-50%);white-space:nowrap;}}
-
-/* Small round buttons for the other parts of Parishkar (schools, adopted spots, numbers). */
-@media(min-width:641px){.k-map-pill{left:4.4rem;bottom:1.4rem;}}
 
 /* "Join N people" line at the top of the map. */
 .k-join{position:absolute;top:3.6rem;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:.2rem;max-width:calc(100% - 1.8rem);padding:.2rem .3rem .2rem .9rem;background:rgba(10,8,5,.94);border:1px solid rgba(212,136,42,.45);border-radius:40px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
@@ -782,18 +777,19 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-drawer .k-hero-title,.k-drawer .k-hero-sub,.k-drawer .k-hero-cta,.k-drawer .k-ticker{display:none;}
 .k-drawer .k-hero{padding-top:.4rem;padding-bottom:.8rem;}
 
-/* ── Map-only screen: no top bar. A floating ☰ opens the menu; the numbers sit top-left,
-   the colour key bottom-left, the Report button bottom-centre. Filters and Map/List show
-   only in the list view (opened from the menu). ── */
+/* ── Map-only screen: no top bar. A floating ☰ opens the menu; Filters stays reachable
+   top-left (its Status option includes Resolved — no separate button needed), the numbers
+   sit top-right below ☰ (clear of Filters), the colour key bottom-left, the Report button
+   bottom-centre. Map/List only shows once you're already in the list (opened from the menu). ── */
 body[data-app-layout] .k-nav{display:none;}
 .k-fab-menu{position:absolute;top:.9rem;right:.9rem;z-index:7;width:46px;height:46px;display:flex;align-items:center;justify-content:center;background:rgba(10,8,5,.94);color:var(--cream);border:1px solid var(--border2);border-radius:50%;box-shadow:0 4px 14px rgba(0,0,0,.4);}
 .k-fab-menu:hover{border-color:var(--amber);}
-.k-map-section:has(#k-list[hidden]) .k-filter-toggle,.k-map-section:has(#k-list[hidden]) .k-view-toggle,.k-map-section:has(#k-list[hidden]) .k-filter-bar{display:none;}
+.k-map-section:has(#k-list[hidden]) .k-view-toggle{display:none;}
 .k-map-section:has(#k-list:not([hidden])) .k-map-topbar{right:4.4rem;}
-.k-map-pill{top:.9rem;bottom:auto;left:.9rem;transform:none;}
-@media(min-width:641px){.k-map-pill{left:.9rem;bottom:auto;}}
-@media(max-width:640px){.k-map-pill{bottom:auto;left:.9rem;transform:none;}}
+.k-map-pill{top:4.4rem;bottom:auto;left:auto;right:.9rem;transform:none;white-space:nowrap;}
 .k-map-section:has(#k-list:not([hidden])) .k-map-pill{display:none;}
+/* The open filter bar can wrap to reach this corner on narrow screens; step aside while it's open. */
+.k-map-topbar.k-filters-open ~ .k-map-pill{display:none;}
 .k-map-legend{display:flex;left:.9rem;bottom:1.4rem;flex-wrap:wrap;}
 @media(max-width:640px){.k-map-legend{display:flex;bottom:5.6rem;right:auto;max-width:calc(100% - 1.8rem);gap:.35rem .7rem;font-size:9.5px;}}
 

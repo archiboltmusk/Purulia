@@ -3549,19 +3549,8 @@ function wireUI(){
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
-  document.getElementById('k-resolved-btn').addEventListener('click', () => {
-    const on = state.filters.status !== 'resolved';
-    state.filters.status = on ? 'resolved' : '';
-    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(on));
-    document.getElementById('k-filter-status').value = state.filters.status;
-    renderAll();
-  });
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
-  document.getElementById('k-filter-status').addEventListener('change', e => {
-    state.filters.status = e.target.value;
-    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(state.filters.status === 'resolved'));
-    renderAll();
-  });
+  document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {
     const n = parseInt(e.target.value, 10);
