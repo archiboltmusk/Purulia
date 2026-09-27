@@ -565,14 +565,54 @@
     <div class="k-ev-step">
       <div class="k-ev-num">4</div>
       <div class="k-ev-body">
-        <div class="k-ev-label" data-i18n="sc_photo">Take a photo of the school now</div>
-        <div class="k-ev-status" id="k-sc-photo-status" data-i18n="sc_photo_hint">Show what you checked, such as the toilets, water point or building. No faces, please.</div>
+        <div class="k-ev-label" data-i18n="sc_photo">Take one photo at the school now</div>
+        <div class="k-ev-status" id="k-sc-photo-status" data-i18n="sc_photo_hint">Any part you checked: a classroom, the toilets, the water point. It doesn't have to be the gate. No faces, please.</div>
         <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-sc-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
         <div class="k-photo-preview" id="k-sc-preview"></div>
       </div>
     </div>
     <button type="button" class="k-btn k-btn-primary" id="k-sc-submit" disabled data-i18n="sc_submit">Save the school check</button>
     <div class="k-privacy"><a href="schools.html" data-i18n="sc_see_all">See every school's checks →</a></div>
+  </div>
+</div>
+
+<!-- Share a school's report card -->
+<div class="k-modal" id="k-rc-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-rc-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-rc-title" data-i18n="rc_title">Share this school's report card</h3>
+    <p class="k-modal-sub" id="k-rc-school"></p>
+    <div class="k-ev-step">
+      <div class="k-ev-num">1</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="rc_get">Get the report card</div>
+        <p class="k-rc-how" id="k-rc-how"></p>
+        <a class="k-btn k-btn-secondary k-btn-sm" href="https://kys.udiseplus.gov.in/" target="_blank" rel="noopener" data-i18n="rc_open_kys">Open Know Your School ↗</a>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">2</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="rc_picture">Add the screenshot or photo of the card</div>
+        <input type="file" id="k-rc-file" accept="image/*" hidden>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-rc-file-btn" data-i18n="rc_pick">🖼️ Choose picture</button>
+        <div class="k-photo-preview" id="k-rc-preview"></div>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">3</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="rc_copy">Copy what the card says</div>
+        <label class="k-rc-field"><span data-i18n="rc_year">Year on the card</span>
+          <select id="k-rc-year" class="k-input"><option value="2025-26">2025-26</option><option value="2024-25" selected>2024-25</option><option value="2023-24">2023-24</option><option value="2022-23">2022-23</option></select></label>
+        <div class="k-rc-nums" id="k-rc-nums"></div>
+        <div class="k-sc-q" id="k-rc-facts"></div>
+      </div>
+    </div>
+    <button type="button" class="k-btn k-btn-primary" id="k-rc-submit" disabled data-i18n="rc_submit">Send for checking</button>
+    <div class="k-privacy" data-i18n="rc_note">A moderator compares the figures with your picture before they go on the schools page. Your name is never shown.</div>
   </div>
 </div>
 
