@@ -1637,12 +1637,14 @@ function renderAccountability(r){
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const w = state.wards[r.ward] || {};
-  const nodes = chain.nodes.map((role, i) => `
-    ${i ? '<span class="k-tree-link" aria-hidden="true"></span>' : ''}
+  const node = (role, i) => `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
       <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length))}</small></span>
-    </button>`).join('');
+    </button>`;
+  // The tree shows two people: who fixes it first, and who you elected. Everyone above
+  // them, the reps and the escalation routes sit behind one tap.
+  const [first, ...above] = chain.nodes;
   const councillor = rural ? '' : w.councillor_name
     ? `<button type="button" class="k-node k-node-elected" data-contact="councillor:${r.ward}:${esc(r.id)}">
          <span class="k-node-abbr">WC</span>
@@ -1660,21 +1662,21 @@ function renderAccountability(r){
       <div class="k-acc-label">${esc(t('acc_title'))}</div>
       <div class="k-tree">
         <div class="k-tree-root"><small>${esc(t(rural ? 'acc_your_block' : 'acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
-        <div class="k-tree-fork">
-          <div class="k-tree-branch">
-            <div class="k-node k-node-agency"><span class="k-node-abbr">${chain.agency === 'agency_police' ? '👮' : '🏛'}</span>
-              <span class="k-node-text"><b>${esc(t(chain.agency))}</b><small>${esc(t('acc_frontline_first'))}</small></span></div>
-            <span class="k-tree-link" aria-hidden="true"></span>
-            ${nodes}
-          </div>
+        <div class="k-tree-fork${councillor ? '' : ' k-tree-fork-one'}">
+          <div class="k-tree-branch">${first ? node(first, 0) : ''}</div>
           ${councillor ? `<div class="k-tree-branch">${councillor}</div>` : ''}
         </div>
-        ${chain.note ? `<div class="k-tree-note">${esc(t(chain.note))}</div>` : ''}
-        ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
-        <div class="k-acc-reps">${reps}</div>
         <div class="k-acc-hint">${esc(t('acc_tap'))}</div>
-        ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
-        ${renderEscalate(r)}
+        <details class="k-acc-more">
+          <summary>${esc(t('acc_more'))}</summary>
+          ${above.length ? `<div class="k-acc-reps-label">${esc(t('acc_escalate_chain'))}</div>
+          <div class="k-acc-above">${above.map((role, i) => node(role, i + 1)).join('')}</div>` : ''}
+          ${chain.note ? `<div class="k-tree-note">${esc(t(chain.note))}</div>` : ''}
+          ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
+          <div class="k-acc-reps">${reps}</div>
+          ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
+          ${renderEscalate(r)}
+        </details>
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
       </div>
     </div>`;

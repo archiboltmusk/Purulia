@@ -136,7 +136,7 @@ window.KASA_I18N = {
 
     acc_title: 'Accountability', acc_your_ward: 'Your ward', acc_ward: 'Ward {n}', acc_councillor: 'Ward Councillor',
     acc_vacant: 'Vacant / not on record', acc_unknown: 'Not known', acc_reps: 'Elected representatives for this ward',
-    acc_tap: 'Tap any card for contact options', acc_frontline: 'frontline', acc_top: 'top of chain',
+    acc_tap: 'Tap any card for contact options', acc_more: 'Who is above them, and how to escalate', acc_escalate_chain: 'If they don\'t act, go up', acc_frontline: 'frontline', acc_top: 'top of chain',
     acc_frontline_first: 'Frontline first, then escalate', acc_escalate: 'If ignored, escalate ↓',
     agency_municipality: 'Purulia Municipality', agency_district: 'District administration', agency_police: 'West Bengal Police',
     role_conservancy: 'Conservancy Supervisor', role_conservancy_s: 'Daily sweeping and waste pickup in your ward',
@@ -381,7 +381,7 @@ window.KASA_I18N = {
 
     acc_title: 'জবাবদিহি', acc_your_ward: 'আপনার ওয়ার্ড', acc_ward: 'ওয়ার্ড {n}', acc_councillor: 'ওয়ার্ড কাউন্সিলর',
     acc_vacant: 'শূন্য / রেকর্ডে নেই', acc_unknown: 'জানা নেই', acc_reps: 'এই ওয়ার্ডের নির্বাচিত জনপ্রতিনিধি',
-    acc_tap: 'যোগাযোগের উপায় দেখতে যেকোনো কার্ডে ট্যাপ করুন', acc_frontline: 'মাঠস্তর', acc_top: 'শীর্ষে',
+    acc_tap: 'যোগাযোগের উপায় দেখতে যেকোনো কার্ডে ট্যাপ করুন', acc_more: 'ওপরে কারা আছেন, কীভাবে এগোবেন', acc_escalate_chain: 'কাজ না হলে ওপরে যান', acc_frontline: 'মাঠস্তর', acc_top: 'শীর্ষে',
     acc_frontline_first: 'আগে মাঠস্তরে, তারপর উপরে', acc_escalate: 'সাড়া না পেলে উপরে জানান ↓',
     agency_municipality: 'পুরুলিয়া পৌরসভা', agency_district: 'জেলা প্রশাসন', agency_police: 'পশ্চিমবঙ্গ পুলিশ',
     role_conservancy: 'কনজারভেন্সি সুপারভাইজার', role_conservancy_s: 'ওয়ার্ডে রোজ ঝাড়ু ও ময়লা তোলা',
@@ -625,7 +625,7 @@ window.KASA_I18N = {
 
     acc_title: 'जवाबदेही', acc_your_ward: 'आपका वार्ड', acc_ward: 'वार्ड {n}', acc_councillor: 'वार्ड पार्षद',
     acc_vacant: 'खाली / रिकॉर्ड में नहीं', acc_unknown: 'पता नहीं', acc_reps: 'इस वार्ड के चुने हुए प्रतिनिधि',
-    acc_tap: 'संपर्क के तरीक़े देखने के लिए किसी भी कार्ड पर टैप करें', acc_frontline: 'मैदानी स्तर', acc_top: 'शीर्ष पर',
+    acc_tap: 'संपर्क के तरीक़े देखने के लिए किसी भी कार्ड पर टैप करें', acc_more: 'उनके ऊपर कौन है, और आगे कैसे बढ़ाएँ', acc_escalate_chain: 'काम न हो तो ऊपर जाएँ', acc_frontline: 'मैदानी स्तर', acc_top: 'शीर्ष पर',
     acc_frontline_first: 'पहले मैदानी स्तर, फिर ऊपर', acc_escalate: 'सुनवाई न हो तो ऊपर बताएँ ↓',
     agency_municipality: 'पुरुलिया नगरपालिका', agency_district: 'ज़िला प्रशासन', agency_police: 'पश्चिम बंगाल पुलिस',
     role_conservancy: 'कंज़र्वेंसी सुपरवाइज़र', role_conservancy_s: 'वार्ड में रोज़ झाड़ू और कचरा उठाना',
