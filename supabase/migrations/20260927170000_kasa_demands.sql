@@ -6,8 +6,9 @@
 --                         someone else). Must be for the whole community, not
 --                         for the person asking. Nothing appears until a
 --                         moderator publishes it.
--- public.demand_supports  one "+1" per device per demand, with a per-network
---                         cap so one network cannot inflate a count.
+-- public.demand_supports  one "+1" per signed-in visitor (the same anonymous
+--                         sign-in as the report map) per demand, with a
+--                         per-network cap so one network cannot inflate a count.
 -- public.demand_replies   a leader's public reply, with a link to where it was
 --                         said. Anyone may add one; a moderator checks the link.
 --
@@ -27,6 +28,8 @@ create table if not exists public.demands (
   title          text not null check (length(title) between 10 and 140),
   details        text not null check (length(details) between 30 and 1500),
   place          text check (length(place) <= 120),
+  lat            double precision,
+  lng            double precision,
   review         text not null default 'pending' check (review in ('pending', 'published', 'rejected')),
   promise_id     uuid references public.promises(id) on delete set null,
   supports       integer not null default 0,
@@ -36,7 +39,8 @@ create table if not exists public.demands (
   reviewed_at    timestamptz,
   review_note    text,
   created_at     timestamptz not null default now(),
-  published_at   timestamptz
+  published_at   timestamptz,
+  constraint demands_pin check ((lat is null) = (lng is null))
 );
 create index if not exists demands_review_idx on public.demands (review, supports desc);
 alter table public.demands enable row level security;
@@ -44,10 +48,10 @@ revoke all on public.demands from anon, authenticated;
 
 create table if not exists public.demand_supports (
   demand_id  uuid not null references public.demands(id) on delete cascade,
-  device     text not null,
+  voter      uuid not null,
   ip_hash    text,
   created_at timestamptz not null default now(),
-  primary key (demand_id, device)
+  primary key (demand_id, voter)
 );
 create index if not exists demand_supports_ip_idx on public.demand_supports (ip_hash, created_at);
 alter table public.demand_supports enable row level security;
@@ -75,7 +79,7 @@ create or replace function public.kasa_demands()
 returns jsonb language sql stable security definer set search_path = '' as $$
   select coalesce(jsonb_agg(jsonb_build_object(
     'id', d.id, 'leader_role', d.leader_role, 'leader_name', d.leader_name, 'leader_area', d.leader_area,
-    'title', d.title, 'details', d.details, 'place', d.place, 'supports', d.supports,
+    'title', d.title, 'details', d.details, 'place', d.place, 'lat', d.lat, 'lng', d.lng, 'supports', d.supports,
     'created_at', d.created_at, 'published_at', d.published_at,
     'promise', (select jsonb_build_object('id', p.id, 'status', p.status, 'promise', p.promise, 'who', p.who)
                 from public.promises p where p.id = d.promise_id and p.review = 'published'),
@@ -92,12 +96,19 @@ grant execute on function public.kasa_demands() to anon, authenticated;
 -- p_for_community: the asker ticked "this is for everyone, not for me or my family".
 create or replace function public.kasa_demand_submit(
   p_leader_role text, p_leader_name text, p_leader_area text, p_title text, p_details text,
-  p_place text default null, p_for_community boolean default false, p_note text default null)
+  p_place text default null, p_for_community boolean default false, p_note text default null,
+  p_lat double precision default null, p_lng double precision default null)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   v_ip text := kasa_private.ip_hash();
+  v_bbox jsonb := kasa_private.cfg('bbox');
   v_id uuid;
 begin
+  if (p_lat is null) <> (p_lng is null) or (p_lat is not null and v_bbox is not null and (
+       p_lat not between (v_bbox ->> 'min_lat')::float8 and (v_bbox ->> 'max_lat')::float8
+    or p_lng not between (v_bbox ->> 'min_lng')::float8 and (v_bbox ->> 'max_lng')::float8)) then
+    perform kasa_private.fail('KASA_OUTSIDE', 'The map pin must be inside Purulia.');
+  end if;
   if not coalesce(p_for_community, false) then
     perform kasa_private.fail('KASA_NOT_COMMUNITY', 'The noticeboard is for things the whole area needs. For a problem of your own, use the Grievance page or the municipality helpline.');
   end if;
@@ -107,34 +118,33 @@ begin
   if (select count(*) from public.demands where review = 'pending') >= 300 then
     perform kasa_private.fail('KASA_QUEUE_FULL', 'The review queue is full right now. Please try again in a few days.');
   end if;
-  insert into public.demands (leader_role, leader_name, leader_area, title, details, place, submitter_note, ip_hash)
+  insert into public.demands (leader_role, leader_name, leader_area, title, details, place, lat, lng, submitter_note, ip_hash)
   values (p_leader_role, trim(p_leader_name), nullif(trim(p_leader_area), ''), trim(p_title), trim(p_details),
-          nullif(trim(p_place), ''), nullif(trim(p_note), ''), v_ip)
+          nullif(trim(p_place), ''), p_lat, p_lng, nullif(trim(p_note), ''), v_ip)
   returning id into v_id;
   return jsonb_build_object('id', v_id, 'review', 'pending');
 exception
   when check_violation or not_null_violation then
     perform kasa_private.fail('KASA_BAD_INPUT', 'Please check the fields: pick a leader, a short title (at least 10 letters) and why it helps everyone (at least 30 letters).');
 end $$;
-revoke all on function public.kasa_demand_submit(text, text, text, text, text, text, boolean, text) from public;
-grant execute on function public.kasa_demand_submit(text, text, text, text, text, text, boolean, text) to anon, authenticated;
+revoke all on function public.kasa_demand_submit(text, text, text, text, text, text, boolean, text, double precision, double precision) from public;
+grant execute on function public.kasa_demand_submit(text, text, text, text, text, text, boolean, text, double precision, double precision) to anon, authenticated;
 
--- ── Anyone: +1 a published demand ───────────────────────────────────────
--- p_device: a random id the page keeps in the browser. One count per device; at most
--- 40 new counts per network per demand per day, 200 per network per day overall.
-create or replace function public.kasa_demand_support(p_id uuid, p_device text)
+-- ── Signed-in visitors: +1 a published demand ─────────────────────────
+-- Uses the report map's anonymous sign-in (Turnstile-checked when a site key is set), so
+-- a count needs a real session, not just a new browser id. One count per visitor; at
+-- most 40 new counts per network per demand per day, 200 per network per day overall.
+create or replace function public.kasa_demand_support(p_id uuid)
 returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
+  me   kasa_private.profiles := kasa_private.me();
   v_ip text := kasa_private.ip_hash();
-  v_n integer;
+  v_n  integer;
 begin
-  if p_device is null or p_device !~ '^[A-Za-z0-9_-]{16,64}$' then
-    perform kasa_private.fail('KASA_BAD_INPUT', 'Could not count that. Please reload the page and try again.');
-  end if;
   if not exists (select 1 from public.demands where id = p_id and review = 'published') then
     perform kasa_private.fail('KASA_NOT_FOUND', 'That demand was not found.');
   end if;
-  if exists (select 1 from public.demand_supports where demand_id = p_id and device = p_device) then
+  if exists (select 1 from public.demand_supports where demand_id = p_id and voter = me.user_id) then
     return jsonb_build_object('counted', false, 'supports', (select supports from public.demands where id = p_id));
   end if;
   if v_ip is not null and (
@@ -142,13 +152,21 @@ begin
     or (select count(*) from public.demand_supports where ip_hash = v_ip and created_at > now() - interval '1 day') >= 200) then
     perform kasa_private.fail('KASA_RATE_LIMIT', 'Too many +1s from this network today. Please try again tomorrow.');
   end if;
-  insert into public.demand_supports (demand_id, device, ip_hash) values (p_id, p_device, v_ip) on conflict do nothing;
+  insert into public.demand_supports (demand_id, voter, ip_hash) values (p_id, me.user_id, v_ip) on conflict do nothing;
   update public.demands set supports = (select count(*) from public.demand_supports where demand_id = p_id)
   where id = p_id returning supports into v_n;
   return jsonb_build_object('counted', true, 'supports', v_n);
 end $$;
-revoke all on function public.kasa_demand_support(uuid, text) from public;
-grant execute on function public.kasa_demand_support(uuid, text) to anon, authenticated;
+revoke all on function public.kasa_demand_support(uuid) from public, anon;
+grant execute on function public.kasa_demand_support(uuid) to authenticated;
+
+-- The visitor's own +1s, so the page can show "You support this" on any device they sign in on.
+create or replace function public.kasa_my_demand_supports()
+returns jsonb language sql stable security definer set search_path = '' as $$
+  select coalesce(jsonb_agg(demand_id), '[]'::jsonb) from public.demand_supports where voter = auth.uid()
+$$;
+revoke all on function public.kasa_my_demand_supports() from public, anon;
+grant execute on function public.kasa_my_demand_supports() to authenticated;
 
 -- ── Anyone: add a leader's reply, with a link to where it was said ─────
 create or replace function public.kasa_demand_reply_suggest(p_demand uuid, p_reply text, p_said_on date, p_source_url text, p_source_name text default null)

@@ -97,6 +97,29 @@
   .nb-count{font-family:var(--mono);font-size:11.5px;color:var(--text-md);}
   .nb-check{display:flex !important;grid-template-columns:none !important;align-items:flex-start;gap:.6rem !important;color:var(--text-hi) !important;font-size:.92rem !important;}
   .nb-check input{width:20px !important;height:20px;flex:0 0 20px;margin-top:.1rem;}
+  .nb-leaders{display:grid;grid-auto-flow:column;grid-auto-columns:minmax(210px,1fr);gap:.6rem;overflow-x:auto;margin-top:.9rem;padding-bottom:.4rem;scroll-snap-type:x mandatory;}
+  @media(min-width:1100px){.nb-leaders{grid-auto-flow:row;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));overflow:visible;}}
+  .nb-lcard{display:grid;gap:.2rem;border:1px solid var(--border);border-radius:6px;padding:.8rem .9rem;text-decoration:none;scroll-snap-align:start;background:rgba(240,230,208,.015);}
+  .nb-lcard strong{color:var(--cream);font-family:var(--serif);font-size:1.02rem;}
+  .nb-lcard small{color:var(--text-md);font-size:.8rem;}
+  .nb-lcard span{color:var(--amber);font-family:var(--mono);font-size:10.5px;margin-top:.2rem;}
+  .nb-lcard:hover{border-color:var(--amber);}
+  .nb-to a{color:inherit;text-decoration:none;}
+  .nb-to a:hover strong{color:var(--amber);}
+  .nb-lv-head{display:flex;align-items:center;gap:1rem;margin-top:.8rem;}
+  .nb-lv-photo{width:84px;height:84px;border-radius:50%;object-fit:cover;border:1px solid var(--border);flex:0 0 84px;}
+  .nb-lv-name{font-size:clamp(1.8rem,4vw,2.6rem);}
+  .nb-back{font-family:var(--mono);font-size:11px;color:var(--amber);text-decoration:none;}
+  .nb-ps-in_progress{color:var(--amber);}
+  .nb-ps-delivered{color:var(--green,#6fbf73);}
+  .nb-ps-broken{color:#e0705a;}
+  .nb-map{height:min(60vh,460px);border:1px solid var(--border);border-radius:6px;margin-top:1rem;}
+  .nb-pick{height:260px;border:1px solid var(--border);border-radius:6px;}
+  .nb-pin-btns{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;}
+  .nb-pin-btns .pr-upd{margin-top:0;}
+  .nb-captcha{position:fixed;inset:0;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;z-index:50;}
+  .nb-captcha[hidden]{display:none;}
+  .nb-captcha>div{background:var(--ink);border:1px solid var(--border);border-radius:8px;padding:1.2rem;}
   .nb-cta{display:inline-block;margin-top:1rem;background:var(--amber);color:#0a0805;border-radius:4px;padding:.65rem 1.1rem;font-weight:600;text-decoration:none;}
   @media(max-width:600px){.an-card{padding:1.1rem 1rem;}.an-tile{padding:1.1rem 1rem;}}
 </style>
@@ -120,7 +143,17 @@
 </nav>
 
 <main class="an-wrap">
-  <div class="an-head">
+  <section id="nb-leader-view" hidden>
+    <a href="noticeboard.html" class="nb-back" data-t="back">← All demands</a>
+    <div class="nb-lv-head" id="nb-lv-head"></div>
+    <div class="an-tiles" id="nb-lv-tiles" style="margin-top:1.4rem;"></div>
+    <section class="an-card" style="margin-top:1.4rem;">
+      <h2 data-t="lv_promises_h">What they promised</h2>
+      <ul class="pr-list" id="nb-lv-promises"></ul>
+    </section>
+  </section>
+
+  <div class="an-head" data-overview>
     <div>
       <h1 class="an-title" data-t-html="title">Ask your <em>leaders</em></h1>
       <p class="an-sub" data-t="sub">Public demands from Purulia to its municipality chairman, ward councillors, MLAs and MPs: things the whole area needs. Add your +1 to the ones you agree with. When a leader answers or makes a promise, it is shown here with a link to where they said it.</p>
@@ -128,7 +161,7 @@
     </div>
   </div>
 
-  <div class="an-tiles" aria-live="polite">
+  <div class="an-tiles" aria-live="polite" data-overview>
     <div class="an-tile"><div class="an-tile-n" id="nb-n-all">–</div><div class="an-tile-l" data-t="tile_all">Demands</div></div>
     <div class="an-tile"><div class="an-tile-n" id="nb-n-supports">–</div><div class="an-tile-l" data-t="tile_supports">+1s</div></div>
     <div class="an-tile"><div class="an-tile-n" id="nb-n-answered">–</div><div class="an-tile-l" data-t="tile_answered">Answered</div></div>
@@ -136,8 +169,18 @@
   </div>
 
   <div class="an-grid">
+    <section class="an-card an-span" id="nb-leaders-sec" data-overview>
+      <h2 data-t="leaders_h">Leaders</h2>
+      <p class="an-card-sub" data-t="leaders_sub">Tap a leader to see what people asked them for, what they answered, and what they promised.</p>
+      <div class="nb-leaders" id="nb-leaders"></div>
+    </section>
+
     <section class="an-card" id="nb-demands">
       <h2 data-t="list_h">Demands</h2>
+      <div class="pr-tools" id="nb-views">
+        <button type="button" class="pr-chip" data-view="list" aria-pressed="true" data-t="view_list">List</button>
+        <button type="button" class="pr-chip" data-view="map" aria-pressed="false" data-t="view_map">Map</button>
+      </div>
       <div class="pr-tools" id="nb-role-chips">
         <button type="button" class="pr-chip" data-role="" aria-pressed="true" data-t="all">All</button>
         <button type="button" class="pr-chip" data-role="chairman" aria-pressed="false" data-t="r_chairman">Chairman</button>
@@ -154,9 +197,10 @@
         <input id="nb-q" type="search" data-t-ph="search_ph" placeholder="Search demands">
       </div>
       <ul class="pr-list" id="nb-list"><li class="an-empty" data-t="loading">Loading…</li></ul>
+      <div id="nb-map-wrap" hidden><p class="an-card-sub" id="nb-map-note"></p><div class="nb-map" id="nb-map"></div></div>
     </section>
 
-    <section class="an-card" id="nb-rules">
+    <section class="an-card" id="nb-rules" data-overview>
       <h2 data-t="rules_h">What belongs here</h2>
       <ul class="pr-rules">
         <li data-t="rule_1">Ask for something the whole ward, village or town needs: a road, streetlights, a drain, water, a school teacher, a bus stop.</li>
@@ -197,6 +241,16 @@
         <label><span data-t="f_title">What do you want? (one line)</span><input name="title" maxlength="140" data-t-ph="f_title_ph" placeholder="e.g. Streetlights on Ranchi Road, ward 3 to 5"></label>
         <label><span data-t="f_details">Why it helps everyone</span><textarea name="details" maxlength="1500" data-t-ph="f_details_ph" placeholder="Who uses it, what goes wrong today, how many people it affects"></textarea></label>
         <label><span data-t="f_place">Where (optional)</span><input name="place" maxlength="120" data-t-ph="f_place_ph" placeholder="Ward, village or road"></label>
+        <div class="pr-form" style="margin-top:0;">
+          <span class="pr-msg" data-t="f_pin">Map pin (optional)</span>
+          <div class="nb-pin-btns">
+            <button type="button" class="pr-upd" id="nb-pin-add" data-t="f_pin_add">Add a pin on the map</button>
+            <button type="button" class="pr-upd" id="nb-pin-me" data-t="f_pin_me">Use my location</button>
+            <button type="button" class="pr-upd" id="nb-pin-clear" data-t="f_pin_clear" hidden>Remove pin</button>
+          </div>
+          <div id="nb-pick-wrap" hidden><div class="nb-pick" id="nb-pick"></div></div>
+          <p class="pr-msg" id="nb-pin-msg" role="status"></p>
+        </div>
         <label class="nb-check"><input type="checkbox" name="community"><span data-t="f_community">This is for everyone in the area, not for me or my family.</span></label>
         <label><span data-t="f_note">Note for the moderator (optional, not shown)</span><input name="note" maxlength="600"></label>
         <button type="submit" class="pr-btn" id="nb-submit" data-t="f_submit">Send for checking</button>
@@ -217,6 +271,9 @@
   </div>
 </main>
 
+<div class="nb-captcha" id="nb-captcha" hidden><div role="dialog" aria-modal="true"><p data-t="captcha_title">Quick check that you're a person</p><div id="nb-captcha-widget"></div></div></div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>
 <script src="city.js"></script>
 <script src="noticeboard.js?v=20260927"></script>

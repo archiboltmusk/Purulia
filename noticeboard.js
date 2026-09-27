@@ -1,8 +1,9 @@
 /* ══════════════════════════════════════════════════════════
    PURULIA — noticeboard.html: public demands to named leaders
    Reads kasa_demands (published demands, leaders' replies, linked
-   promises). New demands and replies wait for a moderator; +1s count
-   once per device (kasa_demand_support).
+   promises) and kasa_promises (for each leader's page, ?leader=Name).
+   New demands and replies wait for a moderator. A +1 needs the report
+   map's anonymous sign-in and counts once per visitor.
    ══════════════════════════════════════════════════════════ */
 (() => {
   const CFG = window.KASA_CONFIG || {};
@@ -51,6 +52,15 @@
       rf_reply: 'What they said', rf_date: 'Date they said it', rf_url: 'Link to where they said it', rf_source: 'Newspaper, page or channel (optional)',
       rf_submit: 'Send for checking', rf_cancel: 'Cancel',
       e_reply: 'Write what they said (at least 10 letters).', e_date: 'Add the date.', e_url: 'Add a link starting with http:// or https://.',
+      leaders_h: 'Leaders', leaders_sub: 'Tap a leader to see what people asked them for, what they answered, and what they promised.',
+      lc_line: '{a} asked · {r} answered · {p} promises · {d} delivered',
+      back: '← All demands', lv_asked: 'Demands to them', lv_answered: 'Answered', lv_promises: 'Promises made', lv_delivered: 'Delivered',
+      lv_demands_h: 'What people asked them for', lv_promises_h: 'What they promised', lv_none_d: 'No demands to them yet.',
+      lv_none_p: 'No promises by them on the Promises page yet.', lv_promise_more: 'On Promises',
+      view_list: 'List', view_map: 'Map', map_none: 'No demands with a map pin yet.', map_err: 'The map could not load.',
+      f_pin: 'Map pin (optional)', f_pin_add: 'Add a pin on the map', f_pin_me: 'Use my location', f_pin_clear: 'Remove pin',
+      f_pin_hint: 'Tap the map where it is needed.', f_pin_set: 'Pin set.', f_pin_geo_err: 'Could not get your location.',
+      sign_err: 'Could not count your +1. Please reload and try again.', captcha_title: "Quick check that you're a person",
       share_text: 'Demand to {w}: {t}. Add your +1:'
     },
     bn: {
@@ -94,6 +104,15 @@
       rf_reply: 'কী বলেছেন', rf_date: 'কবে বলেছেন', rf_url: 'যেখানে বলেছেন তার লিঙ্ক', rf_source: 'খবরের কাগজ, পেজ বা চ্যানেল (ঐচ্ছিক)',
       rf_submit: 'যাচাইয়ের জন্য পাঠান', rf_cancel: 'বাতিল',
       e_reply: 'কী বলেছেন লিখুন (অন্তত ১০ অক্ষর)।', e_date: 'তারিখ দিন।', e_url: 'http:// বা https:// দিয়ে শুরু লিঙ্ক দিন।',
+      leaders_h: 'নেতারা', leaders_sub: 'কোনও নেতার নাম চাপুন: মানুষ তাঁর কাছে কী চেয়েছেন, তিনি কী উত্তর দিয়েছেন, কী প্রতিশ্রুতি দিয়েছেন।',
+      lc_line: '{a} দাবি · {r} উত্তর · {p} প্রতিশ্রুতি · {d} পূরণ',
+      back: '← সব দাবি', lv_asked: 'তাঁর কাছে দাবি', lv_answered: 'উত্তর দিয়েছেন', lv_promises: 'প্রতিশ্রুতি', lv_delivered: 'পূরণ হয়েছে',
+      lv_demands_h: 'মানুষ তাঁর কাছে কী চেয়েছেন', lv_promises_h: 'তিনি কী প্রতিশ্রুতি দিয়েছেন', lv_none_d: 'এখনও তাঁর কাছে কোনও দাবি নেই।',
+      lv_none_p: 'প্রতিশ্রুতি পাতায় এখনও তাঁর কোনও প্রতিশ্রুতি নেই।', lv_promise_more: 'প্রতিশ্রুতি পাতায়',
+      view_list: 'তালিকা', view_map: 'ম্যাপ', map_none: 'এখনও ম্যাপে পিন দেওয়া কোনও দাবি নেই।', map_err: 'ম্যাপ লোড করা গেল না।',
+      f_pin: 'ম্যাপে পিন (ঐচ্ছিক)', f_pin_add: 'ম্যাপে পিন দিন', f_pin_me: 'আমার লোকেশন', f_pin_clear: 'পিন সরান',
+      f_pin_hint: 'যেখানে দরকার ম্যাপে সেখানে চাপুন।', f_pin_set: 'পিন দেওয়া হয়েছে।', f_pin_geo_err: 'আপনার লোকেশন পাওয়া গেল না।',
+      sign_err: 'আপনার +1 গোনা গেল না। পাতা আবার লোড করে চেষ্টা করুন।', captcha_title: 'আপনি মানুষ কিনা একটু দেখে নিচ্ছি',
       share_text: '{w}-এর কাছে দাবি: {t}। আপনার +1 দিন:'
     },
     hi: {
@@ -137,6 +156,15 @@
       rf_reply: 'उन्होंने क्या कहा', rf_date: 'कब कहा', rf_url: 'जहाँ कहा उसका लिंक', rf_source: 'अख़बार, पेज या चैनल (वैकल्पिक)',
       rf_submit: 'जाँच के लिए भेजें', rf_cancel: 'रद्द करें',
       e_reply: 'उन्होंने क्या कहा लिखें (कम से कम 10 अक्षर)।', e_date: 'तारीख़ दें।', e_url: 'http:// या https:// से शुरू होने वाला लिंक दें।',
+      leaders_h: 'नेता', leaders_sub: 'किसी नेता पर टैप करें: लोगों ने उनसे क्या माँगा, उन्होंने क्या जवाब दिया, क्या वादा किया।',
+      lc_line: '{a} माँगें · {r} जवाब · {p} वादे · {d} पूरे',
+      back: '← सभी माँगें', lv_asked: 'उनसे माँगें', lv_answered: 'जवाब दिया', lv_promises: 'वादे किए', lv_delivered: 'पूरे हुए',
+      lv_demands_h: 'लोगों ने उनसे क्या माँगा', lv_promises_h: 'उन्होंने क्या वादा किया', lv_none_d: 'अभी उनसे कोई माँग नहीं।',
+      lv_none_p: 'वादे पेज पर अभी उनका कोई वादा नहीं।', lv_promise_more: 'वादे पेज पर',
+      view_list: 'सूची', view_map: 'मैप', map_none: 'अभी मैप पिन वाली कोई माँग नहीं।', map_err: 'मैप लोड नहीं हो सका।',
+      f_pin: 'मैप पिन (वैकल्पिक)', f_pin_add: 'मैप पर पिन लगाएँ', f_pin_me: 'मेरी लोकेशन', f_pin_clear: 'पिन हटाएँ',
+      f_pin_hint: 'जहाँ ज़रूरत है, मैप पर वहाँ टैप करें।', f_pin_set: 'पिन लग गया।', f_pin_geo_err: 'आपकी लोकेशन नहीं मिल सकी।',
+      sign_err: 'आपका +1 गिना नहीं जा सका। पेज फिर लोड करके कोशिश करें।', captcha_title: 'एक छोटी जाँच कि आप इंसान हैं',
       share_text: '{w} से माँग: {t}। अपना +1 दें:'
     }
   };
@@ -162,16 +190,37 @@
     set(k, v){ try { localStorage.setItem(k, v); } catch (e) {} }
   };
 
-  // One random id per browser, so a +1 counts once.
-  function deviceId(){
-    let id = store.get('kasa_device');
-    if (!id || !/^[A-Za-z0-9_-]{16,64}$/.test(id)){
-      const a = new Uint8Array(18);
-      (window.crypto || {}).getRandomValues ? crypto.getRandomValues(a) : a.forEach((_, i) => { a[i] = Math.random() * 256; });
-      id = btoa(String.fromCharCode(...a)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
-      store.set('kasa_device', id);
-    }
-    return id;
+  // The report map's anonymous sign-in (same saved session), checked by Turnstile when a
+  // site key is configured, so a +1 needs a real session rather than a fresh browser id.
+  let sb = null;
+  const client = () => sb || (window.supabase && URL_ && KEY ? (sb = window.supabase.createClient(URL_, KEY,
+    { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } })) : null);
+  function captchaToken(){
+    if (!CFG.TURNSTILE_SITE_KEY) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+      const go = () => {
+        const box = document.getElementById('nb-captcha'), slot = document.getElementById('nb-captcha-widget');
+        slot.innerHTML = '';
+        box.hidden = false;
+        window.turnstile.render(slot, { sitekey: CFG.TURNSTILE_SITE_KEY, action: 'kasa', appearance: 'interaction-only',
+          callback: tok => { box.hidden = true; resolve(tok); }, 'error-callback': () => { box.hidden = true; reject(new Error(t('sign_err'))); } });
+      };
+      if (window.turnstile) return go();
+      const sc = document.createElement('script');
+      sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      sc.onload = go; sc.onerror = () => reject(new Error(t('sign_err')));
+      document.head.appendChild(sc);
+    });
+  }
+  async function ensureSession(){
+    const c = client();
+    if (!c) throw new Error(t('sign_err'));
+    const { data: { session } } = await c.auth.getSession();
+    if (session) return c;
+    const tok = await captchaToken();
+    const { error } = await c.auth.signInAnonymously(tok ? { options: { captchaToken: tok } } : undefined);
+    if (error) throw new Error(t('sign_err'));
+    return c;
   }
   let supported = new Set();
   try { supported = new Set(JSON.parse(store.get('kasa_demand_supported') || '[]')); } catch (e) {}
@@ -192,8 +241,13 @@
     return out;
   }
   const LEADERS = leaders();
+  const ROLE_OF = { chairman: 'r_chairman', councillor: 'r_councillor', mla: 'r_mla', mp: 'r_mp', other: 'r_other' };
+  const norm = (n) => String(n || '').trim().toLowerCase();
+  const photoOf = (name) => Object.values(CITY.reps || {}).find(r => norm(r.name) === norm(name));
 
-  const state = { demands: [], wards: [], role: '', sort: 'top', q: '', replyTo: null, loaded: false, failed: false };
+  const params = new URLSearchParams(location.search);
+  const state = { demands: [], promises: [], wards: [], role: '', sort: 'top', q: '', replyTo: null, loaded: false, failed: false,
+                  leader: params.get('leader') || '', view: 'list', pin: null };
   const statusOf = (d) => d.promise ? 'promised' : (d.replies && d.replies.length ? 'answered' : 'open');
 
   function applyStatic(){
@@ -252,9 +306,12 @@
     const el = document.getElementById('nb-list');
     if (state.failed){ el.innerHTML = `<li class="an-empty">${esc(t('load_err'))}</li>`; return; }
     if (!state.loaded) return;
-    if (!state.demands.length){ el.innerHTML = `<li class="an-empty">${esc(t('none_yet'))}</li>`; return; }
+    if (!state.demands.length || (state.leader && !state.demands.some(d => norm(d.leader_name) === norm(state.leader)))){
+      el.innerHTML = `<li class="an-empty">${esc(t(state.leader ? 'lv_none_d' : 'none_yet'))}</li>`; return;
+    }
     const q = state.q.toLowerCase();
     const rows = state.demands.filter(d => (!state.role || d.leader_role === state.role) &&
+      (!state.leader || norm(d.leader_name) === norm(state.leader)) &&
       (!q || [d.leader_name, d.leader_area, d.title, d.details, d.place].join(' ').toLowerCase().includes(q)));
     if (state.sort === 'new') rows.sort((a, b) => String(b.published_at || b.created_at).localeCompare(String(a.published_at || a.created_at)));
     else rows.sort((a, b) => (b.supports || 0) - (a.supports || 0) || String(b.published_at).localeCompare(String(a.published_at)));
@@ -264,7 +321,7 @@
       return `<li class="pr-item nb-item" id="d-${esc(d.id)}">
         <div class="nb-top">
           <span class="pr-status nb-s-${st}">${esc(t('st_' + st))}</span>
-          <span class="nb-to">${esc(t('to'))}: <strong>${esc(t('r_' + d.leader_role))} ${esc(d.leader_name)}</strong>${d.leader_area ? ` · ${esc(d.leader_area)}` : ''}</span>
+          <span class="nb-to">${esc(t('to'))}: <a href="${esc(leaderHref(d.leader_name))}"><strong>${esc(t('r_' + d.leader_role))} ${esc(d.leader_name)}</strong></a>${d.leader_area ? ` · ${esc(d.leader_area)}` : ''}</span>
         </div>
         <div class="pr-who nb-title">${esc(d.title)}</div>
         <div class="pr-text">${esc(d.details)}</div>
@@ -283,6 +340,64 @@
     }).join('');
   }
 
+  // Everyone with something on the board: the leaders from city.js, anyone a demand was
+  // addressed to, and anyone with a published promise.
+  function leaderCards(){
+    const m = new Map();
+    const add = (name, role, area) => {
+      const k = norm(name);
+      if (!m.has(k)) m.set(k, { name, role, area, asked: 0, answered: 0, supports: 0, promises: 0, delivered: 0 });
+      return m.get(k);
+    };
+    LEADERS.forEach(l => add(l.name, t(ROLE_OF[l.role]), l.area));
+    state.demands.forEach(d => {
+      const c = add(d.leader_name, t(ROLE_OF[d.leader_role] || 'r_other'), d.leader_area);
+      c.asked++; c.supports += d.supports || 0; if (statusOf(d) !== 'open') c.answered++;
+    });
+    state.promises.forEach(p => {
+      const c = add(p.who, p.role || '', p.area || '');
+      c.promises++; if (p.status === 'delivered') c.delivered++;
+    });
+    return [...m.values()].sort((a, b) => (b.asked + b.promises) - (a.asked + a.promises) || a.name.localeCompare(b.name));
+  }
+  const leaderHref = (name) => `noticeboard.html?leader=${encodeURIComponent(name)}`;
+
+  function renderLeaders(){
+    const el = document.getElementById('nb-leaders');
+    el.innerHTML = leaderCards().map(c => `<a class="nb-lcard" href="${esc(leaderHref(c.name))}">
+      <strong>${esc(c.name)}</strong><small>${esc([c.role, c.area].filter(Boolean).join(' · '))}</small>
+      <span>${esc(t('lc_line', { a: c.asked, r: c.answered, p: c.promises, d: c.delivered }))}</span></a>`).join('');
+  }
+
+  function renderLeaderView(){
+    const on = !!state.leader;
+    document.getElementById('nb-leader-view').hidden = !on;
+    document.querySelectorAll('[data-overview]').forEach(el => { el.hidden = on; });
+    document.querySelector('#nb-demands h2').textContent = t(on ? 'lv_demands_h' : 'list_h');
+    document.getElementById('nb-role-chips').hidden = on;
+    if (!on) return;
+    const pre = LEADERS.find(l => norm(l.name) === norm(state.leader));
+    const sel = document.getElementById('nb-leader');
+    if (pre && !sel.value){ sel.value = pre.key; toggleLeaderFields(); }
+    const c = leaderCards().find(x => norm(x.name) === norm(state.leader)) ||
+      { name: state.leader, role: '', area: '', asked: 0, answered: 0, supports: 0, promises: 0, delivered: 0 };
+    const ph = photoOf(c.name);
+    document.getElementById('nb-lv-head').innerHTML = `
+      ${ph && ph.photo ? `<img class="nb-lv-photo" src="${esc(ph.photo)}" alt="" style="object-position:${esc(ph.photoPos || '50% 30%')}">` : ''}
+      <div><h2 class="an-title nb-lv-name">${esc(c.name)}</h2><p class="an-sub">${esc([c.role, c.area].filter(Boolean).join(' · '))}</p></div>`;
+    const tiles = [['lv_asked', c.asked], ['tile_supports', c.supports], ['lv_answered', c.answered], ['lv_promises', c.promises], ['lv_delivered', c.delivered]];
+    document.getElementById('nb-lv-tiles').innerHTML = tiles.map(([k, n]) =>
+      `<div class="an-tile"><div class="an-tile-n">${n}</div><div class="an-tile-l">${esc(t(k))}</div></div>`).join('');
+    const ps = state.promises.filter(p => norm(p.who) === norm(c.name));
+    document.getElementById('nb-lv-promises').innerHTML = ps.length ? ps.map(p => `<li class="pr-item">
+        <span class="pr-status nb-ps-${esc(p.status)}">${esc(t('ps_' + p.status))}</span>
+        <div class="pr-text">${esc(p.promise)}</div>
+        <div class="pr-meta">${esc(t('said_on', { d: fmtDate(p.made_on) }))} · <a href="${esc(safeUrl(p.source_url))}" target="_blank" rel="noopener nofollow">${esc(p.source_name || t('source'))} ↗</a>
+          · <a href="promises.html#p-${esc(p.id)}">${esc(t('lv_promise_more'))} ↗</a></div></li>`).join('')
+      : `<li class="an-empty">${esc(t('lv_none_p'))}</li>`;
+    document.title = `${c.name} — Ask your leaders — Parishkar Purulia`;
+  }
+
   function renderReplyForm(){
     const sec = document.getElementById('nb-reply-sec');
     const d = state.replyTo && state.demands.find(x => x.id === state.replyTo);
@@ -290,15 +405,105 @@
     if (d) document.getElementById('nb-reply-for').textContent = t('rf_for', { t: `${d.leader_name}: ${d.title}` });
   }
 
-  function renderAll(){ applyStatic(); renderTiles(); renderLeaderSelect(); renderList(); renderReplyForm(); }
+  // ── Map: demands with a pin, and the pin picker in the form ──────────
+  const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
+  let mapLib = null, boardMap = null, boardMarkers = [], pickMap = null, pickMarker = null;
+  function loadMapLib(){
+    if (window.maplibregl) return Promise.resolve();
+    return mapLib ||= new Promise((resolve, reject) => {
+      const css = document.createElement('link');
+      css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+      document.head.appendChild(css);
+      const sc = document.createElement('script');
+      sc.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+      sc.onload = resolve; sc.onerror = () => { mapLib = null; reject(new Error('map')); };
+      document.head.appendChild(sc);
+    });
+  }
+  const center = () => CITY.mapCenter || [86.3654, 23.3320];
+
+  async function renderMap(){
+    const note = document.getElementById('nb-map-note');
+    const pins = state.demands.filter(d => d.lat != null && d.lng != null &&
+      (!state.role || d.leader_role === state.role) && (!state.leader || norm(d.leader_name) === norm(state.leader)));
+    note.textContent = pins.length ? '' : t('map_none');
+    try { await loadMapLib(); } catch (e){ note.textContent = t('map_err'); return; }
+    if (!boardMap){
+      boardMap = new maplibregl.Map({ container: 'nb-map', style: MAP_STYLE, center: center(), zoom: CITY.mapZoom || 12, attributionControl: { compact: true } });
+      boardMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+    }
+    boardMarkers.forEach(m => m.remove());
+    boardMarkers = pins.map(d => new maplibregl.Marker({ color: '#d4882a' }).setLngLat([d.lng, d.lat])
+      .setPopup(new maplibregl.Popup({ offset: 24 }).setHTML(`<strong>${esc(d.title)}</strong><br>${esc(t('to'))}: ${esc(d.leader_name)}<br>
+        ${esc(t('supports', { n: d.supports || 0 }))}<br><a href="#d-${esc(d.id)}" data-goto="${esc(d.id)}">${esc(t('view_list'))} →</a>`))
+      .addTo(boardMap));
+    if (pins.length > 1){
+      const b = new maplibregl.LngLatBounds();
+      pins.forEach(d => b.extend([d.lng, d.lat]));
+      boardMap.fitBounds(b, { padding: 50, maxZoom: 15, duration: 0 });
+    } else if (pins.length) boardMap.jumpTo({ center: [pins[0].lng, pins[0].lat], zoom: 15 });
+    boardMap.resize();
+  }
+
+  function setView(v){
+    state.view = v;
+    document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    document.getElementById('nb-list').hidden = v !== 'list';
+    document.getElementById('nb-map-wrap').hidden = v !== 'map';
+    if (v === 'map') renderMap();
+  }
+
+  function setPin(lng, lat){
+    state.pin = lat == null ? null : { lat: +lat.toFixed(6), lng: +lng.toFixed(6) };
+    document.getElementById('nb-pin-clear').hidden = !state.pin;
+    document.getElementById('nb-pin-msg').textContent = state.pin ? `${t('f_pin_set')} ${state.pin.lat}, ${state.pin.lng}` : '';
+    if (!pickMap) return;
+    if (!state.pin){ if (pickMarker){ pickMarker.remove(); pickMarker = null; } return; }
+    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#d4882a', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
+      .on('dragend', () => { const p = pickMarker.getLngLat(); setPin(p.lng, p.lat); });
+    else pickMarker.setLngLat([state.pin.lng, state.pin.lat]);
+  }
+
+  async function openPicker(){
+    const wrap = document.getElementById('nb-pick-wrap');
+    wrap.hidden = false;
+    if (!state.pin) document.getElementById('nb-pin-msg').textContent = t('f_pin_hint');
+    try { await loadMapLib(); } catch (e){ document.getElementById('nb-pin-msg').textContent = t('map_err'); return; }
+    if (!pickMap){
+      pickMap = new maplibregl.Map({ container: 'nb-pick', style: MAP_STYLE, center: center(), zoom: CITY.mapZoom || 12, attributionControl: { compact: true } });
+      pickMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+      pickMap.on('click', e => setPin(e.lngLat.lng, e.lngLat.lat));
+    }
+    pickMap.resize();
+  }
+
+  function renderAll(){
+    applyStatic(); renderTiles(); renderLeaderSelect(); renderLeaders(); renderLeaderView(); renderList(); renderReplyForm();
+    if (state.view === 'map') renderMap();
+  }
 
   async function load(){
     try {
-      state.demands = (await rpc('kasa_demands')) || [];
+      const [d, p] = await Promise.all([rpc('kasa_demands'), rpc('kasa_promises').catch(() => null)]);
+      state.demands = d || [];
+      state.promises = (p && p.promises) || [];
       state.loaded = true;
     } catch (e){ state.failed = true; }
     renderAll();
+    loadMine();
     if (location.hash.startsWith('#d-')){ const el = document.getElementById(location.hash.slice(1)); if (el) el.scrollIntoView(); }
+  }
+
+  // A visitor who already has a session sees their own +1s on any device they use it on.
+  async function loadMine(){
+    try {
+      const c = client();
+      if (!c) return;
+      const { data: { session } } = await c.auth.getSession();
+      if (!session) return;
+      const { data } = await c.rpc('kasa_my_demand_supports');
+      if (Array.isArray(data)){ data.forEach(id => supported.add(String(id))); saveSupported(); renderList(); }
+    } catch (e) {}
   }
 
   async function loadWards(){
@@ -321,6 +526,25 @@
     renderList();
   }));
   document.getElementById('nb-leader').addEventListener('change', toggleLeaderFields);
+  document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
+  document.getElementById('nb-map').addEventListener('click', e => {
+    const g = e.target.closest('[data-goto]');
+    if (!g) return;
+    e.preventDefault();
+    setView('list');
+    const el = document.getElementById('d-' + g.dataset.goto);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  });
+  document.getElementById('nb-pin-add').addEventListener('click', openPicker);
+  document.getElementById('nb-pin-clear').addEventListener('click', () => setPin(null, null));
+  document.getElementById('nb-pin-me').addEventListener('click', () => {
+    if (!navigator.geolocation){ document.getElementById('nb-pin-msg').textContent = t('f_pin_geo_err'); return; }
+    navigator.geolocation.getCurrentPosition(async pos => {
+      await openPicker();
+      setPin(pos.coords.longitude, pos.coords.latitude);
+      if (pickMap) pickMap.jumpTo({ center: [state.pin.lng, state.pin.lat], zoom: 16 });
+    }, () => { document.getElementById('nb-pin-msg').textContent = t('f_pin_geo_err'); }, { enableHighAccuracy: true, timeout: 15000 });
+  });
 
   document.getElementById('nb-list').addEventListener('click', async e => {
     const sup = e.target.closest('[data-support]');
@@ -330,7 +554,9 @@
       const id = sup.dataset.support;
       sup.disabled = true;
       try {
-        const r = await rpc('kasa_demand_support', { p_id: id, p_device: deviceId() });
+        const c = await ensureSession();
+        const { data: r, error } = await c.rpc('kasa_demand_support', { p_id: id });
+        if (error) throw new Error(error.details || error.message);
         const d = state.demands.find(x => x.id === id);
         if (d && r && typeof r.supports === 'number') d.supports = r.supports;
         supported.add(id); saveSupported();
@@ -381,9 +607,10 @@
     try {
       await rpc('kasa_demand_submit', {
         p_leader_role: role, p_leader_name: name, p_leader_area: area, p_title: v('title'), p_details: v('details'),
-        p_place: v('place') || null, p_for_community: true, p_note: v('note') || null
+        p_place: v('place') || null, p_for_community: true, p_note: v('note') || null,
+        p_lat: state.pin ? state.pin.lat : null, p_lng: state.pin ? state.pin.lng : null
       });
-      f.reset(); toggleLeaderFields();
+      f.reset(); toggleLeaderFields(); setPin(null, null); document.getElementById('nb-pick-wrap').hidden = true;
       msg.textContent = t('f_thanks');
     } catch (err){
       msg.className = 'pr-msg err'; msg.textContent = err.message;
