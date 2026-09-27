@@ -89,6 +89,8 @@ Deno.serve(async () => {
   const seen = new Set<string>();
   const items = all.filter(i => relevant(i.title) && !SKIP_SOURCES.test(i.source) && !seen.has(i.url) && seen.add(i.url));
   const { data: added, error } = await admin.rpc('kasa_promise_news_ingest', { p_items: items });
-  if (error) return reply(500, { error: error.message, errors });
-  return reply(200, { searched: topics.length, found: items.length, added, errors });
+  // Details go to the function log only; the caller just gets counts.
+  if (errors.length) console.error('kasa-promise-news feed errors', errors);
+  if (error) { console.error('kasa-promise-news ingest failed', error); return reply(500, { ok: false }); }
+  return reply(200, { ok: true, searched: topics.length, found: items.length, added, failed_searches: errors.length });
 });
