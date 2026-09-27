@@ -170,7 +170,7 @@ check('anon cannot write through the public view',
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
 PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review', 'claim_reviewed_at',
-                         'area_kind', 'block_name', 'verify_needed', 'boundary_type'}
+                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
 open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
@@ -1867,6 +1867,27 @@ check('a critical report gets the critical SLA (1 day)',
 check('a minor report gets the minor SLA (7 days)',
       admin_sql('select sla_days from public.reports where id = %s', (minr['id'],))[0][0] == 7)
 
+# Waste type: one tap on the report screen. Picking one on a quick report (no category)
+# makes it a garbage report; an unknown type is refused; non-garbage drops it.
+wt_user = user()
+wt = rpc('kasa_create_report', uid=wt_user, p_category=None, p_severity='severe',
+         p_lat=offset(-2800, 3400)[0], p_lng=offset(-2800, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
+         p_waste_type='construction')
+check('a waste type on a quick report makes it garbage and is stored, public and on the 3-day clock',
+      admin_sql('select category, waste_type, sla_days from public.reports where id = %s', (wt['id'],))[0] == ('garbage', 'construction', 3)
+      and (view_row(wt['id']) or {}).get('waste_type') == 'construction')
+check('an unknown waste type is refused',
+      'KASA_BAD_WASTE_TYPE' in (err(rpc, 'kasa_create_report', uid=wt_user, p_category=None, p_severity='minor',
+          p_lat=offset(-2900, 3400)[0], p_lng=offset(-2900, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+          p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
+          p_waste_type='nuclear') or ''))
+nw = rpc('kasa_create_report', uid=wt_user, p_category='streetlight', p_severity='minor',
+         p_lat=offset(-3000, 3400)[0], p_lng=offset(-3000, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
+         p_waste_type='mixed')
+check('a non-garbage report keeps no waste type',
+      admin_sql('select category, waste_type from public.reports where id = %s', (nw['id'],))[0] == ('streetlight', None))
 # ─────────────────────────────── Promises page ─────────────────────────────
 pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
               p_made_on='2026-08-01', p_source_url='https://example.com/said')

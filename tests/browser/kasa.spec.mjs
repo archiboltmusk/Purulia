@@ -79,3 +79,23 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   // Strings not yet translated fall back to English rather than showing the raw key.
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
+
+test('report form sends the picked severity and waste type', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-map-report-btn').click();
+  await expect(page.locator('#k-cam-shutter')).toBeEnabled();
+  await page.locator('#k-cam-shutter').click();
+  await page.locator('#k-cam-use').click();
+  // Defaults: Minor picked, no waste type.
+  await expect(page.locator('#k-severity [data-sev="minor"]')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('#k-waste [aria-checked="true"]')).toHaveCount(0);
+  await page.locator('#k-severity [data-sev="severe"]').click();
+  await page.locator('#k-waste [data-waste="construction"]').click();
+  await expect(page.locator('#k-waste [data-waste="construction"]')).toHaveAttribute('aria-checked', 'true');
+  const submit = page.locator('#k-submit');
+  await expect(submit).toBeEnabled();
+  await submit.click();
+  await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body)
+    .toMatchObject({ p_severity: 'severe', p_waste_type: 'construction' });
+});
