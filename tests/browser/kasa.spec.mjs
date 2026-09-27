@@ -121,7 +121,13 @@ test('report form sends the picked severity and waste type', async ({ page, back
 test.describe('inside the Instagram app on an iPhone', () => {
   test.use({ userAgent: 'Mozilla/5.0 (iPhone; CPU iPhone OS 17_5 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Mobile/15E148 Instagram 340.0.0.22.109 (iPhone15,2; iOS 17_5; en_IN; en; scale=3.00; 1179x2556; 612345678)' });
 
-  test('offers Safari and the map pin without waiting on GPS', async ({ page, backend }) => {
+  test('offers Safari, and sends people there instead of a hand-placed pin when GPS fails', async ({ page, backend }) => {
+    await page.addInitScript(() => {
+      const fail = (ok, err) => setTimeout(() => err({ code: 2, message: 'unavailable' }), 10);
+      navigator.geolocation.getCurrentPosition = fail;
+      navigator.geolocation.watchPosition = (ok, err) => { fail(ok, err); return 1; };
+      navigator.geolocation.clearWatch = () => {};
+    });
     await page.goto('kasa.html');
     await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
     await expect(page.locator('#k-iab')).toBeVisible();
@@ -131,7 +137,10 @@ test.describe('inside the Instagram app on an iPhone', () => {
     await expect(page.locator('#k-iab')).toBeHidden();
     await page.locator('.k-map-report-btn').click();
     await expect(page.locator('#k-modal')).toHaveClass(/\bopen\b/);
-    await expect(page.locator('#k-mini-map')).not.toHaveAttribute('hidden', '');
+    await expect(page.locator('#k-iab-report')).toHaveAttribute('href', /^x-safari-https?:\/\//);
+    await expect(page.locator('#k-iab-report')).not.toHaveAttribute('hidden', '');
+    await expect(page.locator('#k-iab-report-note')).not.toHaveAttribute('hidden', '');
+    await expect(page.locator('#k-mini-map')).toHaveAttribute('hidden', '');
   });
 });
 

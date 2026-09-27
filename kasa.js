@@ -2523,6 +2523,8 @@ function openReport(prefill){
   // Automatic GPS is the norm; the button/map only reappear if it fails (see useGPS()).
   gpsBtn.hidden = true;
   document.getElementById('k-mini-map').hidden = true;
+  document.getElementById('k-iab-report').hidden = true;
+  document.getElementById('k-iab-report-note').hidden = true;
   setSeverity('minor');
   setWasteType(null);
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
@@ -2533,8 +2535,6 @@ function openReport(prefill){
     document.getElementById('k-landmark').value = prefill.landmark || '';
   } else {
     useGPS();
-    // Inside Instagram and similar apps GPS rarely answers; offer the map pin right away.
-    if (IN_APP) showPinMap();
   }
   goToStep(1);
   openModal('k-modal');
@@ -3211,7 +3211,7 @@ function setupInAppBrowser(){
   const bar = document.getElementById('k-iab');
   bar.querySelector('#k-iab-hint').hidden = !IS_IOS;
   const open = bar.querySelector('#k-iab-open');
-  if (url) open.href = url; else open.hidden = true;
+  if (url){ open.href = url; document.getElementById('k-iab-report').href = url; } else open.hidden = true;
   bar.querySelector('#k-iab-close').addEventListener('click', () => { bar.hidden = true; });
   bar.hidden = false;
 }
@@ -3262,6 +3262,14 @@ async function useGPS(){
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
     // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
+    // Inside Instagram and similar apps a live GPS fix is the only proof of place we get, so
+    // send people to their real browser instead of offering a hand-placed pin.
+    if (IN_APP){
+      btn.hidden = false;
+      document.getElementById('k-iab-report').hidden = !browserUrl();
+      document.getElementById('k-iab-report-note').hidden = false;
+      return;
+    }
     showPinMap();
     showToast(t(err?.code === 1 ? 'loc_denied_pin' : 'loc_fail_pin'));
   }
