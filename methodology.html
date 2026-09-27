@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Methodology — Parishkar Purulia</title>
-<meta name="description" content="How Parishkar Purulia counts reports, decides a problem is fixed, catches fake cleanups and computes its public numbers, and how anyone can check that the record was not changed.">
-<meta property="og:title" content="Methodology — Parishkar Purulia">
-<meta property="og:description" content="How reports, fixes and ward numbers are counted, and how to check the record yourself.">
+<title>How it works — Parishkar Purulia</title>
+<meta name="description" content="What Parishkar Purulia does and how it works: how reports are made, who they go to, how fast they should be fixed, how a problem is decided fixed, catches fake cleanups and computes its public numbers, and how anyone can check that the record was not changed.">
+<meta property="og:title" content="How it works — Parishkar Purulia">
+<meta property="og:description" content="How reports are made, routed, moderated and confirmed fixed, and how to check the record yourself.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/methodology.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/methodology.html">
@@ -38,14 +38,26 @@
 
   <a href="kasa.html" class="legal-back">← Back to Parishkar Purulia</a>
 
-  <h1 class="legal-title">How we <em>count</em></h1>
-  <div class="legal-meta">Rules as of 25 September 2026 · They run on the server, so the website cannot skip them</div>
+  <h1 class="legal-title">How it <em>works</em></h1>
+  <div class="legal-meta">Features and rules as of 27 September 2026 · They run on the server, so the website cannot skip them</div>
 
   <div class="legal-body">
 
     <div class="legal-callout">
       <p><strong>Reports are allegations by residents, not verified facts.</strong> What Parishkar Purulia adds is a public, checkable record: who reported what, where and when, what happened next, and how many neighbours confirmed it on the spot. This page explains every rule behind the numbers, so anyone can judge them.</p>
     </div>
+
+    <h2>What you can do on Parishkar</h2>
+    <ul>
+      <li><strong>Report a problem</strong> with one photo from the live camera. The spot, ward or block, and time are filled in for you. Works in English, Bengali and Hindi, and a report taken with no signal is saved and sent later.</li>
+      <li><strong>Say "I saw this too"</strong> on someone else's report, rate whether it looks real and how bad it is, or flag it if it's wrong.</li>
+      <li><strong>Watch a report</strong> to be told when it is claimed, fixed, close to its deadline or past it.</li>
+      <li><strong>Claim a cleanup, or confirm or dispute one</strong>, with a new photo from the spot (section 3).</li>
+      <li><strong>See who answers for it:</strong> each report shows the office responsible, frontline first (section 2).</li>
+      <li><strong>Check a school or a public toilet</strong> on the <a href="schools.html">schools</a> and <a href="toilets.html">toilets</a> pages, and <strong>adopt a spot</strong> you look after on the <a href="adopt.html">adopt</a> page.</li>
+      <li><strong>Follow the numbers</strong> for every ward and block on <a href="analytics.html">public analytics</a>, read the <a href="digest.html">weekly digest</a> or <a href="digest-subscribe.html">get it by email</a>, and download all report data as CSV.</li>
+      <li><strong>Suggest a feature</strong> on the <a href="suggest-feature.html">suggestions</a> page. Every change to the site is listed under <a href="changelog.html">What's new</a>.</li>
+    </ul>
 
     <h2>1. What counts as a report</h2>
     <ul>
@@ -60,7 +72,23 @@
       <li><strong>Repeated wrong reports:</strong> a person whose reports a moderator hides 3 times within 30 days can't file new reports for the next 30 days. They can still confirm, dispute and flag other people's reports. This is never triggered by the AI check above or by a public flag on its own — only a moderator's own decision to hide a report counts.</li>
     </ul>
 
-    <h2>2. When a problem counts as fixed</h2>
+    <h2>2. Where a report goes</h2>
+    <p>Parishkar does not file anything with an office on your behalf. It shows, on every report, which office answers for that kind of problem at that spot, so anyone can take it to the right desk. Roles are named, not individual officers, because officers aren't publicly listed.</p>
+    <ul>
+      <li><strong>Town or village.</strong> When a report is filed, the phone's position decides whether the spot is under <strong>Purulia Municipality</strong> (inside the town's ward map) or a <strong>gram panchayat</strong> (anywhere else in the district, including just outside the town's edge). This is saved with the report as its boundary type and is part of the public data and the CSV download.</li>
+      <li><strong>Who answers, in town.</strong> Municipal work goes up a chain that starts with the frontline section and ends with the Executive Officer and the Chairman. For example, garbage goes Conservancy Supervisor → Sanitary Inspector → Executive Officer → Chairman; broken roads and drains start with the Sub-Assistant Engineer; streetlights with the electrical Sub-Assistant Engineer; water supply with the Water Works section; encroachment with the Building & licence section, and then the Sub-Divisional Officer.</li>
+      <li><strong>Who answers, in a village.</strong> The same municipal kinds of work fall to the Gram Panchayat Pradhan, then the Block Development Officer, then the District Magistrate. Encroachment in a village goes to the Block Land &amp; Land Reforms Officer, the BDO and the SDO.</li>
+      <li><strong>Everywhere.</strong> Some problems belong to the same office in town and village: illegal mining to the land-reforms officers and the District Magistrate, crime to the local police station and up to the SP, anganwadi problems to ICDS, health centres to the block and district health officers, and schools to the school inspectors.</li>
+    </ul>
+
+    <h2>3. How fast it should be fixed</h2>
+    <ul>
+      <li>Every report gets a fix target when it is filed, set by how bad the reporter says it is: <strong>1 day</strong> for critical, <strong>3 days</strong> for severe, <strong>7 days</strong> for minor. The report shows a live clock ("Due in 5h", "2h overdue").</li>
+      <li>People watching a report get an alert when three quarters of its time has passed, and another when it is overdue. Each alert is sent once per report, and only to people who chose to watch it.</li>
+      <li>A report still unresolved after its target counts as overdue in the public numbers.</li>
+    </ul>
+
+    <h2>4. When a problem counts as fixed</h2>
     <p>No official or party worker can close a report by saying so. A report becomes <strong>fixed</strong> like this:</p>
     <ol>
       <li><strong>Claim.</strong> Anyone, officials included, claims the cleanup with a new photo taken with the camera on the Parishkar page (not from the gallery) within 50 m of the spot, with GPS accurate to 60 m or better. The photo must pass the server photo check (reused and copied photos are refused).</li>
@@ -68,31 +96,33 @@
       <li><strong>Wait.</strong> For 12 daytime hours after the third confirmation, anyone on the spot can still dispute it. Hours between 10 pm and 6 am don't count, so a claim confirmed late at night stays open until the next evening.</li>
       <li><strong>Fixed.</strong> If nothing stops it, the report becomes fixed. A moderator must clear it first if none of the confirmers has much history (fewer than 3 earlier actions), or if two of the confirmers have confirmed 3 or more other cleanups together in the last 30 days.</li>
     </ol>
+    <p><strong>Photo fast lane:</strong> for garbage and blocked drains, the server checks the cleanup photo with Google Vision. If it clearly shows no rubbish and its own GPS agrees with the phone, the claim needs only 1 confirmation from the spot instead of 3 (the network, waiting and moderator rules above still apply). If nobody confirms or disputes it within 3 days, it closes on the photo check alone, and the report says so. A report with an earlier thrown-out claim, or any dispute or hold, takes the claim out of the fast lane.</p>
     <p><strong>Accepted by a moderator:</strong> an admin who has checked the before and after photos can accept a cleanup claim. The report then shows "accepted by a moderator, not confirmed by neighbours" with the admin's reason on its timeline. These are not counted as verified fixes in the numbers on this site.</p>
     <p><strong>Disputes:</strong> 2 disputes from 2 different networks throw the claim out and reopen the report. 2 disputes from one network send it to a moderator instead. A claim that doesn't get enough confirmations within 14 days expires and the report reopens.</p>
     <p><strong>Outside Purulia town:</strong> villages have fewer Parishkar users and often only one mobile network, so a cleanup there needs 2 confirmations instead of 3, they may come from the same network, and a claim stays open for 30 days instead of 14. Everything else above still applies: account age, earlier activity, the live camera, the confirmer check and moderator holds. Two disputes, even from one network, throw a village claim out.</p>
     <p><strong>Repeated failed claims:</strong> a person with 3 claims thrown out within 30 days can't claim cleanups for the next 30 days. They can still report, confirm and dispute. After 3 claims thrown out by a moderator, they can't claim at all.</p>
     <p><strong>Fake cleanup caught:</strong> a claim thrown out by disputes or by a moderator. It is counted against the ward or block.</p>
 
-    <h2>3. Other checks against faking</h2>
+    <h2>5. Other checks against faking</h2>
     <ul>
       <li>An account's actions are refused if its GPS position jumped faster than 150 km/h since its previous action.</li>
       <li>The same photo, or a near-copy taken somewhere else, can't be used twice.</li>
       <li>Photos marked as made or edited with AI can't be used as cleanup evidence.</li>
+      <li>A moderator can void a confirmation or dispute shown to be fake. The vote stops counting, its voter gets a strike, and after 3 strikes that person can no longer confirm or dispute cleanups.</li>
       <li>Paying or arranging people to confirm a cleanup is against the <a href="terms.html">Terms</a> and may be a criminal offence.</li>
       <li>Public times are shown to the nearest hour, so a report or confirmation can't be matched to when someone was at a place.</li>
       <li>Accounts are anonymous. To tell networks apart, the server keeps only a scrambled code of the first part of the internet address, never the address itself.</li>
     </ul>
     <p><strong>Limits:</strong> a determined person can still fake a phone's GPS or prepare several accounts in advance. That is why confirmations need several people, several networks, established accounts and a waiting period, and why doubtful cases go to a moderator.</p>
 
-    <h2>4. The public numbers</h2>
+    <h2>6. The public numbers</h2>
     <table class="legal-table">
       <thead><tr><th>Number</th><th>How it is computed</th></tr></thead>
       <tbody>
         <tr><td>Reports</td><td>Published reports, not counting ones linked to an earlier report of the same problem.</td></tr>
         <tr><td>Unresolved</td><td>Reports that are open or have a cleanup claim still being checked.</td></tr>
-        <tr><td>Verified fixed</td><td>Reports that became fixed through the process in section 2. Older reports closed before that process existed are not counted.</td></tr>
-        <tr><td>Overdue</td><td>Unresolved for more than 7 days.</td></tr>
+        <tr><td>Verified fixed</td><td>Reports that became fixed through the process in section 4. Older reports closed before that process existed are not counted.</td></tr>
+        <tr><td>Overdue</td><td>Unresolved past its fix target (1, 3 or 7 days by severity; see section 3).</td></tr>
         <tr><td>Days to fix</td><td>From the time of the report to the time it became fixed. "Typical" means the median: half of the fixes were faster, half slower.</td></tr>
         <tr><td>Seen by</td><td>The reporter plus everyone who tapped "I saw this too" or filed the same problem again.</td></tr>
         <tr><td>Ward ranking</td><td>Wards ordered by unresolved reports; fake cleanups caught are shown next to them.</td></tr>
@@ -100,10 +130,10 @@
     </table>
     <p>The map shows fixed reports for 90 days; they stay in the record and in the downloads. Ward boundaries on the map are approximate. All report data can be downloaded as CSV from the Parishkar page, under the <a href="https://creativecommons.org/licenses/by/4.0/" rel="license noopener" target="_blank">CC BY 4.0</a> licence (photos not included).</p>
 
-    <h2>5. Checking that the record wasn't changed</h2>
+    <h2>7. Checking that the record wasn't changed</h2>
     <p>Every day, a fingerprint (SHA-256) of every public report, event and reply is published in the project's public code repository, and each day's entry is chained to the one before, so no past day can be altered without it showing. Each day's file is also saved to the Internet Archive. The fingerprints contain none of the content, so a report can still be removed for a legal reason, but not quietly rewritten. The <code>record/README.md</code> file in the repository explains how to check a report yourself.</p>
 
-    <h2>6. Corrections</h2>
+    <h2>8. Corrections</h2>
     <p>If you think a number or a rule here is wrong, write to the <a href="grievance.html">Grievance Officer</a>. Corrections are recorded in the affected report's history.</p>
 
     <div class="legal-footer-links">

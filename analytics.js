@@ -44,7 +44,7 @@
   set('an-updated', 'Updated ' + new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }));
   set('t-reports', all.length);
   set('t-open', open.length);
-  set('t-overdue', overdue.length ? `${overdue.length} overdue (over 7 days)` : 'none overdue');
+  set('t-overdue', overdue.length ? `${overdue.length} overdue (past fix target)` : 'none overdue');
   set('t-fixed', fixed.length);
   const byPhoto = fixed.filter(r => r.resolution_method === 'photo_check').length;
   set('t-fixed-how', `${fixed.length - byPhoto} by neighbours · ${byPhoto} by photo check` + (relapsed.size ? ` · ${relapsed.size} more didn't last` : ''));
