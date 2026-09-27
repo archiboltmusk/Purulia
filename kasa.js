@@ -324,9 +324,15 @@ async function init(){
    DATA
    ══════════════════════════════════════════════════════════ */
 async function fetchRows(){
-  // select('*'): the public view only has public columns, and a page cached
-  // before a column was added (or removed) keeps working.
-  const v2 = await sb.from('kasa_public_reports').select(PUBLIC_REPORT_COLUMNS).order('created_at', { ascending: false }).limit(1000);
+  // A column the page asks for but the database doesn't have yet (a migration not applied)
+  // makes the whole query fail, which emptied the map. Fall back to '*' — the view only has
+  // public columns — so reports still show.
+  const query = cols => sb.from('kasa_public_reports').select(cols).order('created_at', { ascending: false }).limit(1000);
+  let v2 = await query(PUBLIC_REPORT_COLUMNS);
+  if (v2.error){
+    console.warn('Parishkar: report columns missing, retrying with *', v2.error.message);
+    v2 = await query('*');
+  }
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
