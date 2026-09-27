@@ -1122,6 +1122,7 @@ function renderWardCard(){
       <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
       <a class="k-ward-filter" href="digest.html?ward=${n}">${esc(t('wc_digest'))}</a>
     </div>
+    <a class="k-ward-money" href="ward.html?ward=${n}">${esc(t('wc_page'))}</a>
     <a class="k-ward-money" href="municipality.html">${esc(t('wc_money'))}</a>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
@@ -2060,10 +2061,10 @@ async function shareCard(r){
   return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
 }
 
-/* A ward link opens the map filtered to that ward: something a councillor can share. */
+/* A ward link opens that ward's own page (ward.html): something a councillor can share. */
 function shareWard(n){
   const s = wardStats()[n] || { open: 0, resolved: 0 };
-  const url = `${PAGE_URL}?ward=${n}`;
+  const url = new URL(`ward.html?ward=${n}`, location.href).href;
   const text = t('ward_share_text', { n, open: s.open, fixed: s.resolved });
   if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
   copyText(url);
