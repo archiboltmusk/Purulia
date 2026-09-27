@@ -3523,6 +3523,23 @@ function wireUI(){
     });
   }
   document.getElementById('k-theme-toggle').addEventListener('click', toggleTheme);
+  document.getElementById('k-social-toggle').addEventListener('click', e => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    document.getElementById('k-social-dropdown').hidden = !open;
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.k-social-menu')) return;
+    document.getElementById('k-social-toggle').setAttribute('aria-expanded', 'false');
+    document.getElementById('k-social-dropdown').hidden = true;
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.getElementById('k-social-toggle').setAttribute('aria-expanded', 'false');
+    document.getElementById('k-social-dropdown').hidden = true;
+  });
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');
     const open = bar.classList.toggle('k-filters-open');
@@ -3549,19 +3566,8 @@ function wireUI(){
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
-  document.getElementById('k-resolved-btn').addEventListener('click', () => {
-    const on = state.filters.status !== 'resolved';
-    state.filters.status = on ? 'resolved' : '';
-    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(on));
-    document.getElementById('k-filter-status').value = state.filters.status;
-    renderAll();
-  });
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
-  document.getElementById('k-filter-status').addEventListener('change', e => {
-    state.filters.status = e.target.value;
-    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(state.filters.status === 'resolved'));
-    renderAll();
-  });
+  document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {
     const n = parseInt(e.target.value, 10);
@@ -3656,7 +3662,7 @@ async function locateOnOpen(){
 /* First-visit tips: a few small bubbles that point at a feature and say what it does.
    Shown once per device, after the location question, and never while a form is open. */
 const TIPS = [
-  { key: 'tip_lang_menu', target: () => visible('#k-fab-menu'), when: () => state.lang === 'en' },
+  { key: 'tip_lang_menu', target: () => visible('#k-more-btn'), when: () => state.lang === 'en' },
   { key: 'tip_report', target: () => visible('.k-map-report-btn') },
 ];
 function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
