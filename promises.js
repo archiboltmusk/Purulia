@@ -9,6 +9,10 @@
 
   const T = {
     en: {
+      reps_h: "Purulia's MP and MLAs",
+      reps_sub: 'Promises on record for each of Purulia\'s elected representatives. "No promise on record" means we found no promise with a source; send one below if you know of one.',
+      reps_none: 'No promise on record', reps_n: '{n} on record', rep_mp: 'MP, {s}', rep_mla: 'MLA, {s}',
+      rec_mplads: 'MP fund (MPLADS): named among Bengal MPs with "either zero completions or absolutely no spending" as on 6 Jan 2026.',
       nav_home: 'Home', nav_money: 'Who runs the municipality',
       title: 'Who promised <em>what</em>, and what was delivered',
       sub: 'Promises made to Purulia by its MP, MLAs, the municipality and the state government. Every promise links to where and when it was said. A promise is only marked in progress, delivered or broken with a link that shows it. News links are added automatically every morning.',
@@ -37,6 +41,10 @@
       rule_4: 'Anyone named here can reply or correct an entry through the <a href="grievance.html">Grievance Officer</a>. For who controls the municipality and its money, see <a href="municipality.html">Who runs the municipality</a>.'
     },
     bn: {
+      reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
+      reps_sub: 'পুরুলিয়ার প্রত্যেক নির্বাচিত প্রতিনিধির নথিভুক্ত প্রতিশ্রুতি। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কোনও প্রতিশ্রুতি আমরা পাইনি; জানা থাকলে নিচে পাঠান।',
+      reps_none: 'কোনও প্রতিশ্রুতি নথিভুক্ত নেই', reps_n: '{n}টি নথিভুক্ত', rep_mp: 'সাংসদ, {s}', rep_mla: 'বিধায়ক, {s}',
+      rec_mplads: 'সাংসদ তহবিল (MPLADS): ৬ জানুয়ারি ২০২৬ পর্যন্ত "একটিও কাজ শেষ হয়নি বা একেবারেই খরচ হয়নি" এমন বাংলার সাংসদদের মধ্যে নাম আছে।',
       nav_home: 'হোম', nav_money: 'পুরসভা কে চালায়',
       title: 'কে <em>কী</em> প্রতিশ্রুতি দিয়েছিলেন, কী হয়েছে',
       sub: 'পুরুলিয়ার সাংসদ, বিধায়ক, পুরসভা ও রাজ্য সরকারের দেওয়া প্রতিশ্রুতি। প্রতিটি প্রতিশ্রুতির সঙ্গে কোথায় ও কবে বলা হয়েছিল তার লিঙ্ক আছে। প্রমাণের লিঙ্ক ছাড়া কোনও প্রতিশ্রুতিকে "কাজ চলছে", "পূরণ হয়েছে" বা "ভাঙা" বলা হয় না। খবরের লিঙ্ক প্রতিদিন সকালে নিজে থেকেই যোগ হয়।',
@@ -65,6 +73,10 @@
       rule_4: 'এখানে যাঁর নাম আছে তিনি <a href="grievance.html">অভিযোগ আধিকারিক</a>-এর মাধ্যমে উত্তর বা সংশোধন দিতে পারেন। পুরসভা কে চালায় ও টাকা কোথায় যায় জানতে দেখুন <a href="municipality.html">পুরসভা কে চালায়</a>।'
     },
     hi: {
+      reps_h: 'पुरुलिया के सांसद और विधायक',
+      reps_sub: 'पुरुलिया के हर चुने हुए प्रतिनिधि के दर्ज वादे। "कोई वादा दर्ज नहीं" का मतलब है कि हमें स्रोत के साथ कोई वादा नहीं मिला; आपको पता हो तो नीचे भेजें।',
+      reps_none: 'कोई वादा दर्ज नहीं', reps_n: '{n} दर्ज', rep_mp: 'सांसद, {s}', rep_mla: 'विधायक, {s}',
+      rec_mplads: 'सांसद निधि (MPLADS): 6 जनवरी 2026 तक "या तो एक भी काम पूरा नहीं या बिल्कुल ख़र्च नहीं" वाले बंगाल के सांसदों में नाम है।',
       nav_home: 'होम', nav_money: 'नगरपालिका कौन चलाता है',
       title: 'किसने <em>क्या</em> वादा किया, और क्या पूरा हुआ',
       sub: 'पुरुलिया के सांसद, विधायकों, नगरपालिका और राज्य सरकार के वादे। हर वादे के साथ लिंक है कि वह कहाँ और कब कहा गया। सबूत के लिंक के बिना किसी वादे को "काम जारी", "पूरा" या "टूटा" नहीं कहा जाता। ख़बरों के लिंक हर सुबह अपने-आप जुड़ते हैं।',
@@ -203,7 +215,36 @@
     } else lab.hidden = true;
   }
 
-  function renderAll(){ applyStatic(); renderTiles(); renderWho(); renderList(); renderNews(); renderForm(); }
+  // Sourced facts about a representative's work that are not promises.
+  const RECORDS = {
+    'jyotirmay singh mahato': [{ k: 'rec_mplads', url: 'https://sundayguardianlive.com/news/bengal-mps-show-uneven-mplads-delivery-164124/', src: 'The Sunday Guardian, 11 Jan 2026' }]
+  };
+
+  function reps(){
+    const C = window.KASA_CITY || {};
+    const out = [];
+    if (C.reps && C.reps.mp) out.push({ name: C.reps.mp.name, role: t('rep_mp', { s: C.name || 'Purulia' }) });
+    (C.constituencies || []).forEach(c => { if (c.mla) out.push({ name: c.mla.name, role: t('rep_mla', { s: c.name }) }); });
+    return out;
+  }
+
+  function renderReps(){
+    const el = document.getElementById('pr-reps');
+    if (!el) return;
+    const list = reps();
+    el.closest('section').hidden = !list.length;
+    const norm = (x) => (x || '').trim().toLowerCase();
+    el.innerHTML = list.map(r => {
+      const n = state.loaded ? state.promises.filter(p => norm(p.who) === norm(r.name)).length : null;
+      const count = n === null ? '' : n ? `<button type="button" class="pr-upd" data-who="${esc(r.name)}">${esc(t('reps_n', { n }))}</button>`
+        : `<span class="pr-none">${esc(t('reps_none'))}</span>`;
+      const recs = (RECORDS[norm(r.name)] || []).map(x =>
+        `<div class="pr-meta">${esc(t(x.k))} <a href="${esc(safeUrl(x.url))}" target="_blank" rel="noopener nofollow">${esc(x.src)} ↗</a></div>`).join('');
+      return `<li><div class="pr-who">${esc(r.name)}</div><div class="pr-role">${esc(r.role)}</div>${count}${recs}</li>`;
+    }).join('');
+  }
+
+  function renderAll(){ applyStatic(); renderTiles(); renderReps(); renderWho(); renderList(); renderNews(); renderForm(); }
 
   async function load(){
     try {
@@ -222,6 +263,12 @@
     try { localStorage.setItem('kasa_lang', lang); } catch (e) {}
     renderAll();
   }));
+  document.getElementById('pr-reps').addEventListener('click', e => {
+    const b = e.target.closest('[data-who]');
+    if (!b) return;
+    state.who = b.dataset.who; renderWho(); renderList();
+    document.getElementById('pr-promises').scrollIntoView({ behavior: 'smooth' });
+  });
   document.getElementById('pr-who').addEventListener('change', e => { state.who = e.target.value; renderList(); });
   document.getElementById('pr-q').addEventListener('input', e => { state.q = e.target.value; renderList(); });
   document.querySelectorAll('#pr-status-chips .pr-chip').forEach(b => b.addEventListener('click', () => {
