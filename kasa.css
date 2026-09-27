@@ -606,6 +606,7 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-lb-search{display:block;width:100%;max-width:none;margin:0 0 .8rem;}
 .k-ward-groups{display:block;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
 .k-ward-groups.on{color:var(--green);}
+.k-ward-money,.k-acc-money{display:block;margin-top:.7rem;font-family:var(--mono);font-size:11px;color:var(--amber);}
 .k-ward-avg{margin-top:.4rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
 .k-photo-alt{display:block;margin:.7rem 0 .2rem;text-align:center;font-family:var(--mono);font-size:11px;color:var(--amber);text-decoration:underline;text-underline-offset:3px;cursor:pointer;}
 
