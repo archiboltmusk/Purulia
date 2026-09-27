@@ -1,3 +1,8 @@
+## Response Style
+- Deliver minimal, direct answers without conversational filler or post-execution summaries.
+- Return targeted diffs or minimal code snippets instead of full-file rewrites.
+- Ask targeted clarifying questions only when critical ambiguity blocks execution.
+
 # Deployment rules
 
 - GitHub Pages deploys only from `main`, via `.github/workflows/github-pages.yml` (the static site; `*.md`, `tools/`, `supabase/`, `tests/` and `og-card.html` are not published). The report app is `kasa.html` + `kasa.js`; `/app/` only redirects there. The `github-pages` environment rejects every other branch, so never add another branch to its `on.push.branches`.
