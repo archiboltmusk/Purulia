@@ -493,7 +493,7 @@ button.k-node:hover{background:rgba(212,136,42,.06);}
 .k-tl-item{position:relative;display:flex;gap:.7rem;align-items:flex-start;padding:.45rem 0;}
 .k-tl-dot{position:absolute;left:-1.1rem;top:.75rem;width:10px;height:10px;border-radius:50%;background:var(--ink2);border:2px solid var(--amber);}
 .k-tl-verified .k-tl-dot,.k-tl-resolved .k-tl-dot,.k-tl-neighbours_verified .k-tl-dot{border-color:var(--green);background:var(--green);}
-.k-tl-disputed .k-tl-dot,.k-tl-claim_rejected .k-tl-dot,.k-tl-neighbours_doubted .k-tl-dot{border-color:var(--red);background:var(--red);}
+.k-tl-disputed .k-tl-dot,.k-tl-claim_rejected .k-tl-dot,.k-tl-neighbours_doubted .k-tl-dot,.k-tl-sla_breached .k-tl-dot{border-color:var(--red);background:var(--red);}
 .k-tl-claimed .k-tl-dot,.k-tl-quorum_reached .k-tl-dot{border-color:var(--violet);}
 .k-tl-official_reply .k-tl-dot{border-color:#8fb5ff;}
 .k-tl-main{flex:1;min-width:0;}
