@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — interface text (English, Bengali, Hindi)
+   PURULIA KASA — interface text (English, Bengali, Hindi, Santali)
    Missing keys fall back to English.
    ══════════════════════════════════════════════════════════ */
 window.KASA_I18N = {
@@ -60,7 +60,7 @@ window.KASA_I18N = {
     qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Purulia', qr_sub: 'Point a phone camera at this QR code to open the report page.',
 
     grp_clean: 'Cleanliness', grp_infra: 'Roads & utilities', grp_illegal: 'Illegal activity',
-    cat_garbage: 'Garbage / dumping', cat_dumpsite: 'Dumping ground — trucks unload here', dumpsite_note: '🚛 Reporting a dumping ground. Stand where the trucks or carts unload and take the photo there.', cat_toilet: 'Public toilet — locked, unusable or unclean', toilet_note: '🚻 Reporting a public toilet. Photograph the locked door, the empty water tank, or the state inside — whatever the problem is.', cat_drain: 'Blocked drain / sewage', cat_road: 'Pothole / broken road',
+    cat_garbage: 'Garbage / dumping', cat_dumpsite: 'Dumping ground — trucks unload here', garbage_note: '🗑️ The National Green Tribunal (order of 22 July 2026, O.A. 606/2018) named Purulia among 14 West Bengal towns that do not collect and transport all their waste. Your photo adds to the public record.', dumpsite_note: '🚛 Reporting a dumping ground. Stand where the trucks or carts unload and take the photo there.', cat_toilet: 'Public toilet — locked, unusable or unclean', toilet_note: '🚻 Reporting a public toilet. Photograph the locked door, the empty water tank, or the state inside — whatever the problem is.', cat_drain: 'Blocked drain / sewage', cat_road: 'Pothole / broken road',
     cat_streetlight: 'Streetlight not working', cat_water: 'Water supply / leak', cat_missing: 'Missing or broken public property',
     cat_encroachment: 'Encroachment', cat_illegal_construction: 'Illegal construction', cat_illegal_mining: 'Illegal sand / stone mining',
     cat_illegal_other: 'Other illegal activity', cat_other: 'Other civic problem',
@@ -305,7 +305,7 @@ window.KASA_I18N = {
     qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার পুরুলিয়া শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
 
     grp_clean: 'পরিচ্ছন্নতা', grp_infra: 'রাস্তা ও পরিষেবা', grp_illegal: 'বেআইনি কাজ',
-    cat_garbage: 'আবর্জনা / ময়লা ফেলা', cat_dumpsite: 'ময়লা ফেলার মাঠ — গাড়ি এখানে ফেলে', dumpsite_note: '🚛 ময়লা ফেলার জায়গা জানাচ্ছেন। যেখানে গাড়ি বা ভ্যান ময়লা ফেলে সেখানে দাঁড়িয়ে ছবি তুলুন।', cat_toilet: 'সরকারি শৌচাগার — তালাবন্ধ, অকেজো বা নোংরা', toilet_note: '🚻 সরকারি শৌচাগার জানাচ্ছেন। তালাবন্ধ দরজা, খালি জলের ট্যাংক, বা ভেতরের অবস্থার ছবি তুলুন।', cat_drain: 'বন্ধ নর্দমা / নোংরা জল', cat_road: 'গর্ত / ভাঙা রাস্তা',
+    cat_garbage: 'আবর্জনা / ময়লা ফেলা', cat_dumpsite: 'ময়লা ফেলার মাঠ — গাড়ি এখানে ফেলে', garbage_note: '🗑️ জাতীয় পরিবেশ আদালত (NGT, ২২ জুলাই ২০২৬-এর আদেশ, O.A. 606/2018) পুরুলিয়াকে পশ্চিমবঙ্গের সেই ১৪টি পুরসভার মধ্যে রেখেছে, যারা সব আবর্জনা তুলে নিয়ে যায় না। আপনার ছবি সরকারি রেকর্ডে যোগ হয়।', dumpsite_note: '🚛 ময়লা ফেলার জায়গা জানাচ্ছেন। যেখানে গাড়ি বা ভ্যান ময়লা ফেলে সেখানে দাঁড়িয়ে ছবি তুলুন।', cat_toilet: 'সরকারি শৌচাগার — তালাবন্ধ, অকেজো বা নোংরা', toilet_note: '🚻 সরকারি শৌচাগার জানাচ্ছেন। তালাবন্ধ দরজা, খালি জলের ট্যাংক, বা ভেতরের অবস্থার ছবি তুলুন।', cat_drain: 'বন্ধ নর্দমা / নোংরা জল', cat_road: 'গর্ত / ভাঙা রাস্তা',
     cat_streetlight: 'রাস্তার আলো জ্বলছে না', cat_water: 'জল সরবরাহ / লিক', cat_missing: 'হারানো বা ভাঙা সরকারি সম্পত্তি',
     cat_encroachment: 'জবরদখল', cat_illegal_construction: 'বেআইনি নির্মাণ', cat_illegal_mining: 'বেআইনি বালি / পাথর খনন',
     cat_illegal_other: 'অন্য বেআইনি কাজ', cat_other: 'অন্য নাগরিক সমস্যা',
@@ -549,7 +549,7 @@ window.KASA_I18N = {
     qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार पुरुलिया शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
 
     grp_clean: 'सफ़ाई', grp_infra: 'सड़क और सेवाएँ', grp_illegal: 'अवैध गतिविधि',
-    cat_garbage: 'कचरा / डंपिंग', cat_dumpsite: 'कूड़ा डालने की जगह — गाड़ियाँ यहाँ उतारती हैं', dumpsite_note: '🚛 आप कूड़ा डालने की जगह बता रहे हैं। जहाँ गाड़ियाँ कूड़ा उतारती हैं वहीं खड़े होकर फ़ोटो लें।', cat_toilet: 'सार्वजनिक शौचालय — बंद, अनुपयोगी या गंदा', toilet_note: '🚻 आप सार्वजनिक शौचालय बता रहे हैं। बंद दरवाज़ा, खाली पानी की टंकी, या अंदर की हालत की फ़ोटो लें।', cat_drain: 'जाम नाली / सीवेज', cat_road: 'गड्ढा / टूटी सड़क',
+    cat_garbage: 'कचरा / डंपिंग', cat_dumpsite: 'कूड़ा डालने की जगह — गाड़ियाँ यहाँ उतारती हैं', garbage_note: '🗑️ राष्ट्रीय हरित अधिकरण (NGT, 22 जुलाई 2026 का आदेश, O.A. 606/2018) ने पुरुलिया को पश्चिम बंगाल के उन 14 नगरों में गिना है जो अपना पूरा कचरा उठाकर नहीं ले जाते। आपकी फ़ोटो सार्वजनिक रिकॉर्ड में जुड़ती है।', dumpsite_note: '🚛 आप कूड़ा डालने की जगह बता रहे हैं। जहाँ गाड़ियाँ कूड़ा उतारती हैं वहीं खड़े होकर फ़ोटो लें।', cat_toilet: 'सार्वजनिक शौचालय — बंद, अनुपयोगी या गंदा', toilet_note: '🚻 आप सार्वजनिक शौचालय बता रहे हैं। बंद दरवाज़ा, खाली पानी की टंकी, या अंदर की हालत की फ़ोटो लें।', cat_drain: 'जाम नाली / सीवेज', cat_road: 'गड्ढा / टूटी सड़क',
     cat_streetlight: 'स्ट्रीटलाइट बंद', cat_water: 'पानी की आपूर्ति / रिसाव', cat_missing: 'गायब या टूटी सार्वजनिक संपत्ति',
     cat_encroachment: 'अतिक्रमण', cat_illegal_construction: 'अवैध निर्माण', cat_illegal_mining: 'अवैध बालू / पत्थर खनन',
     cat_illegal_other: 'अन्य अवैध गतिविधि', cat_other: 'अन्य नागरिक समस्या',
@@ -963,3 +963,43 @@ Object.assign(window.KASA_I18N.hi, {
   sla_hours: '{n} घंटे', sla_days: '{n} दिन',
   sla_due_in: '⏱ {t} बाकी', sla_overdue_by: '⏱ {t} देर हो चुकी'
 });
+
+/* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else
+   falls back to English. Draft wording: have a native Santali speaker check it. */
+window.KASA_I18N.sat = {
+  nav_home: 'ᱚᱲᱟᱜ', nav_map: 'ᱱᱚᱠᱥᱟ', nav_kasa: 'ᱯᱚᱨᱤᱥᱠᱟᱨ', nav_report: 'ᱠᱷᱚᱵᱚᱨ ᱮᱢ →', nav_more: 'ᱟᱨᱦᱚᱸ',
+  nav_mine: 'ᱟᱢᱟᱜ ᱠᱷᱚᱵᱚᱨ', nav_report_menu: '📷 ᱮᱴᱠᱮᱴᱚᱬᱮ ᱠᱷᱚᱵᱚᱨ ᱮᱢ ᱢᱮ',
+  hero_l1: 'ᱮᱴᱠᱮᱴᱚᱬᱮ ᱧᱮᱞ ᱠᱮᱫᱟᱢ ᱥᱮ?', hero_l2: '᱓᱐ ᱥᱮᱠᱮᱱᱰ ᱨᱮ ᱠᱷᱚᱵᱚᱨ ᱮᱢ ᱢᱮ᱾',
+  hero_sub: 'ᱡᱚᱵᱨᱟ, ᱵᱚᱸᱫ ᱱᱟᱞᱟ, ᱨᱟᱹᱯᱩᱫ ᱥᱟᱰᱟᱜ, ᱵᱟᱝ ᱡᱚᱞᱚᱜ ᱢᱟᱨᱥᱟᱞ᱾ ᱥᱟᱱᱟᱢ ᱠᱷᱚᱵᱚᱨ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ, ᱟᱨ ᱡᱟᱭᱜᱟ ᱨᱮᱱ ᱦᱚᱲ ᱵᱟᱝ ᱢᱮᱱ ᱞᱮᱠᱷᱟᱱ ᱪᱮᱫ ᱦᱚᱸ ᱥᱟᱢᱟᱫᱷᱟᱱ ᱵᱟᱝ ᱜᱮᱱᱟ᱾',
+  hero_cta: 'ᱱᱤᱛᱚᱜ ᱠᱷᱚᱵᱚᱨ ᱮᱢ',
+  still_q: '{cat} ᱱᱤᱛᱚᱜ ᱦᱚᱸ ᱢᱮᱱᱟᱜ-ᱟ ᱥᱮ?', still_yes: 'ᱦᱮᱸ, ᱢᱮᱱᱟᱜ-ᱟ', still_gone: 'ᱥᱟᱯᱷᱟ ᱦᱩᱭ ᱮᱱᱟ', still_later: 'ᱱᱤᱛᱚᱜ ᱫᱚ ᱵᱟᱝ',
+  offline_banner: 'ᱱᱮᱴ ᱵᱟᱹᱱᱩᱜ-ᱟ — ᱱᱮᱴ ᱦᱤᱡᱩᱜ ᱠᱷᱟᱱ ᱠᱷᱚᱵᱚᱨ ᱟᱡ ᱛᱮ ᱠᱩᱞᱚᱜ-ᱟ',
+  view_map: 'ᱱᱚᱠᱥᱟ', view_list: 'ᱛᱟᱹᱞᱤᱠᱟᱹ', filters_btn: 'ᱵᱟᱪᱷᱟᱣ', nearby_btn: 'ᱤᱧ ᱫᱷᱟᱨᱮ',
+  sort_urgent: 'ᱟᱹᱰᱤ ᱞᱚᱜᱚᱱ', sort_newest: 'ᱱᱟᱣᱟ', sort_oldest: 'ᱡᱟᱹᱥᱛᱤ ᱫᱤᱱ ᱠᱷᱚᱱ ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ',
+  status_open: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', status_claimed: 'ᱧᱮᱞ ᱧᱮᱞᱚᱜ ᱠᱟᱱᱟ', status_resolved: 'ᱥᱟᱢᱟᱫᱷᱟᱱ ᱦᱩᱭ ᱮᱱᱟ',
+  sev_minor: 'ᱦᱩᱰᱤᱧ', sev_severe: 'ᱢᱟᱨᱟᱝ', sev_critical: 'ᱟᱹᱰᱤ ᱵᱟᱹᱲᱤᱡ',
+  pill_active: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', pill_reports: 'ᱠᱷᱚᱵᱚᱨ', map_report: 'ᱠᱷᱚᱵᱚᱨ ᱮᱢ',
+  stat_reports: 'ᱠᱷᱚᱵᱚᱨ', stat_open: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', stat_open_short: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', stat_resolved: 'ᱥᱟᱢᱟᱫᱷᱟᱱ (ᱧᱮᱞ ᱠᱟᱛᱮ)',
+  step1_camera: 'ᱠᱮᱢᱮᱨᱟ ᱡᱷᱤᱡᱽ ᱠᱟᱛᱮ ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ',
+  step1_title: 'ᱪᱮᱫ ᱮᱴᱠᱮᱴᱚᱬᱮ?', step1_sub: 'ᱡᱟᱦᱟᱸ ᱢᱤᱞᱟᱹᱣ ᱟᱠᱟᱱᱟ ᱚᱱᱟ ᱵᱟᱪᱷᱟᱣ ᱢᱮ᱾',
+  step2_title: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ', step2_sub: 'ᱮᱴᱠᱮᱴᱚᱬᱮ ᱯᱩᱨᱟᱹ ᱫᱮᱠᱷᱟᱣ ᱢᱮ᱾ ᱦᱚᱲ ᱨᱮᱭᱟᱜ ᱢᱩᱬᱩᱛ ᱟᱨ ᱜᱟᱹᱰᱤ ᱱᱚᱢᱵᱚᱨ ᱵᱟᱝ᱾',
+  step2_photo: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱞᱟᱹᱜᱤᱫ ᱴᱤᱯᱟᱹᱣ ᱢᱮ',
+  cam_title: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ', cam_retake: 'ᱫᱩᱦᱲᱟᱹ ᱤᱫᱤ', cam_use: 'ᱱᱚᱶᱟ ᱪᱤᱛᱟᱹᱨ ᱵᱮᱵᱷᱟᱨ ᱢᱮ',
+  step3_title: 'ᱧᱮᱞ ᱠᱟᱛᱮ ᱠᱩᱞ ᱢᱮ', step3_sub: 'ᱟᱢᱟᱜ ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱧᱟᱢᱚᱜ ᱠᱟᱱᱟ — ᱛᱤᱱᱟᱹᱜ ᱜᱟᱱ ᱛᱟᱹᱝᱜᱤ ᱢᱮ᱾',
+  step3_gps: '⊕ ᱤᱧᱟᱜ ᱡᱟᱭᱜᱟ', step3_gps_wait: 'ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱧᱟᱢᱚᱜ ᱠᱟᱱᱟ…', step3_gps_done: '✓ ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱮᱱᱟ',
+  step3_gps_fail: 'ᱡᱟᱭᱜᱟ ᱵᱟᱝ ᱧᱟᱢ ᱮᱱᱟ — ᱱᱚᱠᱥᱟ ᱨᱮ ᱴᱤᱯᱟᱹᱣ ᱢᱮ', step3_no_loc: 'ᱡᱟᱭᱜᱟ ᱵᱟᱝ ᱵᱟᱪᱷᱟᱣ ᱟᱠᱟᱱᱟ',
+  step3_landmark: 'ᱥᱮᱴᱮᱨ ᱨᱮᱱᱟᱜ ᱪᱤᱱᱦᱟᱹ', step3_ward: 'ᱣᱟᱨᱰ', step3_sev: 'ᱛᱤᱱᱟᱹᱜ ᱵᱟᱹᱲᱤᱡ?',
+  step3_desc: 'ᱪᱮᱫ ᱮᱴᱠᱮᱴᱚᱬᱮ? (ᱢᱚᱱᱮ ᱠᱷᱟᱱ)', step3_desc_ph: 'ᱢᱤᱫ ᱟᱹᱭᱟᱹᱛ ᱜᱮ ᱫᱷᱟᱵ',
+  voice_btn: '🎤 ᱢᱩᱪᱟᱹᱫ ᱛᱮ ᱢᱮᱱ ᱢᱮ (ᱢᱚᱱᱮ ᱠᱷᱟᱱ)', voice_stop: '■ ᱛᱤᱝᱜᱩ — ᱪᱟᱵᱟ ᱮᱱᱟ',
+  step3_submit: 'ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱢᱮ →', step3_uploading: 'ᱠᱩᱞᱚᱜ ᱠᱟᱱᱟ…',
+  step3_privacy: '🔒 ᱟᱢᱟᱜ ᱧᱩᱛᱩᱢ ᱵᱟᱝ ᱧᱮᱞᱚᱜ-ᱟ᱾ ᱪᱤᱛᱟᱹᱨ, ᱡᱟᱭᱜᱟ ᱟᱨ ᱣᱟᱨᱰ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾',
+  step3_not_town: 'ᱢᱩᱱᱤᱥᱤᱯᱟᱞᱤᱴᱤ ᱨᱮ ᱵᱟᱹᱱᱩᱜ-ᱟ',
+  done_title: 'ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱮᱱᱟ', done_sub: 'ᱱᱤᱛᱚᱜ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱱᱚᱠᱥᱟ ᱨᱮ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾',
+  done_title_offline: 'ᱯᱷᱚᱱ ᱨᱮ ᱫᱚᱦᱚ ᱮᱱᱟ', done_sub_offline: 'ᱱᱮᱴ ᱦᱤᱡᱩᱜ ᱠᱷᱟᱱ ᱟᱡ ᱛᱮ ᱠᱩᱞᱚᱜ-ᱟ᱾',
+  done_title_saved: 'ᱱᱚᱶᱟ ᱯᱷᱚᱱ ᱨᱮ ᱫᱚᱦᱚ ᱮᱱᱟ',
+  done_watch: '🔔 ᱥᱟᱢᱟᱫᱷᱟᱱ ᱦᱩᱭᱩᱜ ᱠᱷᱟᱱ ᱤᱧ ᱢᱮᱱ ᱟᱹᱜᱩ ᱠᱟᱜ ᱢᱮ', done_share: 'ᱱᱚᱶᱟ ᱠᱷᱚᱵᱚᱨ ᱦᱟᱹᱴᱤᱧ ᱢᱮ', done_close: 'ᱦᱩᱭ ᱮᱱᱟ',
+  grp_clean: 'ᱥᱟᱯᱷᱟ ᱥᱩᱛᱷᱨᱟ', grp_infra: 'ᱥᱟᱰᱟᱜ, ᱫᱟᱜ, ᱢᱟᱨᱥᱟᱞ', grp_services: 'ᱟᱹᱛᱩ ᱟᱨ ᱥᱚᱨᱠᱟᱨᱤ ᱥᱮᱣᱟ',
+  cat_garbage: 'ᱡᱚᱵᱨᱟ', cat_drain: 'ᱵᱚᱸᱫ ᱱᱟᱞᱟ', cat_road: 'ᱨᱟᱹᱯᱩᱫ ᱥᱟᱰᱟᱜ / ᱜᱟᱲᱟ',
+  cat_streetlight: 'ᱥᱟᱰᱟᱜ ᱢᱟᱨᱥᱟᱞ ᱵᱟᱝ ᱡᱚᱞᱚᱜ ᱠᱟᱱᱟ', cat_water: 'ᱫᱟᱜ ᱵᱟᱹᱱᱩᱜ-ᱟ / ᱫᱟᱜ ᱥᱩᱨᱩᱜ ᱠᱟᱱᱟ',
+  cat_hand_pump: 'ᱨᱟᱹᱯᱩᱫ ᱠᱚᱞ', cat_school: 'ᱤᱥᱠᱩᱞ', cat_toilet: 'ᱴᱚᱭᱞᱮᱴ — ᱠᱩᱞᱩᱯ ᱟᱠᱟᱱ ᱥᱮ ᱢᱚᱭᱞᱟ', cat_other: 'ᱮᱴᱟᱜ ᱮᱴᱠᱮᱴᱚᱬᱮ'
+};

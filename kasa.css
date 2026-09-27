@@ -7,7 +7,7 @@
   --green:#6db88a; --red:#e8524a; --orange:#e88a4a; --violet:#8f7ae6;
   --mono:'DM Mono',ui-monospace,monospace;
   --serif:'EB Garamond',Georgia,serif;
-  --civic:'Noto Sans Bengali','Noto Sans Devanagari','DM Mono',sans-serif;
+  --civic:'Noto Sans Bengali','Noto Sans Devanagari','Noto Sans Ol Chiki','DM Mono',sans-serif;
 
   /* Dark mode (default) */
   --ink:#0a0805; --ink2:#0f0c07; --ink3:#15110a; --ink4:#1c1710;
@@ -55,7 +55,8 @@
 *{box-sizing:border-box;margin:0;padding:0;}
 html,body{background:var(--ink);color:var(--cream);font-family:var(--serif);font-size:16px;line-height:1.6;-webkit-font-smoothing:antialiased;overflow-x:hidden;}
 html[lang="bn"] body,html[lang="bn"] button,html[lang="bn"] input,html[lang="bn"] select,html[lang="bn"] textarea,
-html[lang="hi"] body,html[lang="hi"] button,html[lang="hi"] input,html[lang="hi"] select,html[lang="hi"] textarea{font-family:var(--civic);}
+html[lang="hi"] body,html[lang="hi"] button,html[lang="hi"] input,html[lang="hi"] select,html[lang="hi"] textarea,
+html[lang="sat"] body,html[lang="sat"] button,html[lang="sat"] input,html[lang="sat"] select,html[lang="sat"] textarea{font-family:var(--civic);}
 body.k-noscroll{overflow:hidden;}
 a{color:inherit;text-decoration:none;}
 button{font-family:inherit;cursor:pointer;border:none;background:none;color:inherit;}
