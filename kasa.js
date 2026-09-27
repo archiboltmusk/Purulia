@@ -962,6 +962,24 @@ function watchMapStyleLoad(map){
   }, 8000);
 }
 
+// OpenFreeMap's dark style already carries OSM road names (the transportation_name source
+// layer), but at a near-invisible dark-grey-on-black contrast meant for a subtle backdrop under
+// other data. Purulia's roads are the whole point of this map, so raise them to legible —
+// this can't add road names OSM doesn't have, only make the ones it does have readable.
+function boostRoadLabels(map){
+  if (map.getLayer('highway_name_other')){
+    map.setPaintProperty('highway_name_other', 'text-color', 'rgba(196,182,158,.92)');
+    map.setPaintProperty('highway_name_other', 'text-halo-color', 'rgba(10,8,5,.9)');
+    map.setPaintProperty('highway_name_other', 'text-halo-width', 1.2);
+    map.setLayoutProperty('highway_name_other', 'text-size', 11);
+  }
+  if (map.getLayer('highway_name_motorway')){
+    map.setPaintProperty('highway_name_motorway', 'text-color', 'rgba(232,138,74,.95)');
+    map.setPaintProperty('highway_name_motorway', 'text-halo-color', 'rgba(10,8,5,.9)');
+    map.setPaintProperty('highway_name_motorway', 'text-halo-width', 1.2);
+  }
+}
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
@@ -984,6 +1002,7 @@ function initMainMapNow(){
 
   return new Promise(resolve => {
     mainMap.on('load', () => {
+      boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       // Density view: same source, no clustering needed since heatmap blends points itself.
       // A critical report weighs more than a minor one, so the worst streets glow brightest.
@@ -2531,6 +2550,7 @@ function initMiniMap(){
     center: draft.lng != null ? [draft.lng, draft.lat] : MAP_CENTER, zoom: draft.lng != null ? 16 : MAP_ZOOM, attributionControl: false
   });
   miniMap.on('click', e => setLocation(e.lngLat.lat, e.lngLat.lng, null));
+  miniMap.on('load', () => boostRoadLabels(miniMap));
   watchMapStyleLoad(miniMap);
   if (draft.lng != null) placeMiniMarker();
 }
@@ -2814,6 +2834,7 @@ async function openSchoolFix(code){
     if (window.maplibregl){
       if (sf.map) sf.map.remove();
       sf.map = new maplibregl.Map({ container: 'k-sf-map', style: MAP_STYLE, center: [pos.lng, pos.lat], zoom: 18, attributionControl: false });
+      sf.map.on('load', () => boostRoadLabels(sf.map));
       watchMapStyleLoad(sf.map);
     }
   } catch (e){
