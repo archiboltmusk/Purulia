@@ -855,3 +855,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-sf-map{position:absolute;inset:0;}
 .k-sf-pin{position:absolute;left:50%;top:50%;transform:translate(-50%,-100%);font-size:34px;pointer-events:none;filter:drop-shadow(0 3px 4px rgba(0,0,0,.6));}
 .k-sf-hint{position:absolute;left:50%;bottom:.5rem;transform:translateX(-50%);padding:.3rem .7rem;background:rgba(10,8,5,.9);border-radius:20px;font-family:var(--mono);font-size:10.5px;color:var(--cream);white-space:nowrap;pointer-events:none;}
+
+/* "School not on the list? Add it" under the school picker */
+.k-linkbtn{background:none;border:0;padding:6px 0;color:var(--amber);font:inherit;font-size:.9rem;text-decoration:underline;cursor:pointer;text-align:left}
+#k-ns-modal .k-input{margin-top:8px}

@@ -3047,6 +3047,90 @@ async function submitReportCard(){
   updateReportCardSubmit();
 }
 
+/* A school missing from the list: a live photo of its gate or name board, taken there,
+   plus its name and block. A moderator finds its UDISE code before it joins the list. */
+let ns = null;
+async function openMissingSchool(){
+  const block = sc && document.getElementById('k-sc-block').value;
+  if (sc) closeModal('k-sc-modal');
+  sc = null;
+  ns = { pos: null, blob: null, meta: null };
+  setDrawer(false);
+  const sel = document.getElementById('k-ns-block');
+  const { data } = await sb.rpc('kasa_school_blocks');
+  sel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
+    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)}</option>`).join('');
+  if (block) sel.value = block;
+  for (const id of ['k-ns-name', 'k-ns-village', 'k-ns-udise']) document.getElementById(id).value = '';
+  document.getElementById('k-ns-preview').innerHTML = '';
+  const ps = document.getElementById('k-ns-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('ns_photo_hint');
+  updateMissingSchoolSubmit();
+  openModal('k-ns-modal');
+  const status = document.getElementById('k-ns-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!ns) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { ns.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (ns) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateMissingSchoolSubmit();
+}
+
+async function captureMissingSchoolPhoto(){
+  if (!ns) return;
+  const res = await openLiveCamera();
+  if (!ns) return;
+  const status = document.getElementById('k-ns-photo-status');
+  if (res.blob){
+    ns.blob = res.blob;
+    ns.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-ns-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateMissingSchoolSubmit();
+}
+
+function updateMissingSchoolSubmit(){
+  if (!ns) return;
+  const udise = document.getElementById('k-ns-udise').value.trim();
+  document.getElementById('k-ns-submit').disabled = !(ns.blob && ns.pos
+    && document.getElementById('k-ns-name').value.trim().length >= 3
+    && document.getElementById('k-ns-block').value && (!udise || /^\d{11}$/.test(udise)));
+}
+
+async function submitMissingSchool(){
+  if (!ns) return;
+  const btn = document.getElementById('k-ns-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', ns.blob);
+    await sendPhotoMeta(path, ns.meta);
+    await checkPhoto(path, null, ns.pos.lat, ns.pos.lng);
+    const { error } = await sb.rpc('kasa_suggest_school', {
+      p_name: document.getElementById('k-ns-name').value, p_block: document.getElementById('k-ns-block').value,
+      p_village: document.getElementById('k-ns-village').value, p_lat: ns.pos.lat, p_lng: ns.pos.lng,
+      p_accuracy: ns.pos.accuracy, p_photo_path: path, p_udise_hint: document.getElementById('k-ns-udise').value.trim() || null });
+    if (error) throw rpcError(error);
+    closeModal('k-ns-modal');
+    showToast(t('ns_done'), 8000);
+    ns = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('ns_submit');
+  updateMissingSchoolSubmit();
+}
+
 /* "The school is here": someone standing at a school puts it on the map, or corrects its pin. */
 let sf = null;
 async function openSchoolFix(code){
@@ -3154,6 +3238,11 @@ function initSchoolCheck(){
   document.getElementById('k-sc-cam-btn').addEventListener('click', captureSchoolPhoto);
   document.getElementById('k-sc-submit').addEventListener('click', submitSchoolCheck);
   document.getElementById('k-sf-submit').addEventListener('click', submitSchoolFix);
+  document.getElementById('k-sc-missing').addEventListener('click', openMissingSchool);
+  document.getElementById('k-ns-cam-btn').addEventListener('click', captureMissingSchoolPhoto);
+  document.getElementById('k-ns-submit').addEventListener('click', submitMissingSchool);
+  for (const id of ['k-ns-name', 'k-ns-block', 'k-ns-udise']) document.getElementById(id).addEventListener('input', updateMissingSchoolSubmit);
+  document.getElementById('k-ns-block').addEventListener('change', updateMissingSchoolSubmit);
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
@@ -3181,6 +3270,7 @@ function initSchoolCheck(){
   const q = new URLSearchParams(location.search), code = q.get('school');
   const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
+  else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
   else if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
