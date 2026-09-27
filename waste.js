@@ -1,4 +1,19 @@
-/* "Where the waste goes": the dumping grounds residents have reported, on a map and in a list. */
+/* "Where the waste goes": the dumping grounds residents have reported, on a map and in a list.
+
+   KNOWN_LEGACY_SITES are not citizen reports — no photo, no on-site confirmation, so they
+   never go in kasa_public_reports. They are Purulia's three NGT-monitored legacy dumpsites,
+   named in the state's monthly bio-mining progress report to the National Mission for Clean
+   Ganga. Shown as a separate, clearly labelled marker layer so they're never mistaken for
+   something a neighbour witnessed and photographed. */
+const KNOWN_LEGACY_SITES = [
+  { name: 'Bongabari (Banga Bari Samsan)', lat: 23.35781, lng: 86.38736 },
+  { name: 'Chharma', lat: 23.32917, lng: 86.37292 },
+  { name: 'Hutmura — site A', lat: 23.3753, lng: 86.42805 },
+  { name: 'Hutmura — site B', lat: 23.34977, lng: 86.38601 },
+  { name: 'Hutmura — site C', lat: 23.3495, lng: 86.4992 }
+];
+const LEGACY_SITE_SOURCE = 'NGT-monitored biomining progress report to the National Mission for Clean Ganga, February 2026';
+
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const list = document.getElementById('ws-dump-list');
@@ -31,6 +46,14 @@
       .addTo(map);
     bounds.extend([r.lng, r.lat]);
   });
-  if (rows.length > 1) map.fitBounds(bounds, { padding: 40, maxZoom: 14 });
-  else if (rows.length === 1) map.setCenter([rows[0].lng, rows[0].lat]);
+  KNOWN_LEGACY_SITES.forEach(s => {
+    const el = document.createElement('div');
+    el.textContent = '⚠️'; el.style.fontSize = '20px'; el.style.cursor = 'pointer'; el.style.opacity = '.85';
+    new maplibregl.Marker({ element: el }).setLngLat([s.lng, s.lat])
+      .setPopup(new maplibregl.Popup({ offset: 14 }).setHTML(
+        `<strong>${esc(s.name)}</strong><br>Documented legacy dumpsite — not a citizen report.<br><span style="font-size:11px;color:#888">Source: ${esc(LEGACY_SITE_SOURCE)}</span>`))
+      .addTo(map);
+    bounds.extend([s.lng, s.lat]);
+  });
+  map.fitBounds(bounds, { padding: 40, maxZoom: 14 });
 })();
