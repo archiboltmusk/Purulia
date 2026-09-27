@@ -963,6 +963,31 @@ Object.assign(window.KASA_I18N.hi, {
   sla_hours: '{n} घंटे', sla_days: '{n} दिन',
   sla_due_in: '⏱ {t} बाकी', sla_overdue_by: '⏱ {t} देर हो चुकी'
 });
+/* Report screen: severity sizes and waste type. */
+Object.assign(window.KASA_I18N.en, {
+  sev_minor_d: 'A few bags or scattered litter, under 1 m². Fix within 7 days.',
+  sev_severe_d: 'A big heap, about the size of an auto-rickshaw (1–5 m²). Fix within 3 days.',
+  sev_critical_d: 'Spread over the road or blocking a drain (over 5 m²), or a health risk. Fix within 1 day.',
+  waste_label: "Waste type (only if it's garbage)", waste_household: 'Household', waste_construction: 'Construction debris',
+  waste_mixed: 'Mixed', waste_e_waste: 'E-waste', waste_biomedical: 'Biomedical',
+  err_KASA_BAD_WASTE_TYPE: 'Choose a waste type from the list.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  sev_minor_d: 'কয়েকটা ব্যাগ বা ছড়ানো আবর্জনা, ১ বর্গমিটারের কম। ৭ দিনের মধ্যে পরিষ্কার।',
+  sev_severe_d: 'বড় স্তূপ, প্রায় একটা অটোরিকশার মতো (১–৫ বর্গমিটার)। ৩ দিনের মধ্যে পরিষ্কার।',
+  sev_critical_d: 'রাস্তা জুড়ে বা নালা আটকে (৫ বর্গমিটারের বেশি), বা স্বাস্থ্যের ঝুঁকি। ১ দিনের মধ্যে পরিষ্কার।',
+  waste_label: 'আবর্জনার ধরন (শুধু আবর্জনা হলে)', waste_household: 'গৃহস্থালি', waste_construction: 'নির্মাণের ভাঙা মাল',
+  waste_mixed: 'মিশ্র', waste_e_waste: 'ই-বর্জ্য', waste_biomedical: 'চিকিৎসা বর্জ্য',
+  err_KASA_BAD_WASTE_TYPE: 'তালিকা থেকে আবর্জনার ধরন বেছে নিন।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  sev_minor_d: 'कुछ थैलियाँ या बिखरा कचरा, 1 वर्ग मीटर से कम। 7 दिन में सफ़ाई।',
+  sev_severe_d: 'बड़ा ढेर, लगभग एक ऑटो-रिक्शा जितना (1–5 वर्ग मीटर)। 3 दिन में सफ़ाई।',
+  sev_critical_d: 'सड़क पर फैला या नाली जाम (5 वर्ग मीटर से ज़्यादा), या सेहत के लिए ख़तरा। 1 दिन में सफ़ाई।',
+  waste_label: 'कचरे का प्रकार (सिर्फ़ कचरा हो तो)', waste_household: 'घरेलू', waste_construction: 'निर्माण का मलबा',
+  waste_mixed: 'मिला-जुला', waste_e_waste: 'ई-कचरा', waste_biomedical: 'मेडिकल कचरा',
+  err_KASA_BAD_WASTE_TYPE: 'सूची से कचरे का प्रकार चुनें।'
+});
 
 /* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else
    falls back to English. Draft wording: have a native Santali speaker check it. */

@@ -363,8 +363,9 @@
   <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-step-title">
     <div class="k-modal-handle"></div>
     <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
-    <!-- One screen: camera, then submit. No category, ward, severity or description fields —
-         the server works all of that out from the photo and the GPS point (see
+    <!-- One screen: camera, two one-tap pickers (how bad, waste type), then submit. No
+         category, ward or description fields — the server works those out from the photo
+         and the GPS point (see
          kasa_create_report / kasa_private.locate). The location runs silently in the
          background from the moment this opens (see openReport()). The old fields still
          exist, hidden, only so the rest of the JS (edit/prefill paths, legacy fallback)
@@ -395,14 +396,6 @@
           <label for="k-ward" data-i18n="step3_ward">Ward</label>
           <select id="k-ward" class="k-input"><option value="">—</option></select>
         </div>
-        <div class="k-field">
-          <span class="k-field-label" data-i18n="step3_sev">How bad?</span>
-          <div class="k-seg" id="k-severity" role="radiogroup">
-            <button type="button" data-sev="minor" role="radio" aria-checked="true" data-i18n="sev_minor">Minor</button>
-            <button type="button" data-sev="severe" role="radio" aria-checked="false" data-i18n="sev_severe">Severe</button>
-            <button type="button" data-sev="critical" role="radio" aria-checked="false" data-i18n="sev_critical">Critical</button>
-          </div>
-        </div>
       </div>
       <div class="k-field" hidden>
         <label for="k-desc" data-i18n="step3_desc">What's wrong? (optional)</label>
@@ -411,6 +404,26 @@
       <div class="k-voice" id="k-voice" hidden>
         <button type="button" class="k-btn k-btn-secondary" id="k-voice-btn" aria-pressed="false" data-i18n="voice_btn">🎤 Say what's wrong (optional)</button>
         <div class="k-voice-text" id="k-voice-text" aria-live="polite"></div>
+      </div>
+      <!-- One tap each, with defaults: severity starts at Minor (sets the 7/3/1-day deadline);
+           waste type is optional and only for garbage (picking one files it as garbage). -->
+      <div class="k-field">
+        <span class="k-field-label" data-i18n="step3_sev">How bad?</span>
+        <div class="k-sev-cards" id="k-severity" role="radiogroup">
+          <button type="button" data-sev="minor" role="radio" aria-checked="true"><i class="k-dot k-dot-minor"></i><b data-i18n="sev_minor">Minor</b><span data-i18n="sev_minor_d">A few bags or scattered litter, under 1 m². Fix within 7 days.</span></button>
+          <button type="button" data-sev="severe" role="radio" aria-checked="false"><i class="k-dot k-dot-severe"></i><b data-i18n="sev_severe">Severe</b><span data-i18n="sev_severe_d">A big heap, about the size of an auto-rickshaw (1–5 m²). Fix within 3 days.</span></button>
+          <button type="button" data-sev="critical" role="radio" aria-checked="false"><i class="k-dot k-dot-critical"></i><b data-i18n="sev_critical">Critical</b><span data-i18n="sev_critical_d">Spread over the road or blocking a drain (over 5 m²), or a health risk. Fix within 1 day.</span></button>
+        </div>
+      </div>
+      <div class="k-field">
+        <span class="k-field-label" data-i18n="waste_label">Waste type (only if it's garbage)</span>
+        <div class="k-waste-chips" id="k-waste" role="radiogroup">
+          <button type="button" data-waste="household" role="radio" aria-checked="false" data-i18n="waste_household">Household</button>
+          <button type="button" data-waste="construction" role="radio" aria-checked="false" data-i18n="waste_construction">Construction debris</button>
+          <button type="button" data-waste="mixed" role="radio" aria-checked="false" data-i18n="waste_mixed">Mixed</button>
+          <button type="button" data-waste="e_waste" role="radio" aria-checked="false" data-i18n="waste_e_waste">E-waste</button>
+          <button type="button" data-waste="biomedical" role="radio" aria-checked="false" data-i18n="waste_biomedical">Biomedical</button>
+        </div>
       </div>
       <button type="button" class="k-btn k-btn-primary" id="k-submit" disabled data-i18n="step3_submit">Submit Report →</button>
       <div class="k-privacy" data-i18n="step3_privacy">🔒 Reports are anonymous. The photo, location and ward are public; nothing identifies you.</div>

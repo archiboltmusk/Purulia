@@ -32,7 +32,7 @@ const SHARE_URL = (window.KASA_CONFIG?.SHARE_URL || '').replace(/\/$/, '');
 const reportLink = id => SHARE_URL ? `${SHARE_URL}/r/${encodeURIComponent(id)}` : `${PAGE_URL}?report=${encodeURIComponent(id)}`;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
-const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type';
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type,waste_type';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -41,6 +41,7 @@ const DEFAULT_RULES = {
   max_photo_age_minutes: 120, photo_gps_far_m: 500, require_live_capture: 0
 };
 const SEVERITIES = ['minor', 'severe', 'critical'];
+const WASTE_TYPES = ['household', 'construction', 'mixed', 'e_waste', 'biomedical'];
 const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
@@ -416,6 +417,7 @@ function normalize(r){
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
+    wasteType: WASTE_TYPES.includes(r.waste_type) ? r.waste_type : null,
     status,
     description: r.description || '',
     landmark: r.landmark || '',
@@ -711,7 +713,9 @@ const api = {
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
-      p_photo_path: path, p_client_id: d.clientId, p_boundary_type: d.boundary_type
+      p_photo_path: path, p_client_id: d.clientId, p_boundary_type: d.boundary_type,
+      // Sent only when picked, so a page newer than the database still files the report.
+      ...(d.wasteType ? { p_waste_type: d.wasteType } : {})
     });
     if (error) throw rpcError(error);
     if (!data.replayed && d.extraPhotos?.length) await api.addPhotos(String(data.id), d);
@@ -1478,7 +1482,7 @@ function renderSheet(){
     </button>` : ''}
 
     <div class="k-sheet-place">
-      <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${neighbourBadge(r)}</div>
+      <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${r.wasteType ? ' · ' + esc(t('waste_' + r.wasteType)) : ''}${neighbourBadge(r)}</div>
       <h3 class="k-sheet-title">${esc(place)}</h3>
       <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
@@ -2070,7 +2074,7 @@ function shareWard(n){
 }
 
 /* Open data: reports as a spreadsheet, public columns only. */
-const CSV_COLUMNS = ['id', 'created_at', 'ward', 'category', 'severity', 'status', 'resolution', 'resolved_at',
+const CSV_COLUMNS = ['id', 'created_at', 'ward', 'category', 'waste_type', 'severity', 'status', 'resolution', 'resolved_at',
   'days_open', 'overdue', 'lat', 'lng', 'landmark', 'description', 'people_saw', 'rejected_cleanup_claims',
   'times_recurred', 'duplicate', 'photo_url', 'resolved_photo_url', 'link'];
 
@@ -2086,7 +2090,7 @@ function downloadCSV(scope){
   const rows = (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending);
   if (!rows.length) return showToast(t('csv_empty'));
   const lines = rows.map(r => [
-    r.id, r.createdAt, r.ward, r.category, r.severity, r.status, r.resolution, r.resolvedAt,
+    r.id, r.createdAt, r.ward, r.category, r.wasteType, r.severity, r.status, r.resolution, r.resolvedAt,
     r.status === 'resolved' ? null : daysSince(r.createdAt), isOverdue(r), r.lat, r.lng, r.landmark, r.description,
     peopleSaw(r), r.rejectedClaims, r.recurrence, r.duplicate, r.photo, r.resolvedPhoto,
     reportLink(r.id)
@@ -2453,7 +2457,7 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', landmark: '', description: '', locked: false };
+  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', wasteType: null, landmark: '', description: '', locked: false };
 }
 
 function openReport(prefill){
@@ -2479,6 +2483,7 @@ function openReport(prefill){
   gpsBtn.hidden = true;
   document.getElementById('k-mini-map').hidden = true;
   setSeverity('minor');
+  setWasteType(null);
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
   renderCategoryGrid();
   if (prefill){
@@ -3029,6 +3034,13 @@ function setSeverity(sev){
   document.querySelectorAll('#k-severity button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sev === sev)));
 }
 
+/* Optional: picking a waste type marks the report as garbage (the server does the same).
+   Tapping the chosen one again clears it, for problems that aren't garbage. */
+function setWasteType(type){
+  if (draft) draft.wasteType = type;
+  document.querySelectorAll('#k-waste button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.waste === type)));
+}
+
 /* No category to pick any more — the server assigns it. A ward is needed only inside the
    town's ward map (auto-detected from GPS); villages go by block, which the server works out. */
 function draftReady(){
@@ -3511,7 +3523,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -3553,6 +3565,7 @@ function wireUI(){
     if (d.profile) return openRepProfile(d.profile);
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }
+    if (d.waste){ setWasteType(draft?.wasteType === d.waste ? null : d.waste); return; }
   });
 
   document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));

@@ -363,6 +363,19 @@ select.k-input{background-color:var(--ink3);}
 .k-seg button[aria-checked="true"][data-sev="minor"]{background:rgba(212,136,42,.2);color:var(--amber);}
 .k-seg button[aria-checked="true"][data-sev="severe"]{background:rgba(232,138,74,.2);color:var(--orange);}
 .k-seg button[aria-checked="true"][data-sev="critical"]{background:rgba(232,82,74,.22);color:var(--red);}
+/* Report screen: severity cards and waste-type chips (one tap each). */
+.k-sev-cards{display:grid;gap:.5rem;}
+.k-sev-cards button{display:grid;grid-template-columns:auto 1fr;column-gap:.6rem;align-items:center;text-align:left;padding:.7rem .85rem;border:1px solid var(--border);border-radius:8px;color:var(--text-md);background:transparent;min-height:44px;}
+.k-sev-cards button b{font-family:var(--civic);font-size:.95rem;font-weight:600;color:var(--text-hi);}
+.k-sev-cards button span{grid-column:2;font-family:var(--civic);font-size:.8rem;line-height:1.4;color:var(--text-lo);}
+.k-sev-cards button[aria-checked="true"][data-sev="minor"]{border-color:var(--amber);background:rgba(212,136,42,.1);}
+.k-sev-cards button[aria-checked="true"][data-sev="severe"]{border-color:var(--orange);background:rgba(232,138,74,.1);}
+.k-sev-cards button[aria-checked="true"][data-sev="critical"]{border-color:var(--red);background:rgba(232,82,74,.1);}
+.k-sev-cards button[aria-checked="true"] span{color:var(--text-md);}
+.k-sev-cards .k-dot{width:10px;height:10px;}
+.k-waste-chips{display:flex;flex-wrap:wrap;gap:.45rem;}
+.k-waste-chips button{padding:.55rem .85rem;min-height:40px;border:1px solid var(--border);border-radius:8px;font-family:var(--civic);font-size:.88rem;color:var(--text-md);background:transparent;}
+.k-waste-chips button[aria-checked="true"]{border-color:var(--amber);background:rgba(212,136,42,.14);color:var(--amber);font-weight:600;}
 .k-coords{margin-top:.6rem;font-family:var(--mono);font-size:11px;color:rgba(212,136,42,.85);min-height:1rem;}
 .k-mini-map{width:100%;height:210px;margin-top:1rem;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
 .k-privacy{margin-top:1rem;font-size:.8rem;line-height:1.6;color:var(--text-lo);}
