@@ -83,6 +83,7 @@
         <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener"><span class="k-social-icon k-social-emoji" aria-hidden="true">☕</span> <span data-i18n="footer_coffee">Buy me a coffee</span></a>
       </div>
     </div>
+    <button type="button" class="k-bell" data-notify data-i18n-title="notify_title" title="Alerts" aria-label="Alerts"><span aria-hidden="true">🔔</span><i class="k-bell-dot" hidden></i></button>
     <button type="button" class="k-nav-cta" data-action="report" data-i18n="nav_report">Report →</button>
     <button type="button" class="k-nav-more" id="k-more-btn" aria-controls="k-drawer" aria-expanded="false">
       <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
@@ -216,9 +217,9 @@
       <span class="k-drawer-text">Ward Accountability</span>
       <span class="k-drawer-sub" data-i18n="drawer_ward_sub">See who's responsible</span>
     </button>
-    <button type="button" class="k-drawer-item k-alerts-btn" data-alerts data-i18n="drawer_alerts">
+    <button type="button" class="k-drawer-item" data-notify>
       <span class="k-drawer-icon" aria-hidden="true">🔔</span>
-      <span class="k-drawer-text">Alert Me</span>
+      <span class="k-drawer-text" data-i18n="notify_title">Alerts</span>
       <span class="k-drawer-sub" data-i18n="drawer_alerts_sub">Notify me of nearby issues</span>
     </button>
   </nav>
@@ -648,6 +649,34 @@
 </div>
 
 <!-- Your reports (private, device-only history) -->
+<!-- Alerts: the one place to choose what we tell you about -->
+<div class="k-modal" id="k-nt-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-nt-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-nt-title" data-i18n="notify_title">Alerts</h3>
+    <p class="k-modal-sub" data-i18n="notify_sub">Choose what Parishkar tells you about. Every alert can be turned off here.</p>
+    <div class="k-note" id="k-nt-ios" hidden data-i18n="notify_ios">On iPhone, alerts only work from the app on your Home Screen. Tap Share, then “Add to Home Screen”, and open Parishkar from there.</div>
+    <div class="k-note" id="k-nt-nopush" hidden data-i18n="notify_nopush">This browser can't show alerts. The weekly email below still works.</div>
+    <section class="k-nt-item">
+      <h4 data-i18n="notify_near_h">Problems near you</h4>
+      <p data-i18n="notify_near_p">A notification when someone reports a problem within 500 m of where you are now.</p>
+      <button type="button" class="k-btn k-btn-secondary k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
+    </section>
+    <section class="k-nt-item">
+      <h4 data-i18n="notify_watch_h">Reports you watch</h4>
+      <p data-i18n="notify_watch_p">Open any report and tap “Watch this report” to hear when it is claimed, fixed or disputed.</p>
+      <p class="k-nt-count" id="k-nt-count" hidden></p>
+    </section>
+    <section class="k-nt-item">
+      <h4 data-i18n="notify_digest_h">Weekly digest by email</h4>
+      <p data-i18n="notify_digest_p">One email every Monday with what was reported and fixed in each ward.</p>
+      <button type="button" class="k-btn k-btn-secondary" data-close data-digest-open data-i18n="notify_digest_btn">✉ Get it by email</button>
+    </section>
+  </div>
+</div>
+
 <div class="k-modal" id="k-mine-modal" aria-hidden="true">
   <div class="k-modal-backdrop" data-close></div>
   <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-mine-title">
