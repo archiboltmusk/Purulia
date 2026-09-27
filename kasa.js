@@ -311,6 +311,7 @@ async function init(){
   // Tips also start on their own if the location question didn't run (a shared link, for example).
   setTimeout(startTips, 5000);
   syncOfflineQueue();
+  startLiveRefresh();
 
   if (state.mode === 'v2'){
     sb.rpc('kasa_finalize_due').then(({ data }) => { if (data > 0) loadReports().then(renderAll); });
@@ -364,6 +365,23 @@ async function loadReports(){
     console.error('Parishkar: reports load failed', e);
     if (!state.reports.length) showToast(t('err_load'));
   }
+}
+
+/* New reports and fixes show up without a reload: re-fetch every two minutes while the page
+   is on screen, and straight away when someone comes back to the tab. Skipped while a form
+   is open or offline, and nothing is redrawn unless something changed. */
+function startLiveRefresh(){
+  let last = Date.now();
+  const sig = () => state.reports.map(r => `${r.id}:${r.status}:${r.seen}`).join();
+  const tick = async () => {
+    if (document.hidden || !navigator.onLine || document.querySelector('.k-modal.open')) return;
+    last = Date.now();
+    const before = sig();
+    await loadReports();
+    if (sig() !== before) renderAll();
+  };
+  setInterval(tick, 120000);
+  document.addEventListener('visibilitychange', () => { if (!document.hidden && Date.now() - last > 120000) tick(); });
 }
 
 function setReports(rows){

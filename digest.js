@@ -103,6 +103,10 @@
     const p = new URLSearchParams({ [area.kind]: area.id });
     if (start !== lastFullWeek) p.set('week', new Date(start + IST).toISOString().slice(0, 10));
     history.replaceState(null, '', '?' + p);
+    const fastest = fixed.map(r => ({ r, d: Math.max(0, Math.round((Date.parse(r.resolved_at) - Date.parse(r.created_at)) / DAY)) }))
+      .sort((a, b) => a.d - b.d)[0];
+    render.card = { place, week, opened: opened.length, fixed: fixed.length, open: openAtEnd.length, overdue: overdue.length,
+      fastest: fastest && `${cat(fastest.r.category)}${fastest.r.landmark ? ' · ' + fastest.r.landmark : ''}, ${fastest.d < 1 ? 'fixed same day' : 'fixed in ' + fastest.d + (fastest.d === 1 ? ' day' : ' days')}` };
     render.summary = `${place}, ${week} — ${opened.length} new, ${fixed.length} verified fixed, ${openAtEnd.length} still unresolved (${overdue.length} overdue). Parishkar Purulia:`;
   }
 
@@ -115,5 +119,52 @@
     try { await navigator.clipboard.writeText(`${render.summary} ${url}`); set('dg-share', 'Copied ✓'); setTimeout(() => set('dg-share', 'Share this digest'), 2000); }
     catch (e) { prompt('Copy this link:', url); }
   });
+  document.getElementById('dg-card').addEventListener('click', async () => {
+    const blob = await weekCard(render.card);
+    const file = new File([blob], 'parishkar-week.png', { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){
+      try { await navigator.share({ files: [file], title: 'Parishkar Purulia — weekly digest', text: `${render.summary} ${location.href}` }); } catch (e) {}
+      return;
+    }
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  });
+
+  /* 1080×1350 picture of the week, for WhatsApp status and Instagram: four numbers, the fastest fix, the link. */
+  async function weekCard(d){
+    const W = 1080, H = 1350, PAD = 72;
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const g = c.getContext('2d');
+    await document.fonts?.ready;
+    const serif = '"EB Garamond", Georgia, serif', mono = '"DM Mono", ui-monospace, monospace';
+    g.fillStyle = '#0a0805'; g.fillRect(0, 0, W, H);
+    g.fillStyle = '#e8a34a'; g.font = `500 30px ${mono}`;
+    g.fillText('WEEKLY DIGEST', PAD, 130);
+    g.fillStyle = '#f0e6d0'; g.font = `700 84px ${serif}`;
+    g.fillText(d.place, PAD, 230, W - 2 * PAD);
+    g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `italic 400 44px ${serif}`;
+    g.fillText(d.week, PAD, 295, W - 2 * PAD);
+    const tiles = [['New reports', d.opened, '#f0e6d0'], ['Verified fixed', d.fixed, '#7fb069'],
+                   ['Still unresolved', d.open, '#e8a34a'], ['Overdue', d.overdue, '#d9534f']];
+    const tw = (W - 2 * PAD - 40) / 2, th = 250;
+    tiles.forEach(([label, n, color], i) => {
+      const x = PAD + (i % 2) * (tw + 40), y = 370 + Math.floor(i / 2) * (th + 40);
+      g.fillStyle = 'rgba(240,230,208,.06)'; g.fillRect(x, y, tw, th);
+      g.fillStyle = color; g.font = `700 130px ${serif}`; g.fillText(String(n), x + 36, y + 150);
+      g.fillStyle = 'rgba(240,230,208,.8)'; g.font = `500 32px ${mono}`; g.fillText(label, x + 36, y + 210);
+    });
+    if (d.fastest){
+      g.fillStyle = '#e8a34a'; g.font = `500 30px ${mono}`; g.fillText('FASTEST FIX', PAD, 1010);
+      g.fillStyle = '#f0e6d0'; g.font = `400 44px ${serif}`; g.fillText(d.fastest, PAD, 1070, W - 2 * PAD);
+    }
+    g.fillStyle = 'rgba(240,230,208,.6)'; g.font = `400 30px ${serif}`;
+    g.fillText('Fixed means neighbours confirmed it on the spot.', PAD, 1150, W - 2 * PAD);
+    g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+    g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`; g.fillText('Parishkar Purulia', PAD, H - 68);
+    g.font = `500 28px ${mono}`; g.fillText('Report a problem in 30 seconds · archiboltmusk.github.io/Purulia', PAD, H - 28, W - 2 * PAD);
+    return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
+  }
+
   render();
 })();
