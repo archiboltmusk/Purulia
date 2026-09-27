@@ -80,7 +80,7 @@ const CHAINS = {
   police:       { agency: 'agency_police', nodes: ['ps', 'sdpo', 'sp'], note: 'note_112' },
   icds:         { agency: 'agency_icds', nodes: ['cdpo', 'dpo', 'dm'] },
   health:       { agency: 'agency_health', nodes: ['bmoh', 'cmoh', 'dm'] },
-  education:    { agency: 'agency_education', nodes: ['si_school', 'di_school', 'dm'] }
+  education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] }
 };
 
 /* Outside Purulia town the municipality's work falls to the gram panchayat and the block. */
@@ -108,7 +108,7 @@ function verifyNeeded(r){
 const ROLE_ABBR = {
   conservancy: 'CS', si: 'SI', eo: 'EO', chairman: 'CH', sae: 'SAE', ae: 'AE', sae_elec: 'SAE',
   waterworks: 'WW', building: 'BL', sdo: 'SDO', bllro: 'BL&LRO', dllro: 'DL&LRO', dm: 'DM', ps: 'PS', sdpo: 'SDPO', sp: 'SP',
-  pradhan: 'GP', bdo: 'BDO', sdo_area: 'SDO', cdpo: 'CDPO', dpo: 'DPO', bmoh: 'BMOH', cmoh: 'CMOH', si_school: 'SI', di_school: 'DI'
+  pradhan: 'GP', bdo: 'BDO', sdo_area: 'SDO', cdpo: 'CDPO', dpo: 'DPO', bmoh: 'BMOH', cmoh: 'CMOH', si_school: 'SI', adi_school: 'ADI', di_school: 'DI'
 };
 
 // Elected representatives, from city.js.
