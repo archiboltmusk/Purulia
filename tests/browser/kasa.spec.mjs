@@ -131,13 +131,15 @@ test.describe('inside the Instagram app on an iPhone', () => {
     await page.goto('kasa.html');
     await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
     await expect(page.locator('#k-iab')).toBeVisible();
-    await expect(page.locator('#k-iab-open')).toHaveAttribute('href', /^x-safari-https?:\/\/.+kasa\.html/);
+    await expect(page.locator('#k-iab-open')).toHaveAttribute('href', /^instagram:\/\/extbrowser\/\?url=https?%3A%2F%2F.+kasa\.html/);
     await expect(page.locator('#k-iab-hint')).toBeVisible();
+    await expect(page.locator('#k-iab [data-iab-copy]')).toBeVisible();
     await page.locator('#k-iab-close').click();
     await expect(page.locator('#k-iab')).toBeHidden();
     await page.locator('.k-map-report-btn').click();
     await expect(page.locator('#k-modal')).toHaveClass(/\bopen\b/);
-    await expect(page.locator('#k-iab-report')).toHaveAttribute('href', /^x-safari-https?:\/\//);
+    await expect(page.locator('#k-iab-report')).toHaveAttribute('href', /^instagram:\/\/extbrowser\//);
+    await expect(page.locator('#k-iab-report-copy')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report-note')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-mini-map')).toHaveAttribute('hidden', '');

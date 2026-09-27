@@ -2525,6 +2525,7 @@ function openReport(prefill){
   document.getElementById('k-mini-map').hidden = true;
   document.getElementById('k-iab-report').hidden = true;
   document.getElementById('k-iab-report-note').hidden = true;
+  document.getElementById('k-iab-report-copy').hidden = true;
   setSeverity('minor');
   setWasteType(null);
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
@@ -3196,7 +3197,9 @@ const IS_ANDROID = /Android/i.test(UA), IS_IOS = /iPhone|iPad|iPod/i.test(UA);
 function browserUrl(){
   const u = location.href.split('#')[0];
   if (IS_ANDROID) return 'intent://' + u.replace(/^https?:\/\//, '') + '#Intent;scheme=https;package=com.android.chrome;S.browser_fallback_url=' + encodeURIComponent(u) + ';end';
-  if (IS_IOS) return 'x-safari-' + u; // opens Safari on iOS 17+; older phones use the ⋯ menu
+  // Instagram's own "open in external browser" link is the exit it doesn't block; other apps
+  // get x-safari-https (iOS 17+). Both need a real tap, so they only sit behind buttons.
+  if (IS_IOS) return /Instagram/i.test(UA) ? 'instagram://extbrowser/?url=' + encodeURIComponent(u) : 'x-safari-' + u;
   return null;
 }
 
@@ -3213,7 +3216,22 @@ function setupInAppBrowser(){
   const open = bar.querySelector('#k-iab-open');
   if (url){ open.href = url; document.getElementById('k-iab-report').href = url; } else open.hidden = true;
   bar.querySelector('#k-iab-close').addEventListener('click', () => { bar.hidden = true; });
+  document.querySelectorAll('[data-iab-copy]').forEach(b => b.addEventListener('click', copyPageLink));
   bar.hidden = false;
+}
+
+/* The one exit every in-app browser allows: paste the link into Safari or Chrome. */
+async function copyPageLink(){
+  const u = location.href.split('#')[0];
+  let ok = false;
+  try { await navigator.clipboard.writeText(u); ok = true; } catch (e) {
+    const ta = document.createElement('textarea');
+    ta.value = u; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+    document.body.appendChild(ta); ta.select();
+    try { ok = document.execCommand('copy'); } catch (e2) {}
+    ta.remove();
+  }
+  showToast(ok ? t('iab_copied') : u, 6000);
 }
 
 function showPinMap(){
@@ -3268,6 +3286,7 @@ async function useGPS(){
       btn.hidden = false;
       document.getElementById('k-iab-report').hidden = !browserUrl();
       document.getElementById('k-iab-report-note').hidden = false;
+      document.getElementById('k-iab-report-copy').hidden = false;
       return;
     }
     showPinMap();
