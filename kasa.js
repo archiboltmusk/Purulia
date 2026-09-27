@@ -3523,6 +3523,23 @@ function wireUI(){
     });
   }
   document.getElementById('k-theme-toggle').addEventListener('click', toggleTheme);
+  document.getElementById('k-social-toggle').addEventListener('click', e => {
+    e.stopPropagation();
+    const btn = e.currentTarget;
+    const open = btn.getAttribute('aria-expanded') !== 'true';
+    btn.setAttribute('aria-expanded', String(open));
+    document.getElementById('k-social-dropdown').hidden = !open;
+  });
+  document.addEventListener('click', e => {
+    if (e.target.closest('.k-social-menu')) return;
+    document.getElementById('k-social-toggle').setAttribute('aria-expanded', 'false');
+    document.getElementById('k-social-dropdown').hidden = true;
+  });
+  document.addEventListener('keydown', e => {
+    if (e.key !== 'Escape') return;
+    document.getElementById('k-social-toggle').setAttribute('aria-expanded', 'false');
+    document.getElementById('k-social-dropdown').hidden = true;
+  });
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');
     const open = bar.classList.toggle('k-filters-open');
