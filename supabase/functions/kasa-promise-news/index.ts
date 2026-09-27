@@ -27,6 +27,8 @@ const TOPICS: [string, string][] = [
 
 // A headline is kept only if it names Purulia or a promise-maker; search engines match loosely.
 const PLACE = ['purulia', 'পুরুলিয়া', 'पुरुलिया', 'raghunathpur', 'jhalda', 'manbazar'];
+// Price-listing sites that match any town name; not news.
+const SKIP_SOURCES = /bikewale|carwale|cardekho|zigwheels|autox|91wheels/i;
 
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
@@ -85,7 +87,7 @@ Deno.serve(async () => {
   const names = ((people as string[] | null) ?? []).map(n => n.toLowerCase());
   const relevant = (t: string) => { const l = t.toLowerCase(); return PLACE.some(k => l.includes(k)) || names.some(n => l.includes(n)); };
   const seen = new Set<string>();
-  const items = all.filter(i => relevant(i.title) && !seen.has(i.url) && seen.add(i.url));
+  const items = all.filter(i => relevant(i.title) && !SKIP_SOURCES.test(i.source) && !seen.has(i.url) && seen.add(i.url));
   const { data: added, error } = await admin.rpc('kasa_promise_news_ingest', { p_items: items });
   if (error) return reply(500, { error: error.message, errors });
   return reply(200, { searched: topics.length, found: items.length, added, errors });
