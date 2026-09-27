@@ -557,6 +557,7 @@
         <input type="search" id="k-sc-find" class="k-input" data-i18n-placeholder="sc_find_ph" placeholder="Type the school or village name" hidden>
         <select id="k-sc-school" class="k-input" size="6" hidden></select>
         <div class="k-ev-status" id="k-sc-picked"></div>
+        <button type="button" class="k-linkbtn" id="k-sc-missing" data-i18n="ns_open">School not on the list? Add it</button>
       </div>
     </div>
     <div class="k-ev-step">
@@ -585,6 +586,38 @@
     </div>
     <button type="button" class="k-btn k-btn-primary" id="k-sc-submit" disabled data-i18n="sc_submit">Save the school check</button>
     <div class="k-privacy"><a href="schools.html" data-i18n="sc_see_all">See every school's checks →</a></div>
+  </div>
+</div>
+
+<!-- Add a school that is missing from the list -->
+<div class="k-modal" id="k-ns-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-ns-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-ns-title" data-i18n="ns_title">Add a missing school</h3>
+    <p class="k-modal-sub" data-i18n="ns_sub">Stand at the school. A moderator checks the photo and finds its UDISE code before it goes on the list.</p>
+    <div class="k-ev-step">
+      <div class="k-ev-num">1</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="ns_photo">Photo of the gate or name board</div>
+        <div class="k-ev-status" id="k-ns-photo-status" data-i18n="ns_photo_hint">The school's name must be readable in the photo. No faces, please.</div>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-ns-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
+        <div class="k-photo-preview" id="k-ns-preview"></div>
+        <div class="k-ev-status" id="k-ns-loc"></div>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">2</div>
+      <div class="k-ev-body">
+        <label class="k-ev-label" for="k-ns-name" data-i18n="ns_name">School name, as on the board</label>
+        <input type="text" id="k-ns-name" class="k-input" maxlength="140" autocomplete="off">
+        <select id="k-ns-block" class="k-input"><option value="" data-i18n="sc_block_pick">Choose the block…</option></select>
+        <input type="text" id="k-ns-village" class="k-input" maxlength="80" data-i18n-placeholder="ns_village_ph" placeholder="Village or para">
+        <input type="text" id="k-ns-udise" class="k-input" inputmode="numeric" maxlength="11" data-i18n-placeholder="ns_udise_ph" placeholder="UDISE code, if written on the board (11 digits)">
+      </div>
+    </div>
+    <button type="button" class="k-btn k-btn-primary" id="k-ns-submit" disabled data-i18n="ns_submit">Send for checking</button>
   </div>
 </div>
 
