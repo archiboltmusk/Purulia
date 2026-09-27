@@ -17,7 +17,7 @@ window.KASA_CONFIG = {
 
   // Address of the Cloudflare worker (worker.js), e.g. 'https://purulia.example.workers.dev'. When set, shared
   // report links go through it so WhatsApp/X/Facebook previews show the report's photo. Empty = plain links.
-  SHARE_URL: '',
+  SHARE_URL: 'https://purulia.mahatoanupam002.workers.dev',
 
   // Published on the legal pages and used for "Right of reply" requests.
   GRIEVANCE_EMAIL: 'thelosthillproject@gmail.com'

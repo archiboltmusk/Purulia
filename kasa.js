@@ -1122,6 +1122,7 @@ function renderWardCard(){
       <button type="button" class="k-ward-filter" data-ward-share="${n}">${esc(t('wc_share'))}</button>
       <a class="k-ward-filter" href="digest.html?ward=${n}">${esc(t('wc_digest'))}</a>
     </div>
+    <a class="k-ward-money" href="municipality.html">${esc(t('wc_money'))}</a>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
@@ -1667,6 +1668,7 @@ function renderAccountability(r){
         ${rural ? '' : `<div class="k-acc-reps-label">${esc(t('acc_reps'))}</div>`}
         <div class="k-acc-reps">${reps}</div>
         <div class="k-acc-hint">${esc(t('acc_tap'))}</div>
+        ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
         ${renderEscalate(r)}
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
       </div>
