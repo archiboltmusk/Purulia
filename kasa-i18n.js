@@ -17,7 +17,7 @@ window.KASA_I18N = {
     pill_active: 'Unresolved', pill_reports: 'Reports', map_report: 'Report',
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
     stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
-    drawer_banner: 'Join 7 neighbors fixing Purulia today', drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: 'See who\\'s responsible', drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
+    drawer_banner: 'Join 7 neighbors fixing Purulia today', drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
     trust_sub: "No official or party worker can close a report by saying so. Neighbours on the spot confirm a fix. An admin can accept a cleanup only after checking the photos, and the report then says so openly. These rules run on the server — the website can't skip them.",
