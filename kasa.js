@@ -1140,15 +1140,17 @@ function setView(view){
   else if (mainMap) requestAnimationFrame(() => mainMap.resize());
 }
 
+const SEV_RANK = { critical: 3, severe: 2, minor: 1 }, STATUS_RANK = { open: 2, claimed: 1, resolved: 0 };
+const urgentFirst = (a, b) => STATUS_RANK[b.status] - STATUS_RANK[a.status] || SEV_RANK[b.severity] - SEV_RANK[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt);
+
 function sortReports(list){
-  const sevRank = { critical: 3, severe: 2, minor: 1 };
-  const statusRank = { open: 2, claimed: 1, resolved: 0 };
+  const sevRank = SEV_RANK, statusRank = STATUS_RANK;
   const by = {
     urgent: (a, b) => statusRank[b.status] - statusRank[a.status] || sevRank[b.severity] - sevRank[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt),
     newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
     seen: (a, b) => b.seen - a.seen,
     oldest: (a, b) => statusRank[b.status] - statusRank[a.status] || new Date(a.createdAt) - new Date(b.createdAt)
-  }[state.sort];
+  }[state.sort] || urgentFirst;
   // Reports neighbours doubt sink below the rest, whatever the chosen order.
   const doubt = r => r.neighbour === 'doubted' ? 2 : (r.ratings >= 3 && r.authAvg != null && r.authAvg <= 2 ? 1 : 0);
   return [...list].sort((a, b) => doubt(a) - doubt(b) || by(a, b));
@@ -1168,9 +1170,26 @@ function renderList(){
   document.getElementById('k-list-count').textContent = t('list_count', { n: list.length });
   const box = document.getElementById('k-list-items');
   if (!list.length){ box.innerHTML = `<div class="k-lb-empty">${esc(t('list_empty'))}</div>`; return; }
+  // "By ward": one heading per town ward (villages by block), the ward with most unresolved first.
+  let groupOf = null, heads = null;
+  if (state.sort === 'ward'){
+    groupOf = r => r.area !== 'rural' && r.ward ? 'w' + r.ward : r.block ? 'b' + r.block : '-';
+    const open = {};
+    for (const r of list) open[groupOf(r)] = (open[groupOf(r)] || 0) + (r.status !== 'resolved');
+    const order = Object.keys(open).sort((a, b) => (a === '-') - (b === '-') || open[b] - open[a] || a.localeCompare(b, undefined, { numeric: true }));
+    const rank = Object.fromEntries(order.map((k, i) => [k, i]));
+    list.sort((a, b) => rank[groupOf(a)] - rank[groupOf(b)] || urgentFirst(a, b));
+    heads = k => {
+      const w = k[0] === 'w' && state.wards[k.slice(1)];
+      const name = k === '-' ? t('list_no_area') : k[0] === 'w' ? t('acc_ward', { n: k.slice(1) }) + (w?.councillor_name ? ' · ' + w.councillor_name : '') : t('list_block', { b: k.slice(1) });
+      return `<div class="k-list-group"><span>${esc(name)}</span><span>${esc(t('list_ward_open', { n: open[k] }))}</span></div>`;
+    };
+  }
+  let prev = null;
   box.innerHTML = list.slice(0, 300).map(r => {
     const c = CATEGORIES[r.category];
-    return `
+    const head = groupOf && groupOf(r) !== prev ? heads(prev = groupOf(r)) : '';
+    return `${head}
     <button type="button" class="k-list-item" data-open="${esc(r.id)}">
       ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy" width="64" height="64">` : `<span class="k-list-noimg">${c.icon}</span>`}
       <span class="k-list-main">
