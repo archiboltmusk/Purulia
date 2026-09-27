@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -523,7 +523,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1866,6 +1866,42 @@ check('a critical report gets the critical SLA (1 day)',
       admin_sql('select sla_days from public.reports where id = %s', (crit['id'],))[0][0] == 1)
 check('a minor report gets the minor SLA (7 days)',
       admin_sql('select sla_days from public.reports where id = %s', (minr['id'],))[0][0] == 7)
+
+# ─────────────────────────────── Promises page ─────────────────────────────
+pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
+              p_made_on='2026-08-01', p_source_url='https://example.com/said')
+check('a promise needs a source link', err(rpc, 'kasa_promise_suggest', ip='10.7.0.1', **{**pr_new, 'p_source_url': 'not a link'}) == 'KASA_BAD_INPUT')
+check('"delivered" needs its own evidence link',
+      err(rpc, 'kasa_promise_suggest', ip='10.7.0.1', **pr_new, p_status='delivered') == 'KASA_NEED_EVIDENCE')
+pr = rpc('kasa_promise_suggest', ip='10.7.0.1', **pr_new)
+check('a suggested promise is not public until reviewed',
+      not any(x['id'] == pr['id'] for x in rpc('kasa_promises')['promises']))
+check('the public cannot read the promises table', refused(err(q, 'select * from public.promises')))
+check('non-moderators cannot publish a promise',
+      err(rpc, 'kasa_admin_promise_review', uid=bob, p_id=pr['id'], p_action='publish') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_promise_review', uid=mod, p_id=pr['id'], p_action='publish')
+check('a moderator publishes a promise', any(x['id'] == pr['id'] for x in rpc('kasa_promises')['promises']))
+upd = rpc('kasa_promise_suggest', ip='10.7.0.2', p_who=None, p_role=None, p_promise=None, p_made_on=None, p_source_url=None,
+          p_status='delivered', p_status_source_url='https://example.com/done', p_status_date='2026-09-01', p_update_of=pr['id'])
+check('an update waits for review',
+      next(x for x in rpc('kasa_promises')['promises'] if x['id'] == pr['id'])['status'] == 'promised')
+rpc('kasa_admin_promise_review', uid=mod, p_id=upd['id'], p_action='publish')
+got = next(x for x in rpc('kasa_promises')['promises'] if x['id'] == pr['id'])
+check('a published update changes the promise status with its evidence',
+      got['status'] == 'delivered' and got['status_source_url'] == 'https://example.com/done', got)
+check('only published promises are listed once (updates are not separate entries)',
+      sum(1 for x in rpc('kasa_promises')['promises'] if x['who'] == 'Test Minister') == 1)
+for i in range(5):
+    err(rpc, 'kasa_promise_suggest', ip='10.7.9.9', **pr_new)
+check('one network can suggest at most five promises a day',
+      err(rpc, 'kasa_promise_suggest', ip='10.7.9.9', **pr_new) == 'KASA_RATE_LIMIT')
+check('the browser cannot add news headlines', refused(err(rpc, 'kasa_promise_news_ingest', p_items=[])))
+admin_sql("select public.kasa_promise_news_ingest(%s::jsonb)", (json.dumps([
+  {'url': 'https://example.com/n1', 'title': 'Test Minister opens bridge', 'source': 'X', 'published_at': '2026-09-20T00:00:00Z'},
+  {'url': 'javascript:alert(1)', 'title': 'bad'}]),))
+news = rpc('kasa_promises')['news']
+check('daily headlines are stored, tagged with the person, bad links dropped',
+      len(news) == 1 and news[0]['who'] == 'Test Minister', news)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

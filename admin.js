@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadAutomation(), loadPromises(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -674,6 +674,85 @@ async function loadAutomation(){
       </table>
     `;
   } catch(e){ el.innerHTML = '<div class="ad-empty">Could not load.</div>'; }
+}
+
+const PROMISE_STATUS = { promised: 'Promised', in_progress: 'In progress', delivered: 'Delivered', broken: 'Broken' };
+const extLink = (u, label) => /^https?:\/\//i.test(u || '') ? `<a href="${esc(u)}" target="_blank" rel="noopener nofollow" class="amber">${esc(label)} ↗</a>` : '';
+
+async function loadPromises(){
+  const el = document.getElementById('adPromises');
+  const { data, error } = await sb.rpc('kasa_admin_promises');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const { pending = [], published = [], news = [] } = data || {};
+  const row = (p, actions) => `<tr>
+    <td><strong>${esc(p.who)}</strong><br><small>${esc([p.role, p.area].filter(Boolean).join(' · '))}</small></td>
+    <td style="white-space:pre-wrap;">${esc(p.promise)}<br><small>Said ${esc(p.made_on)} · ${extLink(p.source_url, p.source_name || 'source')}${p.due_by ? ' · due ' + esc(p.due_by) : ''}</small>
+      ${p.submitter_note ? `<br><small>Note: ${esc(p.submitter_note)}</small>` : ''}</td>
+    <td>${p.update_of ? `<small>Update: ${esc(PROMISE_STATUS[p.target?.status] || '?')} →</small><br>` : ''}<strong>${esc(PROMISE_STATUS[p.status] || p.status)}</strong>
+      ${p.status_source_url ? `<br><small>${esc(p.status_date || '')} · ${extLink(p.status_source_url, 'evidence')}</small>` : ''}
+      ${p.status_note ? `<br><small>${esc(p.status_note)}</small>` : ''}</td>
+    <td style="white-space:nowrap;">${actions(p)}</td></tr>`;
+  el.innerHTML = `
+    <h3 class="ad-note" style="margin-top:0;"><strong>Waiting (${pending.length})</strong></h3>
+    ${pending.length ? `<table class="ad-table"><thead><tr><th>Who</th><th>Promise and source</th><th>Status</th><th></th></tr></thead><tbody>
+      ${pending.map(p => row(p, x => `<button class="ad-ok" data-prom-pub="${esc(x.id)}">✓ Publish</button>
+        <button class="ad-ok" data-prom-fix="${esc(x.id)}">✎ Fix &amp; publish</button>
+        <button class="ad-bad" data-prom-rej="${esc(x.id)}">✕ Reject</button>`)).join('')}</tbody></table>` : '<div class="ad-empty">Nothing waiting.</div>'}
+    <h3 class="ad-note"><strong>Published (${published.length})</strong></h3>
+    ${published.length ? `<table class="ad-table"><thead><tr><th>Who</th><th>Promise and source</th><th>Status</th><th></th></tr></thead><tbody>
+      ${published.map(p => row(p, x => `<button class="ad-ok" data-prom-status="${esc(x.id)}">Change status</button>
+        <button class="ad-bad" data-prom-down="${esc(x.id)}">✕ Take down</button>`)).join('')}</tbody></table>` : '<div class="ad-empty">None yet.</div>'}
+    <h3 class="ad-note"><strong>Latest headlines (automatic)</strong></h3>
+    ${news.length ? `<table class="ad-table"><tbody>${news.map(n => `<tr${n.hidden ? ' style="opacity:.5;"' : ''}>
+      <td>${extLink(n.url, n.title)}<br><small>${esc([n.source, n.published_at && new Date(n.published_at).toLocaleDateString('en-IN'), n.who].filter(Boolean).join(' · '))}</small></td>
+      <td style="white-space:nowrap;"><button class="${n.hidden ? 'ad-ok' : 'ad-bad'}" data-news="${esc(n.id)}" data-news-hide="${n.hidden ? '0' : '1'}">${n.hidden ? '↺ Show' : '✕ Hide'}</button></td></tr>`).join('')}</tbody></table>`
+      : '<div class="ad-empty">No headlines yet. The daily job adds them each morning.</div>'}`;
+
+  const run = async (name, args) => {
+    const { error: e2 } = await sb.rpc(name, args);
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadPromises();
+  };
+  const askStatus = (cur) => {
+    const status = prompt('Status: promised, in_progress, delivered or broken', cur || 'delivered');
+    if (status === null) return null;
+    if (!PROMISE_STATUS[status.trim()]) { alert('Unknown status.'); return null; }
+    if (status.trim() === 'promised') return { status: 'promised' };
+    const url = prompt('Evidence link (https://…) showing this status:');
+    if (!url) return null;
+    const date = prompt('Date of the evidence (YYYY-MM-DD):', new Date().toISOString().slice(0, 10));
+    if (!date) return null;
+    const note = prompt('What the evidence shows (optional, public):') || undefined;
+    return { status: status.trim(), status_source_url: url.trim(), status_date: date.trim(), status_note: note };
+  };
+  el.querySelectorAll('[data-prom-pub]').forEach(b => b.addEventListener('click', () =>
+    run('kasa_admin_promise_review', { p_id: b.dataset.promPub, p_action: 'publish' })));
+  el.querySelectorAll('[data-prom-fix]').forEach(b => b.addEventListener('click', () => {
+    const p = pending.find(x => x.id === b.dataset.promFix);
+    const edits = {};
+    for (const [k, label] of [['who', 'Who'], ['role', 'Position'], ['promise', 'Promise'], ['made_on', 'Date said (YYYY-MM-DD)'], ['source_url', 'Source link']]) {
+      const v = prompt(label + ':', p[k] || '');
+      if (v === null) return;
+      if (v.trim() && v.trim() !== (p[k] || '')) edits[k] = v.trim();
+    }
+    if (confirm('Change the status too?')) { const s = askStatus(p.status); if (!s) return; Object.assign(edits, s); }
+    run('kasa_admin_promise_review', { p_id: p.id, p_action: 'publish', p_edits: edits });
+  }));
+  el.querySelectorAll('[data-prom-rej]').forEach(b => b.addEventListener('click', () => {
+    const note = prompt('Reason for rejecting (kept private):');
+    if (note === null) return;
+    run('kasa_admin_promise_review', { p_id: b.dataset.promRej, p_action: 'reject', p_note: note });
+  }));
+  el.querySelectorAll('[data-prom-status]').forEach(b => b.addEventListener('click', () => {
+    const p = published.find(x => x.id === b.dataset.promStatus);
+    const s = askStatus(p.status);
+    if (s) run('kasa_admin_promise_edit', { p_id: p.id, p_fields: s });
+  }));
+  el.querySelectorAll('[data-prom-down]').forEach(b => b.addEventListener('click', () => {
+    if (confirm('Take this promise off the public page?')) run('kasa_admin_promise_edit', { p_id: b.dataset.promDown, p_fields: { review: 'rejected' } });
+  }));
+  el.querySelectorAll('[data-news]').forEach(b => b.addEventListener('click', () =>
+    run('kasa_admin_promise_news_hide', { p_id: Number(b.dataset.news), p_hidden: b.dataset.newsHide === '1' })));
 }
 
 async function loadCommunities(){
