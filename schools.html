@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Schools — Parishkar Purulia</title>
-<meta name="description" content="Every school in Purulia district and what residents found when they checked: drinking water, toilets, boundary wall, electricity, mid-day meal kitchen and building.">
+<meta name="description" content="Every school in Purulia district, what residents found when they checked, and how Purulia compares with West Bengal, India and the best and worst states on official UDISE+ figures.">
 <meta property="og:title" content="Schools — Parishkar Purulia">
 <meta property="og:description" content="Resident checks of every school in Purulia district, worst first.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
@@ -88,6 +88,16 @@
   .sc-unchecked-go:disabled{background:none;border:1px solid var(--border2,var(--border));color:var(--text-lo);cursor:not-allowed;}
   .sc-unchecked-fix{align-self:center;font-family:var(--mono);font-size:11px;color:var(--amber);}
   .sc-near{margin-bottom:1.4rem;}
+  .sc-off{margin-top:.45rem;font-size:.82rem;color:var(--text-md);}
+  .sc-gap{margin-top:.3rem;font-size:.82rem;color:#e07a6a;}
+  .sc-bench{margin-top:.3rem;font-size:.8rem;color:var(--text-lo);}
+  .sc-bestworst{margin-top:.6rem;font-size:.88rem;color:var(--text-md);}
+  .sc-bestworst a{color:var(--amber);}
+  .sc-cmp small{color:var(--text-lo);font-size:.78em;}
+  .sc-cmp td{white-space:nowrap;}
+  .sc-cmp td:first-child{white-space:normal;min-width:11rem;}
+  .an-details p{margin-top:.6rem;line-height:1.6;font-family:inherit;font-size:.84rem;}
+  .an-details a{color:var(--amber);}
   .sc-near-btn{margin-top:.9rem;padding:.8rem 1.3rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;font-family:var(--mono);font-size:12px;letter-spacing:.08em;cursor:pointer;}
 </style>
 </head>
@@ -109,14 +119,14 @@
   <div class="an-head">
     <div>
       <h1 class="an-title">Purulia's schools, <em>checked by residents</em></h1>
-      <p class="an-sub">Every school on the government's UDISE+ list for Purulia district. Anyone standing at a school can check six basics with a live photo. Worst first. Checks are residents' observations on the day, not an official inspection.</p>
+      <p class="an-sub">Every school on the government's UDISE+ list for Purulia district. Anyone standing at a school can check the basics with a live photo: water, toilets, girls' toilet, electricity, the mid-day meal, teachers and the building. Worst first, compared with West Bengal and India. Checks are residents' observations on the day, not an official inspection.</p>
     </div>
     <div class="an-meta"><span id="sc-updated">Loading…</span></div>
   </div>
 
   <section class="an-card sc-near" id="sc-near">
     <h2>Check a school near you</h2>
-    <p class="an-card-sub" id="sc-near-text">Stand at a school, answer six questions and take one photo. It takes about two minutes.</p>
+    <p class="an-card-sub" id="sc-near-text">Stand at a school, answer a few questions and take one photo. It takes about two minutes.</p>
     <button type="button" class="sc-near-btn" id="sc-near-btn">📍 Find schools near me</button>
     <ul class="sc-todo" id="sc-near-list"></ul>
   </section>
@@ -129,14 +139,20 @@
   </section>
 
   <div class="an-grid">
+    <section class="an-card an-span" id="sc-compare-card">
+      <h2>How Purulia compares</h2>
+      <p class="an-card-sub">What residents found here and what schools officially report, beside West Bengal, India, and the best and worst state. Official figures: Ministry of Education, UDISE+ 2024-25.</p>
+      <div id="sc-compare"><div class="an-empty">Loading…</div></div>
+    </section>
+
     <section class="an-card an-span">
       <h2>Map</h2>
       <p class="an-card-sub" id="sc-map-sub">Blocks are shaded by the share of their schools residents have checked; tap one to list its schools. Pins show schools whose location is known — from the official list, or learned from residents' checks.</p>
       <div id="sc-map" role="region" aria-label="Map of schools"></div>
       <div class="sc-legend">
-        <span><i style="background:#5fae6b"></i>Checked, 5–6 of 6</span>
-        <span><i style="background:#d4882a"></i>Checked, 3–4</span>
-        <span><i style="background:#d9594c"></i>Checked, 0–2</span>
+        <span><i style="background:#5fae6b"></i>Checked, 80% or more working</span>
+        <span><i style="background:#d4882a"></i>Checked, 50–79%</span>
+        <span><i style="background:#d9594c"></i>Checked, under 50%</span>
         <span><i style="background:#8a8272"></i>Not checked yet</span>
         <span><i class="sq" style="background:rgba(212,136,42,.55)"></i>Block: more of its schools checked</span>
       </div>
@@ -144,7 +160,8 @@
 
     <section class="an-card an-span" id="sc-list">
       <h2>Checked schools, worst first</h2>
-      <p class="an-card-sub">Score out of 6: drinking water, toilets, boundary wall, electricity, mid-day meal kitchen, building in good shape. Each school shows its latest check.</p>
+      <p class="an-card-sub">One point for each thing found working: drinking water, toilets, girls' toilet, boundary wall, electricity, mid-day meal kitchen, meal cooked that day, building in good shape. “Can't tell” answers are left out, so older checks are out of 6. Each school shows its latest check.</p>
+      <div class="sc-bestworst" id="sc-bestworst"></div>
       <div class="sc-filters">
         <select id="sc-block" aria-label="Block"><option value="">All blocks</option></select>
         <input type="search" id="sc-find" placeholder="School, village or UDISE code" aria-label="Search schools">
