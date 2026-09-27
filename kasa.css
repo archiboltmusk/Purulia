@@ -643,22 +643,41 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 }
 
 .k-drawer-backdrop{position:fixed;inset:0;z-index:949;background:rgba(0,0,0,.5);animation:kFade .2s ease;}
-.k-drawer{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(460px,100%);background:var(--ink);border-left:1px solid var(--border2);overflow-y:auto;overscroll-behavior:contain;transform:translateX(100%);transition:transform .25s ease;visibility:hidden;}
+.k-drawer{position:fixed;top:0;right:0;bottom:0;z-index:950;width:min(460px,100%);background:var(--ink);border-left:1px solid var(--border2);overflow-y:auto;overscroll-behavior:contain;transform:translateX(100%);transition:transform .25s ease;visibility:hidden;display:flex;flex-direction:column;}
 .k-drawer.open{transform:none;visibility:visible;}
-.k-drawer-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:.8rem 1rem;background:var(--ink);border-bottom:1px solid var(--border);}
-.k-drawer-close{font-size:1.1rem;padding:.3rem .6rem;color:var(--text-md);}
-.k-drawer-links{display:flex;flex-direction:column;padding:.4rem 0;border-bottom:1px solid var(--border);}
-.k-drawer-links > *{padding:.8rem 1.2rem;font-family:var(--mono);font-size:12px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-hi);text-align:left;}
-.k-drawer-links > *:hover{color:var(--amber);background:rgba(212,136,42,.05);}
-.k-drawer .k-hero{padding:1.4rem 1.2rem;text-align:left;}
-.k-drawer .k-wordmark-lg{display:none;}
-.k-drawer .k-hero-title{font-size:1.6rem;}
-.k-drawer .k-hero-sub{font-size:.92rem;margin-left:0;}
-.k-drawer .k-hero-actions{justify-content:flex-start;margin-top:1rem;}
-.k-drawer-qr{padding:0 1.2rem 1.2rem;}
-@media(max-width:768px){.k-drawer-qr{display:none;}}
-.k-drawer .k-stats{grid-template-columns:repeat(2,1fr);}
-.k-drawer .k-footer{padding-bottom:2rem;}
+.k-drawer-head{position:sticky;top:0;z-index:2;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 1rem;background:var(--ink);border-bottom:1px solid var(--border);}
+.k-drawer-close{font-size:1.2rem;padding:.3rem .6rem;color:var(--text-md);background:none;border:0;cursor:pointer;}
+.k-wordmark-sm{display:flex;align-items:center;gap:.5rem;font-family:var(--serif);font-size:1.1rem;font-weight:600;color:var(--cream);}
+.k-mark{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;background:rgba(212,136,42,.15);border:1px solid var(--amber);border-radius:50%;font-size:.8rem;}
+.k-wordmark-text{letter-spacing:-.01em;}
+.k-drawer-banner{padding:1rem 1.2rem;background:rgba(212,136,42,.05);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:.5rem;font-size:.95rem;color:var(--text-hi);}
+.k-drawer-banner span:first-child{font-size:1.3rem;flex-shrink:0;}
+.k-drawer-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:.6rem;padding:1.2rem;border-bottom:1px solid var(--border);}
+.k-stat-pill{display:flex;flex-direction:column;align-items:center;gap:.3rem;padding:.6rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;}
+.k-stat-urgent .k-stat-num{color:#e85244;}
+.k-stat-success .k-stat-num{color:#6db88a;}
+.k-stat-num{font-family:var(--mono);font-size:1.2rem;font-weight:500;color:var(--amber);}
+.k-stat-text{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-lo);}
+.k-drawer-main{display:flex;flex-direction:column;padding:1.2rem;gap:.8rem;border-bottom:1px solid var(--border);}
+.k-drawer-item{display:flex;align-items:flex-start;gap:.9rem;padding:.9rem 1rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;font-family:inherit;font-size:.95rem;color:var(--cream);text-align:left;}
+.k-drawer-item:hover{border-color:var(--amber);background:rgba(212,136,42,.08);}
+.k-drawer-icon{font-size:1.6rem;flex-shrink:0;display:flex;align-items:center;}
+.k-drawer-text{display:block;font-weight:600;color:var(--cream);}
+.k-drawer-sub{display:block;font-size:.85rem;color:var(--text-md);margin-top:.2rem;}
+.k-drawer-more{border-bottom:1px solid var(--border);}
+.k-drawer-toggle{display:flex;justify-content:space-between;align-items:center;width:100%;padding:1rem 1.2rem;background:none;border:0;color:var(--text-hi);font-family:inherit;font-size:.95rem;cursor:pointer;transition:color .2s;}
+.k-drawer-toggle:hover{color:var(--amber);}
+.k-drawer-toggle span:last-child{transition:transform .25s;display:inline-block;}
+.k-drawer-toggle[aria-expanded="true"] span:last-child{transform:rotate(90deg);}
+.k-drawer-more-list{display:flex;flex-direction:column;padding:0 1.2rem 1rem;gap:.5rem;}
+.k-drawer-more-list[hidden]{display:none;}
+.k-drawer-more-list a{padding:.6rem .8rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-md);text-decoration:none;border-radius:4px;transition:all .2s;}
+.k-drawer-more-list a:hover{color:var(--amber);background:rgba(212,136,42,.06);}
+.k-drawer-footer{display:flex;gap:1.2rem;padding:1rem 1.2rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
+.k-drawer-footer a{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-md);text-decoration:none;transition:color .2s;}
+.k-drawer-footer a:hover{color:var(--amber);}
+.k-drawer-lang{margin-top:auto;padding:1rem 1.2rem;border-top:1px solid var(--border);}
+.k-lang-switch{display:flex;gap:.4rem;flex-wrap:wrap;}
 body.k-drawer-open{overflow:hidden;}
 
 /* Camera flash + zoom (shown only while the live view is up) */
@@ -758,9 +777,6 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* In the menu: no second "Report" pitch and no ticker — the big button on the map is enough. */
 .k-drawer .k-hero-title,.k-drawer .k-hero-sub,.k-drawer .k-hero-cta,.k-drawer .k-ticker{display:none;}
 .k-drawer .k-hero{padding-top:.4rem;padding-bottom:.8rem;}
-.k-drawer-more{display:flex;flex-wrap:wrap;gap:.4rem 1rem;padding:.8rem 1.2rem 1rem;border-bottom:1px solid var(--border);}
-.k-drawer-more a{font-family:var(--mono);font-size:10.5px;letter-spacing:.06em;color:var(--text-md);}
-.k-drawer-more a:hover{color:var(--amber);}
 
 /* ── Map-only screen: no top bar. A floating ☰ opens the menu; the numbers sit top-left,
    the colour key bottom-left, the Report button bottom-centre. Filters and Map/List show

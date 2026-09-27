@@ -174,36 +174,91 @@
 
 <div class="k-drawer-backdrop" id="k-drawer-backdrop" hidden></div>
 <aside class="k-drawer" id="k-drawer" aria-label="More" aria-hidden="true" inert>
+  <!-- ══ Header ══ -->
   <div class="k-drawer-head">
+    <div class="k-wordmark-sm">
+      <span class="k-mark" aria-hidden="true"></span>
+      <span class="k-wordmark-text"><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span></span>
+    </div>
+    <button type="button" class="k-drawer-close" id="k-drawer-close" aria-label="Close">✕</button>
+  </div>
+
+  <!-- ══ Social Proof Banner ══ -->
+  <div class="k-drawer-banner">
+    <span aria-hidden="true">👥</span>
+    <span data-i18n="drawer_banner">Join 7 neighbors fixing Purulia today</span>
+  </div>
+
+  <!-- ══ Stats Row ══ -->
+  <div class="k-drawer-stats">
+    <div class="k-stat-pill">
+      <span class="k-stat-num" id="k-drawer-stat-total">—</span>
+      <span class="k-stat-text" data-i18n="stat_total_short">Total</span>
+    </div>
+    <div class="k-stat-pill k-stat-urgent">
+      <span class="k-stat-num" id="k-drawer-stat-open">—</span>
+      <span class="k-stat-text" data-i18n="stat_open_short">Unresolved</span>
+    </div>
+    <div class="k-stat-pill k-stat-success">
+      <span class="k-stat-num" id="k-drawer-stat-resolved">—</span>
+      <span class="k-stat-text" data-i18n="stat_fixed_short">Fixed</span>
+    </div>
+  </div>
+
+  <!-- ══ Primary Actions ══ -->
+  <nav class="k-drawer-main">
+    <button type="button" class="k-drawer-item" data-mine data-i18n="nav_mine">
+      <span class="k-drawer-icon" aria-hidden="true">📋</span>
+      <span class="k-drawer-text">Your Reports</span>
+      <span class="k-drawer-sub" data-i18n="drawer_your_reports_sub">Track your submissions</span>
+    </button>
+    <button type="button" class="k-drawer-item" data-view="list" data-i18n="nav_list">
+      <span class="k-drawer-icon" aria-hidden="true">📊</span>
+      <span class="k-drawer-text">Ward Accountability</span>
+      <span class="k-drawer-sub" data-i18n="drawer_ward_sub">See who's responsible</span>
+    </button>
+    <button type="button" class="k-drawer-item k-alerts-btn" data-alerts data-i18n="drawer_alerts">
+      <span class="k-drawer-icon" aria-hidden="true">🔔</span>
+      <span class="k-drawer-text">Alert Me</span>
+      <span class="k-drawer-sub" data-i18n="drawer_alerts_sub">Notify me of nearby issues</span>
+    </button>
+  </nav>
+
+  <!-- ══ Secondary Navigation ══ -->
+  <nav class="k-drawer-more" aria-label="Resources">
+    <button type="button" class="k-drawer-toggle" id="k-drawer-toggle-more" aria-controls="k-drawer-more-list" aria-expanded="false">
+      <span data-i18n="drawer_more">More Resources</span>
+      <span aria-hidden="true">›</span>
+    </button>
+    <div class="k-drawer-more-list" id="k-drawer-more-list" hidden>
+      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
+      <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
+      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
+      <a href="#k-fixed" class="k-drawer-link" data-i18n="fixed_title">Recently fixed</a>
+      <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
+      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
+      <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
+      <a href="changelog.html" class="k-drawer-link" data-i18n="nav_changelog">What's new</a>
+      <a href="blueprint.html" class="k-drawer-link" data-i18n="nav_blueprint">Blueprint</a>
+    </div>
+  </nav>
+
+  <!-- ══ Footer Links ══ -->
+  <nav class="k-drawer-footer" aria-label="Legal">
+    <a href="rules.html" class="k-drawer-link-sm" data-i18n="footer_rules">Rules</a>
+    <a href="terms.html" class="k-drawer-link-sm" data-i18n="footer_terms">Terms</a>
+    <a href="privacy.html" class="k-drawer-link-sm" data-i18n="footer_privacy">Privacy</a>
+    <a href="grievance.html" class="k-drawer-link-sm" data-i18n="footer_grievance">Grievance</a>
+  </nav>
+
+  <!-- ══ Language Selector ══ -->
+  <div class="k-drawer-lang">
     <div class="k-lang-switch" role="group" aria-label="Language">
       <button type="button" class="k-lang-btn k-lang-active" data-lang="en">EN</button>
       <button type="button" class="k-lang-btn" data-lang="bn">বাং</button>
       <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
     </div>
-    <button type="button" class="k-drawer-close" id="k-drawer-close" aria-label="Close">✕</button>
   </div>
-  <nav class="k-drawer-links">
-    <button type="button" data-action="report" data-i18n="nav_report_menu">📷 Report a problem</button>
-    <button type="button" data-mine data-i18n="nav_mine">Your reports</button>
-    <button type="button" data-view="list" data-i18n="nav_list">📋 List of reports</button>
-    <a href="schools.html" data-i18n="nav_schools">Schools</a>
-    <a href="#k-lb" data-i18n="lb_title">Ward accountability</a>
-    <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
-    <a href="adopt.html" data-i18n="nav_adopt_page">🤝 Adopt a spot</a>
-  </nav>
-  <nav class="k-drawer-more" aria-label="About">
-    <a href="#k-fixed" data-i18n="fixed_title">Recently fixed</a>
-    <a href="waste.html" data-i18n="nav_waste">Where the waste goes</a>
-    <a href="toilets.html" data-i18n="nav_toilets">Public toilets</a>
-    <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
-    <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
-    <a href="rules.html" data-i18n="footer_rules">Rules</a>
-    <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
-    <a href="privacy.html" data-i18n="footer_privacy">Privacy</a>
-    <a href="grievance.html" data-i18n="footer_grievance">Grievance Officer</a>
-    <a href="index.html" data-i18n="nav_home">Home</a>
-    <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
-  </nav>
 <header class="k-hero">
   <div class="k-wordmark-lg">
     <span class="k-mark" aria-hidden="true"></span>
