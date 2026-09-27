@@ -116,6 +116,48 @@ function repAvatar(rep, cls){
 document.addEventListener('error', e => { if (e.target.classList?.contains('k-rep-photo')) e.target.remove(); }, true);
 const FLAG_REASONS = ['not_an_issue', 'wrong_category', 'wrong_location', 'duplicate', 'inappropriate', 'fake_or_old_photo', 'other'];
 
+/* ── Category Config Parser ── */
+let CATEGORIES_CONFIG = null;
+
+function loadCategoriesConfig(){
+  if (!CATEGORIES_CONFIG && window.KASA_CATEGORIES_CONFIG) {
+    CATEGORIES_CONFIG = window.KASA_CATEGORIES_CONFIG.categories;
+  }
+  return CATEGORIES_CONFIG;
+}
+
+function getCategoryConfig(categoryKey){
+  const config = loadCategoriesConfig();
+  return config ? config[categoryKey] : null;
+}
+
+function getCategoryLabel(categoryKey, lang = 'en'){
+  const config = getCategoryConfig(categoryKey);
+  if (!config) return categoryKey;
+  return config[lang] || config.en || categoryKey;
+}
+
+function getResponsibleBody(categoryKey, boundaryType){
+  const config = getCategoryConfig(categoryKey);
+  if (!config || !config.responsible_body) return null;
+  const bodies = config.responsible_body;
+  for (let body of bodies) {
+    if (body.type === boundaryType) return body;
+  }
+  return bodies[0];
+}
+
+function buildFormQuestions(categoryKey){
+  const config = getCategoryConfig(categoryKey);
+  if (!config || !config.questions) return [];
+  return config.questions.sort((a, b) => (a.order || 0) - (b.order || 0));
+}
+
+function getSLAHours(categoryKey, boundaryType){
+  const responsible = getResponsibleBody(categoryKey, boundaryType);
+  return responsible ? responsible.sla_hours : 24;
+}
+
 /* ── State ── */
 const state = {
   listQuery: '',
