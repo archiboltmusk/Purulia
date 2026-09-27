@@ -70,3 +70,12 @@ test('confirm flow sends a verify vote for the claim', async ({ page, backend })
   const vote = backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_vote_claim');
   expect(vote?.body).toMatchObject({ p_claim_id: 9001, p_vote: 'verify' });
 });
+
+test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
+  await page.addInitScript(() => localStorage.setItem('kasa_lang', 'sat'));
+  await page.goto('kasa.html');
+  await expect(page.locator('html')).toHaveAttribute('lang', 'sat');
+  await expect(page.locator('[data-i18n="step3_submit"]').first()).toHaveText(/[᱐-᱿]/);
+  // Strings not yet translated fall back to English rather than showing the raw key.
+  await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
+});

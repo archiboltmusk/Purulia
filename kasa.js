@@ -2585,7 +2585,8 @@ function toggleVoice(){
   if (voiceRec) return stopVoice();
   const btn = document.getElementById('k-voice-btn'), out = document.getElementById('k-voice-text'), desc = document.getElementById('k-desc');
   const rec = new Speech();
-  rec.lang = { bn: 'bn-IN', hi: 'hi-IN' }[state.lang] || 'en-IN';
+  // No speech engine understands Santali yet; most Santali speakers here also speak Bengali.
+  rec.lang = { bn: 'bn-IN', hi: 'hi-IN', sat: 'bn-IN' }[state.lang] || 'en-IN';
   rec.interimResults = true;
   rec.continuous = false;
   const before = desc.value.trim();
