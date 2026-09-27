@@ -2467,8 +2467,8 @@ function renderCategoryGrid(){
     </div>`).join('');
 }
 
-// Categories that need a one-line "what to photograph" reminder beyond the review warning.
-const CATEGORY_NOTES = { dumpsite: 'dumpsite_note', toilet: 'toilet_note' };
+// Categories that need a one-line reminder (what to photograph, or why the report matters) beyond the review warning.
+const CATEGORY_NOTES = { garbage: 'garbage_note', dumpsite: 'dumpsite_note', toilet: 'toilet_note' };
 function selectCategory(key, advance = true){
   if (!CATEGORIES[key]) return;
   draft.category = key;
