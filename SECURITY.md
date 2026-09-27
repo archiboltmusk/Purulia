@@ -53,7 +53,7 @@ Same Credentials page
 Using Supabase CLI:
 ```bash
 supabase secrets set GOOGLE_VISION_API_KEY=<new_key_here>
-supabase deploy edge-functions
+supabase functions deploy kasa-photo-check
 ```
 
 Or manually via dashboard:

@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Report a civic problem in Purulia
+    url: https://archiboltmusk.github.io/Purulia/kasa.html
+    about: Garbage, drains, roads, streetlights and the like go on the Parishkar map, not here.
+  - name: Security vulnerability
+    url: https://github.com/archiboltmusk/Purulia/blob/main/SECURITY.md
+    about: Please report privately by email, never in a public issue.

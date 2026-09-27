@@ -114,14 +114,12 @@ Five actions that cost very little but unlock everything:
 
 ## Viewing the Blueprint
 
-This is a fully self-contained static web application. No installation, no dependencies, no server required.
+This is a static website: plain HTML, CSS and JavaScript, no build step.
 
 ```bash
-# Clone the repository
 git clone https://github.com/archiboltmusk/Purulia.git
-
-# Open in any modern browser
-open purulia2040_final.html
+cd Purulia
+python3 -m http.server 8000   # then open http://localhost:8000/
 ```
 
 The interactive document includes:
@@ -137,7 +135,7 @@ The interactive document includes:
 
 The visual language is deliberate: a dark ink ground with amber, cream, and forest accents — colors drawn from Purulia's own landscape (the dry rocky earth, the sal forest canopy, the monsoon sky). Typography pairs EB Garamond for gravitas with DM Mono for data precision.
 
-Built entirely with semantic HTML5, CSS3, and vanilla JavaScript. No frameworks. Under 1,200 lines. Opens instantly.
+Built entirely with semantic HTML5, CSS3, and vanilla JavaScript. No frameworks. Opens instantly.
 
 ---
 
@@ -156,6 +154,16 @@ Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic 
 - **Deployment:** pushing to `main` publishes the site to GitHub Pages through `.github/workflows/github-pages.yml`.
 - **Public record:** a daily tamper-evident fingerprint of all public data is kept in `record/` (see `record/README.md`).
 - **Run it in your own town:** see [`DEPLOY.md`](DEPLOY.md). Everything town-specific the app shows lives in `city.js`.
+
+---
+
+## Contributing
+
+Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (local setup, tests, rules for database changes) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md).
+
+## Licence
+
+Code: [MIT](LICENSE). Report data published by Parishkar: CC BY 4.0 (see `terms.html`).
 
 ---
 

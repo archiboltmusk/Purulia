@@ -1,0 +1,39 @@
+name: Bug report
+description: Something on the site or app doesn't work as it should
+labels: [bug]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        To report a civic problem in Purulia (garbage, roads, lights), use the app, not GitHub. For security issues, email thelosthillproject@gmail.com instead (see SECURITY.md).
+  - type: input
+    id: page
+    attributes:
+      label: Page
+      description: Which page or link?
+      placeholder: https://archiboltmusk.github.io/Purulia/kasa.html
+    validations:
+      required: true
+  - type: textarea
+    id: what
+    attributes:
+      label: What happened, and what did you expect?
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open ...
+        2. Tap ...
+  - type: input
+    id: device
+    attributes:
+      label: Phone/computer and browser
+      placeholder: Android 13, Chrome
+  - type: textarea
+    id: screenshots
+    attributes:
+      label: Screenshots
+      description: Please blur faces, phone numbers and anything personal.
