@@ -132,7 +132,7 @@ function showAud(id,btn){
 
 /* ── Share section ── */
 var shareMsgs={
-  doctors:'77.9% of young children anaemic. 38 infant deaths per 1,000 births, twice the state rate. Purulia needs doctors — send this to every doctor from Purulia you know:',
+  doctors:'77.9% of young children anaemic (NFHS-5). Purulia needs doctors — send this to every doctor from Purulia you know:',
   engineers:'Build water systems from scratch. Design solar grids for tribal hamlets. First-principles engineering that actually matters. Purulia 2040:',
   architects:'A district being redesigned from zero. Medical college, railway station, crafts cluster — all open briefs, right now. Purulia 2040:',
   politicians:'The schemes exist. Purulia still ranks last in West Bengal on child anaemia and women\'s literacy. This blueprint shows how to deliver:',
@@ -346,7 +346,7 @@ document.addEventListener('click',function(e){
 (function(){
   var pageMsgs={
     'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth sharing:',
-    'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, complete economics — read it:',
+    'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, real funding sources — read it:',
     'audience.html':'This blueprint for Purulia 2040 was written for every kind of person who can help. Find your role:',
     'data.html':'The hard data on Purulia — why this district is primed for transformation right now:',
     'join.html':'This blueprint needs people, not just readers. Here\'s how to get involved with Purulia 2040:',
@@ -392,7 +392,7 @@ document.addEventListener('click',function(e){
   var baseUrl=window.location.origin+window.location.pathname.replace('index.html','');
   var stripMsgs={
     'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth 5 minutes:',
-    'blueprint.html':'The full 15-year plan to transform a district — six pillars, complete economics, real funding sources. Purulia 2040:'
+    'blueprint.html':'The full 15-year plan to transform a district — six pillars, real funding sources. Purulia 2040:'
   };
   var msg=stripMsgs[page]||stripMsgs['index.html'];
   var url=baseUrl.endsWith('/')?baseUrl:baseUrl+'/';
@@ -741,7 +741,7 @@ window.followSubmit=async function(){
     {href:'map.html',label:'District Map',desc:'Interactive map'},
     {href:'blueprint.html#deepdives',label:'Deep Dives',desc:'All 6 pillars expanded'},
     {href:'blueprint.html#timeline',label:'Timeline',desc:'2026 → 2040 roadmap'},
-    {href:'blueprint.html#economics',label:'Economics',desc:'Revenue projections'},
+    {href:'blueprint.html#economics',label:'Goals & funding',desc:'What the plan aims for, who pays'},
     {href:'data.html#solution-matrix',label:'Solution Matrix',desc:'Every problem, specific answer'},
     {href:'data.html#data-charts',label:'Data Charts',desc:'Visualised statistics'},
     {href:'join.html#respond',label:'Join Now',desc:'Five people. Eighteen months.'}
