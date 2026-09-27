@@ -135,4 +135,6 @@ begin
     'duplicate_of', v_parent.id, 'recurrence_of', v_recur.id);
 end $$;
 
+grant execute on function public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text) to anon, authenticated;
+
 commit;
