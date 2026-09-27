@@ -284,6 +284,7 @@ async function init(){
   });
 
   wireUI();
+  if (location.hash){ const t = document.getElementById(location.hash.slice(1)); if (t && t.tagName === 'DETAILS') t.open = true; }
   populateCategoryFilter();
   renderCategoryGrid();
   renderChainSection();
@@ -3448,6 +3449,12 @@ function registerServiceWorker(){
    UI WIRING
    ══════════════════════════════════════════════════════════ */
 function wireUI(){
+  // Jumping to a collapsed landing section (e.g. "How verification works ↓") should open it, not just scroll to its closed heading.
+  document.addEventListener('click', e => {
+    const a = e.target.closest('a[href^="#"]');
+    const target = a && document.getElementById(a.getAttribute('href').slice(1));
+    if (target && target.tagName === 'DETAILS') target.open = true;
+  });
   document.addEventListener('click', (e) => {
     const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-csv],[data-install],[data-rti]');
     if (!el) return;
