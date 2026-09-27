@@ -3681,6 +3681,29 @@ function renderAlertsButtons(){
     b.textContent = t(on ? 'alerts_off_btn' : 'alerts_btn');
     b.classList.toggle('on', on);
   });
+  renderNotify();
+}
+
+/* Alerts sheet: one place for nearby alerts, watched reports and the email digest.
+   iPhones only get web push from the home-screen app, so say that instead of hiding it. */
+function renderNotify(){
+  const watching = watchedReports().size;
+  const on = alertsOn() || (watching > 0 && watchSupported());
+  document.querySelectorAll('.k-bell').forEach(b => b.classList.toggle('on', on));
+  document.querySelectorAll('.k-bell-dot').forEach(d => { d.hidden = !on; });
+  const ios = isIOS() && !isStandalone() && !('PushManager' in window);
+  const ios_el = document.getElementById('k-nt-ios');
+  if (!ios_el) return;
+  ios_el.hidden = !ios;
+  document.getElementById('k-nt-nopush').hidden = ios || alertsSupported() || watchSupported();
+  const c = document.getElementById('k-nt-count');
+  c.hidden = !watching;
+  c.textContent = t('notify_watching', { n: watching });
+}
+
+function openNotify(){
+  renderAlertsButtons();
+  openModal('k-nt-modal');
 }
 
 function b64ToUint8(b64){
@@ -3800,6 +3823,7 @@ async function toggleWatch(id, btn){
   }
   btn.disabled = false;
   renderWatchButton();
+  renderNotify();
 }
 
 function renderWatchButton(){
@@ -3878,7 +3902,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -3917,6 +3941,7 @@ function wireUI(){
     if ('wardClose' in d){ state.selectedWard = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();
+    if ('notify' in d){ setDrawer(false); return openNotify(); }
     if (d.profile) return openRepProfile(d.profile);
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }

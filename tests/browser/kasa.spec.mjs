@@ -151,3 +151,15 @@ test('ordinary browsers see no in-app bar', async ({ page, backend }) => {
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await expect(page.locator('#k-iab')).toBeHidden();
 });
+
+test('the bell opens one sheet for all alerts', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-nav .k-bell').click();
+  const sheet = page.locator('#k-nt-modal');
+  await expect(sheet).toHaveClass(/open/);
+  await expect(sheet.locator('#k-nt-title')).toHaveText('Alerts');
+  await expect(sheet.locator('[data-digest-open]')).toBeVisible();
+  await sheet.locator('.k-modal-close').click();
+  await expect(sheet).not.toHaveClass(/open/);
+});
