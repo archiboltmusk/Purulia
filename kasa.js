@@ -1206,10 +1206,12 @@ function renderLeaderboard(){
   }).join('');
 }
 
-// Verified fixes, newest first, with how long they took and who confirmed them.
+// Fixed reports, newest first, with how long they took and who confirmed them.
+// Every resolution method counts — community verification, the photo fast-lane,
+// an admin's manual accept, and legacy reports resolved before verification existed.
 function recentFixes(){
   return primaries()
-    .filter(r => r.status === 'resolved' && (r.resolution === 'community' || r.resolution === 'photo_check') && r.resolvedAt && !r.relapsed)
+    .filter(r => r.status === 'resolved' && r.resolvedAt && !r.relapsed)
     .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
     .slice(0, 6);
 }
@@ -3537,8 +3539,19 @@ function wireUI(){
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
+  document.getElementById('k-resolved-btn').addEventListener('click', () => {
+    const on = state.filters.status !== 'resolved';
+    state.filters.status = on ? 'resolved' : '';
+    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(on));
+    document.getElementById('k-filter-status').value = state.filters.status;
+    renderAll();
+  });
   document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
-  document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
+  document.getElementById('k-filter-status').addEventListener('change', e => {
+    state.filters.status = e.target.value;
+    document.getElementById('k-resolved-btn').setAttribute('aria-pressed', String(state.filters.status === 'resolved'));
+    renderAll();
+  });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {
     const n = parseInt(e.target.value, 10);
