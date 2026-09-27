@@ -1064,3 +1064,34 @@ window.KASA_I18N.sat = {
   cat_streetlight: 'ᱥᱟᱰᱟᱜ ᱢᱟᱨᱥᱟᱞ ᱵᱟᱝ ᱡᱚᱞᱚᱜ ᱠᱟᱱᱟ', cat_water: 'ᱫᱟᱜ ᱵᱟᱹᱱᱩᱜ-ᱟ / ᱫᱟᱜ ᱥᱩᱨᱩᱜ ᱠᱟᱱᱟ',
   cat_hand_pump: 'ᱨᱟᱹᱯᱩᱫ ᱠᱚᱞ', cat_school: 'ᱤᱥᱠᱩᱞ', cat_toilet: 'ᱴᱚᱭᱞᱮᱴ — ᱠᱩᱞᱩᱯ ᱟᱠᱟᱱ ᱥᱮ ᱢᱚᱭᱞᱟ', cat_other: 'ᱮᱴᱟᱜ ᱮᱴᱠᱮᱴᱚᱬᱮ'
 };
+/* Alerts sheet (bell in the header). */
+Object.assign(window.KASA_I18N.en, {
+  notify_title: 'Alerts', notify_sub: 'Choose what Parishkar tells you about. Every alert can be turned off here.',
+  notify_ios: 'On iPhone, alerts only work from the app on your Home Screen. Tap Share, then “Add to Home Screen”, and open Parishkar from there.',
+  notify_nopush: "This browser can't show alerts. The weekly email below still works.",
+  notify_near_h: 'Problems near you', notify_near_p: 'A notification when someone reports a problem within 500 m of where you are now.',
+  notify_watch_h: 'Reports you watch', notify_watch_p: 'Open any report and tap “Watch this report” to hear when it is claimed, fixed or disputed.',
+  notify_watching: "You're watching {n} on this device.",
+  notify_digest_h: 'Weekly digest by email', notify_digest_p: 'One email every Monday with what was reported and fixed in each ward.',
+  notify_digest_btn: '✉ Get it by email'
+});
+Object.assign(window.KASA_I18N.bn, {
+  notify_title: 'সতর্কবার্তা', notify_sub: 'Parishkar আপনাকে কী জানাবে বেছে নিন। যেকোনো সতর্কবার্তা এখান থেকেই বন্ধ করা যায়।',
+  notify_ios: 'আইফোনে সতর্কবার্তা শুধু হোম স্ক্রিনের অ্যাপ থেকে কাজ করে। শেয়ার-এ ট্যাপ করুন, তারপর “Add to Home Screen”, আর সেখান থেকে Parishkar খুলুন।',
+  notify_nopush: 'এই ব্রাউজারে সতর্কবার্তা দেখানো যায় না। নিচের সাপ্তাহিক ইমেল তবুও কাজ করবে।',
+  notify_near_h: 'আপনার কাছের সমস্যা', notify_near_p: 'আপনি এখন যেখানে আছেন তার ৫০০ মিটারের মধ্যে কেউ সমস্যা জানালে নোটিফিকেশন।',
+  notify_watch_h: 'যে রিপোর্ট ফলো করছেন', notify_watch_p: 'যেকোনো রিপোর্ট খুলে “এই রিপোর্ট ফলো করুন” ট্যাপ করুন, দায়িত্ব নেওয়া, সমাধান বা আপত্তি হলে জানতে পারবেন।',
+  notify_watching: 'এই ডিভাইসে {n}টি ফলো করছেন।',
+  notify_digest_h: 'সাপ্তাহিক ডাইজেস্ট ইমেলে', notify_digest_p: 'প্রতি সোমবার একটি ইমেল: প্রতিটি ওয়ার্ডে কী জানানো হল আর কী ঠিক হল।',
+  notify_digest_btn: '✉ ইমেলে পান'
+});
+Object.assign(window.KASA_I18N.hi, {
+  notify_title: 'सूचनाएँ', notify_sub: 'चुनें कि Parishkar आपको किस बारे में बताए। हर सूचना यहीं से बंद की जा सकती है।',
+  notify_ios: 'iPhone पर सूचनाएँ सिर्फ़ होम स्क्रीन वाले ऐप से काम करती हैं। शेयर पर टैप करें, फिर “Add to Home Screen”, और वहीं से Parishkar खोलें।',
+  notify_nopush: 'यह ब्राउज़र सूचनाएँ नहीं दिखा सकता। नीचे वाला साप्ताहिक ईमेल फिर भी काम करेगा।',
+  notify_near_h: 'आपके पास की समस्याएँ', notify_near_p: 'आप अभी जहाँ हैं उसके 500 मीटर के भीतर कोई समस्या दर्ज हो तो सूचना।',
+  notify_watch_h: 'जिन रिपोर्ट को आप फ़ॉलो करते हैं', notify_watch_p: 'कोई भी रिपोर्ट खोलें और “इस रिपोर्ट को फ़ॉलो करें” दबाएँ, ताकि ज़िम्मेदारी लेने, ठीक होने या आपत्ति पर पता चले।',
+  notify_watching: 'इस डिवाइस पर आप {n} फ़ॉलो कर रहे हैं।',
+  notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
+  notify_digest_btn: '✉ ईमेल पर पाएँ'
+});
