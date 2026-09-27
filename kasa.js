@@ -28,7 +28,7 @@ const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
 const PAGE_URL = location.origin + location.pathname;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
-const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed';
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -509,6 +509,15 @@ function detectWard(lat, lng){
   return n ? parseInt(String(n).replace(/\D/g, ''), 10) : null;
 }
 
+/* Detects whether a location falls under Municipality (town) or Gram Panchayat (rural/edge).
+   Uses placeOf to determine location type, then maps to administrative boundary. */
+function detectBoundary(lat, lng){
+  const place = placeOf(lat, lng);
+  if (place.kind === 'town') return 'municipality';
+  if (place.kind === 'edge' || place.kind === 'rural') return 'gram_panchayat';
+  return null; // outside district
+}
+
 /* ══════════════════════════════════════════════════════════
    API — v2 (server-enforced rules) with a legacy fallback
    ══════════════════════════════════════════════════════════ */
@@ -673,7 +682,7 @@ const api = {
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
-      p_photo_path: path, p_client_id: d.clientId
+      p_photo_path: path, p_client_id: d.clientId, p_boundary_type: d.boundary_type
     });
     if (error) throw rpcError(error);
     if (!data.replayed && d.extraPhotos?.length) await api.addPhotos(String(data.id), d);
@@ -2998,6 +3007,7 @@ async function submitReport(){
   const kind = draft.place?.kind;
   draft.area = kind === 'rural' || (kind === 'edge' && !draft.ward) ? 'rural' : 'town';
   draft.block = draft.place?.block || null;
+  draft.boundary_type = detectBoundary(draft.lat, draft.lng);
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
   btn.textContent = t('step3_uploading');
