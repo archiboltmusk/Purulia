@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadPromises(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -753,6 +753,76 @@ async function loadPromises(){
   }));
   el.querySelectorAll('[data-news]').forEach(b => b.addEventListener('click', () =>
     run('kasa_admin_promise_news_hide', { p_id: Number(b.dataset.news), p_hidden: b.dataset.newsHide === '1' })));
+}
+
+const DEMAND_ROLE = { chairman: 'Chairman', councillor: 'Councillor', mla: 'MLA', mp: 'MP', other: 'Other' };
+
+async function loadDemands(){
+  const el = document.getElementById('adDemands');
+  const { data, error } = await sb.rpc('kasa_admin_demands');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const { pending = [], replies = [], published = [], promises = [] } = data || {};
+  const to = (d) => `<strong>${esc(DEMAND_ROLE[d.leader_role] || d.leader_role)} ${esc(d.leader_name)}</strong><br><small>${esc(d.leader_area || '')}</small>`;
+  const body = (d) => `<strong>${esc(d.title)}</strong><br><span style="white-space:pre-wrap;">${esc(d.details)}</span>
+    ${d.place ? `<br><small>Where: ${esc(d.place)}</small>` : ''}${d.submitter_note ? `<br><small>Note: ${esc(d.submitter_note)}</small>` : ''}`;
+  el.innerHTML = `
+    <h3 class="ad-note" style="margin-top:0;"><strong>Waiting (${pending.length})</strong></h3>
+    ${pending.length ? `<table class="ad-table"><thead><tr><th>To</th><th>Demand</th><th></th></tr></thead><tbody>
+      ${pending.map(d => `<tr><td>${to(d)}</td><td>${body(d)}</td><td style="white-space:nowrap;">
+        <button class="ad-ok" data-dem-pub="${esc(d.id)}">✓ Publish</button>
+        <button class="ad-ok" data-dem-fix="${esc(d.id)}">✎ Fix &amp; publish</button>
+        <button class="ad-bad" data-dem-rej="${esc(d.id)}">✕ Reject</button></td></tr>`).join('')}</tbody></table>` : '<div class="ad-empty">Nothing waiting.</div>'}
+    <h3 class="ad-note"><strong>Leaders' replies waiting (${replies.length})</strong></h3>
+    ${replies.length ? `<table class="ad-table"><thead><tr><th>Demand</th><th>Reply and source</th><th></th></tr></thead><tbody>
+      ${replies.map(r => `<tr><td><strong>${esc(r.leader_name)}</strong><br><small>${esc(r.demand_title)}</small></td>
+        <td style="white-space:pre-wrap;">${esc(r.reply)}<br><small>Said ${esc(r.said_on)} · ${extLink(r.source_url, r.source_name || 'source')}</small></td>
+        <td style="white-space:nowrap;"><button class="ad-ok" data-rep-pub="${esc(r.id)}">✓ Publish</button>
+        <button class="ad-bad" data-rep-rej="${esc(r.id)}">✕ Reject</button></td></tr>`).join('')}</tbody></table>` : '<div class="ad-empty">Nothing waiting.</div>'}
+    <h3 class="ad-note"><strong>Published (${published.length})</strong></h3>
+    ${published.length ? `<table class="ad-table"><thead><tr><th>To</th><th>Demand</th><th></th></tr></thead><tbody>
+      ${published.map(d => `<tr><td>${to(d)}</td><td>${body(d)}<br><small>+1: ${esc(d.supports)}${d.promise_id ? ' · linked to a promise' : ''}</small></td>
+        <td style="white-space:nowrap;"><button class="ad-ok" data-dem-link="${esc(d.id)}">${d.promise_id ? 'Change promise link' : 'Link to promise'}</button>
+        <button class="ad-bad" data-dem-down="${esc(d.id)}">✕ Take down</button></td></tr>`).join('')}</tbody></table>` : '<div class="ad-empty">None yet.</div>'}`;
+
+  const run = async (name, args) => {
+    const { error: e2 } = await sb.rpc(name, args);
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadDemands();
+  };
+  el.querySelectorAll('[data-dem-pub]').forEach(b => b.addEventListener('click', () =>
+    run('kasa_admin_demand_review', { p_id: b.dataset.demPub, p_action: 'publish' })));
+  el.querySelectorAll('[data-dem-fix]').forEach(b => b.addEventListener('click', () => {
+    const d = pending.find(x => x.id === b.dataset.demFix);
+    const edits = {};
+    for (const [k, label] of [['leader_role', 'Role (chairman, councillor, mla, mp, other)'], ['leader_name', 'Leader'], ['leader_area', 'Seat or area'],
+                              ['title', 'Title'], ['details', 'Why it helps everyone'], ['place', 'Where']]) {
+      const v = prompt(label + ':', d[k] || '');
+      if (v === null) return;
+      if (v.trim() && v.trim() !== (d[k] || '')) edits[k] = v.trim();
+    }
+    run('kasa_admin_demand_review', { p_id: d.id, p_action: 'publish', p_edits: edits });
+  }));
+  el.querySelectorAll('[data-dem-rej]').forEach(b => b.addEventListener('click', () => {
+    const note = prompt('Reason for rejecting (kept private):');
+    if (note === null) return;
+    run('kasa_admin_demand_review', { p_id: b.dataset.demRej, p_action: 'reject', p_note: note });
+  }));
+  el.querySelectorAll('[data-rep-pub]').forEach(b => b.addEventListener('click', () =>
+    run('kasa_admin_demand_reply_review', { p_id: b.dataset.repPub, p_action: 'publish' })));
+  el.querySelectorAll('[data-rep-rej]').forEach(b => b.addEventListener('click', () =>
+    run('kasa_admin_demand_reply_review', { p_id: b.dataset.repRej, p_action: 'reject' })));
+  el.querySelectorAll('[data-dem-link]').forEach(b => b.addEventListener('click', () => {
+    if (!promises.length){ alert('No published promises yet. Add the promise on the Promises page first.'); return; }
+    const list = promises.map((p, i) => `${i + 1}. ${p.who}: ${p.promise}`).join('\n');
+    const pick = prompt(`Number of the promise this demand became (0 to unlink):\n\n${list}`);
+    if (pick === null) return;
+    const n = Number(pick);
+    if (!Number.isInteger(n) || n < 0 || n > promises.length){ alert('Pick a number from the list.'); return; }
+    run('kasa_admin_demand_edit', { p_id: b.dataset.demLink, p_promise: n ? promises[n - 1].id : null });
+  }));
+  el.querySelectorAll('[data-dem-down]').forEach(b => b.addEventListener('click', () => {
+    if (confirm('Take this demand off the noticeboard?')) run('kasa_admin_demand_edit', { p_id: b.dataset.demDown, p_take_down: true });
+  }));
 }
 
 async function loadCommunities(){
