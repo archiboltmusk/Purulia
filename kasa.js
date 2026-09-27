@@ -2226,6 +2226,7 @@ function cameraSupported(){
 function showCameraState(s){
   document.getElementById('k-cam-video').hidden = s !== 'live';
   document.getElementById('k-cam-still').hidden = s !== 'still';
+  document.getElementById('k-cam-crop').hidden = s !== 'live';
   document.getElementById('k-cam-shutter').hidden = s !== 'live';
   document.getElementById('k-cam-retake').hidden = s !== 'still';
   document.getElementById('k-cam-use').hidden = s !== 'still';
@@ -2334,9 +2335,11 @@ async function takeCameraShot(){
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
-  // Digital zoom: crop the centre to match the scaled preview.
+  // Square, not the sensor's native 16:9/HD frame: crop to the shorter side, centred.
+  // Digital zoom shrinks that same square further, to match the scaled preview.
   const dz = camera.hwZoom ? 1 : camera.zoom;
-  const sw = video.videoWidth / dz, sh = video.videoHeight / dz;
+  const side = Math.min(video.videoWidth, video.videoHeight) / dz;
+  const sw = side, sh = side;
   const sx = (video.videoWidth - sw) / 2, sy = (video.videoHeight - sh) / 2;
   const scale = Math.min(1, PHOTO_MAX_PX / Math.max(sw, sh));
   const canvas = document.createElement('canvas');
