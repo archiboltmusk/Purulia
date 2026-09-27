@@ -26,6 +26,7 @@
   const COND = { good: 'Building good', needs_repair: 'Building needs repair', unsafe: 'Building unsafe' };
   const VIDYANJALI = 'https://vidyanjali.education.gov.in/';
   const checkUrl = code => `kasa.html?school=${encodeURIComponent(code)}`;
+  const cardUrl = code => `kasa.html?card=${encodeURIComponent(code)}`;
   const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
   // The API returns at most 1,000 rows per request, so fetch the list in pages.
@@ -108,7 +109,9 @@
     const has = OFFICIAL.filter(([k]) => typeof o[k] === 'boolean').map(([k, label]) => `${o[k] ? '✓' : '✗'} ${label}`);
     const gaps = OFFICIAL.filter(([k, , r]) => r && o[k] === true && s[r] === false).map(([, label]) => label);
     if (o.teachers != null && s.teachers_seen != null && s.teachers_seen < o.teachers) gaps.push(`teachers (${s.teachers_seen} of ${o.teachers} seen)`);
-    return `<div class="sc-off">Official record (UDISE+${s.official_year ? ' ' + esc(s.official_year) : ''}): ${esc([...nums, ...has].join(' · '))}</div>` +
+    const src = o.source === 'report_card' && /^https:\/\//.test(o.source_url || '')
+      ? ` <a href="${esc(o.source_url)}" target="_blank" rel="noopener">from the report card a resident shared, checked by a moderator ↗</a>` : '';
+    return `<div class="sc-off">Official record (UDISE+${s.official_year ? ' ' + esc(s.official_year) : ''}): ${esc([...nums, ...has].join(' · '))}${src}</div>` +
       (gaps.length ? `<div class="sc-gap">Records say yes, the latest check found no: ${esc(gaps.join(', '))}</div>` : '');
   }
 
@@ -133,6 +136,7 @@
         <div class="sc-acts">
           <a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>
           ${s.audits && problems(s).length ? `<button type="button" data-rti="${esc(s.udise_code)}">Draft an RTI</button>` : ''}
+          <a href="${cardUrl(s.udise_code)}">${s.official ? 'Newer report card? Share it' : 'Share its report card'}</a>
           ${weak ? `<a href="${VIDYANJALI}" target="_blank" rel="noopener">Help this school on Vidyanjali ↗</a>` : ''}
           <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">${s.lat != null ? 'Pin in the wrong place? Fix it' : 'Put it on the map'}</a>
         </div>
@@ -167,15 +171,18 @@
              ${todo.map(s => `<option value="${esc(s.udise_code)}">${esc(s.name)} — ${esc([s.village, s.block_name].filter(Boolean).join(', ')) || 'no village on record'}</option>`).join('')}
            </select>
            <button type="button" class="sc-unchecked-go" id="sc-unchecked-go" disabled>Check</button>
+           <a class="sc-unchecked-fix" id="sc-unchecked-card" hidden>Share report card</a>
            <a class="sc-unchecked-fix" id="sc-unchecked-fix" hidden>Put on map</a>
          </div>`
       : '<div class="an-empty">Every school here has been checked.</div>';
     const uSel = document.getElementById('sc-unchecked-sel');
     const uGo = document.getElementById('sc-unchecked-go');
     const uFix = document.getElementById('sc-unchecked-fix');
+    const uCard = document.getElementById('sc-unchecked-card');
     if (uSel) uSel.addEventListener('change', () => {
       const s = todo.find(x => x.udise_code === uSel.value);
       uGo.disabled = !s;
+      if (uCard){ uCard.hidden = !s; if (s) uCard.href = cardUrl(s.udise_code); }
       if (s){
         uFix.hidden = false;
         uFix.href = `kasa.html?fix=${encodeURIComponent(s.udise_code)}`;

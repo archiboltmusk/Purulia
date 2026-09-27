@@ -90,7 +90,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadPromises(), loadCommunities(), loadSchoolChecks(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadAutomation(), loadPromises(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -780,6 +780,39 @@ async function loadCommunities(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_community', { p_id: b.dataset.group, p_action: b.dataset.groupAct, p_note: note });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadCommunities();
+  }));
+}
+
+const CARD_FIELDS = [['enrolment', 'Pupils'], ['teachers', 'Teachers'], ['classrooms', 'Classrooms'], ['drinking_water', 'Water'],
+  ['girls_toilet', "Girls' toilet"], ['boys_toilet', "Boys' toilet"], ['electricity', 'Electricity'], ['boundary_wall', 'Wall'],
+  ['handwash', 'Hand-wash'], ['library', 'Library'], ['playground', 'Playground'], ['ramp', 'Ramp']];
+async function loadReportCards(){
+  const el = document.getElementById('adReportCards');
+  const { data, error } = await sb.rpc('kasa_admin_report_card_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  const val = v => v === true ? '✓' : v === false ? '✗' : v == null ? '—' : esc(v);
+  const figs = f => CARD_FIELDS.filter(([k]) => f && k in f).map(([k, l]) => `${esc(l)}: ${val(f[k])}`).join(' · ') || '—';
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Card</th><th>School</th><th>Figures copied</th><th>Current record</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(c => `<tr>
+          <td><a href="${esc(c.photo_url)}" target="_blank" rel="noopener"><img src="${esc(c.photo_url)}" alt="" style="width:96px;height:96px;object-fit:cover;border-radius:4px;"></a></td>
+          <td><strong>${esc(c.school_name)}</strong><br><small>${esc(c.udise_code)} · ${esc(c.block_name || '')} · sent ${esc(new Date(c.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><strong>${esc(c.year)}</strong><br>${figs(c.figures)}</td>
+          <td>${c.current ? `<strong>${esc(c.current_year || '')}</strong><br>${figs(c.current)}` : '—'}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-card="${esc(c.id)}" data-card-act="approve">✓ Matches the picture</button>
+            <button class="ad-bad" data-card="${esc(c.id)}" data-card-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-card]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_moderate_report_card', { p_id: b.dataset.card, p_action: b.dataset.cardAct });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadReportCards();
   }));
 }
 

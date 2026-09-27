@@ -1685,6 +1685,41 @@ check("\"can't tell\" is left out of the score, not counted as a failure", c4b['
 check('official school figures are public when loaded',
       'official' in c4b and 'official_year' in c4b, c4b)
 
+# Report cards: residents send a picture plus the figures; nothing shows until a moderator approves.
+card_uid = user()
+def card(uid, code='19210199902', year='2024-25', figures=None, path=None):
+    return rpc('kasa_submit_report_card', uid=uid, p_udise_code=code, p_year=year,
+               p_figures=json.dumps(figures if figures is not None else {'enrolment': 120, 'teachers': 4, 'drinking_water': True, 'girls_toilet': False}),
+               p_photo_path=path or upload(uid, 'reports'))
+check('the public cannot send a report card without signing in',
+      refused(err(rpc, 'kasa_submit_report_card', p_udise_code='19210199902', p_year='2024-25', p_figures='{"teachers": 3}', p_photo_path='reports/x.jpg')))
+check('a report card needs a real year', err(card, card_uid, year='last year') == 'KASA_BAD_YEAR')
+check('a report card needs at least one figure', err(card, card_uid, figures={'teachers': -5, 'x': 1}) == 'KASA_CARD_EMPTY')
+check('a report card for a school not on the list is refused', err(card, card_uid, code='19210199999') == 'KASA_NOT_FOUND')
+check("someone else's picture cannot be used", err(card, card_uid, path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+rc = card(card_uid)
+check('a report card waits for a moderator', rc['status'] == 'pending', rc)
+cov_rc = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}['19210199902']
+check('a waiting report card is not public', cov_rc['official'] is None, cov_rc)
+check('non-moderators cannot see or approve report cards',
+      err(rpc, 'kasa_admin_report_card_queue', uid=user()) == 'KASA_NOT_ADMIN'
+      and err(rpc, 'kasa_admin_moderate_report_card', uid=user(), p_id=str(rc['id']), p_action='approve') == 'KASA_NOT_ADMIN')
+queue = rpc('kasa_admin_report_card_queue', uid=mod)
+check('moderators see the picture and the figures side by side',
+      any(x['id'] == rc['id'] and x['figures']['teachers'] == 4 and x['photo_url'] for x in queue), queue)
+rpc('kasa_admin_moderate_report_card', uid=mod, p_id=str(rc['id']), p_action='approve')
+cov_rc = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}['19210199902']
+check("an approved report card becomes the school's official record, with its source",
+      cov_rc['official_year'] == '2024-25' and cov_rc['official']['teachers'] == 4
+      and cov_rc['official']['girls_toilet'] is False and cov_rc['official']['source'] == 'report_card'
+      and cov_rc['official']['source_url'], cov_rc)
+old = card(card_uid, year='2022-23', figures={'teachers': 9})
+rpc('kasa_admin_moderate_report_card', uid=mod, p_id=str(old['id']), p_action='approve')
+cov_rc = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}['19210199902']
+check('an older report card does not replace a newer one', cov_rc['official_year'] == '2024-25' and cov_rc['official']['teachers'] == 4, cov_rc)
+used = admin_sql('select photo_path from kasa_private.school_report_cards where id = %s', (rc['id'],))[0][0]
+check("a report card's picture cannot be reused", err(card, card_uid, path=used) == 'KASA_PHOTO_REUSED')
+
 # Nearby schools: official locations, and locations learned from approved checks.
 nb = rpc('kasa_nearby_schools', p_lat=sc_where[0], p_lng=sc_where[1])
 codes = {x['udise_code']: x for x in nb['near']}

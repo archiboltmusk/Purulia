@@ -2678,20 +2678,22 @@ const SC_MAYBE = ['girls_toilet', 'meal_today'];
 let sc = null;
 
 async function openSchoolCheck(code){
-  sc = { schools: [], school: null, ans: {}, cond: null, pos: null, blob: null, meta: null };
+  sc = { schools: [], school: null, ans: {}, cond: null, pos: null, blob: null, meta: null, problems: {} };
   setDrawer(false);
   document.getElementById('k-sc-qs').innerHTML = SC_QUESTIONS.map(k => `
     <div class="k-sc-row"><span>${esc(t('sc_q_' + k))}</span>
       <div class="k-seg k-seg-yn" role="radiogroup" data-scq="${k}">
         <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
-      </div></div>`).join('') + SC_MAYBE.map(k => `
+      </div>
+      <button type="button" class="k-sc-probcam" data-probcam="${k}" hidden>${esc(t('sc_prob_photo'))}</button></div>`).join('') + SC_MAYBE.map(k => `
     <div class="k-sc-row"><span>${esc(t('sc_q_' + k))}</span>
       <div class="k-seg k-seg-yn" role="radiogroup" data-scq="${k}">
         <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="unknown">${esc(t('sc_cant_tell'))}</button>
-      </div></div>`).join('') + `
+      </div>
+      <button type="button" class="k-sc-probcam" data-probcam="${k}" hidden>${esc(t('sc_prob_photo'))}</button></div>`).join('') + `
     <div class="k-sc-row"><label for="k-sc-teachers">${esc(t('sc_q_teachers'))}</label>
       <input type="number" id="k-sc-teachers" class="k-input" inputmode="numeric" min="0" max="200" step="1" placeholder="${esc(t('sc_teachers_ph'))}"></div>
     <div class="k-sc-row"><span>${esc(t('sc_q_building'))}</span>
@@ -2699,7 +2701,8 @@ async function openSchoolCheck(code){
         <button type="button" role="radio" aria-checked="false" data-v="good">${esc(t('sc_good'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="needs_repair">${esc(t('sc_repair'))}</button>
         <button type="button" role="radio" aria-checked="false" data-v="unsafe">${esc(t('sc_unsafe'))}</button>
-      </div></div>`;
+      </div>
+      <button type="button" class="k-sc-probcam" data-probcam="building" hidden>${esc(t('sc_prob_photo'))}</button></div>`;
   document.getElementById('k-sc-preview').innerHTML = '';
   document.getElementById('k-sc-photo-status').className = 'k-ev-status';
   document.getElementById('k-sc-photo-status').textContent = t('sc_photo_hint');
@@ -2841,6 +2844,59 @@ function updateSchoolSubmit(){
   document.getElementById('k-sc-submit').disabled = !(sc.school && answered && sc.pos && sc.blob);
 }
 
+/* A photo of one problem found at the school ("No" answers, a building needing repair)
+   becomes its own report on the report map, routed to the school inspector like any
+   school report. At most three, to stay inside the hourly report limit. */
+const SC_PROB_MAX = 3;
+const SC_PROB_TEXT = {
+  water: 'no drinking water', toilets: 'toilets not usable', boundary: 'boundary wall broken or missing',
+  electricity: 'no working electricity', mdm: 'no mid-day meal kitchen or utensils',
+  girls_toilet: "girls' toilet not usable", meal_today: 'no mid-day meal cooked today',
+  building: 'building needs repair'
+};
+function schoolProblemOpen(k){
+  if (!sc) return false;
+  if (k === 'building') return sc.cond === 'needs_repair' || sc.cond === 'unsafe';
+  return sc.ans[k] === false;
+}
+function syncProblemButtons(){
+  if (!sc) return;
+  document.querySelectorAll('#k-sc-qs [data-probcam]').forEach(b => {
+    const k = b.dataset.probcam, open = schoolProblemOpen(k);
+    b.hidden = !open;
+    if (!open) delete sc.problems[k];
+    const p = sc.problems[k];
+    b.classList.toggle('done', !!p);
+    b.innerHTML = p ? `<img src="${p.url}" alt="">${esc(t('sc_prob_added'))}` : esc(t('sc_prob_photo'));
+  });
+}
+async function captureProblemPhoto(k){
+  if (!sc) return;
+  if (!sc.problems[k] && Object.keys(sc.problems).length >= SC_PROB_MAX){ showToast(t('sc_prob_max', { n: SC_PROB_MAX })); return; }
+  const res = await openLiveCamera();
+  if (!sc) return;
+  if (res.blob) sc.problems[k] = { blob: res.blob, url: URL.createObjectURL(res.blob), meta: { capture: 'live', capture_token: res.token || undefined } };
+  else if (res.error !== 'cancelled') showToast(t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  syncProblemButtons();
+}
+async function sendSchoolProblems(c){
+  let ok = 0, failed = 0;
+  for (const [k, p] of Object.entries(c.problems)){
+    if (!schoolProblemOpen(k)) continue;
+    try {
+      await api.createReport({
+        category: 'school', severity: k === 'building' && c.cond === 'unsafe' ? 'critical' : 'severe',
+        lat: c.pos.lat, lng: c.pos.lng, accuracy: c.pos.accuracy, ward: null,
+        description: `${c.school.name} (UDISE ${c.school.udise_code}): ${k === 'building' && c.cond === 'unsafe' ? 'building unsafe' : SC_PROB_TEXT[k]}. Found during a school check.`.slice(0, 500),
+        landmark: c.school.name.slice(0, 120), photoBlob: p.blob, photoMeta: p.meta, extraPhotos: [],
+        clientId: 'R' + Date.now() + randomName(6), boundary_type: detectBoundary(c.pos.lat, c.pos.lng)
+      });
+      ok++;
+    } catch (e){ failed++; console.warn('Parishkar: school problem report not filed', e); }
+  }
+  return { ok, failed };
+}
+
 // Optional: blank means the resident did not count, not zero teachers.
 function schoolTeachersSeen(){
   const v = document.getElementById('k-sc-teachers')?.value.trim();
@@ -2866,14 +2922,88 @@ async function submitSchoolCheck(){
       p_girls_toilet_ok: sc.ans.girls_toilet, p_meal_today_ok: sc.ans.meal_today, p_teachers_seen: schoolTeachersSeen()
     });
     if (error) throw rpcError(error);
+    const sent = await sendSchoolProblems(sc);
     closeModal('k-sc-modal');
-    showToast(t(data.moderation_status === 'approved' ? 'sc_done' : 'sc_done_review'), 7000);
+    showToast(t(data.moderation_status === 'approved' ? 'sc_done' : 'sc_done_review') +
+      (sent.ok ? ' ' + t('sc_probs_sent', { n: sent.ok }) : '') + (sent.failed ? ' ' + t('photo_extra_failed', { n: sent.failed }) : ''), 9000);
     sc = null;
+    if (sent.ok) loadReports();
   } catch (e){
     showToast(errorText(e), 7000);
   }
   btn.textContent = t('sc_submit');
   updateSchoolSubmit();
+}
+
+/* A school's report card: a screenshot from Know Your School (or a photo of the card the
+   school displays) plus the figures read off it. A moderator compares the two before the
+   figures become the school's official record on the schools page. */
+const RC_NUMS = ['enrolment', 'teachers', 'classrooms'];
+const RC_FACTS = ['drinking_water', 'girls_toilet', 'boys_toilet', 'electricity', 'boundary_wall', 'handwash', 'library', 'playground', 'ramp'];
+let rc = null;
+async function openReportCard(code){
+  const { data: s } = await sb.from('schools').select('udise_code,name,block_name,village').eq('udise_code', code).maybeSingle();
+  if (!s){ showToast(t('err_KASA_NOT_FOUND')); return; }
+  rc = { school: s, blob: null, facts: {} };
+  setDrawer(false);
+  document.getElementById('k-rc-school').textContent = `${s.name} · ${[s.village, s.block_name].filter(Boolean).join(', ')} · UDISE ${s.udise_code}`;
+  document.getElementById('k-rc-how').innerHTML = esc(t('rc_how', { code: '\u0000' })).replace('\u0000', `<code>${esc(s.udise_code)}</code>`);
+  document.getElementById('k-rc-nums').innerHTML = RC_NUMS.map(k =>
+    `<label><span>${esc(t('rc_' + k))}</span><input type="number" class="k-input" inputmode="numeric" min="0" max="5000" step="1" data-rcnum="${k}"></label>`).join('');
+  document.getElementById('k-rc-facts').innerHTML = RC_FACTS.map(k => `
+    <div class="k-sc-row"><span>${esc(t('rc_' + k))}</span>
+      <div class="k-seg k-seg-yn" role="radiogroup" data-rcfact="${k}">
+        <button type="button" role="radio" aria-checked="false" data-v="yes">${esc(t('sc_yes'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="no">${esc(t('sc_no'))}</button>
+        <button type="button" role="radio" aria-checked="false" data-v="skip">${esc(t('rc_not_shown'))}</button>
+      </div></div>`).join('');
+  document.getElementById('k-rc-preview').innerHTML = '';
+  document.getElementById('k-rc-file').value = '';
+  updateReportCardSubmit();
+  openModal('k-rc-modal');
+}
+function reportCardFigures(){
+  const f = {};
+  document.querySelectorAll('#k-rc-nums [data-rcnum]').forEach(i => {
+    const v = i.value.trim();
+    if (/^\d{1,4}$/.test(v)) f[i.dataset.rcnum] = Number(v);
+  });
+  for (const [k, v] of Object.entries(rc?.facts || {})) if (typeof v === 'boolean') f[k] = v;
+  return f;
+}
+function updateReportCardSubmit(){
+  document.getElementById('k-rc-submit').disabled = !(rc && rc.blob && Object.keys(reportCardFigures()).length);
+}
+async function pickReportCardPicture(file){
+  if (!rc || !file) return;
+  try {
+    rc.blob = await compressImage(file);
+    document.getElementById('k-rc-preview').innerHTML = `<img src="${URL.createObjectURL(rc.blob)}" alt="">`;
+  } catch (e){ rc.blob = null; showToast(t('err_photo_read')); }
+  updateReportCardSubmit();
+}
+async function submitReportCard(){
+  if (!rc) return;
+  const btn = document.getElementById('k-rc-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', rc.blob);
+    await checkPhoto(path, null, null, null);
+    const { error } = await sb.rpc('kasa_submit_report_card', {
+      p_udise_code: rc.school.udise_code, p_year: document.getElementById('k-rc-year').value,
+      p_figures: reportCardFigures(), p_photo_path: path
+    });
+    if (error) throw rpcError(error);
+    closeModal('k-rc-modal');
+    showToast(t('rc_done'), 8000);
+    rc = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('rc_submit');
+  updateReportCardSubmit();
 }
 
 /* "The school is here": someone standing at a school puts it on the map, or corrects its pin. */
@@ -2985,17 +3115,32 @@ function initSchoolCheck(){
   document.getElementById('k-sf-submit').addEventListener('click', submitSchoolFix);
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
+  document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
+  document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
+  document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
+  document.getElementById('k-rc-submit').addEventListener('click', submitReportCard);
+  document.getElementById('k-rc-facts').addEventListener('click', e => {
+    const b = e.target.closest('[data-v]'), g = b?.closest('[data-rcfact]');
+    if (!b || !g || !rc) return;
+    g.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', String(x === b)));
+    rc.facts[g.dataset.rcfact] = b.dataset.v === 'skip' ? null : b.dataset.v === 'yes';
+    updateReportCardSubmit();
+  });
   document.getElementById('k-sc-qs').addEventListener('click', e => {
+    const pc = e.target.closest('[data-probcam]');
+    if (pc){ captureProblemPhoto(pc.dataset.probcam); return; }
     const b = e.target.closest('[data-v]'), g = b?.closest('[data-scq]');
     if (!b || !g || !sc) return;
     g.querySelectorAll('button').forEach(x => x.setAttribute('aria-checked', String(x === b)));
     if (g.dataset.scq === 'building') sc.cond = b.dataset.v;
     else sc.ans[g.dataset.scq] = b.dataset.v === 'unknown' ? null : b.dataset.v === 'yes';
+    syncProblemButtons();
     updateSchoolSubmit();
   });
   const q = new URLSearchParams(location.search), code = q.get('school');
-  const fix = q.get('fix');
+  const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
+  else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
   else if (code && /^\d{11}$/.test(code)) openSchoolCheck(code);
   else if (q.get('check') === 'school') openSchoolCheck();
