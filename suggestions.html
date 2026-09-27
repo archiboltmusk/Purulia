@@ -145,10 +145,11 @@
   </section>
 </main>
 
+<script src="config.js"></script>
 <script src="kasa-i18n.js"></script>
 <script>
-const SUPABASE_URL = 'https://cnmikcyvyamplbldiivp.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubWlrY3l2eWFtcGxibGRpaXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTMwNzE2MDAsImV4cCI6MTczNDA2NDAwMH0.8RExAW0KZCUlVgEPL1vCx1LCGYxLpVWjUNs8D5kNhcE';
+const SUPABASE_URL = window.KASA_CONFIG.SUPABASE_URL;
+const SUPABASE_KEY = window.KASA_CONFIG.SUPABASE_ANON_KEY;
 
 let currentFilter = 'all';
 let localSuggestions = [];
@@ -258,7 +259,7 @@ async function submitSuggestion() {
       });
       renderLocalSuggestion(title, description, category);
     } else {
-      showMessage(data.error || 'Error submitting suggestion', 'error', messageContainer);
+      showMessage(data.error || data.message || data.hint || 'Error submitting suggestion', 'error', messageContainer);
     }
   } catch (err) {
     showMessage('Error: ' + err.message, 'error', messageContainer);
