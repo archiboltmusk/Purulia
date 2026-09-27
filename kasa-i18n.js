@@ -16,6 +16,8 @@ window.KASA_I18N = {
     sev_minor: 'Minor', sev_severe: 'Severe', sev_critical: 'Critical',
     pill_active: 'Unresolved', pill_reports: 'Reports', map_report: 'Report',
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
+    stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
+    drawer_banner: 'Join 7 neighbors fixing Purulia today', drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: 'See who\\'s responsible', drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
     trust_sub: "No official or party worker can close a report by saying so. Neighbours on the spot confirm a fix. An admin can accept a cleanup only after checking the photos, and the report then says so openly. These rules run on the server — the website can't skip them.",
@@ -255,6 +257,8 @@ window.KASA_I18N = {
     sev_minor: 'সামান্য', sev_severe: 'গুরুতর', sev_critical: 'সংকটজনক',
     pill_active: 'অমীমাংসিত', pill_reports: 'রিপোর্ট', map_report: 'রিপোর্ট',
     stat_reports: 'রিপোর্ট', stat_open: 'অমীমাংসিত', stat_resolved: 'যাচাই করা সমাধান', stat_fake: 'ধরা পড়া ভুয়ো সাফাই',
+    stat_total_short: 'মোট', stat_open_short: 'অমীমাংসিত', stat_fixed_short: 'সমাধান হয়েছে',
+    drawer_banner: 'পুরুলিয়া পরিষ্কার রাখতে ৭ জন প্রতিবেশী সাথে যোগ দিন', drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'আরও সম্পদ',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
     trust_sub: 'কোনো আধিকারিক বা দলীয় কর্মী মুখে বলে রিপোর্ট বন্ধ করতে পারেন না। ঘটনাস্থলের প্রতিবেশীরা সমাধান নিশ্চিত করেন। অ্যাডমিন শুধু ছবি দেখে পরিষ্কার গ্রহণ করতে পারেন, আর রিপোর্টে তা খোলাখুলি লেখা থাকে। এই নিয়ম সার্ভারে চলে — ওয়েবসাইট এড়াতে পারে না।',
@@ -493,6 +497,8 @@ window.KASA_I18N = {
     sev_minor: 'मामूली', sev_severe: 'गंभीर', sev_critical: 'अति गंभीर',
     pill_active: 'अनसुलझी', pill_reports: 'रिपोर्ट', map_report: 'रिपोर्ट',
     stat_reports: 'रिपोर्ट', stat_open: 'अनसुलझी', stat_resolved: 'पुष्टि से सुलझी', stat_fake: 'पकड़ी गई फ़र्ज़ी सफ़ाई',
+    stat_total_short: 'कुल', stat_open_short: 'अनसुलझी', stat_fixed_short: 'सुलझी हुई',
+    drawer_banner: 'पुरुलिया को साफ़ रखने वाले 7 पड़ोसियों के साथ जुड़ें', drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
 
     trust_num: '03 · पुष्टि', trust_title: 'यहाँ "सुलझ गई" का मतलब सच में सुलझ गई',
     trust_sub: 'कोई अधिकारी या पार्टी कार्यकर्ता सिर्फ़ कहकर रिपोर्ट बंद नहीं कर सकता। मौके पर पड़ोसी सुधार की पुष्टि करते हैं। एडमिन सिर्फ़ फ़ोटो जाँचकर सफ़ाई स्वीकार कर सकता है, और रिपोर्ट पर यह साफ़ लिखा होता है। ये नियम सर्वर पर चलते हैं — वेबसाइट इन्हें छोड़ नहीं सकती।',
