@@ -51,7 +51,8 @@ notify pgrst, 'reload schema';
 -- Update kasa_create_report function to accept and store boundary_type parameter
 -- This is a modified version of the original function from 20260924120000_kasa_v2_accountability.sql
 -- Only change: added p_boundary_type parameter and included it in the INSERT statement
-create or replace function public.kasa_create_report(
+drop function if exists public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text);
+create function public.kasa_create_report(
   p_category text, p_severity text, p_lat double precision, p_lng double precision,
   p_accuracy double precision, p_ward_no integer, p_description text, p_landmark text,
   p_photo_path text, p_client_id text default null, p_boundary_type text default null)
