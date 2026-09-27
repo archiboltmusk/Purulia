@@ -2041,6 +2041,16 @@ check('moderators see the bug with its page and at most 10 errors, not the netwo
       got['page_url'] == 'https://x/kasa.html' and len(got['errors']) == 10 and 'ip_hash' not in got, got)
 rpc('kasa_admin_bug_close', uid=mod, p_id=bug['id'], p_status='fixed')
 check('a fixed bug leaves the queue', not any(x['id'] == bug['id'] for x in rpc('kasa_admin_bugs', uid=mod)))
+while rpc('kasa_bug_alerts_claim', role='service_role', p_limit=200)['bugs']:
+    pass
+bug2 = rpc('kasa_bug_submit', ip='10.9.0.3', p_what='Language switch is stuck')
+bc = rpc('kasa_bug_alerts_claim', role='service_role', p_limit=50)
+check('a new bug report is handed out for the team email', [b['id'] for b in bc['bugs']] == [bug2['id']], bc)
+check('a claimed bug report is not handed out twice', rpc('kasa_bug_alerts_claim', role='service_role', p_limit=50)['bugs'] == [])
+rpc('kasa_bug_alerts_done', role='service_role', p_ids=[bug2['id']])
+check('the public cannot claim bug alerts', refused(err(rpc, 'kasa_bug_alerts_claim', uid=user(), p_limit=5)))
+check('the admin queue hides the alert bookkeeping',
+      'alerted_at' not in next(x for x in rpc('kasa_admin_bugs', uid=mod) if x['id'] == bug2['id']))
 for i in range(5):
     err(rpc, 'kasa_bug_submit', ip='10.9.9.9', p_what='Map is blank again')
 check('one network can send at most five bug reports an hour',
