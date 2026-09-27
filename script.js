@@ -344,6 +344,8 @@ document.addEventListener('click',function(e){
 
 /* ── WhatsApp floating share button ── */
 (function(){
+  // Pages with their own share strip don't need a second, floating share button.
+  if(document.getElementById('shareStrip'))return;
   var pageMsgs={
     'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth sharing:',
     'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, real funding sources — read it:',
