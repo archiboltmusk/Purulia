@@ -103,7 +103,7 @@ window.KASA_I18N = {
     sheet_anonymous: 'All reports are anonymous', sheet_allegation: 'A citizen report — an allegation, not a verified fact.', sheet_terms: 'Terms',
     sheet_seen_btn: 'I saw this too', sheet_seen_done: 'You saw this',
     sheet_directions: 'Get directions', sheet_gps: 'Located by GPS', sheet_pinned: 'Pinned on map',
-    sheet_share: 'Share', sheet_close: 'Close',
+    sheet_share: 'Share', sheet_close: 'Close', sheet_prev: 'Previous photo', sheet_next: 'Next photo',
     stat_people: 'People saw it', stat_days_open: 'Days open', stat_days_fix: 'Days to fix', stat_type: 'Issue type',
     nb_verified: 'Verified by neighbours', nb_doubted: 'Neighbours doubt this',
 

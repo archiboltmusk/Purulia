@@ -1303,8 +1303,7 @@ function openSheet(id){
   if (!r.pending && state.mode === 'v2' && !state.photos.has(r.id)){
     api.reportPhotos(r.id).then(list => {
       state.photos.set(r.id, list);
-      const el = document.getElementById('k-sheet-more');
-      if (state.sheetId === r.id && el) el.innerHTML = list.map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join('');
+      if (state.sheetId === r.id) renderGalleryInPlace(r);
     });
   }
   if (!r.pending && state.mode === 'v2'){
@@ -1325,6 +1324,52 @@ function closeSheet(){
   state.sheetId = null;
   clearInterval(openSheet._tick);
   try { history.replaceState(null, '', location.pathname); } catch (e) {}
+}
+
+function galleryPhotos(r){
+  return [r.photo, ...(state.photos.get(r.id) || [])].filter(Boolean);
+}
+
+function renderGalleryHTML(r, seenByMe){
+  const c = CATEGORIES[r.category];
+  const seenBtn = r.pending || r.status === 'resolved' ? '' : `
+      <button type="button" class="k-seen-btn${seenByMe ? ' k-seen-done' : ''}" data-seen="${esc(r.id)}" ${seenByMe ? 'disabled' : ''}>
+        ${ICON_EYE}<span>${esc(t(seenByMe ? 'sheet_seen_done' : 'sheet_seen_btn'))}</span>
+      </button>`;
+  const photos = galleryPhotos(r);
+  if (!photos.length) return `<div class="k-sheet-photo"><div class="k-sheet-noimg">${c.icon}</div>${seenBtn}</div>`;
+  return `
+    <div class="k-gallery" id="k-sheet-gallery">
+      <div class="k-gallery-track">
+        ${photos.map((u, i) => `<div class="k-gallery-slide"><img src="${esc(u)}" alt="${esc(t('cat_' + r.category))}" loading="${i === 0 ? 'eager' : 'lazy'}"></div>`).join('')}
+      </div>
+      ${photos.length > 1 ? `<div class="k-gallery-dots">${photos.map((_, i) => `<span class="k-gallery-dot${i === 0 ? ' active' : ''}"></span>`).join('')}</div>` : ''}
+      ${seenBtn}
+    </div>`;
+}
+
+function setupGalleryScroll(gallery){
+  if (!gallery) return;
+  const track = gallery.querySelector('.k-gallery-track');
+  const dots = gallery.querySelectorAll('.k-gallery-dot');
+  if (!track || dots.length < 2) return;
+  const slides = [...track.querySelectorAll('.k-gallery-slide')];
+  const obs = new IntersectionObserver(entries => {
+    entries.forEach(en => {
+      if (!en.isIntersecting) return;
+      const i = slides.indexOf(en.target);
+      dots.forEach((d, di) => d.classList.toggle('active', di === i));
+    });
+  }, { root: track, threshold: 0.6 });
+  slides.forEach(s => obs.observe(s));
+}
+
+function renderGalleryInPlace(r){
+  const seenByMe = state.seen.has(r.id);
+  const el = document.getElementById('k-sheet-gallery') || document.querySelector('#k-sheet-body .k-sheet-photo');
+  if (!el) return;
+  el.outerHTML = renderGalleryHTML(r, seenByMe);
+  setupGalleryScroll(document.getElementById('k-sheet-gallery'));
 }
 
 function renderSheet(){
@@ -1358,14 +1403,7 @@ function renderSheet(){
   const directions = `https://www.google.com/maps/dir/?api=1&destination=${r.lat},${r.lng}`;
 
   document.getElementById('k-sheet-body').innerHTML = `
-    <div class="k-sheet-photo">
-      ${r.photo ? `<img src="${esc(r.photo)}" alt="${esc(t('cat_' + r.category))}" loading="eager">` : `<div class="k-sheet-noimg">${c.icon}</div>`}
-      ${r.pending || r.status === 'resolved' ? '' : `
-      <button type="button" class="k-seen-btn${seenByMe ? ' k-seen-done' : ''}" data-seen="${esc(r.id)}" ${seenByMe ? 'disabled' : ''}>
-        ${ICON_EYE}<span>${esc(t(seenByMe ? 'sheet_seen_done' : 'sheet_seen_btn'))}</span>
-      </button>`}
-    </div>
-    <div class="k-sheet-more" id="k-sheet-more">${(state.photos.get(r.id) || []).map(u => `<img src="${esc(u)}" alt="" loading="lazy">`).join('')}</div>
+    ${renderGalleryHTML(r, seenByMe)}
     <div class="k-anon">${ICON_SHIELD} ${esc(t('sheet_anonymous'))}</div>
     <div class="k-allegation">⚖ ${esc(t('sheet_allegation'))} <a href="terms.html#allegations">${esc(t('sheet_terms'))}</a></div>
     ${!r.pending && r.status !== 'resolved' ? `
@@ -1405,6 +1443,7 @@ function renderSheet(){
   document.getElementById('k-sheet-foot').innerHTML = `
     <div class="k-foot-line">${esc(t('foot_line', { ago: ago(r.createdAt), n: peopleSaw(r), status }))}</div>
     <div class="k-foot-actions">${renderActions(r)}</div>`;
+  setupGalleryScroll(document.getElementById('k-sheet-gallery'));
 }
 
 /* "Resolved by 3 confirmers · Verified by moderator · Ward 12 · SLA met" — a small credit
@@ -3542,18 +3581,26 @@ function wireUI(){
   document.getElementById('k-flag-submit').addEventListener('click', submitFlag);
   document.getElementById('k-list-search').addEventListener('input', e => { state.listQuery = e.target.value.trim(); renderList(); });
 
-  // Tap a report photo to see it full screen.
+  // Tap a report photo to see it full screen; a gallery photo also gets prev/next.
   document.addEventListener('click', e => {
-    const img = e.target.closest('.k-sheet-photo img, .k-sheet-more img, .k-ba img, .k-tl-photo img, .k-ev-proof img');
+    const img = e.target.closest('.k-gallery-slide img, .k-ba img, .k-tl-photo img, .k-ev-proof img');
     if (!img) return;
     e.preventDefault();
-    openLightbox(img.currentSrc || img.src, img.alt);
+    const track = img.closest('.k-gallery-track');
+    if (track){
+      const imgs = [...track.querySelectorAll('img')];
+      openLightbox(imgs.map(im => im.currentSrc || im.src), imgs.indexOf(img), img.alt);
+    } else {
+      openLightbox([img.currentSrc || img.src], 0, img.alt);
+    }
   });
   document.getElementById('k-qr-btn').addEventListener('click', openQR);
 
   document.addEventListener('keydown', e => {
+    const box = document.getElementById('k-lightbox');
+    if (box && (e.key === 'ArrowLeft' || e.key === 'ArrowRight')) return stepLightbox(box, e.key === 'ArrowRight' ? 1 : -1);
     if (e.key !== 'Escape') return;
-    if (document.getElementById('k-lightbox')) return closeLightbox();
+    if (box) return closeLightbox();
     if (!document.getElementById('k-cam').hidden) return closeCamera({ error: 'cancelled' });
     const open = [...document.querySelectorAll('.k-modal.open')].pop();
     if (open) return closeModal(open.id);
@@ -3676,16 +3723,37 @@ function askStillThere(lat, lng, accuracy){
   };
 }
 
-function openLightbox(src, alt){
+function openLightbox(srcs, index, alt){
   closeLightbox();
   const box = document.createElement('div');
   box.id = 'k-lightbox';
   box.className = 'k-lightbox';
   box.setAttribute('role', 'dialog');
   box.setAttribute('aria-modal', 'true');
-  box.innerHTML = `<img src="${esc(src)}" alt="${esc(alt || '')}"><button type="button" class="k-lightbox-close" aria-label="${esc(t('sheet_close'))}">✕</button>`;
-  box.addEventListener('click', closeLightbox);
+  box._srcs = srcs;
+  box._alt = alt;
+  box._index = index;
+  box.addEventListener('click', e => {
+    if (e.target.closest('.k-lightbox-nav, .k-lightbox-close')) return;
+    closeLightbox();
+  });
   document.body.appendChild(box);
+  renderLightbox(box);
+}
+
+function renderLightbox(box){
+  const nav = box._srcs.length > 1 ? `
+    <button type="button" class="k-lightbox-nav k-lightbox-prev" aria-label="${esc(t('sheet_prev'))}">‹</button>
+    <button type="button" class="k-lightbox-nav k-lightbox-next" aria-label="${esc(t('sheet_next'))}">›</button>` : '';
+  box.innerHTML = `<img src="${esc(box._srcs[box._index])}" alt="${esc(box._alt || '')}">${nav}<button type="button" class="k-lightbox-close" aria-label="${esc(t('sheet_close'))}">✕</button>`;
+  box.querySelector('.k-lightbox-prev')?.addEventListener('click', e => { e.stopPropagation(); stepLightbox(box, -1); });
+  box.querySelector('.k-lightbox-next')?.addEventListener('click', e => { e.stopPropagation(); stepLightbox(box, 1); });
+}
+
+function stepLightbox(box, dir){
+  const n = box._srcs.length;
+  box._index = (box._index + dir + n) % n;
+  renderLightbox(box);
 }
 
 function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
