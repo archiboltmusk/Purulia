@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — interface text (English, Bengali, Hindi)
+   PURULIA KASA — interface text (English, Bengali, Hindi, Santali)
    Missing keys fall back to English.
    ══════════════════════════════════════════════════════════ */
 window.KASA_I18N = {
@@ -963,3 +963,43 @@ Object.assign(window.KASA_I18N.hi, {
   sla_hours: '{n} घंटे', sla_days: '{n} दिन',
   sla_due_in: '⏱ {t} बाकी', sla_overdue_by: '⏱ {t} देर हो चुकी'
 });
+
+/* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else
+   falls back to English. Draft wording: have a native Santali speaker check it. */
+window.KASA_I18N.sat = {
+  nav_home: 'ᱚᱲᱟᱜ', nav_map: 'ᱱᱚᱠᱥᱟ', nav_kasa: 'ᱯᱚᱨᱤᱥᱠᱟᱨ', nav_report: 'ᱠᱷᱚᱵᱚᱨ ᱮᱢ →', nav_more: 'ᱟᱨᱦᱚᱸ',
+  nav_mine: 'ᱟᱢᱟᱜ ᱠᱷᱚᱵᱚᱨ', nav_report_menu: '📷 ᱮᱴᱠᱮᱴᱚᱬᱮ ᱠᱷᱚᱵᱚᱨ ᱮᱢ ᱢᱮ',
+  hero_l1: 'ᱮᱴᱠᱮᱴᱚᱬᱮ ᱧᱮᱞ ᱠᱮᱫᱟᱢ ᱥᱮ?', hero_l2: '᱓᱐ ᱥᱮᱠᱮᱱᱰ ᱨᱮ ᱠᱷᱚᱵᱚᱨ ᱮᱢ ᱢᱮ᱾',
+  hero_sub: 'ᱡᱚᱵᱨᱟ, ᱵᱚᱸᱫ ᱱᱟᱞᱟ, ᱨᱟᱹᱯᱩᱫ ᱥᱟᱰᱟᱜ, ᱵᱟᱝ ᱡᱚᱞᱚᱜ ᱢᱟᱨᱥᱟᱞ᱾ ᱥᱟᱱᱟᱢ ᱠᱷᱚᱵᱚᱨ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ, ᱟᱨ ᱡᱟᱭᱜᱟ ᱨᱮᱱ ᱦᱚᱲ ᱵᱟᱝ ᱢᱮᱱ ᱞᱮᱠᱷᱟᱱ ᱪᱮᱫ ᱦᱚᱸ ᱥᱟᱢᱟᱫᱷᱟᱱ ᱵᱟᱝ ᱜᱮᱱᱟ᱾',
+  hero_cta: 'ᱱᱤᱛᱚᱜ ᱠᱷᱚᱵᱚᱨ ᱮᱢ',
+  still_q: '{cat} ᱱᱤᱛᱚᱜ ᱦᱚᱸ ᱢᱮᱱᱟᱜ-ᱟ ᱥᱮ?', still_yes: 'ᱦᱮᱸ, ᱢᱮᱱᱟᱜ-ᱟ', still_gone: 'ᱥᱟᱯᱷᱟ ᱦᱩᱭ ᱮᱱᱟ', still_later: 'ᱱᱤᱛᱚᱜ ᱫᱚ ᱵᱟᱝ',
+  offline_banner: 'ᱱᱮᱴ ᱵᱟᱹᱱᱩᱜ-ᱟ — ᱱᱮᱴ ᱦᱤᱡᱩᱜ ᱠᱷᱟᱱ ᱠᱷᱚᱵᱚᱨ ᱟᱡ ᱛᱮ ᱠᱩᱞᱚᱜ-ᱟ',
+  view_map: 'ᱱᱚᱠᱥᱟ', view_list: 'ᱛᱟᱹᱞᱤᱠᱟᱹ', filters_btn: 'ᱵᱟᱪᱷᱟᱣ', nearby_btn: 'ᱤᱧ ᱫᱷᱟᱨᱮ',
+  sort_urgent: 'ᱟᱹᱰᱤ ᱞᱚᱜᱚᱱ', sort_newest: 'ᱱᱟᱣᱟ', sort_oldest: 'ᱡᱟᱹᱥᱛᱤ ᱫᱤᱱ ᱠᱷᱚᱱ ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ',
+  status_open: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', status_claimed: 'ᱧᱮᱞ ᱧᱮᱞᱚᱜ ᱠᱟᱱᱟ', status_resolved: 'ᱥᱟᱢᱟᱫᱷᱟᱱ ᱦᱩᱭ ᱮᱱᱟ',
+  sev_minor: 'ᱦᱩᱰᱤᱧ', sev_severe: 'ᱢᱟᱨᱟᱝ', sev_critical: 'ᱟᱹᱰᱤ ᱵᱟᱹᱲᱤᱡ',
+  pill_active: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', pill_reports: 'ᱠᱷᱚᱵᱚᱨ', map_report: 'ᱠᱷᱚᱵᱚᱨ ᱮᱢ',
+  stat_reports: 'ᱠᱷᱚᱵᱚᱨ', stat_open: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', stat_open_short: 'ᱵᱟᱝ ᱥᱟᱢᱟᱫᱷᱟᱱ', stat_resolved: 'ᱥᱟᱢᱟᱫᱷᱟᱱ (ᱧᱮᱞ ᱠᱟᱛᱮ)',
+  step1_camera: 'ᱠᱮᱢᱮᱨᱟ ᱡᱷᱤᱡᱽ ᱠᱟᱛᱮ ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ',
+  step1_title: 'ᱪᱮᱫ ᱮᱴᱠᱮᱴᱚᱬᱮ?', step1_sub: 'ᱡᱟᱦᱟᱸ ᱢᱤᱞᱟᱹᱣ ᱟᱠᱟᱱᱟ ᱚᱱᱟ ᱵᱟᱪᱷᱟᱣ ᱢᱮ᱾',
+  step2_title: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ', step2_sub: 'ᱮᱴᱠᱮᱴᱚᱬᱮ ᱯᱩᱨᱟᱹ ᱫᱮᱠᱷᱟᱣ ᱢᱮ᱾ ᱦᱚᱲ ᱨᱮᱭᱟᱜ ᱢᱩᱬᱩᱛ ᱟᱨ ᱜᱟᱹᱰᱤ ᱱᱚᱢᱵᱚᱨ ᱵᱟᱝ᱾',
+  step2_photo: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱞᱟᱹᱜᱤᱫ ᱴᱤᱯᱟᱹᱣ ᱢᱮ',
+  cam_title: 'ᱪᱤᱛᱟᱹᱨ ᱤᱫᱤ ᱢᱮ', cam_retake: 'ᱫᱩᱦᱲᱟᱹ ᱤᱫᱤ', cam_use: 'ᱱᱚᱶᱟ ᱪᱤᱛᱟᱹᱨ ᱵᱮᱵᱷᱟᱨ ᱢᱮ',
+  step3_title: 'ᱧᱮᱞ ᱠᱟᱛᱮ ᱠᱩᱞ ᱢᱮ', step3_sub: 'ᱟᱢᱟᱜ ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱧᱟᱢᱚᱜ ᱠᱟᱱᱟ — ᱛᱤᱱᱟᱹᱜ ᱜᱟᱱ ᱛᱟᱹᱝᱜᱤ ᱢᱮ᱾',
+  step3_gps: '⊕ ᱤᱧᱟᱜ ᱡᱟᱭᱜᱟ', step3_gps_wait: 'ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱧᱟᱢᱚᱜ ᱠᱟᱱᱟ…', step3_gps_done: '✓ ᱡᱟᱭᱜᱟ ᱧᱟᱢ ᱮᱱᱟ',
+  step3_gps_fail: 'ᱡᱟᱭᱜᱟ ᱵᱟᱝ ᱧᱟᱢ ᱮᱱᱟ — ᱱᱚᱠᱥᱟ ᱨᱮ ᱴᱤᱯᱟᱹᱣ ᱢᱮ', step3_no_loc: 'ᱡᱟᱭᱜᱟ ᱵᱟᱝ ᱵᱟᱪᱷᱟᱣ ᱟᱠᱟᱱᱟ',
+  step3_landmark: 'ᱥᱮᱴᱮᱨ ᱨᱮᱱᱟᱜ ᱪᱤᱱᱦᱟᱹ', step3_ward: 'ᱣᱟᱨᱰ', step3_sev: 'ᱛᱤᱱᱟᱹᱜ ᱵᱟᱹᱲᱤᱡ?',
+  step3_desc: 'ᱪᱮᱫ ᱮᱴᱠᱮᱴᱚᱬᱮ? (ᱢᱚᱱᱮ ᱠᱷᱟᱱ)', step3_desc_ph: 'ᱢᱤᱫ ᱟᱹᱭᱟᱹᱛ ᱜᱮ ᱫᱷᱟᱵ',
+  voice_btn: '🎤 ᱢᱩᱪᱟᱹᱫ ᱛᱮ ᱢᱮᱱ ᱢᱮ (ᱢᱚᱱᱮ ᱠᱷᱟᱱ)', voice_stop: '■ ᱛᱤᱝᱜᱩ — ᱪᱟᱵᱟ ᱮᱱᱟ',
+  step3_submit: 'ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱢᱮ →', step3_uploading: 'ᱠᱩᱞᱚᱜ ᱠᱟᱱᱟ…',
+  step3_privacy: '🔒 ᱟᱢᱟᱜ ᱧᱩᱛᱩᱢ ᱵᱟᱝ ᱧᱮᱞᱚᱜ-ᱟ᱾ ᱪᱤᱛᱟᱹᱨ, ᱡᱟᱭᱜᱟ ᱟᱨ ᱣᱟᱨᱰ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾',
+  step3_not_town: 'ᱢᱩᱱᱤᱥᱤᱯᱟᱞᱤᱴᱤ ᱨᱮ ᱵᱟᱹᱱᱩᱜ-ᱟ',
+  done_title: 'ᱠᱷᱚᱵᱚᱨ ᱠᱩᱞ ᱮᱱᱟ', done_sub: 'ᱱᱤᱛᱚᱜ ᱥᱟᱱᱟᱢ ᱦᱚᱲ ᱱᱚᱠᱥᱟ ᱨᱮ ᱧᱮᱞ ᱫᱟᱲᱮᱭᱟᱜ-ᱟ᱾',
+  done_title_offline: 'ᱯᱷᱚᱱ ᱨᱮ ᱫᱚᱦᱚ ᱮᱱᱟ', done_sub_offline: 'ᱱᱮᱴ ᱦᱤᱡᱩᱜ ᱠᱷᱟᱱ ᱟᱡ ᱛᱮ ᱠᱩᱞᱚᱜ-ᱟ᱾',
+  done_title_saved: 'ᱱᱚᱶᱟ ᱯᱷᱚᱱ ᱨᱮ ᱫᱚᱦᱚ ᱮᱱᱟ',
+  done_watch: '🔔 ᱥᱟᱢᱟᱫᱷᱟᱱ ᱦᱩᱭᱩᱜ ᱠᱷᱟᱱ ᱤᱧ ᱢᱮᱱ ᱟᱹᱜᱩ ᱠᱟᱜ ᱢᱮ', done_share: 'ᱱᱚᱶᱟ ᱠᱷᱚᱵᱚᱨ ᱦᱟᱹᱴᱤᱧ ᱢᱮ', done_close: 'ᱦᱩᱭ ᱮᱱᱟ',
+  grp_clean: 'ᱥᱟᱯᱷᱟ ᱥᱩᱛᱷᱨᱟ', grp_infra: 'ᱥᱟᱰᱟᱜ, ᱫᱟᱜ, ᱢᱟᱨᱥᱟᱞ', grp_services: 'ᱟᱹᱛᱩ ᱟᱨ ᱥᱚᱨᱠᱟᱨᱤ ᱥᱮᱣᱟ',
+  cat_garbage: 'ᱡᱚᱵᱨᱟ', cat_drain: 'ᱵᱚᱸᱫ ᱱᱟᱞᱟ', cat_road: 'ᱨᱟᱹᱯᱩᱫ ᱥᱟᱰᱟᱜ / ᱜᱟᱲᱟ',
+  cat_streetlight: 'ᱥᱟᱰᱟᱜ ᱢᱟᱨᱥᱟᱞ ᱵᱟᱝ ᱡᱚᱞᱚᱜ ᱠᱟᱱᱟ', cat_water: 'ᱫᱟᱜ ᱵᱟᱹᱱᱩᱜ-ᱟ / ᱫᱟᱜ ᱥᱩᱨᱩᱜ ᱠᱟᱱᱟ',
+  cat_hand_pump: 'ᱨᱟᱹᱯᱩᱫ ᱠᱚᱞ', cat_school: 'ᱤᱥᱠᱩᱞ', cat_toilet: 'ᱴᱚᱭᱞᱮᱴ — ᱠᱩᱞᱩᱯ ᱟᱠᱟᱱ ᱥᱮ ᱢᱚᱭᱞᱟ', cat_other: 'ᱮᱴᱟᱜ ᱮᱴᱠᱮᱴᱚᱬᱮ'
+};
