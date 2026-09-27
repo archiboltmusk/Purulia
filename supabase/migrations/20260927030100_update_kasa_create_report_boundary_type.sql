@@ -1,5 +1,17 @@
 -- Update kasa_create_report function to support boundary_type parameter
 -- Split into separate migration to isolate function update from schema changes
+--
+-- FIX (this file was rewritten): the original version of this migration pasted in
+-- a stale, pre-2026-09-25 snapshot of kasa_create_report to bolt on p_boundary_type,
+-- silently reverting three features later migrations had already added to the live
+-- function: ward auto-assignment from the ward map (kasa_private.locate,
+-- 20260925110000_kasa_quick_report.sql), the live-camera-token review check
+-- (kasa_private.photo_meta_verdict / require_live_report_photo, same file), and
+-- severity-based SLA days (kasa_private.sla_days_for, 20260926300000_kasa_severity_sla.sql).
+-- Because this migration timestamp sorts after all three, applying migrations in
+-- order clobbered them back out on every fresh install — this is what broke the
+-- camera-token and ward-map tests on main. This version starts from the current
+-- (20260925110000) body and layers only the boundary_type column/parameter on top.
 
 begin;
 
@@ -35,12 +47,14 @@ declare
   me        kasa_private.profiles := kasa_private.me();
   v_bbox    jsonb := kasa_private.cfg('bbox');
   v_chk     kasa_private.photo_checks;
+  v_meta    jsonb;
   v_existing public.reports;
   v_parent  public.reports;
   v_recur   public.reports;
   v_new     public.reports;
   v_mod     text := 'approved';
   v_url     text;
+  v_loc     jsonb;
 begin
   if p_client_id is not null then
     select * into v_existing from public.reports where user_id = me.user_id and client_id = p_client_id;
@@ -49,18 +63,27 @@ begin
     end if;
   end if;
 
-  if p_category is null or p_category not in ('garbage', 'drain', 'road', 'streetlight', 'water', 'missing',
-      'encroachment', 'illegal_construction', 'illegal_mining', 'illegal_other', 'other') then
+  if p_category is null then
+    p_category := 'other';
+  end if;
+  if p_category not in ('garbage', 'drain', 'road', 'streetlight', 'water', 'missing',
+      'encroachment', 'illegal_construction', 'illegal_mining', 'illegal_other', 'other',
+      'hand_pump', 'anganwadi', 'health_centre', 'school', 'dumpsite', 'toilet') then
     perform kasa_private.fail('KASA_BAD_CATEGORY', 'Choose what kind of problem this is.');
   end if;
-  if coalesce(p_severity, '') not in ('minor', 'severe', 'critical') then
+  if p_severity is null then
+    p_severity := 'minor';
+  elsif p_severity not in ('minor', 'severe', 'critical') then
     perform kasa_private.fail('KASA_BAD_SEVERITY', 'Choose a severity.');
   end if;
-  if p_lat is null or p_lng is null
-     or p_lat not between (v_bbox ->> 'min_lat')::float8 and (v_bbox ->> 'max_lat')::float8
-     or p_lng not between (v_bbox ->> 'min_lng')::float8 and (v_bbox ->> 'max_lng')::float8 then
-    perform kasa_private.fail('KASA_OUTSIDE_AREA', 'This location is outside Purulia town.');
+  if p_ward_no is not null and p_ward_no not between 1 and 23 then
+    perform kasa_private.fail('KASA_BAD_WARD', 'Ward must be between 1 and 23.');
   end if;
+  v_loc := kasa_private.locate(p_lat, p_lng, p_ward_no);
+  if v_loc is null then
+    perform kasa_private.fail('KASA_OUTSIDE_AREA', 'This location is outside Purulia district.');
+  end if;
+  p_ward_no := case when v_loc ->> 'kind' = 'town' then (v_loc ->> 'ward')::integer end;
   if p_ward_no is not null and p_ward_no not between 1 and 23 then
     perform kasa_private.fail('KASA_BAD_WARD', 'Ward must be between 1 and 23.');
   end if;
@@ -76,11 +99,15 @@ begin
   end if;
 
   v_chk := kasa_private.check_photo(p_photo_path, 'reports', me.user_id, null, p_lat, p_lng);
+  v_meta := kasa_private.photo_meta_verdict(p_photo_path, false, p_lat, p_lng, null);
   v_url := (kasa_private.cfg('storage_public_base') #>> '{}') || p_photo_path;
 
   if p_category in (select jsonb_array_elements_text(kasa_private.cfg('review_categories')))
-     or coalesce(v_chk.face_count, 0) > 0 then
+     or coalesce(v_chk.face_count, 0) > 0 or coalesce((v_meta ->> 'ai_edited')::boolean, false)
+     or (kasa_private.cfg_bool('require_live_report_photo') and coalesce(v_meta ->> 'capture', 'unknown') <> 'live') then
     v_mod := 'review';
+  elsif v_meta ? 'flag' then
+    v_mod := 'flagged';
   end if;
 
   -- Same problem already reported nearby → link to it and count this person as a witness.
@@ -105,14 +132,16 @@ begin
       moderation_labels, category, landmark, user_id, client_id, accuracy_m, photo_path, boundary_type)
   values (p_lat, p_lng, p_ward_no, p_severity, nullif(trim(p_description), ''), null,
       substr(md5(me.user_id::text || (kasa_private.cfg('ip_salt') #>> '{}')), 1, 16), v_url,
-      'open', 0, 0, 7, coalesce(v_parent.id, v_recur.id), v_parent.id is not null, 'synced', v_mod,
+      'open', 0, 0, kasa_private.sla_days_for(p_severity), coalesce(v_parent.id, v_recur.id), v_parent.id is not null,
+      'synced', v_mod,
+      jsonb_build_object('photo', v_meta) ||
       case when v_chk.photo_path is null then '{}'::jsonb
            else jsonb_build_object('garbage_score', v_chk.garbage_score, 'labels', v_chk.labels) end,
       p_category, nullif(trim(p_landmark), ''), me.user_id, p_client_id, p_accuracy, p_photo_path, p_boundary_type)
   returning * into v_new;
 
   perform kasa_private.add_event(v_new.id::text, 'reported', me.user_id, null, v_url, null,
-    jsonb_build_object('gps', p_accuracy is not null, 'accuracy_m', round(p_accuracy::numeric)));
+    jsonb_build_object('gps', p_accuracy is not null, 'accuracy_m', round(p_accuracy::numeric)) || v_meta);
 
   if v_parent.id is not null then
     insert into kasa_private.seen (report_id, user_id, on_site, distance_m)
@@ -131,10 +160,11 @@ begin
       jsonb_build_object('new_report_id', v_new.id));
   end if;
 
-  return jsonb_build_object('id', v_new.id, 'moderation_status', v_mod,
+  return jsonb_build_object('id', v_new.id, 'moderation_status', v_new.moderation_status,
     'duplicate_of', v_parent.id, 'recurrence_of', v_recur.id);
 end $$;
 
-grant execute on function public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text) to anon, authenticated;
+revoke all on function public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text) from public, anon;
+grant execute on function public.kasa_create_report(text, text, double precision, double precision, double precision, integer, text, text, text, text, text) to authenticated;
 
 commit;
