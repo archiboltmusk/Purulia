@@ -53,6 +53,24 @@ test('report form opens with the camera', async ({ page, backend }) => {
   await expect(page.locator('#k-photo-preview img')).toBeVisible();
 });
 
+test('camera preview is the square that gets saved, with nothing on top of it', async ({ page, backend }) => {
+  await page.setViewportSize({ width: 390, height: 844 });
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-map-report-btn').click();
+  await expect(page.locator('#k-cam-shutter')).toBeEnabled();
+  await expect(page.locator('#k-cam .k-cam-hint')).toBeVisible();
+  const box = sel => page.locator(sel).boundingBox();
+  const stage = await box('#k-cam .k-cam-stage');
+  expect(Math.abs(stage.width - stage.height)).toBeLessThan(2);
+  const hit = (a, b) => a.x < b.x + b.width && b.x < a.x + a.width && a.y < b.y + b.height && b.y < a.y + a.height;
+  for (const sel of ['#k-cam-close', '#k-cam-shutter', '#k-cam-tools', '#k-cam .k-cam-head']){
+    const b = await box(sel);
+    expect(b.y + b.height, `${sel} fits on screen`).toBeLessThanOrEqual(844);
+    expect(hit(stage, b), `${sel} overlaps the preview`).toBe(false);
+  }
+});
+
 test('confirm flow sends a verify vote for the claim', async ({ page, backend }) => {
   await page.goto('kasa.html?report=102');
   await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
