@@ -59,6 +59,10 @@
   .pr-news a{display:block;color:var(--text-md);margin-top:.25rem;}
   .pr-news a:hover{color:var(--amber);}
   .pr-upd{margin-top:.6rem;background:none;border:0;padding:0;color:var(--amber);font-family:var(--mono);font-size:11px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+  .pr-reps{list-style:none;margin-top:1rem;display:grid;gap:.6rem;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));}
+  .pr-reps li{border:1px solid var(--border);border-radius:6px;padding:.8rem .9rem;}
+  .pr-reps .pr-who{font-size:1rem;}
+  .pr-none{display:block;margin-top:.5rem;font-family:var(--mono);font-size:11px;color:var(--text-lo);}
   .pr-feed{list-style:none;margin-top:.8rem;}
   .pr-feed li{padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem;line-height:1.5;}
   .pr-feed a{color:var(--text-hi);}
@@ -117,6 +121,12 @@
   </div>
 
   <div class="an-grid">
+    <section class="an-card an-span" id="pr-reps-card">
+      <h2 data-t="reps_h">Purulia's MP and MLAs</h2>
+      <p class="an-card-sub" data-t="reps_sub">Promises on record for each of Purulia's elected representatives.</p>
+      <ul class="pr-reps" id="pr-reps"></ul>
+    </section>
+
     <section class="an-card" id="pr-promises">
       <h2 data-t="list_h">Promises</h2>
       <div class="pr-tools">
@@ -202,6 +212,7 @@
 </main>
 
 <script src="config.js"></script>
-<script src="promises.js?v=20260927"></script>
+<script src="city.js"></script>
+<script src="promises.js?v=20260927b"></script>
 </body>
 </html>

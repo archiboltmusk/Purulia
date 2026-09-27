@@ -241,6 +241,8 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .ec-v{font-family:'EB Garamond',serif;font-size:2.6rem;font-weight:800;color:var(--amber);line-height:1;margin-bottom:.28rem;}
 .ec-u{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.2em;color:rgba(212,136,42,.55);text-transform:uppercase;margin-bottom:.7rem;}
 .ec-d{font-size:.9rem;line-height:1.5;color:rgba(240,230,208,.42);}
+.ec-d a,.bp-src a{color:var(--amber);}
+.bp-src{margin-top:.8rem;font-family:var(--mono);font-size:10.5px;color:var(--text-lo,rgba(240,230,208,.42));line-height:1.6;}
 
 /* Bar chart */
 .chart-wrap{margin:3rem 0;background:var(--ink2);padding:2.5rem;border:1px solid var(--border2);}
