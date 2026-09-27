@@ -95,7 +95,6 @@
       <span aria-hidden="true">⚲</span> <span data-i18n="filters_btn">Filters</span> <span class="k-filter-count" id="k-filter-count" hidden></span>
     </button>
     <button type="button" class="k-nearby-btn" id="k-nearby-btn" aria-pressed="false" data-i18n="nearby_btn">Near me</button>
-    <button type="button" class="k-heat-btn" id="k-heat-btn" aria-pressed="false"><span aria-hidden="true">🔥</span> <span data-i18n="heat_btn">Heatmap</span></button>
     <div class="k-filter-bar" id="k-filter-bar">
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
       <select id="k-filter-status" class="k-filter-select" aria-label="Status">
@@ -134,11 +133,6 @@
     <button type="button" class="k-join-x" id="k-join-x" aria-label="Close">✕</button>
   </div>
 
-  <nav class="k-quick" id="k-quick" aria-label="More on Parishkar">
-    <a href="schools.html" class="k-quick-btn" data-i18n-title="quick_schools" title="Schools"><span aria-hidden="true">🏫</span></a>
-    <a href="adopt.html" class="k-quick-btn" data-i18n-title="quick_adopt" title="Adopted spots"><span aria-hidden="true">🤝</span></a>
-    <a href="analytics.html" class="k-quick-btn" data-i18n-title="quick_numbers" title="Numbers for every ward"><span aria-hidden="true">📊</span></a>
-  </nav>
   <div class="k-tip" id="k-tip" hidden role="dialog" aria-live="polite">
     <div class="k-tip-text" id="k-tip-text"></div>
     <div class="k-tip-actions">
@@ -190,22 +184,6 @@
     <span data-i18n="drawer_banner">Join 7 neighbors fixing Purulia today</span>
   </div>
 
-  <!-- ══ Stats Row ══ -->
-  <div class="k-drawer-stats">
-    <div class="k-stat-pill">
-      <span class="k-stat-num" id="k-drawer-stat-total">—</span>
-      <span class="k-stat-text" data-i18n="stat_total_short">Total</span>
-    </div>
-    <div class="k-stat-pill k-stat-urgent">
-      <span class="k-stat-num" id="k-drawer-stat-open">—</span>
-      <span class="k-stat-text" data-i18n="stat_open_short">Unresolved</span>
-    </div>
-    <div class="k-stat-pill k-stat-success">
-      <span class="k-stat-num" id="k-drawer-stat-resolved">—</span>
-      <span class="k-stat-text" data-i18n="stat_fixed_short">Fixed</span>
-    </div>
-  </div>
-
   <!-- ══ Primary Actions ══ -->
   <nav class="k-drawer-main">
     <button type="button" class="k-drawer-item" data-mine data-i18n="nav_mine">
@@ -232,16 +210,8 @@
       <span aria-hidden="true">›</span>
     </button>
     <div class="k-drawer-more-list" id="k-drawer-more-list" hidden>
-      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
-      <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
-      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="#k-fixed" class="k-drawer-link" data-i18n="fixed_title">Recently fixed</a>
-      <a href="suggestions.html" class="k-drawer-link" data-i18n="nav_suggestions">Suggest a feature</a>
-      <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
-      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
       <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
-      <a href="changelog.html" class="k-drawer-link" data-i18n="nav_changelog">What's new</a>
-      <a href="blueprint.html" class="k-drawer-link" data-i18n="nav_blueprint">Blueprint</a>
     </div>
   </nav>
 
@@ -281,11 +251,6 @@
     <button type="button" class="k-hero-link" data-install hidden data-i18n="install_btn">📲 Install the app</button>
   </div>
 </header>
-<div class="k-drawer-qr">
-  <button type="button" class="k-bottom-btn" id="k-qr-btn">
-    <span aria-hidden="true">📱</span> <span data-i18n="qr_btn">Scan QR to Report</span>
-  </button>
-</div>
 <section class="k-ticker" aria-hidden="true">
   <div class="k-ticker-track" id="k-ticker-track"></div>
 </section>
@@ -357,10 +322,7 @@
     <p class="k-footer-social"><span data-i18n="footer_founder">Founder</span>: <a href="https://instagram.com/anupamstorm_" target="_blank" rel="noopener" data-i18n="footer_instagram">📷 @anupamstorm_</a></p>
   </div>
   <nav class="k-footer-links" aria-label="Legal">
-    <a href="communities.html" data-i18n="footer_groups">Volunteer groups</a>
-    <a href="analytics.html" data-i18n="footer_analytics">Analytics</a>
     <a href="digest.html" data-i18n="nav_digest">Weekly ward digest</a>
-    <a href="changelog.html" data-i18n="nav_changelog">What's new</a>
     <a href="methodology.html" data-i18n="footer_methodology">How we count</a>
     <a href="rules.html" data-i18n="footer_rules">Rules</a>
     <a href="terms.html" data-i18n="footer_terms">Terms of Use</a>
@@ -626,19 +588,6 @@
     <div class="k-modal-handle"></div>
     <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
     <div id="k-rep-content"></div>
-  </div>
-</div>
-
-<!-- QR -->
-<div class="k-modal" id="k-qr-modal" aria-hidden="true">
-  <div class="k-modal-backdrop" data-close></div>
-  <div class="k-modal-sheet k-qr-sheet" role="dialog" aria-modal="true" aria-labelledby="k-qr-title">
-    <div class="k-modal-handle"></div>
-    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
-    <h3 class="k-modal-title" id="k-qr-title" data-i18n="qr_title">Share Parishkar Purulia</h3>
-    <p class="k-modal-sub" data-i18n="qr_sub">Point a phone camera at this QR code to open the report page.</p>
-    <div class="k-qr-wrap" id="k-qr-wrap"></div>
-    <div class="k-qr-url" id="k-qr-url"></div>
   </div>
 </div>
 

@@ -55,7 +55,6 @@
 |---------|--------|-------------|
 | **Ward accountability** | ✅ Live | Weekly digest of fixes by ward; councillor card with contact |
 | **Hotspot detection** | ✅ Live | Places with 3+ reports in 90 days; busiest first |
-| **Heatmap view** | ✅ Live | Problems shown as glow; critical > minor |
 | **Analytics page** | ✅ Live | District-wide patterns; overdue reports; longest-waiting; forest loss link |
 | **Public record** | ✅ Live | Daily tamper-evident JSON of all public data in `/record/` |
 | **Weekly email digest** | ✅ Live | Monday morning: ward patterns, clusters, overdue, recurring issues |
@@ -172,7 +171,7 @@ Frontend Display + API responses
 ### Frontend
 - **Language**: Vanilla JavaScript (no frameworks)
 - **Styles**: CSS3 with custom properties
-- **Maps**: Leaflet.js (open-source, no API key needed)
+- **Maps**: MapLibre GL JS (open-source, no API key needed)
 - **Fonts**: EB Garamond + DM Mono
 - **Storage**: Supabase (photos) + localStorage (user prefs)
 - **Connectivity**: Works offline; syncs when back online
