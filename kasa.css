@@ -737,9 +737,6 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 .k-drawer-more-list[hidden]{display:none;}
 .k-drawer-more-list a{padding:.6rem .8rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-md);text-decoration:none;border-radius:4px;transition:all .2s;}
 .k-drawer-more-list a:hover{color:var(--amber);background:rgba(212,136,42,.06);}
-.k-drawer-footer{display:flex;gap:1.2rem;padding:1rem 1.2rem;border-bottom:1px solid var(--border);flex-wrap:wrap;}
-.k-drawer-footer a{font-family:var(--mono);font-size:.75rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-md);text-decoration:none;transition:color .2s;}
-.k-drawer-footer a:hover{color:var(--amber);}
 .k-drawer-lang{margin-top:auto;padding:1rem 1.2rem;border-top:1px solid var(--border);}
 .k-lang-switch{display:flex;gap:.4rem;flex-wrap:wrap;}
 body.k-drawer-open{overflow:hidden;}
