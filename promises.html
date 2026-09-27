@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Promises: who promised what, and what was delivered — Parishkar Purulia</title>
+<meta name="description" content="Every promise made to Purulia by its MP, MLAs, municipality and state government, with the source and date it was made, what has been delivered, and the latest news links, checked every day.">
+<meta property="og:title" content="Promises: who promised what, and what was delivered — Parishkar Purulia">
+<meta property="og:description" content="Every promise made to Purulia, with its source, and what has actually been delivered.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/promises.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/promises.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:720px;line-height:1.6;}
+  .an-sub a{color:var(--amber);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.4rem 1.3rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.6rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.5rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  @media(min-width:1100px){.an-grid{grid-template-columns:2fr 1fr;}.an-span{grid-column:1 / -1;}}
+  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);line-height:1.6;}
+  .an-card a{color:var(--amber);}
+  .an-empty{padding:1.4rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  .pr-tools{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;}
+  .pr-tools select,.pr-tools input{background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);padding:.5rem .7rem;font:inherit;font-size:.9rem;min-width:0;}
+  .pr-tools input{flex:1 1 180px;}
+  .pr-chip{background:none;border:1px solid var(--border);border-radius:999px;color:var(--text-md);padding:.35rem .8rem;font-family:var(--mono);font-size:11px;cursor:pointer;}
+  .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+  .pr-list{list-style:none;margin-top:1rem;display:grid;gap:.8rem;}
+  .pr-item{border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;background:rgba(240,230,208,.015);}
+  .pr-who{font-family:var(--serif);font-size:1.12rem;font-weight:700;color:var(--cream);}
+  .pr-role{font-size:.84rem;color:var(--text-md);}
+  .pr-text{margin-top:.5rem;color:var(--text-hi);line-height:1.6;}
+  .pr-meta{margin-top:.5rem;font-family:var(--mono);font-size:11px;color:var(--text-lo);line-height:1.7;}
+  .pr-meta a{color:var(--amber);}
+  .pr-status{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border);margin-bottom:.4rem;}
+  .pr-s-promised{color:var(--text-md);}
+  .pr-s-in_progress{color:var(--amber);border-color:rgba(212,136,42,.45);}
+  .pr-s-delivered{color:var(--green,#6fbf73);border-color:rgba(111,191,115,.45);}
+  .pr-s-broken{color:#e0705a;border-color:rgba(224,112,90,.45);}
+  .pr-news{margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border);font-size:.84rem;}
+  .pr-news a{display:block;color:var(--text-md);margin-top:.25rem;}
+  .pr-news a:hover{color:var(--amber);}
+  .pr-upd{margin-top:.6rem;background:none;border:0;padding:0;color:var(--amber);font-family:var(--mono);font-size:11px;cursor:pointer;text-decoration:underline;text-underline-offset:3px;}
+  .pr-feed{list-style:none;margin-top:.8rem;}
+  .pr-feed li{padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.9rem;line-height:1.5;}
+  .pr-feed a{color:var(--text-hi);}
+  .pr-feed a:hover{color:var(--amber);}
+  .pr-feed small{display:block;font-family:var(--mono);font-size:10.5px;color:var(--text-lo);margin-top:.15rem;}
+  .pr-form{display:grid;gap:.7rem;margin-top:1rem;}
+  .pr-form label{display:grid;gap:.25rem;font-size:.84rem;color:var(--text-md);}
+  .pr-form input,.pr-form textarea,.pr-form select{background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);padding:.55rem .7rem;font:inherit;font-size:.92rem;width:100%;}
+  .pr-form textarea{min-height:80px;resize:vertical;}
+  .pr-row{display:grid;grid-template-columns:1fr;gap:.7rem;}
+  @media(min-width:700px){.pr-row{grid-template-columns:1fr 1fr;}}
+  .pr-btn{background:var(--amber);color:#0a0805;border:0;border-radius:4px;padding:.65rem 1.1rem;font:inherit;font-weight:600;cursor:pointer;justify-self:start;}
+  .pr-btn:disabled{opacity:.6;cursor:wait;}
+  .pr-msg{font-size:.88rem;color:var(--text-md);}
+  .pr-msg.err{color:#e0705a;}
+  .pr-upd-for{font-size:.88rem;color:var(--amber);}
+  .pr-rules{margin:.7rem 0 0 1.1rem;color:var(--text-md);font-size:.9rem;line-height:1.6;}
+  .pr-lang{display:flex;gap:.3rem;}
+  .pr-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
+  .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  @media(max-width:600px){.an-card{padding:1.1rem 1rem;}.an-tile{padding:1.1rem 1rem;}}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html" data-t="nav_home">Home</a>
+    <a href="municipality.html" data-t="nav_money">Who runs the municipality</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <div class="pr-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="bn">বাং</button>
+      <button type="button" data-lang="hi">हिं</button>
+    </div>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title" data-t-html="title">Who promised <em>what</em>, and what was delivered</h1>
+      <p class="an-sub" data-t="sub">Promises made to Purulia by its MP, MLAs, the municipality and the state government. Every promise links to where and when it was said. A promise is only marked in progress, delivered or broken with a link that shows it. News links are added automatically every morning.</p>
+    </div>
+  </div>
+
+  <div class="an-tiles" id="pr-tiles" aria-live="polite">
+    <div class="an-tile"><div class="an-tile-n" id="pr-n-all">–</div><div class="an-tile-l" data-t="tile_all">Promises</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="pr-n-delivered">–</div><div class="an-tile-l" data-t="st_delivered">Delivered</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="pr-n-in_progress">–</div><div class="an-tile-l" data-t="st_in_progress">In progress</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="pr-n-promised">–</div><div class="an-tile-l" data-t="st_promised">Nothing shown yet</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="pr-n-broken">–</div><div class="an-tile-l" data-t="st_broken">Broken</div></div>
+  </div>
+
+  <div class="an-grid">
+    <section class="an-card" id="pr-promises">
+      <h2 data-t="list_h">Promises</h2>
+      <div class="pr-tools">
+        <select id="pr-who" aria-label="Who"><option value="" data-t="all_people">Everyone</option></select>
+        <input id="pr-q" type="search" data-t-ph="search_ph" placeholder="Search promises">
+      </div>
+      <div class="pr-tools" id="pr-status-chips">
+        <button type="button" class="pr-chip" data-status="" aria-pressed="true" data-t="all_status">All</button>
+        <button type="button" class="pr-chip" data-status="delivered" aria-pressed="false" data-t="st_delivered">Delivered</button>
+        <button type="button" class="pr-chip" data-status="in_progress" aria-pressed="false" data-t="st_in_progress">In progress</button>
+        <button type="button" class="pr-chip" data-status="promised" aria-pressed="false" data-t="st_promised">Nothing shown yet</button>
+        <button type="button" class="pr-chip" data-status="broken" aria-pressed="false" data-t="st_broken">Broken</button>
+      </div>
+      <ul class="pr-list" id="pr-list"><li class="an-empty" data-t="loading">Loading…</li></ul>
+    </section>
+
+    <section class="an-card" id="pr-news">
+      <h2 data-t="news_h">Latest news</h2>
+      <p class="an-card-sub" data-t="news_sub">Headlines about Purulia and the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise's status on their own.</p>
+      <p class="an-card-sub" id="pr-news-checked"></p>
+      <ul class="pr-feed" id="pr-feed"><li class="an-empty" data-t="loading">Loading…</li></ul>
+    </section>
+
+    <section class="an-card an-span" id="pr-suggest">
+      <h2 id="pr-form-h" data-t="form_h">Add a promise, or an update</h2>
+      <p class="an-card-sub" data-t="form_sub">Heard a promise in a speech, a newspaper or an official post? Add it with a link to where it was said. Seen a promise delivered, started or dropped? Use "Suggest an update" on that promise and add a link that shows it. A moderator checks every link before anything appears here.</p>
+      <p class="pr-upd-for" id="pr-upd-for" hidden></p>
+      <form class="pr-form" id="pr-form" novalidate>
+        <div class="pr-row" data-new>
+          <label><span data-t="f_who">Who made the promise</span><input name="who" maxlength="120" data-t-ph="f_who_ph" placeholder="Name"></label>
+          <label><span data-t="f_role">Their position</span><input name="role" maxlength="120" data-t-ph="f_role_ph" placeholder="e.g. MLA, Purulia"></label>
+        </div>
+        <label data-new><span data-t="f_promise">What was promised</span><textarea name="promise" maxlength="600"></textarea></label>
+        <div class="pr-row" data-new>
+          <label><span data-t="f_made_on">Date it was said</span><input name="made_on" type="date"></label>
+          <label><span data-t="f_due_by">Promised by (if a date was given)</span><input name="due_by" type="date"></label>
+        </div>
+        <div class="pr-row" data-new>
+          <label><span data-t="f_source">Link to where it was said</span><input name="source_url" type="url" maxlength="1000" placeholder="https://"></label>
+          <label><span data-t="f_source_name">Newspaper or channel (optional)</span><input name="source_name" maxlength="120"></label>
+        </div>
+        <div class="pr-row">
+          <label><span data-t="f_status">What has happened since</span>
+            <select name="status">
+              <option value="promised" data-t="st_promised">Nothing shown yet</option>
+              <option value="in_progress" data-t="st_in_progress">In progress</option>
+              <option value="delivered" data-t="st_delivered">Delivered</option>
+              <option value="broken" data-t="st_broken">Broken</option>
+            </select>
+          </label>
+          <label><span data-t="f_status_date">Date of that news</span><input name="status_date" type="date"></label>
+        </div>
+        <label><span data-t="f_status_url">Link that shows it (needed unless "Nothing shown yet")</span><input name="status_source_url" type="url" maxlength="1000" placeholder="https://"></label>
+        <label><span data-t="f_status_note">What the link shows (optional)</span><input name="status_note" maxlength="600"></label>
+        <label><span data-t="f_note">Note for the moderator (optional)</span><input name="note" maxlength="600"></label>
+        <button type="submit" class="pr-btn" id="pr-submit" data-t="f_submit">Send for checking</button>
+        <p class="pr-msg" id="pr-msg" role="status"></p>
+      </form>
+    </section>
+
+    <section class="an-card an-span" id="pr-rules">
+      <h2 data-t="rules_h">How this page stays fair</h2>
+      <ul class="pr-rules">
+        <li data-t="rule_1">Every promise links to where it was said, with the date. No link, no entry.</li>
+        <li data-t="rule_2">"In progress", "delivered" and "broken" each need their own link and date. Without one, a promise stays at "nothing shown yet".</li>
+        <li data-t="rule_3">A volunteer moderator checks each link before it is published. News headlines are collected by a free daily job and are only links, never a verdict.</li>
+        <li data-t-html="rule_4">Anyone named here can reply or correct an entry through the <a href="grievance.html">Grievance Officer</a>. For who controls the municipality and its money, see <a href="municipality.html">Who runs the municipality</a>.</li>
+      </ul>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="municipality.html">Who runs the municipality</a>
+    <a href="methodology.html">How it works</a>
+    <a href="changelog.html">What's new</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+    <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a>
+  </div>
+</main>
+
+<script src="config.js"></script>
+<script src="promises.js?v=20260927"></script>
+</body>
+</html>
