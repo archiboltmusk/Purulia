@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -240,7 +240,7 @@ check('report stores GPS-verified flag', row and row['gps_verified'] is True, ro
 ev = q("select kind, actor_tag from public.kasa_public_events where report_id::text = %s", (str(rid),))
 check('filing is recorded in the public evidence trail', ev and ev[0][0] == 'reported' and len(ev[0][1]) == 6, ev)
 
-check('reports outside Purulia and Kolkata are refused',
+check('reports outside West Bengal are refused',
       err(report, alice, where=(28.61, 77.21)) == 'KASA_OUTSIDE_AREA')
 kol = user()
 kres, _ = report(kol, where=(22.5646, 88.3510))  # Esplanade
@@ -249,7 +249,12 @@ check('a report in a Kolkata ward is filed there, with no Purulia ward',
       krow and tuple(krow[0]) == ('kolkata', 46, None, 'place', 'Kolkata Municipal Corporation'), krow)
 check('...and stays out of the Purulia view, in the places view', view_row(kres['id']) is None
       and q('select count(*) from public.kasa_public_place_reports where id::text = %s', (str(kres['id']),))[0][0] == 1)
-check('a Kolkata spot outside every mapped ward (Howrah) is refused', err(report, user(), where=(22.5839, 88.3426)) == 'KASA_OUTSIDE_AREA')
+hres, _ = report(user(), where=(22.5839, 88.3426))  # Howrah: in Kolkata's box, in no Kolkata ward
+hrow = admin_sql("select place, place_ward, district, area_kind, local_body from public.reports where id::text = %s", (str(hres['id']),))
+check('a spot in no mapped ward is filed under its district (Howrah)',
+      hrow and tuple(hrow[0]) == ('district:howrah', None, 'Howrah', 'wb', None), hrow)
+check('...and stays out of the Purulia view, in the places view', view_row(hres['id']) is None
+      and q('select count(*) from public.kasa_public_place_reports where id::text = %s', (str(hres['id']),))[0][0] == 1)
 check('photo must actually be uploaded',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
@@ -531,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2121,6 +2126,71 @@ check('a spot in Raghunathpur town goes to Raghunathpur Municipality', rg.get('b
 gp = admin_sql("select kasa_private.locate(23.28, 86.20, null)")[0][0]
 check('a village spot names its gram panchayat and block', gp.get('body') == 'Sirkabad' and gp.get('block') == 'Arsha' and gp.get('body_type') == 'gram_panchayat', gp)
 check('all 170 gram panchayats are loaded', admin_sql("select count(*) from kasa_private.areas where kind = 'gp'")[0][0] == 170)
+
+# ── All of West Bengal: towns sent in by anyone, approved by moderators ─────
+def ward_fc(*wards):
+    return {'type': 'FeatureCollection', 'features': [
+        {'type': 'Feature', 'properties': {'ward': str(n)},
+         'geometry': {'type': 'Polygon', 'coordinates': [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]]}}
+        for n, (x0, y0, x1, y1) in wards]}
+BANKURA = (1, (87.05, 23.22, 87.08, 23.25)), (2, (87.08, 23.22, 87.11, 23.25))
+def send_town(ip='10.71.0.1', **kw):
+    args = dict(p_town='Bankura', p_district='Bankura', p_body='Bankura Municipality', p_body_type='municipality',
+                p_incharge='Sanitary Inspector, Bankura Municipality', p_incharge_source='bankuramunicipality.in, Contact page',
+                p_complaint_url=None, p_map_source='Drawn on Parishkar', p_drawn=True, p_fix_of=None,
+                p_geojson=ward_fc(*BANKURA), p_contact=None)
+    args.update(kw)
+    return rpc('kasa_submit_place', ip=ip, **args)
+check('a spot in Bankura with no town map is filed under Bankura district',
+      admin_sql("select kasa_private.locate_any(23.235, 87.065, null)")[0][0] == {'kind': 'wb', 'district': 'Bankura', 'place': 'district:bankura'})
+check('Purulia stays with its own blocks, not a district',
+      admin_sql("select kasa_private.locate_any(%s, %s, null) ->> 'kind'", SPOT)[0][0] in ('town', 'rural'))
+check('all 22 other West Bengal districts are loaded', admin_sql("select count(*) from kasa_private.areas where kind = 'district'")[0][0] == 22)
+check('a town map must be a FeatureCollection', err(send_town, p_geojson={'type': 'Polygon'}) == 'KASA_BAD_MAP')
+check('every ward needs a number',
+      err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*BANKURA)['features'][0], properties={})]}) == 'KASA_BAD_MAP')
+check('a ward number can appear only once', err(send_town, p_geojson=ward_fc(BANKURA[0], BANKURA[0])) == 'KASA_BAD_MAP')
+check('points outside West Bengal are refused', err(send_town, p_geojson=ward_fc((1, (77.1, 28.5, 77.2, 28.6)))) == 'KASA_BAD_MAP')
+check('who is in charge needs a source', err(send_town, p_incharge_source=None) == 'KASA_BAD_FORM')
+check('the district must be a West Bengal district', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
+sub1 = send_town()
+check('anyone can send a town map; it waits for a moderator', sub1 == {'ok': True, 'status': 'pending'}, sub1)
+check('the public cannot read the waiting maps', refused(err(q, 'select * from kasa_private.place_submissions')))
+check('non-admins cannot see or approve town maps',
+      err(rpc, 'kasa_admin_place_submissions', uid=user()) == 'KASA_NOT_ADMIN')
+check('a waiting town is not on the map yet', not any(p['slug'] == 'bankura' for p in rpc('kasa_places')))
+for i in range(5):
+    send_town(ip='10.79.0.9')
+check('one network can send at most five town maps a day', err(send_town, ip='10.79.0.9') == 'KASA_RATE_LIMIT')
+subs = rpc('kasa_admin_place_submissions', uid=mod)
+s1 = next(x for x in subs if x['ward_count'] == 2 and x['status'] == 'pending')
+check('moderators see the map, its source and who is in charge, not the network',
+      s1['incharge_source'] and s1['wards'][0]['polygons'] and 'ip_hash' not in s1, s1.keys())
+check('non-admins cannot approve', err(rpc, 'kasa_admin_review_place', uid=user(), p_id=s1['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_NOT_ADMIN')
+ap = rpc('kasa_admin_review_place', uid=mod, p_id=s1['id'], p_action='approve', p_slug=None, p_note='checked')
+check('approving puts the town on the map', ap.get('slug') == 'bankura', ap)
+bk = next((p for p in rpc('kasa_places') if p['slug'] == 'bankura'), None)
+check('a drawn map goes live as provisional and community-drawn',
+      bk and bk['status'] == 'provisional' and bk['community'] and bk['wards_mapped'] == 2 and bk['incharge'], bk)
+check('its wards can be read by anyone', len(rpc('kasa_place_wards', p_slug='bankura')['features']) == 2)
+bres, _ = report(user(), where=(23.235, 87.065))
+brow = admin_sql("select place, place_ward, local_body from public.reports where id::text = %s", (str(bres['id']),))
+check('a report inside an approved ward goes to that town and ward', brow and tuple(brow[0]) == ('bankura', 1, 'Bankura Municipality'), brow)
+check('a map cannot be reviewed twice', err(rpc, 'kasa_admin_review_place', uid=mod, p_id=s1['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_BAD_FORM')
+dup = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['status'] == 'pending')
+check('a second map for a town already on the map must be a fix',
+      err(rpc, 'kasa_admin_review_place', uid=mod, p_id=dup['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_BAD_FORM')
+rpc('kasa_admin_review_place', uid=mod, p_id=dup['id'], p_action='reject', p_note='duplicate', p_slug=None)
+send_town(ip='10.72.0.2', p_fix_of='bankura', p_geojson=ward_fc((1, (87.05, 23.22, 87.07, 23.25))), p_map_source='Traced from the ward notice')
+fix = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'bankura')
+rpc('kasa_admin_review_place', uid=mod, p_id=fix['id'], p_action='approve', p_slug=None, p_note=None)
+fw = rpc('kasa_place_wards', p_slug='bankura')['features']
+check('a border fix replaces only the wards it sends', len(fw) == 2 and
+      max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.07, fw)
+check('a fix must name a town already on the map', err(send_town, ip='10.73.0.3', p_fix_of='nowhere') == 'KASA_BAD_FORM')
+rpc('kasa_place_visit', p_place='district:howrah')
+check('district visits are counted', any(r['place'] == 'district:howrah' and r['visits'] >= 1 and r['reports'] >= 1
+                                        for r in rpc('kasa_place_reaction')))
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

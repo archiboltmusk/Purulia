@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Put your town on the map — Parishkar</title>
+<meta name="description" content="Any town or panchayat in West Bengal can have its own Parishkar map. Upload its ward map or draw it, and say who is in charge of cleaning.">
+<meta property="og:title" content="Put your town on the map — Parishkar">
+<meta property="og:description" content="Upload your town's ward map or draw it on the map, and say who is in charge of cleaning. A moderator checks it before it goes live.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/add-town.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/add-town.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .at-wrap{max-width:880px;margin:0 auto;padding:3rem clamp(1rem,4vw,2rem) 5rem;}
+  .at-title{font-family:var(--serif);font-size:clamp(2.1rem,4.5vw,3.2rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .at-title em{font-style:italic;color:var(--amber);}
+  .at-sub{margin-top:.6rem;color:var(--text-md);line-height:1.6;}
+  .at-steps{margin:1rem 0 0 1.2rem;color:var(--text-md);line-height:1.6;}
+  .at-field{margin-top:1.3rem;}
+  .at-label{display:block;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-hi);margin-bottom:.35rem;}
+  .at-label b{color:var(--red);font-weight:400;}
+  .at-hint{margin:.1rem 0 .5rem;font-size:.84rem;color:var(--text-md);line-height:1.45;}
+  .at-input,.at-select{width:100%;padding:.75rem .9rem;background:var(--ink2);border:1px solid var(--border);border-radius:8px;color:var(--text-hi);font-family:inherit;font-size:.95rem;outline:none;}
+  .at-input:focus,.at-select:focus{border-color:var(--amber);}
+  .at-input[readonly]{opacity:.7;}
+  .at-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+  .at-radio{display:flex;flex-wrap:wrap;gap:.5rem;}
+  .at-radio label{display:flex;gap:.4rem;align-items:center;padding:.5rem .8rem;border:1px solid var(--border);border-radius:8px;cursor:pointer;font-size:.92rem;}
+  .at-radio input{accent-color:var(--amber);}
+  .at-h2{margin-top:2.2rem;font-family:var(--serif);font-size:1.6rem;color:var(--cream);}
+  .at-tabs{display:flex;gap:.5rem;margin-top:.8rem;}
+  .at-tabs button{flex:1;padding:.7rem;border:1px solid var(--border2);border-radius:8px;background:none;color:var(--text-hi);font-family:inherit;font-size:.95rem;cursor:pointer;}
+  .at-tabs button[aria-pressed="true"]{border-color:var(--amber);background:rgba(212,136,42,.12);}
+  .at-map{height:min(60vh,460px);margin-top:.8rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
+  .at-map.drawing{cursor:crosshair;}
+  .at-tools{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;align-items:center;}
+  .at-tools .at-input{width:7rem;}
+  .at-btn{padding:.6rem .9rem;border:1px solid var(--border2);border-radius:8px;background:var(--ink2);color:var(--text-hi);font-family:inherit;font-size:.9rem;cursor:pointer;}
+  .at-btn:disabled{opacity:.45;cursor:default;}
+  .at-btn.primary{background:var(--amber);border-color:var(--amber);color:var(--ink);font-weight:600;}
+  .at-wards{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem;}
+  .at-wards button{padding:.3rem .7rem;border:1px solid var(--amber);border-radius:999px;background:rgba(212,136,42,.12);color:var(--text-hi);font-size:.84rem;cursor:pointer;}
+  .at-status{margin-top:.5rem;font-size:.88rem;color:var(--text-md);line-height:1.5;}
+  .at-submit{width:100%;margin-top:1.8rem;padding:1rem;border-radius:10px;border:1px solid var(--amber);background:var(--amber);color:var(--ink);font-family:inherit;font-size:1.05rem;font-weight:600;cursor:pointer;}
+  .at-submit:disabled{opacity:.5;cursor:default;}
+  .at-msg{margin-top:.8rem;font-size:.92rem;line-height:1.5;}
+  .at-msg.ok{color:var(--green);} .at-msg.bad{color:var(--red);}
+  .at-review{margin-top:1rem;font-size:.86rem;color:var(--text-md);line-height:1.5;}
+  .at-lang{display:flex;gap:.3rem;}
+  .at-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
+  .at-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  .at-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .at-footer a{color:var(--amber);}
+  @media(max-width:560px){.at-row{grid-template-columns:1fr;}}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <div class="at-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en">EN</button>
+      <button type="button" data-lang="bn">বাং</button>
+      <button type="button" data-lang="hi">हिं</button>
+    </div>
+  </div>
+</nav>
+
+<main class="at-wrap">
+  <h1 class="at-title" id="at-title" data-t-html="title">Put your town <em>on the map</em></h1>
+  <p class="at-sub" id="at-sub" data-t="sub">Any town or panchayat in West Bengal can have its own Parishkar map, like Parishkar Kolkata. Reports there then go to the right ward and the right office.</p>
+  <ol class="at-steps">
+    <li data-t="step1">Say which town it is and who is in charge of cleaning there first, and where you found that.</li>
+    <li data-t="step2">Upload its ward map (a GeoJSON file), or draw the wards on the map below. A rough drawing is fine; borders can be fixed later.</li>
+    <li data-t="step3">A moderator checks it before it goes live. Drawn borders are marked as drawn by residents and provisional.</li>
+  </ol>
+
+  <form id="at-form" novalidate>
+    <div class="at-row">
+      <div class="at-field">
+        <label class="at-label" for="at-town"><span data-t="f_town">Town or panchayat</span> <b>*</b></label>
+        <input class="at-input" id="at-town" maxlength="80" autocomplete="off" data-t-ph="ph_town" placeholder="e.g. Bankura">
+      </div>
+      <div class="at-field">
+        <label class="at-label" for="at-district"><span data-t="f_district">District</span> <b>*</b></label>
+        <select class="at-select" id="at-district"><option value="">—</option></select>
+      </div>
+    </div>
+    <div class="at-field">
+      <label class="at-label" for="at-body"><span data-t="f_body">Local body</span> <b>*</b></label>
+      <input class="at-input" id="at-body" maxlength="120" data-t-ph="ph_body" placeholder="e.g. Bankura Municipality">
+      <div class="at-radio" style="margin-top:.5rem;" role="radiogroup">
+        <label><input type="radio" name="at-type" value="municipality" checked> <span data-t="t_muni">Municipality or corporation</span></label>
+        <label><input type="radio" name="at-type" value="gram_panchayat"> <span data-t="t_gp">Gram panchayat</span></label>
+      </div>
+    </div>
+    <div class="at-field">
+      <label class="at-label" for="at-incharge" data-t="f_incharge">Who is in charge of cleaning first</label>
+      <p class="at-hint" data-t="h_incharge">The office or officer, with a phone number, email or complaint page if there is one.</p>
+      <input class="at-input" id="at-incharge" maxlength="300" data-t-ph="ph_incharge" placeholder="e.g. Sanitary Inspector, Bankura Municipality, 03242-xxxxxx">
+      <input class="at-input" id="at-incharge-src" maxlength="300" style="margin-top:.6rem;" data-t-ph="ph_incharge_src" placeholder="Where you found it (a link, or e.g. the notice board at the municipality office)" aria-label="Where you found it">
+    </div>
+    <div class="at-field">
+      <label class="at-label" for="at-complaint" data-t="f_complaint">Its own complaint page (optional)</label>
+      <input class="at-input" id="at-complaint" type="url" maxlength="300" placeholder="https://">
+    </div>
+
+    <h2 class="at-h2" data-t="map_title">The ward map</h2>
+    <div class="at-tabs" role="group">
+      <button type="button" data-mode="upload" aria-pressed="true" data-t="m_upload">Upload a GeoJSON file</button>
+      <button type="button" data-mode="draw" aria-pressed="false" data-t="m_draw">Draw on the map</button>
+    </div>
+    <div id="at-upload">
+      <p class="at-hint" style="margin-top:.7rem;" data-t="h_upload">One outline per ward, each with its ward number in a "ward" property. Other names like WARD or ward_no also work.</p>
+      <input type="file" id="at-file" accept=".geojson,.json,application/geo+json,application/json">
+    </div>
+    <div id="at-draw" hidden>
+      <p class="at-hint" style="margin-top:.7rem;" data-t="h_draw">Type a ward number, tap "Start ward", then tap around its border on the map. Tap "Finish ward" when you are back where you started.</p>
+      <div class="at-tools">
+        <input class="at-input" id="at-wardno" type="number" min="1" max="500" inputmode="numeric" data-t-ph="ph_wardno" placeholder="Ward no." aria-label="Ward number">
+        <button type="button" class="at-btn primary" id="at-start" data-t="b_start">Start ward</button>
+        <button type="button" class="at-btn" id="at-undo" disabled data-t="b_undo">Undo point</button>
+        <button type="button" class="at-btn" id="at-finish" disabled data-t="b_finish">Finish ward</button>
+      </div>
+    </div>
+    <div class="at-map" id="at-map"></div>
+    <div class="at-status" id="at-status" role="status"></div>
+    <div class="at-wards" id="at-wards"></div>
+    <div class="at-field">
+      <label class="at-label" for="at-source"><span data-t="f_source">Where the ward map comes from</span> <b>*</b></label>
+      <p class="at-hint" data-t="h_source">A link, or what you traced it from (e.g. the ward map on the municipality's notice board).</p>
+      <input class="at-input" id="at-source" maxlength="300">
+    </div>
+    <div class="at-field">
+      <label class="at-label" for="at-contact" data-t="f_contact">Your phone or email (optional, private)</label>
+      <p class="at-hint" data-t="h_contact">Only so a moderator can ask you about the map. Never shown.</p>
+      <input class="at-input" id="at-contact" maxlength="120" autocomplete="email">
+    </div>
+    <button type="submit" class="at-submit" id="at-send" data-t="send">Send for review</button>
+    <div class="at-msg" id="at-msg" role="status"></div>
+    <p class="at-review" data-t="review">Nothing goes on the map until a moderator checks it. If a border is disputed, anyone can send a fix for just those wards.</p>
+  </form>
+
+  <div class="at-footer">
+    <a href="kasa.html" data-t="f_map">Report map</a>
+    <a href="privacy.html" data-t="f_privacy">Privacy</a>
+    <a href="grievance.html" data-t="f_grievance">Grievance Officer</a>
+  </div>
+</main>
+
+<script src="config.js"></script>
+<script src="places.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="add-town.js"></script>
+</body>
+</html>

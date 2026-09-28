@@ -111,7 +111,8 @@ function placeLabel(r, tr = t){
 /* "Kolkata · Ward 93" for a report in another West Bengal place (places.js). */
 function placeOther(r, tr){
   const p = window.KasaPlaces?.bySlug(r.place);
-  return [p ? p.name : r.place, r.placeWard ? tr('acc_ward', { n: r.placeWard }) : ''].filter(Boolean).join(' · ');
+  const name = p?.isDistrict ? tr('pl_district', { d: p.name }) : p ? p.name : r.place;
+  return [name, r.placeWard ? tr('acc_ward', { n: r.placeWard }) : ''].filter(Boolean).join(' · ');
 }
 
 // What a person would call the spot: their own landmark, else the map address, else the ward/block.
@@ -330,8 +331,18 @@ async function init(){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => { if (what === 'geo') mapReady.then(() => addPlaceLayers(slug)); });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
-    const start = KasaPlaces.fromUrl();
-    if (start){ userMovedMap = true; mapReady.then(() => mainMap.jumpTo({ center: start.center, zoom: 12 })); }
+    const jumpToStart = () => {
+      const start = KasaPlaces.fromUrl();
+      if (!start?.center || jumpToStart.done) return;
+      jumpToStart.done = userMovedMap = true;
+      mapReady.then(() => mainMap.jumpTo({ center: start.center, zoom: 12 }));
+    };
+    jumpToStart();
+    // Towns approved on add-town.html since this page was built.
+    if (sb) KasaPlaces.setServer({
+      places: () => sb.rpc('kasa_places').then(r => r.data || []),
+      wards: slug => sb.rpc('kasa_place_wards', { p_slug: slug }).then(r => r.data)
+    }).then(jumpToStart);
   }
   await Promise.all([loadReports(), loadWards(), loadWardGeo(), loadCommunities()]);
   renderAll();
@@ -444,7 +455,7 @@ function normalize(r){
     createdAt: r.created_at,
     lat: Number(r.lat), lng: Number(r.lng),
     ward: r.ward_no ? Number(r.ward_no) : null,
-    area: r.area_kind || (r.ward_no ? 'town' : null),
+    area: r.area_kind === 'wb' ? 'place' : r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
     place: r.place || null,
     placeWard: r.place_ward ? Number(r.place_ward) : null,
@@ -601,8 +612,7 @@ function placeOf(lat, lng){
   const gp = featureAt(state.gpGeo, lat, lng);
   if (gp) return { kind: 'rural', block: block || gp.properties.block, body: gp.properties.gp, bodyType: 'gram_panchayat' };
   if (block) return { kind: 'rural', block, bodyType: 'gram_panchayat' };
-  const other = window.KasaPlaces?.at(lat, lng);
-  return other?.kind === 'place_unmapped' ? { kind: 'outside', unmapped: other.name } : other || { kind: 'outside' };
+  return window.KasaPlaces?.at(lat, lng) || { kind: 'outside' };
 }
 
 function detectWard(lat, lng){
@@ -1189,12 +1199,16 @@ function addWardLayers(){
 /* Ward outlines of the other West Bengal places (places.js), drawn once loaded. */
 function addPlaceLayers(slug){
   const g = window.KasaPlaces?.geo[slug];
-  if (!mainMap || !g || mainMap.getSource('place-' + slug)) return;
+  if (!mainMap || !g) return;
+  if (mainMap.getSource('place-' + slug)) return mainMap.getSource('place-' + slug).setData(g);
   const p = KasaPlaces.bySlug(slug);
+  const provisional = p.status === 'provisional';
   mainMap.addSource('place-' + slug, { type: 'geojson', data: g,
-    attribution: `<a href="${p.source}" target="_blank" rel="noopener">${p.name} wards: ${p.sourceName}</a> (${p.licence})` });
+    attribution: /^https:\/\//i.test(p.source || '') && !p.community
+      ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.name)} wards: ${esc(p.sourceName)}</a> (${esc(p.licence)})`
+      : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
-    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
+    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
@@ -1756,9 +1770,15 @@ function renderPlaceAccountability(r){
       <div class="k-acc-label">${esc(t('acc_title'))}</div>
       <div class="k-tree">
         <div class="k-tree-root"><small>${esc(t('acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
-        <div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
-          <span class="k-node-text"><b>${esc(p ? p.body : r.place)}</b><small>${esc(t('pl_officers_unknown'))}</small></span></div>
-        ${p?.complaintUrl ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
+        ${p?.isDistrict || !p?.body ? `<div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
+          <span class="k-node-text"><b>${esc(t('pl_incharge_unknown'))}</b></span></div>
+          <a class="k-esc-item" href="add-town.html${p?.isDistrict ? '?district=' + encodeURIComponent(p.name) : ''}"><b>${esc(t('pl_add_town'))}</b></a>`
+        : `<div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
+          <span class="k-node-text"><b>${esc(p.body)}</b><small>${esc(t('pl_officers_unknown'))}</small></span></div>`}
+        ${p?.incharge ? `<div class="k-node"><span class="k-node-abbr">🧹</span>
+          <span class="k-node-text"><b>${esc(p.incharge)}</b><small>${esc(t('pl_incharge'))}${p.inchargeSource ? ': ' + esc(p.inchargeSource) : ''}</small></span></div>` : ''}
+        ${p?.complaintUrl && /^https:\/\//i.test(p.complaintUrl) ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
+        ${p && !p.isDistrict ? `<a class="k-esc-item" href="add-town.html?fix=${encodeURIComponent(p.slug)}"><b>${esc(t('pl_fix_border'))}</b>${p.status === 'provisional' ? `<small>${esc(t('pl_border_note'))}</small>` : ''}</a>` : ''}
         <details class="k-acc-more">
           <summary>${esc(t('acc_more'))}</summary>
           ${renderEscalate(r)}
@@ -2194,7 +2214,7 @@ async function shareCard(r){
   y = wrap(r.landmark || r.address ? `${placeText(r)} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
   const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
   g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
-  const otherBody = r.area === 'place' && window.KasaPlaces?.bySlug(r.place)?.body;
+  const otherBody = r.area === 'place' && (window.KasaPlaces?.bySlug(r.place)?.body || t('pl_incharge_unknown'));
   y = wrap(`${t('card_responsible')}: ${otherBody || t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
   if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
   // Footer
@@ -2805,12 +2825,13 @@ function setLocation(lat, lng, accuracy){
   note.textContent = place.kind === 'rural'
       ? (place.bodyType === 'municipality' ? t('step3_town', { t: place.body })
         : place.body && place.block ? t('step3_gp', { g: place.body, b: place.block }) : t('step3_block', { b: place.block }))
-    : place.kind === 'place' ? t('pl_step3', { place: place.name, n: place.ward, body: place.body })
+    : place.kind === 'place' ? (place.isDistrict ? t('pl_step3_wb', { d: place.name })
+        : t('pl_step3', { place: place.name, n: place.ward, body: place.body }) + (place.provisional ? ' ' + t('pl_provisional') : ''))
     : place.kind === 'edge' ? t('step3_edge')
-    : place.kind === 'outside' ? (place.unmapped ? t('pl_unmapped', { place: place.unmapped }) : t('step3_outside')) : '';
-  if (place.kind === 'outside'){
+    : place.kind === 'outside' ? t('step3_outside') : '';
+  if (place.kind === 'place' && place.isDistrict){
     const add = document.createElement('a');
-    add.href = 'suggest-feature.html#add-town';
+    add.href = 'add-town.html?district=' + encodeURIComponent(place.name);
     add.textContent = ' ' + t('pl_add_town');
     note.append(add);
   }
@@ -4363,7 +4384,7 @@ async function locateOnOpen(){
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
-      const other = window.KasaPlaces?.boxAt(lat, lng);
+      const other = window.KasaPlaces?.inWB(lat, lng);
       if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();

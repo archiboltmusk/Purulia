@@ -1190,3 +1190,43 @@ Object.assign(window.KASA_I18N.hi, {
   pl_complain: '{body} में शिकायत करें', pl_complain_s: 'उनका अपना शिकायत फ़ॉर्म। उसमें रिपोर्ट का लिंक डालें।',
   pl_share: '{place} में {cat} — {days} दिन से हल नहीं। देखें और अपनी आवाज़ जोड़ें:'
 });
+/* All of West Bengal: a spot in no mapped town is filed under its district; anyone can add their town. */
+Object.assign(window.KASA_I18N.en, {
+  pl_add_town: 'Put your town on the map: send its ward map →',
+  step3_outside: 'This spot is outside West Bengal. Parishkar covers West Bengal only.',
+  err_KASA_OUTSIDE_AREA: 'This location is outside West Bengal.',
+  loc_outside: 'You’re outside West Bengal',
+  pl_district: '{d} district',
+  pl_step3_wb: 'Filed under {d} district. Who is in charge of cleaning here isn’t on record yet.',
+  pl_provisional: 'Ward borders here were drawn by residents and may be corrected.',
+  pl_incharge_unknown: 'Who is in charge of cleaning here isn’t on record yet',
+  pl_incharge: 'In charge of cleaning, as residents found it',
+  pl_fix_border: 'Wrong ward border? Send a fix →',
+  pl_border_note: 'Ward borders drawn by residents, provisional'
+});
+Object.assign(window.KASA_I18N.bn, {
+  pl_add_town: 'আপনার শহর মানচিত্রে তুলুন: তার ওয়ার্ড মানচিত্র পাঠান →',
+  step3_outside: 'জায়গাটি পশ্চিমবঙ্গের বাইরে। পরিষ্কার শুধু পশ্চিমবঙ্গের জন্য।',
+  err_KASA_OUTSIDE_AREA: 'জায়গাটি পশ্চিমবঙ্গের বাইরে।',
+  loc_outside: 'আপনি পশ্চিমবঙ্গের বাইরে আছেন',
+  pl_district: '{d} জেলা',
+  pl_step3_wb: '{d} জেলায় জমা হবে। এখানে পরিষ্কারের দায়িত্বে কে, তা এখনও আমাদের কাছে নেই।',
+  pl_provisional: 'এখানকার ওয়ার্ডের সীমানা বাসিন্দাদের আঁকা, পরে ঠিক করা হতে পারে।',
+  pl_incharge_unknown: 'এখানে পরিষ্কারের দায়িত্বে কে, তা এখনও আমাদের কাছে নেই',
+  pl_incharge: 'পরিষ্কারের দায়িত্বে, বাসিন্দারা যা পেয়েছেন',
+  pl_fix_border: 'ওয়ার্ডের সীমানা ভুল? সংশোধন পাঠান →',
+  pl_border_note: 'বাসিন্দাদের আঁকা ওয়ার্ড সীমানা, অস্থায়ী'
+});
+Object.assign(window.KASA_I18N.hi, {
+  pl_add_town: 'अपना शहर नक्शे पर लाएँ: उसका वार्ड नक्शा भेजें →',
+  step3_outside: 'यह जगह पश्चिम बंगाल से बाहर है। परिष्कार सिर्फ़ पश्चिम बंगाल के लिए है।',
+  err_KASA_OUTSIDE_AREA: 'यह जगह पश्चिम बंगाल से बाहर है।',
+  loc_outside: 'आप पश्चिम बंगाल से बाहर हैं',
+  pl_district: '{d} ज़िला',
+  pl_step3_wb: '{d} ज़िले में दर्ज होगा। यहाँ सफ़ाई का ज़िम्मा किसके पास है, यह अभी हमारे पास नहीं है।',
+  pl_provisional: 'यहाँ की वार्ड सीमाएँ निवासियों ने बनाई हैं, बाद में सुधारी जा सकती हैं।',
+  pl_incharge_unknown: 'यहाँ सफ़ाई का ज़िम्मा किसके पास है, यह अभी हमारे पास नहीं है',
+  pl_incharge: 'सफ़ाई के ज़िम्मेदार, जैसा निवासियों ने पाया',
+  pl_fix_border: 'वार्ड की सीमा ग़लत है? सुधार भेजें →',
+  pl_border_note: 'निवासियों की बनाई वार्ड सीमाएँ, अस्थायी'
+});
