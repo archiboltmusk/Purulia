@@ -13,7 +13,7 @@ test('on Kolkata the page becomes Parishkar Kolkata, and Purulia pages read only
   await expect(wordmark(page)).toHaveText('Kolkata');
   await expect(page).toHaveTitle(/Parishkar Kolkata/);
   await expect.poll(() => backend.calls.some(c => c.name === 'kasa_place_visit' && c.body?.p_place === 'kolkata')).toBe(true);
-  expect(backend.calls.some(c => c.kind === 'table' && c.name === 'kasa_public_place_reports')).toBe(true);
+  await expect.poll(() => backend.calls.some(c => c.kind === 'table' && c.name === 'kasa_public_place_reports')).toBe(true);
   // Moving back to Purulia names the page after Purulia again.
   await page.evaluate(() => mainMap.jumpTo({ center: [86.3654, 23.332], zoom: 13 }));
   await expect(wordmark(page)).toHaveText('Purulia');
@@ -35,6 +35,8 @@ test('on a district with no town map the page becomes Parishkar Bankura', async 
   await page.evaluate(() => mainMap.jumpTo({ center: [87.07, 23.23], zoom: 11 }));
   await expect(wordmark(page)).toHaveText('Bankura');
   await expect.poll(() => backend.calls.some(c => c.name === 'kasa_place_visit' && c.body?.p_place === 'district:bankura')).toBe(true);
+  // Counts are Bankura's (none yet), not Purulia's.
+  await expect(page.locator('#k-pill-total')).toHaveText('0');
 });
 
 const TOWN = {

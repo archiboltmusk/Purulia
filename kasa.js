@@ -329,7 +329,11 @@ async function init(){
   mapReady = initMainMap();
   if (window.KasaPlaces){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
-    KasaPlaces.on((what, slug) => { if (what === 'geo') mapReady.then(() => addPlaceLayers(slug)); });
+    KasaPlaces.on((what, slug) => {
+      if (what === 'geo') mapReady.then(() => addPlaceLayers(slug));
+      // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
+    });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     const jumpToStart = () => {
       const start = KasaPlaces.fromUrl();
@@ -956,6 +960,9 @@ function filtered(){
 }
 
 const primaries = () => state.reports.filter(r => !r.duplicate);
+/* Reports of the place the page is named after: Purulia, or the town or district the map is on (places.js). */
+const inScope = r => (r.place || null) === (window.KasaPlaces?.current || null);
+const scopedPrimaries = () => primaries().filter(inScope);
 const daysSince = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
 const isOverdue = (r) => r.status !== 'resolved' && daysSince(r.createdAt) > r.slaDays;
 const peopleSaw = (r) => r.seen + 1;
@@ -1097,7 +1104,7 @@ function boostRoadLabels(map){
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
-    minZoom: 10, maxZoom: 19,
+    minZoom: 5, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
   // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
@@ -1343,7 +1350,7 @@ function statusChip(r){
 }
 
 function updateStats(){
-  const all = primaries();
+  const all = scopedPrimaries();
   const open = all.filter(r => r.status !== 'resolved').length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
@@ -1394,7 +1401,7 @@ function renderLeaderboard(){
 // Every resolution method counts — community verification, the photo fast-lane,
 // an admin's manual accept, and legacy reports resolved before verification existed.
 function recentFixes(){
-  return primaries()
+  return scopedPrimaries()
     .filter(r => r.status === 'resolved' && r.resolvedAt && !r.relapsed)
     .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
     .slice(0, 6);
@@ -1453,7 +1460,7 @@ function setFixedStrip(open){
 
 function renderTicker(){
   const track = document.getElementById('k-ticker-track');
-  const recent = primaries().slice(0, 12);
+  const recent = scopedPrimaries().slice(0, 12);
   if (!recent.length){ track.innerHTML = `<span class="k-ticker-item">${esc(t('lb_empty'))}</span>`; return; }
   const items = recent.map(r => `
     <span class="k-ticker-item"><span class="k-ticker-dot" style="background:${markerColor(r)}"></span>
@@ -4428,12 +4435,22 @@ function startTips(){
   setTimeout(show, 600);
 }
 
+/* The count is Purulia's; elsewhere the line names the town or district in view. */
+function renderJoin(){
+  const el = document.getElementById('k-join-text');
+  if (!el) return;
+  const p = window.KasaPlaces?.current && KasaPlaces.bySlug(KasaPlaces.current);
+  const n = state.peopleCount;
+  el.textContent = p ? t('join_first_place', { place: p.name }) : n >= 20 ? t('join_n', { n }) : t('join_first');
+}
+
 /* "Join N people keeping Purulia clean" — a small, closable line on the map. */
 async function showJoin(){
   try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
   const { data: n } = await sb.rpc('kasa_people_count');
+  state.peopleCount = n;
   const el = document.getElementById('k-join');
-  document.getElementById('k-join-text').textContent = n >= 20 ? t('join_n', { n }) : t('join_first');
+  renderJoin();
   el.hidden = false;
   document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }

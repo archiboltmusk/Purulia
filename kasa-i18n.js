@@ -1230,3 +1230,6 @@ Object.assign(window.KASA_I18N.hi, {
   pl_fix_border: 'वार्ड की सीमा ग़लत है? सुधार भेजें →',
   pl_border_note: 'निवासियों की बनाई वार्ड सीमाएँ, अस्थायी'
 });
+Object.assign(window.KASA_I18N.en, { join_first_place: '👥 Be one of the first people keeping {place} clean' });
+Object.assign(window.KASA_I18N.bn, { join_first_place: '👥 {place} পরিষ্কার রাখা প্রথম মানুষদের একজন হোন' });
+Object.assign(window.KASA_I18N.hi, { join_first_place: '👥 {place} को साफ़ रखने वाले पहले लोगों में शामिल हों' });
