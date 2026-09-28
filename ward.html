@@ -77,13 +77,13 @@
 
 <nav class="k-nav">
   <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
-  <div class="k-nav-links">
+  <div class="k-nav-links" data-t="w2">
     <a href="index.html">Home</a>
     <a href="blueprint.html">Blueprint</a>
     <a href="map.html">Map</a>
     <a href="kasa.html">Parishkar</a>
   </div>
-  <div class="k-nav-right">
+  <div class="k-nav-right" data-t="w3">
     <a href="kasa.html?report=new" class="k-nav-cta">Report →</a>
   </div>
 </nav>
@@ -91,8 +91,8 @@
 <main class="an-wrap">
   <div class="an-head">
     <div>
-      <h1 class="an-title"><em id="wd-place">Your ward</em>, on the record</h1>
-      <p class="an-sub">Every problem reported here, who answers for it, and how many got fixed. Counted from the public record; nothing is typed in by hand. Fixed means it passed Parishkar's checks (neighbours confirming on the spot, the photo check, or a moderator), and every report has a fix target of 1, 3 or 7 days by how serious it is.</p>
+      <h1 class="an-title"><em id="wd-place">Your ward</em><span data-t="w4">, on the record</span></h1>
+      <p class="an-sub" data-t="w5">Every problem reported here, who answers for it, and how many got fixed. Counted from the public record; nothing is typed in by hand. Fixed means it passed Parishkar's checks (neighbours confirming on the spot, the photo check, or a moderator), and every report has a fix target of 1, 3 or 7 days by how serious it is.</p>
     </div>
     <div class="an-meta"><span id="an-updated">Loading…</span> · <a href="methodology.html">How it works</a></div>
   </div>
@@ -100,7 +100,7 @@
   <div class="wd-controls">
     <select id="wd-area" aria-label="Ward or block"></select>
     <a class="wd-report" id="wd-report" href="kasa.html?report=new">📷 Report a problem here</a>
-    <button type="button" id="wd-share">Share this page</button>
+    <button type="button" id="wd-share" data-t="w7">Share this page</button>
   </div>
 
   <section class="wd-rep" aria-label="Who answers here">
@@ -110,7 +110,7 @@
       <div class="wd-rep-s" id="wd-rep-s"></div>
     </div>
     <div>
-      <div class="wd-rep-l">Public replies</div>
+      <div class="wd-rep-l" data-t="w9">Public replies</div>
       <div class="wd-rep-n" id="wd-replied">—</div>
       <div class="wd-rep-s" id="wd-replied-s">reports answered on the record</div>
     </div>
@@ -118,29 +118,29 @@
 
   <div class="wd-empty" id="wd-empty" hidden></div>
   <section class="an-tiles" aria-label="Numbers" id="wd-tiles">
-    <div class="an-tile"><div class="an-tile-n" id="t-total">—</div><div class="an-tile-l">Reported</div><div class="an-tile-s">since reporting began</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Unresolved</div><div class="an-tile-s">right now</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-overdue">—</div><div class="an-tile-l">Overdue</div><div class="an-tile-s">past their fix target</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-rate">—</div><div class="an-tile-l">Fixed</div><div class="an-tile-s" id="t-rate-s">of all reports</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-days">—</div><div class="an-tile-l">Days to fix</div><div class="an-tile-s">on average</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-total">—</div><div class="an-tile-l" data-t="w11">Reported</div><div class="an-tile-s" data-t="w12">since reporting began</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l" data-t="w13">Unresolved</div><div class="an-tile-s" data-t="w14">right now</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-overdue">—</div><div class="an-tile-l" data-t="w15">Overdue</div><div class="an-tile-s" data-t="w16">past their fix target</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-rate">—</div><div class="an-tile-l" data-t="w17">Fixed</div><div class="an-tile-s" id="t-rate-s">of all reports</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-days">—</div><div class="an-tile-l" data-t="w19">Days to fix</div><div class="an-tile-s" data-t="w20">on average</div></div>
   </section>
 
   <div class="an-grid" id="wd-grid">
     <section class="an-card an-span">
-      <h2>Waiting to be fixed</h2>
-      <p class="an-card-sub">Overdue first, then the longest waiting.</p>
+      <h2 data-t="w21">Waiting to be fixed</h2>
+      <p class="an-card-sub" data-t="w22">Overdue first, then the longest waiting.</p>
       <ul class="wd-list" id="wd-waiting"></ul>
     </section>
     <section class="an-card an-span">
-      <h2>Fixed</h2>
-      <p class="an-card-sub">Most recent first, with how long each took.</p>
+      <h2 data-t="w23">Fixed</h2>
+      <p class="an-card-sub" data-t="w24">Most recent first, with how long each took.</p>
       <ul class="wd-list" id="wd-fixed"></ul>
     </section>
   </div>
 
   <div class="wd-links" id="wd-links"></div>
 
-  <div class="an-footer">
+  <div class="an-footer" data-t="w25">
     <a href="kasa.html">Report map</a>
     <a href="digest.html">Weekly digest</a>
     <a href="analytics.html">All numbers</a>
@@ -149,6 +149,8 @@
     <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a>
   </div>
 </main>
+<script src="ward-i18n.js"></script>
+<script src="page-lang.js"></script>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>

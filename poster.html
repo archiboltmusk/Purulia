@@ -25,7 +25,7 @@
   .qr small{font-size:10pt;color:#444;word-break:break-all;}
   ol{font-size:14pt;margin:0;padding-left:1.4em;line-height:1.6;}
   .foot{margin-top:auto;font-size:10pt;color:#444;border-top:1px solid #ccc;padding-top:4mm;}
-  @media print{body{background:#fff;}.bar{display:none;}.sheet{margin:0;}}
+  @media print{body{background:#fff;}.bar,[class^="br-"]{display:none !important;}.sheet{margin:0;}}
   @media(max-width:220mm){.sheet{width:100%;min-height:auto;padding:16px;}.qrs{grid-template-columns:1fr;}}
 </style>
 </head>
@@ -58,15 +58,17 @@
   const city = window.KASA_CITY || {};
   const blocks = [...new Set([...(city.constituencies || []).flatMap(c => c.blocks || []), ...Object.keys(city.splitBlocks || {})])].sort();
   const sel = document.getElementById('pa');
-  sel.innerHTML = Array.from({ length: 23 }, (_, i) => `<option value="ward:${i + 1}">Ward ${i + 1} (Purulia town)</option>`).join('')
-    + blocks.map(b => `<option value="block:${b}">${b} block</option>`).join('');
+  // Areas live in this array; the <select> only carries an index into it.
+  const areas = [...Array.from({ length: 23 }, (_, i) => ({ kind: 'ward', id: String(i + 1), label: `Ward ${i + 1} (Purulia town)` })),
+    ...blocks.map(b => ({ kind: 'block', id: b, label: `${b} block` }))];
+  areas.forEach((a, i) => sel.add(new Option(a.label, String(i))));
   const qr = (id, url) => {
     if (!window.qrcode){ document.getElementById(id).textContent = url; return; }
     const q = window.qrcode(0, 'M'); q.addData(url); q.make();
     document.getElementById(id).innerHTML = q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
   };
   function render(){
-    const [kind, ...rest] = sel.value.split(':'); const id = rest.join(':');
+    const { kind, id } = areas[sel.selectedIndex] || areas[0];
     const qs = new URLSearchParams({ [kind]: id }).toString();
     const report = SITE + 'kasa.html?report=new', page = SITE + 'ward.html?' + qs;
     document.getElementById('pp').textContent = kind === 'ward' ? `ওয়ার্ড ${id}, পুরুলিয়া পৌরসভা · Ward ${id}, Purulia town` : `${id} ব্লক · ${id} block`;
@@ -77,8 +79,9 @@
     history.replaceState(null, '', '?' + qs);
   }
   const q = new URLSearchParams(location.search);
-  const want = q.get('block') ? 'block:' + q.get('block') : 'ward:' + (Number(q.get('ward')) || 1);
-  if ([...sel.options].some(o => o.value === want)) sel.value = want;
+  const wantKind = q.get('block') ? 'block' : 'ward', wantId = q.get('block') || String(Number(q.get('ward')) || 1);
+  const at = areas.findIndex(a => a.kind === wantKind && a.id === wantId);
+  sel.selectedIndex = at < 0 ? 0 : at;
   sel.addEventListener('change', render);
   render();
 })();

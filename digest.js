@@ -124,7 +124,7 @@
       const n = s => promises.filter(x => x.status === s).length;
       const moved = promises.filter(x => x.status !== 'promised' && x.status_date && Date.parse(x.status_date + 'T00:00:00+05:30') >= start && Date.parse(x.status_date + 'T00:00:00+05:30') < end);
       document.getElementById('dg-prom').innerHTML = `<li><small>${promises.length} tracked: ${n('promised')} still only promised, ${n('in_progress')} in progress, ${n('delivered')} delivered, ${n('broken')} broken.</small></li>`
-        + (moved.length ? moved.map(x => `<li><a href="promises.html">${esc((x.who ? x.who + ': ' : '') + (x.promise || 'Promise'))}</a><small>${esc(x.status.replace('_', ' '))}${x.status_source_url ? ` · <a href="${esc(x.status_source_url)}" rel="noopener">source</a>` : ''}</small></li>`).join('')
+        + (moved.length ? moved.map(x => `<li><a href="promises.html">${esc((x.who ? x.who + ': ' : '') + (x.promise || 'Promise'))}</a><small>${esc(x.status.replace('_', ' '))}${/^https?:\/\//i.test(x.status_source_url || '') ? ` · <a href="${esc(x.status_source_url)}" rel="noopener">source</a>` : ''}</small></li>`).join('')
           : `<li><small>No promise changed status this ${U}.</small></li>`);
     }
     sel.value = `${area.kind}:${area.id}`;
