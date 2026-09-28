@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -611,6 +611,16 @@ async function loadPlaces(){
           <td>${esc(p.first_visit || '—')}</td></tr>`).join('')}
       </tbody>
     </table>`;
+}
+
+async function loadTownRequests(){
+  const el = document.getElementById('adTownRequests');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_town_requests');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `<div class="ad-note"><strong>${esc(r.title)}</strong> · ${esc(new Date(r.created_at).toLocaleDateString('en-IN'))}${r.email ? ' · ' + esc(r.email) : ''}
+    <pre style="white-space:pre-wrap;margin:.3rem 0 0">${esc(r.description)}</pre></div>`).join('');
 }
 
 async function loadAdoptions(){

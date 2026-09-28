@@ -474,6 +474,21 @@ $$;
 revoke all on function public.kasa_place_reaction() from public;
 grant execute on function public.kasa_place_reaction() to anon, authenticated;
 
+-- "Put your town on the map" requests (suggest-feature.html#add-town), for moderators to check
+-- against their source before a place is added. Suggestions stay hidden from the public list.
+create or replace function public.kasa_admin_town_requests()
+returns jsonb language plpgsql stable security definer set search_path = '' as $$
+begin
+  if not kasa_private.is_admin() then perform kasa_private.fail('KASA_NOT_ADMIN', 'Moderators only.'); end if;
+  return coalesce((
+    select jsonb_agg(jsonb_build_object('id', f.id, 'created_at', f.created_at, 'title', f.title,
+             'description', f.description, 'email', f.email, 'status', f.status) order by f.created_at desc)
+    from (select * from public.feature_suggestions where title ilike 'Add my town%' order by created_at desc limit 50) f
+  ), '[]'::jsonb);
+end $$;
+revoke all on function public.kasa_admin_town_requests() from public, anon;
+grant execute on function public.kasa_admin_town_requests() to authenticated;
+
 commit;
 
 notify pgrst, 'reload schema';

@@ -27,3 +27,10 @@ test('a spot in a Kolkata ward is placed there, one outside every ward is refuse
   const howrah = await page.evaluate(() => KasaPlaces.at(22.5839, 88.3426));
   expect(howrah.kind).toBe('place_unmapped');
 });
+
+test('"Put your town on the map" asks for the ward map and who cleans', async ({ page }) => {
+  await page.goto('suggest-feature.html#add-town');
+  await expect(page.locator('#add-town')).toBeVisible();
+  await expect(page.locator('#sg-title')).toHaveValue(/^Add my town to the map/);
+  await expect(page.locator('#sg-description')).toHaveValue(/Ward map link[\s\S]*in charge of cleaning/);
+});

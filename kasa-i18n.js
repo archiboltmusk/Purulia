@@ -1100,6 +1100,7 @@ Object.assign(window.KASA_I18N.hi, {
 });
 /* Other West Bengal places with an open ward map (places.js): Kolkata so far. */
 Object.assign(window.KASA_I18N.en, {
+  pl_add_town: 'Want your town on the map? Send its ward map →',
   step3_outside: 'This spot is outside the areas Parishkar covers: Purulia district, and Kolkata’s wards.',
   err_KASA_OUTSIDE_AREA: 'This location is outside the areas Parishkar covers: Purulia district, and Kolkata’s wards.',
   loc_outside: 'You’re outside Purulia district and Kolkata',
@@ -1110,6 +1111,7 @@ Object.assign(window.KASA_I18N.en, {
   pl_share: '{cat} in {place} — unresolved for {days} days. See it and add your voice:'
 });
 Object.assign(window.KASA_I18N.bn, {
+  pl_add_town: 'আপনার শহর মানচিত্রে চান? তার ওয়ার্ড মানচিত্র পাঠান →',
   step3_outside: 'জায়গাটি পরিষ্কারের এলাকার বাইরে: পুরুলিয়া জেলা আর কলকাতার ওয়ার্ড।',
   err_KASA_OUTSIDE_AREA: 'জায়গাটি পরিষ্কারের এলাকার বাইরে: পুরুলিয়া জেলা আর কলকাতার ওয়ার্ড।',
   loc_outside: 'আপনি পুরুলিয়া জেলা আর কলকাতার বাইরে আছেন',
@@ -1120,6 +1122,7 @@ Object.assign(window.KASA_I18N.bn, {
   pl_share: '{place}-এ {cat} — {days} দিন ধরে সমাধান হয়নি। দেখুন আর আপনার কথা যোগ করুন:'
 });
 Object.assign(window.KASA_I18N.hi, {
+  pl_add_town: 'अपना शहर नक्शे पर चाहिए? उसका वार्ड नक्शा भेजें →',
   step3_outside: 'यह जगह परिष्कार के इलाक़े से बाहर है: पुरुलिया ज़िला और कोलकाता के वार्ड।',
   err_KASA_OUTSIDE_AREA: 'यह जगह परिष्कार के इलाक़े से बाहर है: पुरुलिया ज़िला और कोलकाता के वार्ड।',
   loc_outside: 'आप पुरुलिया ज़िले और कोलकाता से बाहर हैं',

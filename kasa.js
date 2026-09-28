@@ -2743,6 +2743,12 @@ function setLocation(lat, lng, accuracy){
     : place.kind === 'place' ? t('pl_step3', { place: place.name, n: place.ward, body: place.body })
     : place.kind === 'edge' ? t('step3_edge')
     : place.kind === 'outside' ? (place.unmapped ? t('pl_unmapped', { place: place.unmapped }) : t('step3_outside')) : '';
+  if (place.kind === 'outside'){
+    const add = document.createElement('a');
+    add.href = 'suggest-feature.html#add-town';
+    add.textContent = ' ' + t('pl_add_town');
+    note.append(add);
+  }
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
     (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
