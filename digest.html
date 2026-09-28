@@ -93,6 +93,7 @@
     <select id="dg-area" aria-label="Ward or block"></select>
     <button type="button" id="dg-prev" aria-label="Previous week">← Earlier</button>
     <button type="button" id="dg-next" aria-label="Next week">Later →</button>
+    <button type="button" id="dg-mode">Monthly view</button>
     <a href="#subscribe" data-digest-open>Get this by email</a>
     <button type="button" id="dg-card">Share as picture</button>
     <button type="button" class="dg-share" id="dg-share">Share this digest</button>
@@ -100,8 +101,8 @@
 
   <div class="dg-empty" id="dg-empty" hidden></div>
   <section class="an-tiles" aria-label="This week" id="dg-tiles">
-    <div class="an-tile"><div class="an-tile-n" id="t-new">—</div><div class="an-tile-l">New reports</div><div class="an-tile-s">this week</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div><div class="an-tile-s">this week</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-new">—</div><div class="an-tile-l">New reports</div><div class="an-tile-s">this <span data-unit>week</span></div></div>
+    <div class="an-tile"><div class="an-tile-n" id="t-fixed">—</div><div class="an-tile-l">Verified fixed</div><div class="an-tile-s">this <span data-unit>week</span></div></div>
     <div class="an-tile"><div class="an-tile-n" id="t-open">—</div><div class="an-tile-l">Still unresolved</div><div class="an-tile-s" id="t-open-when">at the end of the week</div></div>
     <div class="an-tile"><div class="an-tile-n" id="t-overdue">—</div><div class="an-tile-l">Overdue</div><div class="an-tile-s">past their deadline</div></div>
     <div class="an-tile"><div class="an-tile-n" id="t-fake">—</div><div class="an-tile-l">Fake cleanups caught</div><div class="an-tile-s">in this area, all time</div></div>
@@ -109,17 +110,22 @@
 
   <div class="an-grid" id="dg-grid">
     <section class="an-card">
-      <h2>Reported this week</h2>
+      <h2>Reported this <span data-unit>week</span></h2>
       <ul class="dg-list" id="dg-new"></ul>
     </section>
     <section class="an-card">
-      <h2>Fixed this week</h2>
+      <h2>Fixed this <span data-unit>week</span></h2>
       <ul class="dg-list" id="dg-fixed"></ul>
     </section>
     <section class="an-card an-span">
       <h2>Waiting longest</h2>
-      <p class="an-card-sub">Unresolved at the end of the week, oldest first.</p>
+      <p class="an-card-sub">Unresolved at the end of the <span data-unit>week</span>, oldest first.</p>
       <ul class="dg-list" id="dg-oldest"></ul>
+    </section>
+    <section class="an-card an-span" id="dg-promises" hidden>
+      <h2>Leaders' promises</h2>
+      <p class="an-card-sub">District-wide. A status changes only with a dated source.</p>
+      <ul class="dg-list" id="dg-prom"></ul>
     </section>
   </div>
 
