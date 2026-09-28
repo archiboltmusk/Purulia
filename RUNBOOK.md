@@ -12,6 +12,7 @@ For whoever runs the site next. Not published on the website (`*.md` files are e
 | Claim finalisation | `pg_cron` job `kasa-finalize`, every 10 min | Calls `public.kasa_finalize_due()`. |
 | Public record | `.github/workflows/public-record.yml`, daily 06:13 IST | Writes fingerprints to `record/` and saves them to the Internet Archive. |
 | Keep-alive | `.github/workflows/keep-alive.yml` | Pings the free Supabase project so it isn't paused. |
+| Backup | `.github/workflows/db-backup.yml`, weekly | Encrypted database dump kept 90 days. See Backups. |
 
 ## Deploying
 
@@ -39,15 +40,15 @@ It builds a legacy-shaped DB and an empty one, applies every migration twice, an
 
 ## Adding or removing a moderator
 
-A moderator signs in on `admin.html` with e-mail. When they have signed in once, find their user id in Supabase → Authentication → Users, then run:
+On `admin.html`, an admin opens **Team**, types the person's email, picks Moderator or Admin and presses **Invite / change**. The `kasa-team-invite` Edge Function makes their account if needed, adds them to `public.admins`, and shows a one-time link to send them (WhatsApp or copy). Opening it signs them in and asks for a password. For someone who already has an account the link is a password reset, so use the same button when a teammate forgets their password. **Remove** takes them off the team.
 
-```sql
-insert into public.admins (user_id) values ('<their user id>');
--- to remove:
-delete from public.admins where user_id = '<their user id>';
-```
+Keep at least two admins, so the site isn't stuck if one person is unavailable.
 
 Only add people you trust. A moderator can hide reports, reject claims and void votes, and every one of those actions shows in the report's public history.
+
+## Backups
+
+`.github/workflows/db-backup.yml` runs every Monday. It dumps `public`, `kasa_private` and the sign-in accounts, encrypts them with `BACKUP_PASSPHRASE` and keeps them as a workflow artifact for 90 days. It needs the repo secrets `SUPABASE_DB_URL` (Session pooler string from Supabase → Connect) and `BACKUP_PASSPHRASE`; the workflow file says how to restore. Photos in Storage are not included.
 
 ## Secrets (Supabase → Edge Functions → Secrets)
 

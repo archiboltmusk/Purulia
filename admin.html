@@ -122,6 +122,12 @@ if ('serviceWorker' in navigator) {
     <input type="password" id="adPassword" class="ad-input" placeholder="Password" autocomplete="current-password" enterkeyhint="go">
     <button type="submit" class="ad-btn" id="adLoginBtn">Continue →</button>
   </form>
+  <!-- Opened from a team invite link: choose a password, then straight into the dashboard. -->
+  <form id="adSetPwForm" class="hidden" novalidate>
+    <div class="ad-login-sub" id="adSetPwNote">Welcome to the team. Choose a password for next time.</div>
+    <input type="password" id="adNewPassword" class="ad-input" placeholder="New password (8 or more characters)" autocomplete="new-password" minlength="8">
+    <button type="submit" class="ad-btn" id="adSetPwBtn">Save password →</button>
+  </form>
   <div class="ad-error" id="adError"></div>
 </div>
 
@@ -236,12 +242,14 @@ if ('serviceWorker' in navigator) {
 
   <section class="ad-section" id="adTeamSection" hidden>
     <h2 class="ad-section-title">Team (admins only)</h2>
-    <p class="ad-note">Admins can do everything. Moderators can review, hide and restore, but can't delete permanently, see sign-ups or manage the team.</p>
+    <p class="ad-note">Admins can do everything. Moderators can review, hide and restore, but can't delete permanently, see sign-ups or manage the team.
+      Invite gives you a one-time link to send them (WhatsApp or copy). Opening it signs them in and asks for a password. It also works as a password reset for someone already on the team.</p>
     <form id="adTeamForm" class="ad-actions">
       <input id="adTeamEmail" type="email" placeholder="Their sign-in email" required aria-label="Email">
       <select id="adTeamRole" aria-label="Role"><option value="moderator">Moderator</option><option value="admin">Admin</option></select>
-      <button class="ad-ok" type="submit">Add / change</button>
+      <button class="ad-ok" type="submit">Invite / change</button>
     </form>
+    <div id="adInvite" class="ad-note" hidden></div>
     <div id="adTeam"><div class="ad-loading">Loading…</div></div>
   </section>
 

@@ -1,0 +1,72 @@
+name: Weekly database backup
+
+# The free Supabase plan keeps no backups. Once a week this dumps the site's own
+# data (public + kasa_private, and the sign-in accounts from auth), encrypts it
+# with a passphrase, and keeps it as a workflow artifact for 90 days.
+#
+# Needs two repository secrets (Settings → Secrets and variables → Actions):
+#   SUPABASE_DB_URL     the Session pooler connection string from Supabase →
+#                       Connect (postgresql://postgres.<ref>:<password>@aws-…pooler.supabase.com:5432/postgres).
+#                       The "Direct connection" one is IPv6-only and GitHub runners can't reach it.
+#   BACKUP_PASSPHRASE   any long passphrase. Keep a copy somewhere safe; without it the backup can't be opened.
+# Without them the job says so and stops, green.
+#
+# Restore: download the artifact, then
+#   gpg --batch --passphrase '<passphrase>' -d purulia-db-<date>.sql.gz.gpg | gunzip > backup.sql
+#   psql "<target connection string>" -f backup.sql
+on:
+  schedule:
+    - cron: '20 22 * * 0'   # Monday 03:50 IST
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    env:
+      DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      PASSPHRASE: ${{ secrets.BACKUP_PASSPHRASE }}
+    steps:
+      - name: Check secrets
+        id: cfg
+        run: |
+          if [ -z "$DB_URL" ] || [ -z "$PASSPHRASE" ]; then
+            echo "::warning::SUPABASE_DB_URL or BACKUP_PASSPHRASE is not set, so no backup was taken."
+            echo "ok=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "ok=true" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Install pg_dump 17
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          sudo install -d /usr/share/postgresql-common/pgdg
+          sudo curl -fsSo /usr/share/postgresql-common/pgdg/apt.postgresql.org.asc https://www.postgresql.org/media/keys/ACCC4CF8.asc
+          echo "deb [signed-by=/usr/share/postgresql-common/pgdg/apt.postgresql.org.asc] https://apt.postgresql.org/pub/repos/apt $(lsb_release -cs)-pgdg main" | sudo tee /etc/apt/sources.list.d/pgdg.list >/dev/null
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-client-17
+          /usr/lib/postgresql/17/bin/pg_dump --version
+
+      - name: Dump and encrypt
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          set -euo pipefail
+          PGD=/usr/lib/postgresql/17/bin/pg_dump
+          OUT="purulia-db-$(date -u +%Y-%m-%d).sql.gz.gpg"
+          {
+            "$PGD" "$DB_URL" --no-owner --no-privileges -n public -n kasa_private
+            "$PGD" "$DB_URL" --no-owner --no-privileges --data-only -t auth.users -t auth.identities
+          } | gzip -9 | gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$PASSPHRASE" -o "$OUT"
+          ls -lh "$OUT"
+          echo "OUT=$OUT" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          name: ${{ env.OUT }}
+          path: ${{ env.OUT }}
+          retention-days: 90
+          compression-level: 0
