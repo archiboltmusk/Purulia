@@ -50,7 +50,6 @@ window.KASA_I18N = {
     rep_place_ls: '{s} (Lok Sabha)', rep_place_ac: '{s} (Assembly No. {n})', rep_place_muni: '{s} Municipality', rep_place_zp: 'Purulia Zilla Parishad',
     rep_seats: 'Assembly seats in this constituency', rep_covers: 'Covers: {b}.', rep_town: 'Purulia town', rep_in_ls: 'MP for {s} →',
     rep_places: 'Places affected', rep_worst_places: 'Most unresolved places',
-    rep_no_scope: 'Parishkar can’t yet tell reports inside {s} town from the villages around it, so there are no counts here.',
     rep_mplads: 'MP’s local area fund (this term)', rep_mp_alloc: 'Allocated', rep_mp_spent: 'Spent', rep_mp_works: 'Works done',
     rep_mp_note: 'Works worth {r} recommended. Official MPLADS figures as of {d}, via', rep_crore: 'cr', rep_lakh: 'lakh',
     rep_updates: 'Updates', rep_loading: 'Loading…', rep_updates_failed: 'Updates could not load.',
@@ -319,7 +318,6 @@ window.KASA_I18N = {
     rep_place_ls: '{s} (লোকসভা)', rep_place_ac: '{s} (বিধানসভা {n})', rep_place_muni: '{s} পৌরসভা', rep_place_zp: 'পুরুলিয়া জেলা পরিষদ',
     rep_seats: 'এই কেন্দ্রের বিধানসভা আসন', rep_covers: 'এলাকা: {b}।', rep_town: 'পুরুলিয়া শহর', rep_in_ls: '{s}-এর সাংসদ →',
     rep_places: 'প্রভাবিত এলাকা', rep_worst_places: 'সবচেয়ে বেশি অমীমাংসিত এলাকা',
-    rep_no_scope: 'পরিষ্কার এখনও {s} শহরের রিপোর্ট আশেপাশের গ্রাম থেকে আলাদা করতে পারে না, তাই এখানে কোনো সংখ্যা নেই।',
     rep_mplads: 'সাংসদ এলাকা উন্নয়ন তহবিল (এই মেয়াদ)', rep_mp_alloc: 'বরাদ্দ', rep_mp_spent: 'খরচ', rep_mp_works: 'সম্পূর্ণ কাজ',
     rep_mp_note: '{r} মূল্যের কাজের সুপারিশ। সরকারি MPLADS তথ্য, {d} পর্যন্ত, সূত্র', rep_crore: 'কোটি', rep_lakh: 'লক্ষ',
     rep_updates: 'আপডেট', rep_loading: 'লোড হচ্ছে…', rep_updates_failed: 'আপডেট লোড হয়নি।',
@@ -587,7 +585,6 @@ window.KASA_I18N = {
     rep_place_ls: '{s} (लोकसभा)', rep_place_ac: '{s} (विधानसभा {n})', rep_place_muni: '{s} नगरपालिका', rep_place_zp: 'पुरुलिया ज़िला परिषद',
     rep_seats: 'इस क्षेत्र की विधानसभा सीटें', rep_covers: 'क्षेत्र: {b}।', rep_town: 'पुरुलिया शहर', rep_in_ls: '{s} के सांसद →',
     rep_places: 'प्रभावित जगहें', rep_worst_places: 'सबसे ज़्यादा अनसुलझी जगहें',
-    rep_no_scope: 'परिष्कार अभी {s} शहर की रिपोर्टों को आसपास के गाँवों से अलग नहीं कर पाता, इसलिए यहाँ कोई गिनती नहीं है।',
     rep_mplads: 'सांसद क्षेत्र विकास निधि (यह कार्यकाल)', rep_mp_alloc: 'आवंटित', rep_mp_spent: 'ख़र्च', rep_mp_works: 'पूरे काम',
     rep_mp_note: '{r} के कामों की सिफ़ारिश। आधिकारिक MPLADS आँकड़े, {d} तक, स्रोत', rep_crore: 'करोड़', rep_lakh: 'लाख',
     rep_updates: 'अपडेट', rep_loading: 'लोड हो रहा है…', rep_updates_failed: 'अपडेट लोड नहीं हुए।',
@@ -1136,4 +1133,26 @@ Object.assign(window.KASA_I18N.hi, {
   notify_watching: 'इस डिवाइस पर आप {n} फ़ॉलो कर रहे हैं।',
   notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
   notify_digest_btn: '✉ ईमेल पर पाएँ'
+});
+/* Local bodies: the district's other municipalities and every gram panchayat. */
+Object.assign(window.KASA_I18N.en, {
+  version_title: 'Version {v}: see what\'s new',
+  acc_gp: '{g} gram panchayat, {b} block', acc_your_gp: 'Your gram panchayat', acc_your_town: 'Your municipality',
+  step3_gp: 'In {g} gram panchayat, {b} block. No ward needed.',
+  step3_town: 'In {t}. No ward map for this town is public yet, so no ward is needed.',
+  acc_town_reps: 'Ward outlines for this town are not public yet, so the councillor and MLA are not shown. The municipality\'s own officers are the first people responsible.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  version_title: 'সংস্করণ {v}: নতুন কী দেখুন',
+  acc_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লক', acc_your_gp: 'আপনার গ্রাম পঞ্চায়েত', acc_your_town: 'আপনার পৌরসভা',
+  step3_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লকে। ওয়ার্ড লাগবে না।',
+  step3_town: '{t}-এ। এই শহরের ওয়ার্ডের মানচিত্র এখনও প্রকাশ্যে নেই, তাই ওয়ার্ড লাগবে না।',
+  acc_town_reps: 'এই শহরের ওয়ার্ডের সীমানা এখনও প্রকাশ্যে নেই, তাই কাউন্সিলর ও বিধায়কের নাম দেখানো হয় না। প্রথম দায়িত্ব পৌরসভার আধিকারিকদের।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  version_title: 'संस्करण {v}: क्या नया है देखें',
+  acc_gp: '{g} ग्राम पंचायत, {b} ब्लॉक', acc_your_gp: 'आपकी ग्राम पंचायत', acc_your_town: 'आपकी नगरपालिका',
+  step3_gp: '{g} ग्राम पंचायत, {b} ब्लॉक में। वार्ड की ज़रूरत नहीं।',
+  step3_town: '{t} में। इस शहर के वार्ड का नक्शा अभी सार्वजनिक नहीं है, इसलिए वार्ड की ज़रूरत नहीं।',
+  acc_town_reps: 'इस शहर की वार्ड सीमाएँ अभी सार्वजनिक नहीं हैं, इसलिए पार्षद और विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी नगरपालिका के अधिकारियों की है।'
 });

@@ -32,7 +32,7 @@ const SHARE_URL = (window.KASA_CONFIG?.SHARE_URL || '').replace(/\/$/, '');
 const reportLink = id => SHARE_URL ? `${SHARE_URL}/r/${encodeURIComponent(id)}` : `${PAGE_URL}?report=${encodeURIComponent(id)}`;
 const PHOTO_MAX_PX = 1600;
 // Exactly what the public view offers; never select('*') from it.
-const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type,waste_type';
+const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type,waste_type,local_body';
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
@@ -83,18 +83,27 @@ const CHAINS = {
   education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] }
 };
 
-/* Outside Purulia town the municipality's work falls to the gram panchayat and the block. */
+/* Outside Purulia town the municipality's work falls to the gram panchayat and the block,
+   except in Jhalda and Raghunathpur towns, which have their own municipalities. */
 function chainFor(r){
   const base = CHAINS[CATEGORIES[r.category].chain];
   if (r.area !== 'rural' || base.agency !== 'agency_municipality') return base;
+  if (otherTown(r)) return { ...base, agencyName: r.body };
   const enforcement = CATEGORIES[r.category].chain === 'enforcement';
   return { agency: 'agency_panchayat', nodes: enforcement ? ['bllro', 'bdo', 'sdo_area'] : ['pradhan', 'bdo', 'dm'], note: base.note };
 }
 
-/* "Ward 5" in town, "Jhalda I block" in a village. */
-function placeLabel(r){
-  if (r.area === 'rural' && r.block) return t('acc_block', { b: r.block });
-  return r.ward ? t('acc_ward', { n: r.ward }) : t('acc_unknown');
+/* A report in Jhalda or Raghunathpur town: rural by Parishkar's rules (no ward map), but a municipality's job. */
+function otherTown(r){
+  return r.area === 'rural' && r.bodyType === 'municipality' && !!r.body;
+}
+
+/* "Ward 5" in town, "Jhalda Municipality", "Sirkabad gram panchayat, Arsha block", or "Arsha block". */
+function placeLabel(r, tr = t){
+  if (otherTown(r)) return r.body;
+  if (r.area === 'rural' && r.body && r.block) return tr('acc_gp', { g: r.body, b: r.block });
+  if (r.area === 'rural' && r.block) return tr('acc_block', { b: r.block });
+  return r.ward ? tr('acc_ward', { n: r.ward }) : tr('acc_unknown');
 }
 
 // What a person would call the spot: their own landmark, else the map address, else the ward/block.
@@ -176,6 +185,8 @@ const state = {
   wards: {},
   wardGeo: null,
   blockGeo: null,
+  townGeo: null,
+  gpGeo: null,
   filters: { category: '', status: '', severity: '', ward: null },
   nearbyOnly: false,
   userLocation: null,
@@ -229,6 +240,7 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); el.setAttribute('aria-label', el.title); });
   document.querySelectorAll('.k-lang-btn').forEach(b => b.classList.toggle('k-lang-active', b.dataset.lang === state.lang));
+  showVersion();
 }
 
 function setLang(lang){
@@ -312,6 +324,7 @@ async function init(){
   mapReady.then(() => { addWardLayers(); updateMap(); });
   // Block outlines for village reports; not needed for the first paint.
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
+  Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(locateOnOpen);
   if (state.mode === 'v2') showJoin();
@@ -415,6 +428,8 @@ function normalize(r){
     ward: r.ward_no ? Number(r.ward_no) : null,
     area: r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
+    body: r.local_body || null,
+    bodyType: r.boundary_type || null,
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
@@ -514,6 +529,32 @@ async function loadBlockGeo(){
   } catch (e) { console.info('Parishkar: no block boundaries'); }
 }
 
+/* Version badge beside the logo; it opens that day's entry on the What's new page. */
+function showVersion(){
+  const el = document.getElementById('k-version');
+  const v = window.PARISHKAR_VERSION?.version;
+  if (!el || !v) return;
+  el.textContent = 'v' + v;
+  el.href = 'changelog.html#v' + v;
+  el.title = t('version_title', { v });
+  el.setAttribute('aria-label', el.title);
+  el.hidden = false;
+}
+
+/* Jhalda and Raghunathpur town outlines, and the 170 gram panchayats. Only needed once
+   someone places a report or zooms in, so they load after everything else. */
+async function loadLocalGeo(){
+  if (state.townGeo && state.gpGeo) return;
+  const get = async (url) => { try { const res = await fetch(url); return res.ok ? await res.json() : null; } catch (e) { return null; } };
+  const [towns, gps] = await Promise.all([get(CITY.townsGeojson || 'purulia_towns.geojson'), get(CITY.gpsGeojson || 'purulia_gps.geojson')]);
+  state.townGeo = towns || { type: 'FeatureCollection', features: [] };
+  state.gpGeo = gps || { type: 'FeatureCollection', features: [] };
+}
+
+function featureAt(geo, lat, lng){
+  return (geo?.features || []).find(f => pointInPolygon([lng, lat], f.geometry)) || null;
+}
+
 function detectBlock(lat, lng){
   const f = (state.blockGeo?.features || []).find(f => pointInPolygon([lng, lat], f.geometry));
   return f ? f.properties.block : null;
@@ -535,7 +576,11 @@ function placeOf(lat, lng){
   if (!state.blockGeo || !state.wardGeo) return { kind: 'unknown' };
   const block = detectBlock(lat, lng);
   if (nearTown(lat, lng)) return { kind: 'edge', block };
-  return block ? { kind: 'rural', block } : { kind: 'outside' };
+  const town = featureAt(state.townGeo, lat, lng);
+  if (town) return { kind: 'rural', block, body: town.properties.body, bodyType: 'municipality' };
+  const gp = featureAt(state.gpGeo, lat, lng);
+  if (gp) return { kind: 'rural', block: block || gp.properties.block, body: gp.properties.gp, bodyType: 'gram_panchayat' };
+  return block ? { kind: 'rural', block, bodyType: 'gram_panchayat' } : { kind: 'outside' };
 }
 
 function detectWard(lat, lng){
@@ -544,12 +589,12 @@ function detectWard(lat, lng){
   return n ? parseInt(String(n).replace(/\D/g, ''), 10) : null;
 }
 
-/* Detects whether a location falls under Municipality (town) or Gram Panchayat (rural/edge).
-   Uses placeOf to determine location type, then maps to administrative boundary. */
+/* Municipality or gram panchayat, for the phone's own display. The server sets the stored value. */
 function detectBoundary(lat, lng){
   const place = placeOf(lat, lng);
   if (place.kind === 'town') return 'municipality';
-  if (place.kind === 'edge' || place.kind === 'rural') return 'gram_panchayat';
+  if (place.kind === 'rural') return place.bodyType || 'gram_panchayat';
+  if (place.kind === 'edge') return 'gram_panchayat';
   return null; // outside district
 }
 
@@ -1081,6 +1126,24 @@ function addBlockLayers(){
   mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+}
+
+/* Gram panchayat outlines show from district zoom in; the two other towns are shaded like Purulia's wards. */
+function addLocalLayers(){
+  if (!mainMap || !state.gpGeo || mainMap.getSource('gps')) return;
+  const below = mainMap.getLayer('blocks-line') ? 'blocks-line' : mainMap.getLayer('wards-fill') ? 'wards-fill' : 'clusters';
+  mainMap.addSource('gps', { type: 'geojson', data: state.gpGeo });
+  mainMap.addSource('towns', { type: 'geojson', data: state.townGeo });
+  mainMap.addLayer({ id: 'gps-line', type: 'line', source: 'gps', minzoom: 10,
+    paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, below);
+  mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
+    layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#d4882a', 'fill-opacity': .05 } }, below);
+  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, below);
+  mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
+    layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#d4882a', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
 }
 
 function addWardLayers(){
@@ -1640,11 +1703,12 @@ function beforeAfter(before, after){
 function renderAccountability(r){
   const chain = chainFor(r);
   const rural = r.area === 'rural';
+  const town2 = otherTown(r);
   const w = state.wards[r.ward] || {};
   const node = (role, i) => `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
-      <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length))}</small></span>
+      <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length, r))}</small></span>
     </button>`;
   // The tree shows two people: who fixes it first, and who you elected. Everyone above
   // them, the reps and the escalation routes sit behind one tap.
@@ -1656,7 +1720,7 @@ function renderAccountability(r){
     : `<div class="k-node k-node-vacant"><span class="k-node-abbr">⚠</span>
          <span class="k-node-text"><b>${esc(t('acc_councillor'))}</b><small>${esc(r.ward ? t('acc_vacant') : t('acc_unknown'))}</small></span></div>`;
   // Named MLA/MP cards are for Purulia town's seat; villages belong to several assembly seats.
-  const reps = rural ? `<div class="k-acc-rural-note">${esc(t('acc_rural_reps'))}</div>` : ['mla', 'mp'].map(k => `
+  const reps = rural ? `<div class="k-acc-rural-note">${esc(t(town2 ? 'acc_town_reps' : 'acc_rural_reps'))}</div>` : ['mla', 'mp'].map(k => `
     <button type="button" class="k-rep-chip" data-contact="rep:${k}:${esc(r.id)}">
       ${repAvatar(REPS[k], 'k-rep-chip-av')}
       <b>${esc(REPS[k].name)}</b><small><span class="k-party k-party-${esc(REPS[k].party.toLowerCase())}">${esc(REPS[k].party)}</span> · ${esc(k.toUpperCase())}</small>
@@ -1665,7 +1729,7 @@ function renderAccountability(r){
     <div class="k-acc">
       <div class="k-acc-label">${esc(t('acc_title'))}</div>
       <div class="k-tree">
-        <div class="k-tree-root"><small>${esc(t(rural ? 'acc_your_block' : 'acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
+        <div class="k-tree-root"><small>${esc(t(town2 ? 'acc_your_town' : rural ? (r.body ? 'acc_your_gp' : 'acc_your_block') : 'acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
         <div class="k-tree-fork${councillor ? '' : ' k-tree-fork-one'}">
           <div class="k-tree-branch">${first ? node(first, 0) : ''}</div>
           ${councillor ? `<div class="k-tree-branch">${councillor}</div>` : ''}
@@ -1716,13 +1780,12 @@ function renderEscalate(r){
 function rtiAgencyLine(r){
   const chain = chainFor(r);
   const path = chain.nodes.map(n => tEN('role_' + n + '_s')).join(' → ');
-  return `${tEN(chain.agency)} (${path})`;
+  return `${chain.agencyName || tEN(chain.agency)} (${path})`;
 }
 
 /* English-only place label for documents; mirrors placeLabel() but never follows the viewer's language. */
 function placeLabelEN(r){
-  if (r.area === 'rural' && r.block) return tEN('acc_block', { b: r.block });
-  return r.ward ? tEN('acc_ward', { n: r.ward }) : tEN('acc_unknown');
+  return placeLabel(r, tEN);
 }
 
 function rtiHTML(r){
@@ -1820,8 +1883,8 @@ function replyMailto(r){
   return `mailto:${GRIEVANCE_EMAIL}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
-function roleSub(role, i, n){
-  if (role === 'chairman') return REPS.chairman.name + ' · ' + t('acc_top');
+function roleSub(role, i, n, r){
+  if (role === 'chairman' && !(r && otherTown(r))) return REPS.chairman.name + ' · ' + t('acc_top');
   const s = t('role_' + role + '_s');
   if (i === 0) return s + ' · ' + t('acc_frontline');
   if (i === n - 1) return s + ' · ' + t('acc_top');
@@ -2123,7 +2186,7 @@ function reportMessage(r){
   const w = state.wards[r.ward] || {};
   return [
     `Parishkar Purulia — ${t('cat_' + r.category)}`,
-    r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
+    r.area === 'rural' && (r.block || r.body) ? `${placeLabel(r, tEN)}, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
     r.landmark ? `Near: ${r.landmark}` : '',
     r.address && r.address !== r.landmark ? `Address: ${r.address}` : '',
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
@@ -2510,7 +2573,7 @@ function openReport(prefill){
   // be standing there right now) — GPS must never overwrite that pin at photo-capture time.
   draft.locked = !!prefill;
   // Village reports need the block map; if it arrives after the location, place the pin again.
-  if (!state.blockGeo) loadBlockGeo().then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
+  if (!state.blockGeo || !state.gpGeo) Promise.all([loadBlockGeo(), loadLocalGeo()]).then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
   document.getElementById('k-ward-field').hidden = false;
   document.getElementById('k-place').hidden = true;
   document.getElementById('k-photo-preview').innerHTML = '';
@@ -2666,7 +2729,9 @@ function setLocation(lat, lng, accuracy){
   const note = document.getElementById('k-place');
   note.hidden = !['rural', 'edge', 'outside'].includes(place.kind);
   note.className = 'k-field-note' + (place.kind === 'outside' ? ' k-field-bad' : '');
-  note.textContent = place.kind === 'rural' ? t('step3_block', { b: place.block })
+  note.textContent = place.kind === 'rural'
+      ? (place.bodyType === 'municipality' ? t('step3_town', { t: place.body })
+        : place.body && place.block ? t('step3_gp', { g: place.body, b: place.block }) : t('step3_block', { b: place.block }))
     : place.kind === 'edge' ? t('step3_edge') : place.kind === 'outside' ? t('step3_outside') : '';
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
@@ -3603,9 +3668,10 @@ function allReps(){
   seats.forEach(c => out.push(rep('mla:' + c.no, 'mla', c.mla, { place: t('rep_place_ac', { s: c.name, n: c.no }), seat: c, source: src.mla, town: !!c.town,
     covers: r => seatFor(r) === c })));
   (CITY.municipalities || []).forEach(m => out.push(rep('chair:' + m.name, 'chair', m.chair, { place: t('rep_place_muni', { s: m.name }), muni: m, town: !!m.town,
-    source: m.source && { url: m.source, name: m.sourceName }, covers: m.town ? (r => r.area !== 'rural' && !!r.ward) : null })));
+    source: m.source && { url: m.source, name: m.sourceName },
+    covers: m.town ? (r => r.area !== 'rural' && !!r.ward) : (r => otherTown(r) && low(r.body) === low(`${m.name} Municipality`)) })));
   const zp = CITY.zillaParishad;
-  if (zp) out.push(rep('zp', 'zp', zp, { place: t('rep_place_zp'), source: zp.source && { url: zp.source, name: zp.sourceName }, covers: r => r.area === 'rural' }));
+  if (zp) out.push(rep('zp', 'zp', zp, { place: t('rep_place_zp'), source: zp.source && { url: zp.source, name: zp.sourceName }, covers: r => r.area === 'rural' && !otherTown(r) }));
   // Purulia town's own MLA first among the MLAs; everything else keeps city.js order.
   return out.filter(r => r.name).sort((a, b) => (a.group === b.group && a.group === 'mla') ? (b.town - a.town) : 0);
 }
@@ -3680,7 +3746,8 @@ function openRepProfile(key){
   // Unresolved reports by place: wards in town, blocks in the villages. Each links to its own page.
   const byPlace = new Map();
   open.forEach(r => {
-    const p = r.area === 'rural' ? (r.block && { k: 'b:' + r.block, href: `ward.html?block=${encodeURIComponent(r.block)}`, label: t('acc_block', { b: r.block }) })
+    const p = otherTown(r) ? { k: 'm:' + r.body, href: `ward.html?block=${encodeURIComponent(r.block || '')}`, label: r.body }
+      : r.area === 'rural' ? (r.block && { k: 'b:' + r.block, href: `ward.html?block=${encodeURIComponent(r.block)}`, label: t('acc_block', { b: r.block }) })
       : (r.ward && { k: 'w:' + r.ward, href: `ward.html?ward=${r.ward}`, label: `${t('acc_ward', { n: r.ward })} · ${state.wards[r.ward]?.councillor_name || '—'}` });
     if (!p) return;
     if (!byPlace.has(p.k)) byPlace.set(p.k, { ...p, n: 0 });
@@ -3714,7 +3781,7 @@ function openRepProfile(key){
     <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
     ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
       : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`
-    : `<p class="k-rep-area">${esc(t('rep_no_scope', { s: rep.muni?.name || '' }))}</p>`}
+    : ''}
     ${m ? `<div class="k-rep-worst-title">${esc(t('rep_mplads'))}</div>
     <div class="k-rep-stats">
       <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(m.allocated))}</div><div class="k-rep-stat-l">${esc(t('rep_mp_alloc'))}</div></div>

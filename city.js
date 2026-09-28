@@ -20,6 +20,10 @@ window.KASA_CITY = {
   // `ward` / `block` respectively.
   wardsGeojson: 'purulia_wards.geojson',
   blocksGeojson: 'purulia_blocks.geojson',
+  // Other municipalities (property `town`, `body`) and gram panchayats (`gp`, `block`).
+  // Built by tools/build-local-bodies.py from LGD and Survey of India outlines.
+  townsGeojson: 'purulia_towns.geojson',
+  gpsGeojson: 'purulia_gps.geojson',
 
   // The town's own complaint desk. WhatsApp number in international form, no +.
   municipalityPhone: '919046003666',
