@@ -9,8 +9,6 @@ tools
 deploy
 *.md
 og-card.html
-founding-document.html
-moderator-playbook.html
 .gitignore
 .assetsignore
 vercel.json

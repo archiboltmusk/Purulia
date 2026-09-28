@@ -3,184 +3,430 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Suggest a Feature — Parishkar Purulia</title>
-<meta name="description" content="Help shape Purulia's civic reporting tool. Share your ideas and suggestions.">
+<title>Feature suggestions — Parishkar Purulia</title>
+<meta name="description" content="Share ideas to improve Parishkar Purulia. Suggest new features, improvements, and help shape the future of civic reporting.">
+<meta property="og:title" content="Feature suggestions — Parishkar Purulia">
+<meta property="og:description" content="Help improve Parishkar Purulia by sharing your feature ideas and suggestions.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/suggest-feature.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/suggest-feature.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <style>
-.suggest-wrap{max-width:800px;margin:0 auto;padding:4rem clamp(1.2rem,4vw,3rem);}
-.suggest-head{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--cream);margin-bottom:1rem;letter-spacing:-.02em;}
-.suggest-intro{font-size:1.05rem;color:var(--text-hi);line-height:1.7;margin-bottom:2.4rem;max-width:600px;}
-.suggest-card{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:8px;padding:2rem;margin-bottom:2rem;}
-.suggest-card h3{font-family:var(--serif);font-size:1.3rem;color:var(--cream);margin-bottom:.8rem;font-weight:600;}
-.suggest-card p{color:var(--text-md);line-height:1.6;margin-bottom:.6rem;font-size:.95rem;}
-.suggest-list{list-style:none;padding:0;margin:1.2rem 0;}
-.suggest-list li{color:var(--text-md);padding-left:1.8rem;position:relative;margin-bottom:.6rem;line-height:1.6;}
-.suggest-list li::before{content:'→';position:absolute;left:0;color:var(--amber);font-weight:700;}
-.suggest-form-group{margin-bottom:1.4rem;}
-.suggest-label{font-family:var(--mono);font-size:.85rem;letter-spacing:.1em;text-transform:uppercase;color:var(--text-lo);display:block;margin-bottom:.6rem;}
-.suggest-input{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;border-radius:4px;outline:none;box-sizing:border-box;}
-.suggest-textarea{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;border-radius:4px;outline:none;resize:vertical;min-height:140px;box-sizing:border-box;}
-.suggest-input:focus,.suggest-textarea:focus{border-color:var(--amber);box-shadow:0 0 0 3px rgba(212,136,42,.1);}
-.suggest-input::placeholder,.suggest-textarea::placeholder{color:var(--text-lo);}
-.suggest-btn{width:100%;padding:1rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:.85rem;letter-spacing:.15em;text-transform:uppercase;border:none;border-radius:4px;cursor:pointer;transition:all .2s;font-weight:500;}
-.suggest-btn:hover{background:var(--amber2);transform:translateY(-1px);}
-.suggest-btn:active{transform:translateY(0);}
-.suggest-btn:disabled{opacity:.6;cursor:not-allowed;transform:none;}
-.suggest-message{padding:1rem;border-radius:4px;margin-top:1rem;font-size:.9rem;display:none;}
-.suggest-message.success{display:block;background:rgba(109,184,138,.1);border:1px solid rgba(109,184,138,.3);color:var(--green);}
-.suggest-message.error{display:block;background:rgba(232,82,74,.1);border:1px solid rgba(232,82,74,.3);color:var(--red);}
-.suggest-category{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin-bottom:1.4rem;}
-.suggest-category label{display:flex;align-items:center;padding:.8rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .2s;font-size:.95rem;color:var(--text-md);}
-.suggest-category label:hover{border-color:var(--amber);background:rgba(212,136,42,.08);}
-.suggest-category input[type="radio"]{margin-right:.6rem;accent-color:var(--amber);}
-.suggest-category input[type="radio"]:checked+span{color:var(--cream);font-weight:600;}
-.suggest-examples{background:rgba(212,136,42,.02);border-left:3px solid var(--amber);padding:1.2rem;border-radius:4px;margin-bottom:2rem;font-size:.95rem;color:var(--text-md);}
-.suggest-examples strong{color:var(--cream);display:block;margin-bottom:.6rem;}
-.suggest-footer{margin-top:3rem;padding-top:2rem;border-top:1px solid var(--border);color:var(--text-lo);font-size:.85rem;line-height:1.7;}
-.suggest-footer a,.suggest-card a{color:var(--amber);}
-.suggest-counter{font-size:.85rem;color:var(--text-lo);margin-top:.4rem;text-align:right;}
+  .sg-wrap{max-width:900px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .sg-head{margin-bottom:2.4rem;}
+  .sg-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .sg-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .sg-form{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:2rem 1.8rem;margin-bottom:2.4rem;}
+  .sg-form-group{margin-bottom:1.4rem;}
+  .sg-form-group:last-child{margin-bottom:0;}
+  .sg-label{display:block;margin-bottom:.5rem;font-weight:500;color:var(--cream);font-size:.95rem;}
+  .sg-input,.sg-select,.sg-textarea{width:100%;padding:.6rem .8rem;background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);font-family:var(--sans);font-size:.95rem;}
+  .sg-input:focus,.sg-select:focus,.sg-textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(212,136,42,.1);}
+  .sg-textarea{resize:vertical;min-height:120px;font-family:var(--sans);}
+  .sg-char-count{margin-top:.3rem;font-size:.8rem;color:var(--text-lo);}
+  .sg-submit{background:var(--amber);color:var(--ink);padding:.8rem 2rem;border:none;border-radius:4px;font-weight:600;cursor:pointer;font-size:.95rem;transition:background .2s;}
+  .sg-submit:hover{background:#e8a031;}
+  .sg-submit:disabled{opacity:.5;cursor:not-allowed;}
+  .sg-message{padding:1rem 1.2rem;border-radius:4px;margin-bottom:1.4rem;font-size:.9rem;}
+  .sg-success{background:rgba(76,175,80,.1);border:1px solid rgba(76,175,80,.3);color:#81c784;}
+  .sg-error{background:rgba(244,67,54,.1);border:1px solid rgba(244,67,54,.3);color:#ef5350;}
+  .sg-divider{margin:2.4rem 0;padding:2.4rem 0;border-top:1px solid var(--border);border-bottom:none;}
+  .sg-section-title{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--cream);margin-bottom:1.6rem;}
+  .sg-filters{display:flex;gap:.8rem;flex-wrap:wrap;margin-bottom:1.8rem;}
+  .sg-filter-btn{padding:.5rem 1rem;background:var(--ink2);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);cursor:pointer;font-size:.9rem;transition:all .2s;}
+  .sg-filter-btn:hover{border-color:var(--amber);}
+  .sg-filter-btn.active{background:var(--amber);color:var(--ink);}
+  .sg-list{display:flex;flex-direction:column;gap:1rem;}
+  .sg-item{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;transition:all .2s;}
+  .sg-item:hover{border-color:var(--amber);}
+  .sg-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.6rem;}
+  .sg-item-title{font-size:1.1rem;font-weight:600;color:var(--cream);}
+  .sg-item-cat{display:inline-block;background:var(--ink3);border:1px solid var(--border2);border-radius:3px;padding:.2rem .6rem;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-md);}
+  .sg-item-status{display:inline-block;margin-left:.6rem;padding:.2rem .6rem;font-family:var(--mono);font-size:9px;letter-spacing:.08em;text-transform:uppercase;border-radius:3px;}
+  .sg-item-status.planning{background:rgba(76,175,80,.15);color:#81c784;}
+  .sg-item-status.in-progress{background:rgba(33,150,243,.15);color:#42a5f5;}
+  .sg-item-status.completed{background:rgba(156,39,176,.15);color:#ab47bc;}
+  .sg-item-desc{color:var(--text-md);line-height:1.6;margin-bottom:.8rem;}
+  .sg-item-foot{display:flex;justify-content:space-between;align-items:center;font-size:.85rem;color:var(--text-lo);}
+  .sg-vote-btn{background:none;border:1px solid var(--border);border-radius:4px;padding:.4rem .8rem;color:var(--text-hi);cursor:pointer;font-size:.85rem;transition:all .2s;display:flex;align-items:center;gap:.4rem;}
+  .sg-vote-btn:hover{border-color:var(--amber);color:var(--amber);}
+  .sg-vote-count{font-weight:600;}
+  .sg-empty{padding:2rem 1rem;text-align:center;color:var(--text-lo);}
+  .sg-loading{color:var(--text-lo);font-style:italic;}
+  .sg-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-size:.85rem;}
+  .sg-footer a{color:var(--amber);}
+  @media(max-width:600px){.sg-wrap{padding:2rem 1.2rem 4rem;}.sg-form{padding:1.5rem 1.2rem;}.sg-item{padding:1.2rem;}.sg-item-head{flex-direction:column;}}
 </style>
 <script src="bug-report.js"></script>
 </head>
 <body>
-<div class="suggest-wrap">
-  <h1 class="suggest-head">Suggest a Feature</h1>
-  <p class="suggest-intro">Help us build a better civic reporting tool. Your ideas matter. Share what features or improvements you'd like to see in Parishkar Purulia.</p>
 
-  <div class="suggest-examples">
-    <strong>Examples:</strong>
-    "Let me filter reports by date range" • "Show me reports resolved in the last week" • "Add a notification when someone comments on my report" • "Let me rate departments" • "Show statistics by ward"
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="blueprint.html">Blueprint</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="sg-wrap">
+  <div class="sg-head">
+    <h1 class="sg-title" data-i18n="suggestions_title">Suggest a feature</h1>
+    <p class="sg-sub" data-i18n="suggestions_sub">Help shape the future of Parishkar Purulia. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.</p>
   </div>
 
-  <form id="suggestForm" class="suggest-card" style="padding:0;">
-    <div style="padding:2rem;">
-      <h3>Your Suggestion</h3>
+  <!-- Submit Form -->
+  <section class="sg-form">
+    <h2 class="sg-section-title" data-i18n="suggestions_form_title">Share your idea</h2>
+    <div id="sg-message-container"></div>
 
-      <div class="suggest-form-group">
-        <label class="suggest-label">Category</label>
-        <div class="suggest-category">
-          <label><input type="radio" name="category" value="feature" required checked> <span>New Feature</span></label>
-          <label><input type="radio" name="category" value="improvement"> <span>Improvement</span></label>
-          <label><input type="radio" name="category" value="reporting"> <span>Report a Bug</span></label>
-          <label><input type="radio" name="category" value="other"> <span>Other</span></label>
-        </div>
+    <form id="sg-form">
+      <div class="sg-form-group">
+        <label for="sg-category" class="sg-label" data-i18n="suggestions_category">Category</label>
+        <select id="sg-category" class="sg-select" required>
+          <option value="">— Select category —</option>
+          <option value="feature" data-i18n="suggestions_cat_feature">Feature request</option>
+          <option value="improvement" data-i18n="suggestions_cat_improvement">Improvement</option>
+          <option value="reporting" data-i18n="suggestions_cat_reporting">Reporting experience</option>
+          <option value="other" data-i18n="suggestions_cat_other">Other</option>
+        </select>
       </div>
 
-      <div class="suggest-form-group">
-        <label class="suggest-label" for="suggestTitle">Title (one sentence)</label>
-        <input
-          type="text"
-          id="suggestTitle"
-          class="suggest-input"
-          placeholder="What would you like to see?"
-          required
-          maxlength="100"
-        >
-        <div class="suggest-counter"><span id="titleCount">0</span>/100</div>
+      <div class="sg-form-group">
+        <label for="sg-title" class="sg-label" data-i18n="suggestions_title_label">Idea title</label>
+        <input type="text" id="sg-title" class="sg-input" placeholder="Brief summary of your idea" maxlength="100" required>
+        <div class="sg-char-count"><span id="sg-title-count">0</span>/100</div>
       </div>
 
-      <div class="suggest-form-group">
-        <label class="suggest-label" for="suggestDescription">Description</label>
-        <textarea
-          id="suggestDescription"
-          class="suggest-textarea"
-          placeholder="Tell us more about your idea. Why would this be useful? Who would benefit?"
-          required
-          maxlength="1000"
-        ></textarea>
-        <div class="suggest-counter"><span id="descCount">0</span>/1000</div>
+      <div class="sg-form-group">
+        <label for="sg-description" class="sg-label" data-i18n="suggestions_description">Details</label>
+        <textarea id="sg-description" class="sg-textarea" placeholder="Explain your idea, why it would help, and how it would work" maxlength="1000" required></textarea>
+        <div class="sg-char-count"><span id="sg-description-count">0</span>/1000</div>
       </div>
 
-      <div class="suggest-form-group">
-        <label class="suggest-label" for="suggestEmail">Email (optional)</label>
-        <input
-          type="email"
-          id="suggestEmail"
-          class="suggest-input"
-          placeholder="your@email.com"
-          autocomplete="email"
-        >
-        <p style="color:var(--text-lo);font-size:.85rem;margin-top:.4rem;">We'll only use this to follow up if we need clarification</p>
+      <div class="sg-form-group">
+        <label for="sg-email" class="sg-label" data-i18n="suggestions_email">Email (optional)</label>
+        <input type="email" id="sg-email" class="sg-input" placeholder="We might reach out with questions">
+        <p class="sg-char-count" data-i18n="suggestions_email_note">Leave blank to stay anonymous.</p>
       </div>
 
-      <button type="submit" class="suggest-btn">Send Suggestion</button>
-      <div id="suggestMessage" class="suggest-message"></div>
+      <button type="submit" class="sg-submit" data-i18n="suggestions_submit">Submit idea</button>
+    </form>
+  </section>
+
+  <!-- Divider -->
+  <div class="sg-divider"></div>
+
+  <!-- Ideas List -->
+  <section>
+    <h2 class="sg-section-title" data-i18n="suggestions_community">Community ideas</h2>
+
+    <!-- Filters -->
+    <div class="sg-filters">
+      <button class="sg-filter-btn active" data-filter="all" data-i18n="filter_all">All</button>
+      <button class="sg-filter-btn" data-filter="feature" data-i18n="suggestions_cat_feature">Features</button>
+      <button class="sg-filter-btn" data-filter="improvement" data-i18n="suggestions_cat_improvement">Improvements</button>
+      <button class="sg-filter-btn" data-filter="reporting" data-i18n="suggestions_cat_reporting">Reporting</button>
     </div>
-  </form>
 
-  <div class="suggest-card">
-    <h3>What's already planned</h3>
-    <p>See the <a href="changelog.html#next">What's next</a> plan first: it lists what is done, being built and planned. Suggestions we take up are added there.</p>
+    <!-- Suggestions List -->
+    <div id="sg-list" class="sg-list">
+      <div class="sg-loading" data-i18n="loading">Loading suggestions…</div>
+    </div>
+  </section>
+
+  <div class="sg-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="methodology.html">How it works</a>
+    <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a>
   </div>
+</main>
 
-  <div class="suggest-footer">
-    <p><strong>Thank you</strong> for helping us improve. Every suggestion is reviewed, and the most valuable ones become features. <a href="/kasa.html">Back to map</a> • <a href="/analytics.html">View analytics</a> • <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a></p>
-  </div>
-</div>
-
+<script src="config.js"></script>
+<script src="kasa-i18n.js"></script>
 <script>
-const form = document.getElementById('suggestForm');
-const titleInput = document.getElementById('suggestTitle');
-const descInput = document.getElementById('suggestDescription');
-const titleCount = document.getElementById('titleCount');
-const descCount = document.getElementById('descCount');
-const message = document.getElementById('suggestMessage');
+const SUPABASE_URL = window.KASA_CONFIG.SUPABASE_URL;
+const SUPABASE_KEY = window.KASA_CONFIG.SUPABASE_ANON_KEY;
 
-// Character counters
-titleInput.addEventListener('input', () => {
-  titleCount.textContent = titleInput.value.length;
+let currentFilter = 'all';
+let localSuggestions = [];
+
+// Initialization
+document.addEventListener('DOMContentLoaded', () => {
+  initI18n();
+  attachFormListeners();
+  attachFilterListeners();
+  loadSuggestions();
 });
 
-descInput.addEventListener('input', () => {
-  descCount.textContent = descInput.value.length;
-});
+// ══ i18n ══
+function initI18n() {
+  const elements = document.querySelectorAll('[data-i18n]');
+  elements.forEach(el => {
+    const key = el.dataset.i18n;
+    const text = t(key);
+    if (el.tagName === 'SELECT' || el.tagName === 'OPTION') {
+      if (el.tagName === 'OPTION') el.textContent = text;
+      else el.childNodes.forEach(opt => {
+        if (opt.dataset?.i18n) {
+          opt.textContent = t(opt.dataset.i18n);
+        }
+      });
+    } else if (el.tagName === 'TEXTAREA' || el.tagName === 'INPUT') {
+      if (el.placeholder) el.placeholder = text;
+    } else {
+      el.textContent = text;
+    }
+  });
+}
 
-// Form submission
-form.addEventListener('submit', async (e) => {
-  e.preventDefault();
+function t(key) {
+  const lang = localStorage.getItem('kasa_lang') || 'en';
+  return (window.KASA_I18N?.[lang]?.[key]) || (window.KASA_I18N?.en?.[key]) || key;
+}
 
-  const btn = form.querySelector('button[type="submit"]');
-  btn.disabled = true;
-  message.className = 'suggest-message';
-  message.textContent = '';
+// ══ Form Handlers ══
+function attachFormListeners() {
+  const form = document.getElementById('sg-form');
+  const titleInput = document.getElementById('sg-title');
+  const descInput = document.getElementById('sg-description');
+
+  titleInput.addEventListener('input', () => {
+    document.getElementById('sg-title-count').textContent = titleInput.value.length;
+  });
+
+  descInput.addEventListener('input', () => {
+    document.getElementById('sg-description-count').textContent = descInput.value.length;
+  });
+
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    await submitSuggestion();
+  });
+}
+
+async function submitSuggestion() {
+  const category = document.getElementById('sg-category').value;
+  const title = document.getElementById('sg-title').value.trim();
+  const description = document.getElementById('sg-description').value.trim();
+  const email = document.getElementById('sg-email').value.trim();
+  const submitBtn = document.querySelector('.sg-submit');
+  const messageContainer = document.getElementById('sg-message-container');
+
+  if (!category || !title || !description) {
+    showMessage('Please fill in all required fields', 'error', messageContainer);
+    return;
+  }
+
+  submitBtn.disabled = true;
+  submitBtn.textContent = 'Submitting…';
 
   try {
-    if (typeof window.supabase === 'undefined') {
-      throw new Error('Service not available. Please try again later.');
-    }
-
-    const category = form.querySelector('input[name="category"]:checked').value;
-    const title = titleInput.value;
-    const description = descInput.value;
-    const email = document.getElementById('suggestEmail').value || null;
-
-    const { data, error } = await window.supabase.rpc('kasa_submit_suggestion', {
-      p_category: category,
-      p_title: title,
-      p_description: description,
-      p_email: email
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/kasa_submit_suggestion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({
+        p_category: category,
+        p_title: title,
+        p_description: description,
+        p_email: email || null,
+      }),
     });
 
-    if (error) throw new Error(error.message || 'Failed to submit suggestion');
-    if (!data || !data.success) throw new Error(data?.error || 'Unknown error');
+    const data = await res.json();
 
-    message.className = 'suggest-message success';
-    message.textContent = '✓ Thank you! Your suggestion has been recorded and will be reviewed.';
-    form.reset();
-    titleCount.textContent = '0';
-    descCount.textContent = '0';
+    if (data.success) {
+      showMessage('Thank you! Your suggestion has been received and will be reviewed.', 'success', messageContainer);
+      document.getElementById('sg-form').reset();
+      document.getElementById('sg-title-count').textContent = '0';
+      document.getElementById('sg-description-count').textContent = '0';
+
+      // Add to local display
+      localSuggestions.unshift({
+        title,
+        description,
+        category,
+        status: 'submitted',
+        votes: 0,
+        isLocal: true,
+      });
+      renderLocalSuggestion(title, description, category);
+    } else {
+      showMessage(data.error || data.message || data.hint || 'Error submitting suggestion', 'error', messageContainer);
+    }
   } catch (err) {
-    message.className = 'suggest-message error';
-    message.textContent = `⚠ Unable to submit: ${err.message}. Please try again.`;
+    showMessage('Error: ' + err.message, 'error', messageContainer);
+  } finally {
+    submitBtn.disabled = false;
+    submitBtn.textContent = t('suggestions_submit');
+  }
+}
+
+function showMessage(msg, type, container) {
+  container.innerHTML = `<div class="sg-message sg-${type}">${msg}</div>`;
+  setTimeout(() => { container.innerHTML = ''; }, 5000);
+}
+
+// ══ Load and Display Suggestions ══
+function attachFilterListeners() {
+  document.querySelectorAll('.sg-filter-btn').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      document.querySelectorAll('.sg-filter-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      currentFilter = btn.dataset.filter;
+      renderSuggestions();
+    });
+  });
+}
+
+async function loadSuggestions() {
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/kasa_get_suggestions`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({
+        p_limit: 100,
+        p_offset: 0,
+        p_category: null,
+      }),
+    });
+
+    if (res.ok) {
+      const suggestions = await res.json();
+      localSuggestions = suggestions.map(s => ({ ...s, isLocal: false }));
+    } else {
+      console.error('Failed to load suggestions');
+    }
+  } catch (err) {
+    console.error('Error loading suggestions:', err);
+  } finally {
+    renderSuggestions();
+  }
+}
+
+function renderSuggestions() {
+  const container = document.getElementById('sg-list');
+  const filtered = currentFilter === 'all'
+    ? localSuggestions
+    : localSuggestions.filter(s => s.category === currentFilter);
+
+  if (filtered.length === 0) {
+    container.innerHTML = `<div class="sg-empty" data-i18n="suggestions_empty">No suggestions yet. Be the first to share an idea!</div>`;
+    initI18n();
+    return;
+  }
+
+  container.innerHTML = filtered.map(s => renderSuggestionItem(s)).join('');
+
+  // Attach vote listeners
+  container.querySelectorAll('.sg-vote-btn').forEach(btn => {
+    btn.addEventListener('click', () => voteSuggestion(btn, s.id));
+  });
+}
+
+function renderSuggestionItem(s) {
+  const statusClass = s.status === 'planned' ? 'planning' :
+                      s.status === 'in_progress' ? 'in-progress' :
+                      s.status === 'completed' ? 'completed' : '';
+
+  return `
+    <div class="sg-item">
+      <div class="sg-item-head">
+        <div>
+          <div class="sg-item-title">${escapeHtml(s.title)}</div>
+          <span class="sg-item-cat">${escapeHtml(s.category)}</span>
+          ${!s.isLocal ? `<span class="sg-item-status ${statusClass}">${s.status}</span>` : ''}
+        </div>
+      </div>
+      <p class="sg-item-desc">${escapeHtml(s.description)}</p>
+      <div class="sg-item-foot">
+        <span>${new Date(s.created_at || new Date()).toLocaleDateString()}</span>
+        ${!s.isLocal ? `
+          <button class="sg-vote-btn" data-id="${s.id}">
+            👍 <span class="sg-vote-count">${s.votes}</span>
+          </button>
+        ` : '<span style="color:var(--text-lo);">Pending review</span>'}
+      </div>
+    </div>
+  `;
+}
+
+function renderLocalSuggestion(title, description, category) {
+  const container = document.getElementById('sg-list');
+  if (container.querySelector('.sg-loading')) {
+    container.innerHTML = '';
+  }
+
+  const item = document.createElement('div');
+  item.className = 'sg-item';
+  item.style.borderColor = 'var(--amber)';
+  item.innerHTML = `
+    <div class="sg-item-head">
+      <div>
+        <div class="sg-item-title">${escapeHtml(title)}</div>
+        <span class="sg-item-cat">${escapeHtml(category)}</span>
+      </div>
+    </div>
+    <p class="sg-item-desc">${escapeHtml(description)}</p>
+    <div class="sg-item-foot">
+      <span>Just now</span>
+      <span style="color:var(--text-lo);">Pending review</span>
+    </div>
+  `;
+
+  container.insertBefore(item, container.firstChild);
+}
+
+async function voteSuggestion(btn, id) {
+  btn.disabled = true;
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/rpc/kasa_vote_suggestion`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${SUPABASE_KEY}`,
+        'apikey': SUPABASE_KEY,
+      },
+      body: JSON.stringify({ p_suggestion_id: id }),
+    });
+
+    const data = await res.json();
+    if (data.success) {
+      btn.querySelector('.sg-vote-count').textContent = data.votes;
+      btn.style.color = 'var(--amber)';
+    }
+  } catch (err) {
+    console.error('Vote error:', err);
   } finally {
     btn.disabled = false;
   }
-});
+}
+
+function escapeHtml(text) {
+  const div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
 </script>
 </body>
 </html>
