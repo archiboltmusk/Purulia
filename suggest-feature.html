@@ -22,8 +22,6 @@
   .sg-wrap{max-width:900px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
   .sg-head{margin-bottom:2.4rem;}
   .sg-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
-  .sg-town{border:1px solid var(--amber);border-radius:6px;padding:.9rem 1rem;margin:0 0 1rem;line-height:1.6;color:var(--text-md);}
-  .sg-town ol{margin:.5rem 0 .5rem 1.2rem;padding:0;}
   .sg-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
   .sg-form{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:2rem 1.8rem;margin-bottom:2.4rem;}
   .sg-form-group{margin-bottom:1.4rem;}
@@ -92,14 +90,6 @@
   <section class="sg-form">
     <h2 class="sg-section-title" data-i18n="suggestions_form_title">Share your idea</h2>
     <div id="sg-message-container"></div>
-    <div class="sg-town" id="add-town" hidden>
-      <strong>Put your town on the map.</strong> Any town or panchayat in West Bengal can have its own Parishkar map, like Parishkar Kolkata. Send two things:
-      <ol>
-        <li>A link to its <strong>ward map</strong>, a GeoJSON file if you can (a KML or shapefile also works), with where it comes from. Put the file on Google Drive or GitHub and paste the link.</li>
-        <li><strong>Who is in charge of cleaning</strong> there first: the office (municipality or gram panchayat), its complaint number, email or web form, and where you found it.</li>
-      </ol>
-      We check both against the source before anything goes on the site.
-    </div>
 
     <form id="sg-form">
       <div class="sg-form-group">
@@ -182,16 +172,9 @@ document.addEventListener('DOMContentLoaded', () => {
   loadSuggestions();
 });
 
-/* kasa.html links here as #add-town when someone is outside every mapped place. */
+/* Old links to #add-town: that form is now its own page. */
 function prefillAddTown(){
-  if (location.hash !== '#add-town') return;
-  document.getElementById('add-town').hidden = false;
-  document.getElementById('sg-category').value = 'other';
-  document.getElementById('sg-title').value = 'Add my town to the map: ';
-  document.getElementById('sg-description').value =
-    'Town or panchayat:\nWard map link (GeoJSON if possible):\nWhere the map comes from:\n' +
-    'Who is in charge of cleaning (office, complaint number / email / web form):\nWhere I found that:';
-  document.getElementById('add-town').scrollIntoView({ block: 'start' });
+  if (location.hash === '#add-town') location.replace('add-town.html');
 }
 
 // ══ i18n ══

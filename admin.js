@@ -593,7 +593,7 @@ async function loadRepeatPhotos(){
   }));
 }
 
-/* Visits and reports per place (Purulia and the West Bengal places in places.js). */
+/* Visits and reports per place: Purulia, each town on the map, and each district that has had a visit or report. */
 async function loadPlaces(){
   const el = document.getElementById('adPlaces');
   if (!el) return;
@@ -613,14 +613,58 @@ async function loadPlaces(){
     </table>`;
 }
 
+/* A small outline of a sent-in ward map, so a moderator can see its shape without leaving the page. */
+function wardsSvg(wards){
+  const pts = wards.flatMap(w => w.polygons.flat(2));
+  if (!pts.length) return '';
+  const xs = pts.map(p => p[0]), ys = pts.map(p => p[1]);
+  const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+  const k = 180 / Math.max(x1 - x0, y1 - y0, 1e-6);
+  const path = ring => ring.map((p, i) => `${i ? 'L' : 'M'}${((p[0] - x0) * k).toFixed(1)},${((y1 - p[1]) * k).toFixed(1)}`).join('') + 'Z';
+  return `<svg width="190" height="190" viewBox="-5 -5 190 190" style="background:#0a0805;border-radius:6px">${wards.map(w => {
+    const ring = w.polygons[0][0], cx = ring.reduce((a, p) => a + p[0], 0) / ring.length, cy = ring.reduce((a, p) => a + p[1], 0) / ring.length;
+    return `<path d="${w.polygons.map(p => p.map(path).join('')).join('')}" fill="rgba(212,136,42,.15)" stroke="#d4882a" stroke-width="1"/>`
+      + `<text x="${((cx - x0) * k).toFixed(1)}" y="${((y1 - cy) * k).toFixed(1)}" font-size="9" fill="#f0e6d0" text-anchor="middle">${esc(w.ward)}</text>`;
+  }).join('')}</svg>`;
+}
+
 async function loadTownRequests(){
   const el = document.getElementById('adTownRequests');
   if (!el) return;
-  const { data, error } = await sb.rpc('kasa_admin_town_requests');
+  const { data, error } = await sb.rpc('kasa_admin_place_submissions');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No requests yet.</div>'; return; }
-  el.innerHTML = data.map(r => `<div class="ad-note"><strong>${esc(r.title)}</strong> · ${esc(new Date(r.created_at).toLocaleDateString('en-IN'))}${r.email ? ' · ' + esc(r.email) : ''}
-    <pre style="white-space:pre-wrap;margin:.3rem 0 0">${esc(r.description)}</pre></div>`).join('');
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No town maps sent yet.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Status</th><th>Map</th><th>Town</th><th>In charge of cleaning</th><th>Map source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map((s, i) => `<tr>
+          <td>${esc(s.status)}${s.slug ? `<br><a href="kasa.html?place=${encodeURIComponent(s.slug)}" target="_blank" rel="noopener">${esc(s.slug)}</a>` : ''}${s.review_note ? `<br><small>${esc(s.review_note)}</small>` : ''}</td>
+          <td>${wardsSvg(s.wards || [])}</td>
+          <td><strong>${esc(s.town)}</strong>${s.fix_of ? ` <small>(fix of ${esc(s.fix_of)})</small>` : ''}<br>${esc(s.district)} district<br>${esc(s.body)}
+            <br><small>${esc(s.ward_count)} wards: ${esc((s.wards || []).map(w => w.ward).join(', '))}</small>
+            <br><small>${esc(new Date(s.created_at).toLocaleDateString('en-IN'))}${s.contact ? ' · ' + esc(s.contact) : ''}</small></td>
+          <td>${esc(s.incharge || '—')}${s.incharge_source ? `<br><small>Found at: ${/^https:\/\//i.test(s.incharge_source) ? `<a href="${esc(s.incharge_source)}" target="_blank" rel="noopener nofollow">${esc(s.incharge_source)}</a>` : esc(s.incharge_source)}</small>` : ''}
+            ${s.complaint_url ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
+          <td>${s.drawn ? '<strong>Drawn</strong> (goes live as provisional)<br>' : ''}${/^https:\/\//i.test(s.map_source) ? `<a href="${esc(s.map_source)}" target="_blank" rel="noopener nofollow">${esc(s.map_source)}</a>` : esc(s.map_source)}</td>
+          <td style="white-space:nowrap;">${s.status === 'pending' ? `
+            <button class="ad-ok" data-town="${i}" data-town-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-town="${i}" data-town-act="reject">✕ Reject</button>` : ''}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-town]').forEach(b => b.addEventListener('click', async () => {
+    const s = data[+b.dataset.town], approve = b.dataset.townAct === 'approve';
+    let slug = null;
+    if (approve && !s.fix_of){
+      slug = prompt('Web name for the town (used in kasa.html?place=…):', s.town.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
+      if (slug === null) return;
+    }
+    const note = approve ? null : prompt('Reason for rejecting (kept private):');
+    if (!approve && note === null) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_place', { p_id: s.id, p_action: b.dataset.townAct, p_slug: slug, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadTownRequests(); loadPlaces();
+  }));
 }
 
 async function loadAdoptions(){
