@@ -79,7 +79,9 @@ declare
 begin
   with open_r as (
     select r.id, r.created_at, r.ward_no, r.category, r.landmark, r.sla_days,
-           case when r.ward_no is not null then 'municipality' else r.block_name end as office
+           -- Jhalda and Raghunathpur towns have no email on file and aren't the BDO's to fix.
+           case when r.ward_no is not null then 'municipality'
+                when r.boundary_type = 'municipality' then null else r.block_name end as office
     from public.kasa_public_reports r
     where r.status <> 'resolved' and not coalesce(r.is_duplicate, false)
   ), due as (
