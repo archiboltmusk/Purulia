@@ -45,6 +45,18 @@ window.KASA_I18N = {
     fixed_before: 'Before', fixed_after: 'After', fixed_days: 'Fixed in {n} days', fixed_same_day: 'Fixed the same day',
     fixed_confirmed: 'Confirmed on the spot by {n} neighbours', fixed_councillor: 'Councillor {name}',
     rep_photo_credit: 'Photo: {credit}',
+    rep_g_mp: 'Members of Parliament (Lok Sabha)', rep_g_mla: 'MLAs (West Bengal Assembly)', rep_g_chair: 'Municipal chairpersons', rep_g_zp: 'Zilla Parishad (villages)',
+    rep_t_mp: 'MP', rep_t_mla: 'MLA', rep_t_chair: 'Chairperson', rep_t_zp: 'Sabhadhipati',
+    rep_place_ls: '{s} (Lok Sabha)', rep_place_ac: '{s} (Assembly No. {n})', rep_place_muni: '{s} Municipality', rep_place_zp: 'Purulia Zilla Parishad',
+    rep_seats: 'Assembly seats in this constituency', rep_covers: 'Covers: {b}.', rep_town: 'Purulia town', rep_in_ls: 'MP for {s} →',
+    rep_places: 'Places affected', rep_worst_places: 'Most unresolved places',
+    rep_mplads: 'MP’s local area fund (this term)', rep_mp_alloc: 'Allocated', rep_mp_spent: 'Spent', rep_mp_works: 'Works done',
+    rep_mp_note: 'Works worth {r} recommended. Official MPLADS figures as of {d}, via', rep_crore: 'cr', rep_lakh: 'lakh',
+    rep_updates: 'Updates', rep_loading: 'Loading…', rep_updates_failed: 'Updates could not load.',
+    rep_promises: 'Promises', rep_promises_n: '{n} on record, {d} delivered', rep_promises_none: 'No promise on record yet',
+    rep_demands: 'Asked by residents', rep_demands_n: '{n} asked, {a} answered', rep_demands_none: 'Nothing asked yet', rep_supports: '{n} support this',
+    rep_news: 'In the news', rep_st_promised: 'Nothing shown yet', rep_st_in_progress: 'In progress', rep_st_delivered: 'Delivered', rep_st_broken: 'Broken',
+    rep_l_leader: 'Their page: ask them something', rep_l_board: 'Seat leaderboard', rep_l_money: 'Where the town’s money goes', rep_source: 'Source:',
     lb_num: '04 · Accountability', lb_title: 'Ward accountability',
     lb_sub: 'Ranked by unresolved reports. Fake cleanup claims the public caught count against the ward.',
     lb_search: 'Find your ward: number or councillor', lb_no_match: 'No ward matches', lb_ward_clear: 'Nothing unresolved', lb_loading: 'Loading…', lb_empty: 'No reports yet — be the first', lb_all_clear: 'Nothing unresolved right now',
@@ -301,6 +313,18 @@ window.KASA_I18N = {
     fixed_before: 'আগে', fixed_after: 'পরে', fixed_days: '{n} দিনে সমাধান', fixed_same_day: 'একই দিনে সমাধান',
     fixed_confirmed: '{n} জন প্রতিবেশী ঘটনাস্থলে নিশ্চিত করেছেন', fixed_councillor: 'কাউন্সিলর {name}',
     rep_photo_credit: 'ছবি: {credit}',
+    rep_g_mp: 'সাংসদ (লোকসভা)', rep_g_mla: 'বিধায়ক (পশ্চিমবঙ্গ বিধানসভা)', rep_g_chair: 'পুরপ্রধান', rep_g_zp: 'জেলা পরিষদ (গ্রাম)',
+    rep_t_mp: 'সাংসদ', rep_t_mla: 'বিধায়ক', rep_t_chair: 'পুরপ্রধান', rep_t_zp: 'সভাধিপতি',
+    rep_place_ls: '{s} (লোকসভা)', rep_place_ac: '{s} (বিধানসভা {n})', rep_place_muni: '{s} পৌরসভা', rep_place_zp: 'পুরুলিয়া জেলা পরিষদ',
+    rep_seats: 'এই কেন্দ্রের বিধানসভা আসন', rep_covers: 'এলাকা: {b}।', rep_town: 'পুরুলিয়া শহর', rep_in_ls: '{s}-এর সাংসদ →',
+    rep_places: 'প্রভাবিত এলাকা', rep_worst_places: 'সবচেয়ে বেশি অমীমাংসিত এলাকা',
+    rep_mplads: 'সাংসদ এলাকা উন্নয়ন তহবিল (এই মেয়াদ)', rep_mp_alloc: 'বরাদ্দ', rep_mp_spent: 'খরচ', rep_mp_works: 'সম্পূর্ণ কাজ',
+    rep_mp_note: '{r} মূল্যের কাজের সুপারিশ। সরকারি MPLADS তথ্য, {d} পর্যন্ত, সূত্র', rep_crore: 'কোটি', rep_lakh: 'লক্ষ',
+    rep_updates: 'আপডেট', rep_loading: 'লোড হচ্ছে…', rep_updates_failed: 'আপডেট লোড হয়নি।',
+    rep_promises: 'প্রতিশ্রুতি', rep_promises_n: '{n}টি নথিভুক্ত, {d}টি পূরণ', rep_promises_none: 'এখনও কোনো প্রতিশ্রুতি নথিভুক্ত নেই',
+    rep_demands: 'বাসিন্দাদের প্রশ্ন', rep_demands_n: '{n}টি দাবি, {a}টির উত্তর', rep_demands_none: 'এখনও কিছু জানতে চাওয়া হয়নি', rep_supports: '{n} জন সমর্থন করেছেন',
+    rep_news: 'খবরে', rep_st_promised: 'এখনও কিছু দেখা যায়নি', rep_st_in_progress: 'কাজ চলছে', rep_st_delivered: 'পূরণ হয়েছে', rep_st_broken: 'ভঙ্গ',
+    rep_l_leader: 'তাঁর পাতা: প্রশ্ন করুন', rep_l_board: 'আসন অনুযায়ী তালিকা', rep_l_money: 'শহরের টাকা কোথায় যায়', rep_source: 'সূত্র:',
     lb_num: '০৪ · জবাবদিহি', lb_title: 'ওয়ার্ডের জবাবদিহি',
     lb_sub: 'অমীমাংসিত রিপোর্টের সংখ্যা অনুযায়ী। জনগণের ধরা ভুয়ো সাফাইয়ের দাবি ওয়ার্ডের বিরুদ্ধে গোনা হয়।',
     lb_search: 'আপনার ওয়ার্ড খুঁজুন: নম্বর বা কাউন্সিলরের নাম', lb_no_match: 'কোনো ওয়ার্ড মিলল না', lb_ward_clear: 'কিছু বাকি নেই', lb_loading: 'লোড হচ্ছে…', lb_empty: 'এখনও কোনো রিপোর্ট নেই — প্রথম আপনিই হোন', lb_all_clear: 'এখন কিছুই অমীমাংসিত নেই',
@@ -556,6 +580,18 @@ window.KASA_I18N = {
     fixed_before: 'पहले', fixed_after: 'बाद में', fixed_days: '{n} दिन में ठीक', fixed_same_day: 'उसी दिन ठीक',
     fixed_confirmed: '{n} पड़ोसियों ने मौके पर पुष्टि की', fixed_councillor: 'पार्षद {name}',
     rep_photo_credit: 'फ़ोटो: {credit}',
+    rep_g_mp: 'सांसद (लोकसभा)', rep_g_mla: 'विधायक (पश्चिम बंगाल विधानसभा)', rep_g_chair: 'नगरपालिका अध्यक्ष', rep_g_zp: 'ज़िला परिषद (गाँव)',
+    rep_t_mp: 'सांसद', rep_t_mla: 'विधायक', rep_t_chair: 'अध्यक्ष', rep_t_zp: 'सभाधिपति',
+    rep_place_ls: '{s} (लोकसभा)', rep_place_ac: '{s} (विधानसभा {n})', rep_place_muni: '{s} नगरपालिका', rep_place_zp: 'पुरुलिया ज़िला परिषद',
+    rep_seats: 'इस क्षेत्र की विधानसभा सीटें', rep_covers: 'क्षेत्र: {b}।', rep_town: 'पुरुलिया शहर', rep_in_ls: '{s} के सांसद →',
+    rep_places: 'प्रभावित जगहें', rep_worst_places: 'सबसे ज़्यादा अनसुलझी जगहें',
+    rep_mplads: 'सांसद क्षेत्र विकास निधि (यह कार्यकाल)', rep_mp_alloc: 'आवंटित', rep_mp_spent: 'ख़र्च', rep_mp_works: 'पूरे काम',
+    rep_mp_note: '{r} के कामों की सिफ़ारिश। आधिकारिक MPLADS आँकड़े, {d} तक, स्रोत', rep_crore: 'करोड़', rep_lakh: 'लाख',
+    rep_updates: 'अपडेट', rep_loading: 'लोड हो रहा है…', rep_updates_failed: 'अपडेट लोड नहीं हुए।',
+    rep_promises: 'वादे', rep_promises_n: '{n} दर्ज, {d} पूरे', rep_promises_none: 'अभी कोई वादा दर्ज नहीं',
+    rep_demands: 'लोगों के सवाल', rep_demands_n: '{n} माँगें, {a} के जवाब', rep_demands_none: 'अभी कुछ नहीं पूछा गया', rep_supports: '{n} लोगों का समर्थन',
+    rep_news: 'ख़बरों में', rep_st_promised: 'अभी कुछ नहीं दिखा', rep_st_in_progress: 'काम जारी', rep_st_delivered: 'पूरा हुआ', rep_st_broken: 'टूटा',
+    rep_l_leader: 'उनका पेज: सवाल पूछें', rep_l_board: 'सीट के हिसाब से सूची', rep_l_money: 'शहर का पैसा कहाँ जाता है', rep_source: 'स्रोत:',
     lb_num: '04 · जवाबदेही', lb_title: 'वार्ड की जवाबदेही',
     lb_sub: 'अनसुलझी रिपोर्टों के हिसाब से क्रम। जनता द्वारा पकड़े गए फ़र्ज़ी सफ़ाई दावे वार्ड के ख़िलाफ़ गिने जाते हैं।',
     lb_search: 'अपना वार्ड खोजें: नंबर या पार्षद का नाम', lb_no_match: 'कोई वार्ड नहीं मिला', lb_ward_clear: 'कुछ बाकी नहीं', lb_loading: 'लोड हो रहा है…', lb_empty: 'अभी कोई रिपोर्ट नहीं — पहली आप करें', lb_all_clear: 'अभी कुछ भी अनसुलझा नहीं',
@@ -1097,6 +1133,28 @@ Object.assign(window.KASA_I18N.hi, {
   notify_watching: 'इस डिवाइस पर आप {n} फ़ॉलो कर रहे हैं।',
   notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
   notify_digest_btn: '✉ ईमेल पर पाएँ'
+});
+/* Local bodies: the district's other municipalities and every gram panchayat. */
+Object.assign(window.KASA_I18N.en, {
+  version_title: 'Version {v}: see what\'s new',
+  acc_gp: '{g} gram panchayat, {b} block', acc_your_gp: 'Your gram panchayat', acc_your_town: 'Your municipality',
+  step3_gp: 'In {g} gram panchayat, {b} block. No ward needed.',
+  step3_town: 'In {t}. No ward map for this town is public yet, so no ward is needed.',
+  acc_town_reps: 'Ward outlines for this town are not public yet, so the councillor and MLA are not shown. The municipality\'s own officers are the first people responsible.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  version_title: 'সংস্করণ {v}: নতুন কী দেখুন',
+  acc_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লক', acc_your_gp: 'আপনার গ্রাম পঞ্চায়েত', acc_your_town: 'আপনার পৌরসভা',
+  step3_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লকে। ওয়ার্ড লাগবে না।',
+  step3_town: '{t}-এ। এই শহরের ওয়ার্ডের মানচিত্র এখনও প্রকাশ্যে নেই, তাই ওয়ার্ড লাগবে না।',
+  acc_town_reps: 'এই শহরের ওয়ার্ডের সীমানা এখনও প্রকাশ্যে নেই, তাই কাউন্সিলর ও বিধায়কের নাম দেখানো হয় না। প্রথম দায়িত্ব পৌরসভার আধিকারিকদের।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  version_title: 'संस्करण {v}: क्या नया है देखें',
+  acc_gp: '{g} ग्राम पंचायत, {b} ब्लॉक', acc_your_gp: 'आपकी ग्राम पंचायत', acc_your_town: 'आपकी नगरपालिका',
+  step3_gp: '{g} ग्राम पंचायत, {b} ब्लॉक में। वार्ड की ज़रूरत नहीं।',
+  step3_town: '{t} में। इस शहर के वार्ड का नक्शा अभी सार्वजनिक नहीं है, इसलिए वार्ड की ज़रूरत नहीं।',
+  acc_town_reps: 'इस शहर की वार्ड सीमाएँ अभी सार्वजनिक नहीं हैं, इसलिए पार्षद और विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी नगरपालिका के अधिकारियों की है।'
 });
 /* Other West Bengal places with an open ward map (places.js): Kolkata so far. */
 Object.assign(window.KASA_I18N.en, {

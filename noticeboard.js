@@ -34,7 +34,7 @@
       form_h: 'Post a demand',
       form_sub: 'Keep it short and specific: what is needed, where, and who it helps. It appears here once a moderator has checked it.',
       f_leader: 'Who are you asking?', f_pick: 'Pick a leader',
-      g_chair: 'Municipality', g_councillor: 'Ward councillor (town)', g_mla: 'MLA', g_mp: 'MP', g_other: 'Someone else',
+      g_chair: 'Municipality', g_councillor: 'Ward councillor (town)', g_mla: 'MLA', g_mp: 'MP', g_zp: 'Zilla Parishad', g_other: 'Someone else',
       o_councillor: 'My ward councillor', o_other: 'Another official or leader',
       f_ward: 'Ward', f_ward_pick: 'Pick your ward', ward_n: 'Ward {n}', ward_councillor: 'Councillor, ward {n}',
       f_other_name: 'Their name', f_other_role: 'Their position', f_other_role_ph: 'e.g. BDO, Jhalda I',
@@ -86,7 +86,7 @@
       form_h: 'দাবি লিখুন',
       form_sub: 'ছোট ও নির্দিষ্ট রাখুন: কী দরকার, কোথায়, আর কাদের কাজে লাগবে। মডারেটর দেখে নেওয়ার পর এখানে দেখা যাবে।',
       f_leader: 'কার কাছে চাইছেন?', f_pick: 'নেতা বেছে নিন',
-      g_chair: 'পুরসভা', g_councillor: 'ওয়ার্ড কাউন্সিলর (শহর)', g_mla: 'বিধায়ক', g_mp: 'সাংসদ', g_other: 'অন্য কেউ',
+      g_chair: 'পুরসভা', g_councillor: 'ওয়ার্ড কাউন্সিলর (শহর)', g_mla: 'বিধায়ক', g_mp: 'সাংসদ', g_zp: 'জেলা পরিষদ', g_other: 'অন্য কেউ',
       o_councillor: 'আমার ওয়ার্ডের কাউন্সিলর', o_other: 'অন্য আধিকারিক বা নেতা',
       f_ward: 'ওয়ার্ড', f_ward_pick: 'ওয়ার্ড বেছে নিন', ward_n: 'ওয়ার্ড {n}', ward_councillor: 'কাউন্সিলর, ওয়ার্ড {n}',
       f_other_name: 'তাঁর নাম', f_other_role: 'তাঁর পদ', f_other_role_ph: 'যেমন বিডিও, ঝালদা ১',
@@ -138,7 +138,7 @@
       form_h: 'माँग लिखें',
       form_sub: 'छोटा और साफ़ रखें: क्या चाहिए, कहाँ, और किसके काम आएगा। मॉडरेटर के जाँचने के बाद यहाँ दिखेगी।',
       f_leader: 'किससे माँग रहे हैं?', f_pick: 'नेता चुनें',
-      g_chair: 'नगरपालिका', g_councillor: 'वार्ड पार्षद (शहर)', g_mla: 'विधायक', g_mp: 'सांसद', g_other: 'कोई और',
+      g_chair: 'नगरपालिका', g_councillor: 'वार्ड पार्षद (शहर)', g_mla: 'विधायक', g_mp: 'सांसद', g_zp: 'ज़िला परिषद', g_other: 'कोई और',
       o_councillor: 'मेरे वार्ड के पार्षद', o_other: 'कोई दूसरा अधिकारी या नेता',
       f_ward: 'वार्ड', f_ward_pick: 'वार्ड चुनें', ward_n: 'वार्ड {n}', ward_councillor: 'पार्षद, वार्ड {n}',
       f_other_name: 'उनका नाम', f_other_role: 'उनका पद', f_other_role_ph: 'जैसे बीडीओ, झालदा I',
@@ -238,6 +238,12 @@
     for (const c of CITY.constituencies || []) {
       if (c.mla && c.mla.name) out.push({ key: 'mla:' + c.no, role: 'mla', name: c.mla.name, area: c.name, group: 'g_mla' });
     }
+    // The district's other municipalities, and the Zilla Parishad for the villages.
+    for (const m of CITY.municipalities || []) {
+      const chair = typeof m.chair === 'string' ? reps[m.chair] : m.chair;
+      if (!m.town && chair && chair.name) out.push({ key: 'chair:' + m.name, role: 'chairman', name: chair.name, area: `${m.name} Municipality`, group: 'g_chair' });
+    }
+    if (CITY.zillaParishad && CITY.zillaParishad.name) out.push({ key: 'zp', role: 'other', name: CITY.zillaParishad.name, area: 'Purulia Zilla Parishad', group: 'g_zp' });
     return out;
   }
   const LEADERS = leaders();
@@ -284,10 +290,11 @@
     LEADERS.forEach(l => { (groups[l.group] = groups[l.group] || []).push(l); });
     const opt = (v, label) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
     sel.innerHTML = opt('', t('f_pick')) +
-      (groups.g_chair ? `<optgroup label="${esc(t('g_chair'))}">${groups.g_chair.map(l => opt(l.key, `${t('r_chairman')}: ${l.name}`)).join('')}</optgroup>` : '') +
+      (groups.g_chair ? `<optgroup label="${esc(t('g_chair'))}">${groups.g_chair.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
       `<optgroup label="${esc(t('g_councillor'))}">${opt('councillor', t('o_councillor'))}</optgroup>` +
       (groups.g_mla ? `<optgroup label="${esc(t('g_mla'))}">${groups.g_mla.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
       (groups.g_mp ? `<optgroup label="${esc(t('g_mp'))}">${groups.g_mp.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
+      (groups.g_zp ? `<optgroup label="${esc(t('g_zp'))}">${groups.g_zp.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
       `<optgroup label="${esc(t('g_other'))}">${opt('other', t('o_other'))}</optgroup>`;
     const wsel = document.getElementById('nb-ward');
     const wcur = wsel.value;

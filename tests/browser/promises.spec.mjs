@@ -52,9 +52,17 @@ test('each MP and MLA shows their promises or "No promise on record"', async ({ 
     status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(data) }));
   await page.goto('promises.html');
   const reps = page.locator('#pr-reps li');
-  await expect(reps).toHaveCount(10);
+  await expect(reps).toHaveCount(12);
   await expect(reps.filter({ hasText: 'Mamoni Bauri' })).toContainText('No promise on record');
   await reps.filter({ hasText: 'Sudip Kumar Mukherjee' }).getByRole('button', { name: '1 on record' }).click();
   await expect(page.locator('.pr-item')).toHaveCount(1);
   await expect(page.locator('.pr-item .pr-who')).toHaveText('Sudip Kumar Mukherjee');
+});
+
+test('promises.html?who= opens on that person', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?who=Other%20Person');
+  await expect(page.locator('.pr-item')).toHaveCount(1);
+  await expect(page.locator('.pr-item .pr-who')).toHaveText('Other Person');
 });

@@ -163,3 +163,68 @@ test('the bell opens one sheet for all alerts', async ({ page, backend }) => {
   await sheet.locator('.k-modal-close').click();
   await expect(sheet).not.toHaveClass(/open/);
 });
+
+test('representatives: every MP, MLA, chairperson and the Zilla Parishad, with a detail sheet', async ({ page, backend }) => {
+  const ok = body => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
+  await page.route('**/rest/v1/rpc/kasa_promises', ok({ promises: [{ id: 'p1', who: 'Jyotirmay Singh Mahato', promise: 'A rail overbridge at the station', made_on: '2026-06-01', status: 'promised' }], news: [] }));
+  await page.route('**/rest/v1/rpc/kasa_demands', ok([{ id: 'd1', leader_name: 'Jyotirmay Singh Mahato', title: 'Fix the district hospital lifts', supports: 4, replies: [] }]));
+  await page.goto('kasa.html');
+  await page.locator('#k-more-btn').click();
+  await page.locator('#k-auth-sec summary').click();
+  const cards = page.locator('#k-auth-grid .k-auth-card');
+  await expect(cards).toHaveCount(16);
+  await expect(page.locator('#k-auth-grid')).toContainText('Tarani Bauri');
+  await expect(page.locator('#k-auth-grid')).toContainText('Nivedita Mahato');
+
+  await page.locator('[data-profile="mp:Purulia"]').first().click();
+  const sheet = page.locator('#k-rep-content');
+  await expect(sheet).toContainText('Jyotirmay Singh Mahato');
+  await expect(sheet).toContainText('15/107');
+  await expect(sheet.locator('.k-rep-seat')).toHaveCount(7);
+  await expect(sheet).toContainText('A rail overbridge at the station');
+  await expect(sheet).toContainText('Fix the district hospital lifts');
+  await expect(sheet.locator('a[href^="noticeboard.html?leader=Jyotirmay"]').first()).toBeVisible();
+
+  await sheet.locator('[data-profile="mla:242"]').click();
+  await expect(sheet.locator('.k-rep-name')).toHaveText('Sudip Kumar Mukherjee');
+
+  // Jhalda town reports count for Jhalda's chair, not the Zilla Parishad.
+  const covered = await page.evaluate(() => {
+    const r = { area: 'rural', block: 'Jhalda I', body: 'Jhalda Municipality', bodyType: 'municipality' };
+    return allReps().filter(x => x.covers && x.covers(r)).map(x => x.key);
+  });
+  expect(covered).toContain('chair:Jhalda');
+  expect(covered).not.toContain('zp');
+  expect(covered).not.toContain('chair:Raghunathpur');
+});
+
+test('the version badge opens that version on the What\'s new page', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  const badge = page.locator('#k-version');
+  await expect(badge).toBeVisible();
+  const text = await badge.textContent();
+  expect(text).toMatch(/^v1\.\d+\.\d+$/);
+  await badge.click();
+  await expect.poll(() => new URL(page.url()).pathname.endsWith('/changelog.html') && new URL(page.url()).hash).toBe('#' + text);
+  await expect(page.locator(`h2[id="${text}"]`)).toBeVisible();
+  await expect(page.locator('#curVersion')).toHaveText(text);
+});
+
+test('the report map knows gram panchayats and the other towns', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => typeof mainMap !== 'undefined' && !!mainMap?.getSource('gps'))).toBe(true);
+  const places = await page.evaluate(async () => {
+    await Promise.all([loadBlockGeo(), loadLocalGeo()]);
+    return [placeOf(23.365, 85.975), placeOf(23.545, 86.672), placeOf(23.28, 86.20)];
+  });
+  expect(places[0]).toMatchObject({ kind: 'rural', body: 'Jhalda Municipality', bodyType: 'municipality' });
+  expect(places[1]).toMatchObject({ kind: 'rural', body: 'Raghunathpur Municipality', bodyType: 'municipality' });
+  expect(places[2]).toMatchObject({ kind: 'rural', block: 'Arsha', body: 'Sirkabad', bodyType: 'gram_panchayat' });
+  const labels = await page.evaluate(() => [
+    placeLabel({ area: 'rural', block: 'Jhalda I', body: 'Jhalda Municipality', bodyType: 'municipality' }),
+    placeLabel({ area: 'rural', block: 'Arsha', body: 'Sirkabad', bodyType: 'gram_panchayat' }),
+    chainFor({ area: 'rural', category: 'garbage', body: 'Jhalda Municipality', bodyType: 'municipality' }).agency,
+    chainFor({ area: 'rural', category: 'garbage', body: 'Sirkabad', bodyType: 'gram_panchayat' }).agency
+  ]);
+  expect(labels).toEqual(['Jhalda Municipality', 'Sirkabad gram panchayat, Arsha block', 'agency_municipality', 'agency_panchayat']);
+});
