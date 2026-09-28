@@ -349,10 +349,8 @@ document.addEventListener('click',function(e){
   var pageMsgs={
     'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth sharing:',
     'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, real funding sources — read it:',
-    'audience.html':'This blueprint for Purulia 2040 was written for every kind of person who can help. Find your role:',
     'data.html':'The hard data on Purulia — why this district is primed for transformation right now:',
-    'join.html':'This blueprint needs people, not just readers. Here\'s how to get involved with Purulia 2040:',
-    'map.html':'Explore every project and zone in the Purulia 2040 transformation plan — interactive map:',
+    'join.html':'This blueprint needs people, not just readers. Find your role in Purulia\'s future:',
     'kasa.html':'Parishkar Purulia — report a civic problem in 30 seconds and hold your ward accountable. Try it:'
   };
   var page=window.location.pathname.split('/').pop()||'index.html';
@@ -738,15 +736,13 @@ window.followSubmit=async function(){
     {href:'kasa.html',label:'Parishkar Purulia',desc:'Report & map'},
     {href:'blueprint.html',label:'Blueprint',desc:'The 15-year plan'},
     {href:'data.html',label:'Ground Truth',desc:'Verified data & charts'},
-    {href:'audience.html',label:'For You',desc:'Find your role'},
     {href:'join.html',label:'Join',desc:'Get involved'},
-    {href:'map.html',label:'District Map',desc:'Interactive map'},
     {href:'blueprint.html#deepdives',label:'Deep Dives',desc:'All 6 pillars expanded'},
     {href:'blueprint.html#timeline',label:'Timeline',desc:'2026 → 2040 roadmap'},
     {href:'blueprint.html#economics',label:'Goals & funding',desc:'What the plan aims for, who pays'},
     {href:'data.html#solution-matrix',label:'Solution Matrix',desc:'Every problem, specific answer'},
     {href:'data.html#data-charts',label:'Data Charts',desc:'Visualised statistics'},
-    {href:'join.html#respond',label:'Join Now',desc:'Five people. Eighteen months.'}
+    {href:'join.html#respond',label:'Join Now',desc:'Tell us who you are'}
   ];
 
   var pal=document.createElement('div');

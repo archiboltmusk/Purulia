@@ -2,7 +2,7 @@
    sign-up sheet it opens. Load with digest-sheet.css and config.js.
      <script defer src="digest-sheet.js" data-banner></script>        banner + sheet
      <script defer src="digest-sheet.js" data-inline="#root"></script> form drawn in #root
-   Any element with [data-digest-open] opens the sheet. */
+   Any element with [data-digest-open] opens the sheet, and so does #subscribe in the URL. */
 (function () {
   'use strict';
   const me = document.currentScript;
@@ -194,6 +194,7 @@
   function start() {
     if (me && me.hasAttribute('data-banner')) banner();
     if (me && me.dataset.inline) inline(me.dataset.inline);
+    else if (location.hash === '#subscribe') open();
     rpc('kasa_digest_subscriber_count').then(setCount).catch(() => {});
   }
   window.KasaDigest = { open, close };
