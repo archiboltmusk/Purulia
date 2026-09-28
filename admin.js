@@ -904,13 +904,14 @@ async function loadBugs(){
   el.querySelectorAll('[data-bug-dismiss]').forEach(b => b.addEventListener('click', () => run(b.dataset.bugDismiss, 'dismissed')));
 }
 
-/* Letters to offices: a draft per office (the municipality for town wards, the BDO for a
-   village block) listing its open reports. Drafts only: the admin copies the text or opens
-   it in their own mail app. Nothing here sends anything. */
+/* Letters to offices: a letter per office (the municipality for town wards, the BDO for a
+   village block) listing its open reports. The kasa-office-letters function emails the same
+   letter every Monday; this shows what went out and lets the admin copy a letter by hand. */
 const SITE = 'https://archiboltmusk.github.io/Purulia/';
 async function loadLetters(){
   const el = document.getElementById('adLetters');
   if (!el) return;
+  loadLetterLog();
   const [rep, wardRes] = await Promise.all([
     sb.from('kasa_public_reports').select('id,created_at,ward_no,category,severity,status,landmark,sla_days,is_duplicate,area_kind,block_name').neq('status', 'resolved').limit(5000),
     sb.from('wards').select('ward_no,councillor_name')
@@ -955,6 +956,18 @@ async function loadLetters(){
     try { await navigator.clipboard.writeText(t.value); b.textContent = 'Copied'; }
     catch { t.select(); document.execCommand('copy'); b.textContent = 'Copied'; }
   }));
+}
+
+async function loadLetterLog(){
+  const el = document.getElementById('adLetterLog');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_office_letters');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load the send log: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No letters emailed yet.</div>'; return; }
+  el.innerHTML = `<table class="ad-table" style="margin-bottom:1rem;"><thead><tr><th>Week of</th><th>Office</th><th>Reports</th><th>Result</th></tr></thead><tbody>
+    ${data.map(l => `<tr><td>${esc(l.week)}</td><td>${esc(l.office)}<br><small>${esc((l.emails || []).join(', '))}</small></td><td>${esc(l.reports)}</td>
+      <td>${l.sent_at ? 'Sent ' + esc(new Date(l.sent_at).toLocaleString('en-IN')) : l.error ? '<span style="color:var(--red,#c44);">Failed: ' + esc(l.error) + '</span>' : 'Sending…'}</td></tr>`).join('')}
+    </tbody></table>`;
 }
 
 async function loadCommunities(){
