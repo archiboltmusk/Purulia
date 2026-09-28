@@ -106,12 +106,12 @@
 
 <nav class="k-nav">
   <a href="index.html" class="k-nav-logo">PURULIA 2040</a>
-  <div class="k-nav-links">
+  <div class="k-nav-links" data-t="s2">
     <a href="index.html">Home</a>
     <a href="analytics.html">Analytics</a>
     <a href="kasa.html">Parishkar</a>
   </div>
-  <div class="k-nav-right">
+  <div class="k-nav-right" data-t="s3">
     <a href="kasa.html?check=school" class="k-nav-cta" id="sc-cta">Check a school →</a>
   </div>
 </nav>
@@ -119,38 +119,38 @@
 <main class="an-wrap">
   <div class="an-head">
     <div>
-      <h1 class="an-title">Purulia's schools, <em>checked by residents</em></h1>
-      <p class="an-sub">Every school on the government's UDISE+ list for Purulia district. Anyone standing at a school can check the basics with a live photo: water, toilets, girls' toilet, electricity, the mid-day meal, teachers and the building. Worst first, compared with West Bengal and India. Checks are residents' observations on the day, not an official inspection.</p>
+      <h1 class="an-title" data-t="s4">Purulia's schools, <em>checked by residents</em></h1>
+      <p class="an-sub" data-t="s5">Every school on the government's UDISE+ list for Purulia district. Anyone standing at a school can check the basics with a live photo: water, toilets, girls' toilet, electricity, the mid-day meal, teachers and the building. Worst first, compared with West Bengal and India. Checks are residents' observations on the day, not an official inspection.</p>
     </div>
     <div class="an-meta"><span id="sc-updated">Loading…</span></div>
   </div>
 
   <section class="an-card sc-near" id="sc-near">
-    <h2>Check a school near you</h2>
-    <p class="an-card-sub" id="sc-near-text">Stand at a school, answer a few questions and take one photo. It takes about two minutes.</p>
-    <button type="button" class="sc-near-btn" id="sc-near-btn">📍 Find schools near me</button>
+    <h2 data-t="s7">Check a school near you</h2>
+    <p class="an-card-sub" id="sc-near-text" data-t="s8">Stand at a school, answer a few questions and take one photo. It takes about two minutes.</p>
+    <button type="button" class="sc-near-btn" id="sc-near-btn" data-t="s9">📍 Find schools near me</button>
     <ul class="sc-todo" id="sc-near-list"></ul>
   </section>
 
   <section class="an-tiles" aria-label="Headline numbers">
-    <div class="an-tile"><div class="an-tile-n" id="sc-t-listed">—</div><div class="an-tile-l">Schools listed</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="sc-t-checked">—</div><div class="an-tile-l">Checked by residents</div><div class="an-tile-s" id="sc-t-pct"></div></div>
-    <div class="an-tile"><div class="an-tile-n" id="sc-t-water">—</div><div class="an-tile-l">No drinking water</div><div class="an-tile-s">at the latest check</div></div>
-    <div class="an-tile"><div class="an-tile-n" id="sc-t-toilets">—</div><div class="an-tile-l">No usable toilets</div><div class="an-tile-s">at the latest check</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="sc-t-listed">—</div><div class="an-tile-l" data-t="s10">Schools listed</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="sc-t-checked">—</div><div class="an-tile-l" data-t="s11">Checked by residents</div><div class="an-tile-s" id="sc-t-pct"></div></div>
+    <div class="an-tile"><div class="an-tile-n" id="sc-t-water">—</div><div class="an-tile-l" data-t="s12">No drinking water</div><div class="an-tile-s" data-t="s13">at the latest check</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="sc-t-toilets">—</div><div class="an-tile-l" data-t="s14">No usable toilets</div><div class="an-tile-s" data-t="s15">at the latest check</div></div>
   </section>
 
   <div class="an-grid">
     <section class="an-card an-span" id="sc-compare-card">
-      <h2>How Purulia compares</h2>
-      <p class="an-card-sub">What residents found here and what schools officially report, beside West Bengal, India, and the best and worst state. Official figures: Ministry of Education, UDISE+ 2024-25. The "Purulia: official" column fills as residents share schools' report cards: tap “Share its report card” on any school below. A moderator checks each card before it counts.</p>
+      <h2 data-t="s16">How Purulia compares</h2>
+      <p class="an-card-sub" data-t="s17">What residents found here and what schools officially report, beside West Bengal, India, and the best and worst state. Official figures: Ministry of Education, UDISE+ 2024-25. The "Purulia: official" column fills as residents share schools' report cards: tap “Share its report card” on any school below. A moderator checks each card before it counts.</p>
       <div id="sc-compare"><div class="an-empty">Loading…</div></div>
     </section>
 
     <section class="an-card an-span">
-      <h2>Map</h2>
-      <p class="an-card-sub" id="sc-map-sub">Blocks are shaded by the share of their schools residents have checked; tap one to list its schools. Pins show schools whose location is known — from the official list, or learned from residents' checks.</p>
+      <h2 data-t="s19">Map</h2>
+      <p class="an-card-sub" id="sc-map-sub" data-t="s20">Blocks are shaded by the share of their schools residents have checked; tap one to list its schools. Pins show schools whose location is known — from the official list, or learned from residents' checks.</p>
       <div id="sc-map" role="region" aria-label="Map of schools"></div>
-      <div class="sc-legend">
+      <div class="sc-legend" data-t="s21">
         <span><i style="background:#5fae6b"></i>Checked, 80% or more working</span>
         <span><i style="background:#d4882a"></i>Checked, 50–79%</span>
         <span><i style="background:#d9594c"></i>Checked, under 50%</span>
@@ -160,8 +160,8 @@
     </section>
 
     <section class="an-card an-span" id="sc-list">
-      <h2>Checked schools, worst first</h2>
-      <p class="an-card-sub">One point for each thing found working: drinking water, toilets, girls' toilet, boundary wall, electricity, mid-day meal kitchen, meal cooked that day, building in good shape. “Can't tell” answers are left out, so older checks are out of 6. Each school shows its latest check.</p>
+      <h2 data-t="s22">Checked schools, worst first</h2>
+      <p class="an-card-sub" data-t="s23">One point for each thing found working: drinking water, toilets, girls' toilet, boundary wall, electricity, mid-day meal kitchen, meal cooked that day, building in good shape. “Can't tell” answers are left out, so older checks are out of 6. Each school shows its latest check.</p>
       <div class="sc-bestworst" id="sc-bestworst"></div>
       <div class="sc-filters">
         <select id="sc-block" aria-label="Block"><option value="">All blocks</option></select>
@@ -171,18 +171,18 @@
     </section>
 
     <section class="an-card an-span">
-      <h2>Not checked yet</h2>
-      <p class="an-card-sub">Schools nobody has checked yet. Choose a block or search above to find one near you.</p>
+      <h2 data-t="s25">Not checked yet</h2>
+      <p class="an-card-sub" data-t="s26">Schools nobody has checked yet. Choose a block or search above to find one near you.</p>
       <div id="sc-unchecked"></div>
     </section>
 
     <section class="an-card an-span">
-      <h2>By block</h2>
+      <h2 data-t="s27">By block</h2>
       <div class="an-table-wrap" id="sc-blocks"></div>
     </section>
   </div>
 
-  <div class="an-footer">
+  <div class="an-footer" data-t="s28">
     <a href="kasa.html">Report map</a>
     <a href="analytics.html">Analytics</a>
     <a href="changelog.html">What's new</a>
@@ -193,6 +193,8 @@
     <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a>
   </div>
 </main>
+<script src="schools-i18n.js"></script>
+<script src="page-lang.js"></script>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
