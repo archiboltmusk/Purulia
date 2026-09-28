@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -591,6 +591,36 @@ async function loadRepeatPhotos(){
     const d = data[+b.closest('[data-row]').dataset.row];
     if (await repeatAction(b.dataset.act, d.id, d.parent_id)) loadRepeatPhotos();
   }));
+}
+
+/* Visits and reports per place (Purulia and the West Bengal places in places.js). */
+async function loadPlaces(){
+  const el = document.getElementById('adPlaces');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_place_reaction');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No places yet.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Place</th><th>Visits 7d / 30d / all</th><th>Reports 7d / 30d / all</th><th>Counting since</th></tr></thead>
+      <tbody>
+        ${data.map(p => `<tr>
+          <td><strong>${esc(p.name)}</strong></td>
+          <td>${esc(p.visits_7d)} / ${esc(p.visits_30d)} / ${esc(p.visits)}</td>
+          <td>${esc(p.reports_7d)} / ${esc(p.reports_30d)} / ${esc(p.reports)}</td>
+          <td>${esc(p.first_visit || '—')}</td></tr>`).join('')}
+      </tbody>
+    </table>`;
+}
+
+async function loadTownRequests(){
+  const el = document.getElementById('adTownRequests');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_town_requests');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No requests yet.</div>'; return; }
+  el.innerHTML = data.map(r => `<div class="ad-note"><strong>${esc(r.title)}</strong> · ${esc(new Date(r.created_at).toLocaleDateString('en-IN'))}${r.email ? ' · ' + esc(r.email) : ''}
+    <pre style="white-space:pre-wrap;margin:.3rem 0 0">${esc(r.description)}</pre></div>`).join('');
 }
 
 async function loadAdoptions(){

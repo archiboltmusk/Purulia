@@ -1156,3 +1156,37 @@ Object.assign(window.KASA_I18N.hi, {
   step3_town: '{t} में। इस शहर के वार्ड का नक्शा अभी सार्वजनिक नहीं है, इसलिए वार्ड की ज़रूरत नहीं।',
   acc_town_reps: 'इस शहर की वार्ड सीमाएँ अभी सार्वजनिक नहीं हैं, इसलिए पार्षद और विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी नगरपालिका के अधिकारियों की है।'
 });
+/* Other West Bengal places with an open ward map (places.js): Kolkata so far. */
+Object.assign(window.KASA_I18N.en, {
+  pl_add_town: 'Want your town on the map? Send its ward map →',
+  step3_outside: 'This spot is outside the areas Parishkar covers: Purulia district, and Kolkata’s wards.',
+  err_KASA_OUTSIDE_AREA: 'This location is outside the areas Parishkar covers: Purulia district, and Kolkata’s wards.',
+  loc_outside: 'You’re outside Purulia district and Kolkata',
+  pl_step3: '{place} ward {n}. The {body} is responsible.',
+  pl_unmapped: 'This spot is in {place}, but not in a ward on our open map yet, so it can’t be filed here.',
+  pl_officers_unknown: 'Its officers and ward councillors are not on record here yet',
+  pl_complain: 'File it with the {body}', pl_complain_s: 'Their own complaint form. Paste the report link in it.',
+  pl_share: '{cat} in {place} — unresolved for {days} days. See it and add your voice:'
+});
+Object.assign(window.KASA_I18N.bn, {
+  pl_add_town: 'আপনার শহর মানচিত্রে চান? তার ওয়ার্ড মানচিত্র পাঠান →',
+  step3_outside: 'জায়গাটি পরিষ্কারের এলাকার বাইরে: পুরুলিয়া জেলা আর কলকাতার ওয়ার্ড।',
+  err_KASA_OUTSIDE_AREA: 'জায়গাটি পরিষ্কারের এলাকার বাইরে: পুরুলিয়া জেলা আর কলকাতার ওয়ার্ড।',
+  loc_outside: 'আপনি পুরুলিয়া জেলা আর কলকাতার বাইরে আছেন',
+  pl_step3: '{place}, ওয়ার্ড {n}। দায়িত্ব {body}-র।',
+  pl_unmapped: 'জায়গাটি {place}-য়, কিন্তু আমাদের খোলা মানচিত্রে এখনও কোনো ওয়ার্ডে নেই, তাই এখানে জানানো যাবে না।',
+  pl_officers_unknown: 'এখানকার আধিকারিক আর কাউন্সিলরদের নাম এখনও আমাদের কাছে নেই',
+  pl_complain: '{body}-তে অভিযোগ করুন', pl_complain_s: 'তাদের নিজেদের অভিযোগ ফর্ম। রিপোর্টের লিংক সেখানে দিন।',
+  pl_share: '{place}-এ {cat} — {days} দিন ধরে সমাধান হয়নি। দেখুন আর আপনার কথা যোগ করুন:'
+});
+Object.assign(window.KASA_I18N.hi, {
+  pl_add_town: 'अपना शहर नक्शे पर चाहिए? उसका वार्ड नक्शा भेजें →',
+  step3_outside: 'यह जगह परिष्कार के इलाक़े से बाहर है: पुरुलिया ज़िला और कोलकाता के वार्ड।',
+  err_KASA_OUTSIDE_AREA: 'यह जगह परिष्कार के इलाक़े से बाहर है: पुरुलिया ज़िला और कोलकाता के वार्ड।',
+  loc_outside: 'आप पुरुलिया ज़िले और कोलकाता से बाहर हैं',
+  pl_step3: '{place}, वार्ड {n}। ज़िम्मेदारी {body} की है।',
+  pl_unmapped: 'यह जगह {place} में है, पर हमारे खुले नक्शे में अभी किसी वार्ड में नहीं, इसलिए यहाँ दर्ज नहीं हो सकती।',
+  pl_officers_unknown: 'यहाँ के अधिकारियों और पार्षदों के नाम अभी हमारे पास नहीं हैं',
+  pl_complain: '{body} में शिकायत करें', pl_complain_s: 'उनका अपना शिकायत फ़ॉर्म। उसमें रिपोर्ट का लिंक डालें।',
+  pl_share: '{place} में {cat} — {days} दिन से हल नहीं। देखें और अपनी आवाज़ जोड़ें:'
+});
