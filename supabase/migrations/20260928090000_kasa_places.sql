@@ -45,6 +45,10 @@ on conflict (slug) do update set name = excluded.name, body = excluded.body, bod
   complaint_url = excluded.complaint_url, wards_mapped = excluded.wards_mapped, wards_total = excluded.wards_total,
   source = excluded.source, licence = excluded.licence;
 
+-- Also added by 20260928050000_kasa_local_bodies.sql; repeated so this runs on its own.
+alter table kasa_private.areas add column if not exists parent text;
+alter table public.reports add column if not exists local_body text;
+
 alter table public.reports
   add column if not exists place      text,
   add column if not exists place_ward integer;
