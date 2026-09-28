@@ -725,6 +725,7 @@ body[data-app-layout] .k-map-section{flex:1;height:auto;min-height:0;max-height:
 .k-drawer-main{display:flex;flex-direction:column;padding:1.2rem;gap:.8rem;border-bottom:1px solid var(--border);}
 .k-drawer-item{display:flex;align-items:flex-start;gap:.9rem;padding:.9rem 1rem;background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;cursor:pointer;transition:all .2s;font-family:inherit;font-size:.95rem;color:var(--cream);text-align:left;}
 .k-drawer-item:hover{border-color:var(--amber);background:rgba(212,136,42,.08);}
+a.k-drawer-item{text-decoration:none;}
 .k-drawer-icon{font-size:1.6rem;flex-shrink:0;display:flex;align-items:center;}
 .k-drawer-text{display:block;font-weight:600;color:var(--cream);}
 .k-drawer-sub{display:block;font-size:.85rem;color:var(--text-md);margin-top:.2rem;}
