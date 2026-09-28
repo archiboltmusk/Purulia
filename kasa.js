@@ -93,8 +93,15 @@ function chainFor(r){
 
 /* "Ward 5" in town, "Jhalda I block" in a village. */
 function placeLabel(r){
+  if (r.area === 'place') return placeOther(r, t);
   if (r.area === 'rural' && r.block) return t('acc_block', { b: r.block });
   return r.ward ? t('acc_ward', { n: r.ward }) : t('acc_unknown');
+}
+
+/* "Kolkata · Ward 93" for a report in another West Bengal place (places.js). */
+function placeOther(r, tr){
+  const p = window.KasaPlaces?.bySlug(r.place);
+  return [p ? p.name : r.place, r.placeWard ? tr('acc_ward', { n: r.placeWard }) : ''].filter(Boolean).join(' · ');
 }
 
 // What a person would call the spot: their own landmark, else the map address, else the ward/block.
@@ -306,6 +313,13 @@ async function init(){
   }
 
   mapReady = initMainMap();
+  if (window.KasaPlaces){
+    KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
+    KasaPlaces.on((what, slug) => { if (what === 'geo') mapReady.then(() => addPlaceLayers(slug)); });
+    for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
+    const start = KasaPlaces.fromUrl();
+    if (start){ userMovedMap = true; mapReady.then(() => mainMap.jumpTo({ center: start.center, zoom: 12 })); }
+  }
   await Promise.all([loadReports(), loadWards(), loadWardGeo(), loadCommunities()]);
   renderAll();
   renderTrust();
@@ -344,7 +358,10 @@ async function fetchRows(){
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
-    return v2.data || [];
+    // Reports from the other West Bengal places (places.js) live in their own view.
+    const other = window.KasaPlaces ? await sb.from('kasa_public_place_reports').select(PUBLIC_REPORT_COLUMNS + ',place,place_ward')
+      .order('created_at', { ascending: false }).limit(500).then(r => r.data || [], () => []) : [];
+    return [...(v2.data || []), ...other];
   }
   const legacy = await sb.from('reports').select('*').order('created_at', { ascending: false }).limit(500);
   if (legacy.error) throw legacy.error;
@@ -415,6 +432,8 @@ function normalize(r){
     ward: r.ward_no ? Number(r.ward_no) : null,
     area: r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
+    place: r.place || null,
+    placeWard: r.place_ward ? Number(r.place_ward) : null,
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
@@ -535,7 +554,9 @@ function placeOf(lat, lng){
   if (!state.blockGeo || !state.wardGeo) return { kind: 'unknown' };
   const block = detectBlock(lat, lng);
   if (nearTown(lat, lng)) return { kind: 'edge', block };
-  return block ? { kind: 'rural', block } : { kind: 'outside' };
+  if (block) return { kind: 'rural', block };
+  const other = window.KasaPlaces?.at(lat, lng);
+  return other?.kind === 'place_unmapped' ? { kind: 'outside', unmapped: other.name } : other || { kind: 'outside' };
 }
 
 function detectWard(lat, lng){
@@ -1033,6 +1054,11 @@ function initMainMapNow(){
   mainMap.once('load', resizeMap);
   // Any drag/zoom/rotate by a person carries originalEvent; programmatic moves don't.
   mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
+  if (window.KasaPlaces){
+    const follow = () => { const c = mainMap.getCenter(); KasaPlaces.onView(c.lat, c.lng, mainMap.getZoom()); };
+    mainMap.on('moveend', follow);
+    mainMap.once('load', follow);
+  }
   watchMapStyleLoad(mainMap);
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
@@ -1094,6 +1120,26 @@ function addWardLayers(){
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward));
   });
+}
+
+/* Ward outlines of the other West Bengal places (places.js), drawn once loaded. */
+function addPlaceLayers(slug){
+  const g = window.KasaPlaces?.geo[slug];
+  if (!mainMap || !g || mainMap.getSource('place-' + slug)) return;
+  const p = KasaPlaces.bySlug(slug);
+  mainMap.addSource('place-' + slug, { type: 'geojson', data: g,
+    attribution: `<a href="${p.source}" target="_blank" rel="noopener">${p.name} wards: ${p.sourceName}</a> (${p.licence})` });
+  mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
+    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
+  mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
+    layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+}
+
+/* "Parishkar Kolkata" for a report there, else this deployment's name. */
+function brandName(r){
+  const p = r?.area === 'place' && window.KasaPlaces?.bySlug(r.place);
+  return 'Parishkar ' + (p ? p.name : CITY_NAME);
 }
 
 function updateMap(){
@@ -1313,7 +1359,7 @@ function renderFixed(){
       <span class="k-fixed-body">
         <span class="k-fixed-cat">${c.icon} ${esc(t('cat_' + r.category))}</span>
         <span class="k-fixed-speed">${esc(t(days === 0 ? 'fixed_same_day' : 'fixed_days', { n: days }))}</span>
-        <span class="k-fixed-meta">${esc(r.ward || r.block ? placeLabel(r) : '')}${w.councillor_name && r.area !== 'rural' ? ' · ' + esc(t('fixed_councillor', { name: w.councillor_name })) : ''}</span>
+        <span class="k-fixed-meta">${esc(r.ward || r.block || r.place ? placeLabel(r) : '')}${w.councillor_name && r.area !== 'rural' ? ' · ' + esc(t('fixed_councillor', { name: w.councillor_name })) : ''}</span>
         ${n ? `<span class="k-fixed-confirm">✓ ${esc(t('fixed_confirmed', { n }))}</span>` : ''}
       </span>
     </button>`;
@@ -1489,7 +1535,7 @@ function renderSheet(){
     <div class="k-sheet-place">
       <div class="k-sheet-cat">${c.icon} ${esc(t('cat_' + r.category))}${r.wasteType ? ' · ' + esc(t('waste_' + r.wasteType)) : ''}${neighbourBadge(r)}</div>
       <h3 class="k-sheet-title">${esc(place)}</h3>
-      <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
+      <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block || r.place) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
@@ -1637,7 +1683,28 @@ function beforeAfter(before, after){
     </div>`;
 }
 
+/* Another West Bengal place: only its municipal body and its own complaint form are named.
+   Its officers and representatives are not on record here, so none are shown. */
+function renderPlaceAccountability(r){
+  const p = window.KasaPlaces?.bySlug(r.place);
+  return `
+    <div class="k-acc">
+      <div class="k-acc-label">${esc(t('acc_title'))}</div>
+      <div class="k-tree">
+        <div class="k-tree-root"><small>${esc(t('acc_your_ward'))}</small><b>${esc(placeLabel(r))}</b></div>
+        <div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
+          <span class="k-node-text"><b>${esc(p ? p.body : r.place)}</b><small>${esc(t('pl_officers_unknown'))}</small></span></div>
+        ${p?.complaintUrl ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
+        <details class="k-acc-more">
+          <summary>${esc(t('acc_more'))}</summary>
+          ${renderEscalate(r)}
+        </details>
+      </div>
+    </div>`;
+}
+
 function renderAccountability(r){
+  if (r.area === 'place') return renderPlaceAccountability(r);
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const w = state.wards[r.ward] || {};
@@ -1696,14 +1763,15 @@ function renderEscalate(r){
   if (STATE_HELPLINE) items.push([`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: CITY.stateHelplineDisplay || STATE_HELPLINE }), t('esc_state_s')]);
   if (STATE_HELPLINE_EMAIL) items.push([`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent(CITY_NAME + ' — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]);
   if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
-  if (r.category === 'streetlight' && CITY.powerUtilityUrl) items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);
+  // WBSEDCL is Purulia's supplier; other places (Kolkata: CESC) have their own.
+  if (r.category === 'streetlight' && CITY.powerUtilityUrl && r.area !== 'place') items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);
   if (CITY.rtiPortalUrl) items.push([CITY.rtiPortalUrl, t('esc_rti'), t('esc_rti_s')]);
   return `
     <div class="k-escalate">
       <div class="k-acc-reps-label">${esc(t('esc_title'))}</div>
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
-      ${isOverdue(r) ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      ${isOverdue(r) && r.area !== 'place' ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
@@ -1721,6 +1789,7 @@ function rtiAgencyLine(r){
 
 /* English-only place label for documents; mirrors placeLabel() but never follows the viewer's language. */
 function placeLabelEN(r){
+  if (r.area === 'place') return placeOther(r, tEN);
   if (r.area === 'rural' && r.block) return tEN('acc_block', { b: r.block });
   return r.ward ? tEN('acc_ward', { n: r.ward }) : tEN('acc_unknown');
 }
@@ -1980,17 +2049,19 @@ async function shareReport(id){
   const r = state.byId.get(id);
   if (!r) return;
   const url = reportLink(id);
-  const text = r.area === 'rural' && r.block
+  const text = r.area === 'place'
+    ? t('pl_share', { cat: t('cat_' + r.category), place: placeOther(r, t), days: daysSince(r.createdAt) })
+    : r.area === 'rural' && r.block
     ? t('share_text_rural', { cat: t('cat_' + r.category), block: r.block, days: daysSince(r.createdAt) })
     : t('share_text', { cat: t('cat_' + r.category), ward: r.ward ?? '?', days: daysSince(r.createdAt) });
   // A picture travels on WhatsApp where a bare link doesn't: send the card with the link.
   const card = await shareCard(r).catch(() => null);
   const file = card && new File([card], `parishkar-${id.slice(0, 8)}.png`, { type: 'image/png' });
   if (file && navigator.canShare?.({ files: [file] })){
-    try { await navigator.share({ files: [file], title: 'Parishkar Purulia', text: `${text} ${url}` }); } catch (e) {}
+    try { await navigator.share({ files: [file], title: brandName(r), text: `${text} ${url}` }); } catch (e) {}
     return;
   }
-  if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
+  if (navigator.share){ navigator.share({ title: brandName(r), text, url }).catch(() => {}); return; }
   // Desktop: save the card and copy the link, ready to paste into WhatsApp Web.
   if (card){
     const a = document.createElement('a');
@@ -2060,12 +2131,13 @@ async function shareCard(r){
   y = wrap(r.landmark || r.address ? `${placeText(r)} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
   const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
   g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
-  y = wrap(`${t('card_responsible')}: ${t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
+  const otherBody = r.area === 'place' && window.KasaPlaces?.bySlug(r.place)?.body;
+  y = wrap(`${t('card_responsible')}: ${otherBody || t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
   if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
   // Footer
   g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
   g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`;
-  g.fillText('Parishkar ' + CITY_NAME, PAD, H - 68);
+  g.fillText(brandName(r), PAD, H - 68);
   g.font = `500 28px ${mono}`;
   g.fillText(t(fixed ? 'card_cta_fixed' : 'card_cta'), PAD, H - 28);
   return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
@@ -2122,8 +2194,9 @@ function copyText(s, done = 'ct_copied'){
 function reportMessage(r){
   const w = state.wards[r.ward] || {};
   return [
-    `Parishkar Purulia — ${t('cat_' + r.category)}`,
-    r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
+    `${brandName(r)} — ${t('cat_' + r.category)}`,
+    r.area === 'place' ? `${placeOther(r, tEN)}, West Bengal`
+      : r.area === 'rural' && r.block ? `${r.block} block, Purulia district` : `Ward ${r.ward ?? '?'}${w.councillor_name ? ' (' + w.councillor_name + ')' : ''}`,
     r.landmark ? `Near: ${r.landmark}` : '',
     r.address && r.address !== r.landmark ? `Address: ${r.address}` : '',
     `Severity: ${r.severity} · ${daysSince(r.createdAt)} days unresolved`,
@@ -2139,7 +2212,7 @@ function openContact(spec){
   if (!r) return;
   const msg = reportMessage(r);
   // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
-  const town = r.area !== 'rural';
+  const town = r.area !== 'rural' && r.area !== 'place';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
   const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + reportLink(r.id))}`;
@@ -2662,15 +2735,17 @@ function setLocation(lat, lng, accuracy){
   if (place.kind === 'town'){ draft.ward = place.ward; wardSel.value = String(place.ward); }
   if (place.kind !== 'town' && place.kind !== 'unknown'){ draft.ward = null; wardSel.value = ''; }
   wardSel.options[0].textContent = place.kind === 'edge' ? t('step3_not_town') : '—';
-  document.getElementById('k-ward-field').hidden = place.kind === 'rural' || place.kind === 'outside';
+  document.getElementById('k-ward-field').hidden = ['rural', 'outside', 'place'].includes(place.kind);
   const note = document.getElementById('k-place');
-  note.hidden = !['rural', 'edge', 'outside'].includes(place.kind);
+  note.hidden = !['rural', 'edge', 'outside', 'place'].includes(place.kind);
   note.className = 'k-field-note' + (place.kind === 'outside' ? ' k-field-bad' : '');
   note.textContent = place.kind === 'rural' ? t('step3_block', { b: place.block })
-    : place.kind === 'edge' ? t('step3_edge') : place.kind === 'outside' ? t('step3_outside') : '';
+    : place.kind === 'place' ? t('pl_step3', { place: place.name, n: place.ward, body: place.body })
+    : place.kind === 'edge' ? t('step3_edge')
+    : place.kind === 'outside' ? (place.unmapped ? t('pl_unmapped', { place: place.unmapped }) : t('step3_outside')) : '';
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
-    (place.kind === 'town' || place.kind === 'rural' || place.kind === 'outside' || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
+    (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   placeMiniMarker();
   if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
   updateSubmitState();
@@ -3439,8 +3514,10 @@ async function submitReport(){
   const hasGoodGPS = draft.lat != null;
   if (!hasGoodGPS || !draftReady()){ updateSubmitState(); return; }
   const kind = draft.place?.kind;
-  draft.area = kind === 'rural' || (kind === 'edge' && !draft.ward) ? 'rural' : 'town';
+  draft.area = kind === 'place' ? 'place' : kind === 'rural' || (kind === 'edge' && !draft.ward) ? 'rural' : 'town';
   draft.block = draft.place?.block || null;
+  draft.otherPlace = kind === 'place' ? draft.place.place : null;
+  draft.placeWard = kind === 'place' ? draft.place.ward : null;
   draft.boundary_type = detectBoundary(draft.lat, draft.lng);
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
@@ -3501,8 +3578,9 @@ async function afterSubmit(res, d){
   // d.category is null for a quick report (never chosen by the user); the server
   // stores it as 'other', so match that here for the share text and WhatsApp message.
   const fake = { ...d, id: id || d.clientId, createdAt: new Date().toISOString(), ward: d.ward,
+    place: d.otherPlace || null, placeWard: d.placeWard || null,
     category: d.category || 'other', pending: !id };
-  document.getElementById('k-wa-escalate').href = d.area === 'rural'
+  document.getElementById('k-wa-escalate').href = d.area === 'rural' || d.area === 'place'
     ? `https://wa.me/?text=${encodeURIComponent(reportMessage(fake))}`
     : `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(reportMessage(fake))}`;
   goToStep('done');
@@ -3530,7 +3608,8 @@ function pendingToRow(p){
   return {
     id: p.clientId, created_at: p.createdAt, lat: p.lat, lng: p.lng, ward_no: p.ward, category: p.category,
     severity: p.severity, status: 'open', description: p.description, landmark: p.landmark,
-    photo_url: p.photoBlob ? URL.createObjectURL(p.photoBlob) : null, _pending: true
+    photo_url: p.photoBlob ? URL.createObjectURL(p.photoBlob) : null, _pending: true,
+    area_kind: p.otherPlace ? 'place' : undefined, place: p.otherPlace || null, place_ward: p.placeWard || null
   };
 }
 
@@ -4099,7 +4178,8 @@ async function locateOnOpen(){
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
-      if (b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
+      const other = window.KasaPlaces?.boxAt(lat, lng);
+      if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
