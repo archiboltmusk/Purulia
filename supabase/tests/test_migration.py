@@ -944,16 +944,28 @@ check('a wrong-category flag with a suggestion is counted',
           p_suggested_category='road').get('counted') is True)
 check('only moderators can change a category',
       err(rpc, 'kasa_admin_recategorize', uid=wc_flagger, p_report_id=str(wc_res['id']), p_category='road', p_reason='x') == 'KASA_NOT_ADMIN')
+LOGO = 'data:image/jpeg;base64,AAAA'
+def community(**kw):
+    a = dict(p_name='Ward 5 Youth Club', p_tagline='Sunday cleanups', p_about=None, p_all_district=False,
+             p_wards='{5,6}', p_blocks='{}', p_links={'instagram': 'https://www.instagram.com/ward5'}, p_logo=LOGO,
+             p_contact_name='Coordinator', p_contact_phone='+91 98765 43210', p_adult=True)
+    a.update(kw)
+    return a
 check('a community needs an adult coordinator',
-      err(rpc, 'kasa_register_community', ip='10.50.0.1', p_name='Ward 5 Youth Club', p_kind='youth_club', p_wards='{5}',
-          p_description=None, p_public_contact=None, p_coordinator_contact='x@example.com', p_adult=False) == 'KASA_ADULT_REQUIRED')
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', **community(p_adult=False)) == 'KASA_ADULT_REQUIRED')
+check('a community link must belong to its network',
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', **community(p_links={'instagram': 'https://evil.example/x'})) == 'KASA_BAD_LINK')
+check('a community needs at least one link',
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', **community(p_links={})) == 'KASA_BAD_FORM')
+check('a community needs a logo',
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', **community(p_logo='https://example.com/x.png')) == 'KASA_BAD_FORM')
+check('a community needs a real mobile number',
+      err(rpc, 'kasa_register_community', ip='10.50.0.1', **community(p_contact_phone='12345')) == 'KASA_BAD_FORM')
 check('a community registers as pending',
-      rpc('kasa_register_community', ip='10.50.0.1', p_name='Ward 5 Youth Club', p_kind='youth_club', p_wards='{5,6}',
-          p_description='Sunday cleanups', p_public_contact='wa.me/911234', p_coordinator_contact='x@example.com',
-          p_adult=True).get('status') == 'pending')
+      rpc('kasa_register_community', ip='10.50.0.1', **community()).get('status') == 'pending')
 check('pending communities are not public', q('select count(*) from public.kasa_public_communities')[0][0] == 0)
 check('coordinator contacts are never public',
-      'coordinator_contact' not in [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_communities'")])
+      not {'coordinator_contact', 'coordinator_name', 'ip_hash'} & {r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_communities'")})
 
 # ─────────────────────── Claim integrity (rings, cooldown, night, flags, times) ───────────────────────
 def final_after(ts):

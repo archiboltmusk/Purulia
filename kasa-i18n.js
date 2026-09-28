@@ -18,6 +18,7 @@ window.KASA_I18N = {
     pill_active: 'Unresolved', pill_reports: 'Reports', map_report: 'Report',
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
     stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
+    drawer_groups: 'Volunteer communities', drawer_groups_sub: 'Find a group near you, or register yours',
     drawer_banner: 'Join 7 neighbors fixing Purulia today', drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
@@ -273,6 +274,7 @@ window.KASA_I18N = {
     pill_active: 'অমীমাংসিত', pill_reports: 'রিপোর্ট', map_report: 'রিপোর্ট',
     stat_reports: 'রিপোর্ট', stat_open: 'অমীমাংসিত', stat_resolved: 'যাচাই করা সমাধান', stat_fake: 'ধরা পড়া ভুয়ো সাফাই',
     stat_total_short: 'মোট', stat_open_short: 'অমীমাংসিত', stat_fixed_short: 'সমাধান হয়েছে',
+    drawer_groups: 'স্বেচ্ছাসেবী দল', drawer_groups_sub: 'কাছের দল খুঁজুন, বা আপনার দল নথিভুক্ত করুন',
     drawer_banner: 'পুরুলিয়া পরিষ্কার রাখতে ৭ জন প্রতিবেশী সাথে যোগ দিন', drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'আরও সম্পদ',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
@@ -527,6 +529,7 @@ window.KASA_I18N = {
     pill_active: 'अनसुलझी', pill_reports: 'रिपोर्ट', map_report: 'रिपोर्ट',
     stat_reports: 'रिपोर्ट', stat_open: 'अनसुलझी', stat_resolved: 'पुष्टि से सुलझी', stat_fake: 'पकड़ी गई फ़र्ज़ी सफ़ाई',
     stat_total_short: 'कुल', stat_open_short: 'अनसुलझी', stat_fixed_short: 'सुलझी हुई',
+    drawer_groups: 'स्वयंसेवी समूह', drawer_groups_sub: 'पास का समूह खोजें, या अपना दर्ज करें',
     drawer_banner: 'पुरुलिया को साफ़ रखने वाले 7 पड़ोसियों के साथ जुड़ें', drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
 
     trust_num: '03 · पुष्टि', trust_title: 'यहाँ "सुलझ गई" का मतलब सच में सुलझ गई',

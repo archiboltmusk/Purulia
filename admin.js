@@ -909,15 +909,25 @@ async function loadCommunities(){
   if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_communities');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No groups registered yet.</div>'; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">No communities registered yet.</div>'; return; }
+  const where = c => c.all_district ? 'All of Purulia district'
+    : [...(c.wards || []).map(w => 'Ward ' + w), ...(c.blocks || []).map(b => b + ' block')].join(', ');
+  const logo = c => /^data:image\/(jpeg|png|webp);base64,/.test(c.logo || '')
+    ? `<img src="${esc(c.logo)}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` : '—';
+  const links = c => Object.entries(c.links || {}).filter(([, u]) => /^https:\/\//i.test(u))
+    .map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(k)}</a>`).join('<br>')
+    || esc(c.public_contact || '');
   el.innerHTML = `
     <table class="ad-table">
-      <thead><tr><th>Status</th><th>Group</th><th>Wards</th><th>What they do</th><th>Public contact</th><th>Coordinator (private)</th><th></th></tr></thead>
+      <thead><tr><th>Status</th><th>Logo</th><th>Community</th><th>Where</th><th>Links (open each to check)</th><th>Verification (private)</th><th></th></tr></thead>
       <tbody>
         ${data.map(c => `<tr>
-          <td>${esc(c.status)}</td><td><strong>${esc(c.name)}</strong><br><small>${esc(c.kind)} · ${esc(new Date(c.created_at).toLocaleDateString('en-IN'))}</small></td>
-          <td>${esc((c.wards || []).join(', '))}</td><td style="white-space:pre-wrap;">${esc(c.description || '')}</td>
-          <td>${esc(c.public_contact || '')}</td><td>${esc(c.coordinator_contact)}</td>
+          <td>${esc(c.status)}${c.review_note ? `<br><small>${esc(c.review_note)}</small>` : ''}</td><td>${logo(c)}</td>
+          <td><strong>${esc(c.name)}</strong><br>${esc(c.tagline || '')}<br><small style="white-space:pre-wrap;">${esc(c.description || '')}</small>
+            <br><small>${esc(new Date(c.created_at).toLocaleDateString('en-IN'))}</small></td>
+          <td>${esc(where(c))}</td><td>${links(c)}</td>
+          <td>${esc(c.coordinator_name || '')}<br>${/^[6-9][0-9]{9}$/.test(c.coordinator_contact || '')
+            ? `<a href="tel:+91${esc(c.coordinator_contact)}">${esc(c.coordinator_contact)}</a>` : esc(c.coordinator_contact)}</td>
           <td style="white-space:nowrap;">
             ${c.status !== 'approved' ? `<button class="ad-ok" data-group="${esc(c.id)}" data-group-act="approve">✓ Approve</button>` : ''}
             ${c.status !== 'hidden' ? `<button class="ad-bad" data-group="${esc(c.id)}" data-group-act="hide">✕ Hide</button>` : ''}
