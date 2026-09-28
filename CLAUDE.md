@@ -14,6 +14,7 @@
 # Changelog
 
 - Every user-visible change adds a line at the top of `changelog.html` (newest date first, plain words a reporter would use). Internal-only changes (CI, refactors, config) don't need one.
+- After editing `changelog.html`, run `node tools/version.mjs` and commit `version.js` (the version badge on the report map: v1.<dated sections>.<entries on the newest day>). CI fails if it is out of date.
 
 # Pull requests
 
