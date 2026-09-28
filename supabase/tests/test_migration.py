@@ -170,7 +170,7 @@ check('anon cannot write through the public view',
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
 PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review', 'claim_reviewed_at',
-                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type'}
+                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type', 'local_body'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
 open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
@@ -2104,6 +2104,15 @@ for i in range(5):
     err(rpc, 'kasa_bug_submit', ip='10.9.9.9', p_what='Map is blank again')
 check('one network can send at most five bug reports an hour',
       err(rpc, 'kasa_bug_submit', ip='10.9.9.9', p_what='Map is blank again') == 'KASA_RATE_LIMIT')
+
+# ── Local bodies: Jhalda and Raghunathpur towns, and gram panchayats ─────────
+jh = admin_sql("select kasa_private.locate(23.365, 85.975, null)")[0][0]
+check('a spot in Jhalda town goes to Jhalda Municipality', jh.get('body') == 'Jhalda Municipality' and jh.get('body_type') == 'municipality' and jh.get('kind') == 'rural', jh)
+rg = admin_sql("select kasa_private.locate(23.545, 86.672, null)")[0][0]
+check('a spot in Raghunathpur town goes to Raghunathpur Municipality', rg.get('body') == 'Raghunathpur Municipality' and rg.get('body_type') == 'municipality', rg)
+gp = admin_sql("select kasa_private.locate(23.28, 86.20, null)")[0][0]
+check('a village spot names its gram panchayat and block', gp.get('body') == 'Sirkabad' and gp.get('block') == 'Arsha' and gp.get('body_type') == 'gram_panchayat', gp)
+check('all 170 gram panchayats are loaded', admin_sql("select count(*) from kasa_private.areas where kind = 'gp'")[0][0] == 170)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

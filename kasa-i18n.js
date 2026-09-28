@@ -1098,3 +1098,25 @@ Object.assign(window.KASA_I18N.hi, {
   notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
   notify_digest_btn: '✉ ईमेल पर पाएँ'
 });
+/* Local bodies: the district's other municipalities and every gram panchayat. */
+Object.assign(window.KASA_I18N.en, {
+  version_title: 'Version {v}: see what\'s new',
+  acc_gp: '{g} gram panchayat, {b} block', acc_your_gp: 'Your gram panchayat', acc_your_town: 'Your municipality',
+  step3_gp: 'In {g} gram panchayat, {b} block. No ward needed.',
+  step3_town: 'In {t}. No ward map for this town is public yet, so no ward is needed.',
+  acc_town_reps: 'Ward outlines for this town are not public yet, so the councillor and MLA are not shown. The municipality\'s own officers are the first people responsible.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  version_title: 'সংস্করণ {v}: নতুন কী দেখুন',
+  acc_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লক', acc_your_gp: 'আপনার গ্রাম পঞ্চায়েত', acc_your_town: 'আপনার পৌরসভা',
+  step3_gp: '{g} গ্রাম পঞ্চায়েত, {b} ব্লকে। ওয়ার্ড লাগবে না।',
+  step3_town: '{t}-এ। এই শহরের ওয়ার্ডের মানচিত্র এখনও প্রকাশ্যে নেই, তাই ওয়ার্ড লাগবে না।',
+  acc_town_reps: 'এই শহরের ওয়ার্ডের সীমানা এখনও প্রকাশ্যে নেই, তাই কাউন্সিলর ও বিধায়কের নাম দেখানো হয় না। প্রথম দায়িত্ব পৌরসভার আধিকারিকদের।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  version_title: 'संस्करण {v}: क्या नया है देखें',
+  acc_gp: '{g} ग्राम पंचायत, {b} ब्लॉक', acc_your_gp: 'आपकी ग्राम पंचायत', acc_your_town: 'आपकी नगरपालिका',
+  step3_gp: '{g} ग्राम पंचायत, {b} ब्लॉक में। वार्ड की ज़रूरत नहीं।',
+  step3_town: '{t} में। इस शहर के वार्ड का नक्शा अभी सार्वजनिक नहीं है, इसलिए वार्ड की ज़रूरत नहीं।',
+  acc_town_reps: 'इस शहर की वार्ड सीमाएँ अभी सार्वजनिक नहीं हैं, इसलिए पार्षद और विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी नगरपालिका के अधिकारियों की है।'
+});

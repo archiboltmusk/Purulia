@@ -163,3 +163,34 @@ test('the bell opens one sheet for all alerts', async ({ page, backend }) => {
   await sheet.locator('.k-modal-close').click();
   await expect(sheet).not.toHaveClass(/open/);
 });
+
+test('the version badge opens that version on the What\'s new page', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  const badge = page.locator('#k-version');
+  await expect(badge).toBeVisible();
+  const text = await badge.textContent();
+  expect(text).toMatch(/^v1\.\d+\.\d+$/);
+  await badge.click();
+  await expect(page).toHaveURL(new RegExp('changelog\\.html#' + text.replace(/\./g, '\\.') + '$'));
+  await expect(page.locator(`h2[id="${text}"]`)).toBeVisible();
+  await expect(page.locator('#curVersion')).toHaveText(text);
+});
+
+test('the report map knows gram panchayats and the other towns', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => typeof mainMap !== 'undefined' && !!mainMap?.getSource('gps'))).toBe(true);
+  const places = await page.evaluate(async () => {
+    await Promise.all([loadBlockGeo(), loadLocalGeo()]);
+    return [placeOf(23.365, 85.975), placeOf(23.545, 86.672), placeOf(23.28, 86.20)];
+  });
+  expect(places[0]).toMatchObject({ kind: 'rural', body: 'Jhalda Municipality', bodyType: 'municipality' });
+  expect(places[1]).toMatchObject({ kind: 'rural', body: 'Raghunathpur Municipality', bodyType: 'municipality' });
+  expect(places[2]).toMatchObject({ kind: 'rural', block: 'Arsha', body: 'Sirkabad', bodyType: 'gram_panchayat' });
+  const labels = await page.evaluate(() => [
+    placeLabel({ area: 'rural', block: 'Jhalda I', body: 'Jhalda Municipality', bodyType: 'municipality' }),
+    placeLabel({ area: 'rural', block: 'Arsha', body: 'Sirkabad', bodyType: 'gram_panchayat' }),
+    chainFor({ area: 'rural', category: 'garbage', body: 'Jhalda Municipality', bodyType: 'municipality' }).agency,
+    chainFor({ area: 'rural', category: 'garbage', body: 'Sirkabad', bodyType: 'gram_panchayat' }).agency
+  ]);
+  expect(labels).toEqual(['Jhalda Municipality', 'Sirkabad gram panchayat, Arsha block', 'agency_municipality', 'agency_panchayat']);
+});
