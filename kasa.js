@@ -476,10 +476,13 @@ async function loadWards(){
 
 async function loadCommunities(){
   if (!sb) return;
-  const { data, error } = await sb.from('kasa_public_communities').select('wards');
+  const { data, error } = await sb.from('kasa_public_communities').select('wards,all_district');
   if (error) return;
   state.groupsByWard = {};
-  for (const g of data || []) for (const w of g.wards || []) state.groupsByWard[w] = (state.groupsByWard[w] || 0) + 1;
+  // A district-wide community counts in every ward.
+  const everywhere = (data || []).filter(g => g.all_district).length;
+  for (let w = 1; w <= 23; w++) if (everywhere) state.groupsByWard[w] = everywhere;
+  for (const g of data || []) if (!g.all_district) for (const w of g.wards || []) state.groupsByWard[w] = (state.groupsByWard[w] || 0) + 1;
 }
 
 async function loadWardGeo(){
