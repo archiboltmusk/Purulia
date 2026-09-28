@@ -65,7 +65,44 @@ document.getElementById('adSignout').addEventListener('click', async () => {
 
 document.getElementById('adRefreshBtn').addEventListener('click', loadAll);
 
+/* Team invite link: admin.html?invite=<token>&type=invite|recovery (made by kasa-team-invite).
+   Sign in with the one-time token, then ask for a password before showing the dashboard. */
+async function openInviteLink(){
+  const q = new URLSearchParams(location.search);
+  const token = q.get('invite');
+  if (!token) return false;
+  history.replaceState(null, '', location.pathname);
+  const type = q.get('type') === 'recovery' ? 'recovery' : 'invite';
+  const errEl = document.getElementById('adError');
+  const { error } = await sb.auth.verifyOtp({ token_hash: token, type });
+  if (error){
+    errEl.textContent = 'This link has expired or was already used. Ask an admin to press Invite again.';
+    return true;
+  }
+  document.getElementById('adLoginForm').classList.add('hidden');
+  if (type === 'recovery') document.getElementById('adSetPwNote').textContent = 'Choose a new password.';
+  document.getElementById('adSetPwForm').classList.remove('hidden');
+  return true;
+}
+
+document.getElementById('adSetPwForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const errEl = document.getElementById('adError');
+  const password = document.getElementById('adNewPassword').value;
+  if (password.length < 8){ errEl.textContent = 'Use 8 or more characters.'; return; }
+  const btn = document.getElementById('adSetPwBtn');
+  btn.disabled = true;
+  const { error } = await sb.auth.updateUser({ password });
+  btn.disabled = false;
+  if (error){ errEl.textContent = error.message; return; }
+  errEl.textContent = '';
+  const { data: isAdmin } = await sb.rpc('kasa_is_admin');
+  if (isAdmin) showDashboard();
+  else errEl.textContent = 'Password saved, but this account is not on the team any more.';
+});
+
 (async () => {
+  if (await openInviteLink()) return;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return;
   const { data: isAdmin } = await sb.rpc('kasa_is_admin');
@@ -1018,10 +1055,37 @@ async function setRole(email, role){
   loadTeam();
 }
 
+// Makes the account if needed, adds it to the team, and shows a one-time link to send them.
+async function invite(email, role){
+  const box = document.getElementById('adInvite');
+  box.hidden = false;
+  box.textContent = 'Making a link…';
+  const { data, error } = await sb.functions.invoke('kasa-team-invite', { body: { email, role } });
+  if (error || !data?.token){
+    let msg = error?.message || 'unknown error';
+    try { msg = (await error.context.json()).error || msg; } catch (_) {}
+    box.textContent = 'Could not invite: ' + msg;
+    return;
+  }
+  const link = location.origin + location.pathname + '?invite=' + encodeURIComponent(data.token) + '&type=' + data.type;
+  const text = (data.existing
+    ? 'Parishkar Purulia: use this link to set a new password for the admin page. It works once: '
+    : 'You are invited to the Parishkar Purulia moderation team. Open this link and choose a password. It works once: ') + link;
+  box.innerHTML = `${data.existing ? esc(email) + ' already has an account, so this is a password-reset link.' : 'Send this to ' + esc(email) + '.'}
+    It works once and expires after a while; press Invite again for a fresh one.<br>
+    <input class="ad-input" readonly value="${esc(link)}" aria-label="Invite link">
+    <a class="ad-ok" href="https://wa.me/?text=${encodeURIComponent(text)}" target="_blank" rel="noopener">Send on WhatsApp</a>
+    <button class="ad-ok" type="button" id="adInviteCopy">Copy</button>`;
+  document.getElementById('adInviteCopy').addEventListener('click', (e) => {
+    navigator.clipboard.writeText(text).then(() => { e.target.textContent = 'Copied'; }, () => box.querySelector('input').select());
+  });
+  loadTeam();
+}
+
 document.getElementById('adTeamForm').addEventListener('submit', (e) => {
   e.preventDefault();
   const email = document.getElementById('adTeamEmail').value.trim();
-  if (email) setRole(email, document.getElementById('adTeamRole').value);
+  if (email) invite(email, document.getElementById('adTeamRole').value);
 });
 
 function esc(s){
