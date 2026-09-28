@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -902,6 +902,59 @@ async function loadBugs(){
   };
   el.querySelectorAll('[data-bug-fixed]').forEach(b => b.addEventListener('click', () => run(b.dataset.bugFixed, 'fixed')));
   el.querySelectorAll('[data-bug-dismiss]').forEach(b => b.addEventListener('click', () => run(b.dataset.bugDismiss, 'dismissed')));
+}
+
+/* Letters to offices: a draft per office (the municipality for town wards, the BDO for a
+   village block) listing its open reports. Drafts only: the admin copies the text or opens
+   it in their own mail app. Nothing here sends anything. */
+const SITE = 'https://archiboltmusk.github.io/Purulia/';
+async function loadLetters(){
+  const el = document.getElementById('adLetters');
+  if (!el) return;
+  const [rep, wardRes] = await Promise.all([
+    sb.from('kasa_public_reports').select('id,created_at,ward_no,category,severity,status,landmark,sla_days,is_duplicate,area_kind,block_name').neq('status', 'resolved').limit(5000),
+    sb.from('wards').select('ward_no,councillor_name')
+  ]);
+  if (rep.error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(rep.error.message)}</div>`; return; }
+  const city = window.KASA_CITY || {};
+  const councillor = new Map((wardRes.data || []).map(w => [w.ward_no, w.councillor_name]));
+  const now = Date.now(), age = r => Math.floor((now - Date.parse(r.created_at)) / 86400000);
+  const offices = new Map();
+  (rep.data || []).filter(r => !r.is_duplicate).forEach(r => {
+    const town = r.ward_no != null;
+    const key = town ? 'municipality' : 'bdo:' + (r.block_name || '?');
+    if (!town && !r.block_name) return;
+    if (!offices.has(key)) offices.set(key, town
+      ? { title: 'Purulia Municipality', to: 'The Chairman, Purulia Municipality', email: city.municipalityEmail || '', page: SITE + 'municipality.html', list: [] }
+      : { title: 'BDO, ' + r.block_name, to: 'The Block Development Officer, ' + r.block_name + ' Block, Purulia', email: '', page: SITE + 'ward.html?block=' + encodeURIComponent(r.block_name), list: [] });
+    offices.get(key).list.push(r);
+  });
+  if (!offices.size){ el.innerHTML = '<div class="ad-empty">No open reports, so no letters.</div>'; return; }
+  const line = r => {
+    const where = r.ward_no != null ? `Ward ${r.ward_no}${councillor.get(r.ward_no) ? ' (Councillor ' + councillor.get(r.ward_no) + ')' : ''}` : r.block_name;
+    const late = age(r) > (r.sla_days || 7) ? ', overdue' : '';
+    return `- ${r.category}${r.landmark ? ' near ' + r.landmark : ''}, ${where}: open ${age(r)} days${late}. Photo and location: ${SITE}kasa.html?report=${r.id}`;
+  };
+  const letters = [...offices.values()].sort((a, b) => b.list.length - a.list.length).map(o => {
+    o.list.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
+    const late = o.list.filter(r => age(r) > (r.sla_days || 7)).length;
+    o.subject = `${o.list.length} open civic report${o.list.length === 1 ? '' : 's'} in your area${late ? `, ${late} overdue` : ''}`;
+    o.body = `To ${o.to},\n\nResidents have reported the problems below on Parishkar Purulia. Each has a live-camera photo taken at the spot with GPS. They are still open.\n\n${o.list.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${o.page}\n\nParishkar Purulia\n${SITE}`;
+    return o;
+  });
+  el.innerHTML = letters.map((o, i) => `
+    <details class="ad-card" style="margin-bottom:1rem;">
+      <summary><strong>${esc(o.title)}</strong> · ${o.list.length} open${o.email ? '' : ' · <span style="color:var(--text-lo);">no public email on file</span>'}</summary>
+      <p><small>Subject: ${esc(o.subject)}</small></p>
+      <textarea readonly rows="12" style="width:100%;font-family:var(--mono);font-size:12px;" id="adLetter${i}">${esc(o.body)}</textarea>
+      <p><button class="ad-ok" data-letter-copy="${i}">Copy text</button>
+      ${o.email ? `<a class="ad-ok" style="text-decoration:none;" href="mailto:${esc(o.email)}?subject=${encodeURIComponent(o.subject)}&body=${encodeURIComponent(o.body)}">Open in my mail app</a>` : ''}</p>
+    </details>`).join('');
+  el.querySelectorAll('[data-letter-copy]').forEach(b => b.addEventListener('click', async () => {
+    const t = document.getElementById('adLetter' + b.dataset.letterCopy);
+    try { await navigator.clipboard.writeText(t.value); b.textContent = 'Copied'; }
+    catch { t.select(); document.execCommand('copy'); b.textContent = 'Copied'; }
+  }));
 }
 
 async function loadCommunities(){

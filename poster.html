@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Poster — Parishkar Purulia</title>
+<meta name="description" content="A printable A4 poster for a ward or block of Purulia, with a QR code that opens the report camera and the area's public page.">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<script src="bug-report.js"></script>
+<style>
+  @page{size:A4;margin:0;}
+  *{box-sizing:border-box;}
+  body{margin:0;background:#e8e2d6;font-family:'Noto Sans Bengali','Noto Sans',system-ui,sans-serif;color:#111;}
+  .bar{max-width:210mm;margin:0 auto;padding:12px 16px;display:flex;flex-wrap:wrap;gap:8px;align-items:center;font-size:14px;}
+  .bar select,.bar button{font:inherit;padding:6px 10px;}
+  .sheet{width:210mm;min-height:297mm;margin:0 auto 24px;background:#fff;padding:16mm 14mm;display:flex;flex-direction:column;gap:8mm;}
+  h1{font-size:30pt;line-height:1.2;margin:0;}
+  .en{font-size:15pt;color:#333;margin:0;}
+  .place{font-size:20pt;font-weight:700;border-left:6px solid #D4882A;padding-left:10px;}
+  .qrs{display:grid;grid-template-columns:1fr 1fr;gap:10mm;}
+  .qr{text-align:center;border:2px solid #111;border-radius:6px;padding:6mm;}
+  .qr svg{width:100%;height:auto;}
+  .qr b{display:block;font-size:15pt;margin-top:3mm;}
+  .qr small{font-size:10pt;color:#444;word-break:break-all;}
+  ol{font-size:14pt;margin:0;padding-left:1.4em;line-height:1.6;}
+  .foot{margin-top:auto;font-size:10pt;color:#444;border-top:1px solid #ccc;padding-top:4mm;}
+  @media print{body{background:#fff;}.bar{display:none;}.sheet{margin:0;}}
+  @media(max-width:220mm){.sheet{width:100%;min-height:auto;padding:16px;}.qrs{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+<div class="bar">
+  <label>Area <select id="pa"></select></label>
+  <button type="button" onclick="print()">Print</button>
+  <a href="ward.html" id="pb">← Back</a>
+</div>
+<main class="sheet">
+  <h1>আবর্জনা, ভাঙা রাস্তা, বন্ধ নালা, নিভে থাকা আলো?<br>ছবি তুলুন, জানিয়ে দিন।</h1>
+  <p class="en">Garbage, broken road, blocked drain, dead streetlight? Take a photo and report it. No login, about 30 seconds.</p>
+  <div class="place" id="pp"></div>
+  <div class="qrs">
+    <div class="qr"><div id="q1"></div><b>রিপোর্ট করুন · Report</b><small id="u1"></small></div>
+    <div class="qr"><div id="q2"></div><b>এলাকার হিসাব · Your area's record</b><small id="u2"></small></div>
+  </div>
+  <ol>
+    <li>QR স্ক্যান করুন, ক্যামেরা আর লোকেশন চালু করুন।</li>
+    <li>সমস্যার জায়গায় দাঁড়িয়ে ছবি তুলুন। নাম বা ফোন নম্বর লাগে না।</li>
+    <li>রিপোর্ট সবার জন্য খোলা থাকে, কে দায়িত্বে তা নাম সহ দেখানো হয়। ঠিক হলে কেউ ঠিক হওয়া জায়গার ছবি তুললে তবেই সমাধান ধরা হয়।</li>
+  </ol>
+  <div class="foot">Parishkar Purulia · archiboltmusk.github.io/Purulia · A citizens' public record, not a government service.</div>
+</main>
+<script src="city.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<script>
+(function(){
+  const SITE = 'https://archiboltmusk.github.io/Purulia/';
+  const city = window.KASA_CITY || {};
+  const blocks = [...new Set([...(city.constituencies || []).flatMap(c => c.blocks || []), ...Object.keys(city.splitBlocks || {})])].sort();
+  const sel = document.getElementById('pa');
+  sel.innerHTML = Array.from({ length: 23 }, (_, i) => `<option value="ward:${i + 1}">Ward ${i + 1} (Purulia town)</option>`).join('')
+    + blocks.map(b => `<option value="block:${b}">${b} block</option>`).join('');
+  const qr = (id, url) => {
+    if (!window.qrcode){ document.getElementById(id).textContent = url; return; }
+    const q = window.qrcode(0, 'M'); q.addData(url); q.make();
+    document.getElementById(id).innerHTML = q.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+  };
+  function render(){
+    const [kind, ...rest] = sel.value.split(':'); const id = rest.join(':');
+    const qs = new URLSearchParams({ [kind]: id }).toString();
+    const report = SITE + 'kasa.html?report=new', page = SITE + 'ward.html?' + qs;
+    document.getElementById('pp').textContent = kind === 'ward' ? `ওয়ার্ড ${id}, পুরুলিয়া পৌরসভা · Ward ${id}, Purulia town` : `${id} ব্লক · ${id} block`;
+    qr('q1', report); qr('q2', page);
+    document.getElementById('u1').textContent = report.replace('https://', '');
+    document.getElementById('u2').textContent = page.replace('https://', '');
+    document.getElementById('pb').href = 'ward.html?' + qs;
+    history.replaceState(null, '', '?' + qs);
+  }
+  const q = new URLSearchParams(location.search);
+  const want = q.get('block') ? 'block:' + q.get('block') : 'ward:' + (Number(q.get('ward')) || 1);
+  if ([...sel.options].some(o => o.value === want)) sel.value = want;
+  sel.addEventListener('change', render);
+  render();
+})();
+</script>
+</body>
+</html>

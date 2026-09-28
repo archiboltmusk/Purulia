@@ -104,7 +104,8 @@
       [`kasa.html?${area.kind === 'ward' ? 'ward=' + area.id : ''}`, 'See it on the map'],
       [`digest.html?${p}`, 'This week in ' + place],
       area.kind === 'ward' && [`communities.html?ward=${area.id}`, 'Volunteer groups here'],
-      area.kind === 'ward' && ['municipality.html', 'Where the money goes']
+      area.kind === 'ward' && ['municipality.html', 'Where the money goes'],
+      [`poster.html?${p}`, 'Print a poster for ' + place]
     ].filter(Boolean).map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('');
     sel.value = `${area.kind}:${area.id}`;
     history.replaceState(null, '', '?' + p);
