@@ -3,10 +3,10 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>What's new — Parishkar Purulia</title>
-<meta name="description" content="Every change to Parishkar Purulia, newest first, in plain words.">
-<meta property="og:title" content="What's new — Parishkar Purulia">
-<meta property="og:description" content="Every change to Parishkar Purulia, newest first.">
+<title>What's new and what's next — Parishkar Purulia</title>
+<meta name="description" content="What Parishkar Purulia plans next against its goal, and every change so far, in plain words.">
+<meta property="og:title" content="What's new and what's next — Parishkar Purulia">
+<meta property="og:description" content="What Parishkar Purulia plans next, and every change so far.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/changelog.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/changelog.html">
@@ -19,6 +19,18 @@
 <link rel="stylesheet" href="kasa.css">
 <link rel="stylesheet" href="legal.css">
 <script src="bug-report.js"></script>
+<style>
+.rm{margin-bottom:3.2rem;padding-bottom:2.4rem;border-bottom:1px solid var(--border);}
+.rm-lang{display:flex;gap:.3rem;justify-content:flex-end;margin-bottom:1rem;}
+.rm-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
+.rm-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+.rm-list{list-style:none;margin-left:0 !important;}
+.rm-tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.08em;text-transform:uppercase;padding:.1rem .45rem;border-radius:3px;margin-right:.35rem;border:1px solid var(--border);color:var(--text-lo);white-space:nowrap;}
+.rm-done{color:var(--green);border-color:var(--green);}
+.rm-build{color:var(--amber);border-color:rgba(212,136,42,.5);}
+.rm-rti{color:var(--violet);border-color:var(--violet);}
+.rm-note{font-size:.92rem;}
+</style>
 </head>
 <body>
 
@@ -39,15 +51,179 @@
   <a href="kasa.html" class="legal-back">← Back to Parishkar Purulia</a>
 
   <h1 class="legal-title">What's <em>new</em></h1>
-  <div class="legal-meta">Every change to Parishkar, newest first · Rules changes are also listed on <a href="rules.html">Rules</a></div>
+  <div class="legal-meta"><a href="#next">What's next</a> · <a href="#done">Every change so far</a>, newest first · Rules changes are also listed on <a href="rules.html">Rules</a></div>
+
+  <section id="next" class="rm" aria-label="What's next">
+    <div class="rm-lang" role="group" aria-label="Language">
+      <button type="button" data-lang="en" aria-pressed="true">EN</button>
+      <button type="button" data-lang="bn" aria-pressed="false">বাং</button>
+      <button type="button" data-lang="hi" aria-pressed="false">हिं</button>
+    </div>
+    <div class="rm-block legal-body" lang="en" data-rm="en">
+      <h2 id="nextTitle">What's <em>next</em></h2>
+      <p>The plan for this site, measured against its goal: show how health, schooling, work, water and roads pull each other down, name who promised what, and lay out a plan for Purulia to stand on its own. No dates are given where nobody has committed to one, and nothing goes on the site without a source.</p>
+      <h3>Health: mothers and children</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> <a href="circle.html">The Circle</a> shows NFHS-5 figures for antenatal care, anaemia and child nutrition, and puts the district's maternal death ratio beside West Bengal and India.</li>
+        <li><span class="rm-tag rm-rti">Waiting on an RTI</span> Maternal deaths for each year, by block and cause, asked of the CMOH by RTI. The request is drafted and still needs to be posted.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Health centre checks, like school checks: stand at a sub-centre or health centre, take a live photo, and answer a few yes or no questions (doctor present, medicines in stock, water, a working toilet).</li>
+      </ul>
+      <h3>Schools and girls' education</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> <a href="schools.html">Schools</a> compares Purulia with West Bengal and India using UDISE+ 2024-25, and anyone can check a school with a live photo or add one that is missing.</li>
+        <li><span class="rm-tag rm-build">Being built</span> An RTI draft asking the district for the UDISE+ export of every school in Purulia.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Load each school's official record so every resident check sits beside what the government says, and a dropout figure for Purulia once that data arrives.</li>
+      </ul>
+      <h3>Work and migration</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> The Circle shows more marginal workers than main workers, and land that gives one crop a year (Census 2011, district profile).</li>
+        <li><span class="rm-tag rm-rti">Waiting on an RTI</span> How many people leave for work: Karmasathi migrant registrations by block, asked of the Assistant Labour Commissioner by RTI. Drafted, still needs to be posted.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Rural jobs work checks: photograph a worksite and its signboard and compare it with the work's geotagged record, so a road or pond that exists only on paper can be reported.</li>
+      </ul>
+      <h3>Water</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> Only 32.45% of rural homes have a tap, the lowest in West Bengal (Jal Jeevan Mission). The water promise is tracked on <a href="promises.html">Promises</a>.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Report a tap that is fitted but gives no water, sent to the public health engineering office, so connections on paper can be set against taps that work.</li>
+      </ul>
+      <h3>Streets, drains and waste</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> The <a href="kasa.html">report map</a> takes only live photos with real GPS, sets a deadline by how bad the problem is, and every ward has its own page.</li>
+        <li><span class="rm-tag rm-build">Being built</span> A report closes only with a new photo from the same spot; a printable QR poster for each ward; a monthly view of the digest; and letters to each office listing its open reports, kept as drafts until the site's owner approves sending.</li>
+      </ul>
+      <h3>Naming who promised</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> <a href="promises.html">Promises</a> lists the MP and all nine MLAs with sourced promises, the <a href="noticeboard.html">Noticeboard</a> puts public demands to named leaders, and The Circle names the Centre, state and district office for each step.</li>
+        <li><span class="rm-tag rm-build">Being built</span> A dated verdict on each promise (in progress, delivered or broken), shown only with the document or photo that proves it.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Ask by RTI for the minutes of the MP-chaired DISHA committee, which reviews central schemes in the district, and publish them; none are online now.</li>
+      </ul>
+      <h3>A plan to stand on its own</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> The <a href="blueprint.html">Blueprint</a> starts from official figures (irrigation, tap water, forest, the pumped storage plant, two GI tags), and every plan in it is marked as our proposal.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Recheck each Blueprint starting figure against its source once a year and show whether it moved.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> Ask for the days pending on every Purulia application to the state's Silpasathi single window, and publish them, so delays to new businesses are visible.</li>
+      </ul>
+      <h3>Keeping the site going</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">Done</span> The report map works in English, Bengali, Hindi and Santali (Ol Chiki); moderators join by an invite link; a weekly encrypted backup of the database is set up and starts once its keys are added.</li>
+        <li><span class="rm-tag rm-build">Being built</span> Bengali and Hindi on The Circle, Schools, Noticeboard, Municipality and ward pages, and a page for volunteer groups.</li>
+        <li><span class="rm-tag rm-plan">Planned</span> A second admin, so the site does not depend on one person, and ward drives with college NSS and NCC units as reporters and moderators.</li>
+      </ul>
+      <p class="rm-note">Something missing from this plan? <a href="suggest-feature.html">Suggest it</a>.</p>
+    </div>
+    <div class="rm-block legal-body" lang="bn" data-rm="bn" hidden>
+      <h2>এরপর <em>কী</em></h2>
+      <p>লক্ষ্যের মাপে এই সাইটের পরিকল্পনা: স্বাস্থ্য, পড়াশোনা, কাজ, জল আর রাস্তা কীভাবে একে অপরকে টেনে নামায় তা দেখানো, কে কী প্রতিশ্রুতি দিয়েছিলেন তাঁদের নাম বলা, আর পুরুলিয়া যাতে নিজের পায়ে দাঁড়াতে পারে তার পরিকল্পনা। কেউ তারিখ না দিলে আমরা তারিখ দিই না, আর উৎস ছাড়া কিছুই সাইটে ওঠে না।</p>
+      <h3>স্বাস্থ্য: মা ও শিশু</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> <a href="circle.html">দ্য সার্কল</a> পাতায় গর্ভকালীন যত্ন, রক্তাল্পতা আর শিশুপুষ্টির NFHS-5 পরিসংখ্যান, এবং জেলার মাতৃমৃত্যুর হার পশ্চিমবঙ্গ ও ভারতের পাশে।</li>
+        <li><span class="rm-tag rm-rti">আরটিআই-এর অপেক্ষায়</span> প্রতি বছরের মাতৃমৃত্যু, ব্লক ও কারণ অনুযায়ী, সিএমওএইচ-এর কাছে আরটিআই-তে চাওয়া হবে। আবেদনের খসড়া তৈরি, এখনও পাঠানো বাকি।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> স্কুল যাচাইয়ের মতো স্বাস্থ্যকেন্দ্র যাচাই: উপকেন্দ্র বা স্বাস্থ্যকেন্দ্রে দাঁড়িয়ে লাইভ ছবি তুলুন, আর কয়েকটা হ্যাঁ/না প্রশ্নের উত্তর দিন (ডাক্তার আছেন কি না, ওষুধ আছে কি না, জল, চালু শৌচাগার)।</li>
+      </ul>
+      <h3>স্কুল ও মেয়েদের পড়াশোনা</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> <a href="schools.html">স্কুল</a> পাতায় UDISE+ 2024-25 দিয়ে পুরুলিয়াকে পশ্চিমবঙ্গ ও ভারতের সঙ্গে তুলনা, আর যে কেউ লাইভ ছবি দিয়ে স্কুল যাচাই করতে বা বাদ পড়া স্কুল যোগ করতে পারেন।</li>
+        <li><span class="rm-tag rm-build">তৈরি হচ্ছে</span> পুরুলিয়ার প্রতিটি স্কুলের UDISE+ তথ্য জেলার কাছে চেয়ে আরটিআই-এর খসড়া।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> প্রতিটি স্কুলের সরকারি রেকর্ড যোগ করা, যাতে বাসিন্দাদের যাচাই সরকারি দাবির পাশে দেখা যায়; তথ্য এলে পুরুলিয়ার স্কুলছুটের হারও।</li>
+      </ul>
+      <h3>কাজ ও পরিযান</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> দ্য সার্কল দেখায় প্রধান কর্মীর চেয়ে প্রান্তিক কর্মী বেশি, আর বছরে এক ফসলের জমি (জনগণনা ২০১১, জেলা প্রোফাইল)।</li>
+        <li><span class="rm-tag rm-rti">আরটিআই-এর অপেক্ষায়</span> কতজন কাজের জন্য বাইরে যান: ব্লকভিত্তিক কর্মসাথী পরিযায়ী শ্রমিক নথিভুক্তি, সহকারী শ্রম কমিশনারের কাছে আরটিআই-তে। খসড়া তৈরি, পাঠানো বাকি।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> গ্রামীণ কাজের যাচাই: কাজের জায়গা আর তার সাইনবোর্ডের ছবি তুলে জিওট্যাগ করা সরকারি রেকর্ডের সঙ্গে মেলানো, যাতে শুধু কাগজে থাকা রাস্তা বা পুকুর রিপোর্ট করা যায়।</li>
+      </ul>
+      <h3>জল</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> গ্রামের মাত্র ৩২.৪৫% বাড়িতে কল আছে, পশ্চিমবঙ্গে সবচেয়ে কম (জল জীবন মিশন)। জলের প্রতিশ্রুতি <a href="promises.html">প্রতিশ্রুতি</a> পাতায় নজরে রাখা হচ্ছে।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> লাগানো আছে কিন্তু জল পড়ে না এমন কল রিপোর্ট করা, জনস্বাস্থ্য কারিগরি দপ্তরে পাঠানো হবে, যাতে কাগজের সংযোগ আর চালু কলের তফাত দেখা যায়।</li>
+      </ul>
+      <h3>রাস্তা, নর্দমা ও আবর্জনা</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> <a href="kasa.html">রিপোর্ট ম্যাপ</a> শুধু আসল জিপিএস-সহ লাইভ ছবি নেয়, সমস্যা কত গুরুতর তা দেখে সময়সীমা ঠিক করে, আর প্রতিটি ওয়ার্ডের নিজের পাতা আছে।</li>
+        <li><span class="rm-tag rm-build">তৈরি হচ্ছে</span> একই জায়গার নতুন ছবি ছাড়া রিপোর্ট বন্ধ হবে না; প্রতিটি ওয়ার্ডের জন্য ছাপার মতো কিউআর পোস্টার; ডাইজেস্টের মাসিক রূপ; আর প্রতিটি দপ্তরের খোলা রিপোর্টের তালিকা দিয়ে চিঠি, সাইটের মালিক অনুমতি না দেওয়া পর্যন্ত খসড়া হিসেবেই থাকবে।</li>
+      </ul>
+      <h3>কে প্রতিশ্রুতি দিয়েছিলেন</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> <a href="promises.html">প্রতিশ্রুতি</a> পাতায় সাংসদ ও নয়জন বিধায়কের উৎস-সহ প্রতিশ্রুতি, <a href="noticeboard.html">নোটিসবোর্ড</a>-এ নাম ধরে নেতাদের কাছে জনগণের দাবি, আর দ্য সার্কল প্রতিটি ধাপে কেন্দ্র, রাজ্য ও জেলার দপ্তরের নাম বলে।</li>
+        <li><span class="rm-tag rm-build">তৈরি হচ্ছে</span> প্রতিটি প্রতিশ্রুতির তারিখ-সহ রায় (চলছে, পূরণ হয়েছে বা ভেঙেছে), শুধু প্রমাণের নথি বা ছবি থাকলে দেখানো হবে।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> সাংসদের সভাপতিত্বে জেলার কেন্দ্রীয় প্রকল্প পর্যালোচনা করা দিশা কমিটির কার্যবিবরণী আরটিআই-তে চেয়ে প্রকাশ করা; এখন অনলাইনে একটিও নেই।</li>
+      </ul>
+      <h3>নিজের পায়ে দাঁড়ানোর পরিকল্পনা</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> <a href="blueprint.html">ব্লুপ্রিন্ট</a> সরকারি পরিসংখ্যান থেকে শুরু হয় (সেচ, কলের জল, বন, পাম্পড স্টোরেজ কেন্দ্র, দুটি জিআই ট্যাগ), আর এর প্রতিটি পরিকল্পনা আমাদের প্রস্তাব হিসেবে চিহ্নিত।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> ব্লুপ্রিন্টের প্রতিটি শুরুর পরিসংখ্যান বছরে একবার উৎসের সঙ্গে মিলিয়ে দেখা, আর তা বদলেছে কি না দেখানো।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> রাজ্যের শিল্পসাথী একজানালায় পুরুলিয়ার প্রতিটি আবেদন কত দিন পড়ে আছে তা চেয়ে প্রকাশ করা, যাতে নতুন ব্যবসার দেরি চোখে পড়ে।</li>
+      </ul>
+      <h3>সাইট চালু রাখা</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">হয়ে গেছে</span> রিপোর্ট ম্যাপ ইংরেজি, বাংলা, হিন্দি ও সাঁওতালি (অলচিকি)-তে চলে; মডারেটররা আমন্ত্রণ লিঙ্কে যোগ দেন; ডেটাবেসের সাপ্তাহিক এনক্রিপ্ট করা ব্যাকআপ তৈরি, চাবি যোগ হলেই চালু হবে।</li>
+        <li><span class="rm-tag rm-build">তৈরি হচ্ছে</span> দ্য সার্কল, স্কুল, নোটিসবোর্ড, পৌরসভা ও ওয়ার্ড পাতায় বাংলা ও হিন্দি, আর স্বেচ্ছাসেবী দলগুলির জন্য একটি পাতা।</li>
+        <li><span class="rm-tag rm-plan">পরিকল্পনা</span> দ্বিতীয় একজন অ্যাডমিন, যাতে সাইট একজনের উপর নির্ভর না করে, আর কলেজের এনএসএস ও এনসিসি ইউনিটকে রিপোর্টার ও মডারেটর করে ওয়ার্ডে অভিযান।</li>
+      </ul>
+      <p class="rm-note">এই পরিকল্পনায় কিছু বাদ পড়েছে? <a href="suggest-feature.html">প্রস্তাব দিন</a>।</p>
+    </div>
+    <div class="rm-block legal-body" lang="hi" data-rm="hi" hidden>
+      <h2>आगे <em>क्या</em></h2>
+      <p>लक्ष्य के हिसाब से इस साइट की योजना: स्वास्थ्य, पढ़ाई, काम, पानी और सड़कें कैसे एक-दूसरे को नीचे खींचती हैं यह दिखाना, किसने क्या वादा किया उनका नाम लेना, और पुरुलिया के अपने पैरों पर खड़े होने की योजना। जहाँ किसी ने तारीख़ तय नहीं की, वहाँ हम तारीख़ नहीं देते, और बिना स्रोत के कुछ भी साइट पर नहीं आता।</p>
+      <h3>स्वास्थ्य: माँ और बच्चे</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> <a href="circle.html">द सर्कल</a> पेज पर प्रसव-पूर्व देखभाल, एनीमिया और बाल पोषण के NFHS-5 आँकड़े, और ज़िले की मातृ मृत्यु दर पश्चिम बंगाल और भारत के साथ।</li>
+        <li><span class="rm-tag rm-rti">आरटीआई का इंतज़ार</span> हर साल की मातृ मृत्यु, ब्लॉक और कारण के हिसाब से, सीएमओएच से आरटीआई में माँगी जाएगी। आवेदन का मसौदा तैयार है, भेजना बाकी है।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> स्कूल जाँच की तरह स्वास्थ्य केंद्र जाँच: उपकेंद्र या स्वास्थ्य केंद्र पर खड़े होकर लाइव फ़ोटो लें, और कुछ हाँ/ना सवालों के जवाब दें (डॉक्टर मौजूद, दवाइयाँ, पानी, चालू शौचालय)।</li>
+      </ul>
+      <h3>स्कूल और लड़कियों की पढ़ाई</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> <a href="schools.html">स्कूल</a> पेज पर UDISE+ 2024-25 से पुरुलिया की पश्चिम बंगाल और भारत से तुलना, और कोई भी लाइव फ़ोटो से स्कूल जाँच सकता है या छूटा स्कूल जोड़ सकता है।</li>
+        <li><span class="rm-tag rm-build">बन रहा है</span> पुरुलिया के हर स्कूल का UDISE+ डेटा ज़िले से माँगने के लिए आरटीआई का मसौदा।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> हर स्कूल का सरकारी रिकॉर्ड जोड़ना, ताकि निवासियों की जाँच सरकारी दावे के साथ दिखे; डेटा आने पर पुरुलिया की ड्रॉपआउट दर भी।</li>
+      </ul>
+      <h3>काम और पलायन</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> द सर्कल दिखाता है कि मुख्य कामगारों से ज़्यादा सीमांत कामगार हैं, और साल में एक फ़सल वाली ज़मीन (जनगणना 2011, ज़िला प्रोफ़ाइल)।</li>
+        <li><span class="rm-tag rm-rti">आरटीआई का इंतज़ार</span> कितने लोग काम के लिए बाहर जाते हैं: ब्लॉकवार कर्मसाथी प्रवासी श्रमिक पंजीकरण, सहायक श्रम आयुक्त से आरटीआई में। मसौदा तैयार, भेजना बाकी।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> ग्रामीण रोज़गार कार्यों की जाँच: कार्यस्थल और उसके बोर्ड की फ़ोटो लेकर जियोटैग किए सरकारी रिकॉर्ड से मिलाना, ताकि सिर्फ़ काग़ज़ पर बनी सड़क या तालाब की रिपोर्ट हो सके।</li>
+      </ul>
+      <h3>पानी</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> गाँव के सिर्फ़ 32.45% घरों में नल है, पश्चिम बंगाल में सबसे कम (जल जीवन मिशन)। पानी का वादा <a href="promises.html">वादे</a> पेज पर ट्रैक होता है।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> लगा है पर पानी नहीं देता ऐसे नल की रिपोर्ट, जन स्वास्थ्य अभियांत्रिकी विभाग को भेजी जाएगी, ताकि काग़ज़ी कनेक्शन और चालू नलों का फ़र्क दिखे।</li>
+      </ul>
+      <h3>सड़कें, नालियाँ और कचरा</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> <a href="kasa.html">रिपोर्ट मैप</a> सिर्फ़ असली जीपीएस वाली लाइव फ़ोटो लेता है, समस्या कितनी गंभीर है उससे समय-सीमा तय करता है, और हर वार्ड का अपना पेज है।</li>
+        <li><span class="rm-tag rm-build">बन रहा है</span> उसी जगह की नई फ़ोटो के बिना रिपोर्ट बंद नहीं होगी; हर वार्ड के लिए छापने लायक क्यूआर पोस्टर; डाइजेस्ट का मासिक रूप; और हर दफ़्तर को उसकी खुली रिपोर्टों की सूची वाला पत्र, जो साइट के मालिक की मंज़ूरी तक मसौदा ही रहेगा।</li>
+      </ul>
+      <h3>किसने वादा किया</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> <a href="promises.html">वादे</a> पेज पर सांसद और सभी नौ विधायकों के स्रोत-सहित वादे, <a href="noticeboard.html">नोटिसबोर्ड</a> पर नाम लेकर नेताओं से जनता की माँगें, और द सर्कल हर कदम के लिए केंद्र, राज्य और ज़िले के दफ़्तर का नाम बताता है।</li>
+        <li><span class="rm-tag rm-build">बन रहा है</span> हर वादे पर तारीख़ के साथ फ़ैसला (चल रहा, पूरा हुआ या टूटा), सिर्फ़ सबूत के दस्तावेज़ या फ़ोटो के साथ दिखेगा।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> सांसद की अध्यक्षता वाली दिशा समिति, जो ज़िले में केंद्रीय योजनाओं की समीक्षा करती है, उसकी बैठकों का ब्योरा आरटीआई से माँगकर छापना; अभी एक भी ऑनलाइन नहीं है।</li>
+      </ul>
+      <h3>अपने पैरों पर खड़े होने की योजना</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> <a href="blueprint.html">ब्लूप्रिंट</a> सरकारी आँकड़ों से शुरू होता है (सिंचाई, नल का पानी, जंगल, पंप्ड स्टोरेज प्लांट, दो जीआई टैग), और इसकी हर योजना हमारे प्रस्ताव के रूप में चिह्नित है।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> ब्लूप्रिंट के हर शुरुआती आँकड़े को साल में एक बार उसके स्रोत से मिलाना, और दिखाना कि वह बदला या नहीं।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> राज्य की शिल्पसाथी सिंगल विंडो पर पुरुलिया के हर आवेदन के लंबित दिन माँगकर छापना, ताकि नए कारोबार की देरी दिखे।</li>
+      </ul>
+      <h3>साइट चलाते रहना</h3>
+      <ul class="rm-list">
+        <li><span class="rm-tag rm-done">हो गया</span> रिपोर्ट मैप अंग्रेज़ी, बांग्ला, हिंदी और संताली (ओल चिकी) में चलता है; मॉडरेटर आमंत्रण लिंक से जुड़ते हैं; डेटाबेस का साप्ताहिक एन्क्रिप्टेड बैकअप तैयार है, चाबियाँ जुड़ते ही चालू होगा।</li>
+        <li><span class="rm-tag rm-build">बन रहा है</span> द सर्कल, स्कूल, नोटिसबोर्ड, नगरपालिका और वार्ड पेजों पर बांग्ला और हिंदी, और स्वयंसेवी समूहों के लिए एक पेज।</li>
+        <li><span class="rm-tag rm-plan">योजना</span> दूसरा एडमिन, ताकि साइट एक व्यक्ति पर निर्भर न रहे, और कॉलेज की एनएसएस और एनसीसी इकाइयों को रिपोर्टर और मॉडरेटर बनाकर वार्ड अभियान।</li>
+      </ul>
+      <p class="rm-note">इस योजना में कुछ छूट गया? <a href="suggest-feature.html">सुझाव दें</a>।</p>
+    </div>
+  </section>
 
   <div class="legal-body">
+
+    <h2 id="done">Changes so far</h2>
 
     <!-- Add new entries at the top. One line per change, in words a reporter would use. -->
 
     <h2>28 September 2026</h2>
     <ul>
       <li><strong>Volunteer communities, rebuilt.</strong> The <a href="communities.html">volunteer communities</a> page now shows each group as a card with its logo, where it works (the whole district, or chosen town wards and blocks), one line on what it does and buttons for its WhatsApp, Instagram, Facebook, X, YouTube, Telegram, LinkedIn or website. "Register your community" asks for the same, plus your name and phone, which only the Parishkar team sees. Every listing is checked before it appears. Open it from "Volunteer communities" in the report map's menu. In English, Bengali and Hindi.</li>
+      <li><strong>See what's coming next.</strong> The top of this page now has a <a href="#next">What's next</a> plan in English, Bengali and Hindi, set out against the project's goal: health, schools, work and migration, water, streets, naming who promised, the Blueprint, and keeping the site going. Each item says whether it is done, being built, waiting on an RTI reply, or planned. No dates are given where nobody has committed to one.</li>
       <li><strong>Fewer, better pages.</strong> The old District Map now opens the live map. "For You" is now part of <a href="join.html">Join</a>, which lost its unsourced sections and lists its sources. The two feature-suggestion pages are now one, <a href="suggest-feature.html">Suggest a feature</a>, where you can also see and vote on other people's ideas. Signing up for the weekly digest now happens on the <a href="digest.html#subscribe">digest page</a>. Old links still work.</li>
       <li><strong>Pages no longer slide sideways on phones.</strong> The footer links on the home page, Blueprint, Ground Truth, Audience and Join pages were stuck on one long line, which made the whole page wider than the screen and pushed the "Report a bug" button over the footer. They now wrap onto several lines.</li>
       <li><strong>The admin page no longer shows a "null is not an object" error.</strong> Phones holding an older copy of the page got the newer script; the page now loads fresh and skips any section it cannot find.</li>
@@ -205,6 +381,24 @@
   </div>
 
 </main>
+
+<script>
+(function(){
+  var root=document.getElementById('next'); if(!root) return;
+  var btns=root.querySelectorAll('.rm-lang button');
+  function show(l){
+    if(!root.querySelector('[data-rm="'+l+'"]')) l='en';
+    root.querySelectorAll('[data-rm]').forEach(function(b){ b.hidden=b.getAttribute('data-rm')!==l; });
+    btns.forEach(function(b){ b.setAttribute('aria-pressed', String(b.getAttribute('data-lang')===l)); });
+    return l;
+  }
+  var saved='en'; try{ saved=localStorage.getItem('kasa_lang')||'en'; }catch(e){}
+  show(saved);
+  btns.forEach(function(b){ b.addEventListener('click',function(){
+    var l=show(b.getAttribute('data-lang')); try{ localStorage.setItem('kasa_lang',l); }catch(e){}
+  }); });
+})();
+</script>
 
 </body>
 </html>
