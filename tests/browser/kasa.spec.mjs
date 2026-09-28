@@ -171,7 +171,7 @@ test('the version badge opens that version on the What\'s new page', async ({ pa
   const text = await badge.textContent();
   expect(text).toMatch(/^v1\.\d+\.\d+$/);
   await badge.click();
-  await expect(page).toHaveURL(new RegExp('changelog\\.html#' + text.replace(/\./g, '\\.') + '$'));
+  await expect.poll(() => new URL(page.url()).pathname.endsWith('/changelog.html') && new URL(page.url()).hash).toBe('#' + text);
   await expect(page.locator(`h2[id="${text}"]`)).toBeVisible();
   await expect(page.locator('#curVersion')).toHaveText(text);
 });
