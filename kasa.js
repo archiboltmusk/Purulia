@@ -3583,45 +3583,157 @@ function renderChainSection(){
       <div class="k-chain-note-text">${esc(t('chain_councillor_text'))}</div></div>`;
 }
 
+/* Everyone elected for the district, from city.js: MPs, MLAs, municipal chairpersons and the
+   Zilla Parishad. Each gets a key for data-profile and, where Parishkar can tell, a test for
+   which reports fall in their area. */
+const initialsOf = name => String(name || '').split(/\s+/).filter(Boolean).map(w => w[0]).join('').slice(0, 3).toUpperCase();
+function allReps(){
+  const seats = CITY.constituencies || [], splits = CITY.splitBlocks || {}, src = CITY.repSources || {};
+  const low = s => (s || '').toLowerCase();
+  const rep = (key, group, p, extra) => {
+    const base = (typeof p === 'string' ? REPS[p] : p) || {};
+    return { key, group, ...base, initials: base.initials || initialsOf(base.name), ...extra };
+  };
+  const out = [];
+  Object.entries(CITY.lokSabha || {}).forEach(([ls, v]) => {
+    const split = Object.entries(splits).filter(([, s]) => s.lokSabha === ls).map(([b]) => low(b));
+    out.push(rep('mp:' + ls, 'mp', v.mp, { place: t('rep_place_ls', { s: ls }), seats: seats.filter(c => c.lokSabha === ls), mplads: v.mplads, source: src.mp,
+      covers: r => { const c = seatFor(r); return c ? c.lokSabha === ls : r.area === 'rural' && split.includes(low(r.block)); } }));
+  });
+  seats.forEach(c => out.push(rep('mla:' + c.no, 'mla', c.mla, { place: t('rep_place_ac', { s: c.name, n: c.no }), seat: c, source: src.mla, town: !!c.town,
+    covers: r => seatFor(r) === c })));
+  (CITY.municipalities || []).forEach(m => out.push(rep('chair:' + m.name, 'chair', m.chair, { place: t('rep_place_muni', { s: m.name }), muni: m, town: !!m.town,
+    source: m.source && { url: m.source, name: m.sourceName }, covers: m.town ? (r => r.area !== 'rural' && !!r.ward) : null })));
+  const zp = CITY.zillaParishad;
+  if (zp) out.push(rep('zp', 'zp', zp, { place: t('rep_place_zp'), source: zp.source && { url: zp.source, name: zp.sourceName }, covers: r => r.area === 'rural' }));
+  // Purulia town's own MLA first among the MLAs; everything else keeps city.js order.
+  return out.filter(r => r.name).sort((a, b) => (a.group === b.group && a.group === 'mla') ? (b.town - a.town) : 0);
+}
+
 function renderReps(){
-  document.getElementById('k-auth-grid').innerHTML = ['mla', 'mp', 'chairman'].map(k => {
-    const rep = REPS[k];
-    return `
-      <div class="k-auth-card">
+  const reps = allReps();
+  document.getElementById('k-auth-grid').innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
+    const list = reps.filter(r => r.group === g);
+    if (!list.length) return '';
+    return `<div class="k-auth-group">${esc(t('rep_g_' + g))}</div>` + list.map(rep => `
+      <div class="k-auth-card${rep.photo ? '' : ' k-auth-card-sm'}">
         ${repAvatar(rep, 'k-rep-avatar k-auth-avatar')}
         <div>
-          <div class="k-auth-label">${esc(t(rep.role))}</div>
+          <div class="k-auth-label">${esc(t('rep_t_' + g))} · ${esc(rep.place)}</div>
           <div class="k-auth-name">${esc(rep.name)}</div>
-          <div class="k-auth-meta">${esc(rep.party)}${rep.meta ? ' · ' + esc(t(rep.meta)) : ''}</div>
+          ${rep.party || rep.meta ? `<div class="k-auth-meta">${esc([rep.party, rep.meta && t(rep.meta)].filter(Boolean).join(' · '))}</div>` : ''}
           ${rep.photo && rep.photoCredit ? `<div class="k-auth-credit">${esc(t('rep_photo_credit', { credit: rep.photoCredit }))}</div>` : ''}
         </div>
-        <button type="button" class="k-auth-action" data-profile="${k}">${esc(t('auth_view'))}</button>
-      </div>`;
+        <button type="button" class="k-auth-action" data-profile="${esc(rep.key)}">${esc(t('auth_view'))}</button>
+      </div>`).join('');
   }).join('');
 }
 
+// Promises, demands and news from promises.html / noticeboard.html, loaded once when a sheet opens.
+let repUpdates = null;
+function loadRepUpdates(){
+  if (!repUpdates && sb){
+    repUpdates = Promise.all([sb.rpc('kasa_promises'), sb.rpc('kasa_demands')]).then(([p, d]) => {
+      if (p.error && d.error) throw p.error;
+      return { promises: p.data?.promises || [], news: p.data?.news || [], demands: d.data || [] };
+    });
+    repUpdates.catch(() => { repUpdates = null; });
+  }
+  return repUpdates || Promise.reject(new Error('offline'));
+}
+
+function renderRepUpdates(rep, u){
+  const el = document.getElementById('k-rep-updates');
+  if (!el || el.dataset.key !== rep.key) return;
+  const norm = s => String(s || '').trim().toLowerCase();
+  const me = norm(rep.name);
+  const date = d => d ? new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang + '-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const promises = u.promises.filter(p => norm(p.who) === me);
+  const demands = u.demands.filter(d => norm(d.leader_name) === me);
+  const news = u.news.filter(n => norm(n.who) === me || norm(n.title).includes(me)).slice(0, 3);
+  const leaderHref = `noticeboard.html?leader=${encodeURIComponent(rep.name)}`;
+  const promisesHref = `promises.html?who=${encodeURIComponent(rep.name)}`;
+  const answered = demands.filter(d => d.promise || (d.replies || []).length).length;
+  el.innerHTML = `
+    <div class="k-rep-upd">
+      <div class="k-rep-upd-h"><a href="${esc(promisesHref)}">${esc(t('rep_promises'))} →</a>
+        <small>${esc(promises.length ? t('rep_promises_n', { n: promises.length, d: promises.filter(p => p.status === 'delivered').length }) : t('rep_promises_none'))}</small></div>
+      ${promises.slice(0, 2).map(p => `<a class="k-rep-upd-item" href="promises.html?who=${encodeURIComponent(rep.name)}#p-${esc(p.id)}">
+        <span class="k-rep-upd-tag k-rep-st-${esc(p.status)}">${esc(t('rep_st_' + p.status))}</span>${esc(p.promise)}<small>${esc(date(p.made_on))}</small></a>`).join('')}
+    </div>
+    <div class="k-rep-upd">
+      <div class="k-rep-upd-h"><a href="${esc(leaderHref)}">${esc(t('rep_demands'))} →</a>
+        <small>${esc(demands.length ? t('rep_demands_n', { n: demands.length, a: answered }) : t('rep_demands_none'))}</small></div>
+      ${demands.slice(0, 2).map(d => `<a class="k-rep-upd-item" href="${esc(leaderHref)}#d-${esc(d.id)}">${esc(d.title)}<small>${esc(t('rep_supports', { n: d.supports || 0 }))}</small></a>`).join('')}
+    </div>
+    ${news.length ? `<div class="k-rep-upd"><div class="k-rep-upd-h">${esc(t('rep_news'))}</div>
+      ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
+}
+
 function openRepProfile(key){
-  const rep = REPS[key];
-  const all = primaries();
+  const reps = allReps();
+  const rep = reps.find(r => r.key === key) || reps.find(r => r.key === { mla: 'mla:' + (CITY.constituencies || []).find(c => c.town)?.no, mp: 'mp:' + CITY.name, chairman: 'chair:' + CITY.name }[key]);
+  if (!rep) return;
+  const all = rep.covers ? primaries().filter(rep.covers) : [];
   const open = all.filter(r => r.status !== 'resolved');
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified');
-  const byWard = {};
-  open.forEach(r => { if (r.ward) byWard[r.ward] = (byWard[r.ward] || 0) + 1; });
-  const worst = Object.entries(byWard).sort((a, b) => b[1] - a[1]).slice(0, 5);
+  // Unresolved reports by place: wards in town, blocks in the villages. Each links to its own page.
+  const byPlace = new Map();
+  open.forEach(r => {
+    const p = r.area === 'rural' ? (r.block && { k: 'b:' + r.block, href: `ward.html?block=${encodeURIComponent(r.block)}`, label: t('acc_block', { b: r.block }) })
+      : (r.ward && { k: 'w:' + r.ward, href: `ward.html?ward=${r.ward}`, label: `${t('acc_ward', { n: r.ward })} · ${state.wards[r.ward]?.councillor_name || '—'}` });
+    if (!p) return;
+    if (!byPlace.has(p.k)) byPlace.set(p.k, { ...p, n: 0 });
+    byPlace.get(p.k).n++;
+  });
+  const worst = [...byPlace.values()].sort((a, b) => b.n - a.n).slice(0, 5);
+  const inr = n => '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
+  const m = rep.mplads;
+  const areaLine = rep.seats ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${rep.seats.map(c =>
+      `<button type="button" class="k-rep-seat" data-profile="mla:${c.no}">${esc(c.name)} · ${esc(c.mla?.name || '—')}</button>`).join('')}</div>`
+    : rep.seat ? `<p class="k-rep-area">${esc(t('rep_covers', { b: [rep.seat.town && t('rep_town'), ...(rep.seat.blocks || [])].filter(Boolean).join(', ') }))}
+        ${rep.seat.lokSabha ? `<button type="button" class="k-rep-seat" data-profile="mp:${esc(rep.seat.lokSabha)}">${esc(t('rep_in_ls', { s: rep.seat.lokSabha }))}</button>` : ''}</p>` : '';
+  const links = [
+    [`noticeboard.html?leader=${encodeURIComponent(rep.name)}`, t('rep_l_leader')],
+    rep.group !== 'chair' && rep.group !== 'zp' && ['analytics.html', t('rep_l_board')],
+    rep.muni?.town && ['municipality.html', t('rep_l_money')],
+    rep.muni?.block && [`ward.html?block=${encodeURIComponent(rep.muni.block)}`, t('acc_block', { b: rep.muni.block })]
+  ].filter(Boolean);
   document.getElementById('k-rep-content').innerHTML = `
     <div class="k-rep-header">
       ${repAvatar(rep, 'k-rep-avatar')}
-      <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc(t(rep.role))} · ${esc(rep.party)}</div></div>
+      <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc([t('rep_t_' + rep.group) + ' · ' + rep.place, rep.party].filter(Boolean).join(' · '))}</div></div>
     </div>
+    ${areaLine}
+    ${rep.covers ? `
     <div class="k-rep-stats">
       <div class="k-rep-stat"><div class="k-rep-stat-n">${open.length}</div><div class="k-rep-stat-l">${esc(t('rep_open'))}</div></div>
       <div class="k-rep-stat"><div class="k-rep-stat-n">${verified.length}</div><div class="k-rep-stat-l">${esc(t('rep_resolved'))}</div></div>
-      <div class="k-rep-stat"><div class="k-rep-stat-n">${Object.keys(byWard).length}</div><div class="k-rep-stat-l">${esc(t('rep_wards'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${byPlace.size}</div><div class="k-rep-stat-l">${esc(t('rep_places'))}</div></div>
     </div>
-    <div class="k-rep-worst-title">${esc(t('rep_worst'))}</div>
-    ${worst.length ? worst.map(([w, n]) => `<div class="k-rep-worst-item"><span>${esc(t('acc_ward', { n: w }))} · ${esc(state.wards[w]?.councillor_name || '—')}</span><span class="k-rep-worst-count">${n}</span></div>`).join('')
-      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`;
+    <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
+    ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
+      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`
+    : `<p class="k-rep-area">${esc(t('rep_no_scope', { s: rep.muni?.name || '' }))}</p>`}
+    ${m ? `<div class="k-rep-worst-title">${esc(t('rep_mplads'))}</div>
+    <div class="k-rep-stats">
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(m.allocated))}</div><div class="k-rep-stat-l">${esc(t('rep_mp_alloc'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(m.spent))}</div><div class="k-rep-stat-l">${esc(t('rep_mp_spent'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${m.worksCompleted}/${m.worksRecommended}</div><div class="k-rep-stat-l">${esc(t('rep_mp_works'))}</div></div>
+    </div>
+    <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
+      <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>` : ''}
+    <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
+    <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
+    <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
+    ${rep.source?.url ? `<p class="k-rep-src">${esc(t('rep_source'))} <a href="${esc(safeUrl(rep.source.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(rep.source.name || rep.source.url)} ↗</a></p>` : ''}`;
   openModal('k-rep-modal');
+  document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
+  loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
+    const el = document.getElementById('k-rep-updates');
+    if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}
+      <a href="noticeboard.html?leader=${encodeURIComponent(rep.name)}">${esc(t('rep_l_leader'))} →</a></div>`;
+  });
 }
 
 function populateCategoryFilter(){

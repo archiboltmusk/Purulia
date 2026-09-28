@@ -9,7 +9,7 @@
 
   const T = {
     en: {
-      reps_h: "Purulia's MP and MLAs",
+      reps_h: "Purulia's MPs and MLAs",
       reps_sub: 'Promises on record for each of Purulia\'s elected representatives. "No promise on record" means we found no promise with a source; send one below if you know of one.',
       reps_none: 'No promise on record', reps_n: '{n} on record', rep_mp: 'MP, {s}', rep_mla: 'MLA, {s}',
       rec_mplads: 'MP fund (MPLADS): named among Bengal MPs with "either zero completions or absolutely no spending" as on 6 Jan 2026.',
@@ -223,7 +223,10 @@
   function reps(){
     const C = window.KASA_CITY || {};
     const out = [];
-    if (C.reps && C.reps.mp) out.push({ name: C.reps.mp.name, role: t('rep_mp', { s: C.name || 'Purulia' }) });
+    Object.entries(C.lokSabha || {}).forEach(([seat, v]) => {
+      const mp = typeof v.mp === 'string' ? (C.reps || {})[v.mp] : v.mp;
+      if (mp && mp.name) out.push({ name: mp.name, role: t('rep_mp', { s: seat }) });
+    });
     (C.constituencies || []).forEach(c => { if (c.mla) out.push({ name: c.mla.name, role: t('rep_mla', { s: c.name }) }); });
     return out;
   }
@@ -253,6 +256,10 @@
       state.news = (d && d.news) || [];
       state.checked = d && d.news_checked_at;
       state.loaded = true;
+      // promises.html?who=Name (from a representative's sheet on the report map) opens on that person.
+      const who = (new URLSearchParams(location.search).get('who') || '').trim().toLowerCase();
+      const hit = who && state.promises.find(p => (p.who || '').trim().toLowerCase() === who);
+      if (hit) state.who = hit.who;
     } catch (e){ state.failed = true; }
     renderAll();
     if (location.hash.startsWith('#p-')){ const el = document.querySelector(location.hash); if (el) el.scrollIntoView(); }
