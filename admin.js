@@ -134,6 +134,7 @@ async function loadAll(){
 
 async function loadOverview(){
   const el = document.getElementById('adOverview');
+  if (!el) return;
   try {
     const { data: all } = await sb.from('reports').select('*');
     const total = all?.length || 0;
@@ -157,6 +158,7 @@ async function loadOverview(){
 
 async function loadDaily(){
   const el = document.getElementById('adDaily');
+  if (!el) return;
   try {
     const since = new Date(Date.now() - 14 * 86400000).toISOString();
     const { data } = await sb.from('reports').select('created_at').gte('created_at', since);
@@ -180,6 +182,7 @@ async function loadDaily(){
 
 async function loadWards(){
   const el = document.getElementById('adWards');
+  if (!el) return;
   try {
     const { data: reports } = await sb.from('reports').select('ward_no, status, created_at, resolved_at');
     const { data: wards } = await sb.from('wards').select('*');
@@ -217,6 +220,7 @@ async function loadWards(){
 
 async function loadSla(){
   const el = document.getElementById('adSla');
+  if (!el) return;
   try {
     const { data } = await sb.from('reports').select('status, created_at, resolved_at, sla_days');
     const all = data || [];
@@ -251,6 +255,7 @@ const CATEGORY_KEYS = ['garbage', 'drain', 'road', 'streetlight', 'water', 'miss
    public counts analytics.html shows, so the team and the public see one set of numbers). */
 async function loadModTiles(q){
   const el = document.getElementById('adModTiles');
+  if (!el) return;
   const { data: tr } = await sb.rpc('kasa_public_transparency');
   const m = tr?.months?.[0] || {}, now = tr?.now || {};
   const waiting = (q?.reports?.length || 0) + (q?.claims?.length || 0);
@@ -267,6 +272,7 @@ async function loadModTiles(q){
    approved or restored, from the public evidence trail, with Hide. */
 async function loadModTab(tab){
   const el = document.getElementById('adModOther');
+  if (!el) return;
   el.innerHTML = '<div class="ad-loading">Loading…</div>';
   let rows = [];
   if (tab === 'hidden'){
@@ -340,6 +346,7 @@ function renderModeration(q){
     'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, void an obviously fake confirmation or dispute, or clear a photo held because its location data was far from the spot. Every action is published in the report\'s evidence trail with the reason you give.';
   document.getElementById('adReplySection').hidden = false;
   const el = document.getElementById('adResolutions');
+  if (!el) return;
   const reports = q.reports || [], claims = q.claims || [];
   const reportHtml = reports.map(r => `
     <div class="ad-item">
@@ -442,6 +449,7 @@ async function findReport(){
   let id = raw;
   try { id = new URL(raw).searchParams.get('report') || raw; } catch (_) {}
   const el = document.getElementById('adFindResult');
+  if (!el) return;
   if (!id){ el.innerHTML = ''; return; }
   el.innerHTML = '<div class="ad-loading">Loading…</div>';
   const { data: r, error } = await sb.from('reports').select('*').eq('id', id).single();
@@ -523,6 +531,7 @@ const REPEAT_BTNS = `<button class="ad-ok" data-act="keep" title="Both photos sh
 async function loadReportPhotos(id){
   const el = document.getElementById('adFindPhotos');
   if (!el) return;
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_report_photos', { p_report_id: id });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load photos: ${esc(error.details || error.message)}</div>`; return; }
   const extras = data.extras || [], dups = data.duplicates || [];
@@ -561,6 +570,7 @@ async function loadReportPhotos(id){
 
 async function loadRepeatPhotos(){
   const el = document.getElementById('adRepeatPhotos');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_repeat_photos', { p_limit: 60 });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing to check.</div>'; return; }
@@ -585,6 +595,7 @@ async function loadRepeatPhotos(){
 
 async function loadAdoptions(){
   const el = document.getElementById('adAdoptions');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_adopted_spots');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No adopted spots.</div>'; return; }
@@ -613,6 +624,7 @@ async function loadAdoptions(){
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
 async function loadLatest(){
   const el = document.getElementById('adLatest');
+  if (!el) return;
   const { data, error } = await sb.from('reports').select('id,created_at,category,ward_no,block_name,landmark,photo_url,moderation_status,is_duplicate')
     .order('created_at', { ascending: false }).limit(20);
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
@@ -693,6 +705,7 @@ document.getElementById('adReplyForm').addEventListener('submit', async (e) => {
 
 async function loadAutomation(){
   const el = document.getElementById('adAutomation');
+  if (!el) return;
   try {
     const { data } = await sb.from('automation_log').select('*').order('ran_at', { ascending: false }).limit(20);
     if (!data?.length){ el.innerHTML = '<div class="ad-empty">No automation runs yet.</div>'; return; }
@@ -718,6 +731,7 @@ const extLink = (u, label) => /^https?:\/\//i.test(u || '') ? `<a href="${esc(u)
 
 async function loadPromises(){
   const el = document.getElementById('adPromises');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_promises');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   const { pending = [], published = [], news = [] } = data || {};
@@ -796,6 +810,7 @@ const DEMAND_ROLE = { chairman: 'Chairman', councillor: 'Councillor', mla: 'MLA'
 
 async function loadDemands(){
   const el = document.getElementById('adDemands');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_demands');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   const { pending = [], replies = [], published = [], promises = [] } = data || {};
@@ -864,6 +879,7 @@ async function loadDemands(){
 
 async function loadBugs(){
   const el = document.getElementById('adBugs');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_bugs');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   const bugs = data || [];
@@ -890,6 +906,7 @@ async function loadBugs(){
 
 async function loadCommunities(){
   const el = document.getElementById('adCommunities');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_communities');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No groups registered yet.</div>'; return; }
@@ -921,6 +938,7 @@ const CARD_FIELDS = [['enrolment', 'Pupils'], ['teachers', 'Teachers'], ['classr
   ['handwash', 'Hand-wash'], ['library', 'Library'], ['playground', 'Playground'], ['ramp', 'Ramp']];
 async function loadReportCards(){
   const el = document.getElementById('adReportCards');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_report_card_queue');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
@@ -951,6 +969,7 @@ async function loadReportCards(){
 
 async function loadSchoolSuggestions(){
   const el = document.getElementById('adSchoolSuggestions');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_school_suggestion_queue');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
@@ -987,6 +1006,7 @@ async function loadSchoolSuggestions(){
 const HOLD_TEXT = { other_block: 'filed from another block', far_from_school: "far from the school's location" };
 async function loadSchoolChecks(){
   const el = document.getElementById('adSchoolChecks');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_school_audit_queue');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
@@ -1015,6 +1035,7 @@ async function loadSchoolChecks(){
 
 async function loadSignups(){
   const el = document.getElementById('adSignups');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_signups', { p_limit: 200 });
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No sign-ups yet.</div>'; return; }
@@ -1033,6 +1054,7 @@ async function loadSignups(){
 
 async function loadTeam(){
   const el = document.getElementById('adTeam');
+  if (!el) return;
   const { data, error } = await sb.rpc('kasa_admin_team');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   el.innerHTML = `
