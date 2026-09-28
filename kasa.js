@@ -30,7 +30,8 @@ const PAGE_URL = location.origin + location.pathname;
 // report's photo in WhatsApp/X/Facebook previews and then opens the report here.
 const SHARE_URL = (window.KASA_CONFIG?.SHARE_URL || '').replace(/\/$/, '');
 const reportLink = id => SHARE_URL ? `${SHARE_URL}/r/${encodeURIComponent(id)}` : `${PAGE_URL}?report=${encodeURIComponent(id)}`;
-const PHOTO_MAX_PX = 1600;
+const PHOTO_MAX_PX = 1280;
+const PHOTO_QUALITY = 0.75;
 // Exactly what the public view offers; never select('*') from it.
 const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,flags,moderation_status,is_duplicate,parent_report_id,recurrence_count,rejected_claims,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_id,claim_photo_url,claim_created_at,claim_verify_count,claim_dispute_count,claim_quorum_reached_at,claim_finalize_after,claim_distance_m,rating_count,onsite_rating_count,authenticity_avg,severity_avg,neighbour_status,reply_count,claim_needs_review,claim_reviewed_at,area_kind,block_name,verify_needed,boundary_type,waste_type,local_body';
 const CACHE_KEY = 'kasa_reports_cache_v2';
@@ -2474,7 +2475,7 @@ async function takeCameraShot(){
   const problem = photoProblem(canvas);
   try {
     camera.blob = await new Promise((resolve, reject) =>
-      canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.85));
+      canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', PHOTO_QUALITY));
   } catch (e){
     showToast(t('err_photo_read'));
     return;
@@ -4500,7 +4501,7 @@ function getPosition({ want = 50, timeout = 15000, onProgress } = {}){
   });
 }
 
-/* Resizes to ≤1600px JPEG, respecting camera orientation. */
+/* Resizes to ≤PHOTO_MAX_PX JPEG, respecting camera orientation. */
 async function compressImage(file){
   let source;
   try { source = await createImageBitmap(file, { imageOrientation: 'from-image' }); }
@@ -4517,7 +4518,7 @@ async function compressImage(file){
   canvas.width = Math.round(source.width * scale);
   canvas.height = Math.round(source.height * scale);
   canvas.getContext('2d').drawImage(source, 0, 0, canvas.width, canvas.height);
-  return new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', 0.8));
+  return new Promise((resolve, reject) => canvas.toBlob(b => (b ? resolve(b) : reject(new Error('encode failed'))), 'image/jpeg', PHOTO_QUALITY));
 }
 
 function showToast(msg, ms = 3500){
