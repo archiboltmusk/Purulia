@@ -64,10 +64,33 @@ window.KASA_CITY = {
     'Hura':      { seats: [243, 244],      lokSabha: 'Purulia' }
   },
   // Lok Sabha seats: `mp` names a key in `reps`, or give { name, party } directly.
+  // mplads: the MP's local area fund for the current term, from the official MPLADS portal
+  // as shown by Empowered Indian (amounts in rupees). Update `asOf` with the numbers.
   lokSabha: {
-    Purulia:  { mp: 'mp' },
-    Jhargram: { mp: { name: 'Kalipada Soren', party: 'AITC' } },
-    Bankura:  { mp: { name: 'Arup Chakraborty', party: 'AITC' } }
+    Purulia:  { mp: 'mp', mplads: { allocated: 147000000, recommended: 71300960, spent: 11711831, worksRecommended: 107, worksCompleted: 15, asOf: '2026-09-03',
+                url: 'https://empoweredindian.in/mplads/mps/shri-jyotirmay-singh-mahato-purulia-west-bengal-18th-lok-sabha' } },
+    Jhargram: { mp: { name: 'Kalipada Soren', party: 'AITC' }, mplads: { allocated: 147000000, recommended: 113497279, spent: 71784126, worksRecommended: 63, worksCompleted: 40, asOf: '2026-09-03',
+                url: 'https://empoweredindian.in/mplads/mps/kalipada-saren-jhargram-west-bengal-18th-lok-sabha' } },
+    Bankura:  { mp: { name: 'Arup Chakraborty', party: 'AITC' }, mplads: { allocated: 147000000, recommended: 94625897, spent: 55795450, worksRecommended: 70, worksCompleted: 40, asOf: '2026-09-03',
+                url: 'https://empoweredindian.in/mplads/mps/arup-chakraborty-bankura-west-bengal-18th-lok-sabha' } }
+  },
+
+  // Every municipality in the district (purulia.gov.in lists three) and the Zilla Parishad,
+  // for the full list of representatives on the report map. `chair` names a key in `reps`,
+  // or give { name, party } directly with the source it came from. Leave `party` out unless
+  // a source states it. Checked September 2026; keep current.
+  municipalities: [
+    { name: 'Purulia', chair: 'chairman', town: true, source: 'https://purulia.gov.in/block-municipality/', sourceName: 'purulia.gov.in' },
+    { name: 'Jhalda', block: 'Jhalda I', chair: { name: 'Suresh Agarwal' },
+      source: 'https://www.youtube.com/watch?v=7hrDiPYv6YI', sourceName: 'Sangbad Pratidin, 3 Feb 2024 (elected after a trust vote)' },
+    { name: 'Raghunathpur', block: 'Raghunathpur I', chair: { name: 'Tarani Bauri' },
+      source: 'https://tv9bangla.com/west-bengal/purulia/bjp-alleges-rs-8-crore-corruption-in-raghunathpur-municipality-submits-red-and-blue-files-1328123.html', sourceName: 'TV9 Bangla, 3 Jul 2026' }
+  ],
+  zillaParishad: { name: 'Nivedita Mahato', source: 'https://purulia.gov.in/zilla-parishad/', sourceName: 'purulia.gov.in, updated 15 Sep 2026' },
+  // Where the MLA and MP names above come from.
+  repSources: {
+    mla: { url: 'https://en.wikipedia.org/wiki/2026_West_Bengal_Legislative_Assembly_election', name: '2026 assembly election results' },
+    mp: { url: 'https://en.wikipedia.org/wiki/2024_Indian_general_election_in_West_Bengal', name: '2024 Lok Sabha election results' }
   },
 
   // Official channels shown under "Take it further". Checked September 2026; keep current.
