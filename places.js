@@ -34,7 +34,7 @@ window.KASA_PLACES = [
   }
 ];
 
-// The 22 districts other than Purulia, as places/wb_districts.geojson names them.
+// The 23 West Bengal districts (including Purulia), as places/wb_districts.geojson names them.
 window.KASA_DISTRICTS = {
   'alipurduar': 'Alipurduar', 'bankura': 'Bankura', 'birbhum': 'Birbhum', 'cooch-behar': 'Cooch Behar',
   'dakshin-dinajpur': 'Dakshin Dinajpur', 'darjeeling': 'Darjeeling', 'hooghly': 'Hooghly', 'howrah': 'Howrah',
@@ -42,6 +42,7 @@ window.KASA_DISTRICTS = {
   'murshidabad': 'Murshidabad', 'nadia': 'Nadia', 'north-24-parganas': 'North 24 Parganas',
   'paschim-bardhaman': 'Paschim Bardhaman', 'paschim-medinipur': 'Paschim Medinipur',
   'purba-bardhaman': 'Purba Bardhaman', 'purba-medinipur': 'Purba Medinipur',
+  'purulia': 'Purulia',
   'south-24-parganas': 'South 24 Parganas', 'uttar-dinajpur': 'Uttar Dinajpur'
 };
 
