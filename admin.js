@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1140,6 +1140,37 @@ async function loadReportCards(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_report_card', { p_id: b.dataset.card, p_action: b.dataset.cardAct });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadReportCards();
+  }));
+}
+
+const OFFICIAL_ROLE = { pradhan: 'Pradhan', sabhapati: 'Sabhapati', sabhadhipati: 'Sabhadhipati', bdo: 'BDO', dm: 'District Magistrate', zp: 'Zilla Parishad officer (ADM)' };
+async function loadOfficials(){
+  const el = document.getElementById('adOfficials');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_official_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Post and place</th><th>Name</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(o => `<tr>
+          <td>${esc(OFFICIAL_ROLE[o.role] || o.role)}<br><small>${esc([o.gp, o.block, o.district].filter(Boolean).join(', '))}${o.lat != null ? ` · <a href="https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lng}#map=13/${o.lat}/${o.lng}" target="_blank" rel="noopener">map</a>` : ''} · sent ${esc(new Date(o.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><input class="ad-input" data-of-name="${esc(o.id)}" value="${esc(o.name)}" style="width:100%;">${o.phone ? `<br><small>${esc(o.phone)}</small>` : ''}</td>
+          <td><a href="${esc(o.source_url)}" target="_blank" rel="noopener noreferrer">${esc(o.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-of="${esc(o.id)}" data-of-act="approve">✓ Name is at the link</button>
+            <button class="ad-bad" data-of="${esc(o.id)}" data-of-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-of]').forEach(b => b.addEventListener('click', async () => {
+    const id = b.dataset.of;
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_official', { p_id: Number(id), p_action: b.dataset.ofAct,
+      p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadOfficials();
   }));
 }
 
