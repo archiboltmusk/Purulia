@@ -22,6 +22,16 @@ window.KASA_PLACES = [
     body: 'Kolkata Municipal Corporation',
     // KMC's own complaint form on kmcgov.in, checked September 2026.
     complaintUrl: 'https://www.kmcgov.in/KMCPortal/ComplaintFormAction.do',
+    // KMC's contact page, checked 30 September 2026 (its 2226-9909 line is commented out there, so not listed).
+    contactsSource: 'https://www.kmcgov.in/KMCPortal/jsp/KmcContact.jsp',
+    address: '5, S.N. Banerjee Road, Kolkata 700 013',
+    contacts: [
+      { kind: 'callcentre', tel: '18003453375', show: '1800 345 3375' },
+      { kind: 'whatsapp', wa: '918335988888', show: '83359 88888' },
+      { kind: 'chatbot', wa: '918335999111', show: '83359 99111' },
+      { kind: 'control', tel: '+913322861212', show: '033 2286 1212 / 1313 / 1414' },
+      { kind: 'office', tel: '+913322861000', show: '033 2286 1000' }
+    ],
     wardsGeojson: 'places/kolkata_wards.geojson',
     // 141 of KMC's 144 wards: 142–144 (Joka, added in 2015) are not in the open map.
     wardsMapped: 141,

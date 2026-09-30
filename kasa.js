@@ -1792,6 +1792,12 @@ function renderPlaceAccountability(r){
         ${p?.incharge ? `<div class="k-node"><span class="k-node-abbr">🧹</span>
           <span class="k-node-text"><b>${esc(p.incharge)}</b><small>${esc(t('pl_incharge'))}${p.inchargeSource ? ': ' + esc(p.inchargeSource) : ''}</small></span></div>` : ''}
         ${p?.complaintUrl && /^https:\/\//i.test(p.complaintUrl) ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
+        ${p?.contacts?.length ? `<details class="k-acc-more">
+          <summary>${esc(t('pl_contacts', { body: p.body }))}</summary>
+          ${p.contacts.map(c => `<a class="k-esc-item" href="${c.wa ? 'https://wa.me/' + esc(c.wa) : 'tel:' + esc(c.tel)}"${c.wa ? ' target="_blank" rel="noopener"' : ''}><b>${esc(t('pl_c_' + c.kind))}</b><small>${esc(c.show)}</small></a>`).join('')}
+          ${p.address ? `<p class="k-acc-src">${esc(p.address)}</p>` : ''}
+          <p class="k-acc-src"><a href="${esc(p.contactsSource)}" target="_blank" rel="noopener">${esc(t('pl_c_source'))}</a></p>
+        </details>` : ''}
         ${p && !p.isDistrict ? `<a class="k-esc-item" href="add-town.html?fix=${encodeURIComponent(p.slug)}"><b>${esc(t('pl_fix_border'))}</b>${p.status === 'provisional' ? `<small>${esc(t('pl_border_note'))}</small>` : ''}</a>` : ''}
         <details class="k-acc-more">
           <summary>${esc(t('acc_more'))}</summary>
