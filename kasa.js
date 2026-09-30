@@ -24,7 +24,10 @@ const MUNICIPALITY_EMAIL = CITY.municipalityEmail || '';
 const MLA_TWITTER_HANDLE = CITY.mlaTwitterHandle || '';
 const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
 const MAP_ZOOM = CITY.mapZoom || 13;
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+// "Daylight map" (menu) swaps the dark basemap for a light one that stays readable in bright sun.
+let daylightMap = false;
+try { daylightMap = localStorage.getItem('kasa_daylight') === '1'; } catch (e) {}
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (daylightMap ? 'positron' : 'dark');
 const PAGE_URL = location.origin + location.pathname;
 // Links people share. With SHARE_URL set (the Cloudflare worker, worker.js), /r/<id> shows the
 // report's photo in WhatsApp/X/Facebook previews and then opens the report here.
@@ -1081,6 +1084,7 @@ function watchMapStyleLoad(map){
 // other data. Purulia's roads are the whole point of this map, so raise them to legible —
 // this can't add road names OSM doesn't have, only make the ones it does have readable.
 function boostRoadLabels(map){
+  if (daylightMap) return;
   if (map.getLayer('highway_name_other')){
     map.setPaintProperty('highway_name_other', 'text-color', 'rgba(196,182,158,.92)');
     map.setPaintProperty('highway_name_other', 'text-halo-color', 'rgba(10,8,5,.9)');
@@ -1244,6 +1248,7 @@ function renderWardCard(){
     <div class="k-ward-title">${esc(t('acc_ward', { n }))}</div>
     <div class="k-ward-sub">${w.councillor_name ? esc(w.councillor_name) : esc(t('lb_vacant'))}</div>
     <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: s.open + s.resolved }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
       ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
@@ -1352,6 +1357,7 @@ function updateStats(){
   setText('k-stat-total', all.length);
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
+  setText('k-fixed-chip-n', verified);
   setText('k-stat-fake', fake);
 }
 
@@ -1418,7 +1424,7 @@ function renderFixed(){
   // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
   const chip = document.getElementById('k-fixed-chip');
   chip.hidden = !fixes.length;
-  document.getElementById('k-fixed-chip-n').textContent = fixes.length;
+  document.getElementById('k-fixed-chip-sep').hidden = !fixes.length;
   if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
@@ -4236,6 +4242,12 @@ function wireUI(){
     if (d.waste){ setWasteType(draft?.wasteType === d.waste ? null : d.waste); return; }
   });
 
+  const daylight = document.getElementById('k-daylight');
+  daylight.setAttribute('aria-pressed', String(daylightMap));
+  daylight.addEventListener('click', () => {
+    try { localStorage.setItem('kasa_daylight', daylightMap ? '0' : '1'); } catch (e) {}
+    location.reload();
+  });
   document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
   document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
