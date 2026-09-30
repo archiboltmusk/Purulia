@@ -703,6 +703,11 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-wordmark-first{color:var(--cream);}
 .k-wordmark-second{color:var(--amber);font-style:italic;}
 .k-nav-logo.k-wordmark{font-size:15px;text-transform:none;letter-spacing:-.01em;}
+/* Long place names ellipsize so the menu button never leaves the screen */
+.k-nav-logo.k-wordmark{flex-shrink:1;min-width:0;overflow:hidden;}
+.k-nav-logo .k-wordmark-first{flex-shrink:0;}
+.k-nav-logo .k-wordmark-second{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;padding-right:.1em;}
+.k-nav-right{flex-shrink:0;}
 .k-version{flex-shrink:0;margin-left:-.5rem;margin-right:auto;font-family:var(--mono);font-size:10px;line-height:1;letter-spacing:.02em;color:var(--text-lo);border:1px solid var(--border);border-radius:999px;padding:.22rem .45rem;text-decoration:none;white-space:nowrap;}
 .k-version:hover,.k-version:focus-visible{color:var(--amber);border-color:rgba(212,136,42,.5);}
 @media(max-width:379px){.k-version{display:none;}}
