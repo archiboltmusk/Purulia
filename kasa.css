@@ -181,7 +181,7 @@ img{display:block;max-width:100%;}
 }
 
 /* Ward card (tap a ward on the map) */
-.k-ward-card{position:absolute;left:.9rem;bottom:6rem;z-index:7;width:min(290px,calc(100% - 1.8rem));background:var(--ink);border:1px solid var(--border2);border-radius:6px;padding:1rem 1.1rem;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:kFade .2s ease;}
+.k-ward-card{position:absolute;left:.9rem;bottom:6rem;z-index:7;width:min(290px,calc(100% - 1.8rem));background:var(--ink);border:1px solid var(--border2);border-radius:6px;padding:1rem 1.1rem;box-shadow:0 12px 32px rgba(0,0,0,.5);animation:kFade .2s ease;max-height:calc(100% - 8rem);overflow-y:auto;overscroll-behavior:contain;}
 .k-ward-close{position:absolute;top:.4rem;right:.5rem;color:var(--text-lo);padding:.3rem;}
 .k-ward-title{font-family:var(--serif);font-size:1.25rem;font-weight:700;}
 .k-ward-sub{font-family:var(--mono);font-size:11px;color:var(--text-md);margin-top:.15rem;}
@@ -913,6 +913,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-extra{font-family:var(--mono);font-size:10px;color:var(--text-lo);}
 .k-area-extra a{color:var(--amber);}
 .k-area-add{display:grid;gap:.45rem;margin-top:.7rem;}
+.k-area-addname{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--amber);border:1px solid var(--border2);border-radius:3px;padding:.15rem .45rem;margin-left:.3rem;vertical-align:middle;}
 .k-area-add[hidden]{display:none;}
 .k-area-add-note{font-size:.8rem;color:var(--text-lo);margin:0;}
 .k-area-add input,.k-area-add select{font:inherit;font-size:.9rem;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:3px;background:var(--ink);color:var(--text-hi);}

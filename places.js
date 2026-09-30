@@ -167,7 +167,7 @@ window.KasaPlaces = (() => {
     document.querySelectorAll('.k-wordmark, .k-nav-logo').forEach(el => {
       if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Parishkar ' + name);
     });
-    document.title = p ? home.title.replace(home.second, p.name) : home.title;
+    document.title = home.title.replace(/Parishkar [^—·]+?(?= —|$)/, 'Parishkar ' + name);
     document.documentElement.dataset.place = key || 'purulia';
     emit('brand', key);
   }

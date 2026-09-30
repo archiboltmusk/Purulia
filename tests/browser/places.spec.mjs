@@ -336,7 +336,7 @@ test("where nobody is on record, anyone can add who's responsible with a source;
   const bdo = card.locator('.k-area-row', { hasText: 'BDO · Indus' });
   await expect(bdo).toContainText('Shri B. Officer');
   await expect(bdo.locator('a', { hasText: 'added by a reader' })).toHaveAttribute('href', 'https://bankura.gov.in/bdo-list.pdf');
-  await card.locator('[data-area-add]').click();
+  await card.locator('.k-area-row', { hasText: 'Pradhan' }).locator('[data-area-add]').click();
   const form = card.locator('.k-area-add');
   await expect(form.locator('select option')).toHaveText(['Pradhan']);
   await form.locator('[name=name]').fill('Smt. A. Pradhan');
@@ -372,4 +372,20 @@ test('add-town opens with the town and its council filled in from a town card', 
   await expect(page.locator('#at-town')).toHaveValue('Chakdaha');
   await expect(page.locator('#at-body')).toHaveValue('Chakdaha Municipality');
   await expect(page.locator('#at-district')).toHaveValue('Nadia');
+});
+
+test('every district shows its blocks and their names from the state view, like Purulia', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-blocks-label'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.9, 23.6], zoom: 7 }); });
+  await expect.poll(() => page.evaluate(() => mainMap.querySourceFeatures('wb-blocks').length), { timeout: 15000 }).toBeGreaterThan(100);
+  const style = await page.evaluate(() => [mainMap.getPaintProperty('wb-blocks-line', 'line-color'), mainMap.getPaintProperty('blocks-line', 'line-color')]);
+  expect(style[0]).toBe(style[1]);
+});
+
+test('a spot inside a Kolkata ward is Kolkata, not the neighbouring district or block, even where old outlines overlap', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  const a = await page.evaluate(async () => { const x = await areasAt(22.50903, 88.30179); return [x.district.properties.slug, !!x.block, !!x.gp]; });
+  expect(a).toEqual(['kolkata', false, false]);
 });
