@@ -2209,6 +2209,22 @@ rpc('kasa_admin_review_place', uid=mod, p_id=fix['id'], p_action='approve', p_sl
 fw = rpc('kasa_place_wards', p_slug='bankura')['features']
 check('a border fix replaces only the wards it sends', len(fw) == 2 and
       max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.07, fw)
+check('a pinned spot must be in West Bengal', err(send_town, ip='10.74.0.1', p_pin=[77.1, 28.6]) == 'KASA_BAD_FORM')
+check('a new town cannot be only a note', err(send_town, ip='10.74.0.1', p_geojson=None, p_note='Please add Bankura') == 'KASA_BAD_MAP')
+named = ward_fc((2, (87.08, 23.22, 87.11, 23.25)))
+named['features'][0]['properties'].update(name='Lalbazar', note='Border follows the canal')
+send_town(ip='10.74.0.2', p_fix_of='bankura', p_geojson=named, p_note='Ward 2 was too wide')
+send_town(ip='10.74.0.3', p_fix_of='bankura', p_geojson=None, p_map_source=None, p_note='Ward 1 should end at the canal', p_pin=[87.06, 23.23])
+pend = [x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'bankura' and x['status'] == 'pending']
+nw = next((x for x in pend if x['ward_count'] == 1), None)
+check('ward names and notes reach the moderator with the note', nw and nw['wards'][0].get('name') == 'Lalbazar'
+      and nw['wards'][0].get('note') == 'Border follows the canal' and nw['note'] == 'Ward 2 was too wide', nw)
+only = next((x for x in pend if x['ward_count'] == 0), None)
+check('a fix can be just a note and a pinned spot', only and only['note'] and only['pin'] == [87.06, 23.23] and not only['drawn'], only)
+before = rpc('kasa_place_wards', p_slug='bankura')
+done = rpc('kasa_admin_review_place', uid=mod, p_id=only['id'], p_action='approve', p_slug=None, p_note='redrawn by a moderator')
+check('approving a note-only fix marks it done and leaves the map as it was',
+      done.get('status') == 'approved' and rpc('kasa_place_wards', p_slug='bankura') == before, done)
 check('a fix must name a town already on the map', err(send_town, ip='10.73.0.3', p_fix_of='nowhere') == 'KASA_BAD_FORM')
 rpc('kasa_place_visit', p_place='district:howrah')
 check('district visits are counted', any(r['place'] == 'district:howrah' and r['visits'] >= 1 and r['reports'] >= 1
