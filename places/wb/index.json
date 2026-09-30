@@ -1,0 +1,238 @@
+{
+ "source": "https://github.com/datta07/INDIAN-SHAPEFILES",
+ "licence": "MIT",
+ "attribution": "Block and gram panchayat outlines: Survey of India village boundaries with Local Government Directory codes, via INDIAN-SHAPEFILES (MIT). Simplified to about 30 m. Approximate.",
+ "districts": {
+  "alipurduar": {
+   "name": "Alipurduar",
+   "bbox": [
+    89.04493,
+    26.39533,
+    89.8826,
+    26.86218
+   ],
+   "blocks": 6,
+   "gps": 63
+  },
+  "bankura": {
+   "name": "Bankura",
+   "bbox": [
+    86.60898,
+    22.62642,
+    87.76428,
+    23.63814
+   ],
+   "blocks": 22,
+   "gps": 190
+  },
+  "birbhum": {
+   "name": "Birbhum",
+   "bbox": [
+    87.08671,
+    23.54041,
+    88.02504,
+    24.58322
+   ],
+   "blocks": 19,
+   "gps": 166
+  },
+  "cooch-behar": {
+   "name": "Cooch Behar",
+   "bbox": [
+    88.74807,
+    25.96529,
+    89.86431,
+    26.54649
+   ],
+   "blocks": 12,
+   "gps": 128
+  },
+  "dakshin-dinajpur": {
+   "name": "Dakshin Dinajpur",
+   "bbox": [
+    88.16526,
+    25.16491,
+    89.0094,
+    25.60702
+   ],
+   "blocks": 8,
+   "gps": 65
+  },
+  "darjeeling": {
+   "name": "Darjeeling",
+   "bbox": [
+    87.98683,
+    26.45154,
+    88.51247,
+    27.22107
+   ],
+   "blocks": 9,
+   "gps": 80
+  },
+  "hooghly": {
+   "name": "Hooghly",
+   "bbox": [
+    87.50423,
+    22.59516,
+    88.50766,
+    23.22475
+   ],
+   "blocks": 18,
+   "gps": 209
+  },
+  "howrah": {
+   "name": "Howrah",
+   "bbox": [
+    87.84335,
+    22.20577,
+    88.35783,
+    22.78224
+   ],
+   "blocks": 14,
+   "gps": 150
+  },
+  "jalpaiguri": {
+   "name": "Jalpaiguri",
+   "bbox": [
+    88.38983,
+    26.2589,
+    89.12628,
+    26.99393
+   ],
+   "blocks": 9,
+   "gps": 71
+  },
+  "jhargram": {
+   "name": "Jhargram",
+   "bbox": [
+    86.55801,
+    21.86592,
+    87.25823,
+    22.79877
+   ],
+   "blocks": 8,
+   "gps": 46
+  },
+  "kalimpong": {
+   "name": "Kalimpong",
+   "bbox": [
+    88.39148,
+    26.86551,
+    88.88117,
+    27.19122
+   ],
+   "blocks": 4,
+   "gps": 41
+  },
+  "malda": {
+   "name": "Malda",
+   "bbox": [
+    87.71307,
+    24.65544,
+    88.46397,
+    25.53977
+   ],
+   "blocks": 15,
+   "gps": 148
+  },
+  "murshidabad": {
+   "name": "Murshidabad",
+   "bbox": [
+    87.81639,
+    23.72232,
+    88.74649,
+    24.85777
+   ],
+   "blocks": 26,
+   "gps": 244
+  },
+  "nadia": {
+   "name": "Nadia",
+   "bbox": [
+    88.13434,
+    22.8754,
+    88.80141,
+    24.09471
+   ],
+   "blocks": 18,
+   "gps": 185
+  },
+  "north-24-parganas": {
+   "name": "North 24 Parganas",
+   "bbox": [
+    88.3318,
+    22.12015,
+    89.09855,
+    23.25605
+   ],
+   "blocks": 22,
+   "gps": 200
+  },
+  "paschim-bardhaman": {
+   "name": "Paschim Bardhaman",
+   "bbox": [
+    86.7994,
+    23.31813,
+    87.57825,
+    23.88243
+   ],
+   "blocks": 9,
+   "gps": 68
+  },
+  "paschim-medinipur": {
+   "name": "Paschim Medinipur",
+   "bbox": [
+    87.05354,
+    21.76499,
+    87.89064,
+    22.95519
+   ],
+   "blocks": 21,
+   "gps": 213
+  },
+  "purba-bardhaman": {
+   "name": "Purba Bardhaman",
+   "bbox": [
+    87.47566,
+    22.93217,
+    88.41502,
+    23.84467
+   ],
+   "blocks": 22,
+   "gps": 212
+  },
+  "purba-medinipur": {
+   "name": "Purba Medinipur",
+   "bbox": [
+    87.426,
+    21.61126,
+    88.19054,
+    22.51939
+   ],
+   "blocks": 25,
+   "gps": 223
+  },
+  "south-24-parganas": {
+   "name": "South 24 Parganas",
+   "bbox": [
+    88.00957,
+    21.52722,
+    89.15112,
+    22.62507
+   ],
+   "blocks": 29,
+   "gps": 307
+  },
+  "uttar-dinajpur": {
+   "name": "Uttar Dinajpur",
+   "bbox": [
+    87.80737,
+    25.24473,
+    88.52479,
+    26.4994
+   ],
+   "blocks": 9,
+   "gps": 100
+  }
+ }
+}

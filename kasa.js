@@ -358,6 +358,7 @@ async function init(){
   // Block outlines for village reports; not needed for the first paint.
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
+  if (window.KasaPlaces) mapReady.then(addDistrictLayers);
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
   initPlacePicker();
@@ -1224,6 +1225,60 @@ function addPlaceLayers(slug){
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+}
+
+/* All West Bengal: district outlines always; each district's blocks and gram panchayats
+   (places/wb/<slug>.geojson, tools/build-wb-local.py) load once it is in view from zoom 8,
+   so the map never fetches the whole state. Styled like Purulia's own layers. */
+const WB_LOCAL_ZOOM = 8;
+let wbIndex = null;
+async function addDistrictLayers(){
+  const g = await KasaPlaces.loadDistricts();
+  if (!mainMap || !g?.features?.length || mainMap.getSource('wb-districts')) return;
+  mainMap.addSource('wb-districts', { type: 'geojson', data: g,
+    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0)' });
+  mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
+    paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
+    filter: ['!=', ['get', 'slug'], 'purulia'],
+    layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
+    paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  mainMap.on('moveend', loadLocalInView);
+  loadLocalInView();
+}
+
+async function loadLocalInView(){
+  if (!mainMap || mainMap.getZoom() < WB_LOCAL_ZOOM) return;
+  if (!wbIndex) wbIndex = fetch('places/wb/index.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  const idx = await wbIndex;
+  if (!idx?.districts) return;
+  const b = mainMap.getBounds();
+  for (const [slug, d] of Object.entries(idx.districts)){
+    const [x0, y0, x1, y1] = d.bbox;
+    if (x1 < b.getWest() || x0 > b.getEast() || y1 < b.getSouth() || y0 > b.getNorth()) continue;
+    addDistrictLocal(slug, idx.attribution);
+  }
+}
+
+const wbLocalLoading = {};
+function addDistrictLocal(slug, attribution){
+  if (wbLocalLoading[slug]) return;
+  wbLocalLoading[slug] = fetch('places/wb/' + slug + '.geojson').then(r => r.ok ? r.json() : null).then(g => {
+    if (!g || !mainMap) { delete wbLocalLoading[slug]; return; }
+    const src = 'wb-' + slug, kind = k => ['==', ['get', 'kind'], k];
+    mainMap.addSource(src, { type: 'geojson', data: g, attribution });
+    const green = { 'text-color': '#6db88a', 'text-halo-color': '#0a0805', 'text-halo-width': 1 };
+    mainMap.addLayer({ id: src + '-gp-line', type: 'line', source: src, minzoom: 10, filter: kind('gp'),
+      paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, 'clusters');
+    mainMap.addLayer({ id: src + '-block-line', type: 'line', source: src, minzoom: WB_LOCAL_ZOOM, filter: kind('block'),
+      paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
+    mainMap.addLayer({ id: src + '-block-label', type: 'symbol', source: src, minzoom: 9, maxzoom: 12, filter: kind('block'),
+      layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+      paint: { ...green, 'text-opacity': .7 } }, 'clusters');
+    mainMap.addLayer({ id: src + '-gp-label', type: 'symbol', source: src, minzoom: 11.5, filter: kind('gp'),
+      layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
+      paint: { ...green, 'text-opacity': .6 } }, 'clusters');
+  }).catch(() => { delete wbLocalLoading[slug]; });
 }
 
 /* "Parishkar Kolkata" for a report there, else this deployment's name. */

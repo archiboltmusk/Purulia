@@ -217,7 +217,7 @@ window.KasaPlaces = (() => {
   };
 
   return {
-    list: PLACES, districts: DISTRICTS, bySlug, at, load, brand, onView, boxAt, inWB, boxOf, saved, remember,
+    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, saved, remember,
     get current(){ return current; },
     get geo(){ return geo; },
     on: f => listeners.push(f),
