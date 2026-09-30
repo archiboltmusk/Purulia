@@ -21,6 +21,8 @@
     en: {
       title: 'Put your town <em>on the map</em>',
       title_fix: 'Fix <em>{town}</em>’s ward borders',
+      title_fix_area: 'Fix the border of <em>{town}</em>',
+      sub_fix_area: 'Drag its corners to where the border really runs, or just say what is wrong and pin the spot. A moderator checks the fix first.',
       sub: 'Any town or panchayat in West Bengal can have its own Parishkar map, like Parishkar Kolkata. Reports there then go to the right ward and the right office.',
       sub_fix: 'Upload or draw only the wards whose borders are wrong. The rest of {town} stays as it is. A moderator checks the fix first.',
       step1: 'Say which town it is and who is in charge of cleaning there first, and where you found that.',
@@ -69,6 +71,8 @@
     bn: {
       title: 'আপনার শহর <em>মানচিত্রে তুলুন</em>',
       title_fix: '<em>{town}</em>-এর ওয়ার্ড সীমানা ঠিক করুন',
+      title_fix_area: '<em>{town}</em>-এর সীমানা ঠিক করুন',
+      sub_fix_area: 'কোণগুলো টেনে আসল সীমানায় আনুন, বা শুধু কী ভুল লিখে জায়গাটা পিন করুন। আগে একজন মডারেটর দেখে নেবেন।',
       sub: 'পশ্চিমবঙ্গের যে কোনো শহর বা পঞ্চায়েতের নিজের পরিষ্কার মানচিত্র হতে পারে, যেমন পরিষ্কার কলকাতা। তখন সেখানকার রিপোর্ট ঠিক ওয়ার্ড আর ঠিক অফিসে যায়।',
       sub_fix: 'শুধু যে ওয়ার্ডগুলোর সীমানা ভুল সেগুলো আপলোড করুন বা আঁকুন। {town}-এর বাকিটা যেমন আছে থাকবে। আগে একজন মডারেটর দেখে নেবেন।',
       step1: 'শহরের নাম, সেখানে পরিষ্কারের প্রথম দায়িত্বে কে, আর সেটা কোথায় পেলেন তা লিখুন।',
@@ -115,6 +119,8 @@
     hi: {
       title: 'अपना शहर <em>नक्शे पर लाएँ</em>',
       title_fix: '<em>{town}</em> की वार्ड सीमाएँ ठीक करें',
+      title_fix_area: '<em>{town}</em> की सीमा ठीक करें',
+      sub_fix_area: 'कोनों को खींचकर असली सीमा पर लाएँ, या बस लिखें कि क्या ग़लत है और जगह पिन करें। पहले एक मॉडरेटर जाँचेगा।',
       sub: 'पश्चिम बंगाल का कोई भी शहर या पंचायत अपना परिष्कार नक्शा पा सकता है, जैसे परिष्कार कोलकाता। तब वहाँ की रिपोर्ट सही वार्ड और सही दफ़्तर तक जाती है।',
       sub_fix: 'सिर्फ़ वे वार्ड अपलोड करें या बनाएँ जिनकी सीमा ग़लत है। {town} का बाक़ी हिस्सा वैसा ही रहेगा। पहले एक मॉडरेटर जाँचेगा।',
       step1: 'शहर का नाम, वहाँ सफ़ाई का पहला ज़िम्मा किसके पास है, और यह आपको कहाँ मिला, लिखें।',
@@ -195,8 +201,8 @@
     $('at-incharge-src').placeholder = t('ph_incharge_src');
     document.querySelectorAll('.at-lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     if (state.fix){
-      $('at-title').innerHTML = t('title_fix', { town: esc(state.fix.name) });
-      $('at-sub').textContent = t('sub_fix', { town: state.fix.name });
+      $('at-title').innerHTML = t(state.fix.fc ? 'title_fix_area' : 'title_fix', { town: esc(state.fix.name) });
+      $('at-sub').textContent = t(state.fix.fc ? 'sub_fix_area' : 'sub_fix', { town: state.fix.name });
     }
     renderWards();
   }
@@ -429,7 +435,7 @@
   function copyExisting(n){
     const f = state.existing?.features.find(x => Number(x.properties.ward) === n);
     if (!f) return false;
-    if (!state.wards.has(n)) state.wards.set(n, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false });
+    if (!state.wards.has(n)) state.wards.set(n, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false, name: f.properties.name || '' });
     selectWard(n);
     return true;
   }
@@ -636,11 +642,28 @@
   /* Purulia's own wards are not a town in kasa_places; its fixes go to moderators, who update purulia_wards.geojson. */
   const PURULIA = { slug: 'purulia', name: 'Purulia', body: 'Purulia Municipality', body_type: 'municipality', district: 'Purulia',
                     wards: 'purulia_wards.geojson' };
+  /* ?fix=area&level=district|block|gp&district=<slug>&block=&gp=: a district, block or gram panchayat outline from
+     the map's own files, edited as one shape ("ward" 1). Its fix goes to moderators, who update the file. */
+  async function loadArea(){
+    const level = params.get('level'), dslug = params.get('district') || '', block = params.get('block') || '', gp = params.get('gp') || '';
+    const dname = (window.KASA_DISTRICTS || {})[dslug];
+    if (!['district', 'block', 'gp'].includes(level) || !dname || (level !== 'district' && !block) || (level === 'gp' && !gp)) return null;
+    const file = level === 'district' ? 'places/wb_districts.geojson'
+      : dslug === 'purulia' ? (level === 'gp' ? 'purulia_gps.geojson' : 'purulia_blocks.geojson') : 'places/wb/' + dslug + '.geojson';
+    const fc = await (await fetch(file)).json();
+    const f = fc.features.find(x => level === 'district' ? x.properties.slug === dslug
+      : (x.properties.kind || level) === level && x.properties.block === block && (level === 'block' || x.properties.gp === gp));
+    if (!f) return null;
+    const name = level === 'district' ? dname : level === 'block' ? block : gp;
+    return { slug: ['area', level, dslug, block, gp].filter(Boolean).join(':'), name, district: dname, body_type: 'gram_panchayat',
+      body: level === 'district' ? `${dname} district` : level === 'block' ? `${block} block, ${dname} district` : `${gp} gram panchayat, ${block} block`,
+      fc: { type: 'FeatureCollection', features: [{ type: 'Feature', properties: { ward: 1, name }, geometry: f.geometry }] } };
+  }
   async function loadFix(slug){
     try {
-      const places = slug === 'purulia' ? [PURULIA]
+      const places = slug === 'purulia' ? [PURULIA] : slug === 'area' ? [await loadArea()]
         : await (await fetch(API + 'rpc/kasa_places', { method: 'POST', headers: HEAD, body: '{}' })).json();
-      const p = Array.isArray(places) && places.find(x => x.slug === slug);
+      const p = Array.isArray(places) && places.find(x => x && (x.slug === slug || slug === 'area'));
       if (!p) return;
       state.fix = p;
       $('at-town').value = p.name; $('at-town').readOnly = true;
@@ -651,14 +674,14 @@
       if (p.incharge) $('at-incharge').value = p.incharge;
       if (p.incharge_source) $('at-incharge-src').value = p.incharge_source;
       applyLang();
-      const wards = p.wards ? await (await fetch(p.wards)).json()
-        : await (await fetch(API + 'rpc/kasa_place_wards', { method: 'POST', headers: HEAD, body: JSON.stringify({ p_slug: slug }) })).json();
+      const wards = p.fc || (p.wards ? await (await fetch(p.wards)).json()
+        : await (await fetch(API + 'rpc/kasa_place_wards', { method: 'POST', headers: HEAD, body: JSON.stringify({ p_slug: slug }) })).json());
       await mapReady;
       if (wards?.features){
         state.existing = wards;
         map.getSource('existing').setData(wards);
         // ?ward=<n>: open that ward ready to edit.
-        const n = Number(params.get('ward'));
+        const n = Number(params.get('ward')) || (p.fc ? 1 : 0);
         const one = n && wards.features.find(f => Number(f.properties.ward) === n);
         fitTo((one ? [one] : wards.features).flatMap(f => allPoints(f.geometry)));
         if (one) copyExisting(n);

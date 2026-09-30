@@ -2234,6 +2234,13 @@ check("anyone can send a fix for one of Purulia's own wards", pf['ward_count'] =
 pdone = rpc('kasa_admin_review_place', uid=mod, p_id=pf['id'], p_action='approve', p_slug=None, p_note=None)
 check("approving a Purulia ward fix marks it done and adds no town",
       pdone.get('status') == 'approved' and not any(p['slug'] == 'purulia' for p in rpc('kasa_places')), pdone)
+send_town(ip='10.75.0.3', p_town='Arsha', p_district='Purulia', p_body='Arsha gram panchayat, Arsha block', p_body_type='gram_panchayat',
+          p_fix_of='area:gp:purulia:Arsha:Arsha', p_geojson=None, p_map_source=None, p_note='The GP border cuts through the village')
+ga = next((x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'area:gp:purulia:Arsha:Arsha'), None)
+check('a fix can name a district, block or gram panchayat on the map', ga and ga['status'] == 'pending', ga)
+check('an area fix must look like one', err(send_town, ip='10.75.0.4', p_fix_of='area:nowhere') == 'KASA_BAD_FORM')
+gd = rpc('kasa_admin_review_place', uid=mod, p_id=ga['id'], p_action='approve', p_slug=None, p_note=None)
+check('approving an area fix marks it done', gd.get('status') == 'approved' and gd.get('slug') is None, gd)
 check('a fix must name a town already on the map', err(send_town, ip='10.73.0.3', p_fix_of='nowhere') == 'KASA_BAD_FORM')
 rpc('kasa_place_visit', p_place='district:howrah')
 check('district visits are counted', any(r['place'] == 'district:howrah' and r['visits'] >= 1 and r['reports'] >= 1

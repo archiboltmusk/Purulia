@@ -1434,6 +1434,8 @@ function renderAreaCard(){
       <input name="src" type="url" required maxlength="300" placeholder="${esc(t('ar_add_src'))}">
       <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
     </form>
+    <a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams({ fix: 'area', level: a.level, district: district.properties.slug,
+      ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
       · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>`;
   el.hidden = false;

@@ -1,6 +1,7 @@
--- Border fixes for Purulia's own wards (fix_of = 'purulia'): sent from the ward card and ward page.
--- Purulia's wards are not a town in kasa_private.places; approving such a fix marks it done, and a moderator
--- updates purulia_wards.geojson and its areas by hand.
+-- Border fixes for what the map draws from its own files: Purulia's wards (fix_of = 'purulia', from the ward card
+-- and ward page) and any district, block or gram panchayat ('area:<level>:<district-slug>[:<block>[:<gp>]]', from
+-- the place card). These are not towns in kasa_private.places; approving such a fix marks it done, and a moderator
+-- updates the boundary file by hand.
 begin;
 
 create or replace function public.kasa_submit_place(p_town text, p_district text, p_body text, p_body_type text,
@@ -19,7 +20,8 @@ declare
 begin
   if v_town is null or length(v_town) > 80 then perform kasa_private.fail('KASA_BAD_FORM', 'Give the town''s name.'); end if;
   if p_district is null or not (exists (select 1 from kasa_private.areas where kind = 'district' and name = p_district)
-                                or (coalesce(p_fix_of, '') = 'purulia' and p_district = 'Purulia')) then
+                                or (coalesce(p_fix_of, '') = 'purulia' and p_district = 'Purulia')
+                                or (coalesce(p_fix_of, '') like 'area:%' and p_district = 'Purulia')) then
     perform kasa_private.fail('KASA_BAD_FORM', 'Choose the district.');
   end if;
   if v_body is null or length(v_body) > 120 then perform kasa_private.fail('KASA_BAD_FORM', 'Name the municipality or panchayat.'); end if;
@@ -34,7 +36,9 @@ begin
   if v_url is not null and (v_url !~* '^https://[^ ]+$' or length(v_url) > 300) then
     perform kasa_private.fail('KASA_BAD_FORM', 'The complaint link must start with https://');
   end if;
-  if p_fix_of is not null and p_fix_of <> 'purulia' and not exists (select 1 from kasa_private.places where slug = p_fix_of) then
+  if p_fix_of is not null and p_fix_of <> 'purulia'
+     and not (length(p_fix_of) <= 200 and p_fix_of ~ '^area:(district:[a-z0-9-]+|block:[a-z0-9-]+:[^:]+|gp:[a-z0-9-]+:[^:]+:[^:]+)$')
+     and not exists (select 1 from kasa_private.places where slug = p_fix_of) then
     perform kasa_private.fail('KASA_BAD_FORM', 'That town is not on the map yet.');
   end if;
   if p_pin is not null and (jsonb_typeof(p_pin) <> 'array' or jsonb_array_length(p_pin) <> 2
@@ -84,13 +88,14 @@ begin
   elsif p_action <> 'approve' then
     perform kasa_private.fail('KASA_BAD_FORM', 'Approve or reject.');
   end if;
-  -- A note-only fix, or a fix to Purulia's own wards (drawn from purulia_wards.geojson), changes nothing here:
+  -- A note-only fix, or a fix to Purulia's wards or a district/block/GP (drawn from files), changes nothing here:
   -- approving marks it done once a moderator has updated the border.
-  if s.ward_count = 0 or s.fix_of = 'purulia' then
-    update kasa_private.place_submissions set status = 'approved', slug = s.fix_of, review_note = nullif(trim(p_note), ''),
+  if s.ward_count = 0 or s.fix_of = 'purulia' or s.fix_of like 'area:%' then
+    update kasa_private.place_submissions set status = 'approved',
+           slug = (select p.slug from kasa_private.places p where p.slug = s.fix_of), review_note = nullif(trim(p_note), ''),
            reviewed_at = now()
     where id = p_id;
-    return jsonb_build_object('ok', true, 'status', 'approved', 'slug', s.fix_of);
+    return jsonb_build_object('ok', true, 'status', 'approved', 'slug', (select p.slug from kasa_private.places p where p.slug = s.fix_of));
   end if;
 
   v_slug := coalesce(s.fix_of, nullif(trim(lower(p_slug)), ''),
