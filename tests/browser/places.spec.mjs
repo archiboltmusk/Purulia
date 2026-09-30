@@ -307,7 +307,7 @@ test("where nobody is on record, anyone can add who's responsible with a source;
   const bdo = card.locator('.k-area-row', { hasText: 'BDO · Indus' });
   await expect(bdo).toContainText('Shri B. Officer');
   await expect(bdo.locator('a', { hasText: 'added by a reader' })).toHaveAttribute('href', 'https://bankura.gov.in/bdo-list.pdf');
-  await card.locator('[data-area-add]').click();
+  await card.locator('.k-area-row', { hasText: 'Pradhan' }).locator('[data-area-add]').click();
   const form = card.locator('.k-area-add');
   await expect(form.locator('select option')).toHaveText(['Pradhan']);
   await form.locator('[name=name]').fill('Smt. A. Pradhan');

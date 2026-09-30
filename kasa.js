@@ -1397,15 +1397,18 @@ function renderAreaCard(){
   const gname = gp?.properties.gp, added = r => (a.areas.added || []).find(o => o.role === r
     && (['sabhadhipati', 'dm', 'zp'].includes(r) || o.block === bname) && (r !== 'pradhan' || o.gp === gname));
   const byReader = o => o && { name: o.name, phone: o.phone, src: o.source_url };
+  // Kolkata has no panchayats (the city is run by the KMC), so no panchayat head, duties or Zilla Parishad.
+  const rural = district.properties.slug !== 'kolkata';
   const heads = { gp: 'pradhan', block: 'sabhapati', district: 'sabhadhipati' }, head = byReader(added(heads[a.level]));
   const bdoRow = a.level !== 'district' && bname && (bdo || byReader(added('bdo')));
   const dm = off?.dm || byReader(added('dm')), zp = off?.zp || byReader(added('zp'));
-  const missing = [heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
-  if (head) missing.shift();
+  const missing = [rural && !head && heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', rural && !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
   const contact = o => [o.phone && `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a>`,
                         o.email && `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`,
                         o.src && `<a href="${esc(o.src)}" target="_blank" rel="noopener">${esc(t('ar_added_src'))}</a>`].filter(Boolean).join(' · ');
   const officer = (role, o, extra) => o ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${esc(o.name || '')}</span>${contact(o) ? `<span class="k-area-extra">${contact(o)}</span>` : ''}${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>` : '';
+  // A post nobody is on record for: "Not on record yet" and a button to add the name, right on that row.
+  const none = (role, r, extra) => missing.includes(r) ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who"><span class="k-area-none">${esc(t('ar_not_on_record'))}</span>${sb ? ` <button type="button" class="k-area-addname" data-area-add="${r}">${esc(t('ar_add_name_btn'))}</button>` : ''}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>` : '';
   const roleName = r => ({ pradhan: t('ar_head_gp'), sabhapati: t('ar_head_block'), sabhadhipati: t('ar_head_district'), bdo: t('ar_bdo_short'), dm: t('ar_dm'), zp: t('ar_zp') })[r];
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
@@ -1422,14 +1425,13 @@ function renderAreaCard(){
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), esc(L.ac.person), L.ac.party) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), esc(L.pc.person), t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level))
-             : row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`, t('ar_duty_' + a.level))}
-      ${a.level === 'district' ? officer(t('ar_dm'), dm) + officer(t('ar_zp'), zp) : officer(t('ar_bdo', { b: bname }), bdoRow)}
+      ${!rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+      ${a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+                               : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
-      ${missing.length && sb ? `<button type="button" class="k-ward-filter" data-area-add>${esc(t('ar_add'))}</button>` : ''}
     </div>
     <form class="k-area-add" hidden>
       <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
@@ -4592,7 +4594,7 @@ function wireUI(){
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
-    if ('areaAdd' in d){ const f = document.querySelector('#k-area-card .k-area-add'); f.hidden = !f.hidden; if (!f.hidden) f.name.focus(); return; }
+    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();
