@@ -405,7 +405,7 @@ test('representatives follow the place on the map: Hooghly shows its own MPs and
   await expect(grid.locator('.k-auth-card')).toHaveCount(3 + 18);
   await expect(grid).toContainText('Rachana Banerjee');
   await expect(grid).toContainText('Subir Nag');
-  await expect(grid).not.toContainText('Jyotirmay Singh Mahato');
+  await expect(grid.locator('.k-auth-card', { hasText: 'Jyotirmay Singh Mahato' })).toHaveCount(0);
   await grid.locator('.k-auth-card', { hasText: 'Rachana Banerjee' }).locator('[data-profile]').click();
   await expect(page.locator('#k-rep-modal')).toContainText('Assembly seats in this constituency');
 });
