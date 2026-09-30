@@ -24,7 +24,10 @@ const MUNICIPALITY_EMAIL = CITY.municipalityEmail || '';
 const MLA_TWITTER_HANDLE = CITY.mlaTwitterHandle || '';
 const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
 const MAP_ZOOM = CITY.mapZoom || 13;
-const MAP_STYLE = 'https://tiles.openfreemap.org/styles/dark';
+// "Daylight map" (menu) swaps the dark basemap for a light one that stays readable in bright sun.
+let daylightMap = false;
+try { daylightMap = localStorage.getItem('kasa_daylight') === '1'; } catch (e) {}
+const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (daylightMap ? 'positron' : 'dark');
 const PAGE_URL = location.origin + location.pathname;
 // Links people share. With SHARE_URL set (the Cloudflare worker, worker.js), /r/<id> shows the
 // report's photo in WhatsApp/X/Facebook previews and then opens the report here.
@@ -329,7 +332,11 @@ async function init(){
   mapReady = initMainMap();
   if (window.KasaPlaces){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
-    KasaPlaces.on((what, slug) => { if (what === 'geo') mapReady.then(() => addPlaceLayers(slug)); });
+    KasaPlaces.on((what, slug) => {
+      if (what === 'geo') mapReady.then(() => addPlaceLayers(slug));
+      // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
+    });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     const jumpToStart = () => {
       const start = KasaPlaces.fromUrl();
@@ -352,7 +359,8 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(locateOnOpen);
+  if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
+  initPlacePicker();
   if (state.mode === 'v2') showJoin();
   // Tips also start on their own if the location question didn't run (a shared link, for example).
   setTimeout(startTips, 5000);
@@ -956,6 +964,9 @@ function filtered(){
 }
 
 const primaries = () => state.reports.filter(r => !r.duplicate);
+/* Reports of the place the page is named after: Purulia, or the town or district the map is on (places.js). */
+const inScope = r => window.KasaPlaces?.current === 'bengal' || (r.place || null) === (window.KasaPlaces?.current || null);
+const scopedPrimaries = () => primaries().filter(inScope);
 const daysSince = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
 const isOverdue = (r) => r.status !== 'resolved' && daysSince(r.createdAt) > r.slaDays;
 const peopleSaw = (r) => r.seen + 1;
@@ -1081,6 +1092,7 @@ function watchMapStyleLoad(map){
 // other data. Purulia's roads are the whole point of this map, so raise them to legible —
 // this can't add road names OSM doesn't have, only make the ones it does have readable.
 function boostRoadLabels(map){
+  if (daylightMap) return;
   if (map.getLayer('highway_name_other')){
     map.setPaintProperty('highway_name_other', 'text-color', 'rgba(196,182,158,.92)');
     map.setPaintProperty('highway_name_other', 'text-halo-color', 'rgba(10,8,5,.9)');
@@ -1097,7 +1109,7 @@ function boostRoadLabels(map){
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
-    minZoom: 10, maxZoom: 19,
+    minZoom: 5, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
   // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
@@ -1244,6 +1256,7 @@ function renderWardCard(){
     <div class="k-ward-title">${esc(t('acc_ward', { n }))}</div>
     <div class="k-ward-sub">${w.councillor_name ? esc(w.councillor_name) : esc(t('lb_vacant'))}</div>
     <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: s.open + s.resolved }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
       ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
@@ -1343,7 +1356,7 @@ function statusChip(r){
 }
 
 function updateStats(){
-  const all = primaries();
+  const all = scopedPrimaries();
   const open = all.filter(r => r.status !== 'resolved').length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
@@ -1352,6 +1365,7 @@ function updateStats(){
   setText('k-stat-total', all.length);
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
+  setText('k-fixed-chip-n', verified);
   setText('k-stat-fake', fake);
 }
 
@@ -1394,7 +1408,7 @@ function renderLeaderboard(){
 // Every resolution method counts — community verification, the photo fast-lane,
 // an admin's manual accept, and legacy reports resolved before verification existed.
 function recentFixes(){
-  return primaries()
+  return scopedPrimaries()
     .filter(r => r.status === 'resolved' && r.resolvedAt && !r.relapsed)
     .sort((a, b) => new Date(b.resolvedAt) - new Date(a.resolvedAt))
     .slice(0, 6);
@@ -1418,7 +1432,7 @@ function renderFixed(){
   // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
   const chip = document.getElementById('k-fixed-chip');
   chip.hidden = !fixes.length;
-  document.getElementById('k-fixed-chip-n').textContent = fixes.length;
+  document.getElementById('k-fixed-chip-sep').hidden = !fixes.length;
   if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
@@ -1453,7 +1467,7 @@ function setFixedStrip(open){
 
 function renderTicker(){
   const track = document.getElementById('k-ticker-track');
-  const recent = primaries().slice(0, 12);
+  const recent = scopedPrimaries().slice(0, 12);
   if (!recent.length){ track.innerHTML = `<span class="k-ticker-item">${esc(t('lb_empty'))}</span>`; return; }
   const items = recent.map(r => `
     <span class="k-ticker-item"><span class="k-ticker-dot" style="background:${markerColor(r)}"></span>
@@ -4236,6 +4250,12 @@ function wireUI(){
     if (d.waste){ setWasteType(draft?.wasteType === d.waste ? null : d.waste); return; }
   });
 
+  const daylight = document.getElementById('k-daylight');
+  daylight.setAttribute('aria-pressed', String(daylightMap));
+  daylight.addEventListener('click', () => {
+    try { localStorage.setItem('kasa_daylight', daylightMap ? '0' : '1'); } catch (e) {}
+    location.reload();
+  });
   document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
   document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
@@ -4390,8 +4410,50 @@ async function locateOnOpen(){
       startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
       mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
+      // Where they are becomes their home place for next time (once the page has been renamed after it).
+      mainMap.once('moveend', () => setTimeout(() => {
+        if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
+      }, 300));
     }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
   } catch (e) { startTips(); }
+}
+
+/* A plain visit opens on the place this device last chose or was found in, else all of West Bengal
+   ("Parishkar Bengal"); the location question then moves it to where they are. */
+async function openOnHomePlace(){
+  if (!window.KasaPlaces || userMovedMap) return;
+  const b = await KasaPlaces.boxOf(KasaPlaces.saved() || 'bengal') || await KasaPlaces.boxOf('bengal');
+  if (userMovedMap) return;
+  mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 0 });
+}
+
+/* "Parishkar Bankura ▾": pick any place to look at. Reporting still needs the live photo and real GPS. */
+function initPlacePicker(){
+  const btn = document.getElementById('k-place-pick'), dlg = document.getElementById('k-place-dialog');
+  if (!btn || !dlg || !window.KasaPlaces) { if (btn) btn.hidden = true; return; }
+  const pick = async key => {
+    dlg.close();
+    const b = await KasaPlaces.boxOf(key);
+    if (!b || !mainMap) return;
+    userMovedMap = true;
+    KasaPlaces.remember(key);
+    mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+  };
+  btn.addEventListener('click', () => {
+    const cur = KasaPlaces.current || 'purulia';
+    const towns = KasaPlaces.list.filter(p => p.bbox).map(p => [p.slug, p.name]);
+    const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia').map(([k, v]) => ['district:' + k, t('pl_district', { d: v })]);
+    const items = [['bengal', t('pk_state'), 'k-place-wide'], ['purulia', 'Purulia'], ...towns,
+      ...districts.sort((a, b) => a[1].localeCompare(b[1]))];
+    document.getElementById('k-place-list').innerHTML = items.map(([k, name, cls]) =>
+      `<button type="button" data-place="${esc(k)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => {
+    if (e.target === dlg || e.target.closest('[data-close]')) return dlg.close();
+    const b = e.target.closest('[data-place]');
+    if (b) pick(b.dataset.place);
+  });
 }
 
 /* First-visit tips: a few small bubbles that point at a feature and say what it does.
@@ -4428,12 +4490,22 @@ function startTips(){
   setTimeout(show, 600);
 }
 
+/* The count is Purulia's; elsewhere the line names the town or district in view. */
+function renderJoin(){
+  const el = document.getElementById('k-join-text');
+  if (!el) return;
+  const p = window.KasaPlaces?.current && KasaPlaces.bySlug(KasaPlaces.current);
+  const n = state.peopleCount;
+  el.textContent = p ? t('join_first_place', { place: p.name }) : n >= 20 ? t('join_n', { n }) : t('join_first');
+}
+
 /* "Join N people keeping Purulia clean" — a small, closable line on the map. */
 async function showJoin(){
   try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
   const { data: n } = await sb.rpc('kasa_people_count');
+  state.peopleCount = n;
   const el = document.getElementById('k-join');
-  document.getElementById('k-join-text').textContent = n >= 20 ? t('join_n', { n }) : t('join_first');
+  renderJoin();
   el.hidden = false;
   document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }

@@ -62,7 +62,14 @@
     <span class="k-mark" aria-hidden="true"></span>
     <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span>
   </a>
+  <button type="button" class="k-place-pick" id="k-place-pick" aria-haspopup="dialog" aria-label="Choose a place">▾</button>
   <a href="changelog.html#done" class="k-version" id="k-version" hidden></a>
+<dialog class="k-place-dialog" id="k-place-dialog" aria-labelledby="k-place-title">
+  <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
+    <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
+  <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
+  <div class="k-place-list" id="k-place-list"></div>
+</dialog>
   <div class="k-nav-links">
     <a href="index.html" data-i18n="nav_home">Home</a>
     <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
@@ -146,6 +153,10 @@
     <span class="k-pill-sep">·</span>
     <span class="k-pill-num" id="k-pill-total">—</span>
     <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
+    <span class="k-pill-sep" id="k-fixed-chip-sep" hidden>·</span>
+    <button type="button" class="k-pill-fixed" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+      ✓ <span class="k-pill-num" id="k-fixed-chip-n"></span> <span class="k-pill-label" data-i18n="fixed_chip">fixed</span>
+    </button>
   </div>
 
   <div class="k-ward-card" id="k-ward-card" hidden></div>
@@ -164,9 +175,6 @@
     </div>
   </div>
 
-  <button type="button" class="k-fixed-chip" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
-    ✓ <span id="k-fixed-chip-n"></span> <span data-i18n="fixed_chip">fixed</span>
-  </button>
   <div class="k-fixed-strip" id="k-fixed-strip" hidden>
     <div class="k-fixed-strip-head">
       <span data-i18n="fixed_title">Recently fixed</span>
@@ -186,7 +194,7 @@
     <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
-    <span aria-hidden="true">📷</span> <span data-i18n="map_report">Report</span>
+    <span aria-hidden="true">📷</span> <span data-i18n="map_report">Report a problem</span>
   </button>
 </section>
 
@@ -199,12 +207,6 @@
       <span class="k-wordmark-text"><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span></span>
     </div>
     <button type="button" class="k-drawer-close" id="k-drawer-close" aria-label="Close">✕</button>
-  </div>
-
-  <!-- ══ Social Proof Banner ══ -->
-  <div class="k-drawer-banner">
-    <span aria-hidden="true">👥</span>
-    <span data-i18n="drawer_banner">Join 7 neighbors fixing Purulia today</span>
   </div>
 
   <!-- ══ Primary Actions ══ -->
@@ -254,6 +256,7 @@
       <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
       <button type="button" class="k-lang-btn" data-lang="sat" title="ᱥᱟᱱᱛᱟᱲᱤ (Santali)">ᱥᱟᱱ</button>
     </div>
+  <button type="button" class="k-daylight" id="k-daylight" aria-pressed="false">☀️ <span data-i18n="daylight">Daylight map (for bright sun)</span></button>
   </div>
 <header class="k-hero">
   <div class="k-wordmark-lg">

@@ -15,11 +15,11 @@ window.KASA_I18N = {
     filter_all_cat: 'All issues', filter_all_status: 'All Status', filter_all_sev: 'All Severity',
     status_open: 'Unresolved', status_claimed: 'Verifying', status_resolved: 'Resolved',
     sev_minor: 'Minor', sev_severe: 'Severe', sev_critical: 'Critical',
-    pill_active: 'Unresolved', pill_reports: 'Reports', map_report: 'Report',
+    pill_active: 'Unresolved', pill_reports: 'Reports', map_report: 'Report a problem', daylight: 'Daylight map (for bright sun)',
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
     stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
     drawer_groups: 'Volunteer communities', drawer_groups_sub: 'Find a group near you, or register yours',
-    drawer_banner: 'Join 7 neighbors fixing Purulia today', drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
+    drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
     trust_sub: "No official or party worker can close a report by saying so. Neighbours on the spot confirm a fix. An admin can accept a cleanup only after checking the photos, and the report then says so openly. These rules run on the server — the website can't skip them.",
@@ -230,7 +230,7 @@ window.KASA_I18N = {
     rep_mla_role: 'MLA · Purulia (Assembly No. 242)', rep_mp_role: 'MP · Purulia (Lok Sabha)', rep_chair_role: 'Chairman · Purulia Municipality',
     rep_chair_meta: 'Board reinstated by Calcutta HC, 2026',
     rep_open: 'Unresolved', rep_resolved: 'Verified fixed', rep_wards: 'Wards affected', rep_worst: 'Most unresolved wards', rep_none: 'No unresolved reports.',
-    wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
+    wc_reported: '{n} reported', wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
     wc_share: 'Share ward link', wc_page: "This ward's page: councillor, fix rate, overdue →", ward_share_text: 'Ward {n}, Purulia: {open} unresolved, {fixed} fixed. See every report:',
     csv_btn: '⬇ CSV', csv_all: '⬇ Download all reports (CSV)', csv_done: '{n} reports downloaded', csv_empty: 'No reports to download.',
     csv_license: 'Report data is open under', csv_license_2: 'Credit “Parishkar Purulia”. Photos are not covered.',
@@ -283,11 +283,11 @@ window.KASA_I18N = {
     filter_all_cat: 'সব সমস্যা', filter_all_status: 'সব অবস্থা', filter_all_sev: 'সব তীব্রতা',
     status_open: 'অমীমাংসিত', status_claimed: 'যাচাই চলছে', status_resolved: 'সমাধান হয়েছে',
     sev_minor: 'সামান্য', sev_severe: 'গুরুতর', sev_critical: 'সংকটজনক',
-    pill_active: 'অমীমাংসিত', pill_reports: 'রিপোর্ট', map_report: 'রিপোর্ট',
+    pill_active: 'অমীমাংসিত', pill_reports: 'রিপোর্ট', map_report: 'সমস্যা জানান', daylight: 'দিনের আলোর ম্যাপ (কড়া রোদে)',
     stat_reports: 'রিপোর্ট', stat_open: 'অমীমাংসিত', stat_resolved: 'যাচাই করা সমাধান', stat_fake: 'ধরা পড়া ভুয়ো সাফাই',
     stat_total_short: 'মোট', stat_open_short: 'অমীমাংসিত', stat_fixed_short: 'সমাধান হয়েছে',
     drawer_groups: 'স্বেচ্ছাসেবী দল', drawer_groups_sub: 'কাছের দল খুঁজুন, বা আপনার দল নথিভুক্ত করুন',
-    drawer_banner: 'পুরুলিয়া পরিষ্কার রাখতে ৭ জন প্রতিবেশী সাথে যোগ দিন', drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'আরও সম্পদ',
+    drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'আরও সম্পদ',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
     trust_sub: 'কোনো আধিকারিক বা দলীয় কর্মী মুখে বলে রিপোর্ট বন্ধ করতে পারেন না। ঘটনাস্থলের প্রতিবেশীরা সমাধান নিশ্চিত করেন। অ্যাডমিন শুধু ছবি দেখে পরিষ্কার গ্রহণ করতে পারেন, আর রিপোর্টে তা খোলাখুলি লেখা থাকে। এই নিয়ম সার্ভারে চলে — ওয়েবসাইট এড়াতে পারে না।',
@@ -498,7 +498,7 @@ window.KASA_I18N = {
     rep_mla_role: 'বিধায়ক · পুরুলিয়া (বিধানসভা ২৪২)', rep_mp_role: 'সাংসদ · পুরুলিয়া (লোকসভা)', rep_chair_role: 'চেয়ারম্যান · পুরুলিয়া পৌরসভা',
     rep_chair_meta: 'কলকাতা হাইকোর্টে বোর্ড পুনর্বহাল, ২০২৬',
     rep_open: 'অমীমাংসিত', rep_resolved: 'যাচাই করা সমাধান', rep_wards: 'প্রভাবিত ওয়ার্ড', rep_worst: 'সবচেয়ে বেশি অমীমাংসিত ওয়ার্ড', rep_none: 'কোনো অমীমাংসিত রিপোর্ট নেই।',
-    wc_open: '{n}টি অমীমাংসিত', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
+    wc_reported: '{n}টি রিপোর্ট', wc_open: '{n}টি অমীমাংসিত', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
     wc_share: 'ওয়ার্ডের লিঙ্ক শেয়ার', wc_page: 'এই ওয়ার্ডের পাতা: কাউন্সিলর, সমাধানের হার, সময় পেরোনো →', ward_share_text: 'পুরুলিয়ার ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
     csv_btn: '⬇ CSV', csv_all: '⬇ সব রিপোর্ট ডাউনলোড (CSV)', csv_done: '{n}টি রিপোর্ট ডাউনলোড হয়েছে', csv_empty: 'ডাউনলোড করার মতো রিপোর্ট নেই।',
     csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Parishkar Purulia”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
@@ -550,11 +550,11 @@ window.KASA_I18N = {
     filter_all_cat: 'सभी समस्याएँ', filter_all_status: 'सभी स्थिति', filter_all_sev: 'सभी गंभीरता',
     status_open: 'अनसुलझी', status_claimed: 'पुष्टि जारी', status_resolved: 'सुलझ गई',
     sev_minor: 'मामूली', sev_severe: 'गंभीर', sev_critical: 'अति गंभीर',
-    pill_active: 'अनसुलझी', pill_reports: 'रिपोर्ट', map_report: 'रिपोर्ट',
+    pill_active: 'अनसुलझी', pill_reports: 'रिपोर्ट', map_report: 'समस्या बताएँ', daylight: 'दिन की रोशनी वाला नक्शा (तेज़ धूप में)',
     stat_reports: 'रिपोर्ट', stat_open: 'अनसुलझी', stat_resolved: 'पुष्टि से सुलझी', stat_fake: 'पकड़ी गई फ़र्ज़ी सफ़ाई',
     stat_total_short: 'कुल', stat_open_short: 'अनसुलझी', stat_fixed_short: 'सुलझी हुई',
     drawer_groups: 'स्वयंसेवी समूह', drawer_groups_sub: 'पास का समूह खोजें, या अपना दर्ज करें',
-    drawer_banner: 'पुरुलिया को साफ़ रखने वाले 7 पड़ोसियों के साथ जुड़ें', drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
+    drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
 
     trust_num: '03 · पुष्टि', trust_title: 'यहाँ "सुलझ गई" का मतलब सच में सुलझ गई',
     trust_sub: 'कोई अधिकारी या पार्टी कार्यकर्ता सिर्फ़ कहकर रिपोर्ट बंद नहीं कर सकता। मौके पर पड़ोसी सुधार की पुष्टि करते हैं। एडमिन सिर्फ़ फ़ोटो जाँचकर सफ़ाई स्वीकार कर सकता है, और रिपोर्ट पर यह साफ़ लिखा होता है। ये नियम सर्वर पर चलते हैं — वेबसाइट इन्हें छोड़ नहीं सकती।',
@@ -765,7 +765,7 @@ window.KASA_I18N = {
     rep_mla_role: 'विधायक · पुरुलिया (विधानसभा 242)', rep_mp_role: 'सांसद · पुरुलिया (लोकसभा)', rep_chair_role: 'चेयरमैन · पुरुलिया नगरपालिका',
     rep_chair_meta: 'कलकत्ता हाईकोर्ट ने बोर्ड बहाल किया, 2026',
     rep_open: 'अनसुलझी', rep_resolved: 'पुष्टि से सुलझी', rep_wards: 'प्रभावित वार्ड', rep_worst: 'सबसे ज़्यादा अनसुलझी रिपोर्ट वाले वार्ड', rep_none: 'कोई अनसुलझी रिपोर्ट नहीं।',
-    wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
+    wc_reported: '{n} रिपोर्ट', wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
     wc_share: 'वार्ड का लिंक शेयर करें', wc_page: 'इस वार्ड का पेज: पार्षद, ठीक होने की दर, समय सीमा पार →', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
     csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड ���े लिए कोई रिपोर्ट नहीं।',
     csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Parishkar Purulia” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
@@ -1230,3 +1230,12 @@ Object.assign(window.KASA_I18N.hi, {
   pl_fix_border: 'वार्ड की सीमा ग़लत है? सुधार भेजें →',
   pl_border_note: 'निवासियों की बनाई वार्ड सीमाएँ, अस्थायी'
 });
+Object.assign(window.KASA_I18N.en, { join_first_place: '👥 Be one of the first people keeping {place} clean' });
+Object.assign(window.KASA_I18N.bn, { join_first_place: '👥 {place} পরিষ্কার রাখা প্রথম মানুষদের একজন হোন' });
+Object.assign(window.KASA_I18N.hi, { join_first_place: '👥 {place} को साफ़ रखने वाले पहले लोगों में शामिल हों' });
+Object.assign(window.KASA_I18N.en, { pk_title: 'Choose a place', pk_state: 'All of West Bengal',
+  pk_note: 'This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.' });
+Object.assign(window.KASA_I18N.bn, { pk_title: 'জায়গা বেছে নিন', pk_state: 'সারা পশ্চিমবঙ্গ',
+  pk_note: 'এতে শুধু মানচিত্র সরে। রিপোর্ট করতে আপনাকে সেই জায়গায় থাকতে হবে: ছবি সরাসরি তোলা হয় আর আপনার আসল অবস্থান লাগে।' });
+Object.assign(window.KASA_I18N.hi, { pk_title: 'जगह चुनें', pk_state: 'पूरा पश्चिम बंगाल',
+  pk_note: 'इससे सिर्फ़ नक्शा हिलता है। रिपोर्ट के लिए आपको उसी जगह होना होगा: फ़ोटो सीधे ली जाती है और आपकी असली लोकेशन ली जाती है।' });
