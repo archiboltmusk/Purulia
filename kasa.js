@@ -1491,6 +1491,7 @@ function renderWardCard(){
     <a class="k-ward-money" href="municipality.html">${esc(t('wc_money'))}</a>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
+    <a class="k-ward-money" href="add-town.html?fix=purulia&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
   el.hidden = false;
 }
@@ -1538,6 +1539,7 @@ function renderPlaceWardCard(el, n, slug){
       <button type="button" class="k-ward-filter" data-ward-share="${n}" data-ward-place="${esc(slug)}">${esc(t('wc_share'))}</button>
     </div>
     ${c?.borough && c.src.boroughOffices ? `<a class="k-ward-money" href="${esc(c.src.boroughOffices)}" target="_blank" rel="noopener">${esc(t('pw_borough', { b: c.borough, body: p.body || p.name }))}</a>` : ''}
+    <a class="k-ward-money" href="add-town.html?fix=${encodeURIComponent(slug)}&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('pw_map_note', { src: p.sourceName || p.source || '' }))}</div>`;
   el.hidden = false;
 }

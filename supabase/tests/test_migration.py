@@ -2225,6 +2225,15 @@ before = rpc('kasa_place_wards', p_slug='bankura')
 done = rpc('kasa_admin_review_place', uid=mod, p_id=only['id'], p_action='approve', p_slug=None, p_note='redrawn by a moderator')
 check('approving a note-only fix marks it done and leaves the map as it was',
       done.get('status') == 'approved' and rpc('kasa_place_wards', p_slug='bankura') == before, done)
+pur = dict(p_town='Purulia', p_district='Purulia', p_body='Purulia Municipality', p_fix_of='purulia',
+           p_geojson=ward_fc((5, (86.36, 23.33, 86.37, 23.34))), p_map_source='Traced from the ward notice')
+check('a new town cannot use Purulia as its district', err(send_town, ip='10.75.0.1', p_district='Purulia') == 'KASA_BAD_FORM')
+send_town(ip='10.75.0.2', **pur)
+pf = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'purulia')
+check("anyone can send a fix for one of Purulia's own wards", pf['ward_count'] == 1 and pf['status'] == 'pending', pf)
+pdone = rpc('kasa_admin_review_place', uid=mod, p_id=pf['id'], p_action='approve', p_slug=None, p_note=None)
+check("approving a Purulia ward fix marks it done and adds no town",
+      pdone.get('status') == 'approved' and not any(p['slug'] == 'purulia' for p in rpc('kasa_places')), pdone)
 check('a fix must name a town already on the map', err(send_town, ip='10.73.0.3', p_fix_of='nowhere') == 'KASA_BAD_FORM')
 rpc('kasa_place_visit', p_place='district:howrah')
 check('district visits are counted', any(r['place'] == 'district:howrah' and r['visits'] >= 1 and r['reports'] >= 1

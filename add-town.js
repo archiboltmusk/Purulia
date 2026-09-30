@@ -248,12 +248,7 @@
       const hit = map.queryRenderedFeatures(e.point, { layers: ['wards-fill'] })[0];
       if (hit) return selectWard(Number(hit.properties.ward));
       const old = state.existing && map.queryRenderedFeatures(e.point, { layers: ['existing-fill'] })[0];
-      const f = old && state.existing.features.find(x => x.properties.ward === Number(old.properties.ward));
-      if (f){
-        const n = f.properties.ward;
-        if (!state.wards.has(n)) state.wards.set(n, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false });
-        return selectWard(n);
-      }
+      if (old && copyExisting(Number(old.properties.ward))) return;
       if (state.selected != null) selectWard(null);
     });
     zoomToDistrict();
@@ -429,6 +424,15 @@
     msg('', '');
     redraw();
   });
+
+  /* Copies a ward now on the map into the editable wards and opens it. */
+  function copyExisting(n){
+    const f = state.existing?.features.find(x => Number(x.properties.ward) === n);
+    if (!f) return false;
+    if (!state.wards.has(n)) state.wards.set(n, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false });
+    selectWard(n);
+    return true;
+  }
 
   // ── Editing one ward: number, name, notes, corners ──
   const MAX_EDIT = 600;
@@ -629,9 +633,13 @@
   });
 
   // ── Fixing a town already on the map ──
+  /* Purulia's own wards are not a town in kasa_places; its fixes go to moderators, who update purulia_wards.geojson. */
+  const PURULIA = { slug: 'purulia', name: 'Purulia', body: 'Purulia Municipality', body_type: 'municipality', district: 'Purulia',
+                    wards: 'purulia_wards.geojson' };
   async function loadFix(slug){
     try {
-      const places = await (await fetch(API + 'rpc/kasa_places', { method: 'POST', headers: HEAD, body: '{}' })).json();
+      const places = slug === 'purulia' ? [PURULIA]
+        : await (await fetch(API + 'rpc/kasa_places', { method: 'POST', headers: HEAD, body: '{}' })).json();
       const p = Array.isArray(places) && places.find(x => x.slug === slug);
       if (!p) return;
       state.fix = p;
@@ -643,12 +651,17 @@
       if (p.incharge) $('at-incharge').value = p.incharge;
       if (p.incharge_source) $('at-incharge-src').value = p.incharge_source;
       applyLang();
-      const wards = await (await fetch(API + 'rpc/kasa_place_wards', { method: 'POST', headers: HEAD, body: JSON.stringify({ p_slug: slug }) })).json();
+      const wards = p.wards ? await (await fetch(p.wards)).json()
+        : await (await fetch(API + 'rpc/kasa_place_wards', { method: 'POST', headers: HEAD, body: JSON.stringify({ p_slug: slug }) })).json();
       await mapReady;
       if (wards?.features){
         state.existing = wards;
         map.getSource('existing').setData(wards);
-        fitTo(wards.features.flatMap(f => allPoints(f.geometry)));
+        // ?ward=<n>: open that ward ready to edit.
+        const n = Number(params.get('ward'));
+        const one = n && wards.features.find(f => Number(f.properties.ward) === n);
+        fitTo((one ? [one] : wards.features).flatMap(f => allPoints(f.geometry)));
+        if (one) copyExisting(n);
       }
     } catch (e) {}
   }

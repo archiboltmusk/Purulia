@@ -243,6 +243,22 @@ test('Fix a town: tap a ward on the map to copy it for editing', async ({ page }
   await expect(page.locator('.at-vx:not(.mid)')).toHaveCount(4);
 });
 
+test("Fix a Purulia ward from its card: the ward opens ready to edit", async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?fix=purulia&ward=5');
+  await expect(page.locator('#at-town')).toHaveValue('Purulia');
+  await expect(page.locator('#at-district')).toHaveValue('Purulia');
+  await expect(page.locator('#at-wards button')).toHaveText(['5']);
+  await expect(page.locator('#at-e-ward')).toHaveValue('5');
+  await page.fill('#at-note', 'The border should follow the railway line');
+  await page.fill('#at-source', 'Ward map at the municipality office');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  const sent = calls.find(c => c.name === 'kasa_submit_place').body;
+  expect(sent).toMatchObject({ p_fix_of: 'purulia', p_district: 'Purulia', p_town: 'Purulia' });
+  expect(sent.p_geojson.features.map(f => f.properties.ward)).toEqual([5]);
+});
+
 test('old "add my town" links open the new page', async ({ page }) => {
   await page.goto('suggest-feature.html#add-town');
   await expect(page).toHaveURL(/add-town\.html$/);
