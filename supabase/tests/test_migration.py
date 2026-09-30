@@ -1898,6 +1898,28 @@ for i in range(3):
     adopt(lim, f'Spot keeper {i}', offset(-3800 - i * 200, 1800))
 check('one person can look after at most three spots', err(adopt, lim, 'Spot keeper 4', offset(-4600, 1800)) == 'KASA_ADOPT_LIMIT')
 
+# Adopt-a-Spot partners: a shop and a club can share one spot; the ward office part needs a moderator and a source.
+tri = offset(-3400, 2600)
+t_shop = user(); t_club = user()
+h = rpc('kasa_adopt_spot', uid=t_shop, p_name='Gopal Tea Stall', p_lat=tri[0], p_lng=tri[1], p_accuracy=10.0, p_role='shop')
+check('a shop can adopt a spot in its role', h['role'] == 'shop' and h['joined'] is False, h)
+check('a made-up role is refused', err(rpc, 'kasa_adopt_spot', uid=user(), p_name='Someone', p_lat=tri[0], p_lng=tri[1], p_accuracy=10.0, p_role='mla') == 'KASA_BAD_ROLE')
+c = rpc('kasa_adopt_spot', uid=t_club, p_name='Netaji Sangha', p_lat=offset(15, 0, base=tri)[0], p_lng=offset(15, 0, base=tri)[1], p_accuracy=10.0, p_role='club')
+check('a club standing at the same spot joins it as a partner', c['joined'] is True and c['with'] == 'Gopal Tea Stall', c)
+check('a second shop cannot take the same spot', err(rpc, 'kasa_adopt_spot', uid=user(), p_name='Other Shop', p_lat=tri[0], p_lng=tri[1], p_accuracy=10.0, p_role='shop') == 'KASA_ALREADY_ADOPTED')
+sp = [x for x in rpc('kasa_adopted_spots') if x['id'] == h['id']]
+check('the spot lists both partners', sp and [p['role'] for p in sp[0]['partners']] == ['shop', 'club'] and not any(x['id'] == c['id'] for x in rpc('kasa_adopted_spots')), sp)
+check('no ward office shows until a moderator records one', sp and sp[0]['office'] is None, sp)
+check('an ordinary person cannot record the ward office part',
+      err(rpc, 'kasa_admin_set_spot_office', uid=t_shop, p_id=h['id'], p_note='Daily pickup at 8 am', p_source_url='https://example.org/letter') == 'KASA_NOT_ADMIN')
+check('the ward office part needs a source link',
+      err(rpc, 'kasa_admin_set_spot_office', uid=mod, p_id=h['id'], p_note='Daily pickup at 8 am', p_source_url='letter.pdf') == 'KASA_SOURCE_NEEDED')
+rpc('kasa_admin_set_spot_office', uid=mod, p_id=h['id'], p_note='Daily pickup at 8 am', p_source_url='https://example.org/letter')
+rpc('kasa_leave_spot', uid=t_shop, p_id=h['id'])
+sp = [x for x in rpc('kasa_adopted_spots') if x['id'] == c['id']]
+check('when the first adopter leaves, the partner keeps the spot and the office record',
+      sp and sp[0]['name'] == 'Netaji Sangha' and sp[0]['office'] and sp[0]['office']['note'] == 'Daily pickup at 8 am', sp)
+
 # Moderators decide repeats: keep a join, undo a wrong one, or join a missed one.
 mr_spot = offset(-2600, -2600)
 m1 = quick(user(), mr_spot)

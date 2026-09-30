@@ -3356,7 +3356,8 @@ async function submitSchoolFix(){
   }
 }
 
-/* "We look after this spot": a shop, school or club standing at a spot adopts the 50 m around it. */
+/* "We look after this spot": a shop, school or club standing at a spot adopts the 50 m around it.
+   A shop and a club (one of each role) can share a spot: the second one joins the first. */
 let ad = null;
 async function openAdopt(){
   ad = { pos: null };
@@ -3383,11 +3384,12 @@ async function submitAdopt(){
   btn.disabled = true;
   try {
     await ensureSession();
-    const { error } = await sb.rpc('kasa_adopt_spot', {
-      p_name: document.getElementById('k-ad-name').value, p_lat: ad.pos.lat, p_lng: ad.pos.lng, p_accuracy: ad.pos.accuracy });
+    const { data, error } = await sb.rpc('kasa_adopt_spot', {
+      p_name: document.getElementById('k-ad-name').value, p_lat: ad.pos.lat, p_lng: ad.pos.lng, p_accuracy: ad.pos.accuracy,
+      p_role: document.getElementById('k-ad-role').value });
     if (error) throw rpcError(error);
     closeModal('k-ad-modal');
-    showToast(t('ad_done'), 7000);
+    showToast(data?.joined ? t('ad_joined', { name: data.with }) : t('ad_done'), 7000);
     ad = null;
   } catch (e){
     showToast(errorText(e), 7000);
