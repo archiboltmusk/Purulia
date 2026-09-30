@@ -3,8 +3,11 @@
  * Anyone can send a West Bengal town's ward map, uploaded as GeoJSON or drawn
  * on the map, with who is in charge of cleaning there and where that was found.
  * It goes to kasa_submit_place and waits for a moderator (admin.html).
- * ?fix=<slug> sends corrected wards for a town already on the map;
+ * ?fix=<slug> sends corrected wards for a town already on the map (tap a dashed ward to copy
+ * and edit it), or just a note and a pinned spot for the moderator;
  * ?district=<name> preselects the district.
+ * A JPG/PNG can be laid under the map to trace over (never uploaded); wards can be reshaped,
+ * given a name and notes, and downloaded as GeoJSON.
  */
 (() => {
   const cfg = window.KASA_CONFIG || {};
@@ -38,8 +41,23 @@
       send: 'Send for review', sending: 'Sending…',
       review: 'Nothing goes on the map until a moderator checks it. If a border is disputed, anyone can send a fix for just those wards.',
       f_map: 'Report map', f_privacy: 'Privacy', f_grievance: 'Grievance Officer',
-      s_wards: '{n} wards ready: tap one to remove it.', s_none: 'No wards yet.', s_drawing: 'Ward {n}: {p} points. Tap the map to add more.',
-      s_existing: 'Borders now on the map are shown dashed.',
+      s_wards: '{n} wards ready: tap one to edit it.', s_none: 'No wards yet.', s_drawing: 'Ward {n}: {p} points. Tap the map to add more.',
+      s_existing: 'Borders now on the map are shown dashed. Tap one to copy it here and edit it.',
+      h_img: 'Have a photo or scan of the ward map? Put it under the map, drag its blue corners onto the same places on the map, then trace over it. The picture stays on your device.',
+      b_img: 'Background picture (JPG or PNG)', a_opacity: 'Picture opacity', b_lock: 'Lock picture', b_unlock: 'Move picture', b_img_clear: 'Remove picture',
+      e_img: 'That picture could not be opened. Use a JPG or PNG.',
+      f_e_ward: 'Ward number', f_e_name: 'Ward name (optional)', f_e_note: 'Notes on this ward (optional)',
+      ph_e_note: 'e.g. councillor’s office, landmarks on the border',
+      b_shape: 'Edit shape', b_shape_done: 'Stop editing shape', b_delpt: 'Delete point', b_delward: 'Delete ward', b_done: 'Done',
+      h_shape: 'Drag the white dots to move a corner. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.',
+      e_toomany: 'This ward has {n} corners, too many to edit by hand here. Edit it in a map app like QGIS and upload it.',
+      e_taken: 'Ward {n} is already there.', e_minpts: 'A ward needs at least 3 corners.',
+      b_export: 'Download GeoJSON',
+      f_note: 'Note for the moderator (optional)', f_note_fix: 'What needs fixing (for the moderator)',
+      h_note: 'What is wrong or what you changed. You can also pin the spot on the map.',
+      b_pin: 'Pin a spot on the map', b_pin_cancel: 'Cancel pin', b_pin_clear: 'Remove pin',
+      s_pin_tap: 'Tap the map where the problem is.', s_pinned: 'Pinned at {lat}, {lng}.',
+      e_nofix: 'Draw or copy at least one ward, or say what needs fixing.',
       e_file: 'That file could not be read as GeoJSON.', e_noward: '{n} outlines have no ward number. Add a "ward" property to each.',
       e_nopoly: 'The file has no ward outlines (polygons).', e_outside: 'Some points are outside West Bengal. Check the file.',
       e_dup: 'Ward {n} is there twice.', simplified: 'The map was very detailed, so it was simplified from {a} to {b} points. Check the outlines, then send.', e_wardno: 'Type a ward number first (1 to 500).', e_points: 'A ward needs at least 3 points.',
@@ -69,8 +87,23 @@
       send: 'পর্যালোচনার জন্য পাঠান', sending: 'পাঠানো হচ্ছে…',
       review: 'মডারেটর না দেখা পর্যন্ত কিছুই মানচিত্রে ওঠে না। সীমানা নিয়ে বিবাদ হলে যে কেউ শুধু সেই ওয়ার্ডগুলোর সংশোধন পাঠাতে পারেন।',
       f_map: 'রিপোর্ট মানচিত্র', f_privacy: 'গোপনীয়তা', f_grievance: 'অভিযোগ আধিকারিক',
-      s_wards: '{n}টি ওয়ার্ড তৈরি: সরাতে ট্যাপ করুন।', s_none: 'এখনও কোনো ওয়ার্ড নেই।', s_drawing: 'ওয়ার্ড {n}: {p}টি বিন্দু। আরও যোগ করতে মানচিত্রে ট্যাপ করুন।',
-      s_existing: 'এখন মানচিত্রে থাকা সীমানা ড্যাশ দিয়ে দেখানো।',
+      s_wards: '{n}টি ওয়ার্ড তৈরি: বদলাতে ট্যাপ করুন।', s_none: 'এখনও কোনো ওয়ার্ড নেই।', s_drawing: 'ওয়ার্ড {n}: {p}টি বিন্দু। আরও যোগ করতে মানচিত্রে ট্যাপ করুন।',
+      s_existing: 'এখন মানচিত্রে থাকা সীমানা ড্যাশ দিয়ে দেখানো। বদলাতে কোনোটিতে ট্যাপ করে এখানে কপি করুন।',
+      h_img: 'ওয়ার্ড মানচিত্রের ছবি বা স্ক্যান আছে? সেটা মানচিত্রের নিচে রাখুন, নীল কোণগুলো মানচিত্রের একই জায়গায় টেনে আনুন, তারপর তার ওপর আঁকুন। ছবিটি আপনার ফোনেই থাকে।',
+      b_img: 'পেছনের ছবি (JPG বা PNG)', a_opacity: 'ছবির স্বচ্ছতা', b_lock: 'ছবি আটকে দিন', b_unlock: 'ছবি সরান', b_img_clear: 'ছবি মুছুন',
+      e_img: 'ছবিটি খোলা গেল না। JPG বা PNG দিন।',
+      f_e_ward: 'ওয়ার্ড নম্বর', f_e_name: 'ওয়ার্ডের নাম (ঐচ্ছিক)', f_e_note: 'এই ওয়ার্ড নিয়ে নোট (ঐচ্ছিক)',
+      ph_e_note: 'যেমন কাউন্সিলরের অফিস, সীমানার চিহ্ন',
+      b_shape: 'আকার বদলান', b_shape_done: 'আকার বদলানো শেষ', b_delpt: 'বিন্দু মুছুন', b_delward: 'ওয়ার্ড মুছুন', b_done: 'হয়ে গেছে',
+      h_shape: 'কোণ সরাতে সাদা বিন্দু টানুন। নতুন কোণ যোগ করতে ছোট কমলা বিন্দু টানুন। কোণ মুছতে সেটিতে ট্যাপ করে "বিন্দু মুছুন" চাপুন।',
+      e_toomany: 'এই ওয়ার্ডে {n}টি কোণ, এখানে হাতে বদলানোর পক্ষে বেশি। QGIS-এর মতো অ্যাপে বদলে আপলোড করুন।',
+      e_taken: 'ওয়ার্ড {n} আগেই আছে।', e_minpts: 'একটি ওয়ার্ডে অন্তত ৩টি কোণ লাগে।',
+      b_export: 'GeoJSON ডাউনলোড',
+      f_note: 'মডারেটরের জন্য নোট (ঐচ্ছিক)', f_note_fix: 'কী ঠিক করতে হবে (মডারেটরের জন্য)',
+      h_note: 'কী ভুল বা কী বদলেছেন। মানচিত্রে জায়গাটা পিন করেও দিতে পারেন।',
+      b_pin: 'মানচিত্রে জায়গা পিন করুন', b_pin_cancel: 'পিন বাতিল', b_pin_clear: 'পিন সরান',
+      s_pin_tap: 'যেখানে সমস্যা, মানচিত্রে সেখানে ট্যাপ করুন।', s_pinned: '{lat}, {lng}-এ পিন করা হয়েছে।',
+      e_nofix: 'অন্তত একটি ওয়ার্ড আঁকুন বা কপি করুন, অথবা কী ঠিক করতে হবে লিখুন।',
       e_file: 'ফাইলটি GeoJSON হিসেবে পড়া গেল না।', e_noward: '{n}টি সীমারেখায় ওয়ার্ড নম্বর নেই। প্রতিটিতে "ward" প্রপার্টি দিন।',
       e_nopoly: 'ফাইলে কোনো ওয়ার্ডের সীমারেখা (পলিগন) নেই।', e_outside: 'কিছু বিন্দু পশ্চিমবঙ্গের বাইরে। ফাইলটি দেখুন।',
       e_dup: 'ওয়ার্ড {n} দুবার আছে।', simplified: 'মানচিত্রটি খুব বিস্তারিত ছিল, তাই {a} থেকে {b} বিন্দুতে সরল করা হয়েছে। সীমারেখা দেখে পাঠান।', e_wardno: 'আগে ওয়ার্ড নম্বর লিখুন (১ থেকে ৫০০)।', e_points: 'একটি ওয়ার্ডে অন্তত ৩টি বিন্দু লাগে।',
@@ -100,8 +133,23 @@
       send: 'जाँच के लिए भेजें', sending: 'भेजा जा रहा है…',
       review: 'मॉडरेटर के जाँचने तक कुछ भी नक्शे पर नहीं आता। सीमा पर विवाद हो तो कोई भी सिर्फ़ उन वार्डों का सुधार भेज सकता है।',
       f_map: 'रिपोर्ट नक्शा', f_privacy: 'गोपनीयता', f_grievance: 'शिकायत अधिकारी',
-      s_wards: '{n} वार्ड तैयार: हटाने के लिए टैप करें।', s_none: 'अभी कोई वार्ड नहीं।', s_drawing: 'वार्ड {n}: {p} बिंदु। और जोड़ने के लिए नक्शे पर टैप करें।',
-      s_existing: 'अभी नक्शे पर मौजूद सीमाएँ डैश से दिखाई गई हैं।',
+      s_wards: '{n} वार्ड तैयार: बदलने के लिए टैप करें।', s_none: 'अभी कोई वार्ड नहीं।', s_drawing: 'वार्ड {n}: {p} बिंदु। और जोड़ने के लिए नक्शे पर टैप करें।',
+      s_existing: 'अभी नक्शे पर मौजूद सीमाएँ डैश से दिखाई गई हैं। बदलने के लिए किसी पर टैप कर उसे यहाँ कॉपी करें।',
+      h_img: 'वार्ड नक्शे की फ़ोटो या स्कैन है? उसे नक्शे के नीचे रखें, नीले कोनों को नक्शे पर उन्हीं जगहों पर खींचें, फिर उसके ऊपर बनाएँ। तस्वीर आपके फ़ोन पर ही रहती है।',
+      b_img: 'पीछे की तस्वीर (JPG या PNG)', a_opacity: 'तस्वीर की पारदर्शिता', b_lock: 'तस्वीर रोकें', b_unlock: 'तस्वीर खिसकाएँ', b_img_clear: 'तस्वीर हटाएँ',
+      e_img: 'तस्वीर खोली नहीं जा सकी। JPG या PNG दें।',
+      f_e_ward: 'वार्ड नंबर', f_e_name: 'वार्ड का नाम (वैकल्पिक)', f_e_note: 'इस वार्ड पर नोट (वैकल्पिक)',
+      ph_e_note: 'जैसे पार्षद का दफ़्तर, सीमा के निशान',
+      b_shape: 'आकार बदलें', b_shape_done: 'आकार बदलना बंद करें', b_delpt: 'बिंदु हटाएँ', b_delward: 'वार्ड हटाएँ', b_done: 'हो गया',
+      h_shape: 'कोना खिसकाने के लिए सफ़ेद बिंदु खींचें। नया कोना जोड़ने के लिए छोटा नारंगी बिंदु खींचें। कोना हटाने के लिए उस पर टैप कर "बिंदु हटाएँ" दबाएँ।',
+      e_toomany: 'इस वार्ड में {n} कोने हैं, यहाँ हाथ से बदलने के लिए बहुत ज़्यादा। QGIS जैसे ऐप में बदलकर अपलोड करें।',
+      e_taken: 'वार्ड {n} पहले से है।', e_minpts: 'एक वार्ड में कम से कम 3 कोने चाहिए।',
+      b_export: 'GeoJSON डाउनलोड करें',
+      f_note: 'मॉडरेटर के लिए नोट (वैकल्पिक)', f_note_fix: 'क्या ठीक करना है (मॉडरेटर के लिए)',
+      h_note: 'क्या ग़लत है या आपने क्या बदला। नक्शे पर जगह पिन भी कर सकते हैं।',
+      b_pin: 'नक्शे पर जगह पिन करें', b_pin_cancel: 'पिन रद्द करें', b_pin_clear: 'पिन हटाएँ',
+      s_pin_tap: 'जहाँ समस्या है, नक्शे पर वहाँ टैप करें।', s_pinned: '{lat}, {lng} पर पिन किया।',
+      e_nofix: 'कम से कम एक वार्ड बनाएँ या कॉपी करें, या लिखें कि क्या ठीक करना है।',
       e_file: 'यह फ़ाइल GeoJSON के रूप में पढ़ी नहीं जा सकी।', e_noward: '{n} रूपरेखाओं में वार्ड नंबर नहीं है। हर एक में "ward" प्रॉपर्टी जोड़ें।',
       e_nopoly: 'फ़ाइल में कोई वार्ड रूपरेखा (पॉलीगॉन) नहीं है।', e_outside: 'कुछ बिंदु पश्चिम बंगाल से बाहर हैं। फ़ाइल जाँचें।',
       e_dup: 'वार्ड {n} दो बार है।', simplified: 'नक्शा बहुत विस्तृत था, इसलिए इसे {a} से {b} बिंदुओं में सरल किया गया। रूपरेखा जाँचें, फिर भेजें।', e_wardno: 'पहले वार्ड नंबर लिखें (1 से 500)।', e_points: 'एक वार्ड में कम से कम 3 बिंदु चाहिए।',
@@ -123,7 +171,12 @@
 
   const params = new URLSearchParams(location.search);
   const state = {
-    wards: new Map(),     // ward number -> { geometry, drawn }
+    wards: new Map(),     // ward number -> { geometry, drawn, name, note }
+    selected: null,       // ward number open in the edit panel
+    shaping: false,       // its corners are draggable
+    selVx: null,          // { r, i }: the tapped corner
+    pin: null, pinning: false,
+    existing: null,       // the town's wards now on the map (fix mode)
     drawing: null,        // { ward, points: [[lng, lat]…] } while drawing
     mode: 'upload',
     fix: null,            // the town being fixed, from kasa_places
@@ -135,6 +188,10 @@
     document.querySelectorAll('[data-t]').forEach(el => { el.textContent = t(el.dataset.t); });
     document.querySelectorAll('[data-t-html]').forEach(el => { el.innerHTML = t(el.dataset.tHtml); });
     document.querySelectorAll('[data-t-ph]').forEach(el => { el.placeholder = t(el.dataset.tPh); });
+    document.querySelectorAll('[data-t-aria]').forEach(el => { el.setAttribute('aria-label', t(el.dataset.tAria)); });
+    if (state.fix) document.querySelector('[data-t="f_note"]').textContent = t('f_note_fix');
+    $('at-img-lock').textContent = t(img.locked ? 'b_unlock' : 'b_lock');
+    renderPin(); drawHandles();
     $('at-incharge-src').placeholder = t('ph_incharge_src');
     document.querySelectorAll('.at-lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
     if (state.fix){
@@ -166,6 +223,7 @@
   }
   mapReady.then(() => {
     map.addSource('existing', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({ id: 'existing-fill', type: 'fill', source: 'existing', paint: { 'fill-color': '#9aa0a6', 'fill-opacity': .04 } });
     map.addLayer({ id: 'existing-line', type: 'line', source: 'existing', paint: { 'line-color': '#9aa0a6', 'line-width': 1, 'line-dasharray': [3, 2] } });
     map.addLayer({ id: 'existing-label', type: 'symbol', source: 'existing', minzoom: 12,
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
@@ -173,6 +231,7 @@
     map.addSource('wards', { type: 'geojson', data: wardsFC() });
     map.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#d4882a', 'fill-opacity': .15 } });
     map.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#d4882a', 'line-width': 2 } });
+    map.addLayer({ id: 'wards-sel', type: 'line', source: 'wards', filter: ['==', ['get', 'ward'], -1], paint: { 'line-color': '#f0e6d0', 'line-width': 3 } });
     map.addLayer({ id: 'wards-label', type: 'symbol', source: 'wards',
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 13, 'text-font': ['Noto Sans Regular'] },
       paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1 } });
@@ -181,15 +240,28 @@
     map.addLayer({ id: 'sketch-pts', type: 'circle', source: 'sketch', filter: ['==', ['geometry-type'], 'Point'],
       paint: { 'circle-radius': 4, 'circle-color': '#e8a34a' } });
     map.on('click', e => {
-      if (!state.drawing) return;
-      state.drawing.points.push([+e.lngLat.lng.toFixed(6), +e.lngLat.lat.toFixed(6)]);
-      redraw();
+      if (e.originalEvent?.target?.closest?.('.maplibregl-marker')) return;
+      const at = round6([e.lngLat.lng, e.lngLat.lat]);
+      if (state.drawing){ state.drawing.points.push(at); return redraw(); }
+      if (state.pinning){ state.pin = at; state.pinning = false; return renderPin(); }
+      if (state.shaping) return;
+      const hit = map.queryRenderedFeatures(e.point, { layers: ['wards-fill'] })[0];
+      if (hit) return selectWard(Number(hit.properties.ward));
+      const old = state.existing && map.queryRenderedFeatures(e.point, { layers: ['existing-fill'] })[0];
+      const f = old && state.existing.features.find(x => x.properties.ward === Number(old.properties.ward));
+      if (f){
+        const n = f.properties.ward;
+        if (!state.wards.has(n)) state.wards.set(n, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false });
+        return selectWard(n);
+      }
+      if (state.selected != null) selectWard(null);
     });
     zoomToDistrict();
   });
 
+  const propsOf = (ward, w) => ({ ward, ...(w.name ? { name: w.name } : {}), ...(w.note ? { note: w.note } : {}) });
   function wardsFC(){
-    return { type: 'FeatureCollection', features: [...state.wards].map(([ward, w]) => ({ type: 'Feature', properties: { ward }, geometry: w.geometry })) };
+    return { type: 'FeatureCollection', features: [...state.wards].map(([ward, w]) => ({ type: 'Feature', properties: propsOf(ward, w), geometry: w.geometry })) };
   }
   function sketchFC(){
     const pts = state.drawing?.points || [];
@@ -199,23 +271,29 @@
     ] };
   }
   function redraw(){
-    if (map?.getSource('wards')){ map.getSource('wards').setData(wardsFC()); map.getSource('sketch').setData(sketchFC()); }
+    if (map?.getSource('wards')){
+      map.getSource('wards').setData(wardsFC()); map.getSource('sketch').setData(sketchFC());
+      map.setFilter('wards-sel', ['==', ['get', 'ward'], state.selected ?? -1]);
+    }
+    $('at-export').disabled = !state.wards.size;
     $('at-undo').disabled = !state.drawing?.points.length;
     $('at-finish').disabled = !state.drawing;
-    $('at-map').classList.toggle('drawing', !!state.drawing);
+    $('at-map').classList.toggle('drawing', !!state.drawing || state.pinning);
     renderWards();
   }
   function renderWards(){
     const list = [...state.wards.keys()].sort((a, b) => a - b);
-    $('at-wards').innerHTML = list.map(n => `<button type="button" data-ward="${n}">${n} ✕</button>`).join('');
+    $('at-wards').innerHTML = list.map(n => `<button type="button" data-ward="${n}" aria-pressed="${n === state.selected}">${n}${
+      state.wards.get(n).name ? ' · ' + esc(state.wards.get(n).name) : ''}</button>`).join('');
     $('at-status').textContent = state.drawing ? t('s_drawing', { n: state.drawing.ward, p: state.drawing.points.length })
+      : state.pinning ? t('s_pin_tap')
       : (list.length ? t('s_wards', { n: list.length }) : t('s_none')) + (state.fix ? ' ' + t('s_existing') : '');
   }
   $('at-wards').addEventListener('click', e => {
     const b = e.target.closest('[data-ward]');
     if (!b) return;
-    state.wards.delete(Number(b.dataset.ward));
-    redraw();
+    const n = Number(b.dataset.ward);
+    selectWard(state.selected === n ? null : n);
   });
 
   function fitTo(coords){
@@ -263,11 +341,14 @@
     const missing = polys.filter(f => wardOf(f.properties) == null).length;
     if (missing) throw t('e_noward', { n: missing });
     const out = new Map();
+    out.details = new Map();
     for (const f of polys){
       const n = wardOf(f.properties);
       if (out.has(n)) throw t('e_dup', { n });
       if (!allPoints(f.geometry).every(inWB)) throw t('e_outside');
       out.set(n, { type: f.geometry.type, coordinates: f.geometry.coordinates });
+      const p = f.properties || {}, name = p.name ?? p.NAME ?? p.Name ?? p.ward_name ?? p.WARD_NAME, note = p.note ?? p.notes;
+      out.details.set(n, { name: name == null ? '' : String(name).trim().slice(0, 80), note: note == null ? '' : String(note).trim().slice(0, 300) });
     }
     return out;
   }
@@ -316,7 +397,7 @@
     try {
       const got = readGeojson(JSON.parse(await file.text()));
       const thinned = fitPoints(got);
-      for (const [n, g] of got) state.wards.set(n, { geometry: g, drawn: false });
+      for (const [n, g] of got) state.wards.set(n, { geometry: g, drawn: false, ...got.details.get(n) });
       redraw();
       mapReady.then(() => fitTo([...got.values()].flatMap(allPoints)));
       if (thinned) msg(t('simplified', { a: thinned.a.toLocaleString(), b: thinned.b.toLocaleString() }), '');
@@ -330,6 +411,7 @@
     const n = Number($('at-wardno').value);
     if (!Number.isInteger(n) || n < 1 || n > 500) return msg(t('e_wardno'), 'bad');
     msg('', '');
+    selectWard(null);
     state.drawing = { ward: n, points: [] };
     map?.doubleClickZoom.disable();
     redraw();
@@ -346,6 +428,204 @@
     $('at-wardno').value = String(d.ward + 1);
     msg('', '');
     redraw();
+  });
+
+  // ── Editing one ward: number, name, notes, corners ──
+  const MAX_EDIT = 600;
+  const ringsOf = g => g.type === 'Polygon' ? g.coordinates : g.coordinates.flat(1);
+  let handles = [];
+  const refreshWards = () => map?.getSource('wards')?.setData(wardsFC());
+  function selectWard(n){
+    if (state.selected !== n){ state.shaping = false; state.selVx = null; }
+    state.selected = n;
+    const w = n == null ? null : state.wards.get(n);
+    $('at-edit').hidden = !w;
+    if (w){ $('at-e-ward').value = n; $('at-e-name').value = w.name || ''; $('at-e-note').value = w.note || ''; }
+    drawHandles();
+    redraw();
+  }
+  const handle = (cls, at) => {
+    const el = document.createElement('div');
+    el.className = cls;
+    return new maplibregl.Marker({ element: el, draggable: true }).setLngLat(at).addTo(map);
+  };
+  function drawHandles(){
+    handles.forEach(m => m.remove()); handles = [];
+    const w = state.shaping && state.wards.get(state.selected);
+    $('at-e-hint').hidden = !w;
+    $('at-e-shape').textContent = t(w ? 'b_shape_done' : 'b_shape');
+    $('at-e-delpt').disabled = !(w && state.selVx);
+    if (!w || !map) return;
+    ringsOf(w.geometry).forEach((ring, r) => {
+      const last = ring.length - 1;               // a closed ring repeats its first corner at the end
+      for (let i = 0; i < last; i++){
+        const sel = state.selVx?.r === r && state.selVx.i === i;
+        const m = handle('at-vx' + (sel ? ' sel' : ''), ring[i]);
+        m.on('drag', () => {
+          const { lng, lat } = m.getLngLat();
+          ring[i] = round6([lng, lat]);
+          if (i === 0) ring[last] = [...ring[0]];
+          refreshWards();
+        });
+        m.on('dragend', () => { w.drawn = true; });
+        m.getElement().addEventListener('click', ev => { ev.stopPropagation(); state.selVx = { r, i }; drawHandles(); });
+        const [a, b] = [ring[i], ring[i + 1]];
+        const mid = handle('at-vx mid', [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
+        let added = false;
+        mid.on('drag', () => {
+          const { lng, lat } = mid.getLngLat();
+          if (!added){ ring.splice(i + 1, 0, null); added = true; }
+          ring[i + 1] = round6([lng, lat]);
+          refreshWards();
+        });
+        mid.on('dragend', () => { w.drawn = true; state.selVx = null; drawHandles(); });
+        handles.push(m, mid);
+      }
+    });
+  }
+  $('at-e-shape').addEventListener('click', () => {
+    const w = state.wards.get(state.selected);
+    if (!w) return;
+    const n = allPoints(w.geometry).length;
+    if (!state.shaping && n > MAX_EDIT) return msg(t('e_toomany', { n: n.toLocaleString() }), 'bad');
+    msg('', '');
+    state.shaping = !state.shaping; state.selVx = null;
+    drawHandles();
+  });
+  $('at-e-delpt').addEventListener('click', () => {
+    const w = state.wards.get(state.selected), v = state.selVx;
+    if (!w || !v) return;
+    const ring = ringsOf(w.geometry)[v.r];
+    if (ring.length <= 4) return msg(t('e_minpts'), 'bad');
+    ring.splice(v.i, 1);
+    if (v.i === 0) ring[ring.length - 1] = [...ring[0]];
+    w.drawn = true; state.selVx = null;
+    drawHandles(); refreshWards();
+  });
+  $('at-e-del').addEventListener('click', () => { state.wards.delete(state.selected); selectWard(null); });
+  $('at-e-done').addEventListener('click', () => selectWard(null));
+  $('at-e-name').addEventListener('input', e => { const w = state.wards.get(state.selected); if (w){ w.name = e.target.value.trim(); renderWards(); } });
+  $('at-e-note').addEventListener('input', e => { const w = state.wards.get(state.selected); if (w) w.note = e.target.value.trim(); });
+  $('at-e-ward').addEventListener('change', e => {
+    const from = state.selected, to = Number(e.target.value);
+    if (from == null || to === from) return;
+    if (!Number.isInteger(to) || to < 1 || to > 500){ e.target.value = from; return msg(t('e_wardno'), 'bad'); }
+    if (state.wards.has(to)){ e.target.value = from; return msg(t('e_taken', { n: to }), 'bad'); }
+    msg('', '');
+    state.wards.set(to, state.wards.get(from)); state.wards.delete(from);
+    state.selected = to;
+    redraw();
+  });
+
+  // ── Background picture to trace over. It never leaves the device. ──
+  const img = { url: null, coords: null, locked: false, handles: [] };
+  const setImgCoords = () => map.getSource('bg')?.setCoordinates(img.coords);
+  function imgHandles(){
+    img.handles.forEach(m => m.remove()); img.handles = [];
+    if (!img.url || img.locked) return;
+    const centre = () => [0, 1].map(k => img.coords.reduce((s, c) => s + c[k], 0) / 4);
+    const move = handle('at-corner move', centre());
+    img.coords.forEach((c, k) => {
+      const m = handle('at-corner', c);
+      m.on('drag', () => { const { lng, lat } = m.getLngLat(); img.coords[k] = [lng, lat]; setImgCoords(); move.setLngLat(centre()); });
+      img.handles.push(m);
+    });
+    let start = null;
+    move.on('dragstart', () => { start = { at: move.getLngLat(), coords: img.coords.map(c => [...c]) }; });
+    move.on('drag', () => {
+      const { lng, lat } = move.getLngLat(), dx = lng - start.at.lng, dy = lat - start.at.lat;
+      img.coords = start.coords.map(([x, y]) => [x + dx, y + dy]);
+      setImgCoords();
+      img.coords.forEach((c, k) => img.handles[k].setLngLat(c));
+    });
+    img.handles.push(move);
+  }
+  function clearImage(){
+    if (map?.getLayer('bg')) map.removeLayer('bg');
+    if (map?.getSource('bg')) map.removeSource('bg');
+    if (img.url) URL.revokeObjectURL(img.url);
+    img.url = null; img.locked = false; imgHandles();
+    ['at-opacity', 'at-img-lock', 'at-img-clear'].forEach(id => { $(id).disabled = true; });
+    $('at-img-lock').textContent = t('b_lock');
+  }
+  /* Big phone photos are scaled down so the map can draw them. */
+  async function loadImage(file){
+    const url = URL.createObjectURL(file);
+    const el = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = rej; i.src = url; });
+    const k = Math.min(1, 2048 / Math.max(el.naturalWidth, el.naturalHeight));
+    if (k === 1) return { url, w: el.naturalWidth, h: el.naturalHeight };
+    const c = document.createElement('canvas');
+    c.width = Math.round(el.naturalWidth * k); c.height = Math.round(el.naturalHeight * k);
+    c.getContext('2d').drawImage(el, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    const blob = await new Promise(res => c.toBlob(res, file.type));
+    return { url: URL.createObjectURL(blob), w: c.width, h: c.height };
+  }
+  $('at-img').addEventListener('change', async e => {
+    const file = e.target.files[0];
+    e.target.value = '';
+    if (!file || !map) return;
+    let got;
+    try {
+      if (!/^image\/(jpeg|png)$/.test(file.type)) throw 0;
+      got = await loadImage(file);
+    } catch (err) { return msg(t('e_img'), 'bad'); }
+    await mapReady;
+    clearImage();
+    msg('', '');
+    const box = map.getContainer(), W = box.clientWidth, H = box.clientHeight;
+    const k = Math.min(W * .7 / got.w, H * .7 / got.h), w = got.w * k, h = got.h * k, x0 = (W - w) / 2, y0 = (H - h) / 2;
+    img.coords = [[x0, y0], [x0 + w, y0], [x0 + w, y0 + h], [x0, y0 + h]].map(p => { const ll = map.unproject(p); return [ll.lng, ll.lat]; });
+    img.url = got.url;
+    map.addSource('bg', { type: 'image', url: img.url, coordinates: img.coords });
+    map.addLayer({ id: 'bg', type: 'raster', source: 'bg', paint: { 'raster-opacity': $('at-opacity').value / 100, 'raster-fade-duration': 0 } }, 'existing-fill');
+    ['at-opacity', 'at-img-lock', 'at-img-clear'].forEach(id => { $(id).disabled = false; });
+    imgHandles();
+  });
+  $('at-opacity').addEventListener('input', e => { if (map?.getLayer('bg')) map.setPaintProperty('bg', 'raster-opacity', e.target.value / 100); });
+  $('at-img-lock').addEventListener('click', () => {
+    img.locked = !img.locked;
+    $('at-img-lock').textContent = t(img.locked ? 'b_unlock' : 'b_lock');
+    imgHandles();
+  });
+  $('at-img-clear').addEventListener('click', clearImage);
+
+  // ── A pinned spot for the moderator ──
+  let pinMarker = null;
+  function renderPin(){
+    pinMarker?.remove(); pinMarker = null;
+    if (state.pin && map){
+      const el = document.createElement('div'); el.className = 'at-pin';
+      pinMarker = new maplibregl.Marker({ element: el, anchor: 'bottom' }).setLngLat(state.pin).addTo(map);
+    }
+    $('at-pin').textContent = t(state.pin ? 'b_pin_clear' : state.pinning ? 'b_pin_cancel' : 'b_pin');
+    $('at-pin-at').textContent = state.pin ? t('s_pinned', { lat: state.pin[1], lng: state.pin[0] }) : '';
+    $('at-map').classList.toggle('drawing', !!state.drawing || state.pinning);
+    renderWards();
+  }
+  $('at-pin').addEventListener('click', () => {
+    if (state.pin) state.pin = null;
+    else state.pinning = !state.pinning;
+    renderPin();
+  });
+
+  // ── Download as GeoJSON: 6-decimal coordinates, with a bbox on each ward and on the whole map ──
+  const bboxOf = pts => pts.reduce((b, [x, y]) => [Math.min(b[0], x), Math.min(b[1], y), Math.max(b[2], x), Math.max(b[3], y)], [180, 90, -180, -90]);
+  function exportFC(){
+    const features = [...state.wards].sort((a, b) => a[0] - b[0]).map(([ward, w]) => {
+      const geometry = mapRings(w.geometry, r => r.map(round6));
+      return { type: 'Feature', bbox: bboxOf(allPoints(geometry)), properties: propsOf(ward, w), geometry };
+    });
+    return { type: 'FeatureCollection', bbox: bboxOf(features.flatMap(f => allPoints(f.geometry))), features };
+  }
+  $('at-export').addEventListener('click', () => {
+    if (!state.wards.size) return;
+    const name = ($('at-town').value.trim().toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'wards') + '.geojson';
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(exportFC())], { type: 'application/geo+json' }));
+    a.download = name;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
   });
 
   // ── Fixing a town already on the map ──
@@ -366,6 +646,7 @@
       const wards = await (await fetch(API + 'rpc/kasa_place_wards', { method: 'POST', headers: HEAD, body: JSON.stringify({ p_slug: slug }) })).json();
       await mapReady;
       if (wards?.features){
+        state.existing = wards;
         map.getSource('existing').setData(wards);
         fitTo(wards.features.flatMap(f => allPoints(f.geometry)));
       }
@@ -386,8 +667,10 @@
     if (v('at-incharge') && !v('at-incharge-src')) return msg(t('e_src_incharge'), 'bad');
     if (v('at-complaint') && !/^https:\/\/\S+$/i.test(v('at-complaint'))) return msg(t('e_https'), 'bad');
     if (state.drawing) $('at-finish').click();
-    if (!state.wards.size) return msg(t('e_nomap'), 'bad');
-    if (!v('at-source')) return msg(t('e_source'), 'bad');
+    const suggestOnly = !state.wards.size && state.fix && v('at-note');
+    if (!state.wards.size && !suggestOnly) return msg(t(state.fix ? 'e_nofix' : 'e_nomap'), 'bad');
+    if (!suggestOnly && !v('at-source')) return msg(t('e_source'), 'bad');
+    if (![...state.wards.values()].every(w => allPoints(w.geometry).every(inWB))) return msg(t('e_outside'), 'bad');
     const btn = $('at-send');
     btn.disabled = true; msg(t('sending'), '');
     try {
@@ -397,9 +680,10 @@
           p_town: v('at-town'), p_district: districtSel.value, p_body: v('at-body'),
           p_body_type: document.querySelector('[name="at-type"]:checked').value,
           p_incharge: v('at-incharge') || null, p_incharge_source: v('at-incharge-src') || null,
-          p_complaint_url: v('at-complaint') || null, p_map_source: v('at-source'),
+          p_complaint_url: v('at-complaint') || null, p_map_source: v('at-source') || null,
           p_drawn: [...state.wards.values()].some(w => w.drawn), p_fix_of: state.fix?.slug || null,
-          p_geojson: wardsFC(), p_contact: v('at-contact') || null
+          p_geojson: state.wards.size ? wardsFC() : null, p_contact: v('at-contact') || null,
+          p_note: v('at-note') || null, p_pin: state.pin
         })
       });
       if (!res.ok){
@@ -407,8 +691,9 @@
         try { detail = (await res.json()).details || ''; } catch (e2) {}
         throw new Error(detail || t('e_send'));
       }
-      state.wards.clear(); redraw();
-      $('at-file').value = '';
+      state.wards.clear(); selectWard(null);
+      state.pin = null; state.pinning = false; renderPin();
+      $('at-file').value = ''; $('at-note').value = '';
       msg(t('done'), 'ok');
     } catch (err) {
       msg(err.message || t('e_send'), 'bad');
