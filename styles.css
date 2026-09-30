@@ -194,6 +194,11 @@ h1.hero-h .l3{display:block;-webkit-text-stroke:1px rgba(240,230,208,.2);color:t
 .gt-intro h2{font-family:'EB Garamond',serif;font-size:clamp(2.2rem,4vw,3.5rem);font-weight:700;color:var(--cream);line-height:1.1;margin-bottom:1rem;}
 .gt-intro h2 em{color:var(--amber);font-style:italic;}
 .gt-intro p{font-size:1.12rem;font-style:italic;color:rgba(240,230,208,.5);line-height:1.75;}
+.gt-pick{display:inline-flex;align-items:center;gap:.7rem;margin-top:1.4rem;font-family:'DM Mono',monospace;font-size:.6rem;letter-spacing:.2em;text-transform:uppercase;color:rgba(240,230,208,.45);}
+.gt-pick select{font:inherit;font-size:.8rem;letter-spacing:.04em;text-transform:none;color:var(--cream);background:rgba(240,230,208,.05);border:1px solid var(--border);padding:.5rem .7rem;max-width:100%;}
+.gt-intro p.gt-about{font-style:normal;color:rgba(240,230,208,.7);margin-top:1.2rem;}
+.gt-intro p.gt-about a,.gt-card-src a{color:var(--amber2);}
+.gt-intro p.gt-updated{font-family:'DM Mono',monospace;font-style:normal;font-size:.6rem;letter-spacing:.14em;color:rgba(240,230,208,.3);margin-top:.6rem;}
 .gt-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:2px;margin-bottom:3rem;}
 .gt-card{background:rgba(240,230,208,.03);border:1px solid var(--border2);padding:2rem 1.8rem;transition:all .45s cubic-bezier(.25,.46,.45,.94);}
 .gt-card:hover{background:rgba(212,136,42,.06);border-color:var(--border);transform:translateY(-4px);box-shadow:0 12px 30px rgba(0,0,0,.3);}

@@ -36,13 +36,13 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await ctx.close();
 });
 
-test('a spot in a Kolkata ward is placed there; one in no ward is filed under its district', async ({ page }) => {
+test('a spot in a Kolkata ward is placed there; one outside any town is filed under its district', async ({ page }) => {
   await page.goto('kasa.html?place=kolkata');
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   const esplanade = await page.evaluate(() => KasaPlaces.at(22.5646, 88.3510));
   expect(esplanade).toMatchObject({ kind: 'place', place: 'kolkata', ward: 46 });
-  await page.evaluate(() => KasaPlaces.at(22.5839, 88.3426));
-  await expect.poll(() => page.evaluate(() => KasaPlaces.at(22.5839, 88.3426)))
+  await page.evaluate(() => KasaPlaces.at(22.58, 88.01));
+  await expect.poll(() => page.evaluate(() => KasaPlaces.at(22.58, 88.01)))
     .toMatchObject({ kind: 'place', place: 'district:howrah', name: 'Howrah', isDistrict: true });
   expect(await page.evaluate(() => KasaPlaces.at(28.61, 77.21))).toBeNull();
 });
@@ -429,6 +429,32 @@ test("where nobody is on record, anyone can add who's responsible with a source;
   const sent = calls.find(c => c.name === 'kasa_submit_official')?.body;
   expect(sent).toMatchObject({ p_level: 'gp', p_district: 'bankura', p_block: 'Indus', p_gp: 'Amrul', p_role: 'pradhan',
                                p_name: 'Smt. A. Pradhan', p_source_url: 'https://bankurazp.org/pradhans.pdf' });
+});
+
+test('a town with no open ward map opens its own card, which asks locals to draw the wards', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-towns-line'))).toBe(true);
+  // Siliguri: AMRUT town limits, but not its ward map.
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.43, 26.72], zoom: 11 }); });
+  await page.evaluate(() => openArea(26.72, 88.43));
+  const card = page.locator('#k-area-card');
+  await expect(card.locator('.k-ward-title')).toHaveText('Siliguri');
+  await expect(card.locator('.k-ward-sub')).toContainText('Siliguri Municipal Corporation');
+  await expect(card).toContainText('No open map of its 47 wards yet');
+  await expect(card.locator('a', { hasText: 'Draw them' })).toHaveAttribute('href', /add-town\.html\?district=.*&town=Siliguri&body=Siliguri%20Municipal%20Corporation/);
+  await expect(card.locator('.k-area-crumb')).toHaveCount(2);
+  // Chakdaha: no open outline either, so a dot at the town opens the same card.
+  await page.evaluate(() => openArea(23.08, 88.52));
+  await expect(card.locator('.k-ward-title')).toHaveText('Chakdaha');
+  await expect(card).toContainText('No open map of its 21 wards yet');
+  await expect(card.locator('.k-ward-nums')).toHaveCount(0);
+});
+
+test('add-town opens with the town and its council filled in from a town card', async ({ page, backend }) => {
+  await page.goto('add-town.html?district=Nadia&town=Chakdaha&body=Chakdaha%20Municipality');
+  await expect(page.locator('#at-town')).toHaveValue('Chakdaha');
+  await expect(page.locator('#at-body')).toHaveValue('Chakdaha Municipality');
+  await expect(page.locator('#at-district')).toHaveValue('Nadia');
 });
 
 test('every district shows its blocks and their names from the state view, like Purulia', async ({ page, backend }) => {

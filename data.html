@@ -4,15 +4,15 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ground Truth — Parishkar Bengal</title>
-<meta name="description" content="The verified data on Purulia — health, education, water, livelihoods — and the live momentum feed.">
+<meta name="description" content="Verified, sourced data for every West Bengal district: health, schooling, water and people, refreshed monthly.">
 <meta property="og:title" content="Ground Truth — Parishkar Bengal">
-<meta property="og:description" content="The verified data on Purulia district.">
+<meta property="og:description" content="Verified, sourced data for every West Bengal district.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/data.html">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="Ground Truth — Parishkar Bengal">
-<meta name="twitter:description" content="The verified data on Purulia district.">
+<meta name="twitter:description" content="Verified, sourced data for every West Bengal district.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta name="theme-color" content="#0C0A05">
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
@@ -83,65 +83,20 @@ if(sessionStorage.getItem("pgt")){
 <section class="page-hd">
   <div class="page-hd-label">Verified Facts</div>
   <h1 class="page-hd-title">The Ground<br><em>Truth.</em></h1>
-  <p class="page-hd-sub">The verified data on Purulia's health, education, and livelihoods, with sources. Figures from single academic studies are labelled. Unconfirmed numbers have been removed. Last checked September 2026. To see how these numbers feed each other, read <a href="circle.html" style="color:var(--amber)">The Circle</a>.</p>
+  <p class="page-hd-sub">The verified data on <span class="gt-dname">Purulia</span>'s health, education, water and people, with sources. Pick any West Bengal district below; its figures refresh every month from official surveys, Wikidata and Wikipedia. Figures from single academic studies are labelled. Unconfirmed numbers have been removed. To see how these numbers feed each other, read <a href="circle.html" style="color:var(--amber)">The Circle</a>.</p>
 </section>
 
 <section id="groundtruth">
   <div class="gt-intro rv">
     <div class="sl">// The Honest Numbers — Official Data First</div>
     <h2>The Numbers Are <em>Hard.</em> That Is Exactly Why They Must Be Right.</h2>
-    <p>Official figures come first (NFHS-5, government records, court orders), each with its source. Figures from single academic studies are labelled "one study". Anything we could not confirm has been removed. Checked September 2026.</p>
+    <p>Official figures come first (NFHS-5, government records, court orders), each with its source. Figures from single academic studies are labelled "one study". Anything we could not confirm has been removed.</p>
+    <label class="gt-pick">District <select id="gtPick" aria-label="District"><option>Purulia</option></select></label>
+    <p class="gt-about" id="gtAbout" hidden></p>
+    <p class="gt-updated" id="gtUpdated" hidden></p>
   </div>
-  <div class="gt-grid rv">
-    <div class="gt-card">
-      <div class="gt-card-label">Child Anaemia</div>
-      <div class="gt-card-val bad">77.9%</div>
-      <div class="gt-card-desc">Children aged 6–59 months who are anaemic — up from 66.8% in NFHS-4 (2015–16). The highest of the 20 West Bengal districts in NFHS-5; the median district is 69.3%. 76.7% of women aged 15–49 are anaemic too.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Underweight Children</div>
-      <div class="gt-card-val bad">46.3%</div>
-      <div class="gt-card-desc">Children under 5 who are underweight — the highest of the 20 West Bengal districts (median 32.1%), though down from 58.2% in NFHS-4. 36.9% are stunted and 29.4% wasted.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Women's Literacy</div>
-      <div class="gt-card-val bad">61.0%</div>
-      <div class="gt-card-desc">Women aged 15–49 who are literate — the lowest of the 20 West Bengal districts (median 74.0%). Only 26.9% of women have 10 or more years of schooling.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Improved Sanitation</div>
-      <div class="gt-card-val bad">29.2%</div>
-      <div class="gt-card-desc">People living in households that use an improved toilet — up from 12.1% in NFHS-4, real progress, but still the lowest of the 20 West Bengal districts (median 70.0%). NFHS measures the type of toilet a household uses, a different metric from the ODF declaration.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Clean Cooking Fuel</div>
-      <div class="gt-card-val bad">23.2%</div>
-      <div class="gt-card-desc">Households cooking with clean fuel such as LPG, up from 6.8%. Three in four homes still cook on wood, dung, or coal.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Child Marriage</div>
-      <div class="gt-card-val bad">37.0%</div>
-      <div class="gt-card-desc">Women aged 20–24 who were married before 18, down from 43.7% in NFHS-4. Institutional births have risen to 89.8% (from 72.9%).</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Antenatal Care</div>
-      <div class="gt-card-val bad">57.8%</div>
-      <div class="gt-card-desc">Mothers who had at least four antenatal check-ups, down from 68.6% in NFHS-4, the second lowest of the 20 West Bengal districts (median 76.1%). Only 51.5% were seen by a health worker within two days of the birth, down from 59.7%.</div>
-      <div class="gt-card-src">Source: NFHS-5 District Fact Sheet, Puruliya (2019–21), IIPS / MoHFW</div>
-    </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Tap Water at Home</div>
-      <div class="gt-card-val bad">32.45%</div>
-      <div class="gt-card-desc">Rural homes with a tap connection under the Jal Jeevan Mission: 1,77,745 of 5,47,724. The lowest of West Bengal's 22 districts on the dashboard, and 749th of 754 districts in India.</div>
-      <div class="gt-card-src">Source: <a href="https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx" target="_blank" rel="noopener">JJM dashboard, Ministry of Jal Shakti</a>, read 27 Sep 2026</div>
-    </div>
-    <div class="gt-card">
+  <div class="gt-grid rv" id="gtGrid">
+    <div class="gt-card" data-only="purulia">
       <div class="gt-card-label">Infant Mortality (reported)</div>
       <div class="gt-card-val bad">38 per 1,000</div>
       <div class="gt-card-desc">Infant deaths per 1,000 live births as reported by the district (38.34). The district does not give a year, so treat it as indicative. For comparison, SRS puts West Bengal at 19 (2020) and India at 27 (2021).</div>
@@ -153,13 +108,7 @@ if(sessionStorage.getItem("pgt")){
       <div class="gt-card-desc">The Centre stopped MGNREGA funds to West Bengal on 9 March 2022 under Section 27 of the Act, with ₹3,082.52 crore in pending liabilities at that date. The Supreme Court upheld the Calcutta High Court order to resume it (27 Oct 2025); work restarted from 6 Dec 2025 with conditions. From 1 July 2026 MGNREGA is replaced nationally by the VB–G RAM G Act (125 days guaranteed).</div>
       <div class="gt-card-src">Source: Govt. reply in Rajya Sabha, 1 Aug 2025; Supreme Court, 27 Oct 2025; MoRD order, 6 Dec 2025; VB–G RAM G Act, 2025</div>
     </div>
-    <div class="gt-card">
-      <div class="gt-card-label">Aspirational District?</div>
-      <div class="gt-card-val bad">No</div>
-      <div class="gt-card-desc">Purulia is not in NITI Aayog's Aspirational Districts Programme. The West Bengal districts on the list of 112 are Birbhum, Dakshin Dinajpur, Maldah, Murshidabad, and Nadia.</div>
-      <div class="gt-card-src">Source: <a href="https://www.niti.gov.in/aspirational-districts-programme" target="_blank" rel="noopener">Aspirational Districts Programme, NITI Aayog</a></div>
-    </div>
-    <div class="gt-card">
+    <div class="gt-card" data-only="purulia">
       <div class="gt-card-label">Rare Earth Minerals</div>
       <div class="gt-card-val ok">Exploration stage</div>
       <div class="gt-card-desc">The Geological Survey of India has explored parts of Purulia for rare earth elements at the advanced G2 stage under the National Critical Minerals Mission. We could not find a completed auction of any Purulia rare-earth block. Any future mining must come after Forest Rights Act claims and gram sabha consent.</div>
@@ -171,13 +120,13 @@ if(sessionStorage.getItem("pgt")){
       <div class="gt-card-desc">West Bengal already has an online single window for industry, Silpasathi (WBIDC), with 145 licences, approvals, and renewals.</div>
       <div class="gt-card-src">Source: silpasathi.wb.gov.in</div>
     </div>
-    <div class="gt-card">
+    <div class="gt-card" data-only="purulia">
       <div class="gt-card-label">Forest Income (one study)</div>
       <div class="gt-card-val ok">47% of income</div>
       <div class="gt-card-desc">In a 2020–21 survey of 70 tribal households in forest-fringe villages, firewood, sal leaves, and sabai grass made up 47% of household income. It is a small sample, not a district figure.</div>
       <div class="gt-card-src">Source: Agroforestry Systems, Springer 2025 (70-household field study)</div>
     </div>
-    <div class="gt-card gt-card-note">
+    <div class="gt-card gt-card-note" data-only="purulia">
       <div class="gt-card-label">Removed until sourced</div>
       <div class="gt-card-desc">Earlier versions of this page quoted figures we could not confirm at an official source: per-capita income, BPL share, child labour and dropout rates, women without bank accounts, power transmission loss, irrigation coverage, solar irradiance, industrial land prices, a "62.4% child malnutrition" figure, an HDI of 0.31, a 71% tribal dropout rate, a migration survey, and quick-commerce availability. They are gone until a primary source is found. <a href="grievance.html" class="src-link">Tell us</a> if you have one.</div>
     </div>
@@ -188,24 +137,24 @@ if(sessionStorage.getItem("pgt")){
     <div class="rv">
       <div class="sl">// Visual Evidence</div>
       <h2>The Numbers, <em>Charted.</em></h2>
-      <p>Purulia against the median of the 20 West Bengal districts surveyed in NFHS-5.</p>
+      <p><span class="gt-dname">Purulia</span> against the median of the 20 West Bengal districts surveyed in NFHS-5.</p>
     </div>
     <div class="dc-grid rv">
       <div class="dc-card">
-        <div class="dc-label">Last in West Bengal</div>
-        <div class="dc-sub">Purulia against the median of the 20 West Bengal districts in NFHS-5</div>
+        <div class="dc-label">Against West Bengal</div>
+        <div class="dc-sub"><span class="gt-dname">Purulia</span> against the median of the 20 West Bengal districts in NFHS-5</div>
         <div class="dc-wrap"><canvas id="chartIncome"></canvas></div>
         <div class="dc-src">Source: NFHS-5 District Fact Sheets, West Bengal (2019–21)</div>
       </div>
       <div class="dc-card">
         <div class="dc-label">Five Years of Change</div>
-        <div class="dc-sub">Purulia in NFHS-4 (2015–16) and NFHS-5 (2019–21). Most things improved; child anaemia got worse.</div>
+        <div class="dc-sub"><span class="gt-dname">Purulia</span> in NFHS-4 (2015–16) and NFHS-5 (2019–21)</div>
         <div class="dc-wrap"><canvas id="chartIndicators"></canvas></div>
-        <div class="dc-src">Source: NFHS-5 District Fact Sheet, Puruliya</div>
+        <div class="dc-src">Source: NFHS-4 and NFHS-5 District Fact Sheets, IIPS / MoHFW</div>
       </div>
       <div class="dc-card">
         <div class="dc-label">Children in Crisis</div>
-        <div class="dc-sub">Children under 5 in Purulia against the median West Bengal district</div>
+        <div class="dc-sub">Children under 5 in <span class="gt-dname">Purulia</span> against the median West Bengal district</div>
         <div class="dc-wrap"><canvas id="chartChildren"></canvas></div>
         <div class="dc-src">Source: NFHS-5 District Fact Sheets, West Bengal (2019–21)</div>
       </div>
@@ -217,6 +166,7 @@ if(sessionStorage.getItem("pgt")){
     <div class="rv">
       <div class="sl">// Problem → Solution</div>
       <h2 class="sh">Every Problem.<br><em>A Specific Answer.</em></h2>
+      <p class="ss gt-only-note" id="gtSmNote" hidden></p>
       <p class="ss">Each challenge below has a proposed solution, a timeline, and an owner. These are proposals, not sanctioned plans. We removed the rupee costs we used to show here: they were our own guesses, not figures from any budget.</p>
     </div>
     <div class="sm-filters rv">
@@ -464,90 +414,7 @@ window.filterSM=function(cat,btn){
   });
 };
 </script>
-<script>
-/* ── Chart.js Initialisation ── */
-(function(){
-  var done=false;
-  function r(a){return 'rgba(212,136,42,'+a+')';}
-  function rd(a){return 'rgba(224,80,80,'+a+')';}
-  function gr(a){return 'rgba(107,174,138,'+a+')';}
-  var F={family:'DM Mono, monospace',size:10};
-  var TC='rgba(240,230,208,0.4)';
-  var GC='rgba(212,136,42,0.07)';
-
-  function go(){
-    if(done||typeof Chart==='undefined')return;
-    done=true;
-
-    new Chart(document.getElementById('chartIncome'),{
-      type:'bar',
-      data:{
-        labels:["Women literate","Improved sanitation","Children not anaemic","Children not underweight"],
-        datasets:[
-          {label:'Purulia',data:[61.0,29.2,22.1,53.7],backgroundColor:rd(.7),borderColor:'#E05050',borderWidth:1},
-          {label:'Median WB district',data:[74.0,70.0,30.8,67.9],backgroundColor:r(.6),borderColor:'#D4882A',borderWidth:1}
-        ]
-      },
-      options:{
-        indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{labels:{color:'rgba(240,230,208,.55)',font:F,boxWidth:10,padding:10}},tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}},
-        scales:{
-          x:{grid:{color:GC},min:0,max:100,ticks:{callback:v=>v+'%',color:TC,font:F}},
-          y:{grid:{display:false},ticks:{color:'rgba(240,230,208,.65)',font:F}}
-        }
-      }
-    });
-
-    new Chart(document.getElementById('chartIndicators'),{
-      type:'bar',
-      data:{
-        labels:['Improved sanitation','Clean cooking fuel','Institutional births','Child marriage','Child anaemia','Child underweight'],
-        datasets:[
-          {label:'NFHS-4 (2015–16)',data:[12.1,6.8,72.9,43.7,66.8,58.2],backgroundColor:r(.6),borderColor:'#D4882A',borderWidth:1},
-          {label:'NFHS-5 (2019–21)',data:[29.2,23.2,89.8,37.0,77.9,46.3],backgroundColor:gr(.6),borderColor:'#6BAE8A',borderWidth:1}
-        ]
-      },
-      options:{
-        responsive:true,maintainAspectRatio:false,
-        plugins:{
-          legend:{labels:{color:'rgba(240,230,208,.55)',font:F,boxWidth:10,padding:10}},
-          tooltip:{callbacks:{label:c=>c.dataset.label+': '+c.raw+'%'}}
-        },
-        scales:{
-          x:{grid:{color:GC},ticks:{color:TC,font:{family:'DM Mono, monospace',size:9},maxRotation:20}},
-          y:{grid:{color:GC},min:0,max:100,ticks:{callback:v=>v+'%',color:TC,font:F}}
-        }
-      }
-    });
-
-    new Chart(document.getElementById('chartChildren'),{
-      type:'bar',
-      data:{
-        labels:['Anaemic (Purulia)','Anaemic (median district)','Underweight (Purulia)','Underweight (median district)','Stunted (Purulia)','Stunted (median district)','Wasted (Purulia)','Wasted (median district)'],
-        datasets:[{
-          data:[77.9,69.3,46.3,32.1,36.9,32.2,29.4,20.9],
-          backgroundColor:[rd(.7),r(.55),rd(.7),r(.55),rd(.7),r(.55),rd(.7),r(.55)],
-          borderColor:['#E05050','#D4882A','#E05050','#D4882A','#E05050','#D4882A','#E05050','#D4882A'],
-          borderWidth:1
-        }]
-      },
-      options:{
-        indexAxis:'y',responsive:true,maintainAspectRatio:false,
-        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>c.raw+'%'}}},
-        scales:{
-          x:{grid:{color:GC},max:100,ticks:{callback:v=>v+'%',color:TC,font:F}},
-          y:{grid:{display:false},ticks:{color:'rgba(240,230,208,.55)',font:{family:'DM Mono, monospace',size:9}}}
-        }
-      }
-    });
-  }
-
-  var el=document.getElementById('data-charts');
-  if(el&&'IntersectionObserver' in window){
-    var obs=new IntersectionObserver(function(es){if(es[0].isIntersecting){go();obs.disconnect();}},{threshold:0.05});
-    obs.observe(el);
-  } else { go(); }
-})();
-</script>
+<script src="place-facts.js"></script>
+<script src="data-place.js"></script>
 </body>
 </html>

@@ -216,6 +216,11 @@
   const districtSel = $('at-district');
   Object.values(window.KASA_DISTRICTS || {}).sort().forEach(name => districtSel.add(new Option(name, name)));
   if (params.get('district') && [...districtSel.options].some(o => o.value === params.get('district'))) districtSel.value = params.get('district');
+  // From a town's card on the report map: its name and council already known.
+  if (!params.get('fix')){
+    if (params.get('town')) $('at-town').value = params.get('town').slice(0, 80);
+    if (params.get('body')) $('at-body').value = params.get('body').slice(0, 120);
+  }
 
   // ── The map ──
   const map = window.maplibregl ? new maplibregl.Map({
