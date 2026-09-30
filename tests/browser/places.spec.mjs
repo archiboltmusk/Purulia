@@ -292,3 +292,32 @@ test('a gram panchayat card names its BDO with the office phone from the distric
   await expect(bdo).toContainText('Adrita Samaddar');
   await expect(bdo.locator('a[href^="tel:"]')).toHaveAttribute('href', 'tel:03214260022');
 });
+
+test('the MP named on an area card opens their profile with the MP fund works, and the seat shows on the map', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.5539, 23.1122], zoom: 11 }); });
+  await page.evaluate(() => openArea(23.1122, 87.5539));
+  const card = page.locator('#k-area-card');
+  await card.locator('.k-area-row', { hasText: 'MP ·' }).locator('.k-area-rep').click();
+  const sheet = page.locator('#k-rep-modal');
+  await expect(sheet).toHaveClass(/open/);
+  await expect(sheet).toContainText('Assembly seats in this constituency');
+  await expect(sheet.locator('#k-rep-works')).toContainText('Works finished');
+  await sheet.locator('[data-rep-map]').click();
+  await expect(sheet).not.toHaveClass(/open/);
+  expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
+});
+
+test('any minister in West Bengal can be found by department and opens with their seat', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await page.locator('#k-more-btn').click();
+  await page.locator('#k-auth-sec summary').click();
+  await page.locator('#k-wb-search').fill('finance');
+  const hit = page.locator('.k-wb-rep:visible', { hasText: 'Swapan Dasgupta' });
+  await hit.first().click();
+  const sheet = page.locator('#k-rep-modal');
+  await expect(sheet).toContainText('Finance');
+  await expect(sheet).toContainText('Cabinet Minister');
+  await expect(sheet.locator('[data-rep-map]')).toBeVisible();
+});
