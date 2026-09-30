@@ -75,7 +75,10 @@ window.KasaPlaces = (() => {
   const emit = (what, slug) => listeners.forEach(f => f(what, slug));
 
   const inBox = (b, lat, lng) => lat >= b.min_lat && lat <= b.max_lat && lng >= b.min_lng && lng <= b.max_lng;
-  const boxAt = (lat, lng) => PLACES.find(p => p.bbox && inBox(p.bbox, lat, lng)) || null;
+  // Neighbouring towns' boxes overlap (the Hooghly belt): the smallest box holding the point wins.
+  const area = b => (b.max_lat - b.min_lat) * (b.max_lng - b.min_lng);
+  const boxesAt = (lat, lng) => PLACES.filter(p => p.bbox && inBox(p.bbox, lat, lng)).sort((a, b) => area(a.bbox) - area(b.bbox));
+  const boxAt = (lat, lng) => boxesAt(lat, lng)[0] || null;
   const inWB = (lat, lng) => inBox(WB, lat, lng);
 
   /* A town, a district as 'district:<slug>' (name without "district"; body unknown), or 'bengal' (the whole state). */
@@ -126,13 +129,15 @@ window.KasaPlaces = (() => {
      { kind: 'place', place: 'district:<slug>', name, isDistrict: true } elsewhere in West Bengal,
      { kind: 'unknown' } while the maps load, or null outside West Bengal. */
   function at(lat, lng){
-    for (const p of PLACES.filter(p => p.bbox && inBox(p.bbox, lat, lng))){
+    let waiting = false;
+    for (const p of boxesAt(lat, lng)){
       const g = geo[p.slug];
-      if (!g){ load(p.slug); return { kind: 'unknown' }; }
+      if (!g){ load(p.slug); waiting = true; continue; }
       const f = g.features.find(f => inGeom([lng, lat], f.geometry));
       if (f) return { kind: 'place', place: p.slug, name: p.name, body: p.body, ward: Number(f.properties.ward),
                       provisional: p.status === 'provisional' };
     }
+    if (waiting) return { kind: 'unknown' };
     if (!inWB(lat, lng)) return null;
     if (!districts){ loadDistricts(); return { kind: 'unknown' }; }
     const d = districtAt(lat, lng);
