@@ -30,7 +30,8 @@ jobs:
           # Internal notes, tools and server-side code stay in the repository, not on the site.
           rsync -a --exclude '.git' --exclude '.github' --exclude 'node_modules' --exclude 'supabase' \
             --exclude 'tests' --exclude 'tools' --exclude 'deploy' --exclude '*.md' --exclude 'og-card.html' \
-            --exclude '.gitignore' --exclude 'vercel.json' --exclude 'wrangler.jsonc' --exclude '.assetsignore' --exclude 'worker.js' ./ deploy/
+            --exclude '.gitignore' --exclude 'vercel.json' --exclude 'wrangler.jsonc' --exclude '.assetsignore' --exclude 'worker.js' \
+            --exclude 'WEST BENGAL_VILLAGES.geojson' ./ deploy/
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
