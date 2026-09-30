@@ -1,120 +1,76 @@
-# Purulia 2040
+# Parishkar Bengal
 
 [![Live Site](https://img.shields.io/badge/live-site-brightgreen)](https://archiboltmusk.github.io/Purulia/)
 
-> *A district reborn. A blueprint for transformation.*
+> *This is not a complaint. It is a claim to dignity.*
+
+Parishkar Bengal is a civic website for West Bengal: report a broken street, drain, tap or heap of garbage with a live photo, see who is responsible for it, and follow whether it gets fixed. It began in Purulia as Parishkar Purulia and is now open across the state.
+
+**Live:** [archiboltmusk.github.io/Purulia](https://archiboltmusk.github.io/Purulia/) · report map: [kasa.html](https://archiboltmusk.github.io/Purulia/kasa.html) · mirror: [purulia.vercel.app](https://purulia.vercel.app/)
 
 ---
 
-Purulia sits at the geographic heart of eastern India — equidistant from Kolkata, Ranchi, Dhanbad, and Bhubaneswar — and yet it has long been treated as a periphery. This project is a comprehensive, evidence-based plan to change that by 2040.
+## The goal
 
-**Purulia 2040** is not a wish list. It is a sequenced, fundable, executable blueprint built around six transformation levers, ten stakeholder pathways, and five critical first-mover actions that can begin today.
+To hold a mirror to West Bengal, starting with Purulia: not to shame it, but to awaken it.
 
----
+- **Trace the circle.** Health, schooling, work, water and roads fail together: a mother lost to a preventable death, a girl pulled from school, a father who migrates because the land cannot feed his children, a village waiting for water. The site shows how each sector pulls the next one down.
+- **Name who promised.** The Centre, the state, the district, the block and the panchayat. Ask each, with evidence and dignity, why the gap between announcement and reality keeps growing.
+- **Build a blueprint, not just a record.** A plan for self-reliance built on the state's own resources and people, where every starting figure is sourced and every proposal is marked as ours.
 
-## The Case for Purulia
+Two rules hold everywhere on the site:
 
-| Asset | Scale |
-|---|---|
-| Solar irradiance | **300+ sunny days/year** — among India's highest |
-| Cultural heritage | **4,000 years** of unbroken Dokra metalcraft tradition |
-| Forest economy | Sal, mahua, kendu — an untapped green supply chain |
-| Geographic position | Central node in a 200km radius of **60 million people** |
-| Investment required | **₹3,500 Cr** — mostly from existing central scheme allocations |
-
-What looks like disadvantage — the rocky plateau, the distance, the sparse economy — is actually a canvas. The constraints are the opportunity.
+1. **Only authentic, cited data.** No placeholder or unsourced figures.
+2. **Reports need a live camera photo and real GPS.** No gallery uploads, no dropping a pin by hand.
 
 ---
 
-## Six Pillars of Transformation
+## What is on the site today
 
-```
-  Water & Geography   →   Economic Base   →   Infrastructure
-         ↓                                          ↓
-   Brain Drain   ←   Investment Climate   ←   Connectivity
-```
+### Report map (`kasa.html`)
+- Report a civic problem with a live photo and GPS. Each report gets a deadline by severity and is routed to the office responsible.
+- A report closes only when someone takes a new live photo at the spot (within 50 metres) showing it fixed.
+- Works in English, Bengali, Hindi and Santali (Ol Chiki); works offline and queues reports until a connection returns; push alerts for a watched area.
+- The whole state is on the map: district outlines, every block and gram panchayat, Purulia and Kolkata wards, and other towns' wards as they are added.
+- Tap any district, block, gram panchayat or ward to see its open reports, its MLA and MP, and its officials (DM, Zilla Parishad officer, BDO) with what each tier is legally responsible for under the West Bengal Panchayat Act, 1973.
+- Leader profiles for every West Bengal minister, MLA and MP, with MPLADS works for MPs.
+- Anyone can suggest a missing official or a wrong ward border; moderators check it before it goes live.
 
-**1. Water & Geography** — Harvest the monsoon through check dams and watershed management. Shift from water-intensive crops to drought-resilient horticulture. Build the foundation everything else rests on.
+### Accountability and research pages
+- **Promises** (`promises.html`) tracks sourced promises by named leaders; **Noticeboard** (`noticeboard.html`) puts public demands to them.
+- **The Circle** (`circle.html`) and **district pages** show how sectors connect, using NFHS-5, Census 2011, UDISE+ and Jal Jeevan Mission figures.
+- **Schools** (`schools.html`) compares schools with state and national figures; anyone can check a school with a live photo.
+- **Ward pages**, a weekly **ward digest** with email sign-up, public **analytics**, **Adopt-a-Spot** for shops, clubs and ward offices, and **Communities** for volunteer groups.
+- **Blueprint** (`blueprint.html`): the self-reliance plan, starting from official figures.
+- **Add a town** (`add-town.html`): upload or draw ward maps for any town; moderators approve them.
 
-**2. Economic Base** — Three growth engines running in parallel: solar manufacturing, GI-tagged craft exports (Dokra, Chhau masks, Paata paintings), and agro-processing cold chains that capture value before it leaves the district.
-
-**3. Infrastructure** — Power, roads, broadband, water. ₹3,500 Cr investment, majority sourced from existing central schemes (PM-KUSUM, PMGSY, BharatNet, Jal Jeevan Mission). The money exists. It needs coordination.
-
-**4. Brain Drain → Brain Gain** — A medical college, an NIT satellite campus, a return migration program, and co-working infrastructure to make staying (and returning) economically rational.
-
-**5. Investment Climate** — Compress 37-step clearance processes to a single-window facilitation center (PIFC). Three industrial zones. A measurable shift from "difficult to do business" to "easiest in the region."
-
-**6. Connectivity** — Howrah–Purulia express frequency, NH-32 four-laning, a regional airport, and a brand identity that repositions Purulia as a destination rather than a detour.
-
----
-
-## Who This Is For
-
-The blueprint is written for ten distinct stakeholders, each with a personalized pathway:
-
-- **Doctors** — closing a 250km gap to the nearest oncologist
-- **Engineers** — hydrology, grid stabilization, agro-processing design
-- **Architects** — medical campus, railway station, solar park, crafts cluster, waterfront development at Duarsini Lake
-- **Politicians & Administrators** — five decisions that unlock everything
-- **Students** — remote work economics, first-mover advantage, Young Leaders Fellowship
-- **Entrepreneurs** — mahua spirits, sal oil, Dokra exports, solar O&M, cold chain, edtech, eco-tourism
-- **Business Leaders** — investment case by sector, ESG alignment, long-term returns
-- **Artists & Craftspeople** — FPO models, GI tags, digital channels, licensing, residencies
-- **Diaspora** — structured return migration and remote contribution pathways
-- **Impact Investors** — SDG alignment, community ownership structures, measurable outcomes
+### Trust
+- Every report and change is reviewed through a moderator queue (`admin.html`).
+- A daily tamper-evident fingerprint of all public data is published in [`record/`](record/README.md).
+- Report data is published under CC BY 4.0.
 
 ---
 
-## The Roadmap
+## What's next
 
-```
-2026–2028   Foundation Sprint
-            Land records digitized. PIFC launched. First solar anchor signed.
-            Medical college application filed. Five schools repaired.
+The full, current plan is the **What's next** section at the top of [changelog.html](https://archiboltmusk.github.io/Purulia/changelog.html#next), tagged Done, Being built, Waiting on an RTI, or Planned. In short:
 
-2028–2031   Economic Activation
-            Solar park commissioned. Craft export corridor live.
-            Cold chain network operational. Brain gain program attracting returns.
+- **Health:** health-centre checks (doctor present, medicines, water, toilet) with a live photo, like school checks; maternal deaths by block and cause, asked for by RTI.
+- **Schools:** each school's official UDISE+ record beside residents' checks; dropout figures once the data arrives.
+- **Work and migration:** rural-jobs worksite checks against each work's geotagged record; migrant registrations by block, asked for by RTI.
+- **Water:** report a tap that is fitted but gives no water, sent to the public health engineering office.
+- **Naming who promised:** a dated verdict on each promise (in progress, delivered or broken), shown only with proof; DISHA committee minutes published.
+- **Statewide:** more town ward maps from contributors, and officials and leaders filled in for every district.
+- **Blueprint:** recheck every starting figure against its source each year; publish days pending on Silpasathi applications.
+- **Keeping it going:** Bengali and Hindi on every page, a second admin, and ward drives with college NSS and NCC units.
 
-2031–2035   Scale & Consolidation
-            1,000 MW solar capacity. ₹500 Cr annual craft exports.
-            Medical college first batch graduates. Industrial zones at capacity.
-
-2035–2040   Purulia as Model
-            40,000 jobs/year created. 3× artisan income (₹5k → ₹20k/month).
-            ₹600 Cr annual forest produce revenue. District replicable elsewhere.
-```
+No dates are given where nobody has committed to one.
 
 ---
 
-## The First 18 Months
+## Running it
 
-Five actions that cost very little but unlock everything:
-
-1. **Digitize land records** via Banglar Bhumi — remove the single biggest investment barrier
-2. **Open the Purulia Investment Facilitation Centre** — ₹3–5 Cr, replaces 37 clearance steps
-3. **Sign three anchor solar developers** — signals seriousness, attracts supply chain
-4. **Begin the medical college application** — long lead time, start now
-5. **Repair five government schools** — visible proof that execution is real
-
----
-
-## The Numbers
-
-*Conservative projections for 2032:*
-
-- `1,000 MW` solar capacity installed
-- `₹500 Cr` annual craft exports
-- `40,000` new jobs per year
-- `3×` increase in average artisan monthly income
-- `₹600 Cr` annual forest produce revenue
-- `₹3,500 Cr` total infrastructure investment (largely from existing schemes)
-
----
-
-## Viewing the Blueprint
-
-This is a static website: plain HTML, CSS and JavaScript, no build step.
+A static site: plain HTML, CSS and JavaScript, no build step. The backend is Supabase (Postgres RPCs and edge functions).
 
 ```bash
 git clone https://github.com/archiboltmusk/Purulia.git
@@ -122,49 +78,17 @@ cd Purulia
 python3 -m http.server 8000   # then open http://localhost:8000/
 ```
 
-The interactive document includes:
-- Animated data visualizations and an SVG district map
-- Expandable deep-dives for each of the six pillars
-- Audience-selector tabs for all ten stakeholder pathways
-- Phased timeline with specific milestones and funding sources
-- Full economic projections with infrastructure investment tables
-
----
-
-## Design
-
-The visual language is deliberate: a dark ink ground with amber, cream, and forest accents — colors drawn from Purulia's own landscape (the dry rocky earth, the sal forest canopy, the monsoon sky). Typography pairs EB Garamond for gravitas with DM Mono for data precision.
-
-Built entirely with semantic HTML5, CSS3, and vanilla JavaScript. No frameworks. Opens instantly.
-
----
-
-## The Argument in One Sentence
-
-Purulia has 300 sunny days, 4,000 years of craft heritage, a central geographic position, and access to ₹3,500 Cr in existing scheme funding — what it has lacked is a coherent plan and the first five decisions to set it in motion.
-
----
-
-## Civic Reporting App (Parishkar)
-
-[Parishkar Purulia](https://archiboltmusk.github.io/Purulia/kasa.html) lets residents report civic problems (garbage, drains, roads, streetlights, water, illegal activity) with a photo and location. A report is marked fixed only when neighbours confirm it on the spot.
-
-- **Pages:** `kasa.html` + `kasa.js` (report map and flow), `admin.html` (moderators), `terms.html`, `privacy.html`, `grievance.html`.
-- **Backend:** Supabase: database rules in `supabase/migrations/`, server functions in `supabase/functions/`, tests in `supabase/tests/`.
-- **Deployment:** pushing to `main` publishes the site to GitHub Pages through `.github/workflows/github-pages.yml`.
-- **Public record:** a daily tamper-evident fingerprint of all public data is kept in `record/` (see `record/README.md`).
-- **Run it in your own town:** see [`DEPLOY.md`](DEPLOY.md). Everything town-specific the app shows lives in `city.js`.
+- **Map of the code:** [CLAUDE.md](CLAUDE.md) lists every page, shared module, table, RPC and tool.
+- **Backend:** `supabase/migrations/` (database), `supabase/functions/` (edge functions), `supabase/tests/`.
+- **Deploy:** pushing to `main` publishes to GitHub Pages and Vercel; a Cloudflare worker serves share previews. See [DEPLOY.md](DEPLOY.md) and [RUNBOOK.md](RUNBOOK.md).
+- **Run it in your own town:** see [DEPLOY.md](DEPLOY.md); Purulia-specific settings live in `city.js`, other towns in `places.js`.
 
 ---
 
 ## Contributing
 
-Contributions are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md) (local setup, tests, rules for database changes) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md). How the project is run: [GOVERNANCE.md](GOVERNANCE.md).
+Contributions are welcome: code, ward maps, officials' contacts, sourced data, and translations. Start with [CONTRIBUTING.md](CONTRIBUTING.md) and follow the [Code of Conduct](CODE_OF_CONDUCT.md). Report security problems privately as described in [SECURITY.md](SECURITY.md). How the project is run: [GOVERNANCE.md](GOVERNANCE.md).
 
 ## Licence
 
 Code: [MIT](LICENSE). Report data published by Parishkar: CC BY 4.0 (see `terms.html`).
-
----
-
-*The money exists. The land is ready. The moment is now.*

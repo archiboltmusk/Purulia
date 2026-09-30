@@ -335,8 +335,8 @@ async function init(){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => {
       if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
-      // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
-      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
+      // The counts, the "fixed" chip, the ticker, the join line and the representatives follow the place in view.
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); renderReps(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
@@ -367,7 +367,7 @@ async function init(){
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
   // Statewide leaders load only when someone opens the representatives section.
-  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(renderWbRepList); });
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
   initPlacePicker();
@@ -1274,6 +1274,26 @@ async function addDistrictLayers(){
   mainMap.on('moveend', loadLocalInView);
   mainMap.on('click', onAreaTap);
   loadLocalInView();
+  addTownLayers();
+}
+
+/* Every municipality and corporation (places/wb_towns.geojson, tools/build-wb-towns.py): its limits where
+   the AMRUT GIS mapped them, else a dot at the town. Towns with a ward map are also places (their wards draw
+   once in view, places.js); a tap on any town opens its card, which asks locals to draw missing wards. */
+let wbTowns = null, townsGeo = null;
+const loadTowns = () => wbTowns || (wbTowns = getJson('places/wb_towns.geojson').then(g => townsGeo = g));
+async function addTownLayers(){
+  const g = await loadTowns();
+  if (!mainMap || !g?.features?.length || mainMap.getSource('wb-towns')) return;
+  mainMap.addSource('wb-towns', { type: 'geojson', data: g, attribution: g.attribution });
+  const pt = ['==', ['geometry-type'], 'Point'], amber = '#d4882a';
+  mainMap.addLayer({ id: 'wb-towns-line', type: 'line', source: 'wb-towns', minzoom: 8, filter: ['!', pt],
+    paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-towns-dot', type: 'circle', source: 'wb-towns', minzoom: 8, filter: pt,
+    paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': amber, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-towns-label', type: 'symbol', source: 'wb-towns', minzoom: 9, maxzoom: 13.5,
+    layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-offset': ['case', pt, ['literal', [0, 1.1]], ['literal', [0, 0]]] },
+    paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
 }
 
 async function loadLocalInView(){
@@ -1343,7 +1363,11 @@ async function areasAt(lat, lng){
     fs = wbLocalGeo[slug]?.features || [];
   }
   const find = kind => fs.find(f => f.properties.kind === kind && inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)) || null;
-  return { district: d, block: find('block'), gp: find('gp') };
+  // A town's limits, or its dot (a tap on the dot opens the card at the dot).
+  const towns = (await loadTowns())?.features || [];
+  const town = towns.find(f => f.geometry.type !== 'Point' && inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry))
+            || towns.find(f => f.geometry.type === 'Point' && Math.hypot(f.geometry.coordinates[0] - lng, f.geometry.coordinates[1] - lat) < .002) || null;
+  return { district: d, block: find('block'), gp: find('gp'), town };
 }
 
 async function leadersAt(lat, lng){
@@ -1368,7 +1392,8 @@ async function openArea(lat, lng, level){
   areas.added = await addedIn(areas.district.properties.slug);
   if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
   const z = mainMap.getZoom();
-  level ||= z >= 10.5 && areas.gp ? 'gp' : z >= 8 && areas.block ? 'block' : 'district';
+  // Inside a town the town is the card (a town is not part of a panchayat).
+  level ||= z >= 8.5 && areas.town ? 'town' : z >= 10.5 && areas.gp ? 'gp' : z >= 8 && areas.block ? 'block' : 'district';
   state.area = { lat, lng, level, areas, leaders };
   renderAreaCard();
 }
@@ -1381,7 +1406,18 @@ function closeArea(){
 }
 
 function areaFeature(a = state.area){ return a.areas[a.level] || a.areas.district; }
-function areaName(f){ return f.properties.gp || f.properties.block || f.properties.district; }
+function areaName(f){ return f.properties.name || f.properties.gp || f.properties.block || f.properties.district; }
+const isDot = f => f.geometry.type === 'Point';
+
+// A town's wards: mapped (it is a place), none (a development authority), or missing (draw them on add-town.html).
+function townWards(T, district){
+  const row = who => `<div class="k-area-row"><span class="k-area-role">${esc(t('ar_wards'))}</span><span class="k-area-who">${who}</span></div>`;
+  if (T.wards === 0) return row(esc(t('ar_no_wards')));
+  if (T.mapped) return row(esc(t('ar_wards_mapped', { m: T.mapped })) + (T.wards ? ` · ${esc(t('ar_wards_2022', { n: T.wards }))}` : ''));
+  const draw = `add-town.html?district=${encodeURIComponent(district)}&town=${encodeURIComponent(T.name)}&body=${encodeURIComponent(T.body)}`;
+  return row(`<span class="k-area-none">${esc(T.wards ? t('ar_wards_missing', { n: T.wards }) : t('ar_wards_missing_n'))}</span>`)
+    + `<a class="k-ward-filter k-area-draw" href="${esc(draw)}">${esc(t('ar_draw_wards'))}</a>`;
+}
 
 function renderAreaCard(){
   const a = state.area;
@@ -1391,11 +1427,11 @@ function renderAreaCard(){
     el.id = 'k-area-card'; el.className = 'k-ward-card k-area-card';
     document.getElementById('k-ward-card').after(el);
   }
-  const f = areaFeature(), { district, block, gp } = a.areas;
-  const inside = primaries().filter(r => Number.isFinite(r.lat) && inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
+  const f = areaFeature(), { district, block, gp, town } = a.areas, T = a.level === 'town' ? f.properties : null;
+  const inside = isDot(f) ? [] : primaries().filter(r => Number.isFinite(r.lat) && inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
   const open = inside.filter(r => r.status !== 'resolved').length, fixed = inside.length - open;
   const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
-  const sub = a.level === 'gp' ? t('ar_gp_sub', { b: block?.properties.block || gp.properties.block, d: district.properties.district })
+  const sub = T ? t('ar_town_sub', { b: T.body, d: district.properties.district }) : a.level === 'gp' ? t('ar_gp_sub', { b: block?.properties.block || gp.properties.block, d: district.properties.district })
             : a.level === 'block' ? t('ar_block_sub', { d: district.properties.district }) : t('ar_district_sub');
   const L = a.leaders, row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
   const seats = a.level === 'district' ? districtSeats(district.properties.slug) : [];
@@ -1410,7 +1446,7 @@ function renderAreaCard(){
   const heads = { gp: 'pradhan', block: 'sabhapati', district: 'sabhadhipati' }, head = byReader(added(heads[a.level]));
   const bdoRow = a.level !== 'district' && bname && (bdo || byReader(added('bdo')));
   const dm = off?.dm || byReader(added('dm')), zp = off?.zp || byReader(added('zp'));
-  const missing = [rural && !head && heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', rural && !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
+  const missing = T ? [] : [rural && !head && heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', rural && !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
   const contact = o => [o.phone && `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a>`,
                         o.email && `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`,
                         o.src && `<a href="${esc(o.src)}" target="_blank" rel="noopener">${esc(t('ar_added_src'))}</a>`].filter(Boolean).join(' · ');
@@ -1420,22 +1456,24 @@ function renderAreaCard(){
   const roleName = r => ({ pradhan: t('ar_head_gp'), sabhapati: t('ar_head_block'), sabhadhipati: t('ar_head_district'), bdo: t('ar_bdo_short'), dm: t('ar_dm'), zp: t('ar_zp') })[r];
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
-    <div class="k-area-crumbs">${[crumb('district', district), crumb('block', block), crumb('gp', gp)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
+    <div class="k-area-crumbs">${(town ? [crumb('district', district), crumb('town', town)] : [crumb('district', district), crumb('block', block), crumb('gp', gp)]).filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
     <div class="k-ward-title">${esc(areaName(f))}</div>
     <div class="k-ward-sub">${esc(sub)}</div>
-    <div class="k-ward-nums">
+    ${isDot(f) ? '' : `<div class="k-ward-nums">
       <span>${esc(t('wc_reported', { n: inside.length }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
-    </div>
+    </div>`}
     <div class="k-area-leaders">
+      ${T ? townWards(T, district.properties.district) : ''}
       ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
                     [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${!rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
-      ${a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+      ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
+          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+      ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
                                : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
     <div class="k-ward-actions">
@@ -1450,11 +1488,12 @@ function renderAreaCard(){
       <input name="src" type="url" required maxlength="300" placeholder="${esc(t('ar_add_src'))}">
       <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
     </form>
-    <a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams({ fix: 'area', level: a.level, district: district.properties.slug,
-      ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>
+    ${T && !T.mapped ? '' : `<a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams(T ? { fix: T.slug } : { fix: 'area', level: a.level, district: district.properties.slug,
+      ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>`}
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
-      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
-    <div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`;
+      · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
+             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    ${T ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
   el.hidden = false;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
   if (!mainMap.getSource('area-sel')){
@@ -1479,6 +1518,7 @@ async function sendOfficial(form){
 }
 
 function areaBounds(f){
+  if (isDot(f)){ const [x, y] = f.geometry.coordinates; return [[x - .02, y - .02], [x + .02, y + .02]]; }
   if (f.bbox) return [[f.bbox[0], f.bbox[1]], [f.bbox[2], f.bbox[3]]];
   const pts = (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat());
   return [[Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1]))], [Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))]];
@@ -1490,7 +1530,7 @@ function zoomToArea(){
 }
 
 function shareArea(){
-  const a = state.area, zoom = { gp: 12, block: 10, district: 8.5 }[a.level];
+  const a = state.area, zoom = { town: 12, gp: 12, block: 10, district: 8.5 }[a.level];
   const url = `${location.origin}${location.pathname}?at=${a.lat.toFixed(5)},${a.lng.toFixed(5)},${zoom}`;
   const text = t('ar_share_text', { name: areaName(areaFeature()) });
   if (navigator.share) navigator.share({ title: 'Parishkar', text, url }).catch(() => {});
@@ -1503,7 +1543,10 @@ function onAreaTap(e){
   const hit = ['report-points', 'clusters', 'wards-fill', ...Object.keys(window.KasaPlaces?.geo || {}).map(s => 'place-' + s + '-fill')]
     .filter(id => mainMap.getLayer(id));
   if (hit.length && mainMap.queryRenderedFeatures(e.point, { layers: hit }).length) return;
-  if (state.area && pointInPolygon([e.lngLat.lng, e.lngLat.lat], areaFeature().geometry) && e.originalEvent?.detail < 2) return closeArea();
+  // A town dot: open its card at the dot (a finger is wider than the dot).
+  const dot = mainMap.getLayer('wb-towns-dot') && mainMap.queryRenderedFeatures([[e.point.x - 12, e.point.y - 12], [e.point.x + 12, e.point.y + 12]], { layers: ['wb-towns-dot'] })[0];
+  if (dot){ const [x, y] = dot.geometry.coordinates; return openArea(y, x, 'town'); }
+  if (state.area && !isDot(areaFeature()) && pointInPolygon([e.lngLat.lng, e.lngLat.lat], areaFeature().geometry) && e.originalEvent?.detail < 2) return closeArea();
   openArea(e.lngLat.lat, e.lngLat.lng);
 }
 
@@ -4268,12 +4311,28 @@ function renderWbRepList(){
   });
 }
 
-function renderReps(){
-  const reps = allReps();
-  document.getElementById('k-auth-grid').innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
-    const list = reps.filter(r => r.group === g);
-    if (!list.length) return '';
-    return `<div class="k-auth-group">${esc(t('rep_g_' + g))}</div>` + list.map(rep => `
+/* The place the page is named after, for the representatives section: null on Purulia
+   (city.js), { bengal } zoomed out, else its name and assembly seats from places/wb_assembly.geojson. */
+function repPlace(){
+  const cur = window.KasaPlaces?.current;
+  if (!cur || cur === 'purulia' || cur === 'district:purulia') return null;
+  const p = KasaPlaces.bySlug(cur);
+  if (!p || p.isState) return { bengal: true };
+  const fs = wbAssembly?.features || [];
+  let acs = [];
+  if (p.isDistrict) acs = fs.filter(f => f.properties.d === cur.slice(9));
+  else if (p.bbox){
+    // A town: every seat that holds a point of a 5×5 grid over its box.
+    const b = p.bbox, pts = [];
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++)
+      pts.push([b.min_lng + (b.max_lng - b.min_lng) * (i + .5) / 5, b.min_lat + (b.max_lat - b.min_lat) * (j + .5) / 5]);
+    acs = fs.filter(f => pts.some(pt => inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)));
+  }
+  return { name: p.name, district: !!p.isDistrict, acs: [...new Set(acs.map(f => f.properties.ac))].sort((a, b) => a - b),
+           pcs: [...new Set(acs.map(f => f.properties.pc))].sort((a, b) => a - b) };
+}
+
+const repCard = (rep, g) => `
       <div class="k-auth-card${rep.photo ? '' : ' k-auth-card-sm'}">
         ${repAvatar(rep, 'k-rep-avatar k-auth-avatar')}
         <div>
@@ -4283,7 +4342,39 @@ function renderReps(){
           ${rep.photo && rep.photoCredit ? `<div class="k-auth-credit">${esc(t('rep_photo_credit', { credit: rep.photoCredit }))}</div>` : ''}
         </div>
         <button type="button" class="k-auth-action" data-profile="${esc(rep.key)}">${esc(t('auth_view'))}</button>
-      </div>`).join('');
+      </div>`;
+
+function renderReps(){
+  const grid = document.getElementById('k-auth-grid'), sub = document.getElementById('k-auth-sub');
+  const here = window.KasaPlaces?.current && window.KasaPlaces.current !== 'purulia' && window.KasaPlaces.current !== 'district:purulia';
+  // Another place: its MPs and MLAs from the statewide files (loaded on first need).
+  // Another place needs the statewide files (~0.9 MB); fetch them only once the section is open.
+  if (here && !wbLeaders){
+    grid.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_loading'))}</div>`;
+    if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(() => wbLeaders && renderReps());
+    return;
+  }
+  const place = here ? repPlace() : null;
+  if (sub) sub.textContent = !place ? t('auth_sub_home', { p: CITY_NAME }) : place.bengal ? t('auth_sub_state') : t(place.district ? 'auth_sub_district' : 'auth_sub_town', { p: place.name });
+  if (place){
+    const mps = place.bengal ? [] : place.pcs.map(n => wbLeaders.pc[n] && { n, v: wbLeaders.pc[n] }).filter(Boolean);
+    const mlas = place.bengal ? [] : place.acs.map(n => wbLeaders.ac[n] && { n, v: wbLeaders.ac[n] }).filter(Boolean);
+    const card = (key, g, v, place, extra) => repCard({ key, name: v.person, party: [v.party, extra].filter(Boolean).join(' · '), initials: initialsOf(v.person), place }, g);
+    grid.innerHTML = (mps.length ? `<div class="k-auth-group">${esc(t('rep_g_mp'))}</div>` + mps.map(({ n, v }) => v.vacant
+        ? `<div class="k-auth-card k-auth-card-sm"><div><div class="k-auth-label">${esc(t('rep_t_mp'))} · ${esc(t('rep_place_ls', { s: v.name }))}</div>
+           <div class="k-auth-name"><a href="${esc(safeUrl(v.vacant.source) || '#')}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: v.vacant.since }))}</a></div></div></div>`
+        : card(pcKey(n), 'mp', v, t('rep_place_ls', { s: v.name }))).join('') : '')
+      + (mlas.length ? `<div class="k-auth-group">${esc(t('rep_g_mla'))}</div>` + mlas.map(({ n, v }) =>
+          card(acKey(n), 'mla', v, t('rep_place_ac', { s: v.name, n }), ministerOf(n) && t('rep_rank_' + ministerOf(n).rank))).join('') : '')
+      + '<div id="k-wb-reps"></div>';
+    if (wbLeaders) renderWbRepList();
+    return;
+  }
+  const reps = allReps();
+  grid.innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
+    const list = reps.filter(r => r.group === g);
+    if (!list.length) return '';
+    return `<div class="k-auth-group">${esc(t('rep_g_' + g))}</div>` + list.map(rep => repCard(rep, g)).join('');
   }).join('') + '<div id="k-wb-reps"></div>';
   if (wbLeaders) renderWbRepList();
   else if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(renderWbRepList);
