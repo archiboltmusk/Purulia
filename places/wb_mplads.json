@@ -1,0 +1,509 @@
+{
+"checked": "2026-09-30",
+"source": "https://empoweredindian.in/mplads",
+"pc": {
+"1": {
+"works": "pc-1",
+"allocated": 168604641,
+"recommended": 119356958,
+"spent": 36689865,
+"worksRecommended": 96,
+"worksCompleted": 1,
+"url": "https://empoweredindian.in/mplads/mps/jagadish-chandra-barma-basunia-coochbehar-west-bengal-18th-lok-sabha"
+},
+"2": {
+"works": "pc-2",
+"allocated": 147000000,
+"recommended": 99802334,
+"spent": 11379773,
+"worksRecommended": 90,
+"worksCompleted": 10,
+"url": "https://empoweredindian.in/mplads/mps/manoj-tigga-alipurduars-west-bengal-18th-lok-sabha"
+},
+"3": {
+"works": "pc-3",
+"allocated": 147000000,
+"recommended": 32603018,
+"spent": 12082736,
+"worksRecommended": 19,
+"worksCompleted": 2,
+"url": "https://empoweredindian.in/mplads/mps/dr-jayanta-kumar-roy-jalpaiguri-west-bengal-18th-lok-sabha"
+},
+"4": {
+"works": "pc-4",
+"allocated": 147000000,
+"recommended": 101800825,
+"spent": 43617451,
+"worksRecommended": 169,
+"worksCompleted": 82,
+"url": "https://empoweredindian.in/mplads/mps/raju-bista-darjeeling-west-bengal-18th-lok-sabha"
+},
+"5": {
+"works": "pc-5",
+"allocated": 202677987,
+"recommended": 164438143,
+"spent": 28148611,
+"worksRecommended": 408,
+"worksCompleted": 99,
+"url": "https://empoweredindian.in/mplads/mps/kartick-chandra-paul-raiganj-west-bengal-18th-lok-sabha"
+},
+"6": {
+"works": "pc-6",
+"allocated": 157085365,
+"recommended": 85690602,
+"spent": 26156776,
+"worksRecommended": 186,
+"worksCompleted": 33,
+"url": "https://empoweredindian.in/mplads/mps/dr-sukanta-majumdar-balurghat-west-bengal-18th-lok-sabha"
+},
+"7": {
+"works": "pc-7",
+"allocated": 147000000,
+"recommended": 41221118,
+"spent": 6003169,
+"worksRecommended": 38,
+"worksCompleted": 7,
+"url": "https://empoweredindian.in/mplads/mps/khagen-murmu-maldaha-uttar-west-bengal-18th-lok-sabha"
+},
+"8": {
+"works": "pc-8",
+"allocated": 147000000,
+"recommended": 55024076,
+"spent": 8567025,
+"worksRecommended": 123,
+"worksCompleted": 25,
+"url": "https://empoweredindian.in/mplads/mps/isha-khan-choudhury-maldaha-dakshin-west-bengal-18th-lok-sabha"
+},
+"9": {
+"works": "pc-9",
+"allocated": 147000000,
+"recommended": 78631103,
+"spent": 23028217,
+"worksRecommended": 107,
+"worksCompleted": 31,
+"url": "https://empoweredindian.in/mplads/mps/khalilur-rahaman-jangipur-west-bengal-18th-lok-sabha"
+},
+"10": {
+"works": "pc-10",
+"allocated": 147000000,
+"recommended": 88677631,
+"spent": 9360897,
+"worksRecommended": 145,
+"worksCompleted": 1,
+"url": "https://empoweredindian.in/mplads/mps/pathan-yusuf-baharampur-west-bengal-18th-lok-sabha"
+},
+"11": {
+"works": "pc-11",
+"allocated": 147000000,
+"recommended": 98412625,
+"spent": 37157978,
+"worksRecommended": 328,
+"worksCompleted": 172,
+"url": "https://empoweredindian.in/mplads/mps/abu-taher-khan-murshidabad-west-bengal-18th-lok-sabha"
+},
+"12": {
+"works": "pc-12",
+"allocated": 159865046,
+"recommended": 111302619,
+"spent": 57382120,
+"worksRecommended": 55,
+"worksCompleted": 23,
+"url": "https://empoweredindian.in/mplads/mps/ms-mahua-moitra-krishnanagar-west-bengal-18th-lok-sabha"
+},
+"13": {
+"works": "pc-13",
+"allocated": 147000000,
+"recommended": 112612025,
+"spent": 41712525,
+"worksRecommended": 219,
+"worksCompleted": 70,
+"url": "https://empoweredindian.in/mplads/mps/jagannath-sarkar-ranaghat-west-bengal-18th-lok-sabha"
+},
+"14": {
+"works": "pc-14",
+"allocated": 147000000,
+"recommended": 105418836,
+"spent": 5993836,
+"worksRecommended": 58,
+"worksCompleted": 8,
+"url": "https://empoweredindian.in/mplads/mps/shri-shantanu-thakur-bangaon-west-bengal-18th-lok-sabha"
+},
+"15": {
+"works": "pc-15",
+"allocated": 147000000,
+"recommended": 141285236,
+"spent": 31114929,
+"worksRecommended": 32,
+"worksCompleted": 4,
+"url": "https://empoweredindian.in/mplads/mps/partha-bhowmick-barrackpur-west-bengal-18th-lok-sabha"
+},
+"16": {
+"works": "pc-16",
+"allocated": 147000000,
+"recommended": 57354419,
+"spent": 14046615,
+"worksRecommended": 52,
+"worksCompleted": 13,
+"url": "https://empoweredindian.in/mplads/mps/prof-sougata-ray-dum-dum-west-bengal-18th-lok-sabha"
+},
+"17": {
+"works": "pc-17",
+"allocated": 147000000,
+"recommended": 117928163,
+"spent": 61929956,
+"worksRecommended": 181,
+"worksCompleted": 77,
+"url": "https://empoweredindian.in/mplads/mps/kakoli-ghosh-dastidar-barasat-west-bengal-18th-lok-sabha"
+},
+"19": {
+"works": "pc-19",
+"allocated": 147000000,
+"recommended": 97852478,
+"spent": 74379705,
+"worksRecommended": 223,
+"worksCompleted": 170,
+"url": "https://empoweredindian.in/mplads/mps/pratima-mondal-joynagar-west-bengal-18th-lok-sabha"
+},
+"20": {
+"works": "pc-20",
+"allocated": 147000000,
+"recommended": 82108066,
+"spent": 39420540,
+"worksRecommended": 169,
+"worksCompleted": 89,
+"url": "https://empoweredindian.in/mplads/mps/bapi-haldar-mathurapur-west-bengal-18th-lok-sabha"
+},
+"21": {
+"works": "pc-21",
+"allocated": 147000000,
+"recommended": 95717514,
+"spent": 71510891,
+"worksRecommended": 320,
+"worksCompleted": 200,
+"url": "https://empoweredindian.in/mplads/mps/shri-abhishek-banerjee-diamond-harbour-west-bengal-18th-lok-sabha"
+},
+"22": {
+"works": "pc-22",
+"allocated": 147000000,
+"recommended": 85269420,
+"spent": 49785004,
+"worksRecommended": 214,
+"worksCompleted": 115,
+"url": "https://empoweredindian.in/mplads/mps/sayani-ghosh-jadavpur-west-bengal-18th-lok-sabha"
+},
+"23": {
+"works": "pc-23",
+"allocated": 147000000,
+"recommended": 96138946,
+"spent": 61582788,
+"worksRecommended": 75,
+"worksCompleted": 32,
+"url": "https://empoweredindian.in/mplads/mps/mala-roy-kolkata-dakshin-west-bengal-18th-lok-sabha"
+},
+"24": {
+"works": "pc-24",
+"allocated": 147000000,
+"recommended": 79627830,
+"spent": 46311063,
+"worksRecommended": 37,
+"worksCompleted": 9,
+"url": "https://empoweredindian.in/mplads/mps/sudip-bandyopadhyay-kolkata-uttar-west-bengal-18th-lok-sabha"
+},
+"25": {
+"works": "pc-25",
+"allocated": 147000000,
+"recommended": 103186031,
+"spent": 70699743,
+"worksRecommended": 227,
+"worksCompleted": 136,
+"url": "https://empoweredindian.in/mplads/mps/prasun-banerjee-howrah-west-bengal-18th-lok-sabha"
+},
+"26": {
+"works": "pc-26",
+"allocated": 147000000,
+"recommended": 94947352,
+"spent": 47622814,
+"worksRecommended": 174,
+"worksCompleted": 92,
+"url": "https://empoweredindian.in/mplads/mps/smt-sajda-ahmed-uluberia-west-bengal-18th-lok-sabha"
+},
+"27": {
+"works": "pc-27",
+"allocated": 147000000,
+"recommended": 95384010,
+"spent": 76719145,
+"worksRecommended": 119,
+"worksCompleted": 84,
+"url": "https://empoweredindian.in/mplads/mps/kalyan-banerjee-sreerampur-west-bengal-18th-lok-sabha"
+},
+"28": {
+"works": "pc-28",
+"allocated": 147000000,
+"recommended": 97541824,
+"spent": 34234471,
+"worksRecommended": 101,
+"worksCompleted": 36,
+"url": "https://empoweredindian.in/mplads/mps/rachna-banerjee-hooghly-west-bengal-18th-lok-sabha"
+},
+"29": {
+"works": "pc-29",
+"allocated": 147000000,
+"recommended": 108701505,
+"spent": 53162451,
+"worksRecommended": 186,
+"worksCompleted": 90,
+"url": "https://empoweredindian.in/mplads/mps/bag-mitali-arambag-west-bengal-18th-lok-sabha"
+},
+"30": {
+"works": "pc-30",
+"allocated": 147000000,
+"recommended": 94805282,
+"spent": 41397395,
+"worksRecommended": 265,
+"worksCompleted": 74,
+"url": "https://empoweredindian.in/mplads/mps/abhijit-gangopadhyay-tamluk-west-bengal-18th-lok-sabha"
+},
+"31": {
+"works": "pc-31",
+"allocated": 147000000,
+"recommended": 95934382,
+"spent": 38304241,
+"worksRecommended": 70,
+"worksCompleted": 29,
+"url": "https://empoweredindian.in/mplads/mps/adhikari-soumendu-kanthi-west-bengal-18th-lok-sabha"
+},
+"32": {
+"works": "pc-32",
+"allocated": 200747364,
+"recommended": 191294685,
+"spent": 87788715,
+"worksRecommended": 205,
+"worksCompleted": 165,
+"url": "https://empoweredindian.in/mplads/mps/shri-deepak-dev-adhikari-ghatal-west-bengal-18th-lok-sabha"
+},
+"33": {
+"works": "pc-33",
+"allocated": 147000000,
+"recommended": 113497279,
+"spent": 71784126,
+"worksRecommended": 63,
+"worksCompleted": 40,
+"url": "https://empoweredindian.in/mplads/mps/kalipada-saren-jhargram-west-bengal-18th-lok-sabha"
+},
+"34": {
+"works": "pc-34",
+"allocated": 147000000,
+"recommended": 96497530,
+"spent": 36949288,
+"worksRecommended": 31,
+"worksCompleted": 7,
+"url": "https://empoweredindian.in/mplads/mps/june-maliah-medinipur-west-bengal-18th-lok-sabha"
+},
+"35": {
+"works": "pc-35",
+"allocated": 147000000,
+"recommended": 71300960,
+"spent": 11711831,
+"worksRecommended": 107,
+"worksCompleted": 15,
+"url": "https://empoweredindian.in/mplads/mps/shri-jyotirmay-singh-mahato-purulia-west-bengal-18th-lok-sabha"
+},
+"36": {
+"works": "pc-36",
+"allocated": 147000000,
+"recommended": 94625897,
+"spent": 55795450,
+"worksRecommended": 70,
+"worksCompleted": 40,
+"url": "https://empoweredindian.in/mplads/mps/arup-chakraborty-bankura-west-bengal-18th-lok-sabha"
+},
+"37": {
+"works": "pc-37",
+"allocated": 147000000,
+"recommended": 96703695,
+"spent": 57558347,
+"worksRecommended": 82,
+"worksCompleted": 48,
+"url": "https://empoweredindian.in/mplads/mps/saumitra-khan-bishnupur-west-bengal-18th-lok-sabha"
+},
+"38": {
+"works": "pc-38",
+"allocated": 147000000,
+"recommended": 85735589,
+"spent": 21224009,
+"worksRecommended": 111,
+"worksCompleted": 17,
+"url": "https://empoweredindian.in/mplads/mps/dr-sharmila-sarkar-bardhaman-purba-west-bengal-18th-lok-sabha"
+},
+"39": {
+"works": "pc-39",
+"allocated": 179658400,
+"recommended": 90768485,
+"spent": 33156887,
+"worksRecommended": 112,
+"worksCompleted": 6,
+"url": "https://empoweredindian.in/mplads/mps/azad-kirti-jha-bardhaman-durgapur-west-bengal-18th-lok-sabha"
+},
+"40": {
+"works": "pc-40",
+"allocated": 147000000,
+"recommended": 106621025,
+"spent": 66966504,
+"worksRecommended": 36,
+"worksCompleted": 5,
+"url": "https://empoweredindian.in/mplads/mps/shatrughan-sinha-asansol-west-bengal-18th-lok-sabha"
+},
+"41": {
+"works": "pc-41",
+"allocated": 275694457,
+"recommended": 243441384,
+"spent": 167656043,
+"worksRecommended": 202,
+"worksCompleted": 134,
+"url": "https://empoweredindian.in/mplads/mps/asit-kumar-mal-bolpur-west-bengal-18th-lok-sabha"
+},
+"42": {
+"works": "pc-42",
+"allocated": 147000000,
+"recommended": 72013236,
+"spent": 48307380,
+"worksRecommended": 95,
+"worksCompleted": 62,
+"url": "https://empoweredindian.in/mplads/mps/smt-satabdi-roy-banerjee-birbhum-west-bengal-18th-lok-sabha"
+}
+},
+"rs": [
+{
+"name": "Dola Sen",
+"term": "2023–2029",
+"nominated": false,
+"works": "rs-dola-sen",
+"allocated": 171500000,
+"recommended": 122263190,
+"spent": 69414332,
+"worksRecommended": 27,
+"worksCompleted": 1,
+"url": "https://empoweredindian.in/mplads/mps/ms-dola-sen-2023-29-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Derek O' Brien",
+"term": "2023–2029",
+"nominated": false,
+"works": "rs-derek-o-brien",
+"allocated": 171500000,
+"recommended": 122271928,
+"spent": 70787264,
+"worksRecommended": 35,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/shri-derek-o-brien-2023-29-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Harsh Vardhan Shringla",
+"term": "2025–2031",
+"nominated": true,
+"works": "rs-harsh-vardhan-shringla",
+"allocated": 73500000,
+"recommended": 9510271,
+"spent": 0,
+"worksRecommended": 6,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/shri-harsh-vardhan-shringla-2025-31-nominated-west-bengal-rajya-sabha"
+},
+{
+"name": "Mohammed Nadimul Haque",
+"term": "2024–2030",
+"nominated": false,
+"works": "rs-mohammed-nadimul-haque",
+"allocated": 147000000,
+"recommended": 96799500,
+"spent": 45077861,
+"worksRecommended": 19,
+"worksCompleted": 1,
+"url": "https://empoweredindian.in/mplads/mps/shri-mohammed-nadimul-haque-2024-30-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Nagendra Ray",
+"term": "2023–2029",
+"nominated": false,
+"works": "rs-nagendra-ray",
+"allocated": 171500000,
+"recommended": 122435035,
+"spent": 91735859,
+"worksRecommended": 22,
+"worksCompleted": 2,
+"url": "https://empoweredindian.in/mplads/mps/shri-nagendra-ray-2023-29-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Prakash Chik Baraik",
+"term": "2026–2029",
+"nominated": false,
+"works": "rs-prakash-chik-baraik",
+"allocated": 49662892,
+"recommended": 0,
+"spent": 0,
+"worksRecommended": 0,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/shri-prakash-chik-baraik-2026-29-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Rajeev Kumar",
+"term": "2026–2032",
+"nominated": false,
+"works": "rs-rajeev-kumar",
+"allocated": 49000000,
+"recommended": 0,
+"spent": 0,
+"worksRecommended": 0,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/shri-rajeev-kumar-2026-32-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Samik Bhattacharya",
+"term": "2024–2030",
+"nominated": false,
+"works": "rs-samik-bhattacharya",
+"allocated": 147000000,
+"recommended": 68212785,
+"spent": 28774223,
+"worksRecommended": 51,
+"worksCompleted": 10,
+"url": "https://empoweredindian.in/mplads/mps/shri-samik-bhattacharya-2024-30-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Samirul Islam",
+"term": "2023–2029",
+"nominated": false,
+"works": "rs-samirul-islam",
+"allocated": 171500000,
+"recommended": 121458527,
+"spent": 71238651,
+"worksRecommended": 57,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/shri-samirul-islam-2023-29-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Mamata Thakur",
+"term": "2024–2030",
+"nominated": false,
+"works": "rs-mamata-thakur",
+"allocated": 147000000,
+"recommended": 54745853,
+"spent": 44446422,
+"worksRecommended": 60,
+"worksCompleted": 51,
+"url": "https://empoweredindian.in/mplads/mps/smt-mamata-thakur-2024-30-sitting-west-bengal-rajya-sabha"
+},
+{
+"name": "Sagarika Ghose",
+"term": "2024–2030",
+"nominated": false,
+"works": "rs-sagarika-ghose",
+"allocated": 147000000,
+"recommended": 97500000,
+"spent": 47289873,
+"worksRecommended": 13,
+"worksCompleted": 0,
+"url": "https://empoweredindian.in/mplads/mps/smt-sagarika-ghose-2024-30-sitting-west-bengal-rajya-sabha"
+}
+]
+}

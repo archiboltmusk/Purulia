@@ -366,6 +366,8 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
+  // Statewide leaders load only when someone opens the representatives section.
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(renderWbRepList); });
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
   initPlacePicker();
@@ -1345,10 +1347,11 @@ async function areasAt(lat, lng){
 }
 
 async function leadersAt(lat, lng){
-  [wbLeaders, wbAssembly] = await Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson')]);
+  await loadWbReps();
   if (!wbLeaders || !wbAssembly) return null;
   const f = wbAssembly.features.find(f => inBbox(f.bbox, [lng, lat]) && pointInPolygon([lng, lat], f.geometry));
-  return f ? { ac: wbLeaders.ac[f.properties.ac], pc: wbLeaders.pc[f.properties.pc] } : null;
+  const { ac, pc } = f?.properties || {};
+  return f ? { ac: wbLeaders.ac[ac], pc: wbLeaders.pc[pc], acNo: ac, pcNo: pc } : null;
 }
 
 // MLAs of a district by party, e.g. "BJP 7 · AITC 2".
@@ -1427,9 +1430,10 @@ function renderAreaCard(){
     </div>
     <div class="k-area-leaders">
       ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
-      ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), esc(L.ac.person), L.ac.party) : ''}
+      ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
+                    [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
-                            : row(t('ar_mp', { c: L.pc.name }), esc(L.pc.person), t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
+                            : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
       ${!rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
       ${a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
                                : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
@@ -4143,6 +4147,127 @@ function allReps(){
   return out.filter(r => r.name).sort((a, b) => (a.group === b.group && a.group === 'mla') ? (b.town - a.town) : 0);
 }
 
+/* Every MLA, MP and minister in West Bengal, for the leader profile and the statewide list.
+   Seats and names: places/wb_leaders.json; ministers and departments: places/wb_ministers.json;
+   MP fund (MPLADS) summary and works: places/wb_mplads.json + places/mplads/<id>.json
+   (tools/build-wb-reps.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
+   so every link to a Purulia leader opens the same profile. */
+let wbMplads = null, wbMinisters = null, wbRepsLoading = null;
+function loadWbReps(){
+  wbRepsLoading ||= Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson'),
+    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json')]).then(([l, a, m, mi]) => {
+    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi;
+    if (!l || !a) wbRepsLoading = null;
+  });
+  return wbRepsLoading;
+}
+const acFeatures = n => (wbAssembly?.features || []).filter(f => f.properties.ac === n);
+const pcFeatures = n => (wbAssembly?.features || []).filter(f => f.properties.pc === n);
+const inSeat = fs => r => Number.isFinite(r.lat) && fs.some(f => inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
+function acKey(n){ return (CITY.constituencies || []).some(c => c.no === +n) ? 'mla:' + n : 'ac:' + n; }
+function pcKey(n){
+  const name = wbLeaders?.pc[n]?.name, ls = Object.keys(CITY.lokSabha || {}).find(s => s.toLowerCase() === String(name).toLowerCase());
+  return ls ? 'mp:' + ls : 'pc:' + n;
+}
+function pcOfLs(ls){ return Object.keys(wbLeaders?.pc || {}).find(n => wbLeaders.pc[n].name.toLowerCase() === ls.toLowerCase()); }
+function ministerOf(ac){ return (wbMinisters?.ministers || []).find(m => m.ac === +ac); }
+
+function wbReps(){
+  if (!wbLeaders) return [];
+  const out = [], src = u => ({ url: u, name: 'Wikipedia' });
+  Object.entries(wbLeaders.ac).forEach(([n, v]) => {
+    const f = acFeatures(+n)[0], pc = f?.properties.pc;
+    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc,
+      place: t('rep_place_ac', { s: v.name, n }), source: src(wbLeaders.sources.mla), covers: inSeat(acFeatures(+n)) });
+  });
+  Object.entries(wbLeaders.pc).forEach(([n, v]) => {
+    if (v.vacant) return;
+    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n,
+      place: t('rep_place_ls', { s: v.name }), source: src(wbLeaders.sources.mp), covers: inSeat(pcFeatures(+n)) });
+  });
+  (wbMplads?.rs || []).forEach((v, i) => out.push({ key: 'rs:' + i, group: 'rs', name: v.name, initials: initialsOf(v.name),
+    place: t(v.nominated ? 'rep_rs_nom' : 'rep_rs_place', { t: v.term || '' }), mplads: v, source: { url: wbMplads.source, name: 'Empowered Indian' } }));
+  (wbMinisters?.ministers || []).forEach((m, i) => { if (!m.ac) out.push({ key: 'min:' + i, group: 'min', name: m.name, initials: initialsOf(m.name),
+    party: 'BJP', place: t('rep_rank_' + m.rank), minister: m }); });
+  return out;
+}
+
+// A leader by key: Purulia's from city.js, the rest from the statewide files, each with its
+// seat numbers, minister's departments and MP fund figures attached.
+function findRep(key){
+  const local = allReps();
+  let rep = local.find(r => r.key === key) || local.find(r => r.key === { mla: 'mla:' + (CITY.constituencies || []).find(c => c.town)?.no, mp: 'mp:' + CITY.name, chairman: 'chair:' + CITY.name }[key]);
+  if (!rep && /^(ac|pc):/.test(key)){ const [k, n] = key.split(':'); const alias = k === 'ac' ? acKey(n) : pcKey(n); if (alias !== key) rep = local.find(r => r.key === alias); }
+  rep ||= wbReps().find(r => r.key === key);
+  if (!rep) return null;
+  rep = { ...rep };
+  if (rep.group === 'mla'){ rep.ac ??= rep.seat?.no; rep.pc ??= acFeatures(rep.ac)[0]?.properties.pc; }
+  if (rep.group === 'mp') rep.pc ??= +pcOfLs(rep.key.slice(3));
+  if (rep.ac) rep.minister ||= ministerOf(rep.ac);
+  if (rep.group === 'mp' && wbMplads?.pc[rep.pc]) rep.mplads = { ...wbMplads.pc[rep.pc], asOf: wbMplads.checked };
+  if (rep.group === 'rs' && rep.mplads) rep.mplads = { ...rep.mplads, asOf: wbMplads.checked };
+  return rep;
+}
+
+// Seat outline on the map: close the profile, draw the seat and fit to it.
+function showSeatOnMap(kind, n){
+  const fs = kind === 'ac' ? acFeatures(+n) : pcFeatures(+n);
+  if (!fs.length || !mainMap) return;
+  closeModal('k-rep-modal'); closeArea();
+  const data = { type: 'FeatureCollection', features: fs };
+  if (!mainMap.getSource('area-sel')){
+    mainMap.addSource('area-sel', { type: 'geojson', data });
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+  } else mainMap.getSource('area-sel').setData(data);
+  const b = fs.map(f => f.bbox);
+  userMovedMap = true;
+  document.getElementById('k-map')?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  mainMap.fitBounds([[Math.min(...b.map(x => x[0])), Math.min(...b.map(x => x[1]))], [Math.max(...b.map(x => x[2])), Math.max(...b.map(x => x[3]))]],
+    { padding: 40, duration: 900, essential: true });
+}
+
+// The MP's works, as recommended and finished on the MPLADS portal.
+function renderRepWorks(rep){
+  const el = document.getElementById('k-rep-works');
+  if (!el || !rep.mplads?.works) return;
+  getJson(`places/mplads/${encodeURIComponent(rep.mplads.works)}.json`).then(w => {
+    if (!w || el.dataset.key !== rep.key) return;
+    const inr = n => '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
+    const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const item = (x, done) => `<div class="k-rep-work"><span>${esc(x.w)}</span><small>${esc([inr(x.rs), day(x.on), x.at,
+      !done && x.paid ? t('rep_paid', { r: inr(x.paid) }) : ''].filter(Boolean).join(' · '))}</small></div>`;
+    const list = (title, xs, done) => `<div class="k-rep-worst-title">${esc(title)} (${xs.length})</div>
+      ${xs.length ? xs.slice(0, 4).map(x => item(x, done)).join('') : `<div class="k-rep-worst-item">${esc(t('rep_works_none'))}</div>`}
+      ${xs.length > 4 ? `<details class="k-rep-works-more"><summary>${esc(t('rep_works_all', { n: xs.length }))}</summary>${xs.slice(4).map(x => item(x, done)).join('')}</details>` : ''}`;
+    el.innerHTML = list(t('rep_works_done'), w.completed, true) + list(t('rep_works_rec'), w.recommended, false);
+  });
+}
+
+// Statewide list under the Purulia leaders: search, then ministers, MPs and MLAs by group.
+function renderWbRepList(){
+  const box = document.getElementById('k-wb-reps');
+  if (!box || !wbLeaders) return;
+  const reps = wbReps().map(r => r.group === 'mla' ? { ...r, key: acKey(r.ac), minister: ministerOf(r.ac) } : r.group === 'mp' ? { ...r, key: pcKey(r.pc) } : r);
+  const mins = (wbMinisters?.ministers || []).map((m, i) => m.ac ? reps.find(r => r.ac === m.ac) : reps.find(r => r.key === 'min:' + i)).filter(Boolean);
+  const row = r => `<button type="button" class="k-wb-rep" data-profile="${esc(r.key)}" data-q="${esc([r.name, r.place, r.party, ...(r.minister?.portfolios || [])].join(' ').toLowerCase())}">
+    <span class="k-wb-rep-name">${esc(r.name)}</span><span class="k-wb-rep-sub">${esc([r.minister ? t('rep_rank_' + r.minister.rank) + (r.group === 'mla' ? ' · ' + r.place : '') : r.place, r.party].filter(Boolean).join(' · '))}</span></button>`;
+  const group = (id, list) => list.length ? `<details class="k-wb-group"><summary>${esc(t(id, { n: list.length }))}</summary>${list.map(row).join('')}</details>` : '';
+  box.innerHTML = `<div class="k-auth-group">${esc(t('rep_g_state'))}</div>
+    <input type="search" class="k-wb-search" id="k-wb-search" placeholder="${esc(t('rep_search'))}" aria-label="${esc(t('rep_search'))}">
+    ${group('rep_g_min', mins)}${group('rep_g_ls', reps.filter(r => r.group === 'mp'))}${group('rep_g_rs', reps.filter(r => r.group === 'rs'))}${group('rep_g_mla_all', reps.filter(r => r.group === 'mla'))}
+    <p class="k-rep-src">${esc(t('rep_state_src'))} <a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> ·
+      <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>${wbMinisters ? ` · <a href="${esc(wbMinisters.source)}" target="_blank" rel="noopener">${esc(t('rep_src_min'))}</a>` : ''}${wbMplads ? ` · <a href="${esc(wbMplads.source)}" target="_blank" rel="noopener">MPLADS (Empowered Indian)</a>` : ''}</p>`;
+  box.querySelector('#k-wb-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    box.querySelectorAll('.k-wb-group').forEach(g => {
+      let any = false;
+      g.querySelectorAll('.k-wb-rep').forEach(b => { const hit = !q || b.dataset.q.includes(q); b.hidden = !hit; any ||= hit; });
+      g.hidden = !any; g.open = !!q && any;
+    });
+  });
+}
+
 function renderReps(){
   const reps = allReps();
   document.getElementById('k-auth-grid').innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
@@ -4159,7 +4284,9 @@ function renderReps(){
         </div>
         <button type="button" class="k-auth-action" data-profile="${esc(rep.key)}">${esc(t('auth_view'))}</button>
       </div>`).join('');
-  }).join('');
+  }).join('') + '<div id="k-wb-reps"></div>';
+  if (wbLeaders) renderWbRepList();
+  else if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(renderWbRepList);
 }
 
 // Promises, demands and news from promises.html / noticeboard.html, loaded once when a sheet opens.
@@ -4203,9 +4330,9 @@ function renderRepUpdates(rep, u){
       ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
 }
 
-function openRepProfile(key){
-  const reps = allReps();
-  const rep = reps.find(r => r.key === key) || reps.find(r => r.key === { mla: 'mla:' + (CITY.constituencies || []).find(c => c.town)?.no, mp: 'mp:' + CITY.name, chairman: 'chair:' + CITY.name }[key]);
+async function openRepProfile(key){
+  await loadWbReps();
+  const rep = findRep(key);
   if (!rep) return;
   const all = rep.covers ? primaries().filter(rep.covers) : [];
   const open = all.filter(r => r.status !== 'resolved');
@@ -4223,7 +4350,12 @@ function openRepProfile(key){
   const worst = [...byPlace.values()].sort((a, b) => b.n - a.n).slice(0, 5);
   const inr = n => '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
   const m = rep.mplads;
-  const areaLine = rep.seats ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${rep.seats.map(c =>
+  const wbSeats = !rep.seats && rep.group === 'mp' && rep.pc ? Object.keys(wbLeaders?.ac || {}).filter(n => acFeatures(+n)[0]?.properties.pc === rep.pc) : [];
+  const pcName = rep.pc && wbLeaders?.pc[rep.pc]?.name;
+  const areaLine = wbSeats.length ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${wbSeats.map(n =>
+      `<button type="button" class="k-rep-seat" data-profile="${esc(acKey(n))}">${esc(wbLeaders.ac[n].name)} · ${esc(wbLeaders.ac[n].person)}</button>`).join('')}</div>`
+    : !rep.seat && rep.group === 'mla' && pcName ? `<p class="k-rep-area"><button type="button" class="k-rep-seat" data-profile="${esc(pcKey(rep.pc))}">${esc(t('rep_in_ls', { s: pcName }))}</button></p>`
+    : rep.seats ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${rep.seats.map(c =>
       `<button type="button" class="k-rep-seat" data-profile="mla:${c.no}">${esc(c.name)} · ${esc(c.mla?.name || '—')}</button>`).join('')}</div>`
     : rep.seat ? `<p class="k-rep-area">${esc(t('rep_covers', { b: [rep.seat.town && t('rep_town'), ...(rep.seat.blocks || [])].filter(Boolean).join(', ') }))}
         ${rep.seat.lokSabha ? `<button type="button" class="k-rep-seat" data-profile="mp:${esc(rep.seat.lokSabha)}">${esc(t('rep_in_ls', { s: rep.seat.lokSabha }))}</button>` : ''}</p>` : '';
@@ -4238,7 +4370,11 @@ function openRepProfile(key){
       ${repAvatar(rep, 'k-rep-avatar')}
       <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc([t('rep_t_' + rep.group) + ' · ' + rep.place, rep.party].filter(Boolean).join(' · '))}</div></div>
     </div>
+    ${rep.minister ? `<div class="k-rep-worst-title">${esc(t('rep_rank_' + rep.minister.rank))} · ${esc(t('rep_depts'))}</div>
+    <ul class="k-rep-depts">${rep.minister.portfolios.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
     ${areaLine}
+    ${rep.ac || rep.pc ? `<div class="k-rep-links"><a href="#" data-rep-map="${rep.group === 'mla' ? 'ac:' + rep.ac : 'pc:' + rep.pc}">${esc(t('rep_map'))} →</a>
+      <a href="#" data-rep-share="${esc(rep.key)}">${esc(t('rep_share'))} →</a></div>` : ''}
     ${rep.covers ? `
     <div class="k-rep-stats">
       <div class="k-rep-stat"><div class="k-rep-stat-n">${open.length}</div><div class="k-rep-stat-l">${esc(t('rep_open'))}</div></div>
@@ -4256,13 +4392,16 @@ function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${m.worksCompleted}/${m.worksRecommended}</div><div class="k-rep-stat-l">${esc(t('rep_mp_works'))}</div></div>
     </div>
     <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
-      <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>` : ''}
+      <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
+    ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
     <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
     <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
     <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
+    ${rep.minister ? `<p class="k-rep-src">${esc(t('rep_src_min'))} <a href="${esc(wbMinisters.source)}" target="_blank" rel="noopener nofollow">Wikipedia ↗</a></p>` : ''}
     ${rep.source?.url ? `<p class="k-rep-src">${esc(t('rep_source'))} <a href="${esc(safeUrl(rep.source.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(rep.source.name || rep.source.url)} ↗</a></p>` : ''}`;
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
+  renderRepWorks(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
     const el = document.getElementById('k-rep-updates');
     if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}
@@ -4297,6 +4436,8 @@ function openDeepLink(){
     return;
   }
   if (id && state.byId.has(id)) return openSheet(id);
+  // kasa.html?rep=ac:12 — a leader's profile, as shared from it.
+  if (/^(ac|pc|rs|min|mla|mp|chair):[\w .-]+$|^zp$/.test(q.get('rep') || '')) return openRepProfile(q.get('rep'));
   const at = (q.get('at') || '').split(',').map(Number);
   if (at.length === 2 && at.every(Number.isFinite)){
     mapReady.then(() => mainMap.flyTo({ center: [at[1], at[0]], zoom: 17, duration: 1200 }));
@@ -4561,7 +4702,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -4609,6 +4750,13 @@ function wireUI(){
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
     if (d.profile) return openRepProfile(d.profile);
+    if (d.repMap){ e.preventDefault(); const [k, n] = d.repMap.split(':'); return showSeatOnMap(k, n); }
+    if (d.repShare){
+      e.preventDefault();
+      const url = `${location.origin}${location.pathname}?rep=${encodeURIComponent(d.repShare)}`, name = document.querySelector('#k-rep-content .k-rep-name')?.textContent || '';
+      const text = t('rep_share_text', { n: name });
+      return navigator.share ? navigator.share({ title: 'Parishkar', text, url }).catch(() => {}) : copyText(`${text} ${url}`);
+    }
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }
     if (d.waste){ setWasteType(draft?.wasteType === d.waste ? null : d.waste); return; }
