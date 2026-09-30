@@ -75,12 +75,13 @@
   patch();
 
   // ── Find which string a tapped element shows ──────────────────────────
-  // Text as the page shows it: markup and [[n|link]] wrappers dropped (parsed inertly, never inserted).
-  const parser = new DOMParser();
+  // Compare text only (never inserted as HTML): dictionary values lose markup and [[n|link]]
+  // wrappers; text read from the page just has its spaces collapsed.
+  const squash = (s) => String(s).replace(/\s+/g, ' ').trim();
   const plain = (s) => {
     s = String(s).replace(/\[\[\d+\|([^\]]*)\]\]/g, '$1');
-    if (/[<&]/.test(s)) s = parser.parseFromString(s, 'text/html').body.textContent || '';
-    return s.replace(/\s+/g, ' ').trim();
+    for (let prev; prev !== s;) { prev = s; s = s.replace(/<[^<>]*>/g, ''); }
+    return squash(s.replace(/[<>]/g, '').replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&'));
   };
   function build() {
     const exact = new Map(), pats = [];
@@ -97,7 +98,7 @@
   }
   function lookup(text) {
     const ix = index || build();
-    const p = plain(text);
+    const p = squash(text);
     if (!p || p.length > 2000) return null;
     return ix.exact.get(p) || ix.pats.find((x) => x.re.test(p)) || null;
   }
