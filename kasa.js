@@ -199,7 +199,7 @@ const state = {
   blockGeo: null,
   townGeo: null,
   gpGeo: null,
-  filters: { category: '', status: '', severity: '', ward: null },
+  filters: { category: '', status: '', severity: '', ward: null, place: null },
   nearbyOnly: false,
   userLocation: null,
   view: 'map',
@@ -212,6 +212,7 @@ const state = {
   ratings: {},
   replies: new Map(),
   selectedWard: null,
+  selectedPlace: null,
   chainTab: 'sanitation'
 };
 let sb = null;
@@ -333,7 +334,7 @@ async function init(){
   if (window.KasaPlaces){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => {
-      if (what === 'geo') mapReady.then(() => addPlaceLayers(slug));
+      if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
       // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
       if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
     });
@@ -966,7 +967,7 @@ function filtered(){
     (!f.category || r.category === f.category) &&
     (!f.status || r.status === f.status) &&
     (!f.severity || r.severity === f.severity) &&
-    (!f.ward || r.ward === f.ward) &&
+    (!f.ward || (f.place ? r.place === f.place && r.placeWard === f.ward : r.ward === f.ward)) &&
     (!state.nearbyOnly || (state.userLocation && distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) <= 5000)));
 }
 
@@ -989,11 +990,13 @@ function slaCountdown(r){
   return { over, text: t(over ? 'sla_overdue_by' : 'sla_due_in', { t: value }) };
 }
 
-function wardStats(){
+/* Per-ward counts: Purulia's wards, or with a slug that town's wards (places.js). */
+function wardStats(place){
   const stats = {};
   for (const r of primaries()){
-    if (!r.ward) continue;
-    const s = stats[r.ward] ||= { ward: r.ward, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0, fixDaysSum: 0, fixDaysCount: 0 };
+    const w = place ? (r.place === place ? r.placeWard : null) : r.ward;
+    if (!w) continue;
+    const s = stats[w] ||= { ward: w, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0, fixDaysSum: 0, fixDaysCount: 0 };
     if (r.status === 'resolved') s.resolved++;
     else { s.open++; if (r.status === 'claimed') s.claimed++; }
     if (isOverdue(r)) s.overdue++;
@@ -1226,6 +1229,15 @@ function addPlaceLayers(slug){
     attribution: /^https:\/\//i.test(p.source || '') && !p.community
       ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.name)} wards: ${esc(p.sourceName)}</a> (${esc(p.licence)})`
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
+  // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
+  mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
+    paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
+    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
+  mainMap.on('click', 'place-' + slug + '-fill', e => {
+    if (e.defaultPrevented) return;
+    selectWard(Number(e.features[0].properties.ward), slug);
+  });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
     paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
@@ -1418,7 +1430,8 @@ function shareArea(){
 // Any tap on the map that isn't a report, cluster or mapped ward opens the area card.
 function onAreaTap(e){
   if (e.defaultPrevented) return;
-  const hit = ['report-points', 'clusters', 'wards-fill'].filter(id => mainMap.getLayer(id));
+  const hit = ['report-points', 'clusters', 'wards-fill', ...Object.keys(window.KasaPlaces?.geo || {}).map(s => 'place-' + s + '-fill')]
+    .filter(id => mainMap.getLayer(id));
   if (hit.length && mainMap.queryRenderedFeatures(e.point, { layers: hit }).length) return;
   if (state.area && pointInPolygon([e.lngLat.lng, e.lngLat.lat], areaFeature().geometry) && e.originalEvent?.detail < 2) return closeArea();
   openArea(e.lngLat.lat, e.lngLat.lng);
@@ -1433,11 +1446,18 @@ function brandName(r){
 function updateMap(){
   if (!mainMap || !mainMap.getSource('reports')) return;
   mainMap.getSource('reports').setData(reportGeoJSON());
-  if (mainMap.getLayer('wards-selected')) mainMap.setFilter('wards-selected', ['==', ['get', 'ward'], state.selectedWard ?? -1]);
+  const sel = p => ['==', ['get', 'ward'], (state.selectedPlace || null) === p ? state.selectedWard ?? -1 : -1];
+  if (mainMap.getLayer('wards-selected')) mainMap.setFilter('wards-selected', sel(null));
+  for (const slug of Object.keys(window.KasaPlaces?.geo || {})){
+    if (mainMap.getLayer('place-' + slug + '-selected')) mainMap.setFilter('place-' + slug + '-selected', sel(slug));
+  }
 }
 
-function selectWard(n){
-  state.selectedWard = state.selectedWard === n ? null : n;
+/* A ward of Purulia, or with a slug a ward of another town (Kolkata). Tapping it again closes it. */
+function selectWard(n, place = null){
+  const same = state.selectedWard === n && (state.selectedPlace || null) === place;
+  state.selectedWard = same ? null : n;
+  state.selectedPlace = same ? null : place;
   if (state.selectedWard != null) closeArea();
   renderWardCard();
   updateMap();
@@ -1447,9 +1467,10 @@ function renderWardCard(){
   const el = document.getElementById('k-ward-card');
   const n = state.selectedWard;
   if (!n){ el.hidden = true; return; }
+  if (state.selectedPlace) return renderPlaceWardCard(el, n, state.selectedPlace);
   const s = wardStats()[n] || { open: 0, resolved: 0, fake: 0, avgFixDays: null };
   const w = state.wards[n] || {};
-  const filteredToWard = state.filters.ward === n;
+  const filteredToWard = state.filters.ward === n && !state.filters.place;
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-ward-title">${esc(t('acc_ward', { n }))}</div>
@@ -1471,6 +1492,53 @@ function renderWardCard(){
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
+  el.hidden = false;
+}
+
+/* A town's ward councillors (places.js `councillors`), fetched once. */
+const placeCouncillors = {};
+function councillorsOf(slug){
+  const p = window.KasaPlaces?.bySlug(slug);
+  if (!p?.councillors) return null;
+  if (!(slug in placeCouncillors)){
+    placeCouncillors[slug] = null;
+    fetch(p.councillors).then(r => r.ok ? r.json() : null).then(j => {
+      placeCouncillors[slug] = j;
+      if (j && state.selectedPlace === slug) renderWardCard();
+    }).catch(() => {});
+  }
+  return placeCouncillors[slug];
+}
+function councillorOf(slug, n){
+  const c = councillorsOf(slug);
+  const w = c?.wards?.[n];
+  return w ? { ...w, src: c } : null;
+}
+
+/* Another town's ward: the same counts and filter as Purulia's, with its councillor where on record. */
+function renderPlaceWardCard(el, n, slug){
+  const p = window.KasaPlaces?.bySlug(slug) || { name: slug };
+  const c = councillorOf(slug, n);
+  const s = wardStats(slug)[n] || { open: 0, resolved: 0, fake: 0, avgFixDays: null };
+  const filteredToWard = state.filters.ward === n && state.filters.place === slug;
+  el.innerHTML = `
+    <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
+    <div class="k-ward-title">${esc(p.name)} · ${esc(t('acc_ward', { n }))}</div>
+    <div class="k-ward-sub">${c ? esc(c.councillor) + (c.party ? ' · ' + esc(c.party) : '') : esc(t('pw_councillor_unknown'))}</div>
+    ${c ? `<div class="k-ward-note">${esc(t('pw_councillor_src', { when: c.src.elected }))} <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></div>` : ''}
+    <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: s.open + s.resolved }))}</span>
+      <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
+      <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
+      ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
+    </div>
+    ${s.avgFixDays != null ? `<div class="k-ward-avg">${esc(t('wc_avg_fix', { n: s.avgFixDays }))}</div>` : ''}
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-ward-filter="${n}" data-ward-place="${esc(slug)}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
+      <button type="button" class="k-ward-filter" data-ward-share="${n}" data-ward-place="${esc(slug)}">${esc(t('wc_share'))}</button>
+    </div>
+    ${c?.borough && c.src.boroughOffices ? `<a class="k-ward-money" href="${esc(c.src.boroughOffices)}" target="_blank" rel="noopener">${esc(t('pw_borough', { b: c.borough, body: p.body || p.name }))}</a>` : ''}
+    <div class="k-ward-note">${esc(t('pw_map_note', { src: p.sourceName || p.source || '' }))}</div>`;
   el.hidden = false;
 }
 
@@ -1988,6 +2056,8 @@ function renderPlaceAccountability(r){
           <a class="k-esc-item" href="add-town.html${p?.isDistrict ? '?district=' + encodeURIComponent(p.name) : ''}"><b>${esc(t('pl_add_town'))}</b></a>`
         : `<div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
           <span class="k-node-text"><b>${esc(p.body)}</b><small>${esc(t('pl_officers_unknown'))}</small></span></div>`}
+        ${(() => { const c = r.placeWard && councillorOf(r.place, r.placeWard); return c ? `<div class="k-node k-node-elected"><span class="k-node-abbr">🗳</span>
+          <span class="k-node-text"><b>${esc(c.councillor)}</b><small>${esc(t('pw_councillor_of', { n: r.placeWard }))}${c.party ? ' · ' + esc(c.party) : ''} · <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></small></span></div>` : ''; })()}
         ${p?.incharge ? `<div class="k-node"><span class="k-node-abbr">🧹</span>
           <span class="k-node-text"><b>${esc(p.incharge)}</b><small>${esc(t('pl_incharge'))}${p.inchargeSource ? ': ' + esc(p.inchargeSource) : ''}</small></span></div>` : ''}
         ${p?.complaintUrl && /^https:\/\//i.test(p.complaintUrl) ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
@@ -2446,11 +2516,13 @@ async function shareCard(r){
 }
 
 /* A ward link opens that ward's own page (ward.html): something a councillor can share. */
-function shareWard(n){
-  const s = wardStats()[n] || { open: 0, resolved: 0 };
-  const url = new URL(`ward.html?ward=${n}`, location.href).href;
-  const text = t('ward_share_text', { n, open: s.open, fixed: s.resolved });
-  if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
+function shareWard(n, place = null){
+  const s = wardStats(place)[n] || { open: 0, resolved: 0 };
+  const p = place && window.KasaPlaces?.bySlug(place);
+  const url = new URL(p ? `kasa.html?place=${encodeURIComponent(place)}&ward=${n}` : `ward.html?ward=${n}`, location.href).href;
+  const text = p ? t('pw_share_text', { n, place: p.name, open: s.open, fixed: s.resolved })
+    : t('ward_share_text', { n, open: s.open, fixed: s.resolved });
+  if (navigator.share){ navigator.share({ title: 'Parishkar ' + (p ? p.name : 'Purulia'), text, url }).catch(() => {}); return; }
   copyText(url);
 }
 
@@ -2478,7 +2550,7 @@ function downloadCSV(scope){
   ].map(csvCell).join(','));
   // The BOM makes Excel read Bengali and Hindi text as UTF-8.
   const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const ward = scope !== 'all' && state.filters.ward ? `ward-${state.filters.ward}-` : '';
+  const ward = scope !== 'all' && state.filters.ward ? `${state.filters.place ? state.filters.place + '-' : ''}ward-${state.filters.ward}-` : '';
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.csv`;
@@ -4163,6 +4235,16 @@ function openDeepLink(){
     return;
   }
   const ward = Number(q.get('ward'));
+  // kasa.html?place=kolkata&ward=46 — that town's ward, as shared from its ward card.
+  const place = window.KasaPlaces?.fromUrl();
+  if (place?.wardsGeojson || place?.wardsMapped){
+    if (Number.isInteger(ward) && ward >= 1 && ward <= (place.wardsTotal || 500)){
+      state.filters.ward = state.selectedWard = ward;
+      state.filters.place = state.selectedPlace = place.slug;
+      renderAll(); renderWardCard();
+    }
+    return;
+  }
   if (Number.isInteger(ward) && ward >= 1 && ward <= 23){
     state.filters.ward = ward;
     state.selectedWard = ward;
@@ -4441,17 +4523,19 @@ function wireUI(){
       return;
     }
     if (d.wardFilter){
-      const n = Number(d.wardFilter);
-      state.filters.ward = state.filters.ward === n ? null : n;
-      document.getElementById('k-search-ward').value = state.filters.ward || '';
+      const n = Number(d.wardFilter), place = d.wardPlace || null;
+      const on = state.filters.ward === n && (state.filters.place || null) === place;
+      state.filters.ward = on ? null : n;
+      state.filters.place = on ? null : place;
+      document.getElementById('k-search-ward').value = place ? '' : state.filters.ward || '';
       return renderAll();
     }
-    if (d.wardShare) return shareWard(Number(d.wardShare));
+    if (d.wardShare) return shareWard(Number(d.wardShare), d.wardPlace || null);
     if ('areaClose' in d) return closeArea();
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
-    if ('wardClose' in d){ state.selectedWard = null; renderWardCard(); return updateMap(); }
+    if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
@@ -4536,6 +4620,7 @@ function wireUI(){
   document.getElementById('k-search-ward').addEventListener('input', e => {
     const n = parseInt(e.target.value, 10);
     state.filters.ward = n >= 1 && n <= 23 ? n : null;
+    state.filters.place = null;
     renderAll();
   });
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });

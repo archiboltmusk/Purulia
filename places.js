@@ -33,6 +33,8 @@ window.KASA_PLACES = [
       { kind: 'office', tel: '+913322861000', show: '033 2286 1000' }
     ],
     wardsGeojson: 'places/kolkata_wards.geojson',
+    // Ward councillors elected December 2021, borough per ward (tools: none; from Wikipedia's ward results table).
+    councillors: 'places/kolkata_councillors.json',
     // 141 of KMC's 144 wards: 142–144 (Joka, added in 2015) are not in the open map.
     wardsMapped: 141,
     wardsTotal: 144,

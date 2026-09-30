@@ -47,6 +47,26 @@ test('a spot in a Kolkata ward is placed there; one in no ward is filed under it
   expect(await page.evaluate(() => KasaPlaces.at(28.61, 77.21))).toBeNull();
 });
 
+test('tapping a Kolkata ward opens its card, like a Purulia ward; a shared ward link opens it too', async ({ page, backend }) => {
+  await page.goto('kasa.html?place=kolkata');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => KasaPlaces.load('kolkata'));
+  await expect.poll(() => page.evaluate(() => !!mainMap.getLayer('place-kolkata-fill'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.3510, 22.5646], zoom: 15 }); });
+  await page.waitForTimeout(800);
+  const box = await page.locator('#k-map').boundingBox();
+  await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
+  const card = page.locator('#k-ward-card');
+  await expect(card).toBeVisible();
+  await expect(card.locator('.k-ward-title')).toHaveText(/Kolkata · Ward 46/);
+  await expect(card.locator('.k-ward-sub')).toHaveText(/Priyanka Saha/);
+  await expect(card).toContainText('Borough VI office');
+  await card.locator('[data-ward-filter]').click();
+  expect(await page.evaluate(() => [state.filters.place, state.filters.ward])).toEqual(['kolkata', 46]);
+  await page.goto('kasa.html?place=kolkata&ward=12');
+  await expect(page.locator('#k-ward-card .k-ward-title')).toHaveText(/Kolkata · Ward 12/);
+});
+
 test('on a district with no town map the page becomes Parishkar Bankura', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.07, 23.23], zoom: 11 }); });
