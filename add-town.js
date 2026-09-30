@@ -42,7 +42,7 @@
       s_existing: 'Borders now on the map are shown dashed.',
       e_file: 'That file could not be read as GeoJSON.', e_noward: '{n} outlines have no ward number. Add a "ward" property to each.',
       e_nopoly: 'The file has no ward outlines (polygons).', e_outside: 'Some points are outside West Bengal. Check the file.',
-      e_dup: 'Ward {n} is there twice.', e_wardno: 'Type a ward number first (1 to 500).', e_points: 'A ward needs at least 3 points.',
+      e_dup: 'Ward {n} is there twice.', simplified: 'The map was very detailed, so it was simplified from {a} to {b} points. Check the outlines, then send.', e_wardno: 'Type a ward number first (1 to 500).', e_points: 'A ward needs at least 3 points.',
       e_town: 'Give the town’s name.', e_district: 'Choose the district.', e_body: 'Name the municipality or panchayat.',
       e_src_incharge: 'Say where you found who is in charge of cleaning.', e_https: 'The complaint link must start with https://',
       e_nomap: 'Upload or draw at least one ward.', e_source: 'Say where the ward map comes from.', e_send: 'Could not send. Please try again.',
@@ -73,7 +73,7 @@
       s_existing: 'এখন মানচিত্রে থাকা সীমানা ড্যাশ দিয়ে দেখানো।',
       e_file: 'ফাইলটি GeoJSON হিসেবে পড়া গেল না।', e_noward: '{n}টি সীমারেখায় ওয়ার্ড নম্বর নেই। প্রতিটিতে "ward" প্রপার্টি দিন।',
       e_nopoly: 'ফাইলে কোনো ওয়ার্ডের সীমারেখা (পলিগন) নেই।', e_outside: 'কিছু বিন্দু পশ্চিমবঙ্গের বাইরে। ফাইলটি দেখুন।',
-      e_dup: 'ওয়ার্ড {n} দুবার আছে।', e_wardno: 'আগে ওয়ার্ড নম্বর লিখুন (১ থেকে ৫০০)।', e_points: 'একটি ওয়ার্ডে অন্তত ৩টি বিন্দু লাগে।',
+      e_dup: 'ওয়ার্ড {n} দুবার আছে।', simplified: 'মানচিত্রটি খুব বিস্তারিত ছিল, তাই {a} থেকে {b} বিন্দুতে সরল করা হয়েছে। সীমারেখা দেখে পাঠান।', e_wardno: 'আগে ওয়ার্ড নম্বর লিখুন (১ থেকে ৫০০)।', e_points: 'একটি ওয়ার্ডে অন্তত ৩টি বিন্দু লাগে।',
       e_town: 'শহরের নাম দিন।', e_district: 'জেলা বেছে নিন।', e_body: 'পৌরসভা বা পঞ্চায়েতের নাম দিন।',
       e_src_incharge: 'পরিষ্কারের দায়িত্বে কে, তা কোথায় পেলেন লিখুন।', e_https: 'অভিযোগের লিংক https:// দিয়ে শুরু হতে হবে',
       e_nomap: 'অন্তত একটি ওয়ার্ড আপলোড করুন বা আঁকুন।', e_source: 'ওয়ার্ড মানচিত্র কোথা থেকে, লিখুন।', e_send: 'পাঠানো গেল না। আবার চেষ্টা করুন।',
@@ -104,7 +104,7 @@
       s_existing: 'अभी नक्शे पर मौजूद सीमाएँ डैश से दिखाई गई हैं।',
       e_file: 'यह फ़ाइल GeoJSON के रूप में पढ़ी नहीं जा सकी।', e_noward: '{n} रूपरेखाओं में वार्ड नंबर नहीं है। हर एक में "ward" प्रॉपर्टी जोड़ें।',
       e_nopoly: 'फ़ाइल में कोई वार्ड रूपरेखा (पॉलीगॉन) नहीं है।', e_outside: 'कुछ बिंदु पश्चिम बंगाल से बाहर हैं। फ़ाइल जाँचें।',
-      e_dup: 'वार्ड {n} दो बार है।', e_wardno: 'पहले वार्ड नंबर लिखें (1 से 500)।', e_points: 'एक वार्ड में कम से कम 3 बिंदु चाहिए।',
+      e_dup: 'वार्ड {n} दो बार है।', simplified: 'नक्शा बहुत विस्तृत था, इसलिए इसे {a} से {b} बिंदुओं में सरल किया गया। रूपरेखा जाँचें, फिर भेजें।', e_wardno: 'पहले वार्ड नंबर लिखें (1 से 500)।', e_points: 'एक वार्ड में कम से कम 3 बिंदु चाहिए।',
       e_town: 'शहर का नाम लिखें।', e_district: 'ज़िला चुनें।', e_body: 'नगरपालिका या पंचायत का नाम लिखें।',
       e_src_incharge: 'सफ़ाई का ज़िम्मा किसके पास है, यह कहाँ मिला, लिखें।', e_https: 'शिकायत लिंक https:// से शुरू होना चाहिए',
       e_nomap: 'कम से कम एक वार्ड अपलोड करें या बनाएँ।', e_source: 'वार्ड नक्शा कहाँ से है, लिखें।', e_send: 'भेजा नहीं जा सका। फिर कोशिश करें।',
@@ -271,15 +271,55 @@
     }
     return out;
   }
+  /* The server takes at most 60,000 points per town. Detailed files (e.g. KMC's 141 wards, ~64k points) are
+     thinned with Douglas-Peucker, raising the tolerance until they fit; rings that would collapse stay as they are. */
+  const MAX_POINTS = 50000;
+  const round6 = ([x, y]) => [Math.round(x * 1e6) / 1e6, Math.round(y * 1e6) / 1e6];
+  function thinRing(ring, tol){
+    const keep = new Uint8Array(ring.length); keep[0] = keep[ring.length - 1] = 1;
+    const stack = [[0, ring.length - 1]];
+    while (stack.length){
+      const [a, b] = stack.pop();
+      const [ax, ay] = ring[a], [bx, by] = ring[b], dx = bx - ax, dy = by - ay, len2 = dx * dx + dy * dy;
+      let far = -1, max = tol * tol;
+      for (let i = a + 1; i < b; i++){
+        const [px, py] = ring[i];
+        let u = len2 ? ((px - ax) * dx + (py - ay) * dy) / len2 : 0;
+        u = Math.max(0, Math.min(1, u));
+        const ex = px - ax - u * dx, ey = py - ay - u * dy, d2 = ex * ex + ey * ey;
+        if (d2 > max){ max = d2; far = i; }
+      }
+      if (far > 0){ keep[far] = 1; stack.push([a, far], [far, b]); }
+    }
+    const out = ring.filter((_, i) => keep[i]);
+    return out.length >= 4 ? out : ring;
+  }
+  const mapRings = (g, fn) => ({ type: g.type, coordinates: g.type === 'Polygon'
+    ? g.coordinates.map(fn) : g.coordinates.map(p => p.map(fn)) });
+  const countPoints = m => [...m.values()].reduce((s, g) => s + allPoints(g).length, 0);
+  function fitPoints(wards){
+    for (const [n, g] of wards) wards.set(n, mapRings(g, r => r.map(round6)));
+    const before = countPoints(wards);
+    if (before <= MAX_POINTS) return null;
+    let thin = wards;
+    for (let tol = 1e-6; countPoints(thin) > MAX_POINTS && tol < 0.01; tol *= 1.5){
+      thin = new Map([...wards].map(([n, g]) => [n, mapRings(g, r => thinRing(r, tol))]));
+    }
+    for (const [n, g] of thin) wards.set(n, g);
+    return { a: before, b: countPoints(wards) };
+  }
+
   $('at-file').addEventListener('change', async e => {
     const file = e.target.files[0];
     if (!file) return;
     msg('', '');
     try {
       const got = readGeojson(JSON.parse(await file.text()));
+      const thinned = fitPoints(got);
       for (const [n, g] of got) state.wards.set(n, { geometry: g, drawn: false });
       redraw();
       mapReady.then(() => fitTo([...got.values()].flatMap(allPoints)));
+      if (thinned) msg(t('simplified', { a: thinned.a.toLocaleString(), b: thinned.b.toLocaleString() }), '');
     } catch (err) {
       msg(typeof err === 'string' ? err : t('e_file'), 'bad');
     }
