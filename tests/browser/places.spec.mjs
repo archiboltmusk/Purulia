@@ -128,3 +128,15 @@ test('old "add my town" links open the new page', async ({ page }) => {
   await page.goto('suggest-feature.html#add-town');
   await expect(page).toHaveURL(/add-town\.html$/);
 });
+
+test('district outlines show statewide; a district\'s blocks and panchayats load only once it is in view', async ({ page, backend }) => {
+  const fetched = [];
+  page.on('request', r => { const m = r.url().match(/places\/wb\/([a-z0-9-]+)\.geojson/); if (m) fetched.push(m[1]); });
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.07, 23.23], zoom: 10 }); });
+  await expect.poll(() => page.evaluate(() => !!mainMap.getSource('wb-bankura'))).toBe(true);
+  expect(fetched).not.toContain('malda');
+  const kinds = await page.evaluate(() => [...new Set(mainMap.getSource('wb-bankura')._data.features.map(f => f.properties.kind))].sort());
+  expect(kinds).toEqual(['block', 'gp']);
+});

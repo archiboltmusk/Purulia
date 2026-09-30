@@ -26,6 +26,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `sw.js` — service worker (offline queue, push). Bump `VERSION` when cached files change.
 - `worker.js` + `wrangler.jsonc` — Cloudflare worker: `/r/<id>` share previews.
 - Boundaries: `purulia_wards|blocks|gps|towns.geojson`, `WEST BENGAL_*.geojson` (raw source files).
+- `places/wb/<district>.geojson` + `index.json` — blocks + gram panchayats for every WB district except Purulia/Kolkata (from the raw villages file, `tools/build-wb-local.py`); kasa.js lazy-loads each district in view from zoom 8. District outlines (`places/wb_districts.geojson`) draw statewide.
 
 ## Supabase (`supabase/`)
 - Public tables: `reports`, `schools`, `promises`, `promise_news`, `demands` (+`_supports`, `_replies`), `digest_subscribers`, `feature_suggestions`, `bug_reports`, `admins`. Everything else is in schema `kasa_private` (votes, flags, claims, photos, places, areas, adoptions, communities, settings…), reached only through `security definer` RPCs and `kasa_public_*` views.
@@ -40,7 +41,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - New `.js` file: add it to the `node --check` list and `paths:` in `kasa-tests.yml`.
 
 ## Tools (`tools/`)
-`build-areas|build-districts|build-local-bodies|build-places.py` boundary -> geojson/SQL; `validate-wards.mjs` checks ward GeoJSON; `load-schools.py`, `udise-benchmarks.py` school data; `public-record.mjs` daily record; `version.mjs` version badge.
+`build-areas|build-districts|build-local-bodies|build-places|build-wb-local.py` boundary -> geojson/SQL; `validate-wards.mjs` checks ward GeoJSON; `load-schools.py`, `udise-benchmarks.py` school data; `public-record.mjs` daily record; `version.mjs` version badge.
 
 ## Deploy targets
 GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `vercel.json`); Cloudflare worker (share previews). Longer docs: `DEPLOY.md`, `RUNBOOK.md`, `SETUP-*.md` (read only when needed).
