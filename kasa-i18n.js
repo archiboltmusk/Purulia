@@ -1164,7 +1164,7 @@ Object.assign(window.KASA_I18N.en, {
   loc_outside: 'You’re outside Purulia district and Kolkata',
   pl_step3: '{place} ward {n}. The {body} is responsible.',
   pl_unmapped: 'This spot is in {place}, but not in a ward on our open map yet, so it can’t be filed here.',
-  pl_officers_unknown: 'Its officers and ward councillors are not on record here yet',
+  pl_officers_unknown: 'Its officers and ward councillors are not on record here yet', pw_councillor_unknown: 'councillor not on record here yet', pw_councillor_src: 'Ward councillor, elected {when}.', pw_source: 'Source', pw_borough: 'Borough {b} office, {body} →', pw_councillor_of: 'Councillor, ward {n}', pw_map_note: 'Ward borders: {src}. Check the ward before you submit.', pw_share_text: 'Ward {n}, {place}: {open} unresolved, {fixed} fixed. See every report:',
   pl_complain: 'File it with the {body}', pl_contacts: 'Phone or WhatsApp the {body}', pl_c_callcentre: 'Call centre (toll free, Mon–Sat office hours)', pl_c_whatsapp: 'WhatsApp complaints', pl_c_chatbot: 'WhatsApp chatbot', pl_c_control: 'Control room', pl_c_office: 'Head office', pl_c_source: 'Source: their contact page', pl_complain_s: 'Their own complaint form. Paste the report link in it.',
   pl_share: '{cat} in {place} — unresolved for {days} days. See it and add your voice:'
 });
@@ -1175,7 +1175,7 @@ Object.assign(window.KASA_I18N.bn, {
   loc_outside: 'আপনি পুরুলিয়া জেলা আর কলকাতার বাইরে আছেন',
   pl_step3: '{place}, ওয়ার্ড {n}। দায়িত্ব {body}-র।',
   pl_unmapped: 'জায়গাটি {place}-য়, কিন্তু আমাদের খোলা মানচিত্রে এখনও কোনো ওয়ার্ডে নেই, তাই এখানে জানানো যাবে না।',
-  pl_officers_unknown: 'এখানকার আধিকারিক আর কাউন্সিলরদের নাম এখনও আমাদের কাছে নেই',
+  pl_officers_unknown: 'এখানকার আধিকারিক আর কাউন্সিলরদের নাম এখনও আমাদের কাছে নেই', pw_councillor_unknown: 'কাউন্সিলরের নাম এখনও আমাদের কাছে নেই', pw_councillor_src: 'ওয়ার্ড কাউন্সিলর, নির্বাচিত {when}।', pw_source: 'সূত্র', pw_borough: 'বরো {b} অফিস, {body} →', pw_councillor_of: 'কাউন্সিলর, ওয়ার্ড {n}', pw_map_note: 'ওয়ার্ডের সীমানা: {src}। পাঠানোর আগে ওয়ার্ডটি দেখে নিন।', pw_share_text: '{place}-এর ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
   pl_complain: '{body}-তে অভিযোগ করুন', pl_contacts: '{body}-কে ফোন বা হোয়াটসঅ্যাপ করুন', pl_c_callcentre: 'কল সেন্টার (টোল ফ্রি, সোম–শনি অফিস সময়)', pl_c_whatsapp: 'হোয়াটসঅ্যাপে অভিযোগ', pl_c_chatbot: 'হোয়াটসঅ্যাপ চ্যাটবট', pl_c_control: 'কন্ট্রোল রুম', pl_c_office: 'প্রধান অফিস', pl_c_source: 'সূত্র: তাদের যোগাযোগ পাতা', pl_complain_s: 'তাদের নিজেদের অভিযোগ ফর্ম। রিপোর্টের লিংক সেখানে দিন।',
   pl_share: '{place}-এ {cat} — {days} দিন ধরে সমাধান হয়নি। দেখুন আর আপনার কথা যোগ করুন:'
 });
@@ -1186,7 +1186,7 @@ Object.assign(window.KASA_I18N.hi, {
   loc_outside: 'आप पुरुलिया ज़िले और कोलकाता से बाहर हैं',
   pl_step3: '{place}, वार्ड {n}। ज़िम्मेदारी {body} की है।',
   pl_unmapped: 'यह जगह {place} में है, पर हमारे खुले नक्शे में अभी किसी वार्ड में नहीं, इसलिए यहाँ दर्ज नहीं हो सकती।',
-  pl_officers_unknown: 'यहाँ के अधिकारियों और पार्षदों के नाम अभी हमारे पास नहीं हैं',
+  pl_officers_unknown: 'यहाँ के अधिकारियों और पार्षदों के नाम अभी हमारे पास नहीं हैं', pw_councillor_unknown: 'पार्षद का नाम अभी हमारे पास नहीं है', pw_councillor_src: 'वार्ड पार्षद, निर्वाचित {when}।', pw_source: 'स्रोत', pw_borough: 'बरो {b} कार्यालय, {body} →', pw_councillor_of: 'पार्षद, वार्ड {n}', pw_map_note: 'वार्ड की सीमा: {src}। भेजने से पहले वार्ड जाँच लें।', pw_share_text: '{place} का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
   pl_complain: '{body} में शिकायत करें', pl_contacts: '{body} को फ़ोन या व्हाट्सऐप करें', pl_c_callcentre: 'कॉल सेंटर (टोल फ़्री, सोम–शनि कार्यालय समय)', pl_c_whatsapp: 'व्हाट्सऐप शिकायत', pl_c_chatbot: 'व्हाट्सऐप चैटबॉट', pl_c_control: 'कंट्रोल रूम', pl_c_office: 'मुख्य कार्यालय', pl_c_source: 'स्रोत: उनका संपर्क पेज', pl_complain_s: 'उनका अपना शिकायत फ़ॉर्म। उसमें रिपोर्ट का लिंक डालें।',
   pl_share: '{place} में {cat} — {days} दिन से हल नहीं। देखें और अपनी आवाज़ जोड़ें:'
 });
