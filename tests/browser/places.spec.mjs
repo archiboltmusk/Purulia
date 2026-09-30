@@ -270,10 +270,25 @@ test('tapping a gram panchayat opens its card with the MLA and MP for that spot;
   await expect(card.locator('.k-ward-title')).toHaveText('Amrul');
   await expect(card.locator('.k-ward-sub')).toContainText('Gram panchayat · Indus block · Bankura');
   await expect(card.locator('.k-area-role').first()).toContainText('MLA');
+  await expect(card).toContainText('drinking water');
   await expect(card).toContainText('Bankura');
   await card.locator('[data-area-level="district"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Bankura');
   await expect(card.locator('.k-area-role').first()).toContainText('MLAs (12 seats)');
+  await expect(card).toContainText('District Magistrate');
+  await expect(card.locator('a', { hasText: 'district website' })).toHaveAttribute('href', 'https://bankura.gov.in/');
   await card.locator('[data-area-close]').click();
   await expect(card).toBeHidden();
+});
+
+test('a gram panchayat card names its BDO with the office phone from the district website', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.0163, 22.6129], zoom: 11 }); });
+  await page.evaluate(() => openArea(22.6129, 88.0163));
+  const card = page.locator('#k-area-card');
+  await expect(card.locator('.k-ward-title')).toHaveText('Khosalpur');
+  const bdo = card.locator('.k-area-row', { hasText: 'BDO · Amta-I' });
+  await expect(bdo).toContainText('Adrita Samaddar');
+  await expect(bdo.locator('a[href^="tel:"]')).toHaveAttribute('href', 'tel:03214260022');
 });

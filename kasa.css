@@ -911,5 +911,6 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-who{color:var(--text-hi);}
 .k-area-who a{color:var(--amber);}
 .k-area-extra{font-family:var(--mono);font-size:10px;color:var(--text-lo);}
+.k-area-extra a{color:var(--amber);}
 .k-area-none{color:var(--text-lo);font-style:italic;}
 .k-area-card .k-ward-note a{color:var(--amber);}

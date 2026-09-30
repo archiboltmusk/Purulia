@@ -1304,9 +1304,13 @@ function addDistrictLocal(slug, attribution){
 
 /* Area card: tap a district, block or gram panchayat anywhere in West Bengal (outside a mapped
    ward) for its name, the reports inside it, and the MLA and MP for that spot. Leaders come from
-   places/wb_leaders.json (tools/build-wb-leaders.py, cited); panchayat heads are not on record yet,
-   so the card says so rather than guess. The level follows the zoom; the crumbs switch it. */
-let wbLeaders = null, wbAssembly = null;
+   places/wb_leaders.json (tools/build-wb-leaders.py, cited); DM, Zilla Parishad officer and BDOs from
+   each district's own website (places/wb_officials.json, tools/build-wb-officials.py); what each tier
+   must do from the WB Panchayat Act 1973 (s.19 gram panchayat, s.109 samiti, s.153 zilla parishad).
+   Elected panchayat heads are not on record yet, so the card says so rather than guess.
+   The level follows the zoom; the crumbs switch it. */
+let wbLeaders = null, wbAssembly = null, wbOfficials = null;
+const PANCHAYAT_ACT = 'https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf';
 const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
 const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
 
@@ -1343,7 +1347,8 @@ function districtSeats(slug){
 }
 
 async function openArea(lat, lng, level){
-  const [areas, leaders] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng)]);
+  const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
+  wbOfficials = officials;
   if (!areas) return closeArea();
   if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
   const z = mainMap.getZoom();
@@ -1378,6 +1383,11 @@ function renderAreaCard(){
             : a.level === 'block' ? t('ar_block_sub', { d: district.properties.district }) : t('ar_district_sub');
   const L = a.leaders, row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
   const seats = a.level === 'district' ? districtSeats(district.properties.slug) : [];
+  const off = wbOfficials?.districts[district.properties.slug], bname = block?.properties.block || gp?.properties.block;
+  const bdo = a.level !== 'district' && bname && off?.bdo?.[bname];
+  const contact = o => [o.phone && `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a>`,
+                        o.email && `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`].filter(Boolean).join(' · ');
+  const officer = (role, o) => o ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${esc(o.name || '')}</span>${contact(o) ? `<span class="k-area-extra">${contact(o)}</span>` : ''}</div>` : '';
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-area-crumbs">${[crumb('district', district), crumb('block', block), crumb('gp', gp)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
@@ -1393,13 +1403,15 @@ function renderAreaCard(){
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), esc(L.ac.person), L.ac.party) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), esc(L.pc.person), t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)}
+      ${row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`, t('ar_duty_' + a.level))}
+      ${a.level === 'district' ? officer(t('ar_dm'), off?.dm) + officer(t('ar_zp'), off?.zp) : officer(t('ar_bdo', { b: bname }), bdo)}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}</div>`;
+    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
+      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>`;
   el.hidden = false;
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data: f });
