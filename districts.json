@@ -1,0 +1,302 @@
+{
+ "districts": {
+  "Bankura": {
+   "anc4": 75.7,
+   "child_anaemia": 67.1,
+   "child_marriage": 45.7,
+   "clean_fuel": 20.8,
+   "inst_births": 93.3,
+   "insurance": 43.4,
+   "sanitation": 49.2,
+   "stunted": 30.3,
+   "women_10yrs": 27.9,
+   "women_anaemia": 77.0
+  },
+  "Birbhum": {
+   "anc4": 78.4,
+   "child_anaemia": 76.5,
+   "child_marriage": 49.9,
+   "clean_fuel": 28.1,
+   "inst_births": 90.3,
+   "insurance": 37.7,
+   "sanitation": 55.0,
+   "stunted": 37.0,
+   "women_10yrs": 25.8,
+   "women_anaemia": 77.7
+  },
+  "Dakshin Dinajpur": {
+   "anc4": 76.4,
+   "child_anaemia": 72.5,
+   "child_marriage": 45.6,
+   "clean_fuel": 28.7,
+   "inst_births": 91.4,
+   "insurance": 28.3,
+   "sanitation": 79.0,
+   "stunted": 31.9,
+   "women_10yrs": 30.5,
+   "women_anaemia": 82.0
+  },
+  "Darjeeling": {
+   "anc4": 79.2,
+   "child_anaemia": 68.1,
+   "child_marriage": 21.2,
+   "clean_fuel": 68.8,
+   "inst_births": 98.4,
+   "insurance": 26.3,
+   "sanitation": 83.0,
+   "stunted": 34.3,
+   "women_10yrs": 41.3,
+   "women_anaemia": 59.2
+  },
+  "Haora": {
+   "anc4": 82.7,
+   "child_anaemia": 67.7,
+   "child_marriage": 30.4,
+   "clean_fuel": 61.9,
+   "inst_births": 95.5,
+   "insurance": 20.1,
+   "sanitation": 72.9,
+   "stunted": 27.5,
+   "women_10yrs": 40.1,
+   "women_anaemia": 65.3
+  },
+  "Hugli": {
+   "anc4": 72.2,
+   "child_anaemia": 67.9,
+   "child_marriage": 40.8,
+   "clean_fuel": 54.6,
+   "inst_births": 97.0,
+   "insurance": 26.5,
+   "sanitation": 76.2,
+   "stunted": 28.9,
+   "women_10yrs": 37.0,
+   "women_anaemia": 75.1
+  },
+  "Jalpaiguri": {
+   "anc4": 88.4,
+   "child_anaemia": 67.4,
+   "child_marriage": 18.7,
+   "clean_fuel": 42.7,
+   "inst_births": 95.8,
+   "insurance": 35.8,
+   "sanitation": 73.2,
+   "stunted": 28.9,
+   "women_10yrs": 33.9,
+   "women_anaemia": 71.4
+  },
+  "Koch Bihar": {
+   "anc4": 77.3,
+   "child_anaemia": 66.4,
+   "child_marriage": 46.7,
+   "clean_fuel": 25.7,
+   "inst_births": 93.0,
+   "insurance": 36.0,
+   "sanitation": 75.7,
+   "stunted": 28.7,
+   "women_10yrs": 26.7,
+   "women_anaemia": 74.8
+  },
+  "Kolkata": {
+   "anc4": 71.7,
+   "child_anaemia": 72.3,
+   "child_marriage": 16.7,
+   "clean_fuel": 91.7,
+   "inst_births": 97.5,
+   "insurance": 21.1,
+   "sanitation": 60.9,
+   "stunted": 29.6,
+   "women_10yrs": 55.4,
+   "women_anaemia": 58.2
+  },
+  "Maldah": {
+   "anc4": 82.8,
+   "child_anaemia": 71.0,
+   "child_marriage": 49.1,
+   "clean_fuel": 29.6,
+   "inst_births": 87.7,
+   "insurance": 29.0,
+   "sanitation": 62.0,
+   "stunted": 40.5,
+   "women_10yrs": 30.0,
+   "women_anaemia": 73.6
+  },
+  "Murshidabad": {
+   "anc4": 66.9,
+   "child_anaemia": 72.1,
+   "child_marriage": 55.4,
+   "clean_fuel": 30.7,
+   "inst_births": 87.0,
+   "insurance": 28.4,
+   "sanitation": 69.7,
+   "stunted": 39.8,
+   "women_10yrs": 24.2,
+   "women_anaemia": 77.6
+  },
+  "Nadia": {
+   "anc4": 71.2,
+   "child_anaemia": 63.6,
+   "child_marriage": 39.9,
+   "clean_fuel": 34.2,
+   "inst_births": 97.7,
+   "insurance": 23.0,
+   "sanitation": 78.4,
+   "stunted": 26.1,
+   "women_10yrs": 28.3,
+   "women_anaemia": 73.4
+  },
+  "North Twenty Four Parganas": {
+   "anc4": 89.9,
+   "child_anaemia": 57.9,
+   "child_marriage": 33.6,
+   "clean_fuel": 58.9,
+   "inst_births": 97.5,
+   "insurance": 30.7,
+   "sanitation": 80.4,
+   "stunted": 32.4,
+   "women_10yrs": 40.7,
+   "women_anaemia": 65.3
+  },
+  "Paschim Barddhaman": {
+   "anc4": 70.4,
+   "child_anaemia": 74.7,
+   "child_marriage": 31.8,
+   "clean_fuel": 56.3,
+   "inst_births": 89.8,
+   "insurance": 21.8,
+   "sanitation": 71.5,
+   "stunted": 39.7,
+   "women_10yrs": 37.1,
+   "women_anaemia": 65.8
+  },
+  "Paschim Medinipur": {
+   "anc4": 63.1,
+   "child_anaemia": 66.0,
+   "child_marriage": 55.7,
+   "clean_fuel": 17.5,
+   "inst_births": 87.6,
+   "insurance": 25.8,
+   "sanitation": 58.3,
+   "stunted": 31.1,
+   "women_10yrs": 26.2,
+   "women_anaemia": 81.5
+  },
+  "Purba Barddhaman": {
+   "anc4": 80.5,
+   "child_anaemia": 71.5,
+   "child_marriage": 50.4,
+   "clean_fuel": 32.1,
+   "inst_births": 96.0,
+   "insurance": 37.2,
+   "sanitation": 64.2,
+   "stunted": 32.7,
+   "women_10yrs": 27.3,
+   "women_anaemia": 77.9
+  },
+  "Purba Medinipur": {
+   "anc4": 56.8,
+   "child_anaemia": 67.5,
+   "child_marriage": 57.6,
+   "clean_fuel": 17.0,
+   "inst_births": 91.5,
+   "insurance": 21.5,
+   "sanitation": 69.8,
+   "stunted": 25.8,
+   "women_10yrs": 30.9,
+   "women_anaemia": 70.4
+  },
+  "Puruliya": {
+   "anc4": 57.8,
+   "child_anaemia": 77.9,
+   "child_marriage": 37.0,
+   "clean_fuel": 23.2,
+   "inst_births": 89.8,
+   "insurance": 35.6,
+   "sanitation": 29.2,
+   "stunted": 36.9,
+   "women_10yrs": 26.9,
+   "women_anaemia": 76.7
+  },
+  "South Twenty Four Parganas": {
+   "anc4": 87.5,
+   "child_anaemia": 70.4,
+   "child_marriage": 41.9,
+   "clean_fuel": 36.2,
+   "inst_births": 91.0,
+   "insurance": 36.7,
+   "sanitation": 70.1,
+   "stunted": 36.7,
+   "women_10yrs": 34.9,
+   "women_anaemia": 61.6
+  },
+  "Uttar Dinajpur": {
+   "anc4": 70.1,
+   "child_anaemia": 77.2,
+   "child_marriage": 30.3,
+   "clean_fuel": 27.2,
+   "inst_births": 76.9,
+   "insurance": 21.0,
+   "sanitation": 63.8,
+   "stunted": 44.8,
+   "women_10yrs": 29.3,
+   "women_anaemia": 72.4
+  }
+ },
+ "india": {
+  "anc4": 58.1,
+  "child_anaemia": 67.1,
+  "child_marriage": 23.3,
+  "clean_fuel": 58.6,
+  "inst_births": 88.6,
+  "insurance": 41.0,
+  "sanitation": 70.2,
+  "stunted": 35.5,
+  "women_10yrs": 41.0,
+  "women_anaemia": 57.0
+ },
+ "indicators": {
+  "anc4": {
+   "higher_is_better": true
+  },
+  "child_anaemia": {
+   "higher_is_better": false
+  },
+  "child_marriage": {
+   "higher_is_better": false
+  },
+  "clean_fuel": {
+   "higher_is_better": true
+  },
+  "inst_births": {
+   "higher_is_better": true
+  },
+  "insurance": {
+   "higher_is_better": true
+  },
+  "sanitation": {
+   "higher_is_better": true
+  },
+  "stunted": {
+   "higher_is_better": false
+  },
+  "women_10yrs": {
+   "higher_is_better": true
+  },
+  "women_anaemia": {
+   "higher_is_better": false
+  }
+ },
+ "source": "NFHS-5 (2019-21) district fact sheets, IIPS / Ministry of Health and Family Welfare",
+ "source_url": "https://rchiips.org/nfhs/districtfactsheet_NFHS-5.shtml",
+ "west_bengal": {
+  "anc4": 75.8,
+  "child_anaemia": 69.0,
+  "child_marriage": 41.6,
+  "clean_fuel": 40.2,
+  "inst_births": 91.7,
+  "insurance": 29.3,
+  "sanitation": 68.0,
+  "stunted": 33.8,
+  "women_10yrs": 32.9,
+  "women_anaemia": 71.4
+ }
+}
