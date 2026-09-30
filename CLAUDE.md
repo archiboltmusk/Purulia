@@ -3,6 +3,56 @@
 - Return targeted diffs or minimal code snippets instead of full-file rewrites.
 - Ask targeted clarifying questions only when critical ambiguity blocks execution.
 
+# Map (read this first; open only the files it points to)
+
+Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres RPCs + edge functions). Brand: "Parishkar Bengal"; map open for all West Bengal.
+
+## Pages (`page.html` -> its own `page.js` unless noted)
+- `kasa.html` + `kasa.js` (~4.6k lines) — the report app: map, list, new report (live camera + GPS), report sheet, cleanup claims, school check, push alerts. Section index: `grep -A1 '^/\* ═' kasa.js`. Styles `kasa.css`; strings `kasa-i18n.js`.
+- `admin.js` / `admin.html` — moderation queues (reports, photos, claims, duplicates, bugs, places, schools, demands, promises, team roles).
+- `index.html`, `data.html`, `blueprint.html`, `join.html` — landing + static research pages; share `script.js` + `styles.css`.
+- `ward.html` (ward page), `analytics.html` (public transparency), `digest.html` (weekly ward digest + subscribe), `schools.html`, `toilets.html`, `waste.html`, `adopt.html` (Adopt-a-Spot), `communities.html`, `noticeboard.html` (demands to leaders), `promises.html`, `add-town.html` (submit ward GeoJSON/borders), `suggest-feature.html`.
+- Static text only: `circle.html`, `municipality.html` (use `page-lang.js` + `<page>-i18n.js`), `methodology.html`, `rules.html`, `grievance.html`, `privacy.html`, `terms.html`, `changelog.html`, `poster.html`.
+- Redirect stubs only (don't add features): `map.html`, `audience.html`, `digest-subscribe.html`, `suggestions.html`, `app/index.html`.
+- `og-card.html` — OG image source, not published.
+
+## Shared modules
+- `config.js` — `window.KASA_CONFIG` (Supabase URL, anon key, Turnstile, share URL). Public keys only.
+- `city.js` — everything Purulia-specific (names, boundary files, reps). `places.js` — other towns (`places/*_wards.geojson`) + district fallback (`places/wb_districts.geojson`).
+- `categories.js` — report categories; mirrors `categories.yaml` (no generator in repo, keep both in sync).
+- `bug-report.js` — "Report a bug" button on every page (load early, no defer).
+- `page-lang.js` — bn/hi for static pages via `data-t` keys. `digest-sheet.js`/`.css` — digest sign-up banner.
+- `kasa-photo-meta.js` — EXIF time/GPS/AI-marker reader. `version.js` — generated, see Changelog.
+- `sw.js` — service worker (offline queue, push). Bump `VERSION` when cached files change.
+- `worker.js` + `wrangler.jsonc` — Cloudflare worker: `/r/<id>` share previews.
+- Boundaries: `purulia_wards|blocks|gps|towns.geojson`, `WEST BENGAL_*.geojson` (raw source files).
+
+## Supabase (`supabase/`)
+- Public tables: `reports`, `schools`, `promises`, `promise_news`, `demands` (+`_supports`, `_replies`), `digest_subscribers`, `feature_suggestions`, `bug_reports`, `admins`. Everything else is in schema `kasa_private` (votes, flags, claims, photos, places, areas, adoptions, communities, settings…), reached only through `security definer` RPCs and `kasa_public_*` views.
+- Pages call RPCs named `kasa_*` (`kasa_admin_*` = moderator-only, checked server-side). Find callers: `grep -n "rpc('kasa_x'" *.js`; definition: `grep -ln 'function public.kasa_x' supabase/migrations`, newest file wins.
+- Edge functions `supabase/functions/<name>/index.ts` (first line says what it does): photo check/token/shrink/cleanup, geocode, notify + notify-watch, flag/bug alerts, weekly digest/pattern, office letters, promise news, team invite, unsubscribe, p2040 signup alert.
+- New migration: `supabase/migrations/<YYYYMMDDHHMMSS>_kasa_<what>.sql`, idempotent (`create or replace`, `if not exists`); tests run every migration twice.
+
+## Tests (CI: `kasa-tests.yml`, `browser-tests.yml`)
+- DB: `bash supabase/tests/run.sh` (needs local Postgres; PGHOST/PGPORT) — applies all migrations to legacy + fresh DBs, then `test_migration.py`.
+- JS syntax: `node --check <file>.js`. Photo meta: `node tests/kasa_photo_meta.test.mjs`. Version: `node tools/version.mjs --check`.
+- Browser: `cd tests/browser && npm ci && npx playwright test` (Supabase mocked in `fixtures.mjs`).
+- New `.js` file: add it to the `node --check` list and `paths:` in `kasa-tests.yml`.
+
+## Tools (`tools/`)
+`build-areas|build-districts|build-local-bodies|build-places.py` boundary -> geojson/SQL; `validate-wards.mjs` checks ward GeoJSON; `load-schools.py`, `udise-benchmarks.py` school data; `public-record.mjs` daily record; `version.mjs` version badge.
+
+## Deploy targets
+GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `vercel.json`); Cloudflare worker (share previews). Longer docs: `DEPLOY.md`, `RUNBOOK.md`, `SETUP-*.md` (read only when needed).
+
+# Project rules
+- Only authentic, cited source data on the site. No placeholder or unsourced figures.
+- Reports need a live camera photo AND real GPS. No gallery upload, no manual map-pin fallback.
+- One entry point per feature per page; don't repeat buttons/features across places.
+- Keep the report map page clean (Namma Kasa style).
+- After merging a migration, apply it to live Supabase and verify (merged ≠ applied).
+- New page, table, RPC or edge function: add one line to this file.
+
 # Deployment rules
 
 - GitHub Pages deploys only from `main`, via `.github/workflows/github-pages.yml` (the static site; `*.md`, `tools/`, `supabase/`, `tests/` and `og-card.html` are not published). The report app is `kasa.html` + `kasa.js`; `/app/` only redirects there. The `github-pages` environment rejects every other branch, so never add another branch to its `on.push.branches`.
