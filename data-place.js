@@ -53,16 +53,16 @@
       if (x == null) return '';
       return card(label, pct(x), worse(k, x) ? 'bad' : 'ok', desc + change(k) + place(k) + (extra || '') + shared, nfhsSrc);
     };
-    const also = (k, text) => v[k] && v[k][0] != null ? ` ${text.replace('%', v[k][0] + '%')}` : '';
+    const also = (k, before, after) => v[k] && v[k][0] != null ? ` ${before}${v[k][0]}%${after}` : '';
 
     const cards = [];
     if (!N.districts[nfhsName]) cards.push(missing('Health survey', `No NFHS-5 figures found for ${esc(d.name)}.`, 'If you know the fact sheet, <a href="grievance.html">tell us</a>.'));
-    cards.push(nf('child_anaemia', 'Child Anaemia', 'Children aged 6–59 months who are anaemic.', also('women_anaemia', '% of women aged 15–49 are anaemic too.')));
-    cards.push(nf('underweight', 'Underweight Children', 'Children under 5 who are underweight.', also('stunted', '% are stunted') + (v.wasted && v.wasted[0] != null ? ` and ${v.wasted[0]}% wasted.` : '')));
-    cards.push(nf('women_literate', "Women's Literacy", 'Women aged 15–49 who can read and write.', also('women_10yrs', 'Only % of women have 10 or more years of schooling.')));
+    cards.push(nf('child_anaemia', 'Child Anaemia', 'Children aged 6–59 months who are anaemic.', also('women_anaemia', '', ' of women aged 15–49 are anaemic too.')));
+    cards.push(nf('underweight', 'Underweight Children', 'Children under 5 who are underweight.', also('stunted', '', ' are stunted') + (v.wasted && v.wasted[0] != null ? ` and ${v.wasted[0]}% wasted.` : '')));
+    cards.push(nf('women_literate', "Women's Literacy", 'Women aged 15–49 who can read and write.', also('women_10yrs', 'Only ', ' of women have 10 or more years of schooling.')));
     cards.push(nf('sanitation', 'Improved Sanitation', 'People living in households that use an improved toilet. NFHS measures the type of toilet used, a different measure from the ODF declaration.'));
     cards.push(nf('clean_fuel', 'Clean Cooking Fuel', 'Households cooking with clean fuel such as LPG.'));
-    cards.push(nf('child_marriage', 'Child Marriage', 'Women aged 20–24 who were married before 18.', also('inst_births', 'Births in a hospital or clinic: %.')));
+    cards.push(nf('child_marriage', 'Child Marriage', 'Women aged 20–24 who were married before 18.', also('inst_births', 'Births in a hospital or clinic: ', '.')));
     cards.push(nf('anc4', 'Antenatal Care', 'Mothers who had at least four antenatal check-ups.'));
 
     const j = d.jjm;
