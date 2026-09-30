@@ -14,3 +14,5 @@ og-card.html
 vercel.json
 wrangler.jsonc
 worker.js
+# Over the 25 MiB per-file limit of Workers static assets, and not used by any page
+WEST BENGAL_VILLAGES.geojson
