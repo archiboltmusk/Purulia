@@ -62,7 +62,14 @@
     <span class="k-mark" aria-hidden="true"></span>
     <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span>
   </a>
+  <button type="button" class="k-place-pick" id="k-place-pick" aria-haspopup="dialog" aria-label="Choose a place">▾</button>
   <a href="changelog.html#done" class="k-version" id="k-version" hidden></a>
+<dialog class="k-place-dialog" id="k-place-dialog" aria-labelledby="k-place-title">
+  <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
+    <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
+  <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
+  <div class="k-place-list" id="k-place-list"></div>
+</dialog>
   <div class="k-nav-links">
     <a href="index.html" data-i18n="nav_home">Home</a>
     <a href="blueprint.html" data-i18n="nav_blueprint">Blueprint</a>
