@@ -675,21 +675,33 @@ async function loadAdoptions(){
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No adopted spots.</div>'; return; }
   el.innerHTML = `
     <table class="ad-table">
-      <thead><tr><th>Name</th><th>Where</th><th>Since</th><th>Open problems</th><th></th></tr></thead>
+      <thead><tr><th>Looked after by</th><th>Where</th><th>Since</th><th>Open problems</th><th></th></tr></thead>
       <tbody>
         ${data.map((a, i) => `<tr>
-          <td><strong>${esc(a.name)}</strong></td>
+          <td>${(a.partners || [a]).map((p, j) => `<strong>${esc(p.name)}</strong> ${esc(p.role || '')} <button class="ad-bad" data-adopt-rm="${i}:${j}">Remove</button>`).join('<br>')}
+            ${a.office ? `<br>Ward office: ${esc(a.office.note)} (<a href="${esc(a.office.source_url)}" target="_blank" rel="noopener">source</a>)` : ''}</td>
           <td><a href="kasa.html?at=${esc(a.lat)},${esc(a.lng)}" target="_blank" rel="noopener">${esc(a.ward_no ? 'Ward ' + a.ward_no : a.block_name || 'map')}</a></td>
           <td>${esc(new Date(a.since).toLocaleDateString('en-IN'))}</td>
           <td>${esc(a.open)}</td>
-          <td><button class="ad-bad" data-adopt-rm="${i}">Remove</button></td></tr>`).join('')}
+          <td><button data-adopt-office="${i}">${a.office ? 'Change ward office' : 'Add ward office'}</button></td></tr>`).join('')}
       </tbody>
     </table>`;
   el.querySelectorAll('[data-adopt-rm]').forEach(b => b.addEventListener('click', async () => {
-    const a = data[+b.dataset.adoptRm];
+    const [i, j] = b.dataset.adoptRm.split(':').map(Number), a = (data[i].partners || [data[i]])[j];
     const reason = prompt(`Reason for removing "${a.name}":`);
     if (!reason || reason.trim().length < 3) return;
     const { error: e2 } = await sb.rpc('kasa_admin_remove_adoption', { p_id: a.id, p_reason: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadAdoptions();
+  }));
+  // What the ward office has committed at this spot (bins, daily pickup), only with a source link.
+  el.querySelectorAll('[data-adopt-office]').forEach(b => b.addEventListener('click', async () => {
+    const a = data[+b.dataset.adoptOffice];
+    const note = prompt('What has the ward office committed at this spot? (e.g. "Two lidded bins, emptied every morning"). Leave empty to clear.', a.office?.note || '');
+    if (note === null) return;
+    const url = note.trim() ? prompt('https link to the letter, order or news report:', a.office?.source_url || '') : '';
+    if (url === null) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_set_spot_office', { p_id: a.id, p_note: note, p_source_url: url });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadAdoptions();
   }));

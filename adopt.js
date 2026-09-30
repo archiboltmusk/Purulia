@@ -21,16 +21,20 @@
       el.innerHTML = '<div class="an-empty">No spot adopted yet. Be the first: <a href="kasa.html?adopt=1">adopt the spot where you stand</a>.</div>';
       return;
     }
-    const where = s => s.ward_no ? `Ward ${s.ward_no}` : s.block_name ? `${s.block_name} block` : '';
-    el.innerHTML = `<table class="an-table"><thead><tr><th>Looked after by</th><th>Where</th><th>Since</th><th>Now</th><th class="n">Days clean</th><th class="n">Fixed</th><th></th></tr></thead><tbody>
+    const where = s => [s.place_name || '',
+      s.ward_no ? `Ward ${s.ward_no}` : s.block_name ? `${s.block_name} block` : s.district || ''].filter(Boolean).join(', ');
+    const ROLE = { shop: 'Shop', club: 'Club', school: 'School', family: 'Family', other: '' };
+    const who = s => (s.partners?.length ? s.partners : [{ name: s.name, role: 'other', mine: s.mine, id: s.id }])
+      .map(p => `<strong>${esc(p.name)}</strong>${ROLE[p.role] ? ` <span class="ad-role">${ROLE[p.role]}</span>` : ''}${p.mine ? ` <button class="ad-leave" data-leave="${esc(p.id)}">Let go</button>` : ''}`).join('<br>')
+      + (s.office ? `<br><span class="ad-office">Ward office: ${esc(s.office.note)} <a href="${esc(s.office.source_url)}" target="_blank" rel="noopener">source</a></span>` : '');
+    el.innerHTML = `<table class="an-table"><thead><tr><th>Looked after by</th><th>Where</th><th>Since</th><th>Now</th><th class="n">Days clean</th><th class="n">Fixed</th></tr></thead><tbody>
       ${spots.map(s => {
         const clean = Math.floor((Date.now() - Date.parse(s.last_problem_at || s.since)) / DAY);
-        return `<tr><td><strong>${esc(s.name)}</strong></td>
+        return `<tr><td>${who(s)}</td>
           <td><a href="kasa.html?at=${s.lat},${s.lng}">${esc(where(s) || 'See on map')}</a></td>
           <td>${esc(fmt(s.since))}</td>
           <td>${s.open ? `<span class="ad-bad">${s.open} open problem${s.open === 1 ? '' : 's'}</span>` : '<span class="ad-ok">Clean</span>'}</td>
-          <td class="n">${s.open ? '—' : clean}</td><td class="n">${s.fixed || 0}</td>
-          <td>${s.mine ? `<button class="ad-leave" data-leave="${esc(s.id)}">Let go</button>` : ''}</td></tr>`;
+          <td class="n">${s.open ? '—' : clean}</td><td class="n">${s.fixed || 0}</td></tr>`;
       }).join('')}</tbody></table>`;
     el.querySelectorAll('[data-leave]').forEach(b => b.addEventListener('click', async () => {
       if (!confirm('Stop looking after this spot? It leaves the public list.')) return;
