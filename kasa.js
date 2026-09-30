@@ -339,6 +339,12 @@ async function init(){
       if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
+    // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
+    const at = (new URLSearchParams(location.search).get('at') || '').split(',').map(Number);
+    if (at.length === 3 && at.every(Number.isFinite)){
+      userMovedMap = true;
+      mapReady.then(() => { mainMap.jumpTo({ center: [at[1], at[0]], zoom: at[2] }); openArea(at[0], at[1]); });
+    }
     const jumpToStart = () => {
       const start = KasaPlaces.fromUrl();
       if (!start?.center || jumpToStart.done) return;
@@ -1256,6 +1262,7 @@ async function addDistrictLayers(){
     layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
     paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
+  mainMap.on('click', onAreaTap);
   loadLocalInView();
 }
 
@@ -1272,11 +1279,13 @@ async function loadLocalInView(){
   }
 }
 
-const wbLocalLoading = {};
+const wbLocalLoading = {}, wbLocalGeo = {};
 function addDistrictLocal(slug, attribution){
-  if (wbLocalLoading[slug]) return;
-  wbLocalLoading[slug] = fetch('places/wb/' + slug + '.geojson').then(r => r.ok ? r.json() : null).then(g => {
+  if (wbLocalLoading[slug]) return wbLocalLoading[slug];
+  return wbLocalLoading[slug] = fetch('places/wb/' + slug + '.geojson').then(r => r.ok ? r.json() : null).then(g => {
     if (!g || !mainMap) { delete wbLocalLoading[slug]; return; }
+    wbLocalGeo[slug] = g;
+    attribution ||= g.attribution;
     const src = 'wb-' + slug, kind = k => ['==', ['get', 'kind'], k];
     mainMap.addSource(src, { type: 'geojson', data: g, attribution });
     const green = { 'text-color': '#6db88a', 'text-halo-color': '#0a0805', 'text-halo-width': 1 };
@@ -1291,6 +1300,141 @@ function addDistrictLocal(slug, attribution){
       layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
       paint: { ...green, 'text-opacity': .6 } }, 'clusters');
   }).catch(() => { delete wbLocalLoading[slug]; });
+}
+
+/* Area card: tap a district, block or gram panchayat anywhere in West Bengal (outside a mapped
+   ward) for its name, the reports inside it, and the MLA and MP for that spot. Leaders come from
+   places/wb_leaders.json (tools/build-wb-leaders.py, cited); panchayat heads are not on record yet,
+   so the card says so rather than guess. The level follows the zoom; the crumbs switch it. */
+let wbLeaders = null, wbAssembly = null;
+const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
+
+async function areasAt(lat, lng){
+  const pt = [lng, lat];
+  const d = (await KasaPlaces.loadDistricts())?.features.find(f => pointInPolygon(pt, f.geometry));
+  if (!d) return null;
+  const slug = d.properties.slug;
+  let fs = [];
+  if (slug === 'purulia'){
+    await Promise.all([loadBlockGeo(), loadLocalGeo()]);
+    fs = [...(state.blockGeo?.features || []).map(f => ({ ...f, properties: { ...f.properties, kind: 'block' } })),
+          ...(state.gpGeo?.features || []).map(f => ({ ...f, properties: { ...f.properties, kind: 'gp' } }))];
+  } else if (slug !== 'kolkata'){
+    await addDistrictLocal(slug);
+    fs = wbLocalGeo[slug]?.features || [];
+  }
+  const find = kind => fs.find(f => f.properties.kind === kind && inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)) || null;
+  return { district: d, block: find('block'), gp: find('gp') };
+}
+
+async function leadersAt(lat, lng){
+  [wbLeaders, wbAssembly] = await Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson')]);
+  if (!wbLeaders || !wbAssembly) return null;
+  const f = wbAssembly.features.find(f => inBbox(f.bbox, [lng, lat]) && pointInPolygon([lng, lat], f.geometry));
+  return f ? { ac: wbLeaders.ac[f.properties.ac], pc: wbLeaders.pc[f.properties.pc] } : null;
+}
+
+// MLAs of a district by party, e.g. "BJP 7 · AITC 2".
+function districtSeats(slug){
+  const n = {};
+  for (const f of wbAssembly?.features || []) if (f.properties.d === slug){ const p = wbLeaders.ac[f.properties.ac].party; n[p] = (n[p] || 0) + 1; }
+  return Object.entries(n).sort((a, b) => b[1] - a[1]);
+}
+
+async function openArea(lat, lng, level){
+  const [areas, leaders] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng)]);
+  if (!areas) return closeArea();
+  if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
+  const z = mainMap.getZoom();
+  level ||= z >= 10.5 && areas.gp ? 'gp' : z >= 8 && areas.block ? 'block' : 'district';
+  state.area = { lat, lng, level, areas, leaders };
+  renderAreaCard();
+}
+
+function closeArea(){
+  state.area = null;
+  const el = document.getElementById('k-area-card');
+  if (el) el.hidden = true;
+  mainMap?.getSource('area-sel')?.setData({ type: 'FeatureCollection', features: [] });
+}
+
+function areaFeature(a = state.area){ return a.areas[a.level] || a.areas.district; }
+function areaName(f){ return f.properties.gp || f.properties.block || f.properties.district; }
+
+function renderAreaCard(){
+  const a = state.area;
+  let el = document.getElementById('k-area-card');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'k-area-card'; el.className = 'k-ward-card k-area-card';
+    document.getElementById('k-ward-card').after(el);
+  }
+  const f = areaFeature(), { district, block, gp } = a.areas;
+  const inside = primaries().filter(r => Number.isFinite(r.lat) && inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
+  const open = inside.filter(r => r.status !== 'resolved').length, fixed = inside.length - open;
+  const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
+  const sub = a.level === 'gp' ? t('ar_gp_sub', { b: block?.properties.block || gp.properties.block, d: district.properties.district })
+            : a.level === 'block' ? t('ar_block_sub', { d: district.properties.district }) : t('ar_district_sub');
+  const L = a.leaders, row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
+  const seats = a.level === 'district' ? districtSeats(district.properties.slug) : [];
+  el.innerHTML = `
+    <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
+    <div class="k-area-crumbs">${[crumb('district', district), crumb('block', block), crumb('gp', gp)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
+    <div class="k-ward-title">${esc(areaName(f))}</div>
+    <div class="k-ward-sub">${esc(sub)}</div>
+    <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: inside.length }))}</span>
+      <span class="k-red">${esc(t('wc_open', { n: open }))}</span>
+      <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
+    </div>
+    <div class="k-area-leaders">
+      ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
+      ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), esc(L.ac.person), L.ac.party) : ''}
+      ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
+                            : row(t('ar_mp', { c: L.pc.name }), esc(L.pc.person), t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
+      ${row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)}
+    </div>
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
+    </div>
+    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}</div>`;
+  el.hidden = false;
+  if (!mainMap.getSource('area-sel')){
+    mainMap.addSource('area-sel', { type: 'geojson', data: f });
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+  } else mainMap.getSource('area-sel').setData(f);
+}
+
+function areaBounds(f){
+  if (f.bbox) return [[f.bbox[0], f.bbox[1]], [f.bbox[2], f.bbox[3]]];
+  const pts = (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat());
+  return [[Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1]))], [Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))]];
+}
+
+function zoomToArea(){
+  userMovedMap = true;
+  mainMap.fitBounds(areaBounds(areaFeature()), { padding: { top: 90, bottom: 260, left: 40, right: 40 }, duration: 900, essential: true });
+}
+
+function shareArea(){
+  const a = state.area, zoom = { gp: 12, block: 10, district: 8.5 }[a.level];
+  const url = `${location.origin}${location.pathname}?at=${a.lat.toFixed(5)},${a.lng.toFixed(5)},${zoom}`;
+  const text = t('ar_share_text', { name: areaName(areaFeature()) });
+  if (navigator.share) navigator.share({ title: 'Parishkar', text, url }).catch(() => {});
+  else copyText(`${text} ${url}`);
+}
+
+// Any tap on the map that isn't a report, cluster or mapped ward opens the area card.
+function onAreaTap(e){
+  if (e.defaultPrevented) return;
+  const hit = ['report-points', 'clusters', 'wards-fill', ...Object.keys(window.KasaPlaces?.geo || {}).map(s => 'place-' + s + '-fill')]
+    .filter(id => mainMap.getLayer(id));
+  if (hit.length && mainMap.queryRenderedFeatures(e.point, { layers: hit }).length) return;
+  if (state.area && pointInPolygon([e.lngLat.lng, e.lngLat.lat], areaFeature().geometry) && e.originalEvent?.detail < 2) return closeArea();
+  openArea(e.lngLat.lat, e.lngLat.lng);
 }
 
 /* "Parishkar Kolkata" for a report there, else this deployment's name. */
@@ -1314,6 +1458,7 @@ function selectWard(n, place = null){
   const same = state.selectedWard === n && (state.selectedPlace || null) === place;
   state.selectedWard = same ? null : n;
   state.selectedPlace = same ? null : place;
+  if (state.selectedWard != null) closeArea();
   renderWardCard();
   updateMap();
 }
@@ -4348,7 +4493,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -4386,6 +4531,10 @@ function wireUI(){
       return renderAll();
     }
     if (d.wardShare) return shareWard(Number(d.wardShare), d.wardPlace || null);
+    if ('areaClose' in d) return closeArea();
+    if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
+    if ('areaZoom' in d) return zoomToArea();
+    if ('areaShare' in d) return shareArea();
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();
