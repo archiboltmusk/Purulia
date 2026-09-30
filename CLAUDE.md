@@ -29,6 +29,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `places/wb/<district>.geojson` + `index.json` — blocks + gram panchayats for every WB district except Purulia/Kolkata (from the raw villages file, `tools/build-wb-local.py`); kasa.js lazy-loads each district in view from zoom 8. District outlines (`places/wb_districts.geojson`) draw statewide. `places/wb_blocks.geojson` (same script, `--blocks`) = all blocks at ~300 m, lines + names below zoom 8, styled like Purulia's.
 - `places/wb_leaders.json` (MLA/MP per seat, Wikipedia results) + `places/wb_assembly.geojson` (294 AC outlines) — `tools/build-wb-leaders.py`; kasa.js area card (tap any district/block/GP, `?at=lat,lng,zoom` share links).
 - `places/wb_towns.geojson` — every WB municipality/corporation outside Kolkata and Purulia: AMRUT GIS limits (56) or a Wikipedia-coordinate dot (59), 2022 SEC ward counts (`tools/build-wb-towns.py`). The 50 with AMRUT ward maps are also server places (migration `20260930160000_kasa_wb_towns.sql`), so ward taps/report filing use the normal place code. Area card level `town`; towns with no ward map link to add-town.html `?town=&body=&district=`.
+- `places/wb_ministers.json` (ministers + departments, Wikipedia) + `places/wb_mplads.json` (MPLADS summary per MP) + `places/mplads/<pc-N|rs-name>.json` (works lists) — `tools/build-wb-reps.py`; kasa.js leader profiles (`findRep`, keys `ac:N`/`pc:N`/`rs:i`/`min:i`, Purulia keeps `mla:`/`mp:`), statewide search in the reps section, `?rep=<key>` share links.
 - `places/wb_officials.json` — DM, Zilla Parishad ADM and BDOs (phone/email) per district from each district site's Who's Who (`tools/build-wb-officials.py`; unreachable sites keep old entries). Area card also shows each tier's duties from the WB Panchayat Act 1973.
 - "Add who's responsible here" on the area card: `kasa_submit_official` (anyone, cited link) → `kasa_private.official_suggestions` → admin `kasa_admin_official_queue`/`kasa_admin_review_official` → public `kasa_officials(district)`.
 
@@ -45,7 +46,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - New `.js` file: add it to the `node --check` list and `paths:` in `kasa-tests.yml`.
 
 ## Tools (`tools/`)
-`build-areas|build-districts|build-local-bodies|build-places|build-wb-local|build-wb-leaders.py` boundary -> geojson/SQL; `build-wb-officials.py` district officers; `validate-wards.mjs` checks ward GeoJSON; `load-schools.py`, `udise-benchmarks.py` school data; `public-record.mjs` daily record; `version.mjs` version badge.
+`build-areas|build-districts|build-local-bodies|build-places|build-wb-local|build-wb-leaders.py` boundary -> geojson/SQL; `build-wb-officials.py` district officers; `build-wb-reps.py` ministers + MPLADS; `validate-wards.mjs` checks ward GeoJSON; `load-schools.py`, `udise-benchmarks.py` school data; `public-record.mjs` daily record; `version.mjs` version badge.
 
 ## Deploy targets
 GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `vercel.json`); Cloudflare worker (share previews). Longer docs: `DEPLOY.md`, `RUNBOOK.md`, `SETUP-*.md` (read only when needed).

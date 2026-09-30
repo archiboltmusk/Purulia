@@ -1,0 +1,375 @@
+{
+"checked": "2026-09-30",
+"source": "https://en.wikipedia.org/wiki/Suvendu_Adhikari_ministry",
+"ministers": [
+{
+"name": "Suvendu Adhikari",
+"rank": "cm",
+"portfolios": [
+"Home and Hill Affairs",
+"Land and Land Reforms & Refugee Relief and Rehabilitation",
+"Power",
+"Information and Cultural Affairs",
+"Personnel and Administrative Reforms",
+"Other Department not allotted to other Ministers."
+],
+"ac": 210
+},
+{
+"name": "Nisith Pramanik",
+"rank": "cabinet",
+"portfolios": [
+"North Bengal Development",
+"Water Resources Investigation and Development"
+],
+"ac": 2
+},
+{
+"name": "Ashok Kirtania",
+"rank": "cabinet",
+"portfolios": [
+"Food and Supplies",
+"Co-operation"
+],
+"ac": 95
+},
+{
+"name": "Dilip Ghosh",
+"rank": "cabinet",
+"portfolios": [
+"Panchayats and Rural Development",
+"Agricultural Marketing"
+],
+"ac": 224
+},
+{
+"name": "Kshudiram Tudu",
+"rank": "cabinet",
+"portfolios": [
+"Tribal Development",
+"Minority Affairs and Madrasah Education"
+],
+"ac": 249
+},
+{
+"name": "Agnimitra Paul",
+"rank": "cabinet",
+"portfolios": [
+"Urban Development and Municipal Affairs"
+],
+"ac": 280
+},
+{
+"name": "Dipak Barman",
+"rank": "cabinet",
+"portfolios": [
+"School Education",
+"Micro, Small & Medium Enterprises and Textiles",
+"Housing"
+],
+"ac": 13
+},
+{
+"name": "Tapas Roy",
+"rank": "cabinet",
+"portfolios": [
+"Industry, Commerce and Enterprises",
+"Public Enterprises and Industrial Reconstruction",
+"Non-Conventional and Renewable Energy Sources"
+],
+"ac": 167
+},
+{
+"name": "Shankar Ghosh",
+"rank": "cabinet",
+"portfolios": [
+"Parliamentary Affairs",
+"Tourism"
+],
+"ac": 26
+},
+{
+"name": "Manoj Kumar Oraon",
+"rank": "cabinet",
+"portfolios": [
+"Environment",
+"Forests"
+],
+"ac": 10
+},
+{
+"name": "Arjun Singh",
+"rank": "cabinet",
+"portfolios": [
+"Transport",
+"Labour"
+],
+"ac": 107
+},
+{
+"name": "Gouri Shankar Ghosh",
+"rank": "cabinet",
+"portfolios": [
+"Backward Classes Welfare",
+"Mass Education Extension and Library Services"
+],
+"ac": 64
+},
+{
+"name": "Jagannath Chattopadhyay",
+"rank": "cabinet",
+"portfolios": [
+"Higher Education and Technical Education",
+"Training & Skill Development"
+],
+"ac": 285
+},
+{
+"name": "Swapan Dasgupta",
+"rank": "cabinet",
+"portfolios": [
+"Finance"
+],
+"ac": 160
+},
+{
+"name": "Kalyan Chakraborty",
+"rank": "cabinet",
+"portfolios": [
+"Information Technology and Electronics",
+"Science and Technology and Bio-Technology",
+"Food Processing Industries and Horticulture"
+]
+},
+{
+"name": "Sharadwat Mukherjee",
+"rank": "cabinet",
+"portfolios": [
+"Health and Family Welfare"
+],
+"ac": 116
+},
+{
+"name": "Arup Kumar Das",
+"rank": "cabinet",
+"portfolios": [
+"Irrigation and Waterways"
+],
+"ac": 216
+},
+{
+"name": "Ajay Kumar Poddar",
+"rank": "cabinet",
+"portfolios": [
+"Public Health Engineering",
+"Public Works"
+],
+"ac": 282
+},
+{
+"name": "Dudh Kumar Mondal",
+"rank": "cabinet",
+"portfolios": [
+"Agriculture"
+],
+"ac": 290
+},
+{
+"name": "Malati Rava Roy",
+"rank": "mos_ic",
+"portfolios": [
+"Women and Child Development and Social Welfare",
+"Self Help Group and Self Employment",
+"Programme Monitoring"
+],
+"ac": 9
+},
+{
+"name": "Rajesh Mahata",
+"rank": "mos_ic",
+"portfolios": [
+"Animal Resources Development",
+"Fisheries"
+],
+"ac": 221
+},
+{
+"name": "Indranil Khan",
+"rank": "mos_ic",
+"portfolios": [
+"Youth Services and Sports",
+"Consumer Affairs"
+],
+"ac": 154
+},
+{
+"name": "Joyel Murmu",
+"rank": "mos",
+"portfolios": [
+"Tribal Development",
+"Irrigation and Waterways"
+],
+"ac": 43
+},
+{
+"name": "Hare Krishna Bera",
+"rank": "mos",
+"portfolios": [
+"Higher Education",
+"Technical Education, Training & Skill Development"
+],
+"ac": 203
+},
+{
+"name": "Anandamay Barman",
+"rank": "mos",
+"portfolios": [
+"Finance",
+"Transport"
+]
+},
+{
+"name": "Ashok Dinda",
+"rank": "mos",
+"portfolios": [
+"Agricultural Marketing",
+"Micro, Small & Medium Enterprises and Textiles"
+],
+"ac": 206
+},
+{
+"name": "Nadiar Chand Bouri",
+"rank": "mos",
+"portfolios": [
+"Public Works",
+"Backward Classes Welfare"
+],
+"ac": 245
+},
+{
+"name": "Bishal Lama",
+"rank": "mos",
+"portfolios": [
+"Home and Hill Affairs",
+"Minority Affairs and Madrasah Education"
+],
+"ac": 11
+},
+{
+"name": "Santanu Pramanik",
+"rank": "mos",
+"portfolios": [
+"Food and Supplies",
+"Panchayats and Rural Development"
+],
+"ac": 214
+},
+{
+"name": "Moumita Biswas Mishra",
+"rank": "mos",
+"portfolios": [
+"Industry, Commerce and Enterprises",
+"Science and Technology and Biotechnology"
+]
+},
+{
+"name": "Umesh Rai",
+"rank": "mos",
+"portfolios": [
+"Parliamentary Affairs",
+"Urban Development"
+],
+"ac": 170
+},
+{
+"name": "Purnima Chakraborty",
+"rank": "mos",
+"portfolios": [
+"Information and Cultural Affairs",
+"Tourism"
+],
+"ac": 166
+},
+{
+"name": "Koushik Chowdhury",
+"rank": "mos",
+"portfolios": [
+"School Education",
+"Fire and Emergency Services"
+],
+"ac": 35
+},
+{
+"name": "Bhaskar Bhattacharya",
+"rank": "mos",
+"portfolios": [
+"Public Health Engineering",
+"Labour"
+],
+"ac": 186
+},
+{
+"name": "Dibakar Gharami",
+"rank": "mos",
+"portfolios": [
+"Co-operation",
+"Environment",
+"Forests"
+],
+"ac": 258
+},
+{
+"name": "Amiya Kisku",
+"rank": "mos",
+"portfolios": [
+"Food Processing Industries and Horticulture",
+"Agriculture"
+],
+"ac": 220
+},
+{
+"name": "Kalita Maji",
+"rank": "mos",
+"portfolios": [
+"Housing"
+],
+"ac": 273
+},
+{
+"name": "Gargi Das Ghosh",
+"rank": "mos",
+"portfolios": [
+"Power",
+"Non-Conventional and Renewable Energy Sources"
+],
+"ac": 68
+},
+{
+"name": "Biraj Biswas",
+"rank": "mos",
+"portfolios": [
+"Law",
+"Judicial",
+"North Bengal Development"
+],
+"ac": 32
+},
+{
+"name": "Dipankar Jana",
+"rank": "mos",
+"portfolios": [
+"Land and Land Reforms & Refugee Relief and Rehabilitation",
+"Sundarban Affairs"
+],
+"ac": 131
+},
+{
+"name": "Sumana Sarkar",
+"rank": "mos",
+"portfolios": [
+"Health and Family Welfare"
+],
+"ac": 191
+}
+]
+}

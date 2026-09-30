@@ -595,6 +595,16 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-rep-seat:hover{border-color:var(--amber);color:var(--amber);}
 .k-rep-src{font-size:.78rem;color:var(--text-lo);line-height:1.5;margin:.2rem 0 1rem;}
 .k-rep-src a{color:var(--amber);}
+.k-rep-depts{margin:0 0 1.2rem;padding-left:1.1rem;font-size:.9rem;line-height:1.6;color:var(--text-hi);}
+.k-rep-work{display:grid;gap:.2rem;padding:.6rem 0;border-bottom:1px solid var(--border);font-size:.88rem;}
+.k-rep-work small{font-family:var(--mono);font-size:10px;color:var(--text-lo);}
+.k-rep-works-more summary{cursor:pointer;color:var(--amber);font-size:.85rem;padding:.6rem 0;}
+.k-wb-search{width:100%;margin:.6rem 0;padding:.65rem .8rem;border:1px solid var(--border2);border-radius:4px;background:var(--ink3);color:var(--text-hi);font:inherit;}
+.k-wb-group{border-bottom:1px solid var(--border);}
+.k-wb-group summary{cursor:pointer;padding:.7rem 0;font-size:.92rem;color:var(--cream);}
+.k-wb-rep{display:grid;width:100%;gap:.1rem;background:none;border:0;border-top:1px solid var(--border);padding:.55rem 0;text-align:left;font:inherit;color:var(--text-hi);cursor:pointer;}
+.k-wb-rep:hover .k-wb-rep-name{color:var(--amber);}
+.k-wb-rep-sub{font-family:var(--mono);font-size:10px;color:var(--text-lo);}
 .k-rep-upd{padding:.6rem 0;border-bottom:1px solid var(--border);}
 .k-rep-upd-h{display:flex;justify-content:space-between;align-items:baseline;gap:1rem;font-size:.92rem;}
 .k-rep-upd-h a{color:var(--cream);font-weight:600;}
@@ -919,4 +929,6 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-add input,.k-area-add select{font:inherit;font-size:.9rem;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:3px;background:var(--ink);color:var(--text-hi);}
 .k-area-none{color:var(--text-lo);font-style:italic;}
 .k-area-draw{display:inline-block;margin:.35rem 0 .15rem;text-decoration:none;}
+.k-area-rep{background:none;border:0;padding:0;font:inherit;color:var(--text-hi);text-align:left;cursor:pointer;}
+.k-area-rep:hover{color:var(--amber);}
 .k-area-card .k-ward-note a{color:var(--amber);}
