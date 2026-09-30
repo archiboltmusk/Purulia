@@ -304,6 +304,15 @@ test('old "add my town" links open the new page', async ({ page }) => {
   await expect(page).toHaveURL(/add-town\.html$/);
 });
 
+test('a long place name never pushes the menu button off a phone screen', async ({ page, backend }) => {
+  await page.setViewportSize({ width: 390, height: 800 });
+  await page.goto('kasa.html');
+  await page.evaluate(() => { document.querySelector('.k-nav-logo .k-wordmark-second').textContent = 'North 24 Parganas'; });
+  const box = await page.locator('#k-more-btn').boundingBox();
+  expect(box.x + box.width).toBeLessThanOrEqual(390);
+  expect(await page.evaluate(() => document.documentElement.scrollWidth)).toBeLessThanOrEqual(390);
+});
+
 test('district outlines show statewide; a district\'s blocks and panchayats load only once it is in view', async ({ page, backend }) => {
   const fetched = [];
   page.on('request', r => { const m = r.url().match(/places\/wb\/([a-z0-9-]+)\.geojson/); if (m) fetched.push(m[1]); });
