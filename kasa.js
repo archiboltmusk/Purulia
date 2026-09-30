@@ -1434,6 +1434,8 @@ function renderAreaCard(){
       <input name="src" type="url" required maxlength="300" placeholder="${esc(t('ar_add_src'))}">
       <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
     </form>
+    <a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams({ fix: 'area', level: a.level, district: district.properties.slug,
+      ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
       · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>`;
   el.hidden = false;
@@ -1542,6 +1544,7 @@ function renderWardCard(){
     <a class="k-ward-money" href="municipality.html">${esc(t('wc_money'))}</a>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
+    <a class="k-ward-money" href="add-town.html?fix=purulia&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
   el.hidden = false;
 }
@@ -1589,6 +1592,7 @@ function renderPlaceWardCard(el, n, slug){
       <button type="button" class="k-ward-filter" data-ward-share="${n}" data-ward-place="${esc(slug)}">${esc(t('wc_share'))}</button>
     </div>
     ${c?.borough && c.src.boroughOffices ? `<a class="k-ward-money" href="${esc(c.src.boroughOffices)}" target="_blank" rel="noopener">${esc(t('pw_borough', { b: c.borough, body: p.body || p.name }))}</a>` : ''}
+    <a class="k-ward-money" href="add-town.html?fix=${encodeURIComponent(slug)}&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('pw_map_note', { src: p.sourceName || p.source || '' }))}</div>`;
   el.hidden = false;
 }

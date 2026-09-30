@@ -243,6 +243,34 @@ test('Fix a town: tap a ward on the map to copy it for editing', async ({ page }
   await expect(page.locator('.at-vx:not(.mid)')).toHaveCount(4);
 });
 
+test("Fix a Purulia ward from its card: the ward opens ready to edit", async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?fix=purulia&ward=5');
+  await expect(page.locator('#at-town')).toHaveValue('Purulia');
+  await expect(page.locator('#at-district')).toHaveValue('Purulia');
+  await expect(page.locator('#at-wards button')).toHaveText(['5']);
+  await expect(page.locator('#at-e-ward')).toHaveValue('5');
+  await page.fill('#at-note', 'The border should follow the railway line');
+  await page.fill('#at-source', 'Ward map at the municipality office');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  const sent = calls.find(c => c.name === 'kasa_submit_place').body;
+  expect(sent).toMatchObject({ p_fix_of: 'purulia', p_district: 'Purulia', p_town: 'Purulia' });
+  expect(sent.p_geojson.features.map(f => f.properties.ward)).toEqual([5]);
+});
+
+test('Fix a gram panchayat border from its place card', async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?fix=area&level=gp&district=purulia&block=Arsha&gp=Arsha');
+  await expect(page.locator('#at-title')).toHaveText(/Fix the border of Arsha/);
+  await expect(page.locator('#at-wards button')).toHaveText(['1 · Arsha']);
+  await page.fill('#at-note', 'The border cuts through the village');
+  await page.fill('#at-source', 'Seen on the ground');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  expect(calls.find(c => c.name === 'kasa_submit_place').body).toMatchObject({ p_fix_of: 'area:gp:purulia:Arsha:Arsha', p_district: 'Purulia' });
+});
+
 test('old "add my town" links open the new page', async ({ page }) => {
   await page.goto('suggest-feature.html#add-town');
   await expect(page).toHaveURL(/add-town\.html$/);
@@ -272,6 +300,7 @@ test('tapping a gram panchayat opens its card with the MLA and MP for that spot;
   await expect(card.locator('.k-area-role').first()).toContainText('MLA');
   await expect(card).toContainText('drinking water');
   await expect(card).toContainText('Bankura');
+  await expect(card.locator('a', { hasText: 'Suggest a fix' })).toHaveAttribute('href', 'add-town.html?fix=area&level=gp&district=bankura&block=Indus&gp=Amrul');
   await card.locator('[data-area-level="district"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Bankura');
   await expect(card.locator('.k-area-role').first()).toContainText('MLAs (12 seats)');
