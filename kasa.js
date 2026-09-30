@@ -256,6 +256,10 @@ function applyLang(){
   showVersion();
 }
 
+// Approved reader fixes to the Bengali arrived (translate-fix.js): redraw the fixed labels now,
+// the rest on its next render.
+document.addEventListener('kasa-translations', () => { if (state.lang === 'bn') applyLang(); });
+
 function setLang(lang){
   state.lang = I18N[lang] ? lang : 'en';
   try { localStorage.setItem('kasa_lang', state.lang); } catch (e) {}
