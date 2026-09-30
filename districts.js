@@ -19,7 +19,6 @@
   function render() {
     if (!Object.prototype.hasOwnProperty.call(LABELS, key)) key = 'child_marriage';
     const good = data.indicators[key].higher_is_better;
-    const k = key;
     document.querySelectorAll('.dt-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === key)));
     document.getElementById('dt-h').textContent = LABELS[key];
     const rows = Object.entries(data.districts).filter(([, v]) => v[key] != null)
