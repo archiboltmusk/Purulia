@@ -933,6 +933,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-add-note{font-size:.8rem;color:var(--text-lo);margin:0;}
 .k-area-add input,.k-area-add select{font:inherit;font-size:.9rem;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:3px;background:var(--ink);color:var(--text-hi);}
 .k-area-none{color:var(--text-lo);font-style:italic;}
+.k-area-draw{display:inline-block;margin:.35rem 0 .15rem;text-decoration:none;}
 .k-area-rep{background:none;border:0;padding:0;font:inherit;color:var(--text-hi);text-align:left;cursor:pointer;}
 .k-area-rep:hover{color:var(--amber);}
 .k-area-card .k-ward-note a{color:var(--amber);}
