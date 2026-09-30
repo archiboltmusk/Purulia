@@ -239,3 +239,21 @@ test('district outlines show statewide; a district\'s blocks and panchayats load
   const kinds = await page.evaluate(() => [...new Set(mainMap.getSource('wb-bankura')._data.features.map(f => f.properties.kind))].sort());
   expect(kinds).toEqual(['block', 'gp']);
 });
+
+test('tapping a gram panchayat opens its card with the MLA and MP for that spot; crumbs switch to block and district', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.5539, 23.1122], zoom: 11 }); });
+  await page.evaluate(() => openArea(23.1122, 87.5539));
+  const card = page.locator('#k-area-card');
+  await expect(card).toBeVisible();
+  await expect(card.locator('.k-ward-title')).toHaveText('Amrul');
+  await expect(card.locator('.k-ward-sub')).toContainText('Gram panchayat · Indus block · Bankura');
+  await expect(card.locator('.k-area-role').first()).toContainText('MLA');
+  await expect(card).toContainText('Bankura');
+  await card.locator('[data-area-level="district"]').click();
+  await expect(card.locator('.k-ward-title')).toHaveText('Bankura');
+  await expect(card.locator('.k-area-role').first()).toContainText('MLAs (12 seats)');
+  await card.locator('[data-area-close]').click();
+  await expect(card).toBeHidden();
+});
