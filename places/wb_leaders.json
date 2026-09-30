@@ -1,0 +1,1696 @@
+{
+"checked": "2026-09-30",
+"sources": {
+"mla": "https://en.wikipedia.org/wiki/2026_West_Bengal_Legislative_Assembly_election",
+"mp": "https://en.wikipedia.org/wiki/2024_Indian_general_election_in_West_Bengal"
+},
+"ac": {
+"1": {
+"name": "Mekliganj",
+"person": "Dadhiram Ray",
+"party": "BJP"
+},
+"2": {
+"name": "Mathabhanga",
+"person": "Nisith Pramanik",
+"party": "BJP"
+},
+"3": {
+"name": "Cooch Behar Uttar",
+"person": "Sukumar Ray",
+"party": "BJP"
+},
+"4": {
+"name": "Cooch Behar Dakshin",
+"person": "Rathindra Bose",
+"party": "BJP"
+},
+"5": {
+"name": "Sitalkuchi",
+"person": "Sabitri Barman",
+"party": "BJP"
+},
+"6": {
+"name": "Sitai",
+"person": "Sangita Roy",
+"party": "AITC"
+},
+"7": {
+"name": "Dinhata",
+"person": "Ajay Ray",
+"party": "BJP"
+},
+"8": {
+"name": "Natabari",
+"person": "Girija Shankar Ray",
+"party": "BJP"
+},
+"9": {
+"name": "Tufanganj",
+"person": "Malati Rava Roy",
+"party": "BJP"
+},
+"10": {
+"name": "Kumargram",
+"person": "Manoj Kumar Oraon",
+"party": "BJP"
+},
+"11": {
+"name": "Kalchini",
+"person": "Bishal Lama",
+"party": "BJP"
+},
+"12": {
+"name": "Alipurduars",
+"person": "Paritosh Das",
+"party": "BJP"
+},
+"13": {
+"name": "Falakata",
+"person": "Dipak Barman",
+"party": "BJP"
+},
+"14": {
+"name": "Madarihat",
+"person": "Laxuman Limbu",
+"party": "BJP"
+},
+"15": {
+"name": "Dhupguri",
+"person": "Naresh Roy",
+"party": "BJP"
+},
+"16": {
+"name": "Maynaguri",
+"person": "Dalim Chandra Roy",
+"party": "BJP"
+},
+"17": {
+"name": "Jalpaiguri",
+"person": "Ananta Deb Adhikary",
+"party": "BJP"
+},
+"18": {
+"name": "Rajganj",
+"person": "Dinesh Sarkar",
+"party": "BJP"
+},
+"19": {
+"name": "Dabgram-Phulbari",
+"person": "Sikha Chatterjee",
+"party": "BJP"
+},
+"20": {
+"name": "Mal",
+"person": "Sukra Munda",
+"party": "BJP"
+},
+"21": {
+"name": "Nagrakata",
+"person": "Puna Bhengra",
+"party": "BJP"
+},
+"22": {
+"name": "Kalimpong",
+"person": "Bharat Kumar Chetri",
+"party": "BJP"
+},
+"23": {
+"name": "Darjeeling",
+"person": "Noman Rai",
+"party": "BJP"
+},
+"24": {
+"name": "Kurseong",
+"person": "Sonam Lama",
+"party": "BJP"
+},
+"25": {
+"name": "Matigara-Naxalbari",
+"person": "Anandamoy Barman",
+"party": "BJP"
+},
+"26": {
+"name": "Siliguri",
+"person": "Shankar Ghosh",
+"party": "BJP"
+},
+"27": {
+"name": "Phansidewa",
+"person": "Durga Murmu",
+"party": "BJP"
+},
+"28": {
+"name": "Chopra",
+"person": "Hamidul Rahaman",
+"party": "AITC"
+},
+"29": {
+"name": "Islampur",
+"person": "Kanaia Lal Agarwal",
+"party": "AITC"
+},
+"30": {
+"name": "Goalpokhar",
+"person": "Md. Ghulam Rabbani",
+"party": "AITC"
+},
+"31": {
+"name": "Chakulia",
+"person": "Minhajul Arfin Azad",
+"party": "AITC"
+},
+"32": {
+"name": "Karandighi",
+"person": "Biraj Biswas",
+"party": "BJP"
+},
+"33": {
+"name": "Hemtabad",
+"person": "Haripada Barman",
+"party": "BJP"
+},
+"34": {
+"name": "Kaliaganj",
+"person": "Utpal Brahmacharo",
+"party": "BJP"
+},
+"35": {
+"name": "Raiganj",
+"person": "Koushik Chowdhury",
+"party": "BJP"
+},
+"36": {
+"name": "Itahar",
+"person": "Mosaraf Hussen",
+"party": "AITC"
+},
+"37": {
+"name": "Kushmandi",
+"person": "Tapas Chandra Roy",
+"party": "BJP"
+},
+"38": {
+"name": "Kumarganj",
+"person": "Toraf Hossain Mandal",
+"party": "AITC"
+},
+"39": {
+"name": "Balurghat",
+"person": "Bidyut Kumar Roy",
+"party": "BJP"
+},
+"40": {
+"name": "Tapan",
+"person": "Budhrai Tudu",
+"party": "BJP"
+},
+"41": {
+"name": "Gangarampur",
+"person": "Satyendra Nath Roy",
+"party": "BJP"
+},
+"42": {
+"name": "Harirampur",
+"person": "Biplab Mitra",
+"party": "AITC"
+},
+"43": {
+"name": "Habibpur",
+"person": "Joyel Murmu",
+"party": "BJP"
+},
+"44": {
+"name": "Gazole",
+"person": "Chinmoy Deb Barman",
+"party": "BJP"
+},
+"45": {
+"name": "Chanchal",
+"person": "Prasun Banerjee",
+"party": "AITC"
+},
+"46": {
+"name": "Harishchandrapur",
+"person": "Md. Matibur Rahaman",
+"party": "AITC"
+},
+"47": {
+"name": "Malatipur",
+"person": "Abdur Rahim Boxi",
+"party": "AITC"
+},
+"48": {
+"name": "Ratua",
+"person": "Samar Mukherjee",
+"party": "AITC"
+},
+"49": {
+"name": "Manikchak",
+"person": "Gour Chandra Mandal",
+"party": "BJP"
+},
+"50": {
+"name": "Maldaha",
+"person": "Gopal Chandra Saha",
+"party": "BJP"
+},
+"51": {
+"name": "English Bazar",
+"person": "Amlan Bhaduri",
+"party": "BJP"
+},
+"52": {
+"name": "Mothabari",
+"person": "Md. Najrul Islam",
+"party": "AITC"
+},
+"53": {
+"name": "Sujapur",
+"person": "Sabina Yeasmin",
+"party": "AITC"
+},
+"54": {
+"name": "Baisnabnagar",
+"person": "Raju Karmakar",
+"party": "BJP"
+},
+"55": {
+"name": "Farakka",
+"person": "Motab Shaikh",
+"party": "INC"
+},
+"56": {
+"name": "Samserganj",
+"person": "Mohammad Noor Alam",
+"party": "AITC"
+},
+"57": {
+"name": "Suti",
+"person": "Emani Biswas",
+"party": "AITC"
+},
+"58": {
+"name": "Jangipur",
+"person": "Chitta Mukherjee",
+"party": "BJP"
+},
+"59": {
+"name": "Raghunathganj",
+"person": "Akhruzzaman",
+"party": "AITC"
+},
+"60": {
+"name": "Sagardighi",
+"person": "Bayron Biswas",
+"party": "AITC"
+},
+"61": {
+"name": "Lalgola",
+"person": "Abdul Aziz Doctor",
+"party": "AITC"
+},
+"62": {
+"name": "Bhagabangola",
+"person": "Reyat Hossain Sarkar",
+"party": "AITC"
+},
+"63": {
+"name": "Raninagar",
+"person": "Julfikar Ali",
+"party": "INC"
+},
+"64": {
+"name": "Murshidabad",
+"person": "Gouri Shankar Ghosh",
+"party": "BJP"
+},
+"65": {
+"name": "Nabagram",
+"person": "Dilip Saha",
+"party": "BJP"
+},
+"66": {
+"name": "Khargram",
+"person": "Mitali Mal",
+"party": "BJP"
+},
+"67": {
+"name": "Burwan",
+"person": "Sukhen Kumar Bagdi",
+"party": "BJP"
+},
+"68": {
+"name": "Kandi",
+"person": "Gargi Das Ghosh",
+"party": "BJP"
+},
+"69": {
+"name": "Bharatpur",
+"person": "Mustafizur Rahaman",
+"party": "AITC"
+},
+"70": {
+"name": "Rejinagar",
+"person": "Humayun Kabir",
+"party": "JUP"
+},
+"71": {
+"name": "Beldanga",
+"person": "Bharat Kumar Jhawar",
+"party": "BJP"
+},
+"72": {
+"name": "Baharampur",
+"person": "Subrata Maitra",
+"party": "BJP"
+},
+"73": {
+"name": "Hariharpara",
+"person": "Niamot Sheikh",
+"party": "AITC"
+},
+"74": {
+"name": "Naoda",
+"person": "Humayun Kabir",
+"party": "JUP"
+},
+"75": {
+"name": "Domkal",
+"person": "Md. Mostafijur Rahaman",
+"party": "CPI(M)"
+},
+"76": {
+"name": "Jalangi",
+"person": "Babar Ali",
+"party": "AITC"
+},
+"77": {
+"name": "Karimpur",
+"person": "Samarendranath Ghosh",
+"party": "BJP"
+},
+"78": {
+"name": "Tehatta",
+"person": "Subrata Kabiraj",
+"party": "BJP"
+},
+"79": {
+"name": "Palashipara",
+"person": "Rukbanur Rahman",
+"party": "AITC"
+},
+"80": {
+"name": "Kaliganj",
+"person": "Alifa Ahmed",
+"party": "AITC"
+},
+"81": {
+"name": "Nakashipara",
+"person": "Santanu Dey",
+"party": "BJP"
+},
+"82": {
+"name": "Chapra",
+"person": "Jeber Sekh",
+"party": "AITC"
+},
+"83": {
+"name": "Krishnanagar Uttar",
+"person": "Tarak Nath Chatterjee",
+"party": "BJP"
+},
+"84": {
+"name": "Nabadwip",
+"person": "Srutisekhar Goswami",
+"party": "BJP"
+},
+"85": {
+"name": "Krishnanagar Dakshin",
+"person": "Sadhan Ghosh",
+"party": "BJP"
+},
+"86": {
+"name": "Santipur",
+"person": "Swapan Kumar Das",
+"party": "BJP"
+},
+"87": {
+"name": "Ranaghat Uttar Paschim",
+"person": "Parthasarathi Chatterjee",
+"party": "BJP"
+},
+"88": {
+"name": "Krishnaganj",
+"person": "Sukanta Biswas",
+"party": "BJP"
+},
+"89": {
+"name": "Ranaghat Uttar Purba",
+"person": "Ashim Biswas",
+"party": "BJP"
+},
+"90": {
+"name": "Ranaghat Dakshin",
+"person": "Ashim Kumar Biswas",
+"party": "BJP"
+},
+"91": {
+"name": "Chakdaha",
+"person": "Bankim Chandra Ghosh",
+"party": "BJP"
+},
+"92": {
+"name": "Kalyani",
+"person": "Anupam Biswas",
+"party": "BJP"
+},
+"93": {
+"name": "Haringhata",
+"person": "Asim Kumar Sarkar",
+"party": "BJP"
+},
+"94": {
+"name": "Bagdah",
+"person": "Soma Thakur",
+"party": "BJP"
+},
+"95": {
+"name": "Bangaon Uttar",
+"person": "Ashok Kirtania",
+"party": "BJP"
+},
+"96": {
+"name": "Bangaon Dakshin",
+"person": "Swapan Majumder",
+"party": "BJP"
+},
+"97": {
+"name": "Gaighata",
+"person": "Subrata Thakur",
+"party": "BJP"
+},
+"98": {
+"name": "Swarupnagar",
+"person": "Bina Mondal",
+"party": "AITC"
+},
+"99": {
+"name": "Baduria",
+"person": "Burhanul Mokaddin",
+"party": "AITC"
+},
+"100": {
+"name": "Habra",
+"person": "Debdas Mondal",
+"party": "BJP"
+},
+"101": {
+"name": "Ashoknagar",
+"person": "Dr. Sumay Hira",
+"party": "BJP"
+},
+"102": {
+"name": "Amdanga",
+"person": "Mohammad Kasem Siddique",
+"party": "AITC"
+},
+"103": {
+"name": "Bijpur",
+"person": "Sudipta Das",
+"party": "BJP"
+},
+"104": {
+"name": "Naihati",
+"person": "Sumitro Chatterjee",
+"party": "BJP"
+},
+"105": {
+"name": "Bhatpara",
+"person": "Pawan Kumar Singh",
+"party": "BJP"
+},
+"106": {
+"name": "Jagatdal",
+"person": "Rajesh Kumar",
+"party": "BJP"
+},
+"107": {
+"name": "Noapara",
+"person": "Arjun Singh",
+"party": "BJP"
+},
+"108": {
+"name": "Barrackpur",
+"person": "Kaustuv Bagchi",
+"party": "BJP"
+},
+"109": {
+"name": "Khardaha",
+"person": "Kalyan Chakraborti",
+"party": "BJP"
+},
+"110": {
+"name": "Dum Dum Uttar",
+"person": "Sourav Sikdar",
+"party": "BJP"
+},
+"111": {
+"name": "Panihati",
+"person": "Ratna Debnath",
+"party": "BJP"
+},
+"112": {
+"name": "Kamarhati",
+"person": "Madan Mitra",
+"party": "AITC"
+},
+"113": {
+"name": "Baranagar",
+"person": "Sajal Ghosh",
+"party": "BJP"
+},
+"114": {
+"name": "Dum Dum",
+"person": "Arijit Bakshi",
+"party": "BJP"
+},
+"115": {
+"name": "Rajarhat New Town",
+"person": "Piyush Kanodia",
+"party": "BJP"
+},
+"116": {
+"name": "Bidhannagar",
+"person": "Sharadwat Mukherjee",
+"party": "BJP"
+},
+"117": {
+"name": "Rajarhat Gopalpur",
+"person": "Tarunjyoti Tewari",
+"party": "BJP"
+},
+"118": {
+"name": "Madhyamgram",
+"person": "Rathin Ghosh",
+"party": "AITC"
+},
+"119": {
+"name": "Barasat",
+"person": "Sankar Chatterjee",
+"party": "BJP"
+},
+"120": {
+"name": "Deganga",
+"person": "Anisur Rahaman Bidesh",
+"party": "AITC"
+},
+"121": {
+"name": "Haroa",
+"person": "Abdul Matin Muhammad",
+"party": "AITC"
+},
+"122": {
+"name": "Minakhan",
+"person": "Usha Rani Mondal",
+"party": "AITC"
+},
+"123": {
+"name": "Sandeshkhali",
+"person": "Sanat Sardar",
+"party": "BJP"
+},
+"124": {
+"name": "Basirhat Dakshin",
+"person": "Surajit Mitra",
+"party": "AITC"
+},
+"125": {
+"name": "Basirhat Uttar",
+"person": "Md. Tauseef Rahman",
+"party": "AITC"
+},
+"126": {
+"name": "Hingalganj",
+"person": "Rekha Patra",
+"party": "BJP"
+},
+"127": {
+"name": "Gosaba",
+"person": "Bikarna Naskar",
+"party": "BJP"
+},
+"128": {
+"name": "Basanti",
+"person": "Nilima Mistry",
+"party": "AITC"
+},
+"129": {
+"name": "Kultali",
+"person": "Ganesh Chandra Mondal",
+"party": "AITC"
+},
+"130": {
+"name": "Patharpratima",
+"person": "Samir Kumar Jana",
+"party": "AITC"
+},
+"131": {
+"name": "Kakdwip",
+"person": "Dipankar Jana",
+"party": "BJP"
+},
+"132": {
+"name": "Sagar",
+"person": "Sumanta Mandal",
+"party": "BJP"
+},
+"133": {
+"name": "Kulpi",
+"person": "Barnali Dhara",
+"party": "AITC"
+},
+"134": {
+"name": "Raidighi",
+"person": "Tapas Mondal",
+"party": "AITC"
+},
+"135": {
+"name": "Mandirbazar",
+"person": "Joydeb Halder",
+"party": "AITC"
+},
+"136": {
+"name": "Jaynagar",
+"person": "Biswanath Das",
+"party": "AITC"
+},
+"137": {
+"name": "Baruipur Purba",
+"person": "Bivas Sardar",
+"party": "AITC"
+},
+"138": {
+"name": "Canning Paschim",
+"person": "Paresh Ram Das",
+"party": "AITC"
+},
+"139": {
+"name": "Canning Purba",
+"person": "Md. Baharul Islam",
+"party": "AITC"
+},
+"140": {
+"name": "Baruipur Paschim",
+"person": "Biman Banerjee",
+"party": "AITC"
+},
+"141": {
+"name": "Magrahat Purba",
+"person": "Sarmistha Purkait",
+"party": "AITC"
+},
+"142": {
+"name": "Magrahat Paschim",
+"person": "Md. Samim Ahamed Molla",
+"party": "AITC"
+},
+"143": {
+"name": "Diamond Harbour",
+"person": "Pannalal Halder",
+"party": "AITC"
+},
+"144": {
+"name": "Falta",
+"person": "Debangshu Panda",
+"party": "BJP"
+},
+"145": {
+"name": "Satgachhia",
+"person": "Agniswar Naskar",
+"party": "BJP"
+},
+"146": {
+"name": "Bishnupur",
+"person": "Dilip Mondal",
+"party": "AITC"
+},
+"147": {
+"name": "Sonarpur Dakshin",
+"person": "Roopa Ganguly",
+"party": "BJP"
+},
+"148": {
+"name": "Bhangar",
+"person": "Naushad Siddiqui",
+"party": "ISF"
+},
+"149": {
+"name": "Kasba",
+"person": "Javed Ahmed Khan",
+"party": "AITC"
+},
+"150": {
+"name": "Jadavpur",
+"person": "Sarbori Mukherjee",
+"party": "BJP"
+},
+"151": {
+"name": "Sonarpur Uttar",
+"person": "Debasish Dhar",
+"party": "BJP"
+},
+"152": {
+"name": "Tollygunge",
+"person": "Papiya Adhikari",
+"party": "BJP"
+},
+"153": {
+"name": "Behala Purba",
+"person": "Sankar Sikder",
+"party": "BJP"
+},
+"154": {
+"name": "Behala Paschim",
+"person": "Indranil Khan",
+"party": "BJP"
+},
+"155": {
+"name": "Maheshtala",
+"person": "Subhasis Das",
+"party": "AITC"
+},
+"156": {
+"name": "Budge Budge",
+"person": "Ashok Kumar Deb",
+"party": "AITC"
+},
+"157": {
+"name": "Metiaburuz",
+"person": "Abdul Khaleque Molla",
+"party": "AITC"
+},
+"158": {
+"name": "Kolkata Port",
+"person": "Firhad Hakim",
+"party": "AITC"
+},
+"159": {
+"name": "Bhabanipur",
+"person": "Suvendu Adhikari",
+"party": "BJP"
+},
+"160": {
+"name": "Rashbehari",
+"person": "Swapan Dasgupta",
+"party": "BJP"
+},
+"161": {
+"name": "Ballygunge",
+"person": "Sovandeb Chattopadhyay",
+"party": "AITC"
+},
+"162": {
+"name": "Chowrangee",
+"person": "Nayna Bandyopadhyay",
+"party": "AITC"
+},
+"163": {
+"name": "Entally",
+"person": "Sandipan Saha",
+"party": "AITC"
+},
+"164": {
+"name": "Beleghata",
+"person": "Kunal Ghosh",
+"party": "AITC"
+},
+"165": {
+"name": "Jorasanko",
+"person": "Vijay Ojha",
+"party": "BJP"
+},
+"166": {
+"name": "Shyampukur",
+"person": "Purnima Chakraborty",
+"party": "BJP"
+},
+"167": {
+"name": "Maniktala",
+"person": "Tapas Roy",
+"party": "BJP"
+},
+"168": {
+"name": "Kashipur-Belgachhia",
+"person": "Ritesh Tiwari",
+"party": "BJP"
+},
+"169": {
+"name": "Bally",
+"person": "Sanjay Kumar Singh",
+"party": "BJP"
+},
+"170": {
+"name": "Howrah Uttar",
+"person": "Umesh Rai",
+"party": "BJP"
+},
+"171": {
+"name": "Howrah Madhya",
+"person": "Arup Roy",
+"party": "AITC"
+},
+"172": {
+"name": "Shibpur",
+"person": "Rudranil Ghosh",
+"party": "BJP"
+},
+"173": {
+"name": "Howrah Dakshin",
+"person": "Nandita Chowdhury",
+"party": "AITC"
+},
+"174": {
+"name": "Sankrail",
+"person": "Priya Paul",
+"party": "AITC"
+},
+"175": {
+"name": "Panchla",
+"person": "Gulsan Mullick",
+"party": "AITC"
+},
+"176": {
+"name": "Uluberia Purba",
+"person": "Ritabrata Banerjee",
+"party": "AITC"
+},
+"177": {
+"name": "Uluberia Uttar",
+"person": "Chiran Bera",
+"party": "BJP"
+},
+"178": {
+"name": "Uluberia Dakshin",
+"person": "Pulak Roy",
+"party": "AITC"
+},
+"179": {
+"name": "Shyampur",
+"person": "Hiran Chatterjee",
+"party": "BJP"
+},
+"180": {
+"name": "Bagnan",
+"person": "Arunava Sen",
+"party": "AITC"
+},
+"181": {
+"name": "Amta",
+"person": "Amit Samanta",
+"party": "BJP"
+},
+"182": {
+"name": "Udaynarayanpur",
+"person": "Samir Kumar Panja",
+"party": "AITC"
+},
+"183": {
+"name": "Jagatballavpur",
+"person": "Anupam Ghosh",
+"party": "BJP"
+},
+"184": {
+"name": "Domjur",
+"person": "Tapas Maity",
+"party": "AITC"
+},
+"185": {
+"name": "Uttarpara",
+"person": "Dipanjan Chakraborty",
+"party": "BJP"
+},
+"186": {
+"name": "Sreerampur",
+"person": "Bhaskar Bhattacharya",
+"party": "BJP"
+},
+"187": {
+"name": "Champdani",
+"person": "Dilip Singh",
+"party": "BJP"
+},
+"188": {
+"name": "Singur",
+"person": "Arup Kumar Das",
+"party": "BJP"
+},
+"189": {
+"name": "Chandannagar",
+"person": "Deepanjan Kumar Guha",
+"party": "BJP"
+},
+"190": {
+"name": "Chunchura",
+"person": "Subir Nag",
+"party": "BJP"
+},
+"191": {
+"name": "Balagarh",
+"person": "Sumana Sarkar",
+"party": "BJP"
+},
+"192": {
+"name": "Pandua",
+"person": "Tusar Kumar Majumdar",
+"party": "BJP"
+},
+"193": {
+"name": "Saptagram",
+"person": "Swaraj Ghosh",
+"party": "BJP"
+},
+"194": {
+"name": "Chanditala",
+"person": "Swati Khandoker",
+"party": "AITC"
+},
+"195": {
+"name": "Jangipara",
+"person": "Prosenjit Bag",
+"party": "BJP"
+},
+"196": {
+"name": "Haripal",
+"person": "Madhumita Ghosh",
+"party": "BJP"
+},
+"197": {
+"name": "Dhanekhali",
+"person": "Asima Patra",
+"party": "AITC"
+},
+"198": {
+"name": "Tarakeswar",
+"person": "Santu Pan",
+"party": "BJP"
+},
+"199": {
+"name": "Pursurah",
+"person": "Biman Ghosh",
+"party": "BJP"
+},
+"200": {
+"name": "Arambagh",
+"person": "Hemanta Bag",
+"party": "BJP"
+},
+"201": {
+"name": "Goghat",
+"person": "Prasanta Digar",
+"party": "BJP"
+},
+"202": {
+"name": "Khanakul",
+"person": "Susanta Ghosh",
+"party": "BJP"
+},
+"203": {
+"name": "Tamluk",
+"person": "Hare Krishna Bera",
+"party": "BJP"
+},
+"204": {
+"name": "Panskura Purba",
+"person": "Subrata Maity",
+"party": "BJP"
+},
+"205": {
+"name": "Panskura Paschim",
+"person": "Sintu Senapati",
+"party": "BJP"
+},
+"206": {
+"name": "Moyna",
+"person": "Ashok Dinda",
+"party": "BJP"
+},
+"207": {
+"name": "Nandakumar",
+"person": "Nirmal Khanra",
+"party": "BJP"
+},
+"208": {
+"name": "Mahisadal",
+"person": "Subhas Chandra Panja",
+"party": "BJP"
+},
+"209": {
+"name": "Haldia",
+"person": "Pradip Kumar Bijali",
+"party": "BJP"
+},
+"210": {
+"name": "Nandigram",
+"person": "Suvendu Adhikari",
+"party": "BJP"
+},
+"211": {
+"name": "Chandipur",
+"person": "Pijush Kanti Das",
+"party": "BJP"
+},
+"212": {
+"name": "Patashpur",
+"person": "Tapan Maity",
+"party": "BJP"
+},
+"213": {
+"name": "Kanthi Uttar",
+"person": "Sumita Sinha",
+"party": "BJP"
+},
+"214": {
+"name": "Bhagabanpur",
+"person": "Santanu Pramanik",
+"party": "BJP"
+},
+"215": {
+"name": "Khejuri",
+"person": "Subrata Paik",
+"party": "BJP"
+},
+"216": {
+"name": "Kanthi Dakshin",
+"person": "Arup Kumar Das",
+"party": "BJP"
+},
+"217": {
+"name": "Ramnagar",
+"person": "Chandra Sekhar Mondal",
+"party": "BJP"
+},
+"218": {
+"name": "Egra",
+"person": "Dibyendu Adhikari",
+"party": "BJP"
+},
+"219": {
+"name": "Dantan",
+"person": "Ajit Kumar Jana",
+"party": "BJP"
+},
+"220": {
+"name": "Nayagram",
+"person": "Amiya Kisku",
+"party": "BJP"
+},
+"221": {
+"name": "Gopiballavpur",
+"person": "Rajesh Mahata",
+"party": "BJP"
+},
+"222": {
+"name": "Jhargram",
+"person": "Lakshmi Kanta Sau",
+"party": "BJP"
+},
+"223": {
+"name": "Keshiary",
+"person": "Bhadra Hemram",
+"party": "BJP"
+},
+"224": {
+"name": "Kharagpur Sadar",
+"person": "Dilip Ghosh",
+"party": "BJP"
+},
+"225": {
+"name": "Narayangarh",
+"person": "Rama Prasad Giri",
+"party": "BJP"
+},
+"226": {
+"name": "Sabang",
+"person": "Amal Kumar Panda",
+"party": "BJP"
+},
+"227": {
+"name": "Pingla",
+"person": "Swagata Manna",
+"party": "BJP"
+},
+"228": {
+"name": "Kharagpur",
+"person": "Dinen Roy",
+"party": "AITC"
+},
+"229": {
+"name": "Debra",
+"person": "Subhashis Om",
+"party": "BJP"
+},
+"230": {
+"name": "Daspur",
+"person": "Tapan Kumar Dutta",
+"party": "BJP"
+},
+"231": {
+"name": "Ghatal",
+"person": "Shital Kapat",
+"party": "BJP"
+},
+"232": {
+"name": "Chandrakona",
+"person": "Sukanta Dolui",
+"party": "BJP"
+},
+"233": {
+"name": "Garbeta",
+"person": "Pradip Lodha",
+"party": "BJP"
+},
+"234": {
+"name": "Salboni",
+"person": "Biman Mahata",
+"party": "BJP"
+},
+"235": {
+"name": "Keshpur",
+"person": "Seuli Saha",
+"party": "AITC"
+},
+"236": {
+"name": "Medinipur",
+"person": "Sankar Kumar Guchhait",
+"party": "BJP"
+},
+"237": {
+"name": "Binpur",
+"person": "Pranat Tudu",
+"party": "BJP"
+},
+"238": {
+"name": "Bandwan",
+"person": "Labsen Baskey",
+"party": "BJP"
+},
+"239": {
+"name": "Balarampur",
+"person": "Jaladhar Mahato",
+"party": "BJP"
+},
+"240": {
+"name": "Baghmundi",
+"person": "Rahidas Mahato",
+"party": "BJP"
+},
+"241": {
+"name": "Joypur",
+"person": "Biswajit Mahato",
+"party": "BJP"
+},
+"242": {
+"name": "Purulia",
+"person": "Sudip Kumar Mukherjee",
+"party": "BJP"
+},
+"243": {
+"name": "Manbazar",
+"person": "Mayna Murmu",
+"party": "BJP"
+},
+"244": {
+"name": "Kashipur",
+"person": "Kamalakanta Hansda",
+"party": "BJP"
+},
+"245": {
+"name": "Para",
+"person": "Nadiar Chand Bouri",
+"party": "BJP"
+},
+"246": {
+"name": "Raghunathpur",
+"person": "Mamoni Bauri",
+"party": "BJP"
+},
+"247": {
+"name": "Saltora",
+"person": "Chandana Bauri",
+"party": "BJP"
+},
+"248": {
+"name": "Chhatna",
+"person": "Satyanarayan Mukhopadhyay",
+"party": "BJP"
+},
+"249": {
+"name": "Ranibandh",
+"person": "Kshudiram Tudu",
+"party": "BJP"
+},
+"250": {
+"name": "Raipur",
+"person": "Kshetra Mohan Hansda",
+"party": "BJP"
+},
+"251": {
+"name": "Taldangra",
+"person": "Souvik Patra",
+"party": "BJP"
+},
+"252": {
+"name": "Bankura",
+"person": "Niladri Sekhar Dana",
+"party": "BJP"
+},
+"253": {
+"name": "Barjora",
+"person": "Billeswar Sinha",
+"party": "BJP"
+},
+"254": {
+"name": "Onda",
+"person": "Amarnath Shakha",
+"party": "BJP"
+},
+"255": {
+"name": "Bishnupur",
+"person": "Shukla Chatterjee",
+"party": "BJP"
+},
+"256": {
+"name": "Katulpur",
+"person": "Lakshmi Kanta Majumdar",
+"party": "BJP"
+},
+"257": {
+"name": "Indas",
+"person": "Nirmal Kumar Dhara",
+"party": "BJP"
+},
+"258": {
+"name": "Sonamukhi",
+"person": "Dibakar Gharami",
+"party": "BJP"
+},
+"259": {
+"name": "Khandaghosh",
+"person": "Nabin Chandra Bag",
+"party": "AITC"
+},
+"260": {
+"name": "Bardhaman Dakshin",
+"person": "Moumita Biswas Misra",
+"party": "BJP"
+},
+"261": {
+"name": "Raina",
+"person": "Subhash Patra",
+"party": "BJP"
+},
+"262": {
+"name": "Jamalpur",
+"person": "Arun Halder",
+"party": "BJP"
+},
+"263": {
+"name": "Monteswar",
+"person": "Saikat Panja",
+"party": "BJP"
+},
+"264": {
+"name": "Kalna",
+"person": "Siddhartha Majumdar",
+"party": "BJP"
+},
+"265": {
+"name": "Memari",
+"person": "Manab Guha",
+"party": "BJP"
+},
+"266": {
+"name": "Bardhaman Uttar",
+"person": "Nisith Kumar Malik",
+"party": "AITC"
+},
+"267": {
+"name": "Bhatar",
+"person": "Soumen Karfa",
+"party": "BJP"
+},
+"268": {
+"name": "Purbasthali Dakshin",
+"person": "Prankrishna Tapadar",
+"party": "BJP"
+},
+"269": {
+"name": "Purbasthali Uttar",
+"person": "Gopal Chattopadhyay",
+"party": "BJP"
+},
+"270": {
+"name": "Katwa",
+"person": "Krishna Ghosh",
+"party": "BJP"
+},
+"271": {
+"name": "Ketugram",
+"person": "Anadi Ghosh",
+"party": "BJP"
+},
+"272": {
+"name": "Mangalkot",
+"person": "Shishir Ghosh",
+"party": "BJP"
+},
+"273": {
+"name": "Ausgram",
+"person": "Kalita Maji",
+"party": "BJP"
+},
+"274": {
+"name": "Galsi",
+"person": "Raju Patra",
+"party": "BJP"
+},
+"275": {
+"name": "Pandabeswar",
+"person": "Jitendra Tiwari",
+"party": "BJP"
+},
+"276": {
+"name": "Durgapur Purba",
+"person": "Chandra Sekhar Banerjee",
+"party": "BJP"
+},
+"277": {
+"name": "Durgapur Paschim",
+"person": "Lakshman Chandra Ghorui",
+"party": "BJP"
+},
+"278": {
+"name": "Raniganj",
+"person": "Partha Ghosh",
+"party": "BJP"
+},
+"279": {
+"name": "Jamuria",
+"person": "Bijan Mukherjee",
+"party": "BJP"
+},
+"280": {
+"name": "Asansol Dakshin",
+"person": "Agnimitra Paul",
+"party": "BJP"
+},
+"281": {
+"name": "Asansol Uttar",
+"person": "Krishnendu Mukherjee",
+"party": "BJP"
+},
+"282": {
+"name": "Kulti",
+"person": "Ajay Kumar Poddar",
+"party": "BJP"
+},
+"283": {
+"name": "Barabani",
+"person": "Arijit Roy",
+"party": "BJP"
+},
+"284": {
+"name": "Dubrajpur",
+"person": "Anup Kumar Saha",
+"party": "BJP"
+},
+"285": {
+"name": "Suri",
+"person": "Jagannath Chattopadhyay",
+"party": "BJP"
+},
+"286": {
+"name": "Bolpur",
+"person": "Chandranath Sinha",
+"party": "AITC"
+},
+"287": {
+"name": "Nanoor",
+"person": "Bidhan Chandra Majhi",
+"party": "AITC"
+},
+"288": {
+"name": "Labpur",
+"person": "Debasis Ojha",
+"party": "BJP"
+},
+"289": {
+"name": "Sainthia",
+"person": "Krishna Kanta Saha",
+"party": "BJP"
+},
+"290": {
+"name": "Mayureswar",
+"person": "Dudh Kumar Mondal",
+"party": "BJP"
+},
+"291": {
+"name": "Rampurhat",
+"person": "Dhruba Saha",
+"party": "BJP"
+},
+"292": {
+"name": "Hansan",
+"person": "Fayezul Haque",
+"party": "AITC"
+},
+"293": {
+"name": "Nalhati",
+"person": "Rajendra Prasad Singh",
+"party": "AITC"
+},
+"294": {
+"name": "Murarai",
+"person": "Mosarraf Hossain",
+"party": "AITC"
+}
+},
+"pc": {
+"1": {
+"name": "Cooch Behar",
+"person": "Jagadish Basunia",
+"party": "AITC"
+},
+"2": {
+"name": "Alipurduars",
+"person": "Manoj Tigga",
+"party": "BJP"
+},
+"3": {
+"name": "Jalpaiguri",
+"person": "Jayanta Kumar Roy",
+"party": "BJP"
+},
+"4": {
+"name": "Darjeeling",
+"person": "Raju Bista",
+"party": "BJP"
+},
+"5": {
+"name": "Raiganj",
+"person": "Kartick Chandra Paul",
+"party": "BJP"
+},
+"6": {
+"name": "Balurghat",
+"person": "Sukanta Majumder",
+"party": "BJP"
+},
+"7": {
+"name": "Maldaha Uttar",
+"person": "Khagen Murmu",
+"party": "BJP"
+},
+"8": {
+"name": "Maldaha Dakshin",
+"person": "Isha Khan Choudhury",
+"party": "INC"
+},
+"9": {
+"name": "Jangipur",
+"person": "Khalilur Rahaman",
+"party": "AITC"
+},
+"10": {
+"name": "Baharampur",
+"person": "Yusuf Pathan",
+"party": "AITC"
+},
+"11": {
+"name": "Murshidabad",
+"person": "Abu Taher Khan",
+"party": "AITC"
+},
+"12": {
+"name": "Krishnanagar",
+"person": "Mahua Moitra",
+"party": "AITC"
+},
+"13": {
+"name": "Ranaghat",
+"person": "Jagannath Sarkar",
+"party": "BJP"
+},
+"14": {
+"name": "Bongaon",
+"person": "Shantanu Thakur",
+"party": "BJP"
+},
+"15": {
+"name": "Barrackpore",
+"person": "Partha Bhowmick",
+"party": "AITC"
+},
+"16": {
+"name": "Dum Dum",
+"person": "Saugata Roy",
+"party": "AITC"
+},
+"17": {
+"name": "Barasat",
+"person": "Kakoli Ghosh Dastidar",
+"party": "AITC"
+},
+"18": {
+"name": "Basirhat",
+"person": "Haji Nurul Islam",
+"party": "AITC",
+"vacant": {
+"since": "2024-09-25",
+"why": "Haji Nurul Islam died",
+"source": "https://www.anandabazar.com/west-bengal/basirhat-mp-haji-nurul-islam-passed-away-dgtld/cid/1548310"
+}
+},
+"19": {
+"name": "Joynagar",
+"person": "Pratima Mondal",
+"party": "AITC"
+},
+"20": {
+"name": "Mathurapur",
+"person": "Bapi Halder",
+"party": "AITC"
+},
+"21": {
+"name": "Diamond Harbour",
+"person": "Abhishek Banerjee",
+"party": "AITC"
+},
+"22": {
+"name": "Jadavpur",
+"person": "Saayoni Ghosh",
+"party": "AITC"
+},
+"23": {
+"name": "Kolkata Dakshin",
+"person": "Mala Roy",
+"party": "AITC"
+},
+"24": {
+"name": "Kolkata Uttar",
+"person": "Sudip Bandyopadhyay",
+"party": "AITC"
+},
+"25": {
+"name": "Howrah",
+"person": "Prasun Banerjee",
+"party": "AITC"
+},
+"26": {
+"name": "Uluberia",
+"person": "Sajda Ahmed",
+"party": "AITC"
+},
+"27": {
+"name": "Sreerampur",
+"person": "Kalyan Banerjee",
+"party": "AITC"
+},
+"28": {
+"name": "Hooghly",
+"person": "Rachana Banerjee",
+"party": "AITC"
+},
+"29": {
+"name": "Arambagh",
+"person": "Mitali Bag",
+"party": "AITC"
+},
+"30": {
+"name": "Tamluk",
+"person": "Abhijit Gangopadhyay",
+"party": "BJP"
+},
+"31": {
+"name": "Kanthi",
+"person": "Soumendu Adhikari",
+"party": "BJP"
+},
+"32": {
+"name": "Ghatal",
+"person": "Deepak Adhikari",
+"party": "AITC"
+},
+"33": {
+"name": "Jhargram",
+"person": "Kalipada Soren",
+"party": "AITC"
+},
+"34": {
+"name": "Medinipur",
+"person": "June Malia",
+"party": "AITC"
+},
+"35": {
+"name": "Purulia",
+"person": "Jyotirmay Singh Mahato",
+"party": "BJP"
+},
+"36": {
+"name": "Bankura",
+"person": "Arup Chakraborty",
+"party": "AITC"
+},
+"37": {
+"name": "Bishnupur",
+"person": "Saumitra Khan",
+"party": "BJP"
+},
+"38": {
+"name": "Bardhaman Purba",
+"person": "Sharmila Sarkar",
+"party": "AITC"
+},
+"39": {
+"name": "Bardhaman–Durgapur",
+"person": "Kirti Azad",
+"party": "AITC"
+},
+"40": {
+"name": "Asansol",
+"person": "Shatrughan Sinha",
+"party": "AITC"
+},
+"41": {
+"name": "Bolpur",
+"person": "Asit Kumar Mal",
+"party": "AITC"
+},
+"42": {
+"name": "Birbhum",
+"person": "Satabdi Roy",
+"party": "AITC"
+}
+}
+}
