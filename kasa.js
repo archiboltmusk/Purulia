@@ -339,8 +339,8 @@ async function init(){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => {
       if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
-      // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
-      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
+      // The counts, the "fixed" chip, the ticker, the join line and the representatives follow the place in view.
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); renderReps(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
@@ -371,7 +371,7 @@ async function init(){
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
   // Statewide leaders load only when someone opens the representatives section.
-  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(renderWbRepList); });
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
   initPlacePicker();
@@ -4272,12 +4272,28 @@ function renderWbRepList(){
   });
 }
 
-function renderReps(){
-  const reps = allReps();
-  document.getElementById('k-auth-grid').innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
-    const list = reps.filter(r => r.group === g);
-    if (!list.length) return '';
-    return `<div class="k-auth-group">${esc(t('rep_g_' + g))}</div>` + list.map(rep => `
+/* The place the page is named after, for the representatives section: null on Purulia
+   (city.js), { bengal } zoomed out, else its name and assembly seats from places/wb_assembly.geojson. */
+function repPlace(){
+  const cur = window.KasaPlaces?.current;
+  if (!cur || cur === 'purulia' || cur === 'district:purulia') return null;
+  const p = KasaPlaces.bySlug(cur);
+  if (!p || p.isState) return { bengal: true };
+  const fs = wbAssembly?.features || [];
+  let acs = [];
+  if (p.isDistrict) acs = fs.filter(f => f.properties.d === cur.slice(9));
+  else if (p.bbox){
+    // A town: every seat that holds a point of a 5×5 grid over its box.
+    const b = p.bbox, pts = [];
+    for (let i = 0; i < 5; i++) for (let j = 0; j < 5; j++)
+      pts.push([b.min_lng + (b.max_lng - b.min_lng) * (i + .5) / 5, b.min_lat + (b.max_lat - b.min_lat) * (j + .5) / 5]);
+    acs = fs.filter(f => pts.some(pt => inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)));
+  }
+  return { name: p.name, district: !!p.isDistrict, acs: [...new Set(acs.map(f => f.properties.ac))].sort((a, b) => a - b),
+           pcs: [...new Set(acs.map(f => f.properties.pc))].sort((a, b) => a - b) };
+}
+
+const repCard = (rep, g) => `
       <div class="k-auth-card${rep.photo ? '' : ' k-auth-card-sm'}">
         ${repAvatar(rep, 'k-rep-avatar k-auth-avatar')}
         <div>
@@ -4287,7 +4303,39 @@ function renderReps(){
           ${rep.photo && rep.photoCredit ? `<div class="k-auth-credit">${esc(t('rep_photo_credit', { credit: rep.photoCredit }))}</div>` : ''}
         </div>
         <button type="button" class="k-auth-action" data-profile="${esc(rep.key)}">${esc(t('auth_view'))}</button>
-      </div>`).join('');
+      </div>`;
+
+function renderReps(){
+  const grid = document.getElementById('k-auth-grid'), sub = document.getElementById('k-auth-sub');
+  const here = window.KasaPlaces?.current && window.KasaPlaces.current !== 'purulia' && window.KasaPlaces.current !== 'district:purulia';
+  // Another place: its MPs and MLAs from the statewide files (loaded on first need).
+  // Another place needs the statewide files (~0.9 MB); fetch them only once the section is open.
+  if (here && !wbLeaders){
+    grid.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_loading'))}</div>`;
+    if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(() => wbLeaders && renderReps());
+    return;
+  }
+  const place = here ? repPlace() : null;
+  if (sub) sub.textContent = !place ? t('auth_sub_home', { p: CITY_NAME }) : place.bengal ? t('auth_sub_state') : t(place.district ? 'auth_sub_district' : 'auth_sub_town', { p: place.name });
+  if (place){
+    const mps = place.bengal ? [] : place.pcs.map(n => wbLeaders.pc[n] && { n, v: wbLeaders.pc[n] }).filter(Boolean);
+    const mlas = place.bengal ? [] : place.acs.map(n => wbLeaders.ac[n] && { n, v: wbLeaders.ac[n] }).filter(Boolean);
+    const card = (key, g, v, place, extra) => repCard({ key, name: v.person, party: [v.party, extra].filter(Boolean).join(' · '), initials: initialsOf(v.person), place }, g);
+    grid.innerHTML = (mps.length ? `<div class="k-auth-group">${esc(t('rep_g_mp'))}</div>` + mps.map(({ n, v }) => v.vacant
+        ? `<div class="k-auth-card k-auth-card-sm"><div><div class="k-auth-label">${esc(t('rep_t_mp'))} · ${esc(t('rep_place_ls', { s: v.name }))}</div>
+           <div class="k-auth-name"><a href="${esc(safeUrl(v.vacant.source) || '#')}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: v.vacant.since }))}</a></div></div></div>`
+        : card(pcKey(n), 'mp', v, t('rep_place_ls', { s: v.name }))).join('') : '')
+      + (mlas.length ? `<div class="k-auth-group">${esc(t('rep_g_mla'))}</div>` + mlas.map(({ n, v }) =>
+          card(acKey(n), 'mla', v, t('rep_place_ac', { s: v.name, n }), ministerOf(n) && t('rep_rank_' + ministerOf(n).rank))).join('') : '')
+      + '<div id="k-wb-reps"></div>';
+    if (wbLeaders) renderWbRepList();
+    return;
+  }
+  const reps = allReps();
+  grid.innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
+    const list = reps.filter(r => r.group === g);
+    if (!list.length) return '';
+    return `<div class="k-auth-group">${esc(t('rep_g_' + g))}</div>` + list.map(rep => repCard(rep, g)).join('');
   }).join('') + '<div id="k-wb-reps"></div>';
   if (wbLeaders) renderWbRepList();
   else if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(renderWbRepList);

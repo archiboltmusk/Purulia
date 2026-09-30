@@ -89,7 +89,8 @@ window.KASA_I18N = {
     chain_councillor_label: 'Your ward councillor',
     chain_councillor_text: 'Every report also names the elected councillor for its ward. Councillors answer to voters, not to this chain — which is why both are shown.',
     auth_num: '06 · Representatives', auth_title: 'Elected representatives', auth_view: 'View →',
-    footer_left: 'Parishkar Purulia · A civic tool for Purulia town',
+    auth_sub_home: 'For {p} district. Move the map to another district or town to see its leaders.', auth_sub_district: 'For {p} district. Move the map to see another place.', auth_sub_town: 'Seats covering {p}. Move the map to see another place.', auth_sub_state: 'Move the map onto a district or town to see its MPs and MLAs, or search all of West Bengal below.',
+    footer_left: 'Parishkar Bengal · A civic tool for West Bengal',
     footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Purulia is a neutral platform and not affiliated with any party or government body.',
     footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer', footer_coffee: 'Buy me a coffee', footer_bug: 'Report a bug',
     qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Purulia', qr_sub: 'Point a phone camera at this QR code to open the report page.',
@@ -379,7 +380,8 @@ window.KASA_I18N = {
     chain_councillor_label: 'আপনার ওয়ার্ড কাউন্সিলর',
     chain_councillor_text: 'প্রতিটি রিপোর্টে সেই ওয়ার্ডের নির্বাচিত কাউন্সিলরের নামও থাকে। কাউন্সিলর ভোটারদের কাছে দায়বদ্ধ, এই শৃঙ্খলের কাছে নয় — তাই দুটোই দেখানো হয়।',
     auth_num: '০৬ · জনপ্রতিনিধি', auth_title: 'নির্বাচিত জনপ্রতিনিধি', auth_view: 'দেখুন →',
-    footer_left: 'পরিষ্কার পুরুলিয়া · পুরুলিয়া শহরের নাগরিক উদ্যোগ',
+    auth_sub_home: '{p} জেলা। অন্য জেলা বা শহরের জনপ্রতিনিধি দেখতে মানচিত্র সরান।', auth_sub_district: '{p} জেলা। অন্য জায়গা দেখতে মানচিত্র সরান।', auth_sub_town: '{p}-এর আসনগুলি। অন্য জায়গা দেখতে মানচিত্র সরান।', auth_sub_state: 'কোনো জেলা বা শহরে মানচিত্র সরালে তার সাংসদ ও বিধায়ক দেখা যাবে, অথবা নিচে সারা পশ্চিমবঙ্গে খুঁজুন।',
+    footer_left: 'পরিষ্কার বাংলা · পশ্চিমবঙ্গের নাগরিক উদ্যোগ',
     footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার পুরুলিয়া একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
     footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক', footer_coffee: 'আমাকে এক কাপ কফি দিন', footer_bug: 'সমস্যা জানান',
     qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার পুরুলিয়া শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
@@ -668,7 +670,8 @@ window.KASA_I18N = {
     chain_councillor_label: 'आपके वार्ड पार्षद',
     chain_councillor_text: 'हर रिपोर्ट में उस वार्ड के चुने हुए पार्षद का नाम भी होता है। पार्षद मतदाताओं के प्रति जवाबदेह हैं, इस कड़ी के प्रति नहीं — इसलिए दोनों दिखाए जाते हैं।',
     auth_num: '06 · प्रतिनिधि', auth_title: 'चुने हुए प्रतिनिधि', auth_view: 'देखें →',
-    footer_left: 'परिष्कार पुरुलिया · पुरुलिया शहर का नागरिक टूल',
+    auth_sub_home: '{p} ज़िला। दूसरे ज़िले या शहर के प्रतिनिधि देखने के लिए नक्शा खिसकाएँ।', auth_sub_district: '{p} ज़िला। दूसरी जगह देखने के लिए नक्शा खिसकाएँ।', auth_sub_town: '{p} की सीटें। दूसरी जगह देखने के लिए नक्शा खिसकाएँ।', auth_sub_state: 'किसी ज़िले या शहर पर नक्शा ले जाएँ तो उसके सांसद और विधायक दिखेंगे, या नीचे पूरे पश्चिम बंगाल में खोजें।',
+    footer_left: 'परिष्कार बंगाल · पश्चिम बंगाल का नागरिक टूल',
     footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार पुरुलिया एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
     footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी', footer_coffee: 'मुझे एक कॉफ़ी पिलाएँ', footer_bug: 'बग बताएं',
     qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार पुरुलिया शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
@@ -965,7 +968,7 @@ Object.assign(window.KASA_I18N.hi, {
 });
 /* District-wide: villages by block, village services, rural accountability. */
 Object.assign(window.KASA_I18N.en, {
-  footer_left: 'Parishkar Purulia · A civic tool for Purulia district',
+  footer_left: 'Parishkar Bengal · A civic tool for West Bengal',
   err_KASA_OUTSIDE_AREA: 'This location is outside Purulia district.',
   acc_block: '{b} block', acc_your_block: 'Your block',
   acc_rural_reps: 'Villages fall in different assembly seats, so MLA names are not shown here. Your gram panchayat pradhan and the BDO are the first people responsible.',
@@ -990,7 +993,7 @@ Object.assign(window.KASA_I18N.en, {
   share_text_rural: '{cat} in {block} block, Purulia — unresolved for {days} days. See it and add your voice:'
 });
 Object.assign(window.KASA_I18N.bn, {
-  footer_left: 'পরিষ্কার পুরুলিয়া · পুরুলিয়া জেলার নাগরিক উদ্যোগ',
+  footer_left: 'পরিষ্কার বাংলা · পশ্চিমবঙ্গের নাগরিক উদ্যোগ',
   err_KASA_OUTSIDE_AREA: 'জায়গাটি পুরুলিয়া জেলার বাইরে।',
   acc_block: '{b} ব্লক', acc_your_block: 'আপনার ব্লক',
   acc_rural_reps: 'গ্রামগুলি বিভিন্ন বিধানসভা কেন্দ্রে পড়ে, তাই এখানে বিধায়কের নাম দেখানো হয় না। প্রথম দায়িত্ব আপনার গ্রাম পঞ্চায়েত প্রধান ও বিডিও-র।',
@@ -1015,7 +1018,7 @@ Object.assign(window.KASA_I18N.bn, {
   share_text_rural: 'পুরুলিয়ার {block} ব্লকে {cat} — {days} দিন ধরে অমীমাংসিত। দেখুন, আপনার মত দিন:'
 });
 Object.assign(window.KASA_I18N.hi, {
-  footer_left: 'परिष्कार पुरुलिया · पुरुलिया ज़िले का नागरिक टूल',
+  footer_left: 'परिष्कार बंगाल · पश्चिम बंगाल का नागरिक टूल',
   err_KASA_OUTSIDE_AREA: 'यह जगह पुरुलिया ज़िले से बाहर है।',
   acc_block: '{b} ब्लॉक', acc_your_block: 'आपका ब्लॉक',
   acc_rural_reps: 'गाँव अलग-अलग विधानसभा क्षेत्रों में आते हैं, इसलिए यहाँ विधायक के नाम नहीं दिखाए जाते। पहली ज़िम्मेदारी आपके ग्राम पंचायत प्रधान और बीडीओ की है।',
