@@ -14,3 +14,5 @@ og-card.html
 vercel.json
 wrangler.jsonc
 worker.js
+# Raw West Bengal source layers (the villages file is ~99 MB, over the 25 MiB Workers asset limit); no page loads them
+WEST BENGAL*.geojson
