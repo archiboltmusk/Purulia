@@ -36,13 +36,13 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await ctx.close();
 });
 
-test('a spot in a Kolkata ward is placed there; one in no ward is filed under its district', async ({ page }) => {
+test('a spot in a Kolkata ward is placed there; one outside any town is filed under its district', async ({ page }) => {
   await page.goto('kasa.html?place=kolkata');
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   const esplanade = await page.evaluate(() => KasaPlaces.at(22.5646, 88.3510));
   expect(esplanade).toMatchObject({ kind: 'place', place: 'kolkata', ward: 46 });
-  await page.evaluate(() => KasaPlaces.at(22.5839, 88.3426));
-  await expect.poll(() => page.evaluate(() => KasaPlaces.at(22.5839, 88.3426)))
+  await page.evaluate(() => KasaPlaces.at(22.58, 88.01));
+  await expect.poll(() => page.evaluate(() => KasaPlaces.at(22.58, 88.01)))
     .toMatchObject({ kind: 'place', place: 'district:howrah', name: 'Howrah', isDistrict: true });
   expect(await page.evaluate(() => KasaPlaces.at(28.61, 77.21))).toBeNull();
 });
