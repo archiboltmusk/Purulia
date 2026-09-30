@@ -249,7 +249,7 @@ check('a report in a Kolkata ward is filed there, with no Purulia ward',
       krow and tuple(krow[0]) == ('kolkata', 46, None, 'place', 'Kolkata Municipal Corporation'), krow)
 check('...and stays out of the Purulia view, in the places view', view_row(kres['id']) is None
       and q('select count(*) from public.kasa_public_place_reports where id::text = %s', (str(kres['id']),))[0][0] == 1)
-hres, _ = report(user(), where=(22.5839, 88.3426))  # Howrah: in Kolkata's box, in no Kolkata ward
+hres, _ = report(user(), where=(22.5700, 88.2550))  # Howrah district: in Kolkata's box, outside KMC and Howrah's AMRUT wards
 hrow = admin_sql("select place, place_ward, district, area_kind, local_body from public.reports where id::text = %s", (str(hres['id']),))
 check('a spot in no mapped ward is filed under its district (Howrah)',
       hrow and tuple(hrow[0]) == ('district:howrah', None, 'Howrah', 'wb', None), hrow)
@@ -2155,23 +2155,23 @@ def ward_fc(*wards):
         {'type': 'Feature', 'properties': {'ward': str(n)},
          'geometry': {'type': 'Polygon', 'coordinates': [[[x0, y0], [x1, y0], [x1, y1], [x0, y1], [x0, y0]]]}}
         for n, (x0, y0, x1, y1) in wards]}
-BANKURA = (1, (87.05, 23.22, 87.08, 23.25)), (2, (87.08, 23.22, 87.11, 23.25))
+SONAMUKHI = (1, (87.42, 23.29, 87.45, 23.32)), (2, (87.45, 23.29, 87.48, 23.32))
 def send_town(ip='10.71.0.1', **kw):
-    args = dict(p_town='Bankura', p_district='Bankura', p_body='Bankura Municipality', p_body_type='municipality',
-                p_incharge='Sanitary Inspector, Bankura Municipality', p_incharge_source='bankuramunicipality.in, Contact page',
+    args = dict(p_town='Sonamukhi', p_district='Bankura', p_body='Sonamukhi Municipality', p_body_type='municipality',
+                p_incharge='Sanitary Inspector, Sonamukhi Municipality', p_incharge_source='sonamukhimunicipality.in, Contact page',
                 p_complaint_url=None, p_map_source='Drawn on Parishkar', p_drawn=True, p_fix_of=None,
-                p_geojson=ward_fc(*BANKURA), p_contact=None)
+                p_geojson=ward_fc(*SONAMUKHI), p_contact=None)
     args.update(kw)
     return rpc('kasa_submit_place', ip=ip, **args)
-check('a spot in Bankura with no town map is filed under Bankura district',
-      admin_sql("select kasa_private.locate_any(23.235, 87.065, null)")[0][0] == {'kind': 'wb', 'district': 'Bankura', 'place': 'district:bankura'})
+check('a spot in Sonamukhi with no town map is filed under Bankura district',
+      admin_sql("select kasa_private.locate_any(23.305, 87.435, null)")[0][0] == {'kind': 'wb', 'district': 'Bankura', 'place': 'district:bankura'})
 check('Purulia stays with its own blocks, not a district',
       admin_sql("select kasa_private.locate_any(%s, %s, null) ->> 'kind'", SPOT)[0][0] in ('town', 'rural'))
 check('all 22 other West Bengal districts are loaded', admin_sql("select count(*) from kasa_private.areas where kind = 'district'")[0][0] == 22)
 check('a town map must be a FeatureCollection', err(send_town, p_geojson={'type': 'Polygon'}) == 'KASA_BAD_MAP')
 check('every ward needs a number',
-      err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*BANKURA)['features'][0], properties={})]}) == 'KASA_BAD_MAP')
-check('a ward number can appear only once', err(send_town, p_geojson=ward_fc(BANKURA[0], BANKURA[0])) == 'KASA_BAD_MAP')
+      err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*SONAMUKHI)['features'][0], properties={})]}) == 'KASA_BAD_MAP')
+check('a ward number can appear only once', err(send_town, p_geojson=ward_fc(SONAMUKHI[0], SONAMUKHI[0])) == 'KASA_BAD_MAP')
 check('points outside West Bengal are refused', err(send_town, p_geojson=ward_fc((1, (77.1, 28.5, 77.2, 28.6)))) == 'KASA_BAD_MAP')
 check('who is in charge needs a source', err(send_town, p_incharge_source=None) == 'KASA_BAD_FORM')
 check('the district must be a West Bengal district', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
@@ -2180,7 +2180,7 @@ check('anyone can send a town map; it waits for a moderator', sub1 == {'ok': Tru
 check('the public cannot read the waiting maps', refused(err(q, 'select * from kasa_private.place_submissions')))
 check('non-admins cannot see or approve town maps',
       err(rpc, 'kasa_admin_place_submissions', uid=user()) == 'KASA_NOT_ADMIN')
-check('a waiting town is not on the map yet', not any(p['slug'] == 'bankura' for p in rpc('kasa_places')))
+check('a waiting town is not on the map yet', not any(p['slug'] == 'sonamukhi' for p in rpc('kasa_places')))
 for i in range(5):
     send_town(ip='10.79.0.9')
 check('one network can send at most five town maps a day', err(send_town, ip='10.79.0.9') == 'KASA_RATE_LIMIT')
@@ -2190,41 +2190,46 @@ check('moderators see the map, its source and who is in charge, not the network'
       s1['incharge_source'] and s1['wards'][0]['polygons'] and 'ip_hash' not in s1, s1.keys())
 check('non-admins cannot approve', err(rpc, 'kasa_admin_review_place', uid=user(), p_id=s1['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_NOT_ADMIN')
 ap = rpc('kasa_admin_review_place', uid=mod, p_id=s1['id'], p_action='approve', p_slug=None, p_note='checked')
-check('approving puts the town on the map', ap.get('slug') == 'bankura', ap)
-bk = next((p for p in rpc('kasa_places') if p['slug'] == 'bankura'), None)
+check('approving puts the town on the map', ap.get('slug') == 'sonamukhi', ap)
+bk = next((p for p in rpc('kasa_places') if p['slug'] == 'sonamukhi'), None)
 check('a drawn map goes live as provisional and community-drawn',
       bk and bk['status'] == 'provisional' and bk['community'] and bk['wards_mapped'] == 2 and bk['incharge'], bk)
-check('its wards can be read by anyone', len(rpc('kasa_place_wards', p_slug='bankura')['features']) == 2)
-bres, _ = report(user(), where=(23.235, 87.065))
+check('its wards can be read by anyone', len(rpc('kasa_place_wards', p_slug='sonamukhi')['features']) == 2)
+bres, _ = report(user(), where=(23.305, 87.435))
 brow = admin_sql("select place, place_ward, local_body from public.reports where id::text = %s", (str(bres['id']),))
-check('a report inside an approved ward goes to that town and ward', brow and tuple(brow[0]) == ('bankura', 1, 'Bankura Municipality'), brow)
+check('a report inside an approved ward goes to that town and ward', brow and tuple(brow[0]) == ('sonamukhi', 1, 'Sonamukhi Municipality'), brow)
 check('a map cannot be reviewed twice', err(rpc, 'kasa_admin_review_place', uid=mod, p_id=s1['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_BAD_FORM')
 dup = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['status'] == 'pending')
 check('a second map for a town already on the map must be a fix',
       err(rpc, 'kasa_admin_review_place', uid=mod, p_id=dup['id'], p_action='approve', p_slug=None, p_note=None) == 'KASA_BAD_FORM')
 rpc('kasa_admin_review_place', uid=mod, p_id=dup['id'], p_action='reject', p_note='duplicate', p_slug=None)
-send_town(ip='10.72.0.2', p_fix_of='bankura', p_geojson=ward_fc((1, (87.05, 23.22, 87.07, 23.25))), p_map_source='Traced from the ward notice')
-fix = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'bankura')
+send_town(ip='10.72.0.2', p_fix_of='sonamukhi', p_geojson=ward_fc((1, (87.42, 23.29, 87.44, 23.32))), p_map_source='Traced from the ward notice')
+fix = next(x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'sonamukhi')
 rpc('kasa_admin_review_place', uid=mod, p_id=fix['id'], p_action='approve', p_slug=None, p_note=None)
-fw = rpc('kasa_place_wards', p_slug='bankura')['features']
+fw = rpc('kasa_place_wards', p_slug='sonamukhi')['features']
 check('a border fix replaces only the wards it sends', len(fw) == 2 and
-      max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.07, fw)
+      max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.44, fw)
 check('a pinned spot must be in West Bengal', err(send_town, ip='10.74.0.1', p_pin=[77.1, 28.6]) == 'KASA_BAD_FORM')
-check('a new town cannot be only a note', err(send_town, ip='10.74.0.1', p_geojson=None, p_note='Please add Bankura') == 'KASA_BAD_MAP')
-named = ward_fc((2, (87.08, 23.22, 87.11, 23.25)))
+check('a new town cannot be only a note', err(send_town, ip='10.74.0.1', p_geojson=None, p_note='Please add Sonamukhi') == 'KASA_BAD_MAP')
+named = ward_fc((2, (87.45, 23.29, 87.48, 23.32)))
 named['features'][0]['properties'].update(name='Lalbazar', note='Border follows the canal')
-send_town(ip='10.74.0.2', p_fix_of='bankura', p_geojson=named, p_note='Ward 2 was too wide')
-send_town(ip='10.74.0.3', p_fix_of='bankura', p_geojson=None, p_map_source=None, p_note='Ward 1 should end at the canal', p_pin=[87.06, 23.23])
-pend = [x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'bankura' and x['status'] == 'pending']
+send_town(ip='10.74.0.2', p_fix_of='sonamukhi', p_geojson=named, p_note='Ward 2 was too wide')
+send_town(ip='10.74.0.3', p_fix_of='sonamukhi', p_geojson=None, p_map_source=None, p_note='Ward 1 should end at the canal', p_pin=[87.43, 23.30])
+pend = [x for x in rpc('kasa_admin_place_submissions', uid=mod) if x['fix_of'] == 'sonamukhi' and x['status'] == 'pending']
 nw = next((x for x in pend if x['ward_count'] == 1), None)
 check('ward names and notes reach the moderator with the note', nw and nw['wards'][0].get('name') == 'Lalbazar'
       and nw['wards'][0].get('note') == 'Border follows the canal' and nw['note'] == 'Ward 2 was too wide', nw)
 only = next((x for x in pend if x['ward_count'] == 0), None)
-check('a fix can be just a note and a pinned spot', only and only['note'] and only['pin'] == [87.06, 23.23] and not only['drawn'], only)
-before = rpc('kasa_place_wards', p_slug='bankura')
+check('a fix can be just a note and a pinned spot', only and only['note'] and only['pin'] == [87.43, 23.30] and not only['drawn'], only)
+before = rpc('kasa_place_wards', p_slug='sonamukhi')
 done = rpc('kasa_admin_review_place', uid=mod, p_id=only['id'], p_action='approve', p_slug=None, p_note='redrawn by a moderator')
 check('approving a note-only fix marks it done and leaves the map as it was',
-      done.get('status') == 'approved' and rpc('kasa_place_wards', p_slug='bankura') == before, done)
+      done.get('status') == 'approved' and rpc('kasa_place_wards', p_slug='sonamukhi') == before, done)
+# Towns with an open ward map (tools/build-wb-towns.py) are places from the start.
+check('Kalyani is on the map with its 21 wards', any(p['slug'] == 'kalyani' and p['wards_mapped'] == 21 and p['wards_total'] == 21
+                                                     and p['status'] == 'live' and not p['community'] for p in rpc('kasa_places')))
+kal = admin_sql("select kasa_private.locate_any(22.99059, 88.42997, null)")[0][0]
+check('a spot in Kalyani ward 5 is filed under Kalyani ward 5', kal and kal.get('place') == 'kalyani' and kal.get('ward') == 5, kal)
 pur = dict(p_town='Purulia', p_district='Purulia', p_body='Purulia Municipality', p_fix_of='purulia',
            p_geojson=ward_fc((5, (86.36, 23.33, 86.37, 23.34))), p_map_source='Traced from the ward notice')
 check('a new town cannot use Purulia as its district', err(send_town, ip='10.75.0.1', p_district='Purulia') == 'KASA_BAD_FORM')
