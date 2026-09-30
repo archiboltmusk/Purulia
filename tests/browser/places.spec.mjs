@@ -243,6 +243,34 @@ test('Fix a town: tap a ward on the map to copy it for editing', async ({ page }
   await expect(page.locator('.at-vx:not(.mid)')).toHaveCount(4);
 });
 
+test('Fix a town: moving a corner two wards share moves both, so no gap opens', async ({ page }) => {
+  const sq = (w, x0, x1) => ({ type: 'Feature', properties: { ward: w }, geometry: { type: 'Polygon',
+    coordinates: [[[x0, 23.22], [x1, 23.22], [x1, 23.25], [x0, 23.25], [x0, 23.22]]] } });
+  const calls = await stubBackend(page, { rpc: {
+    kasa_places: [{ slug: 'bankura', name: 'Bankura', body: 'Bankura Municipality', body_type: 'municipality', district: 'Bankura' }],
+    kasa_place_wards: { type: 'FeatureCollection', features: [sq(1, 87.05, 87.06), sq(2, 87.06, 87.07)] },
+    kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?fix=bankura&ward=1');
+  await expect(page.locator('#at-wards button')).toHaveText(['1']);
+  await page.waitForTimeout(1200);
+  await page.click('#at-e-shape');
+  const v = await page.locator('.at-vx:not(.mid)').nth(1).boundingBox();
+  await page.mouse.move(v.x + v.width / 2, v.y + v.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(v.x + 60, v.y + 40, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('#at-wards button')).toHaveText(['1', '2']);
+  await page.fill('#at-source', 'Ward map at the municipality office');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  const sent = calls.find(c => c.name === 'kasa_submit_place').body;
+  expect(sent.p_drawn).toBe(true);
+  const [w1, w2] = sent.p_geojson.features.map(f => f.geometry.coordinates.flat(Infinity));
+  const moved = [w1[2], w1[3]];
+  expect(moved).not.toEqual([87.06, 23.22]);
+  expect(w2.slice(0, 2)).toEqual(moved);
+});
+
 test("Fix a Purulia ward from its card: the ward opens ready to edit", async ({ page }) => {
   const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
   await page.goto('add-town.html?fix=purulia&ward=5');

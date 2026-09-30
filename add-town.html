@@ -62,6 +62,7 @@
   .at-edit{margin-top:.8rem;padding:.8rem;border:1px solid var(--amber);border-radius:10px;}
   .at-edit .at-tools .at-input{width:auto;flex:1;min-width:8rem;}
   .at-vx{width:14px;height:14px;border-radius:50%;background:#f0e6d0;border:2px solid #d4882a;cursor:move;touch-action:none;}
+  .at-vx::before{content:'';position:absolute;inset:-10px;}
   .at-vx.mid{width:10px;height:10px;background:#d4882a;border-color:#f0e6d0;opacity:.7;}
   .at-vx.sel{background:#e5484d;border-color:#fff;}
   .at-corner{width:18px;height:18px;border-radius:3px;background:#1e90ff;border:2px solid #fff;cursor:move;touch-action:none;}
@@ -175,7 +176,7 @@
         <button type="button" class="at-btn" id="at-e-del" data-t="b_delward">Delete ward</button>
         <button type="button" class="at-btn primary" id="at-e-done" data-t="b_done">Done</button>
       </div>
-      <p class="at-hint" id="at-e-hint" hidden data-t="h_shape">Drag the white dots to move a corner. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.</p>
+      <p class="at-hint" id="at-e-hint" hidden data-t="h_shape">Drag the white dots to move a corner. A corner shared with the next ward moves both, and dots snap onto nearby borders, so no gaps open. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.</p>
     </div>
     <div class="at-tools">
       <button type="button" class="at-btn" id="at-export" disabled data-t="b_export">Download GeoJSON</button>

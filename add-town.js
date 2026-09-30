@@ -51,7 +51,7 @@
       f_e_ward: 'Ward number', f_e_name: 'Ward name (optional)', f_e_note: 'Notes on this ward (optional)',
       ph_e_note: 'e.g. councillor’s office, landmarks on the border',
       b_shape: 'Edit shape', b_shape_done: 'Stop editing shape', b_delpt: 'Delete point', b_delward: 'Delete ward', b_done: 'Done',
-      h_shape: 'Drag the white dots to move a corner. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.',
+      h_shape: 'Drag the white dots to move a corner. A corner shared with the next ward moves both, and dots snap onto nearby borders, so no gaps open. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.',
       e_toomany: 'This ward has {n} corners, too many to edit by hand here. Edit it in a map app like QGIS and upload it.',
       e_taken: 'Ward {n} is already there.', e_minpts: 'A ward needs at least 3 corners.',
       b_export: 'Download GeoJSON',
@@ -99,7 +99,7 @@
       f_e_ward: 'ওয়ার্ড নম্বর', f_e_name: 'ওয়ার্ডের নাম (ঐচ্ছিক)', f_e_note: 'এই ওয়ার্ড নিয়ে নোট (ঐচ্ছিক)',
       ph_e_note: 'যেমন কাউন্সিলরের অফিস, সীমানার চিহ্ন',
       b_shape: 'আকার বদলান', b_shape_done: 'আকার বদলানো শেষ', b_delpt: 'বিন্দু মুছুন', b_delward: 'ওয়ার্ড মুছুন', b_done: 'হয়ে গেছে',
-      h_shape: 'কোণ সরাতে সাদা বিন্দু টানুন। নতুন কোণ যোগ করতে ছোট কমলা বিন্দু টানুন। কোণ মুছতে সেটিতে ট্যাপ করে "বিন্দু মুছুন" চাপুন।',
+      h_shape: 'কোণ সরাতে সাদা বিন্দু টানুন। পাশের ওয়ার্ডের সঙ্গে ভাগ করা কোণ দুটোতেই সরে, আর বিন্দু কাছের সীমানায় বসে যায়, তাই ফাঁক থাকে না। নতুন কোণ যোগ করতে ছোট কমলা বিন্দু টানুন। কোণ মুছতে সেটিতে ট্যাপ করে "বিন্দু মুছুন" চাপুন।',
       e_toomany: 'এই ওয়ার্ডে {n}টি কোণ, এখানে হাতে বদলানোর পক্ষে বেশি। QGIS-এর মতো অ্যাপে বদলে আপলোড করুন।',
       e_taken: 'ওয়ার্ড {n} আগেই আছে।', e_minpts: 'একটি ওয়ার্ডে অন্তত ৩টি কোণ লাগে।',
       b_export: 'GeoJSON ডাউনলোড',
@@ -147,7 +147,7 @@
       f_e_ward: 'वार्ड नंबर', f_e_name: 'वार्ड का नाम (वैकल्पिक)', f_e_note: 'इस वार्ड पर नोट (वैकल्पिक)',
       ph_e_note: 'जैसे पार्षद का दफ़्तर, सीमा के निशान',
       b_shape: 'आकार बदलें', b_shape_done: 'आकार बदलना बंद करें', b_delpt: 'बिंदु हटाएँ', b_delward: 'वार्ड हटाएँ', b_done: 'हो गया',
-      h_shape: 'कोना खिसकाने के लिए सफ़ेद बिंदु खींचें। नया कोना जोड़ने के लिए छोटा नारंगी बिंदु खींचें। कोना हटाने के लिए उस पर टैप कर "बिंदु हटाएँ" दबाएँ।',
+      h_shape: 'कोना खिसकाने के लिए सफ़ेद बिंदु खींचें। पड़ोसी वार्ड के साथ साझा कोना दोनों में खिसकता है, और बिंदु पास की सीमा पर चिपक जाता है, इसलिए कोई खाली जगह नहीं बनती। नया कोना जोड़ने के लिए छोटा नारंगी बिंदु खींचें। कोना हटाने के लिए उस पर टैप कर "बिंदु हटाएँ" दबाएँ।',
       e_toomany: 'इस वार्ड में {n} कोने हैं, यहाँ हाथ से बदलने के लिए बहुत ज़्यादा। QGIS जैसे ऐप में बदलकर अपलोड करें।',
       e_taken: 'वार्ड {n} पहले से है।', e_minpts: 'एक वार्ड में कम से कम 3 कोने चाहिए।',
       b_export: 'GeoJSON डाउनलोड करें',
@@ -248,7 +248,7 @@
     map.on('click', e => {
       if (e.originalEvent?.target?.closest?.('.maplibregl-marker')) return;
       const at = round6([e.lngLat.lng, e.lngLat.lat]);
-      if (state.drawing){ state.drawing.points.push(at); return redraw(); }
+      if (state.drawing){ state.drawing.points.push(snap(at, snapTargets())); return redraw(); }
       if (state.pinning){ state.pin = at; state.pinning = false; return renderPin(); }
       if (state.shaping) return;
       const hit = map.queryRenderedFeatures(e.point, { layers: ['wards-fill'] })[0];
@@ -257,6 +257,7 @@
       if (old && copyExisting(Number(old.properties.ward))) return;
       if (state.selected != null) selectWard(null);
     });
+    map.on('zoomend', () => { if (state.shaping) drawHandles(); });
     zoomToDistrict();
   });
 
@@ -275,6 +276,7 @@
     if (map?.getSource('wards')){
       map.getSource('wards').setData(wardsFC()); map.getSource('sketch').setData(sketchFC());
       map.setFilter('wards-sel', ['==', ['get', 'ward'], state.selected ?? -1]);
+      refreshExisting();
     }
     $('at-export').disabled = !state.wards.size;
     $('at-undo').disabled = !state.drawing?.points.length;
@@ -459,6 +461,66 @@
     el.className = cls;
     return new maplibregl.Marker({ element: el, draggable: true }).setLngLat(at).addTo(map);
   };
+  // Shared borders: a corner neighbouring wards also use moves with them, so no gap opens.
+  const same = (a, b) => Math.abs(a[0] - b[0]) < 1e-7 && Math.abs(a[1] - b[1]) < 1e-7;
+  const setPt = (ring, i, p) => { ring[i] = p; if (i === 0) ring[ring.length - 1] = [...p]; };
+  function refreshExisting(){
+    if (!map?.getLayer('existing-fill')) return;
+    const f = ['!', ['in', ['to-number', ['get', 'ward']], ['literal', [...state.wards.keys()]]]];
+    ['existing-fill', 'existing-line', 'existing-label'].forEach(id => map.setFilter(id, f));
+  }
+  function twins(n, pt){     // other wards' corners at pt; a neighbour now on the map is copied in to move with it
+    let copied = false;
+    state.existing?.features.forEach(f => {
+      const m = Number(f.properties.ward);
+      if (m === n || state.wards.has(m) || !ringsOf(f.geometry).some(r => r.some(q => same(q, pt)))) return;
+      state.wards.set(m, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false, name: f.properties.name || '' });
+      copied = true;
+    });
+    if (copied){ refreshExisting(); renderWards(); }
+    const out = [];
+    state.wards.forEach((w, m) => { if (m !== n) ringsOf(w.geometry).forEach(ring => {
+      for (let i = 0; i < ring.length - 1; i++) if (same(ring[i], pt)) out.push({ n: m, ring, i });
+    }); });
+    return out;
+  }
+  // Snapping: a dragged or drawn corner jumps onto a nearby corner or border of any ward.
+  const SNAP_PX = 12;
+  function snapTargets(skip = () => false){
+    const b = map.getBounds(), pts = [], segs = [];
+    const inView = p => p[0] >= b.getWest() && p[0] <= b.getEast() && p[1] >= b.getSouth() && p[1] <= b.getNorth();
+    const scan = g => ringsOf(g).forEach(ring => ring.forEach((p, i) => {
+      if (i < ring.length - 1 && !skip(p) && inView(p)) pts.push(p);
+      const q = ring[i + 1];
+      if (q && !skip(p) && !skip(q) && (inView(p) || inView(q))) segs.push([p, q]);
+    }));
+    state.wards.forEach(w => scan(w.geometry));
+    state.existing?.features.forEach(f => { if (!state.wards.has(Number(f.properties.ward))) scan(f.geometry); });
+    return { pts: pts.map(p => [...p]), segs: segs.map(([p, q]) => [[...p], [...q]]) };
+  }
+  function snap(p, tg){
+    const s = map.project(p);
+    let best = null, bd = SNAP_PX;
+    tg.pts.forEach(q => { const d = s.dist(map.project(q)); if (d < bd){ bd = d; best = q; } });
+    if (best) return [...best];
+    bd = SNAP_PX * .75;
+    tg.segs.forEach(([a, c]) => {
+      const A = map.project(a), C = map.project(c), dx = C.x - A.x, dy = C.y - A.y, len = dx * dx + dy * dy;
+      if (!len) return;
+      const k = Math.max(0, Math.min(1, ((s.x - A.x) * dx + (s.y - A.y) * dy) / len));
+      const d = Math.hypot(A.x + k * dx - s.x, A.y + k * dy - s.y);
+      if (d < bd){ bd = d; best = round6([a[0] + k * (c[0] - a[0]), a[1] + k * (c[1] - a[1])]); }
+    });
+    return best || p;
+  }
+  const MID_PX = 36;         // no add-corner dot on a side shorter than this on screen
+  // A marker's dragend can be lost when the pointer is released over another handle; the window hears it anyway.
+  function onDrag(m, start, end){
+    let live = false;
+    const stop = () => { if (!live) return; live = false; end(); };
+    m.on('dragstart', () => { live = true; start(); addEventListener('pointerup', stop, { once: true }); });
+    m.on('dragend', stop);
+  }
   function drawHandles(){
     handles.forEach(m => m.remove()); handles = [];
     const w = state.shaping && state.wards.get(state.selected);
@@ -466,29 +528,46 @@
     $('at-e-shape').textContent = t(w ? 'b_shape_done' : 'b_shape');
     $('at-e-delpt').disabled = !(w && state.selVx);
     if (!w || !map) return;
+    const n = state.selected;
     ringsOf(w.geometry).forEach((ring, r) => {
       const last = ring.length - 1;               // a closed ring repeats its first corner at the end
       for (let i = 0; i < last; i++){
         const sel = state.selVx?.r === r && state.selVx.i === i;
         const m = handle('at-vx' + (sel ? ' sel' : ''), ring[i]);
+        let tw = [], tg = null;
+        onDrag(m, () => { const o = ring[i]; tw = twins(n, o); tg = snapTargets(p => same(p, o)); },
+          () => { w.drawn = true; tw.forEach(x => { state.wards.get(x.n).drawn = true; }); drawHandles(); renderWards(); });
         m.on('drag', () => {
           const { lng, lat } = m.getLngLat();
-          ring[i] = round6([lng, lat]);
-          if (i === 0) ring[last] = [...ring[0]];
+          const p = snap(round6([lng, lat]), tg);
+          setPt(ring, i, p); tw.forEach(x => setPt(x.ring, x.i, [...p]));
           refreshWards();
         });
-        m.on('dragend', () => { w.drawn = true; });
         m.getElement().addEventListener('click', ev => { ev.stopPropagation(); state.selVx = { r, i }; drawHandles(); });
         const [a, b] = [ring[i], ring[i + 1]];
+        if (map.project(a).dist(map.project(b)) < MID_PX) { handles.push(m); continue; }
         const mid = handle('at-vx mid', [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
-        let added = false;
+        let added = null;
+        onDrag(mid, () => { tg = snapTargets(p => same(p, a) || same(p, b)); }, () => {
+          w.drawn = true; (added || []).forEach(x => { if (x.n != null) state.wards.get(x.n).drawn = true; });
+          state.selVx = null; drawHandles(); renderWards();
+        });
         mid.on('drag', () => {
           const { lng, lat } = mid.getLngLat();
-          if (!added){ ring.splice(i + 1, 0, null); added = true; }
-          ring[i + 1] = round6([lng, lat]);
+          const p = snap(round6([lng, lat]), tg);
+          if (!added){
+            // The neighbour on the other side of this border gets the new corner too.
+            added = [{ ring, at: i + 1 }];
+            twins(n, a).forEach(x => {
+              const L = x.ring.length - 1;
+              if (same(x.ring[(x.i + 1) % L], b)) added.push({ ring: x.ring, at: x.i + 1, n: x.n });
+              else if (same(x.ring[(x.i - 1 + L) % L], b)) added.push({ ring: x.ring, at: x.i === 0 ? L : x.i, n: x.n });
+            });
+            added.forEach(x => x.ring.splice(x.at, 0, null));
+          }
+          added.forEach(x => { x.ring[x.at] = [...p]; });
           refreshWards();
         });
-        mid.on('dragend', () => { w.drawn = true; state.selVx = null; drawHandles(); });
         handles.push(m, mid);
       }
     });
@@ -507,8 +586,12 @@
     if (!w || !v) return;
     const ring = ringsOf(w.geometry)[v.r];
     if (ring.length <= 4) return msg(t('e_minpts'), 'bad');
-    ring.splice(v.i, 1);
-    if (v.i === 0) ring[ring.length - 1] = [...ring[0]];
+    const tw = twins(state.selected, ring[v.i]).filter(x => x.ring.length > 4).sort((p, q) => q.i - p.i);
+    [...tw, { ring, i: v.i }].forEach(x => {
+      x.ring.splice(x.i, 1);
+      if (x.i === 0) x.ring[x.ring.length - 1] = [...x.ring[0]];
+      if (x.n != null) state.wards.get(x.n).drawn = true;
+    });
     w.drawn = true; state.selVx = null;
     drawHandles(); refreshWards();
   });
