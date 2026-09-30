@@ -356,7 +356,8 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(locateOnOpen);
+  if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
+  initPlacePicker();
   if (state.mode === 'v2') showJoin();
   // Tips also start on their own if the location question didn't run (a shared link, for example).
   setTimeout(startTips, 5000);
@@ -961,7 +962,7 @@ function filtered(){
 
 const primaries = () => state.reports.filter(r => !r.duplicate);
 /* Reports of the place the page is named after: Purulia, or the town or district the map is on (places.js). */
-const inScope = r => (r.place || null) === (window.KasaPlaces?.current || null);
+const inScope = r => window.KasaPlaces?.current === 'bengal' || (r.place || null) === (window.KasaPlaces?.current || null);
 const scopedPrimaries = () => primaries().filter(inScope);
 const daysSince = (iso) => Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 86400000));
 const isOverdue = (r) => r.status !== 'resolved' && daysSince(r.createdAt) > r.slaDays;
@@ -4397,8 +4398,50 @@ async function locateOnOpen(){
       startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
       mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
+      // Where they are becomes their home place for next time (once the page has been renamed after it).
+      mainMap.once('moveend', () => setTimeout(() => {
+        if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
+      }, 300));
     }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
   } catch (e) { startTips(); }
+}
+
+/* A plain visit opens on the place this device last chose or was found in, else all of West Bengal
+   ("Parishkar Bengal"); the location question then moves it to where they are. */
+async function openOnHomePlace(){
+  if (!window.KasaPlaces || userMovedMap) return;
+  const b = await KasaPlaces.boxOf(KasaPlaces.saved() || 'bengal') || await KasaPlaces.boxOf('bengal');
+  if (userMovedMap) return;
+  mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 0 });
+}
+
+/* "Parishkar Bankura ▾": pick any place to look at. Reporting still needs the live photo and real GPS. */
+function initPlacePicker(){
+  const btn = document.getElementById('k-place-pick'), dlg = document.getElementById('k-place-dialog');
+  if (!btn || !dlg || !window.KasaPlaces) { if (btn) btn.hidden = true; return; }
+  const pick = async key => {
+    dlg.close();
+    const b = await KasaPlaces.boxOf(key);
+    if (!b || !mainMap) return;
+    userMovedMap = true;
+    KasaPlaces.remember(key);
+    mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+  };
+  btn.addEventListener('click', () => {
+    const cur = KasaPlaces.current || 'purulia';
+    const towns = KasaPlaces.list.filter(p => p.bbox).map(p => [p.slug, p.name]);
+    const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia').map(([k, v]) => ['district:' + k, t('pl_district', { d: v })]);
+    const items = [['bengal', t('pk_state'), 'k-place-wide'], ['purulia', 'Purulia'], ...towns,
+      ...districts.sort((a, b) => a[1].localeCompare(b[1]))];
+    document.getElementById('k-place-list').innerHTML = items.map(([k, name, cls]) =>
+      `<button type="button" data-place="${esc(k)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    dlg.showModal();
+  });
+  dlg.addEventListener('click', e => {
+    if (e.target === dlg || e.target.closest('[data-close]')) return dlg.close();
+    const b = e.target.closest('[data-place]');
+    if (b) pick(b.dataset.place);
+  });
 }
 
 /* First-visit tips: a few small bubbles that point at a feature and say what it does.

@@ -19,6 +19,23 @@ test('on Kolkata the page becomes Parishkar Kolkata, and Purulia pages read only
   await expect(wordmark(page)).toHaveText('Purulia');
 });
 
+test('without a location the page opens as Parishkar Bengal; the picker moves the map and is remembered', async ({ browser }) => {
+  const ctx = await browser.newContext({ permissions: [] });
+  const page = await ctx.newPage();
+  await stubBackend(page);
+  await page.addInitScript(() => { try { localStorage.setItem('kasa_tips_done', '1'); localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {} });
+  await page.goto('kasa.html');
+  await expect(wordmark(page)).toHaveText('Bengal');
+  await expect(page).toHaveTitle(/Parishkar Bengal/);
+  await page.click('#k-place-pick');
+  await page.click('#k-place-list [data-place="district:bankura"]');
+  await expect(wordmark(page)).toHaveText('Bankura');
+  expect(await page.evaluate(() => localStorage.getItem('parishkar_place'))).toBe('district:bankura');
+  await page.reload();
+  await expect(wordmark(page)).toHaveText('Bankura');
+  await ctx.close();
+});
+
 test('a spot in a Kolkata ward is placed there; one in no ward is filed under its district', async ({ page }) => {
   await page.goto('kasa.html?place=kolkata');
   await page.evaluate(() => KasaPlaces.load('kolkata'));
@@ -32,7 +49,7 @@ test('a spot in a Kolkata ward is placed there; one in no ward is filed under it
 
 test('on a district with no town map the page becomes Parishkar Bankura', async ({ page, backend }) => {
   await page.goto('kasa.html');
-  await page.evaluate(() => mainMap.jumpTo({ center: [87.07, 23.23], zoom: 11 }));
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.07, 23.23], zoom: 11 }); });
   await expect(wordmark(page)).toHaveText('Bankura');
   await expect.poll(() => backend.calls.some(c => c.name === 'kasa_place_visit' && c.body?.p_place === 'district:bankura')).toBe(true);
   // Counts are Bankura's (none yet), not Purulia's.

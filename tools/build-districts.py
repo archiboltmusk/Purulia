@@ -7,7 +7,8 @@ Download it, then run:  python3 tools/build-districts.py LGD_Districts.parquet
 
 Writes places/wb_districts.geojson and the district rows in
 supabase/migrations/20260928120000_kasa_wb_districts.sql (between the markers).
-Purulia is left out: its own blocks, wards and panchayats already cover it.
+Purulia is in the GeoJSON (the report map's place picker zooms to it) but not in the
+database rows: its own blocks, wards and panchayats already cover it.
 Needs: pip install duckdb shapely
 """
 import json, re, sys
@@ -30,7 +31,7 @@ def rnd(c): return [rnd(x) for x in c] if isinstance(c[0], (list, tuple)) else [
 
 con = duckdb.connect(); con.sql('install spatial; load spatial')
 rows = con.sql(f"select dtname, dist_lgd, st_aswkb(geometry) from '{sys.argv[1]}' "
-               "where stname ilike 'west bengal' and dtname <> 'Purulia' order by dtname").fetchall()
+               "where stname ilike 'west bengal' order by dtname").fetchall()
 feats, sql = [], []
 for name, lgd, g in rows:
     name = NAMES.get(name, name)
@@ -40,6 +41,7 @@ for name, lgd, g in rows:
     polys = rnd([[list(r) for r in p] for p in polys])
     feats.append({'type': 'Feature', 'properties': {'district': name, 'slug': slug(name), 'lgd': lgd},
                   'geometry': {'type': 'MultiPolygon', 'coordinates': polys}})
+    if name == 'Purulia': continue
     x0, y0, x1, y1 = geom.bounds
     sql.append(f"('district:{slug(name)}', 'district', '{name}', null, {y0:.4f}, {y1:.4f}, {x0:.4f}, {x1:.4f}, "
                f"'{json.dumps(polys, separators=(',', ':'))}'::jsonb, '{slug(name)}')")
