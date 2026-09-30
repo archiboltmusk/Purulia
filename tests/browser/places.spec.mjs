@@ -191,6 +191,23 @@ test('Put your town on the map: a background picture can be placed and removed',
   await page.setInputFiles('#at-img', { name: 'ward-map.png', mimeType: 'image/png', buffer: png });
   await expect(page.locator('.at-corner')).toHaveCount(5);
   await expect(page.locator('#at-opacity')).toBeEnabled();
+  // Dragging a corner turns and resizes the picture but never skews it: it stays a square, like the photo.
+  const corners = async () => Promise.all([0, 1, 2, 3].map(async i => {
+    const b = await page.locator('.at-corner:not(.move)').nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  }));
+  await page.locator('#at-map').scrollIntoViewIfNeeded();
+  const [c0] = await corners();
+  await page.mouse.move(c0[0], c0[1]);
+  await page.mouse.down();
+  await page.mouse.move(c0[0] - 40, c0[1] + 25, { steps: 6 });
+  await page.mouse.up();
+  const c = await corners();
+  const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  expect(Math.abs(c[0][0] - c0[0]) + Math.abs(c[0][1] - c0[1])).toBeGreaterThan(20);
+  expect(d(c[0], c[1])).toBeCloseTo(d(c[1], c[2]), -0.5);
+  expect(d(c[0], c[1])).toBeCloseTo(d(c[2], c[3]), -0.5);
+  expect(d(c[0], c[2])).toBeCloseTo(d(c[1], c[3]), -0.5);
   await page.click('#at-img-lock');
   await expect(page.locator('.at-corner')).toHaveCount(0);
   await expect(page.locator('#at-img-lock')).toHaveText('Move picture');

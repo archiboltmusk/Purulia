@@ -45,7 +45,7 @@
       f_map: 'Report map', f_privacy: 'Privacy', f_grievance: 'Grievance Officer',
       s_wards: '{n} wards ready: tap one to edit it.', s_none: 'No wards yet.', s_drawing: 'Ward {n}: {p} points. Tap the map to add more.',
       s_existing: 'Borders now on the map are shown dashed. Tap one to copy it here and edit it.',
-      h_img: 'Have a photo or scan of the ward map? Put it under the map, drag its blue corners onto the same places on the map, then trace over it. The picture stays on your device.',
+      h_img: 'Have a photo or scan of the ward map? Put it under the map. Drag the middle dot to move it and a blue corner to resize and turn it (it never stretches), until it lines up with the map, then trace over it. The picture stays on your device.',
       b_img: 'Background picture (JPG or PNG)', a_opacity: 'Picture opacity', b_lock: 'Lock picture', b_unlock: 'Move picture', b_img_clear: 'Remove picture',
       e_img: 'That picture could not be opened. Use a JPG or PNG.',
       f_e_ward: 'Ward number', f_e_name: 'Ward name (optional)', f_e_note: 'Notes on this ward (optional)',
@@ -93,7 +93,7 @@
       f_map: 'রিপোর্ট মানচিত্র', f_privacy: 'গোপনীয়তা', f_grievance: 'অভিযোগ আধিকারিক',
       s_wards: '{n}টি ওয়ার্ড তৈরি: বদলাতে ট্যাপ করুন।', s_none: 'এখনও কোনো ওয়ার্ড নেই।', s_drawing: 'ওয়ার্ড {n}: {p}টি বিন্দু। আরও যোগ করতে মানচিত্রে ট্যাপ করুন।',
       s_existing: 'এখন মানচিত্রে থাকা সীমানা ড্যাশ দিয়ে দেখানো। বদলাতে কোনোটিতে ট্যাপ করে এখানে কপি করুন।',
-      h_img: 'ওয়ার্ড মানচিত্রের ছবি বা স্ক্যান আছে? সেটা মানচিত্রের নিচে রাখুন, নীল কোণগুলো মানচিত্রের একই জায়গায় টেনে আনুন, তারপর তার ওপর আঁকুন। ছবিটি আপনার ফোনেই থাকে।',
+      h_img: 'ওয়ার্ড মানচিত্রের ছবি বা স্ক্যান আছে? সেটা মানচিত্রের নিচে রাখুন। সরাতে মাঝের বিন্দু, আর ছোট-বড় করতে বা ঘোরাতে নীল কোণ টানুন (ছবি কখনও বেঁকে যায় না), যতক্ষণ না মানচিত্রের সঙ্গে মেলে। তারপর তার ওপর আঁকুন। ছবিটি আপনার ফোনেই থাকে।',
       b_img: 'পেছনের ছবি (JPG বা PNG)', a_opacity: 'ছবির স্বচ্ছতা', b_lock: 'ছবি আটকে দিন', b_unlock: 'ছবি সরান', b_img_clear: 'ছবি মুছুন',
       e_img: 'ছবিটি খোলা গেল না। JPG বা PNG দিন।',
       f_e_ward: 'ওয়ার্ড নম্বর', f_e_name: 'ওয়ার্ডের নাম (ঐচ্ছিক)', f_e_note: 'এই ওয়ার্ড নিয়ে নোট (ঐচ্ছিক)',
@@ -141,7 +141,7 @@
       f_map: 'रिपोर्ट नक्शा', f_privacy: 'गोपनीयता', f_grievance: 'शिकायत अधिकारी',
       s_wards: '{n} वार्ड तैयार: बदलने के लिए टैप करें।', s_none: 'अभी कोई वार्ड नहीं।', s_drawing: 'वार्ड {n}: {p} बिंदु। और जोड़ने के लिए नक्शे पर टैप करें।',
       s_existing: 'अभी नक्शे पर मौजूद सीमाएँ डैश से दिखाई गई हैं। बदलने के लिए किसी पर टैप कर उसे यहाँ कॉपी करें।',
-      h_img: 'वार्ड नक्शे की फ़ोटो या स्कैन है? उसे नक्शे के नीचे रखें, नीले कोनों को नक्शे पर उन्हीं जगहों पर खींचें, फिर उसके ऊपर बनाएँ। तस्वीर आपके फ़ोन पर ही रहती है।',
+      h_img: 'वार्ड नक्शे की फ़ोटो या स्कैन है? उसे नक्शे के नीचे रखें। खिसकाने के लिए बीच का बिंदु, और छोटा-बड़ा करने या घुमाने के लिए नीला कोना खींचें (तस्वीर कभी टेढ़ी नहीं होती), जब तक वह नक्शे से मेल न खाए। फिर उसके ऊपर बनाएँ। तस्वीर आपके फ़ोन पर ही रहती है।',
       b_img: 'पीछे की तस्वीर (JPG या PNG)', a_opacity: 'तस्वीर की पारदर्शिता', b_lock: 'तस्वीर रोकें', b_unlock: 'तस्वीर खिसकाएँ', b_img_clear: 'तस्वीर हटाएँ',
       e_img: 'तस्वीर खोली नहीं जा सकी। JPG या PNG दें।',
       f_e_ward: 'वार्ड नंबर', f_e_name: 'वार्ड का नाम (वैकल्पिक)', f_e_note: 'इस वार्ड पर नोट (वैकल्पिक)',
@@ -618,9 +618,27 @@
     if (!img.url || img.locked) return;
     const centre = () => [0, 1].map(k => img.coords.reduce((s, c) => s + c[k], 0) / 4);
     const move = handle('at-corner move', centre());
+    // A corner turns and resizes the whole picture about the opposite corner, so it is never stretched or skewed.
+    const merc = c => maplibregl.MercatorCoordinate.fromLngLat(c);
     img.coords.forEach((c, k) => {
       const m = handle('at-corner', c);
-      m.on('drag', () => { const { lng, lat } = m.getLngLat(); img.coords[k] = [lng, lat]; setImgCoords(); move.setLngLat(centre()); });
+      let from = null;
+      m.on('dragstart', () => { from = img.coords.map(merc); });
+      m.on('drag', () => {
+        const o = from[(k + 2) % 4], p = maplibregl.MercatorCoordinate.fromLngLat(m.getLngLat());
+        const ax = from[k].x - o.x, ay = from[k].y - o.y, bx = p.x - o.x, by = p.y - o.y, n = ax * ax + ay * ay;
+        if (!n) return;
+        const re = (bx * ax + by * ay) / n, im = (by * ax - bx * ay) / n;   // (p - o) / (corner - o), as complex numbers
+        img.coords = from.map(q => {
+          const dx = q.x - o.x, dy = q.y - o.y;
+          const ll = new maplibregl.MercatorCoordinate(o.x + re * dx - im * dy, o.y + im * dx + re * dy).toLngLat();
+          return [ll.lng, ll.lat];
+        });
+        setImgCoords();
+        img.coords.forEach((q, j) => { if (j !== k) img.handles[j].setLngLat(q); });
+        move.setLngLat(centre());
+      });
+      m.on('dragend', () => m.setLngLat(img.coords[k]));
       img.handles.push(m);
     });
     let start = null;
