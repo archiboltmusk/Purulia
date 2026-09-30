@@ -427,3 +427,20 @@ test('a spot inside a Kolkata ward is Kolkata, not the neighbouring district or 
   const a = await page.evaluate(async () => { const x = await areasAt(22.50903, 88.30179); return [x.district.properties.slug, !!x.block, !!x.gp]; });
   expect(a).toEqual(['kolkata', false, false]);
 });
+
+test('representatives follow the place on the map: Hooghly shows its own MPs and MLAs', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.25, 22.95], zoom: 9 }); });
+  await expect(wordmark(page)).toHaveText('Hooghly');
+  await page.locator('#k-more-btn').click();
+  await page.locator('#k-auth-sec summary').click();
+  const grid = page.locator('#k-auth-grid');
+  await expect(page.locator('#k-auth-sub')).toContainText('Hooghly');
+  await expect(grid.locator('.k-auth-card')).toHaveCount(3 + 18);
+  await expect(grid).toContainText('Rachana Banerjee');
+  await expect(grid).toContainText('Subir Nag');
+  await expect(grid.locator('.k-auth-card', { hasText: 'Jyotirmay Singh Mahato' })).toHaveCount(0);
+  await grid.locator('.k-auth-card', { hasText: 'Rachana Banerjee' }).locator('[data-profile]').click();
+  await expect(page.locator('#k-rep-modal')).toContainText('Assembly seats in this constituency');
+});
