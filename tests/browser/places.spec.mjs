@@ -286,10 +286,51 @@ test('tapping a gram panchayat opens its card with the MLA and MP for that spot;
   await expect(card.locator('.k-ward-title')).toHaveText('Amrul');
   await expect(card.locator('.k-ward-sub')).toContainText('Gram panchayat · Indus block · Bankura');
   await expect(card.locator('.k-area-role').first()).toContainText('MLA');
+  await expect(card).toContainText('drinking water');
   await expect(card).toContainText('Bankura');
   await card.locator('[data-area-level="district"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Bankura');
   await expect(card.locator('.k-area-role').first()).toContainText('MLAs (12 seats)');
+  await expect(card).toContainText('District Magistrate');
+  await expect(card.locator('a', { hasText: 'district website' })).toHaveAttribute('href', 'https://bankura.gov.in/');
   await card.locator('[data-area-close]').click();
   await expect(card).toBeHidden();
+});
+
+test('a gram panchayat card names its BDO with the office phone from the district website', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.0163, 22.6129], zoom: 11 }); });
+  await page.evaluate(() => openArea(22.6129, 88.0163));
+  const card = page.locator('#k-area-card');
+  await expect(card.locator('.k-ward-title')).toHaveText('Khosalpur');
+  const bdo = card.locator('.k-area-row', { hasText: 'BDO · Amta-I' });
+  await expect(bdo).toContainText('Adrita Samaddar');
+  await expect(bdo.locator('a[href^="tel:"]')).toHaveAttribute('href', 'tel:03214260022');
+});
+
+test("where nobody is on record, anyone can add who's responsible with a source; approved names show with it", async ({ page, backend }) => {
+  const calls = await stubBackend(page, { rpc: {
+    kasa_submit_official: { ok: true, status: 'pending' },
+    kasa_officials: [{ level: 'block', block: 'Indus', gp: null, role: 'bdo', name: 'Shri B. Officer', phone: '03244 000000',
+                       source_url: 'https://bankura.gov.in/bdo-list.pdf', checked: '2026-09-30' }] } });
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.5539, 23.1122], zoom: 11 }); });
+  await page.evaluate(() => openArea(23.1122, 87.5539));
+  const card = page.locator('#k-area-card');
+  await expect(card.locator('.k-ward-title')).toHaveText('Amrul');
+  const bdo = card.locator('.k-area-row', { hasText: 'BDO · Indus' });
+  await expect(bdo).toContainText('Shri B. Officer');
+  await expect(bdo.locator('a', { hasText: 'added by a reader' })).toHaveAttribute('href', 'https://bankura.gov.in/bdo-list.pdf');
+  await card.locator('[data-area-add]').click();
+  const form = card.locator('.k-area-add');
+  await expect(form.locator('select option')).toHaveText(['Pradhan']);
+  await form.locator('[name=name]').fill('Smt. A. Pradhan');
+  await form.locator('[name=src]').fill('https://bankurazp.org/pradhans.pdf');
+  await form.locator('button[type=submit]').click();
+  await expect(form).toBeHidden();
+  const sent = calls.find(c => c.name === 'kasa_submit_official')?.body;
+  expect(sent).toMatchObject({ p_level: 'gp', p_district: 'bankura', p_block: 'Indus', p_gp: 'Amrul', p_role: 'pradhan',
+                               p_name: 'Smt. A. Pradhan', p_source_url: 'https://bankurazp.org/pradhans.pdf' });
 });

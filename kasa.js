@@ -1304,9 +1304,15 @@ function addDistrictLocal(slug, attribution){
 
 /* Area card: tap a district, block or gram panchayat anywhere in West Bengal (outside a mapped
    ward) for its name, the reports inside it, and the MLA and MP for that spot. Leaders come from
-   places/wb_leaders.json (tools/build-wb-leaders.py, cited); panchayat heads are not on record yet,
-   so the card says so rather than guess. The level follows the zoom; the crumbs switch it. */
-let wbLeaders = null, wbAssembly = null;
+   places/wb_leaders.json (tools/build-wb-leaders.py, cited); DM, Zilla Parishad officer and BDOs from
+   each district's own website (places/wb_officials.json, tools/build-wb-officials.py); what each tier
+   must do from the WB Panchayat Act 1973 (s.19 gram panchayat, s.109 samiti, s.153 zilla parishad).
+   Elected panchayat heads are not on record yet, so the card says so rather than guess.
+   The level follows the zoom; the crumbs switch it. */
+let wbLeaders = null, wbAssembly = null, wbOfficials = null;
+const wbAdded = {};  // district slug -> names readers added and moderators approved (kasa_officials)
+const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => r.data || [], () => []) : Promise.resolve([]));
+const PANCHAYAT_ACT = 'https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf';
 const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
 const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
 
@@ -1343,8 +1349,10 @@ function districtSeats(slug){
 }
 
 async function openArea(lat, lng, level){
-  const [areas, leaders] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng)]);
+  const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
+  wbOfficials = officials;
   if (!areas) return closeArea();
+  areas.added = await addedIn(areas.district.properties.slug);
   if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
   const z = mainMap.getZoom();
   level ||= z >= 10.5 && areas.gp ? 'gp' : z >= 8 && areas.block ? 'block' : 'district';
@@ -1378,6 +1386,22 @@ function renderAreaCard(){
             : a.level === 'block' ? t('ar_block_sub', { d: district.properties.district }) : t('ar_district_sub');
   const L = a.leaders, row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
   const seats = a.level === 'district' ? districtSeats(district.properties.slug) : [];
+  const off = wbOfficials?.districts[district.properties.slug], bname = block?.properties.block || gp?.properties.block;
+  const bdo = a.level !== 'district' && bname && off?.bdo?.[bname];
+  // Names a reader added (moderator-checked) fill in what the district website doesn't list.
+  const gname = gp?.properties.gp, added = r => (a.areas.added || []).find(o => o.role === r
+    && (['sabhadhipati', 'dm', 'zp'].includes(r) || o.block === bname) && (r !== 'pradhan' || o.gp === gname));
+  const byReader = o => o && { name: o.name, phone: o.phone, src: o.source_url };
+  const heads = { gp: 'pradhan', block: 'sabhapati', district: 'sabhadhipati' }, head = byReader(added(heads[a.level]));
+  const bdoRow = a.level !== 'district' && bname && (bdo || byReader(added('bdo')));
+  const dm = off?.dm || byReader(added('dm')), zp = off?.zp || byReader(added('zp'));
+  const missing = [heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
+  if (head) missing.shift();
+  const contact = o => [o.phone && `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a>`,
+                        o.email && `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`,
+                        o.src && `<a href="${esc(o.src)}" target="_blank" rel="noopener">${esc(t('ar_added_src'))}</a>`].filter(Boolean).join(' · ');
+  const officer = (role, o, extra) => o ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${esc(o.name || '')}</span>${contact(o) ? `<span class="k-area-extra">${contact(o)}</span>` : ''}${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>` : '';
+  const roleName = r => ({ pradhan: t('ar_head_gp'), sabhapati: t('ar_head_block'), sabhadhipati: t('ar_head_district'), bdo: t('ar_bdo_short'), dm: t('ar_dm'), zp: t('ar_zp') })[r];
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-area-crumbs">${[crumb('district', district), crumb('block', block), crumb('gp', gp)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
@@ -1393,19 +1417,46 @@ function renderAreaCard(){
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), esc(L.ac.person), L.ac.party) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), esc(L.pc.person), t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)}
+      ${head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level))
+             : row(t('ar_head_' + a.level), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`, t('ar_duty_' + a.level))}
+      ${a.level === 'district' ? officer(t('ar_dm'), dm) + officer(t('ar_zp'), zp) : officer(t('ar_bdo', { b: bname }), bdoRow)}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
+      ${missing.length && sb ? `<button type="button" class="k-ward-filter" data-area-add>${esc(t('ar_add'))}</button>` : ''}
     </div>
-    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}</div>`;
+    <form class="k-area-add" hidden>
+      <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
+      <select name="role" aria-label="${esc(t('ar_add_role'))}">${missing.map(r => `<option value="${r}">${esc(roleName(r))}</option>`).join('')}</select>
+      <input name="name" required maxlength="120" autocomplete="off" placeholder="${esc(t('ar_add_name'))}">
+      <input name="phone" type="tel" maxlength="20" autocomplete="off" placeholder="${esc(t('ar_add_phone'))}">
+      <input name="src" type="url" required maxlength="300" placeholder="${esc(t('ar_add_src'))}">
+      <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
+    </form>
+    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
+      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>`;
   el.hidden = false;
+  el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data: f });
     mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
     mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(f);
+}
+
+// "Add who's responsible here": goes to the moderators with its source link; shows once approved.
+async function sendOfficial(form){
+  const a = state.area, { district, block, gp } = a.areas, btn = form.querySelector('button');
+  btn.disabled = true;
+  const { error } = await sb.rpc('kasa_submit_official', {
+    p_level: a.level, p_district: district.properties.slug, p_block: block?.properties.block || gp?.properties.block || null,
+    p_gp: a.level === 'gp' ? gp?.properties.gp || null : null, p_role: form.role.value, p_name: form.name.value,
+    p_phone: form.phone.value || null, p_source_url: form.src.value, p_lat: a.lat, p_lng: a.lng });
+  btn.disabled = false;
+  if (error) return showToast(errorText(rpcError(error)));
+  form.reset(); form.hidden = true;
+  showToast(t('ar_add_thanks'));
 }
 
 function areaBounds(f){
@@ -4495,7 +4546,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -4537,6 +4588,7 @@ function wireUI(){
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
+    if ('areaAdd' in d){ const f = document.querySelector('#k-area-card .k-area-add'); f.hidden = !f.hidden; if (!f.hidden) f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();

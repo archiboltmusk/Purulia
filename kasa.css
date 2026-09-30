@@ -911,5 +911,10 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-who{color:var(--text-hi);}
 .k-area-who a{color:var(--amber);}
 .k-area-extra{font-family:var(--mono);font-size:10px;color:var(--text-lo);}
+.k-area-extra a{color:var(--amber);}
+.k-area-add{display:grid;gap:.45rem;margin-top:.7rem;}
+.k-area-add[hidden]{display:none;}
+.k-area-add-note{font-size:.8rem;color:var(--text-lo);margin:0;}
+.k-area-add input,.k-area-add select{font:inherit;font-size:.9rem;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:3px;background:var(--ink);color:var(--text-hi);}
 .k-area-none{color:var(--text-lo);font-style:italic;}
 .k-area-card .k-ward-note a{color:var(--amber);}
