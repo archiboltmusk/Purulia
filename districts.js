@@ -17,8 +17,9 @@
   let data, key = new URLSearchParams(location.search).get('m') || 'child_marriage';
 
   function render() {
-    if (!LABELS[key]) key = 'child_marriage';
+    if (!Object.prototype.hasOwnProperty.call(LABELS, key)) key = 'child_marriage';
     const good = data.indicators[key].higher_is_better;
+    const k = key;
     document.querySelectorAll('.dt-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.k === key)));
     document.getElementById('dt-h').textContent = LABELS[key];
     const rows = Object.entries(data.districts).filter(([, v]) => v[key] != null)
@@ -30,7 +31,7 @@
     const bar = v => `<div class="dt-bar" style="width:${(v / max * 100).toFixed(1)}%"></div>`;
     const ref = (name, v) => `<tr class="dt-ref"><td class="n"></td><td>${name}</td><td class="n">${v}</td><td>${bar(v)}</td></tr>`;
     document.getElementById('dt-rows').innerHTML = rows.map(([d, v], n) =>
-      `<tr${d === me ? ' class="dt-me"' : ''}><td class="n">${n + 1}</td><td><a href="?d=${encodeURIComponent(d)}&m=${key}">${esc(NAMES[d] || d)}</a></td><td class="n">${v[key]}</td><td>${bar(v[key])}</td></tr>`
+      `<tr${d === me ? ' class="dt-me"' : ''}><td class="n">${n + 1}</td><td><a href="?d=${encodeURIComponent(d)}&m=${encodeURIComponent(key)}">${esc(NAMES[d] || d)}</a></td><td class="n">${v[key]}</td><td>${bar(v[key])}</td></tr>`
     ).join('') + ref('West Bengal', data.west_bengal[key]) + ref('India', data.india[key]);
   }
 
