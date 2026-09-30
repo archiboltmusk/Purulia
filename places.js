@@ -66,8 +66,9 @@ window.KasaPlaces = (() => {
   const boxAt = (lat, lng) => PLACES.find(p => p.bbox && inBox(p.bbox, lat, lng)) || null;
   const inWB = (lat, lng) => inBox(WB, lat, lng);
 
-  /* A town, or a district as 'district:<slug>' (name without "district"; body unknown). */
+  /* A town, a district as 'district:<slug>' (name without "district"; body unknown), or 'bengal' (the whole state). */
   function bySlug(slug){
+    if (slug === 'bengal') return { slug, name: 'Bengal', isState: true, body: null };
     if (typeof slug === 'string' && slug.startsWith('district:')){
       const name = DISTRICTS[slug.slice(9)];
       return name ? { slug, name, isDistrict: true, body: null } : null;
@@ -106,7 +107,8 @@ window.KasaPlaces = (() => {
       .catch(() => { districts = { features: [] }; return districts; }));
   }
 
-  const districtAt = (lat, lng) => districts?.features.find(f => inGeom([lng, lat], f.geometry)) || null;
+  // Purulia's own blocks, wards and panchayats cover it, so its outline never names a spot or the page.
+  const districtAt = (lat, lng) => districts?.features.find(f => f.properties.slug !== 'purulia' && inGeom([lng, lat], f.geometry)) || null;
 
   /* Where a point is: { kind: 'place', place, name, body, ward } in a town's ward,
      { kind: 'place', place: 'district:<slug>', name, isDistrict: true } elsewhere in West Bengal,
@@ -153,15 +155,17 @@ window.KasaPlaces = (() => {
     emit('brand', key);
   }
 
-  /* The map moved: follow the town or district in view. Zoomed far out, or on Purulia, the page stays Purulia. */
+  /* The map moved: follow the town or district in view. On Purulia the page is Purulia;
+     zoomed far out, or off West Bengal, it is "Parishkar Bengal". */
   function onView(lat, lng, zoom){
     lastView = [lat, lng, zoom];
     const p = zoom >= 10 ? boxAt(lat, lng) : null;
     if (p){ load(p.slug); return brand(p.slug); }
-    if (zoom < 8 || !inWB(lat, lng) || inBox(PURULIA, lat, lng)) return brand(null);
-    if (!districts){ loadDistricts(); return brand(null); }
+    if (zoom < 7 || !inWB(lat, lng)) return brand('bengal');
+    if (inBox(PURULIA, lat, lng)) return brand(null);
+    if (!districts){ loadDistricts(); return brand('bengal'); }
     const d = districtAt(lat, lng);
-    brand(d ? 'district:' + d.properties.slug : null);
+    brand(d ? 'district:' + d.properties.slug : 'bengal');
   }
   listeners.push(what => { if (what === 'districts' && lastView) onView(...lastView); });
 
@@ -189,8 +193,31 @@ window.KasaPlaces = (() => {
     }).catch(() => {});
   }
 
+  /* The box to show for a place: 'bengal', null/'purulia', a town, or a district (needs the outlines). */
+  async function boxOf(key){
+    if (key === 'bengal') return WB;
+    if (!key || key === 'purulia') return PURULIA;
+    const p = bySlug(key);
+    if (!p) return null;
+    if (p.bbox) return p.bbox;
+    if (!p.isDistrict) return null;
+    await loadDistricts();
+    const f = districts.features.find(f => 'district:' + f.properties.slug === key);
+    if (!f) return null;
+    const pts = f.geometry.coordinates.flat(2);
+    return { min_lat: Math.min(...pts.map(q => q[1])), max_lat: Math.max(...pts.map(q => q[1])),
+             min_lng: Math.min(...pts.map(q => q[0])), max_lng: Math.max(...pts.map(q => q[0])) };
+  }
+
+  // The place this device last looked at, so a repeat visit opens there.
+  const SAVED = 'parishkar_place';
+  const saved = () => { try { return localStorage.getItem(SAVED); } catch (e) { return null; } };
+  const remember = key => {
+    try { if (key === 'bengal') localStorage.removeItem(SAVED); else localStorage.setItem(SAVED, key || 'purulia'); } catch (e) {}
+  };
+
   return {
-    list: PLACES, districts: DISTRICTS, bySlug, at, load, brand, onView, boxAt, inWB,
+    list: PLACES, districts: DISTRICTS, bySlug, at, load, brand, onView, boxAt, inWB, boxOf, saved, remember,
     get current(){ return current; },
     get geo(){ return geo; },
     on: f => listeners.push(f),
