@@ -628,6 +628,13 @@ function wardsSvg(wards){
   }).join('')}</svg>`;
 }
 
+/* add-town.html link for a fix: a town slug, 'purulia', or 'area:<level>:<district>[:<block>[:<gp>]]'. */
+function fixEditorHref(fix){
+  if (!fix.startsWith('area:')) return 'add-town.html?fix=' + encodeURIComponent(fix);
+  const [, level, district, block, gp] = fix.split(':');
+  return 'add-town.html?' + new URLSearchParams({ fix: 'area', level, district, ...(block ? { block } : {}), ...(gp ? { gp } : {}) });
+}
+
 async function loadTownRequests(){
   const el = document.getElementById('adTownRequests');
   if (!el) return;
@@ -641,7 +648,7 @@ async function loadTownRequests(){
         ${data.map((s, i) => `<tr>
           <td>${esc(s.status)}${s.slug ? `<br><a href="kasa.html?place=${encodeURIComponent(s.slug)}" target="_blank" rel="noopener">${esc(s.slug)}</a>` : ''}${s.review_note ? `<br><small>${esc(s.review_note)}</small>` : ''}</td>
           <td>${s.ward_count ? wardsSvg(s.wards || []) + `<br><button class="ad-ok" data-town-dl="${i}">Download GeoJSON</button>` : '<small>Note only</small>'}</td>
-          <td><strong>${esc(s.town)}</strong>${s.fix_of ? ` <small>(fix of ${esc(s.fix_of)}, <a href="add-town.html?fix=${encodeURIComponent(s.fix_of)}" target="_blank" rel="noopener">open in editor</a>)</small>` : ''}<br>${esc(s.district)} district<br>${esc(s.body)}
+          <td><strong>${esc(s.town)}</strong>${s.fix_of ? ` <small>(fix of ${esc(s.fix_of)}, <a href="${esc(fixEditorHref(s.fix_of))}" target="_blank" rel="noopener">open in editor</a>)</small>` : ''}<br>${esc(s.district)} district<br>${esc(s.body)}
             <br><small>${esc(s.ward_count)} wards: ${esc((s.wards || []).map(w => w.ward + (w.name ? ' ' + w.name : '')).join(', '))}</small>
             ${s.note ? `<br><strong>Note:</strong> ${esc(s.note)}` : ''}${s.pin ? `<br><small>Pinned: <a href="https://www.openstreetmap.org/?mlat=${esc(s.pin[1])}&mlon=${esc(s.pin[0])}#map=17/${esc(s.pin[1])}/${esc(s.pin[0])}" target="_blank" rel="noopener">${esc(s.pin[1])}, ${esc(s.pin[0])}</a></small>` : ''}
             ${(s.wards || []).filter(w => w.note).map(w => `<br><small>Ward ${esc(w.ward)}: ${esc(w.note)}</small>`).join('')}
