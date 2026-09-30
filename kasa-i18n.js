@@ -1320,3 +1320,61 @@ Object.assign(window.KASA_I18N.bn, { pk_title: 'জায়গা বেছে 
   pk_note: 'এতে শুধু মানচিত্র সরে। রিপোর্ট করতে আপনাকে সেই জায়গায় থাকতে হবে: ছবি সরাসরি তোলা হয় আর আপনার আসল অবস্থান লাগে।' });
 Object.assign(window.KASA_I18N.hi, { pk_title: 'जगह चुनें', pk_state: 'पूरा पश्चिम बंगाल',
   pk_note: 'इससे सिर्फ़ नक्शा हिलता है। रिपोर्ट के लिए आपको उसी जगह होना होगा: फ़ोटो सीधे ली जाती है और आपकी असली लोकेशन ली जाती है।' });
+/* The ward leaderboard and "Who's responsible" follow the place in view (Kolkata, a district, all of West Bengal). */
+Object.assign(window.KASA_I18N.en, {
+  lb_title_block: 'Block accountability', lb_title_district: 'District accountability',
+  lb_sub_block: 'Blocks ranked by unresolved reports. The Block Development Officer runs each block; tap one to see its gram panchayats and who is responsible.',
+  lb_sub_district: 'Districts ranked by unresolved reports. Tap one to go there.',
+  lb_search_block: 'Find your block or its BDO', lb_search_district: 'Find your district',
+  lb_missing_councillors: 'Ward councillors for {place} are not on record here yet. If you know where they are published, send the link with "Report a bug".',
+  lb_bdo: 'BDO: {n}', lb_bdo_unknown: 'BDO not on record here yet: tap to add', lb_dm: 'DM: {n}', lb_dm_unknown: 'District Magistrate not on record here yet',
+  role_dm_of: 'District Magistrate, {d}', role_dm_any: 'District Magistrate of the district',
+  role_ps_any: 'Local police station', role_sdpo_any: 'Sub-Divisional Police Officer',
+  role_sp_of: 'Superintendent of Police, {d}', role_sp_any: 'Superintendent of Police of the district',
+  role_sp_any_s: 'District police head; in a police commissionerate area, the Commissioner of Police',
+  role_ps_kol: 'Local police station, Kolkata Police', role_ps_kol_s: 'Call 112 in an emergency · Frontline',
+  role_sdpo_kol: 'Deputy Commissioner of the police division', role_sdpo_kol_s: 'Oversees the division’s police stations',
+  role_sp_kol: 'Commissioner of Police, Kolkata', role_sp_kol_s: 'Head of Kolkata Police · Top',
+  chain_town_first: 'The town’s own civic body answers first',
+  chain_missing_label: 'Not on record yet',
+  chain_town_missing: 'Which officer in {body} handles this, and who is above them, is not on record here yet. Tap a ward on the map to see its councillor, or send the officer list with a link using "Report a bug".',
+  chain_town_note: 'Inside a town, its municipality answers instead of the gram panchayat. Tap the spot on the map to see who is responsible there.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  lb_title_block: 'ব্লকের জবাবদিহি', lb_title_district: 'জেলার জবাবদিহি',
+  lb_sub_block: 'অমীমাংসিত রিপোর্টের সংখ্যা অনুযায়ী ব্লক। প্রতিটি ব্লক চালান বিডিও; ব্লকে ট্যাপ করে গ্রাম পঞ্চায়েত আর দায়িত্বপ্রাপ্তদের দেখুন।',
+  lb_sub_district: 'অমীমাংসিত রিপোর্টের সংখ্যা অনুযায়ী জেলা। ট্যাপ করে সেখানে যান।',
+  lb_search_block: 'আপনার ব্লক বা বিডিও খুঁজুন', lb_search_district: 'আপনার জেলা খুঁজুন',
+  lb_missing_councillors: '{place}-এর ওয়ার্ড কাউন্সিলরদের নাম এখনও আমাদের কাছে নেই। কোথায় প্রকাশিত জানলে "Report a bug" দিয়ে লিঙ্ক পাঠান।',
+  lb_bdo: 'বিডিও: {n}', lb_bdo_unknown: 'বিডিও-র নাম এখনও নেই: ট্যাপ করে যোগ করুন', lb_dm: 'জেলাশাসক: {n}', lb_dm_unknown: 'জেলাশাসকের নাম এখনও নেই',
+  role_dm_of: 'জেলাশাসক, {d}', role_dm_any: 'জেলার জেলাশাসক',
+  role_ps_any: 'স্থানীয় থানা', role_sdpo_any: 'মহকুমা পুলিশ আধিকারিক (এসডিপিও)',
+  role_sp_of: 'পুলিশ সুপার, {d}', role_sp_any: 'জেলার পুলিশ সুপার',
+  role_sp_any_s: 'জেলা পুলিশের প্রধান; পুলিশ কমিশনারেট এলাকায় পুলিশ কমিশনার',
+  role_ps_kol: 'স্থানীয় থানা, কলকাতা পুলিশ', role_ps_kol_s: 'জরুরি অবস্থায় ১১২-এ ফোন করুন · প্রথম ধাপ',
+  role_sdpo_kol: 'পুলিশ ডিভিশনের ডেপুটি কমিশনার', role_sdpo_kol_s: 'ডিভিশনের থানাগুলির তত্ত্বাবধান',
+  role_sp_kol: 'পুলিশ কমিশনার, কলকাতা', role_sp_kol_s: 'কলকাতা পুলিশের প্রধান · শীর্ষে',
+  chain_town_first: 'শহরের নিজের পৌর সংস্থা প্রথমে দায়ী',
+  chain_missing_label: 'এখনও নথিতে নেই',
+  chain_town_missing: '{body}-এ কোন আধিকারিক এটা দেখেন, আর তাঁর উপরে কে, তা এখনও আমাদের কাছে নেই। মানচিত্রে ওয়ার্ডে ট্যাপ করে কাউন্সিলর দেখুন, বা "Report a bug" দিয়ে লিঙ্কসহ আধিকারিকদের তালিকা পাঠান।',
+  chain_town_note: 'শহরের ভিতরে গ্রাম পঞ্চায়েতের বদলে পৌরসভা দায়ী। কে দায়ী দেখতে মানচিত্রে জায়গাটিতে ট্যাপ করুন।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  lb_title_block: 'ब्लॉक की जवाबदेही', lb_title_district: 'ज़िले की जवाबदेही',
+  lb_sub_block: 'अनसुलझी रिपोर्टों के हिसाब से ब्लॉक। हर ब्लॉक बीडीओ चलाते हैं; ब्लॉक पर टैप करके ग्राम पंचायतें और ज़िम्मेदार लोग देखें।',
+  lb_sub_district: 'अनसुलझी रिपोर्टों के हिसाब से ज़िले। टैप करके वहाँ जाएँ।',
+  lb_search_block: 'अपना ब्लॉक या बीडीओ खोजें', lb_search_district: 'अपना ज़िला खोजें',
+  lb_missing_councillors: '{place} के वार्ड पार्षदों के नाम अभी हमारे पास नहीं हैं। कहाँ प्रकाशित हैं जानते हों तो "Report a bug" से लिंक भेजें।',
+  lb_bdo: 'बीडीओ: {n}', lb_bdo_unknown: 'बीडीओ का नाम अभी नहीं है: टैप करके जोड़ें', lb_dm: 'ज़िलाधिकारी: {n}', lb_dm_unknown: 'ज़िलाधिकारी का नाम अभी नहीं है',
+  role_dm_of: 'ज़िलाधिकारी, {d}', role_dm_any: 'ज़िले के ज़िलाधिकारी',
+  role_ps_any: 'स्थानीय थाना', role_sdpo_any: 'उपमंडल पुलिस अधिकारी (एसडीपीओ)',
+  role_sp_of: 'पुलिस अधीक्षक, {d}', role_sp_any: 'ज़िले के पुलिस अधीक्षक',
+  role_sp_any_s: 'ज़िला पुलिस प्रमुख; पुलिस कमिश्नरेट क्षेत्र में पुलिस आयुक्त',
+  role_ps_kol: 'स्थानीय थाना, कोलकाता पुलिस', role_ps_kol_s: 'आपात स्थिति में 112 पर कॉल करें · पहला कदम',
+  role_sdpo_kol: 'पुलिस डिवीज़न के उपायुक्त', role_sdpo_kol_s: 'डिवीज़न के थानों की निगरानी',
+  role_sp_kol: 'पुलिस आयुक्त, कोलकाता', role_sp_kol_s: 'कोलकाता पुलिस प्रमुख · शीर्ष',
+  chain_town_first: 'शहर की अपनी नगर संस्था पहले ज़िम्मेदार',
+  chain_missing_label: 'अभी दर्ज नहीं',
+  chain_town_missing: '{body} में कौन अधिकारी यह देखते हैं, और उनके ऊपर कौन है, यह अभी हमारे पास नहीं है। नक्शे पर वार्ड टैप करके पार्षद देखें, या "Report a bug" से लिंक सहित अधिकारियों की सूची भेजें।',
+  chain_town_note: 'शहर के अंदर ग्राम पंचायत की जगह नगरपालिका ज़िम्मेदार है। वहाँ कौन ज़िम्मेदार है, देखने के लिए नक्शे पर जगह टैप करें।'
+});
