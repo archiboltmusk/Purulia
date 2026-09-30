@@ -35,14 +35,14 @@ async function reportPage(id, url){
   const days = Math.max(0, Math.floor((Date.now() - Date.parse(r.created_at)) / 86400000));
   const place = [r.landmark, r.ward_no ? `Ward ${r.ward_no}` : r.block_name ? `${r.block_name} block` : ''].filter(Boolean).join(' · ');
   const title = `${CATS[r.category] || 'Civic problem'}${place ? ' — ' + place : ''}`;
-  const desc = fixed ? 'Fixed, and confirmed by neighbours on the spot. Parishkar Purulia.'
-    : `Reported ${days < 1 ? 'today' : days === 1 ? '1 day ago' : days + ' days ago'}, still unresolved. See it on the map and help get it fixed. Parishkar Purulia.`;
-  const image = (fixed && r.resolved_photo_url) || r.photo_url || `${url.origin}/og-image.jpg`;
+  const desc = fixed ? 'Fixed, and confirmed by neighbours on the spot. Parishkar Bengal.'
+    : `Reported ${days < 1 ? 'today' : days === 1 ? '1 day ago' : days + ' days ago'}, still unresolved. See it on the map and help get it fixed. Parishkar Bengal.`;
+  const image = (fixed && r.resolved_photo_url) || r.photo_url || `${url.origin}/og-bengal.jpg`;
   const html = `<!doctype html><html lang="en"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>${esc(title)} · Parishkar Purulia</title>
+<title>${esc(title)} · Parishkar Bengal</title>
 <meta name="description" content="${esc(desc)}">
-<meta property="og:type" content="article"><meta property="og:site_name" content="Parishkar Purulia">
+<meta property="og:type" content="article"><meta property="og:site_name" content="Parishkar Bengal">
 <meta property="og:title" content="${esc(title)}"><meta property="og:description" content="${esc(desc)}">
 <meta property="og:image" content="${esc(image)}"><meta property="og:url" content="${esc(url.href)}">
 <meta name="twitter:card" content="summary_large_image"><meta name="twitter:title" content="${esc(title)}">

@@ -1,0 +1,799 @@
+{
+ "checked": "2026-09-30",
+ "districts": {
+  "alipurduar": {
+   "source": "https://alipurduar.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Ms. Mayuri Vasu",
+    "role": "District Magistrate & Collector",
+    "phone": "03564-255062",
+    "email": "dmapd20@gmail.com"
+   },
+   "bdo": {
+    "Alipurduar-I": {
+     "name": "Sri Arijit Das",
+     "email": "bdoapd@gmail.com"
+    },
+    "Alipurduar-II": {
+     "name": "Shri Tshering Dhonden Bhutia",
+     "email": "bdo.apd2@gmail.com"
+    },
+    "Falakata": {
+     "name": "Smt Adrita Samadder",
+     "email": "bdofalakata@rediffmail.com"
+    },
+    "Kumargram": {
+     "name": "Shri. Sandip Dhara",
+     "email": "bdo.kumargram.jal@gmail.com"
+    },
+    "Kalchini": {
+     "name": "Shri Biswarup Biswas",
+     "email": "kalchinibdo@gmail.com"
+    },
+    "Madarihat": {
+     "name": "Smt. Dalaki Lama",
+     "email": "bdo.madarihat@gmail.com"
+    }
+   }
+  },
+  "bankura": {
+   "dm": {
+    "name": "Shri Aneesh Dasgupta",
+    "role": "District Magistrate"
+   },
+   "dm_source": "https://bankura.gov.in/"
+  },
+  "birbhum": {
+   "source": "https://birbhum.gov.in/whos-who/",
+   "dm": {
+    "name": "Shri Dhaval Jain",
+    "role": "District Magistrate",
+    "email": "dm-bir@nic.in"
+   }
+  },
+  "cooch-behar": {
+   "source": "https://coochbehar.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri. Jitin Yadav",
+    "role": "District Magistrate & Collector",
+    "phone": "03582-227101",
+    "email": "dm-cbr@nic.in"
+   },
+   "zp": {
+    "name": "Shri Sajal Tamang",
+    "role": "A.D.M. & A.E.O., Zilla Parishad",
+    "phone": "03582-222527",
+    "email": "admzp-wb@coochbehar.gov.in"
+   },
+   "bdo": {
+    "Coochbehar I": {
+     "name": "Shri. Arindam Mondal",
+     "phone": "03582-274555",
+     "email": "bdo_cob1@yahoo.com"
+    },
+    "Cooch Behar II": {
+     "name": "Shri. Amit Tamang",
+     "phone": "03582-270221",
+     "email": "bdo.coochbeharii@gmail.com"
+    },
+    "Dinhata-I": {
+     "name": "Shri. Bishakh Bhattacharyya",
+     "phone": "03581-255045",
+     "email": "bdodin1@rediffmail.com"
+    },
+    "Dinhata-II": {
+     "name": "Shri. Lhamu Y Wangdi",
+     "phone": "03581-244201",
+     "email": "dinhata2bdo@gmail.com"
+    },
+    "Sitai": {
+     "name": "Shri. Kartick Chandra Chakraborty",
+     "phone": "03583-245231",
+     "email": "bdositai@gmail.com"
+    },
+    "Mathabhanga-I": {
+     "name": "Shri. Shubhajit Mandal",
+     "phone": "03583-255260",
+     "email": "mtb1.bdo@gmail.com"
+    },
+    "Mathabhanga Ii": {
+     "name": "Shri. Arnab Mukhopadhayay",
+     "phone": "03583-255257",
+     "email": "bdomtb2block@gmail.com"
+    },
+    "Sitalkuchi": {
+     "name": "Smt. Anindita Sinha",
+     "phone": "03583-263231",
+     "email": "bdositalkuchi@yahoo.co.in"
+    },
+    "Mekliganj": {
+     "name": "Shri. Nareshraj Rai",
+     "phone": "03584-244045",
+     "email": "bdomekhliganj2018@gmail.com"
+    },
+    "Tufanganj-I": {
+     "name": "Shri. Sanjay Ghising",
+     "phone": "03582-244231",
+     "email": "bdotfg1new@gmail.com"
+    },
+    "Tufanganj-II": {
+     "name": "Shri. Ajay Kumar Dandapat",
+     "phone": "03582-263224",
+     "email": "bdotufanganj2@gmail.com"
+    },
+    "Haldibari": {
+     "name": "Shri. Mrityunjoy Dutta",
+     "phone": "03561-263241",
+     "email": "bdohaldibari@gmail.com"
+    }
+   }
+  },
+  "dakshin-dinajpur": {
+   "dm": {
+    "name": "Sh. Balasubramanian T",
+    "role": "District Magistrate"
+   },
+   "dm_source": "https://ddinajpur.nic.in/"
+  },
+  "darjeeling": {
+   "source": "https://darjeeling.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri Harishanker Panicker",
+    "role": "District Magistrate",
+    "email": "dm-darj@nic.in"
+   },
+   "bdo": {
+    "Phansidewa": {
+     "name": "Smt. Banani Majumder",
+     "email": "bdophansidewa@gmail.com"
+    },
+    "Matigara": {
+     "name": "Shri Biswajit Das",
+     "email": "matigarablock@gmail.com"
+    },
+    "Mirik": {
+     "name": "Shri Debottom Sarkar",
+     "email": "bdomirik@gmail.com"
+    },
+    "Jore Bunglow-Sukiapokhri": {
+     "name": "Shri Arghya Guha",
+     "email": "bdosukhiapokhri@yahoo.in"
+    },
+    "Naxal Bari": {
+     "name": "Shri Pranab Chattaraj",
+     "email": "naxalbaribdo@gmail.com"
+    },
+    "Kharibari": {
+     "name": "Smt Dipti Shaw",
+     "email": "bdokharibari@gmail.com"
+    },
+    "Kurseong": {
+     "name": "Shri Koushik Chakraborty",
+     "email": "bdokurseong@gmail.com"
+    },
+    "Rangli Rangliot": {
+     "name": "Shri Manoj Kumar Pahari",
+     "email": "bdotakdah@gmail.com"
+    },
+    "Darjeeling-Pulbazar": {
+     "name": "Shri Lalkpa Wangchu Sherpa",
+     "email": "darj.pul.dev.block@gmail.com"
+    }
+   }
+  },
+  "howrah": {
+   "source": "https://howrah.gov.in/whos-who/",
+   "dm": {
+    "name": "Dr. (Ms.) P. Deepap Priya",
+    "role": "District Magistrate & Collector",
+    "phone": "033-2641-2024",
+    "email": "dm-how-wb@nic.in"
+   },
+   "zp": {
+    "name": "Sri Abhra Adhikary",
+    "role": "Additional District Magistrate (Zilla Parishad)",
+    "phone": "033-2638-6474",
+    "email": "aeohwhzp@gmail.com"
+   },
+   "bdo": {
+    "Udaynarayanpur": {
+     "name": "Shri Prabir Kumar Shit",
+     "phone": "03214257334"
+    },
+    "Shyampur-II": {
+     "name": "Ms. Farhanaz Khanam",
+     "phone": "8509458243",
+     "email": "bdoshyampur2@gmail.com"
+    },
+    "Shyampur-I": {
+     "name": "Sri Tanmay Karjee",
+     "phone": "9504832627",
+     "email": "bdoshyampur1@gmail.com"
+    },
+    "Bagnan-II": {
+     "name": "Sri Jayanta Chattopadhyay",
+     "phone": "03368342447",
+     "email": "bagnan.bdo2@gmail.com"
+    },
+    "Bagnan-I": {
+     "name": "Shri Avishek Das",
+     "phone": "7585032734",
+     "email": "bagnan1.bdo@gmail.com"
+    },
+    "Amta-II": {
+     "name": "Shri Syed Masadur Rahaman",
+     "phone": "03214234025",
+     "email": "amta2bdo@gmail.com"
+    },
+    "Amta-I": {
+     "name": "Smt. Adrita Samaddar",
+     "phone": "03214260022",
+     "email": "bdoamta1@gmail.com"
+    },
+    "Uluberia-II": {
+     "name": "Sri Atanu Das",
+     "phone": "03326610229",
+     "email": "bdoulu2@gmail.com"
+    },
+    "Uluberia-I": {
+     "name": "Sri Niladri Sekhar De",
+     "phone": "03326610200",
+     "email": "uluberia1_bdo@rediffmail.com"
+    },
+    "Jagatballavpur": {
+     "phone": "03214232910",
+     "email": "bdojbpur@yahoo.co.in"
+    },
+    "Sankrail": {
+     "name": "Naziruddin Sarkar",
+     "phone": "9903669883",
+     "email": "bdosankrail365@gmail.com"
+    },
+    "Panchla": {
+     "name": "Dr. Esha Ghosh",
+     "email": "panchlabdo@gmail.com"
+    },
+    "Domjur": {
+     "name": "Smt Gargi Das",
+     "phone": "03326700134"
+    },
+    "Bally-Jagacha": {
+     "name": "Shri Sanjay Kumar Guchhait",
+     "phone": "03326512015",
+     "email": "bally_jagacha@yahoo.co.in"
+    }
+   }
+  },
+  "jalpaiguri": {
+   "source": "https://jalpaiguri.gov.in/whos-who/",
+   "dm": {
+    "name": "Smt. Aditi Chaudhary",
+    "role": "District Magistrate",
+    "phone": "03561-230127",
+    "email": "dm-jlp@nic.in"
+   },
+   "zp": {
+    "name": "Shri Sushamay Biswas",
+    "role": "Additional District Magistrate (Zilla Parishad)"
+   },
+   "bdo": {
+    "Matiali": {
+     "name": "Shri Abhinandan Ghosh",
+     "phone": "7797864500",
+     "email": "bdo.matiali@gmail.com"
+    },
+    "Mal": {
+     "name": "Shri Rashmidipta Biswas"
+    },
+    "Rajganj": {
+     "phone": "7797863600",
+     "email": "bdorajganj@gmail.com"
+    },
+    "Maynaguri": {
+     "name": "Shri Prosenjit Kundu",
+     "phone": "7797863700",
+     "email": "maynaguribdo@gmail.com"
+    },
+    "Banarhat": {
+     "name": "Shri Niranjan Barman",
+     "phone": "7318858006",
+     "email": "bdobnht2020@gmail.com"
+    },
+    "Jalpaiguri": {
+     "name": "Shri Mihir Karmakar",
+     "phone": "7797863500",
+     "email": "sadarbdo.jal@gmail.com"
+    },
+    "Kranti": {
+     "name": "Shri Rimil Soren",
+     "phone": "8927509215",
+     "email": "krantibdo@gmail.com"
+    },
+    "Nagrakata": {
+     "name": "Shri Pankaj Konnar"
+    },
+    "Dhupguri": {
+     "name": "Shri Sharon Tamang"
+    }
+   }
+  },
+  "jhargram": {
+   "source": "https://jhargram.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Smt. Akanksha Bhaskar",
+    "role": "District Magistrate",
+    "phone": "03221-257915"
+   },
+   "bdo": {
+    "Binpur-I": {
+     "name": "Sri Bidyut Kumar Majhi",
+     "phone": "8348691757"
+    },
+    "Binpur-II": {
+     "name": "Sri Monimoy Paul",
+     "phone": "8348691758"
+    },
+    "Gopiballavpur-I": {
+     "name": "Sri Prasun Kumar Pramanik",
+     "phone": "8348691753"
+    },
+    "Gopiballav Pur -II": {
+     "name": "Sri Rahul Biswas",
+     "phone": "8348691754"
+    },
+    "Jambani": {
+     "name": "Sri Debabrata Jana",
+     "phone": "8348691755"
+    },
+    "Jhargram": {
+     "name": "Sri Arnab Das",
+     "phone": "7719364428"
+    },
+    "Nayagram": {
+     "name": "Sri Santanu Sarkar",
+     "phone": "8348691752"
+    },
+    "Sankrail": {
+     "name": "Sri Abhisek Ghosh",
+     "phone": "7719364427"
+    }
+   }
+  },
+  "kalimpong": {
+   "source": "https://kalimpong.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Smt. Kuhuk Bhushan",
+    "role": "District Magistrate",
+    "phone": "03552-255009",
+    "email": "dmkalimpong2017@gmail.com"
+   },
+   "bdo": {
+    "GORUBATHAN": {
+     "name": "Shri Sovan Das"
+    },
+    "Pedong": {
+     "name": "Shri Chewang Tamang"
+    }
+   }
+  },
+  "malda": {
+   "source": "https://malda.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri Rajanvir Singh Kapur",
+    "role": "District Magistrate & Collector, Malda",
+    "phone": "03512252381",
+    "email": "dm-malda@nic.in"
+   },
+   "zp": {
+    "name": "Shri Bhaskar Mazumder",
+    "role": "Additional District Magistrate (Zilla Parishad)",
+    "phone": "03512252328"
+   },
+   "bdo": {
+    "Ratua-II": {
+     "name": "Shri Shyamal Mondal",
+     "phone": "7719360736"
+    },
+    "English Bazar": {
+     "name": "Ramij Raja Sk",
+     "phone": "7719360742"
+    },
+    "Kaliachak-I": {
+     "name": "Shri Shivabroto Banerjee",
+     "phone": "7719360743"
+    },
+    "Kaliachak-II": {
+     "name": "Shri Kailash Prasad",
+     "phone": "7719360744"
+    },
+    "Kaliachak-III": {
+     "name": "Shri Bapi Haldar",
+     "phone": "7719360745"
+    },
+    "Habibpur": {
+     "name": "Shri Angsuman Datta",
+     "phone": "7719360740"
+    },
+    "Old Malda": {
+     "name": "Shri Anik Ray",
+     "phone": "7719360741"
+    },
+    "Harishchandrapur-I": {
+     "name": "Shri Dhrubashis Samanta",
+     "phone": "7719360731"
+    },
+    "Harishchandrapur-II": {
+     "name": "Shri Raja Adak",
+     "phone": "7719360732"
+    },
+    "Chanchal-I": {
+     "name": "Smt. Poushali Chakraborty",
+     "phone": "7719360733"
+    },
+    "Chanchal-II": {
+     "name": "Shri Santanu Chakrabarti",
+     "phone": "7719360734"
+    },
+    "Ratua-I": {
+     "name": "Shri Abhishek Chaudhary",
+     "phone": "7719360735"
+    }
+   }
+  },
+  "murshidabad": {
+   "source": "https://murshidabad.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri R Arjun",
+    "role": "District Magistrate",
+    "phone": "03482251650"
+   },
+   "bdo": {
+    "Nabagram": {
+     "name": "Smt. Ipsita Bhattacharya"
+    },
+    "Murshidabad-Jiagunj": {
+     "name": "Shri Manas Kumar Bag"
+    },
+    "Lalgola": {
+     "name": "Shri Abhisek Biswas"
+    },
+    "Raninagar-II": {
+     "name": "Shri Raman Butta"
+    },
+    "Raninagar-I": {
+     "name": "Shri Saikat Biswas"
+    },
+    "Jalangi": {
+     "name": "Shri Biplab Ball"
+    },
+    "Domkal": {
+     "name": "Shri Pemba Narubu Sherpa"
+    },
+    "Bhagabangola-II": {
+     "name": "Kahekashan Parveen"
+    },
+    "Khargram": {
+     "name": "Smt. Dickey Sherpa"
+    },
+    "Kandi": {
+     "name": "Shri Mintu Ghosal"
+    }
+   }
+  },
+  "nadia": {
+   "source": "https://nadia.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Dr. Srikanth Palli",
+    "role": "District Magistrate",
+    "email": "dm-ndi@nic.in"
+   },
+   "bdo": {
+    "Karimpur-1": {
+     "name": "Debdatta Chakraborty",
+     "email": "bdo_krp1@rediffmail.com"
+    },
+    "Karimpur-II": {
+     "name": "Supratik Majumdar",
+     "email": "karimpur2bdo@rediffmail.com"
+    },
+    "Tehatta-I": {
+     "name": "Sanjib Sen",
+     "email": "tehatta1bdo@yahoo.co.in"
+    },
+    "Tehatta-II": {
+     "name": "Dhruvankur Thakur",
+     "email": "bdotehatta_2@yahoo.co.in"
+    },
+    "Kaliganj": {
+     "name": "Anjan Choudhury",
+     "email": "bdo_k@yahoo.com"
+    },
+    "Nakashipara": {
+     "name": "Snehasis Dutta",
+     "email": "bdonakashipara@gmail.com"
+    },
+    "Chapra": {
+     "name": "Samir Ranjan Manna",
+     "email": "bdochapra@yahoo.co.in"
+    },
+    "Krishnagar-I": {
+     "name": "Ranjan Sardar",
+     "email": "bdo.krishnagar1@gmail.com"
+    },
+    "Krishnagar-II": {
+     "name": "Anuj Sikder",
+     "email": "bdo.kgr2@gmail.com"
+    },
+    "Nabadwip": {
+     "name": "Manish Nandy",
+     "email": "bdonabadwip@yahoo.com"
+    },
+    "Krishnaganj": {
+     "name": "Sougata Kumar Saha",
+     "email": "bdo_knj@rediffmail.com"
+    },
+    "Ranaghat-I": {
+     "name": "Jay Deb Mandal",
+     "email": "ranaghat1@yahoo.co.in"
+    }
+   }
+  },
+  "north-24-parganas": {
+   "source": "https://north24parganas.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Smt. Shilpa Gourisaria",
+    "role": "District Magistrate",
+    "phone": "03325846200",
+    "email": "dm-bar-wb@nic.in"
+   },
+   "dm_source": "https://north24parganas.gov.in/"
+  },
+  "paschim-bardhaman": {
+   "source": "https://paschimbardhaman.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri Ponnambalam S.",
+    "role": "District Magistrate & District Collector"
+   }
+  },
+  "paschim-medinipur": {
+   "source": "https://paschimmedinipur.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri Bijin Krishna",
+    "role": "District Magistrate & Collector",
+    "email": "dmpmid@gmail.com"
+   },
+   "zp": {
+    "name": "Sri Gobinda Halder",
+    "role": "A.D.M. (Zilla Parishad)",
+    "email": "aeopasmidzp@gmail.com"
+   },
+   "bdo": {
+    "Salbani": {
+     "name": "Sri Swarnava Halder",
+     "phone": "8348323457",
+     "email": "bdosalboni@gmail.com"
+    },
+    "Keshpur": {
+     "name": "Sri Bibhas Biswas",
+     "phone": "9932032596",
+     "email": "keshpurbdo@gmail.com"
+    },
+    "Midnapore": {
+     "name": "Masud Raihan",
+     "phone": "8348691735",
+     "email": "midsadarbdo@gmail.com"
+    },
+    "Garbeta-I": {
+     "name": "Sri Nihar Ranjan Mandal",
+     "phone": "8348691738",
+     "email": "bdo.garh1@yahoo.com"
+    },
+    "Garbeta-II": {
+     "name": "Md. Mamun Akhtar",
+     "phone": "8348691739",
+     "email": "garhbeta2@gmail.com"
+    },
+    "Garbeta-III": {
+     "name": "Sri Dipanjan Bhattacharyya",
+     "phone": "8348691740",
+     "email": "bdogarhbeta3@gmail.com"
+    },
+    "Kharagpur-I": {
+     "name": "Md. Sariful Islam",
+     "phone": "9434005909",
+     "email": "kgp1ps@gmail.com"
+    },
+    "Kharagpur-II": {
+     "name": "Sri Subhadip Tikader",
+     "phone": "8348691742",
+     "email": "kgp2.madpur@gmail.com"
+    },
+    "Debra": {
+     "name": "Sri Priyabrata Rarhi",
+     "phone": "9434030727",
+     "email": "bdodebrablock@gmail.com"
+    },
+    "Sabang": {
+     "name": "Sri Roman Mondal",
+     "phone": "9883840549"
+    },
+    "Pingla": {
+     "name": "Lakpa Wanchu Sherpa",
+     "phone": "9002010896"
+    },
+    "Narayangarh": {
+     "name": "Sri Tapas Biswas",
+     "phone": "9434403232",
+     "email": "bdosabang@gmail.com"
+    },
+    "Dantan-I": {
+     "name": "Sri Utpal Sarder",
+     "phone": "9434060611",
+     "email": "bdo@dantan1.in"
+    },
+    "Dantan-II": {
+     "name": "Sri Abhirup Bhattacharjee",
+     "phone": "9433024040",
+     "email": "bdodan2@gmail.com"
+    },
+    "Keshiary": {
+     "name": "Khandaker Al Mahamud",
+     "phone": "9932638009",
+     "email": "bdokeshiary@gmail.com"
+    },
+    "Mohanpur": {
+     "name": "Sri Jayanata Saha",
+     "phone": "9733559848",
+     "email": "bdo_mohanpur@rediffmail.com"
+    },
+    "Ghatal": {
+     "name": "Sri Avik Biswas",
+     "phone": "8348691759",
+     "email": "bdoghatal9@gmail.com"
+    },
+    "Chandrakona-I": {
+     "name": "Sri Krishnendu Biswas",
+     "phone": "8348691762",
+     "email": "chandrakona1@gmail.com"
+    },
+    "Chandrakona-II": {
+     "name": "Shri Utpal Paik",
+     "phone": "8348691763",
+     "email": "bdockn2@gmail.com"
+    },
+    "Daspur-I": {
+     "name": "Sri Dipankar Biswas",
+     "phone": "8348691760",
+     "email": "bdodaspur1@gmail.com"
+    }
+   }
+  },
+  "purba-medinipur": {
+   "source": "https://purbamedinipur.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri Niranjan Kumar",
+    "role": "District Magistrate & Collector",
+    "phone": "03228-262098",
+    "email": "dmpurb-wb@nic.in"
+   },
+   "zp": {
+    "name": "Shri Chitradip Sen",
+    "role": "Additional District Magistrate (Zilla Parishad)",
+    "phone": "8373063004",
+    "email": "admaeozppm@gmail.com"
+   },
+   "bdo": {
+    "Egra-II": {
+     "name": "Shri Arijit Goswami",
+     "phone": "8373063057",
+     "email": "bdoegra2-purb-wb@nic.in"
+    },
+    "Egra-I": {
+     "name": "Shri Durga Prasad Ghosh",
+     "phone": "8373063056",
+     "email": "bdoegra1-purb-wb@nic.in"
+    },
+    "Bhagawanpur-I": {
+     "name": "Shri Arnab Acharya",
+     "phone": "8373063060",
+     "email": "bdobhagwanpur1-purb-wb@nic.in"
+    },
+    "Patashpur-II": {
+     "name": "Shri Chiranjit Roy",
+     "phone": "8373063059",
+     "email": "bdopatashpur2-purb-wb@nic.in"
+    },
+    "Patashpur-I": {
+     "name": "Md. Karimul Islam",
+     "phone": "8373063058",
+     "email": "bdopatashpur1-purb-wb@nic.in"
+    },
+    "Ramnagar-II": {
+     "name": "Shri Shubhadeep Bhar",
+     "phone": "8373063052",
+     "email": "bdoramnagar2-purb-wb@nic.in"
+    }
+   }
+  },
+  "purulia": {
+   "source": "https://purulia.gov.in/whos-who/",
+   "dm": {
+    "name": "Shri Sudhir Kontham",
+    "role": "District Magistrate",
+    "phone": "03252222490",
+    "email": "dm-pur-wb@nic.in"
+   },
+   "bdo": {
+    "Arsha": {
+     "name": "Shri Partha Ghosh",
+     "phone": "8373068636",
+     "email": "arshablock@gmail.com"
+    },
+    "Bagmundi": {
+     "name": "Arya Tah",
+     "phone": "03252250207",
+     "email": "bdo.baghmundi@gmail.com"
+    },
+    "Balarampur": {
+     "name": "Shri Kishor Mandal",
+     "phone": "8373068637",
+     "email": "bdo.balarampurnew@gmail.com"
+    },
+    "Barabazar": {
+     "name": "Shri Samit Ranjan Mandal",
+     "phone": "8373068631",
+     "email": "bdo.barabazar@gmail.com"
+    },
+    "Bundwan": {
+     "name": "Rudrashis Banerjee",
+     "phone": "03253257202",
+     "email": "bdo.bundwan@gmail.com"
+    },
+    "Hura": {
+     "name": "Shri Siladitya Jana",
+     "phone": "8373068642",
+     "email": "bdo.hura@gmail.com"
+    },
+    "Jhalda I": {
+     "name": "Shri Soumya Sasmal",
+     "phone": "8373068641",
+     "email": "bdo.jhalda1@gmail.com"
+    },
+    "Jhalda II": {
+     "name": "Avisek Chakraborty",
+     "phone": "03254260555",
+     "email": "bdojhalda2prlwb@gmail.com"
+    },
+    "Jaipur": {
+     "name": "Shri Joy Majumdar",
+     "phone": "8373068609",
+     "email": "bdo.joypur@gmail.com"
+    }
+   }
+  },
+  "south-24-parganas": {
+   "source": "https://s24pgs.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Sri Abhishek Kumar Tiwary",
+    "role": "District Magistrate and District Collector",
+    "phone": "033-24499944",
+    "email": "dm-ali@nic.in"
+   },
+   "zp": {
+    "name": "Sri Nilanjan Paul",
+    "role": "Additional District Magistrate(Zilla Parishad)",
+    "phone": "2479-1096",
+    "email": "admzp.south24pgs@gmail.com"
+   }
+  },
+  "uttar-dinajpur": {
+   "source": "https://uttardinajpur.gov.in/about-district/whos-who/",
+   "dm": {
+    "name": "Shri. Shevale Abhijit Tukaram",
+    "role": "District Magistrate & Collector",
+    "phone": "03523-246025",
+    "email": "dm-rgj-wb@nic.in"
+   }
+  }
+ }
+}

@@ -7,7 +7,7 @@
 <meta name="description" content="Any town or panchayat in West Bengal can have its own Parishkar map. Upload its ward map or draw it, and say who is in charge of cleaning.">
 <meta property="og:title" content="Put your town on the map — Parishkar">
 <meta property="og:description" content="Upload your town's ward map or draw it on the map, and say who is in charge of cleaning. A moderator checks it before it goes live.">
-<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-image.jpg">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/add-town.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/add-town.html">
 <meta name="theme-color" content="#0a0805">
@@ -55,6 +55,19 @@
   .at-lang{display:flex;gap:.3rem;}
   .at-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
   .at-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  .at-bg{margin-top:.8rem;padding:.7rem .8rem;border:1px dashed var(--border2);border-radius:10px;}
+  .at-bg .at-tools{margin-top:.4rem;}
+  .at-bg input[type=range]{flex:1;min-width:6rem;accent-color:var(--amber);}
+  .at-wards button[aria-pressed="true"]{background:var(--amber);color:var(--ink);}
+  .at-edit{margin-top:.8rem;padding:.8rem;border:1px solid var(--amber);border-radius:10px;}
+  .at-edit .at-tools .at-input{width:auto;flex:1;min-width:8rem;}
+  .at-vx{width:14px;height:14px;border-radius:50%;background:#f0e6d0;border:2px solid #d4882a;cursor:move;touch-action:none;}
+  .at-vx.mid{width:10px;height:10px;background:#d4882a;border-color:#f0e6d0;opacity:.7;}
+  .at-vx.sel{background:#e5484d;border-color:#fff;}
+  .at-corner{width:18px;height:18px;border-radius:3px;background:#1e90ff;border:2px solid #fff;cursor:move;touch-action:none;}
+  .at-corner.move{border-radius:50%;width:22px;height:22px;}
+  .at-pin{width:18px;height:18px;border-radius:50% 50% 50% 0;transform:rotate(-45deg);background:#e5484d;border:2px solid #fff;}
+  textarea.at-input{min-height:4.5rem;resize:vertical;}
   .at-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
   .at-footer a{color:var(--amber);}
   @media(max-width:560px){.at-row{grid-template-columns:1fr;}}
@@ -134,9 +147,48 @@
         <button type="button" class="at-btn" id="at-finish" disabled data-t="b_finish">Finish ward</button>
       </div>
     </div>
+    <div class="at-bg">
+      <p class="at-hint" data-t="h_img">Have a photo or scan of the ward map? Put it under the map, drag its blue corners onto the same places on the map, then trace over it. The picture stays on your device.</p>
+      <div class="at-tools">
+        <label class="at-btn" for="at-img" data-t="b_img">Background picture (JPG or PNG)</label>
+        <input type="file" id="at-img" accept="image/jpeg,image/png" hidden>
+        <input type="range" id="at-opacity" min="0" max="100" value="60" disabled data-t-aria="a_opacity" aria-label="Picture opacity">
+        <button type="button" class="at-btn" id="at-img-lock" disabled data-t="b_lock">Lock picture</button>
+        <button type="button" class="at-btn" id="at-img-clear" disabled data-t="b_img_clear">Remove picture</button>
+      </div>
+    </div>
     <div class="at-map" id="at-map"></div>
     <div class="at-status" id="at-status" role="status"></div>
     <div class="at-wards" id="at-wards"></div>
+    <div class="at-edit" id="at-edit" hidden>
+      <div class="at-row">
+        <div><label class="at-label" for="at-e-ward" data-t="f_e_ward">Ward number</label>
+          <input class="at-input" id="at-e-ward" type="number" min="1" max="500" inputmode="numeric"></div>
+        <div><label class="at-label" for="at-e-name" data-t="f_e_name">Ward name (optional)</label>
+          <input class="at-input" id="at-e-name" maxlength="80"></div>
+      </div>
+      <label class="at-label" for="at-e-note" style="margin-top:.6rem;" data-t="f_e_note">Notes on this ward (optional)</label>
+      <input class="at-input" id="at-e-note" maxlength="300" data-t-ph="ph_e_note" placeholder="e.g. councillor's office, landmarks on the border">
+      <div class="at-tools">
+        <button type="button" class="at-btn" id="at-e-shape" data-t="b_shape">Edit shape</button>
+        <button type="button" class="at-btn" id="at-e-delpt" disabled data-t="b_delpt">Delete point</button>
+        <button type="button" class="at-btn" id="at-e-del" data-t="b_delward">Delete ward</button>
+        <button type="button" class="at-btn primary" id="at-e-done" data-t="b_done">Done</button>
+      </div>
+      <p class="at-hint" id="at-e-hint" hidden data-t="h_shape">Drag the white dots to move a corner. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.</p>
+    </div>
+    <div class="at-tools">
+      <button type="button" class="at-btn" id="at-export" disabled data-t="b_export">Download GeoJSON</button>
+    </div>
+    <div class="at-field">
+      <label class="at-label" for="at-note" data-t="f_note">Note for the moderator (optional)</label>
+      <p class="at-hint" data-t="h_note">What is wrong or what you changed. You can also pin the spot on the map.</p>
+      <textarea class="at-input" id="at-note" maxlength="1000"></textarea>
+      <div class="at-tools">
+        <button type="button" class="at-btn" id="at-pin" data-t="b_pin">Pin a spot on the map</button>
+        <span class="at-hint" id="at-pin-at"></span>
+      </div>
+    </div>
     <div class="at-field">
       <label class="at-label" for="at-source"><span data-t="f_source">Where the ward map comes from</span> <b>*</b></label>
       <p class="at-hint" data-t="h_source">A link, or what you traced it from (e.g. the ward map on the municipality's notice board).</p>

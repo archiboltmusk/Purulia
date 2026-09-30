@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -628,6 +628,13 @@ function wardsSvg(wards){
   }).join('')}</svg>`;
 }
 
+/* add-town.html link for a fix: a town slug, 'purulia', or 'area:<level>:<district>[:<block>[:<gp>]]'. */
+function fixEditorHref(fix){
+  if (!fix.startsWith('area:')) return 'add-town.html?fix=' + encodeURIComponent(fix);
+  const [, level, district, block, gp] = fix.split(':');
+  return 'add-town.html?' + new URLSearchParams({ fix: 'area', level, district, ...(block ? { block } : {}), ...(gp ? { gp } : {}) });
+}
+
 async function loadTownRequests(){
   const el = document.getElementById('adTownRequests');
   if (!el) return;
@@ -640,9 +647,11 @@ async function loadTownRequests(){
       <tbody>
         ${data.map((s, i) => `<tr>
           <td>${esc(s.status)}${s.slug ? `<br><a href="kasa.html?place=${encodeURIComponent(s.slug)}" target="_blank" rel="noopener">${esc(s.slug)}</a>` : ''}${s.review_note ? `<br><small>${esc(s.review_note)}</small>` : ''}</td>
-          <td>${wardsSvg(s.wards || [])}</td>
-          <td><strong>${esc(s.town)}</strong>${s.fix_of ? ` <small>(fix of ${esc(s.fix_of)})</small>` : ''}<br>${esc(s.district)} district<br>${esc(s.body)}
-            <br><small>${esc(s.ward_count)} wards: ${esc((s.wards || []).map(w => w.ward).join(', '))}</small>
+          <td>${s.ward_count ? wardsSvg(s.wards || []) + `<br><button class="ad-ok" data-town-dl="${i}">Download GeoJSON</button>` : '<small>Note only</small>'}</td>
+          <td><strong>${esc(s.town)}</strong>${s.fix_of ? ` <small>(fix of ${esc(s.fix_of)}, <a href="${esc(fixEditorHref(s.fix_of))}" target="_blank" rel="noopener">open in editor</a>)</small>` : ''}<br>${esc(s.district)} district<br>${esc(s.body)}
+            <br><small>${esc(s.ward_count)} wards: ${esc((s.wards || []).map(w => w.ward + (w.name ? ' ' + w.name : '')).join(', '))}</small>
+            ${s.note ? `<br><strong>Note:</strong> ${esc(s.note)}` : ''}${s.pin ? `<br><small>Pinned: <a href="https://www.openstreetmap.org/?mlat=${esc(s.pin[1])}&mlon=${esc(s.pin[0])}#map=17/${esc(s.pin[1])}/${esc(s.pin[0])}" target="_blank" rel="noopener">${esc(s.pin[1])}, ${esc(s.pin[0])}</a></small>` : ''}
+            ${(s.wards || []).filter(w => w.note).map(w => `<br><small>Ward ${esc(w.ward)}: ${esc(w.note)}</small>`).join('')}
             <br><small>${esc(new Date(s.created_at).toLocaleDateString('en-IN'))}${s.contact ? ' · ' + esc(s.contact) : ''}</small></td>
           <td>${esc(s.incharge || '—')}${s.incharge_source ? `<br><small>Found at: ${/^https:\/\//i.test(s.incharge_source) ? `<a href="${esc(s.incharge_source)}" target="_blank" rel="noopener nofollow">${esc(s.incharge_source)}</a>` : esc(s.incharge_source)}</small>` : ''}
             ${s.complaint_url ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
@@ -652,9 +661,21 @@ async function loadTownRequests(){
             <button class="ad-bad" data-town="${i}" data-town-act="reject">✕ Reject</button>` : ''}</td></tr>`).join('')}
       </tbody>
     </table>`;
+  el.querySelectorAll('[data-town-dl]').forEach(b => b.addEventListener('click', () => {
+    const s = data[+b.dataset.townDl];
+    const fc = { type: 'FeatureCollection', features: s.wards.map(w => ({ type: 'Feature',
+      properties: { ward: w.ward, ...(w.name ? { name: w.name } : {}), ...(w.note ? { note: w.note } : {}) },
+      geometry: { type: 'MultiPolygon', coordinates: w.polygons } })) };
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([JSON.stringify(fc)], { type: 'application/geo+json' }));
+    a.download = `${s.fix_of || s.town.toLowerCase().replace(/[^a-z0-9]+/g, '-')}-${s.id}.geojson`;
+    a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+  }));
   el.querySelectorAll('[data-town]').forEach(b => b.addEventListener('click', async () => {
     const s = data[+b.dataset.town], approve = b.dataset.townAct === 'approve';
     let slug = null;
+    if (approve && !s.ward_count && !confirm('This fix is only a note. Approving marks it done and changes nothing on the map. Fix the border first (open in editor), then approve.')) return;
     if (approve && !s.fix_of){
       slug = prompt('Web name for the town (used in kasa.html?place=…):', s.town.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, ''));
       if (slug === null) return;
@@ -1126,6 +1147,37 @@ async function loadReportCards(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_report_card', { p_id: b.dataset.card, p_action: b.dataset.cardAct });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadReportCards();
+  }));
+}
+
+const OFFICIAL_ROLE = { pradhan: 'Pradhan', sabhapati: 'Sabhapati', sabhadhipati: 'Sabhadhipati', bdo: 'BDO', dm: 'District Magistrate', zp: 'Zilla Parishad officer (ADM)' };
+async function loadOfficials(){
+  const el = document.getElementById('adOfficials');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_official_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Post and place</th><th>Name</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(o => `<tr>
+          <td>${esc(OFFICIAL_ROLE[o.role] || o.role)}<br><small>${esc([o.gp, o.block, o.district].filter(Boolean).join(', '))}${o.lat != null ? ` · <a href="https://www.openstreetmap.org/?mlat=${o.lat}&mlon=${o.lng}#map=13/${o.lat}/${o.lng}" target="_blank" rel="noopener">map</a>` : ''} · sent ${esc(new Date(o.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><input class="ad-input" data-of-name="${esc(o.id)}" value="${esc(o.name)}" style="width:100%;">${o.phone ? `<br><small>${esc(o.phone)}</small>` : ''}</td>
+          <td><a href="${esc(o.source_url)}" target="_blank" rel="noopener noreferrer">${esc(o.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-of="${esc(o.id)}" data-of-act="approve">✓ Name is at the link</button>
+            <button class="ad-bad" data-of="${esc(o.id)}" data-of-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-of]').forEach(b => b.addEventListener('click', async () => {
+    const id = b.dataset.of;
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_official', { p_id: Number(id), p_action: b.dataset.ofAct,
+      p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadOfficials();
   }));
 }
 

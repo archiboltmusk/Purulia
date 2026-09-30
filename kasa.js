@@ -199,7 +199,7 @@ const state = {
   blockGeo: null,
   townGeo: null,
   gpGeo: null,
-  filters: { category: '', status: '', severity: '', ward: null },
+  filters: { category: '', status: '', severity: '', ward: null, place: null },
   nearbyOnly: false,
   userLocation: null,
   view: 'map',
@@ -212,6 +212,7 @@ const state = {
   ratings: {},
   replies: new Map(),
   selectedWard: null,
+  selectedPlace: null,
   chainTab: 'sanitation'
 };
 let sb = null;
@@ -333,11 +334,17 @@ async function init(){
   if (window.KasaPlaces){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => {
-      if (what === 'geo') mapReady.then(() => addPlaceLayers(slug));
+      if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
       // The counts, the "fixed" chip, the ticker and the join line follow the place in view.
       if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
+    // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
+    const at = (new URLSearchParams(location.search).get('at') || '').split(',').map(Number);
+    if (at.length === 3 && at.every(Number.isFinite)){
+      userMovedMap = true;
+      mapReady.then(() => { mainMap.jumpTo({ center: [at[1], at[0]], zoom: at[2] }); openArea(at[0], at[1]); });
+    }
     const jumpToStart = () => {
       const start = KasaPlaces.fromUrl();
       if (!start?.center || jumpToStart.done) return;
@@ -358,6 +365,9 @@ async function init(){
   // Block outlines for village reports; not needed for the first paint.
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
+  if (window.KasaPlaces) mapReady.then(addDistrictLayers);
+  // Statewide leaders load only when someone opens the representatives section.
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(renderWbRepList); });
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
   initPlacePicker();
@@ -959,7 +969,7 @@ function filtered(){
     (!f.category || r.category === f.category) &&
     (!f.status || r.status === f.status) &&
     (!f.severity || r.severity === f.severity) &&
-    (!f.ward || r.ward === f.ward) &&
+    (!f.ward || (f.place ? r.place === f.place && r.placeWard === f.ward : r.ward === f.ward)) &&
     (!state.nearbyOnly || (state.userLocation && distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) <= 5000)));
 }
 
@@ -982,11 +992,13 @@ function slaCountdown(r){
   return { over, text: t(over ? 'sla_overdue_by' : 'sla_due_in', { t: value }) };
 }
 
-function wardStats(){
+/* Per-ward counts: Purulia's wards, or with a slug that town's wards (places.js). */
+function wardStats(place){
   const stats = {};
   for (const r of primaries()){
-    if (!r.ward) continue;
-    const s = stats[r.ward] ||= { ward: r.ward, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0, fixDaysSum: 0, fixDaysCount: 0 };
+    const w = place ? (r.place === place ? r.placeWard : null) : r.ward;
+    if (!w) continue;
+    const s = stats[w] ||= { ward: w, open: 0, claimed: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0, fixDaysSum: 0, fixDaysCount: 0 };
     if (r.status === 'resolved') s.resolved++;
     else { s.open++; if (r.status === 'claimed') s.claimed++; }
     if (isOverdue(r)) s.overdue++;
@@ -1219,11 +1231,280 @@ function addPlaceLayers(slug){
     attribution: /^https:\/\//i.test(p.source || '') && !p.community
       ? `<a href="${esc(p.source)}" target="_blank" rel="noopener">${esc(p.name)} wards: ${esc(p.sourceName)}</a> (${esc(p.licence)})`
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
+  // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
+  mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
+    paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
+    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
+  mainMap.on('click', 'place-' + slug + '-fill', e => {
+    if (e.defaultPrevented) return;
+    selectWard(Number(e.features[0].properties.ward), slug);
+  });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
     paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+}
+
+/* All West Bengal: district outlines always; each district's blocks and gram panchayats
+   (places/wb/<slug>.geojson, tools/build-wb-local.py) load once it is in view from zoom 8,
+   so the map never fetches the whole state. Styled like Purulia's own layers. */
+const WB_LOCAL_ZOOM = 8;
+let wbIndex = null;
+async function addDistrictLayers(){
+  const g = await KasaPlaces.loadDistricts();
+  if (!mainMap || !g?.features?.length || mainMap.getSource('wb-districts')) return;
+  mainMap.addSource('wb-districts', { type: 'geojson', data: g,
+    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0)' });
+  mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
+    paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
+    filter: ['!=', ['get', 'slug'], 'purulia'],
+    layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
+    paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  // Every district's blocks from the first screen, drawn and named like Purulia's (coarse file;
+  // each district's detailed outlines take over from zoom 8).
+  mainMap.addSource('wb-blocks', { type: 'geojson', data: 'places/wb_blocks.geojson' });
+  mainMap.addLayer({ id: 'wb-blocks-line', type: 'line', source: 'wb-blocks', maxzoom: WB_LOCAL_ZOOM,
+    paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', maxzoom: 12,
+    layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  mainMap.on('moveend', loadLocalInView);
+  mainMap.on('click', onAreaTap);
+  loadLocalInView();
+}
+
+async function loadLocalInView(){
+  if (!mainMap || mainMap.getZoom() < WB_LOCAL_ZOOM) return;
+  if (!wbIndex) wbIndex = fetch('places/wb/index.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  const idx = await wbIndex;
+  if (!idx?.districts) return;
+  const b = mainMap.getBounds();
+  for (const [slug, d] of Object.entries(idx.districts)){
+    const [x0, y0, x1, y1] = d.bbox;
+    if (x1 < b.getWest() || x0 > b.getEast() || y1 < b.getSouth() || y0 > b.getNorth()) continue;
+    addDistrictLocal(slug, idx.attribution);
+  }
+}
+
+const wbLocalLoading = {}, wbLocalGeo = {};
+function addDistrictLocal(slug, attribution){
+  if (wbLocalLoading[slug]) return wbLocalLoading[slug];
+  return wbLocalLoading[slug] = fetch('places/wb/' + slug + '.geojson').then(r => r.ok ? r.json() : null).then(g => {
+    if (!g || !mainMap) { delete wbLocalLoading[slug]; return; }
+    wbLocalGeo[slug] = g;
+    attribution ||= g.attribution;
+    const src = 'wb-' + slug, kind = k => ['==', ['get', 'kind'], k];
+    mainMap.addSource(src, { type: 'geojson', data: g, attribution });
+    const green = { 'text-color': '#6db88a', 'text-halo-color': '#0a0805', 'text-halo-width': 1 };
+    mainMap.addLayer({ id: src + '-gp-line', type: 'line', source: src, minzoom: 10, filter: kind('gp'),
+      paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, 'clusters');
+    mainMap.addLayer({ id: src + '-block-line', type: 'line', source: src, minzoom: WB_LOCAL_ZOOM, filter: kind('block'),
+      paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
+    mainMap.addLayer({ id: src + '-gp-label', type: 'symbol', source: src, minzoom: 11.5, filter: kind('gp'),
+      layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
+      paint: { ...green, 'text-opacity': .6 } }, 'clusters');
+  }).catch(() => { delete wbLocalLoading[slug]; });
+}
+
+/* Area card: tap a district, block or gram panchayat anywhere in West Bengal (outside a mapped
+   ward) for its name, the reports inside it, and the MLA and MP for that spot. Leaders come from
+   places/wb_leaders.json (tools/build-wb-leaders.py, cited); DM, Zilla Parishad officer and BDOs from
+   each district's own website (places/wb_officials.json, tools/build-wb-officials.py); what each tier
+   must do from the WB Panchayat Act 1973 (s.19 gram panchayat, s.109 samiti, s.153 zilla parishad).
+   Elected panchayat heads are not on record yet, so the card says so rather than guess.
+   The level follows the zoom; the crumbs switch it. */
+let wbLeaders = null, wbAssembly = null, wbOfficials = null;
+const wbAdded = {};  // district slug -> names readers added and moderators approved (kasa_officials)
+const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => r.data || [], () => []) : Promise.resolve([]));
+const PANCHAYAT_ACT = 'https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf';
+const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
+const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
+
+async function areasAt(lat, lng){
+  const pt = [lng, lat];
+  // Inside Kolkata (its outline or a mapped KMC ward) it is Kolkata, even where a neighbouring
+  // district's older outline still overlaps: one spot, one answer.
+  const ds = (await KasaPlaces.loadDistricts())?.features || [];
+  const kw = inBbox([88.24, 22.45, 88.46, 22.64], pt) ? await KasaPlaces.load('kolkata') : null;
+  const kmc = kw?.features?.some(f => pointInPolygon(pt, f.geometry));
+  const d = ds.find(f => f.properties.slug === 'kolkata' && (kmc || pointInPolygon(pt, f.geometry))) || ds.find(f => pointInPolygon(pt, f.geometry));
+  if (!d) return null;
+  const slug = d.properties.slug;
+  let fs = [];
+  if (slug === 'purulia'){
+    await Promise.all([loadBlockGeo(), loadLocalGeo()]);
+    fs = [...(state.blockGeo?.features || []).map(f => ({ ...f, properties: { ...f.properties, kind: 'block' } })),
+          ...(state.gpGeo?.features || []).map(f => ({ ...f, properties: { ...f.properties, kind: 'gp' } }))];
+  } else if (slug !== 'kolkata'){
+    await addDistrictLocal(slug);
+    fs = wbLocalGeo[slug]?.features || [];
+  }
+  const find = kind => fs.find(f => f.properties.kind === kind && inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)) || null;
+  return { district: d, block: find('block'), gp: find('gp') };
+}
+
+async function leadersAt(lat, lng){
+  await loadWbReps();
+  if (!wbLeaders || !wbAssembly) return null;
+  const f = wbAssembly.features.find(f => inBbox(f.bbox, [lng, lat]) && pointInPolygon([lng, lat], f.geometry));
+  const { ac, pc } = f?.properties || {};
+  return f ? { ac: wbLeaders.ac[ac], pc: wbLeaders.pc[pc], acNo: ac, pcNo: pc } : null;
+}
+
+// MLAs of a district by party, e.g. "BJP 7 · AITC 2".
+function districtSeats(slug){
+  const n = {};
+  for (const f of wbAssembly?.features || []) if (f.properties.d === slug){ const p = wbLeaders.ac[f.properties.ac].party; n[p] = (n[p] || 0) + 1; }
+  return Object.entries(n).sort((a, b) => b[1] - a[1]);
+}
+
+async function openArea(lat, lng, level){
+  const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
+  wbOfficials = officials;
+  if (!areas) return closeArea();
+  areas.added = await addedIn(areas.district.properties.slug);
+  if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
+  const z = mainMap.getZoom();
+  level ||= z >= 10.5 && areas.gp ? 'gp' : z >= 8 && areas.block ? 'block' : 'district';
+  state.area = { lat, lng, level, areas, leaders };
+  renderAreaCard();
+}
+
+function closeArea(){
+  state.area = null;
+  const el = document.getElementById('k-area-card');
+  if (el) el.hidden = true;
+  mainMap?.getSource('area-sel')?.setData({ type: 'FeatureCollection', features: [] });
+}
+
+function areaFeature(a = state.area){ return a.areas[a.level] || a.areas.district; }
+function areaName(f){ return f.properties.gp || f.properties.block || f.properties.district; }
+
+function renderAreaCard(){
+  const a = state.area;
+  let el = document.getElementById('k-area-card');
+  if (!el){
+    el = document.createElement('div');
+    el.id = 'k-area-card'; el.className = 'k-ward-card k-area-card';
+    document.getElementById('k-ward-card').after(el);
+  }
+  const f = areaFeature(), { district, block, gp } = a.areas;
+  const inside = primaries().filter(r => Number.isFinite(r.lat) && inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
+  const open = inside.filter(r => r.status !== 'resolved').length, fixed = inside.length - open;
+  const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
+  const sub = a.level === 'gp' ? t('ar_gp_sub', { b: block?.properties.block || gp.properties.block, d: district.properties.district })
+            : a.level === 'block' ? t('ar_block_sub', { d: district.properties.district }) : t('ar_district_sub');
+  const L = a.leaders, row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
+  const seats = a.level === 'district' ? districtSeats(district.properties.slug) : [];
+  const off = wbOfficials?.districts[district.properties.slug], bname = block?.properties.block || gp?.properties.block;
+  const bdo = a.level !== 'district' && bname && off?.bdo?.[bname];
+  // Names a reader added (moderator-checked) fill in what the district website doesn't list.
+  const gname = gp?.properties.gp, added = r => (a.areas.added || []).find(o => o.role === r
+    && (['sabhadhipati', 'dm', 'zp'].includes(r) || o.block === bname) && (r !== 'pradhan' || o.gp === gname));
+  const byReader = o => o && { name: o.name, phone: o.phone, src: o.source_url };
+  // Kolkata has no panchayats (the city is run by the KMC), so no panchayat head, duties or Zilla Parishad.
+  const rural = district.properties.slug !== 'kolkata';
+  const heads = { gp: 'pradhan', block: 'sabhapati', district: 'sabhadhipati' }, head = byReader(added(heads[a.level]));
+  const bdoRow = a.level !== 'district' && bname && (bdo || byReader(added('bdo')));
+  const dm = off?.dm || byReader(added('dm')), zp = off?.zp || byReader(added('zp'));
+  const missing = [rural && !head && heads[a.level], ...(a.level === 'district' ? [!dm && 'dm', rural && !zp && 'zp'] : [bname && !bdoRow && 'bdo'])].filter(Boolean);
+  const contact = o => [o.phone && `<a href="tel:${esc(o.phone.replace(/[^\d+]/g, ''))}">${esc(o.phone)}</a>`,
+                        o.email && `<a href="mailto:${esc(o.email)}">${esc(o.email)}</a>`,
+                        o.src && `<a href="${esc(o.src)}" target="_blank" rel="noopener">${esc(t('ar_added_src'))}</a>`].filter(Boolean).join(' · ');
+  const officer = (role, o, extra) => o ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${esc(o.name || '')}</span>${contact(o) ? `<span class="k-area-extra">${contact(o)}</span>` : ''}${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>` : '';
+  // A post nobody is on record for: "Not on record yet" and a button to add the name, right on that row.
+  const none = (role, r, extra) => missing.includes(r) ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who"><span class="k-area-none">${esc(t('ar_not_on_record'))}</span>${sb ? ` <button type="button" class="k-area-addname" data-area-add="${r}">${esc(t('ar_add_name_btn'))}</button>` : ''}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>` : '';
+  const roleName = r => ({ pradhan: t('ar_head_gp'), sabhapati: t('ar_head_block'), sabhadhipati: t('ar_head_district'), bdo: t('ar_bdo_short'), dm: t('ar_dm'), zp: t('ar_zp') })[r];
+  el.innerHTML = `
+    <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
+    <div class="k-area-crumbs">${[crumb('district', district), crumb('block', block), crumb('gp', gp)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
+    <div class="k-ward-title">${esc(areaName(f))}</div>
+    <div class="k-ward-sub">${esc(sub)}</div>
+    <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: inside.length }))}</span>
+      <span class="k-red">${esc(t('wc_open', { n: open }))}</span>
+      <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
+    </div>
+    <div class="k-area-leaders">
+      ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
+      ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
+                    [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
+      ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
+                            : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
+      ${!rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+      ${a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+                               : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
+    </div>
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
+    </div>
+    <form class="k-area-add" hidden>
+      <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
+      <select name="role" aria-label="${esc(t('ar_add_role'))}">${missing.map(r => `<option value="${r}">${esc(roleName(r))}</option>`).join('')}</select>
+      <input name="name" required maxlength="120" autocomplete="off" placeholder="${esc(t('ar_add_name'))}">
+      <input name="phone" type="tel" maxlength="20" autocomplete="off" placeholder="${esc(t('ar_add_phone'))}">
+      <input name="src" type="url" required maxlength="300" placeholder="${esc(t('ar_add_src'))}">
+      <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
+    </form>
+    <a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams({ fix: 'area', level: a.level, district: district.properties.slug,
+      ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>
+    <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
+      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    <div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`;
+  el.hidden = false;
+  el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
+  if (!mainMap.getSource('area-sel')){
+    mainMap.addSource('area-sel', { type: 'geojson', data: f });
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+  } else mainMap.getSource('area-sel').setData(f);
+}
+
+// "Add who's responsible here": goes to the moderators with its source link; shows once approved.
+async function sendOfficial(form){
+  const a = state.area, { district, block, gp } = a.areas, btn = form.querySelector('button');
+  btn.disabled = true;
+  const { error } = await sb.rpc('kasa_submit_official', {
+    p_level: a.level, p_district: district.properties.slug, p_block: block?.properties.block || gp?.properties.block || null,
+    p_gp: a.level === 'gp' ? gp?.properties.gp || null : null, p_role: form.role.value, p_name: form.name.value,
+    p_phone: form.phone.value || null, p_source_url: form.src.value, p_lat: a.lat, p_lng: a.lng });
+  btn.disabled = false;
+  if (error) return showToast(errorText(rpcError(error)));
+  form.reset(); form.hidden = true;
+  showToast(t('ar_add_thanks'));
+}
+
+function areaBounds(f){
+  if (f.bbox) return [[f.bbox[0], f.bbox[1]], [f.bbox[2], f.bbox[3]]];
+  const pts = (f.geometry.type === 'MultiPolygon' ? f.geometry.coordinates.flat(2) : f.geometry.coordinates.flat());
+  return [[Math.min(...pts.map(p => p[0])), Math.min(...pts.map(p => p[1]))], [Math.max(...pts.map(p => p[0])), Math.max(...pts.map(p => p[1]))]];
+}
+
+function zoomToArea(){
+  userMovedMap = true;
+  mainMap.fitBounds(areaBounds(areaFeature()), { padding: { top: 90, bottom: 260, left: 40, right: 40 }, duration: 900, essential: true });
+}
+
+function shareArea(){
+  const a = state.area, zoom = { gp: 12, block: 10, district: 8.5 }[a.level];
+  const url = `${location.origin}${location.pathname}?at=${a.lat.toFixed(5)},${a.lng.toFixed(5)},${zoom}`;
+  const text = t('ar_share_text', { name: areaName(areaFeature()) });
+  if (navigator.share) navigator.share({ title: 'Parishkar', text, url }).catch(() => {});
+  else copyText(`${text} ${url}`);
+}
+
+// Any tap on the map that isn't a report, cluster or mapped ward opens the area card.
+function onAreaTap(e){
+  if (e.defaultPrevented) return;
+  const hit = ['report-points', 'clusters', 'wards-fill', ...Object.keys(window.KasaPlaces?.geo || {}).map(s => 'place-' + s + '-fill')]
+    .filter(id => mainMap.getLayer(id));
+  if (hit.length && mainMap.queryRenderedFeatures(e.point, { layers: hit }).length) return;
+  if (state.area && pointInPolygon([e.lngLat.lng, e.lngLat.lat], areaFeature().geometry) && e.originalEvent?.detail < 2) return closeArea();
+  openArea(e.lngLat.lat, e.lngLat.lng);
 }
 
 /* "Parishkar Kolkata" for a report there, else this deployment's name. */
@@ -1235,11 +1516,19 @@ function brandName(r){
 function updateMap(){
   if (!mainMap || !mainMap.getSource('reports')) return;
   mainMap.getSource('reports').setData(reportGeoJSON());
-  if (mainMap.getLayer('wards-selected')) mainMap.setFilter('wards-selected', ['==', ['get', 'ward'], state.selectedWard ?? -1]);
+  const sel = p => ['==', ['get', 'ward'], (state.selectedPlace || null) === p ? state.selectedWard ?? -1 : -1];
+  if (mainMap.getLayer('wards-selected')) mainMap.setFilter('wards-selected', sel(null));
+  for (const slug of Object.keys(window.KasaPlaces?.geo || {})){
+    if (mainMap.getLayer('place-' + slug + '-selected')) mainMap.setFilter('place-' + slug + '-selected', sel(slug));
+  }
 }
 
-function selectWard(n){
-  state.selectedWard = state.selectedWard === n ? null : n;
+/* A ward of Purulia, or with a slug a ward of another town (Kolkata). Tapping it again closes it. */
+function selectWard(n, place = null){
+  const same = state.selectedWard === n && (state.selectedPlace || null) === place;
+  state.selectedWard = same ? null : n;
+  state.selectedPlace = same ? null : place;
+  if (state.selectedWard != null) closeArea();
   renderWardCard();
   updateMap();
 }
@@ -1248,9 +1537,10 @@ function renderWardCard(){
   const el = document.getElementById('k-ward-card');
   const n = state.selectedWard;
   if (!n){ el.hidden = true; return; }
+  if (state.selectedPlace) return renderPlaceWardCard(el, n, state.selectedPlace);
   const s = wardStats()[n] || { open: 0, resolved: 0, fake: 0, avgFixDays: null };
   const w = state.wards[n] || {};
-  const filteredToWard = state.filters.ward === n;
+  const filteredToWard = state.filters.ward === n && !state.filters.place;
   el.innerHTML = `
     <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-ward-title">${esc(t('acc_ward', { n }))}</div>
@@ -1271,7 +1561,56 @@ function renderWardCard(){
     <a class="k-ward-money" href="municipality.html">${esc(t('wc_money'))}</a>
     <a class="k-ward-groups${state.groupsByWard[n] ? ' on' : ''}" href="communities.html?ward=${n}">${esc(state.groupsByWard[n]
       ? t('wc_groups', { n: state.groupsByWard[n] }) : t('wc_groups_none'))}</a>
+    <a class="k-ward-money" href="add-town.html?fix=purulia&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
     <div class="k-ward-note">${esc(t('boundary_note'))}</div>`;
+  el.hidden = false;
+}
+
+/* A town's ward councillors (places.js `councillors`), fetched once. */
+const placeCouncillors = {};
+function councillorsOf(slug){
+  const p = window.KasaPlaces?.bySlug(slug);
+  if (!p?.councillors) return null;
+  if (!(slug in placeCouncillors)){
+    placeCouncillors[slug] = null;
+    fetch(p.councillors).then(r => r.ok ? r.json() : null).then(j => {
+      placeCouncillors[slug] = j;
+      if (j && state.selectedPlace === slug) renderWardCard();
+    }).catch(() => {});
+  }
+  return placeCouncillors[slug];
+}
+function councillorOf(slug, n){
+  const c = councillorsOf(slug);
+  const w = c?.wards?.[n];
+  return w ? { ...w, src: c } : null;
+}
+
+/* Another town's ward: the same counts and filter as Purulia's, with its councillor where on record. */
+function renderPlaceWardCard(el, n, slug){
+  const p = window.KasaPlaces?.bySlug(slug) || { name: slug };
+  const c = councillorOf(slug, n);
+  const s = wardStats(slug)[n] || { open: 0, resolved: 0, fake: 0, avgFixDays: null };
+  const filteredToWard = state.filters.ward === n && state.filters.place === slug;
+  el.innerHTML = `
+    <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
+    <div class="k-ward-title">${esc(p.name)} · ${esc(t('acc_ward', { n }))}</div>
+    <div class="k-ward-sub">${c ? esc(c.councillor) + (c.party ? ' · ' + esc(c.party) : '') : esc(t('pw_councillor_unknown'))}</div>
+    ${c ? `<div class="k-ward-note">${esc(t('pw_councillor_src', { when: c.src.elected }))} <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></div>` : ''}
+    <div class="k-ward-nums">
+      <span>${esc(t('wc_reported', { n: s.open + s.resolved }))}</span>
+      <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
+      <span class="k-green">${esc(t('wc_fixed', { n: s.resolved }))}</span>
+      ${s.fake ? `<span class="k-red">${esc(t('wc_fake', { n: s.fake }))}</span>` : ''}
+    </div>
+    ${s.avgFixDays != null ? `<div class="k-ward-avg">${esc(t('wc_avg_fix', { n: s.avgFixDays }))}</div>` : ''}
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-ward-filter="${n}" data-ward-place="${esc(slug)}">${esc(t(filteredToWard ? 'wc_clear' : 'wc_filter'))}</button>
+      <button type="button" class="k-ward-filter" data-ward-share="${n}" data-ward-place="${esc(slug)}">${esc(t('wc_share'))}</button>
+    </div>
+    ${c?.borough && c.src.boroughOffices ? `<a class="k-ward-money" href="${esc(c.src.boroughOffices)}" target="_blank" rel="noopener">${esc(t('pw_borough', { b: c.borough, body: p.body || p.name }))}</a>` : ''}
+    <a class="k-ward-money" href="add-town.html?fix=${encodeURIComponent(slug)}&amp;ward=${n}">${esc(t('wc_fix_border'))}</a>
+    <div class="k-ward-note">${esc(t('pw_map_note', { src: p.sourceName || p.source || '' }))}</div>`;
   el.hidden = false;
 }
 
@@ -1789,9 +2128,17 @@ function renderPlaceAccountability(r){
           <a class="k-esc-item" href="add-town.html${p?.isDistrict ? '?district=' + encodeURIComponent(p.name) : ''}"><b>${esc(t('pl_add_town'))}</b></a>`
         : `<div class="k-node k-node-vacant"><span class="k-node-abbr">🏛</span>
           <span class="k-node-text"><b>${esc(p.body)}</b><small>${esc(t('pl_officers_unknown'))}</small></span></div>`}
+        ${(() => { const c = r.placeWard && councillorOf(r.place, r.placeWard); return c ? `<div class="k-node k-node-elected"><span class="k-node-abbr">🗳</span>
+          <span class="k-node-text"><b>${esc(c.councillor)}</b><small>${esc(t('pw_councillor_of', { n: r.placeWard }))}${c.party ? ' · ' + esc(c.party) : ''} · <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></small></span></div>` : ''; })()}
         ${p?.incharge ? `<div class="k-node"><span class="k-node-abbr">🧹</span>
           <span class="k-node-text"><b>${esc(p.incharge)}</b><small>${esc(t('pl_incharge'))}${p.inchargeSource ? ': ' + esc(p.inchargeSource) : ''}</small></span></div>` : ''}
         ${p?.complaintUrl && /^https:\/\//i.test(p.complaintUrl) ? `<a class="k-esc-item" href="${esc(p.complaintUrl)}" target="_blank" rel="noopener"><b>${esc(t('pl_complain', { body: p.body }))}</b><small>${esc(t('pl_complain_s'))}</small></a>` : ''}
+        ${p?.contacts?.length ? `<details class="k-acc-more">
+          <summary>${esc(t('pl_contacts', { body: p.body }))}</summary>
+          ${p.contacts.map(c => `<a class="k-esc-item" href="${c.wa ? 'https://wa.me/' + esc(c.wa) : 'tel:' + esc(c.tel)}"${c.wa ? ' target="_blank" rel="noopener"' : ''}><b>${esc(t('pl_c_' + c.kind))}</b><small>${esc(c.show)}</small></a>`).join('')}
+          ${p.address ? `<p class="k-acc-src">${esc(p.address)}</p>` : ''}
+          <p class="k-acc-src"><a href="${esc(p.contactsSource)}" target="_blank" rel="noopener">${esc(t('pl_c_source'))}</a></p>
+        </details>` : ''}
         ${p && !p.isDistrict ? `<a class="k-esc-item" href="add-town.html?fix=${encodeURIComponent(p.slug)}"><b>${esc(t('pl_fix_border'))}</b>${p.status === 'provisional' ? `<small>${esc(t('pl_border_note'))}</small>` : ''}</a>` : ''}
         <details class="k-acc-more">
           <summary>${esc(t('acc_more'))}</summary>
@@ -2241,11 +2588,13 @@ async function shareCard(r){
 }
 
 /* A ward link opens that ward's own page (ward.html): something a councillor can share. */
-function shareWard(n){
-  const s = wardStats()[n] || { open: 0, resolved: 0 };
-  const url = new URL(`ward.html?ward=${n}`, location.href).href;
-  const text = t('ward_share_text', { n, open: s.open, fixed: s.resolved });
-  if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text, url }).catch(() => {}); return; }
+function shareWard(n, place = null){
+  const s = wardStats(place)[n] || { open: 0, resolved: 0 };
+  const p = place && window.KasaPlaces?.bySlug(place);
+  const url = new URL(p ? `kasa.html?place=${encodeURIComponent(place)}&ward=${n}` : `ward.html?ward=${n}`, location.href).href;
+  const text = p ? t('pw_share_text', { n, place: p.name, open: s.open, fixed: s.resolved })
+    : t('ward_share_text', { n, open: s.open, fixed: s.resolved });
+  if (navigator.share){ navigator.share({ title: 'Parishkar ' + (p ? p.name : 'Purulia'), text, url }).catch(() => {}); return; }
   copyText(url);
 }
 
@@ -2273,7 +2622,7 @@ function downloadCSV(scope){
   ].map(csvCell).join(','));
   // The BOM makes Excel read Bengali and Hindi text as UTF-8.
   const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
-  const ward = scope !== 'all' && state.filters.ward ? `ward-${state.filters.ward}-` : '';
+  const ward = scope !== 'all' && state.filters.ward ? `${state.filters.place ? state.filters.place + '-' : ''}ward-${state.filters.ward}-` : '';
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
   a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.csv`;
@@ -3798,6 +4147,127 @@ function allReps(){
   return out.filter(r => r.name).sort((a, b) => (a.group === b.group && a.group === 'mla') ? (b.town - a.town) : 0);
 }
 
+/* Every MLA, MP and minister in West Bengal, for the leader profile and the statewide list.
+   Seats and names: places/wb_leaders.json; ministers and departments: places/wb_ministers.json;
+   MP fund (MPLADS) summary and works: places/wb_mplads.json + places/mplads/<id>.json
+   (tools/build-wb-reps.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
+   so every link to a Purulia leader opens the same profile. */
+let wbMplads = null, wbMinisters = null, wbRepsLoading = null;
+function loadWbReps(){
+  wbRepsLoading ||= Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson'),
+    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json')]).then(([l, a, m, mi]) => {
+    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi;
+    if (!l || !a) wbRepsLoading = null;
+  });
+  return wbRepsLoading;
+}
+const acFeatures = n => (wbAssembly?.features || []).filter(f => f.properties.ac === n);
+const pcFeatures = n => (wbAssembly?.features || []).filter(f => f.properties.pc === n);
+const inSeat = fs => r => Number.isFinite(r.lat) && fs.some(f => inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
+function acKey(n){ return (CITY.constituencies || []).some(c => c.no === +n) ? 'mla:' + n : 'ac:' + n; }
+function pcKey(n){
+  const name = wbLeaders?.pc[n]?.name, ls = Object.keys(CITY.lokSabha || {}).find(s => s.toLowerCase() === String(name).toLowerCase());
+  return ls ? 'mp:' + ls : 'pc:' + n;
+}
+function pcOfLs(ls){ return Object.keys(wbLeaders?.pc || {}).find(n => wbLeaders.pc[n].name.toLowerCase() === ls.toLowerCase()); }
+function ministerOf(ac){ return (wbMinisters?.ministers || []).find(m => m.ac === +ac); }
+
+function wbReps(){
+  if (!wbLeaders) return [];
+  const out = [], src = u => ({ url: u, name: 'Wikipedia' });
+  Object.entries(wbLeaders.ac).forEach(([n, v]) => {
+    const f = acFeatures(+n)[0], pc = f?.properties.pc;
+    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc,
+      place: t('rep_place_ac', { s: v.name, n }), source: src(wbLeaders.sources.mla), covers: inSeat(acFeatures(+n)) });
+  });
+  Object.entries(wbLeaders.pc).forEach(([n, v]) => {
+    if (v.vacant) return;
+    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n,
+      place: t('rep_place_ls', { s: v.name }), source: src(wbLeaders.sources.mp), covers: inSeat(pcFeatures(+n)) });
+  });
+  (wbMplads?.rs || []).forEach((v, i) => out.push({ key: 'rs:' + i, group: 'rs', name: v.name, initials: initialsOf(v.name),
+    place: t(v.nominated ? 'rep_rs_nom' : 'rep_rs_place', { t: v.term || '' }), mplads: v, source: { url: wbMplads.source, name: 'Empowered Indian' } }));
+  (wbMinisters?.ministers || []).forEach((m, i) => { if (!m.ac) out.push({ key: 'min:' + i, group: 'min', name: m.name, initials: initialsOf(m.name),
+    party: 'BJP', place: t('rep_rank_' + m.rank), minister: m }); });
+  return out;
+}
+
+// A leader by key: Purulia's from city.js, the rest from the statewide files, each with its
+// seat numbers, minister's departments and MP fund figures attached.
+function findRep(key){
+  const local = allReps();
+  let rep = local.find(r => r.key === key) || local.find(r => r.key === { mla: 'mla:' + (CITY.constituencies || []).find(c => c.town)?.no, mp: 'mp:' + CITY.name, chairman: 'chair:' + CITY.name }[key]);
+  if (!rep && /^(ac|pc):/.test(key)){ const [k, n] = key.split(':'); const alias = k === 'ac' ? acKey(n) : pcKey(n); if (alias !== key) rep = local.find(r => r.key === alias); }
+  rep ||= wbReps().find(r => r.key === key);
+  if (!rep) return null;
+  rep = { ...rep };
+  if (rep.group === 'mla'){ rep.ac ??= rep.seat?.no; rep.pc ??= acFeatures(rep.ac)[0]?.properties.pc; }
+  if (rep.group === 'mp') rep.pc ??= +pcOfLs(rep.key.slice(3));
+  if (rep.ac) rep.minister ||= ministerOf(rep.ac);
+  if (rep.group === 'mp' && wbMplads?.pc[rep.pc]) rep.mplads = { ...wbMplads.pc[rep.pc], asOf: wbMplads.checked };
+  if (rep.group === 'rs' && rep.mplads) rep.mplads = { ...rep.mplads, asOf: wbMplads.checked };
+  return rep;
+}
+
+// Seat outline on the map: close the profile, draw the seat and fit to it.
+function showSeatOnMap(kind, n){
+  const fs = kind === 'ac' ? acFeatures(+n) : pcFeatures(+n);
+  if (!fs.length || !mainMap) return;
+  closeModal('k-rep-modal'); closeArea();
+  const data = { type: 'FeatureCollection', features: fs };
+  if (!mainMap.getSource('area-sel')){
+    mainMap.addSource('area-sel', { type: 'geojson', data });
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+  } else mainMap.getSource('area-sel').setData(data);
+  const b = fs.map(f => f.bbox);
+  userMovedMap = true;
+  document.getElementById('k-map')?.scrollIntoView?.({ behavior: 'smooth', block: 'center' });
+  mainMap.fitBounds([[Math.min(...b.map(x => x[0])), Math.min(...b.map(x => x[1]))], [Math.max(...b.map(x => x[2])), Math.max(...b.map(x => x[3]))]],
+    { padding: 40, duration: 900, essential: true });
+}
+
+// The MP's works, as recommended and finished on the MPLADS portal.
+function renderRepWorks(rep){
+  const el = document.getElementById('k-rep-works');
+  if (!el || !rep.mplads?.works) return;
+  getJson(`places/mplads/${encodeURIComponent(rep.mplads.works)}.json`).then(w => {
+    if (!w || el.dataset.key !== rep.key) return;
+    const inr = n => '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
+    const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+    const item = (x, done) => `<div class="k-rep-work"><span>${esc(x.w)}</span><small>${esc([inr(x.rs), day(x.on), x.at,
+      !done && x.paid ? t('rep_paid', { r: inr(x.paid) }) : ''].filter(Boolean).join(' · '))}</small></div>`;
+    const list = (title, xs, done) => `<div class="k-rep-worst-title">${esc(title)} (${xs.length})</div>
+      ${xs.length ? xs.slice(0, 4).map(x => item(x, done)).join('') : `<div class="k-rep-worst-item">${esc(t('rep_works_none'))}</div>`}
+      ${xs.length > 4 ? `<details class="k-rep-works-more"><summary>${esc(t('rep_works_all', { n: xs.length }))}</summary>${xs.slice(4).map(x => item(x, done)).join('')}</details>` : ''}`;
+    el.innerHTML = list(t('rep_works_done'), w.completed, true) + list(t('rep_works_rec'), w.recommended, false);
+  });
+}
+
+// Statewide list under the Purulia leaders: search, then ministers, MPs and MLAs by group.
+function renderWbRepList(){
+  const box = document.getElementById('k-wb-reps');
+  if (!box || !wbLeaders) return;
+  const reps = wbReps().map(r => r.group === 'mla' ? { ...r, key: acKey(r.ac), minister: ministerOf(r.ac) } : r.group === 'mp' ? { ...r, key: pcKey(r.pc) } : r);
+  const mins = (wbMinisters?.ministers || []).map((m, i) => m.ac ? reps.find(r => r.ac === m.ac) : reps.find(r => r.key === 'min:' + i)).filter(Boolean);
+  const row = r => `<button type="button" class="k-wb-rep" data-profile="${esc(r.key)}" data-q="${esc([r.name, r.place, r.party, ...(r.minister?.portfolios || [])].join(' ').toLowerCase())}">
+    <span class="k-wb-rep-name">${esc(r.name)}</span><span class="k-wb-rep-sub">${esc([r.minister ? t('rep_rank_' + r.minister.rank) + (r.group === 'mla' ? ' · ' + r.place : '') : r.place, r.party].filter(Boolean).join(' · '))}</span></button>`;
+  const group = (id, list) => list.length ? `<details class="k-wb-group"><summary>${esc(t(id, { n: list.length }))}</summary>${list.map(row).join('')}</details>` : '';
+  box.innerHTML = `<div class="k-auth-group">${esc(t('rep_g_state'))}</div>
+    <input type="search" class="k-wb-search" id="k-wb-search" placeholder="${esc(t('rep_search'))}" aria-label="${esc(t('rep_search'))}">
+    ${group('rep_g_min', mins)}${group('rep_g_ls', reps.filter(r => r.group === 'mp'))}${group('rep_g_rs', reps.filter(r => r.group === 'rs'))}${group('rep_g_mla_all', reps.filter(r => r.group === 'mla'))}
+    <p class="k-rep-src">${esc(t('rep_state_src'))} <a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> ·
+      <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>${wbMinisters ? ` · <a href="${esc(wbMinisters.source)}" target="_blank" rel="noopener">${esc(t('rep_src_min'))}</a>` : ''}${wbMplads ? ` · <a href="${esc(wbMplads.source)}" target="_blank" rel="noopener">MPLADS (Empowered Indian)</a>` : ''}</p>`;
+  box.querySelector('#k-wb-search').addEventListener('input', e => {
+    const q = e.target.value.trim().toLowerCase();
+    box.querySelectorAll('.k-wb-group').forEach(g => {
+      let any = false;
+      g.querySelectorAll('.k-wb-rep').forEach(b => { const hit = !q || b.dataset.q.includes(q); b.hidden = !hit; any ||= hit; });
+      g.hidden = !any; g.open = !!q && any;
+    });
+  });
+}
+
 function renderReps(){
   const reps = allReps();
   document.getElementById('k-auth-grid').innerHTML = ['mp', 'mla', 'chair', 'zp'].map(g => {
@@ -3814,7 +4284,9 @@ function renderReps(){
         </div>
         <button type="button" class="k-auth-action" data-profile="${esc(rep.key)}">${esc(t('auth_view'))}</button>
       </div>`).join('');
-  }).join('');
+  }).join('') + '<div id="k-wb-reps"></div>';
+  if (wbLeaders) renderWbRepList();
+  else if (document.getElementById('k-auth-sec')?.open) loadWbReps().then(renderWbRepList);
 }
 
 // Promises, demands and news from promises.html / noticeboard.html, loaded once when a sheet opens.
@@ -3858,9 +4330,9 @@ function renderRepUpdates(rep, u){
       ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
 }
 
-function openRepProfile(key){
-  const reps = allReps();
-  const rep = reps.find(r => r.key === key) || reps.find(r => r.key === { mla: 'mla:' + (CITY.constituencies || []).find(c => c.town)?.no, mp: 'mp:' + CITY.name, chairman: 'chair:' + CITY.name }[key]);
+async function openRepProfile(key){
+  await loadWbReps();
+  const rep = findRep(key);
   if (!rep) return;
   const all = rep.covers ? primaries().filter(rep.covers) : [];
   const open = all.filter(r => r.status !== 'resolved');
@@ -3878,7 +4350,12 @@ function openRepProfile(key){
   const worst = [...byPlace.values()].sort((a, b) => b.n - a.n).slice(0, 5);
   const inr = n => '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
   const m = rep.mplads;
-  const areaLine = rep.seats ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${rep.seats.map(c =>
+  const wbSeats = !rep.seats && rep.group === 'mp' && rep.pc ? Object.keys(wbLeaders?.ac || {}).filter(n => acFeatures(+n)[0]?.properties.pc === rep.pc) : [];
+  const pcName = rep.pc && wbLeaders?.pc[rep.pc]?.name;
+  const areaLine = wbSeats.length ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${wbSeats.map(n =>
+      `<button type="button" class="k-rep-seat" data-profile="${esc(acKey(n))}">${esc(wbLeaders.ac[n].name)} · ${esc(wbLeaders.ac[n].person)}</button>`).join('')}</div>`
+    : !rep.seat && rep.group === 'mla' && pcName ? `<p class="k-rep-area"><button type="button" class="k-rep-seat" data-profile="${esc(pcKey(rep.pc))}">${esc(t('rep_in_ls', { s: pcName }))}</button></p>`
+    : rep.seats ? `<div class="k-rep-worst-title">${esc(t('rep_seats'))}</div><div class="k-rep-seats">${rep.seats.map(c =>
       `<button type="button" class="k-rep-seat" data-profile="mla:${c.no}">${esc(c.name)} · ${esc(c.mla?.name || '—')}</button>`).join('')}</div>`
     : rep.seat ? `<p class="k-rep-area">${esc(t('rep_covers', { b: [rep.seat.town && t('rep_town'), ...(rep.seat.blocks || [])].filter(Boolean).join(', ') }))}
         ${rep.seat.lokSabha ? `<button type="button" class="k-rep-seat" data-profile="mp:${esc(rep.seat.lokSabha)}">${esc(t('rep_in_ls', { s: rep.seat.lokSabha }))}</button>` : ''}</p>` : '';
@@ -3893,7 +4370,11 @@ function openRepProfile(key){
       ${repAvatar(rep, 'k-rep-avatar')}
       <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc([t('rep_t_' + rep.group) + ' · ' + rep.place, rep.party].filter(Boolean).join(' · '))}</div></div>
     </div>
+    ${rep.minister ? `<div class="k-rep-worst-title">${esc(t('rep_rank_' + rep.minister.rank))} · ${esc(t('rep_depts'))}</div>
+    <ul class="k-rep-depts">${rep.minister.portfolios.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
     ${areaLine}
+    ${rep.ac || rep.pc ? `<div class="k-rep-links"><a href="#" data-rep-map="${rep.group === 'mla' ? 'ac:' + rep.ac : 'pc:' + rep.pc}">${esc(t('rep_map'))} →</a>
+      <a href="#" data-rep-share="${esc(rep.key)}">${esc(t('rep_share'))} →</a></div>` : ''}
     ${rep.covers ? `
     <div class="k-rep-stats">
       <div class="k-rep-stat"><div class="k-rep-stat-n">${open.length}</div><div class="k-rep-stat-l">${esc(t('rep_open'))}</div></div>
@@ -3911,13 +4392,16 @@ function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${m.worksCompleted}/${m.worksRecommended}</div><div class="k-rep-stat-l">${esc(t('rep_mp_works'))}</div></div>
     </div>
     <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
-      <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>` : ''}
+      <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
+    ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
     <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
     <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
     <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
+    ${rep.minister ? `<p class="k-rep-src">${esc(t('rep_src_min'))} <a href="${esc(wbMinisters.source)}" target="_blank" rel="noopener nofollow">Wikipedia ↗</a></p>` : ''}
     ${rep.source?.url ? `<p class="k-rep-src">${esc(t('rep_source'))} <a href="${esc(safeUrl(rep.source.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(rep.source.name || rep.source.url)} ↗</a></p>` : ''}`;
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
+  renderRepWorks(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
     const el = document.getElementById('k-rep-updates');
     if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}
@@ -3952,12 +4436,24 @@ function openDeepLink(){
     return;
   }
   if (id && state.byId.has(id)) return openSheet(id);
+  // kasa.html?rep=ac:12 — a leader's profile, as shared from it.
+  if (/^(ac|pc|rs|min|mla|mp|chair):[\w .-]+$|^zp$/.test(q.get('rep') || '')) return openRepProfile(q.get('rep'));
   const at = (q.get('at') || '').split(',').map(Number);
   if (at.length === 2 && at.every(Number.isFinite)){
     mapReady.then(() => mainMap.flyTo({ center: [at[1], at[0]], zoom: 17, duration: 1200 }));
     return;
   }
   const ward = Number(q.get('ward'));
+  // kasa.html?place=kolkata&ward=46 — that town's ward, as shared from its ward card.
+  const place = window.KasaPlaces?.fromUrl();
+  if (place?.wardsGeojson || place?.wardsMapped){
+    if (Number.isInteger(ward) && ward >= 1 && ward <= (place.wardsTotal || 500)){
+      state.filters.ward = state.selectedWard = ward;
+      state.filters.place = state.selectedPlace = place.slug;
+      renderAll(); renderWardCard();
+    }
+    return;
+  }
   if (Number.isInteger(ward) && ward >= 1 && ward <= 23){
     state.filters.ward = ward;
     state.selectedWard = ward;
@@ -4206,7 +4702,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-profile],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -4236,17 +4732,31 @@ function wireUI(){
       return;
     }
     if (d.wardFilter){
-      const n = Number(d.wardFilter);
-      state.filters.ward = state.filters.ward === n ? null : n;
-      document.getElementById('k-search-ward').value = state.filters.ward || '';
+      const n = Number(d.wardFilter), place = d.wardPlace || null;
+      const on = state.filters.ward === n && (state.filters.place || null) === place;
+      state.filters.ward = on ? null : n;
+      state.filters.place = on ? null : place;
+      document.getElementById('k-search-ward').value = place ? '' : state.filters.ward || '';
       return renderAll();
     }
-    if (d.wardShare) return shareWard(Number(d.wardShare));
-    if ('wardClose' in d){ state.selectedWard = null; renderWardCard(); return updateMap(); }
+    if (d.wardShare) return shareWard(Number(d.wardShare), d.wardPlace || null);
+    if ('areaClose' in d) return closeArea();
+    if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
+    if ('areaZoom' in d) return zoomToArea();
+    if ('areaShare' in d) return shareArea();
+    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
+    if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
     if (d.profile) return openRepProfile(d.profile);
+    if (d.repMap){ e.preventDefault(); const [k, n] = d.repMap.split(':'); return showSeatOnMap(k, n); }
+    if (d.repShare){
+      e.preventDefault();
+      const url = `${location.origin}${location.pathname}?rep=${encodeURIComponent(d.repShare)}`, name = document.querySelector('#k-rep-content .k-rep-name')?.textContent || '';
+      const text = t('rep_share_text', { n: name });
+      return navigator.share ? navigator.share({ title: 'Parishkar', text, url }).catch(() => {}) : copyText(`${text} ${url}`);
+    }
     if (d.chain){ state.chainTab = d.chain; return renderChainSection(); }
     if (d.sev){ setSeverity(d.sev); return; }
     if (d.waste){ setWasteType(draft?.wasteType === d.waste ? null : d.waste); return; }
@@ -4327,6 +4837,7 @@ function wireUI(){
   document.getElementById('k-search-ward').addEventListener('input', e => {
     const n = parseInt(e.target.value, 10);
     state.filters.ward = n >= 1 && n <= 23 ? n : null;
+    state.filters.place = null;
     renderAll();
   });
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });

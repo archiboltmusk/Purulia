@@ -22,7 +22,19 @@ window.KASA_PLACES = [
     body: 'Kolkata Municipal Corporation',
     // KMC's own complaint form on kmcgov.in, checked September 2026.
     complaintUrl: 'https://www.kmcgov.in/KMCPortal/ComplaintFormAction.do',
+    // KMC's contact page, checked 30 September 2026 (its 2226-9909 line is commented out there, so not listed).
+    contactsSource: 'https://www.kmcgov.in/KMCPortal/jsp/KmcContact.jsp',
+    address: '5, S.N. Banerjee Road, Kolkata 700 013',
+    contacts: [
+      { kind: 'callcentre', tel: '18003453375', show: '1800 345 3375' },
+      { kind: 'whatsapp', wa: '918335988888', show: '83359 88888' },
+      { kind: 'chatbot', wa: '918335999111', show: '83359 99111' },
+      { kind: 'control', tel: '+913322861212', show: '033 2286 1212 / 1313 / 1414' },
+      { kind: 'office', tel: '+913322861000', show: '033 2286 1000' }
+    ],
     wardsGeojson: 'places/kolkata_wards.geojson',
+    // Ward councillors elected December 2021, borough per ward (tools: none; from Wikipedia's ward results table).
+    councillors: 'places/kolkata_councillors.json',
     // 141 of KMC's 144 wards: 142–144 (Joka, added in 2015) are not in the open map.
     wardsMapped: 141,
     wardsTotal: 144,
@@ -150,7 +162,7 @@ window.KasaPlaces = (() => {
     document.querySelectorAll('.k-wordmark, .k-nav-logo').forEach(el => {
       if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Parishkar ' + name);
     });
-    document.title = p ? home.title.replace(home.second, p.name) : home.title;
+    document.title = home.title.replace(/Parishkar [^—·]+?(?= —|$)/, 'Parishkar ' + name);
     document.documentElement.dataset.place = key || 'purulia';
     emit('brand', key);
   }
@@ -217,7 +229,7 @@ window.KasaPlaces = (() => {
   };
 
   return {
-    list: PLACES, districts: DISTRICTS, bySlug, at, load, brand, onView, boxAt, inWB, boxOf, saved, remember,
+    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, saved, remember,
     get current(){ return current; },
     get geo(){ return geo; },
     on: f => listeners.push(f),
