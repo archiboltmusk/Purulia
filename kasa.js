@@ -1323,7 +1323,12 @@ const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <=
 
 async function areasAt(lat, lng){
   const pt = [lng, lat];
-  const d = (await KasaPlaces.loadDistricts())?.features.find(f => pointInPolygon(pt, f.geometry));
+  // Inside Kolkata (its outline or a mapped KMC ward) it is Kolkata, even where a neighbouring
+  // district's older outline still overlaps: one spot, one answer.
+  const ds = (await KasaPlaces.loadDistricts())?.features || [];
+  const kw = inBbox([88.24, 22.45, 88.46, 22.64], pt) ? await KasaPlaces.load('kolkata') : null;
+  const kmc = kw?.features?.some(f => pointInPolygon(pt, f.geometry));
+  const d = ds.find(f => f.properties.slug === 'kolkata' && (kmc || pointInPolygon(pt, f.geometry))) || ds.find(f => pointInPolygon(pt, f.geometry));
   if (!d) return null;
   const slug = d.properties.slug;
   let fs = [];

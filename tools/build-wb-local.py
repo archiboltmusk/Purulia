@@ -94,7 +94,29 @@ if not ONLY_STATE: (OUT / 'index.json').write_text(json.dumps(index, indent=1, e
 for d, v in index['districts'].items():
     print(f"{d:20} {v['blocks']:3} blocks {v['gps']:4} GPs {(OUT / f'{d}.geojson').stat().st_size // 1024:5} KB")
 
-# Statewide blocks, coarse, from the district files just written (python3 tools/build-wb-local.py --blocks redoes only this).
+# Where Kolkata's mapped wards (places/kolkata_wards.geojson) overlap a neighbouring district's
+# blocks or panchayats (areas the city has absorbed), the ward wins: cut the overlap out, so one
+# tap gives one answer. Anything left under MIN_KM2 is dropped. Runs on the written files.
+KMC = unary_union([shape(f['geometry']).buffer(0) for f in json.load(open(ROOT / 'places' / 'kolkata_wards.geojson'))['features']])
+idx = json.loads((OUT / 'index.json').read_text())
+for fn in sorted(OUT.glob('*.geojson')):
+    fc = json.loads(fn.read_text())
+    if not any(shape(f['geometry']).intersects(KMC) for f in fc['features']): continue
+    kept = []
+    for f in fc['features']:
+        g = shape(f['geometry'])
+        if g.intersects(KMC):
+            o = outline([g.difference(KMC)])
+            if not o: continue
+            f = {**f, 'bbox': o[1], 'geometry': o[0]}
+        kept.append(f)
+    print(f'{fn.stem}: cut out Kolkata wards, {len(fc["features"]) - len(kept)} dropped')
+    fn.write_text(json.dumps({**fc, 'features': kept}, separators=(',', ':'), ensure_ascii=False))
+    d = idx['districts'][fn.stem]
+    d['blocks'] = sum(f['properties']['kind'] == 'block' for f in kept); d['gps'] = sum(f['properties']['kind'] == 'gp' for f in kept)
+(OUT / 'index.json').write_text(json.dumps(idx, indent=1, ensure_ascii=False) + '\n')
+
+# Statewide blocks, coarse, from the district files just written (python3 tools/build-wb-local.py --blocks redoes this and the Kolkata cut).
 STATE_TOL = 0.003  # degrees, about 300 m
 def rnd3(c): return [rnd3(x) for x in c] if isinstance(c[0], (list, tuple)) else [round(c[0], 3), round(c[1], 3)]
 state = []

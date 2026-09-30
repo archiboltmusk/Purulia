@@ -356,3 +356,10 @@ test('every district shows its blocks and their names from the state view, like 
   const style = await page.evaluate(() => [mainMap.getPaintProperty('wb-blocks-line', 'line-color'), mainMap.getPaintProperty('blocks-line', 'line-color')]);
   expect(style[0]).toBe(style[1]);
 });
+
+test('a spot inside a Kolkata ward is Kolkata, not the neighbouring district or block, even where old outlines overlap', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);
+  const a = await page.evaluate(async () => { const x = await areasAt(22.50903, 88.30179); return [x.district.properties.slug, !!x.block, !!x.gp]; });
+  expect(a).toEqual(['kolkata', false, false]);
+});
