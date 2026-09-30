@@ -1,0 +1,2269 @@
+{
+ "districts": {
+  "alipurduar": {
+   "about": {
+    "revid": 1374618605,
+    "text": "Alipurduar district, is one of the 23 districts of the state of West Bengal in India. The district is the part of Jalpaiguri Division. Alipurduar city is the headquarters of the district. It was made a district by bifurcating Jalpaiguri district on June 25, 2014. This is the easternmost district of West Bengal. It is situated in the Western Dooars natural region, in the foothills of the Bengal Himalayas."
+   },
+   "area_km2": 3383.0,
+   "aspirational": false,
+   "census2011": {
+    "population": 1501983
+   },
+   "hq": "Alipurduar",
+   "jjm": {
+    "homes": 365004,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 58.5,
+    "rank_india": 677,
+    "rank_wb": 9,
+    "tap": 213536
+   },
+   "lgd": 664,
+   "name": "Alipurduar",
+   "name_bn": "আলিপুরদুয়ার",
+   "nfhs_district": "Jalpaiguri",
+   "nfhs_part_of": "Jalpaiguri",
+   "website": "http://www.alipurduar.org/",
+   "wikidata": "http://www.wikidata.org/entity/Q4726845",
+   "wikipedia": "https://en.wikipedia.org/wiki/Alipurduar_district"
+  },
+  "bankura": {
+   "about": {
+    "revid": 1374981715,
+    "text": "Bankura district is an administrative unit in the Indian state of West Bengal. It is part of Medinipur division—one of the five administrative divisions of West Bengal. Bankura district is surrounded by Purba Bardhaman district and Paschim Bardhaman district in the north, Purulia district in the west, Jhargram district and Paschim Medinipur district in the south, and some part of Hooghly district in the east."
+   },
+   "area_km2": 6882.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 1758579,
+    "households": 766902,
+    "male": 1838095,
+    "population": 3596674,
+    "rural": 3296901,
+    "urban": 299773
+   },
+   "hq": "Bankura",
+   "jjm": {
+    "homes": 742508,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 58.42,
+    "rank_india": 678,
+    "rank_wb": 10,
+    "tap": 433783
+   },
+   "lgd": 305,
+   "name": "Bankura",
+   "name_bn": "বাঁকুড়া",
+   "nfhs_district": "Bankura",
+   "website": "https://bankura.gov.in/bn/",
+   "wikidata": "http://www.wikidata.org/entity/Q2088458",
+   "wikipedia": "https://en.wikipedia.org/wiki/Bankura_district"
+  },
+  "birbhum": {
+   "about": {
+    "revid": 1377102687,
+    "text": "Birbhum district is an administrative unit in the Indian state of West Bengal. It is the northernmost district of Burdwan division—one of the five administrative divisions of West Bengal. The district headquarters is in Suri. Other important cities are Rampurhat, Bolpur and Sainthia."
+   },
+   "area_km2": 4545.0,
+   "aspirational": true,
+   "census2011": {
+    "female": 1711484,
+    "households": 817899,
+    "male": 1790920,
+    "population": 3502404,
+    "rural": 3052956,
+    "urban": 449448
+   },
+   "hq": "Suri",
+   "jjm": {
+    "homes": 854370,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 44.27,
+    "rank_india": 719,
+    "rank_wb": 17,
+    "tap": 378215
+   },
+   "lgd": 307,
+   "name": "Birbhum",
+   "name_bn": "বীরভূম",
+   "nfhs_district": "Birbhum",
+   "website": "http://birbhum.nic.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2088440",
+   "wikipedia": "https://en.wikipedia.org/wiki/Birbhum_district"
+  },
+  "cooch-behar": {
+   "about": {
+    "revid": 1377515131,
+    "text": "Cooch Behar district, also known as Koch Bihar district, is one of the 23 districts of the state of West Bengal in India. The district is a part of the Jalpaiguri Division. Cooch Behar city serves as the headquarters of the district. This district was a Princely state until 1949 CE. The district consists of the flat plains of North Bengal and has several rivers: the most notable being the Teesta, Jaldhaka and Torsa."
+   },
+   "area_km2": 3387.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 1367544,
+    "households": 665720,
+    "male": 1451542,
+    "population": 2819086,
+    "rural": 2529652,
+    "urban": 289434
+   },
+   "hq": "Cooch Behar",
+   "jjm": {
+    "homes": 696553,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 67.05,
+    "rank_india": 635,
+    "rank_wb": 5,
+    "tap": 467021
+   },
+   "lgd": 308,
+   "name": "Cooch Behar",
+   "name_bn": "কোচবিহার",
+   "nfhs_district": "Koch Bihar",
+   "website": "http://www.coochbehar.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2728658",
+   "wikipedia": "https://en.wikipedia.org/wiki/Cooch_Behar_district"
+  },
+  "dakshin-dinajpur": {
+   "about": {
+    "revid": 1375729960,
+    "text": "Dakshin Dinajpur, also known as South Dinajpur, is a district in the Indian state of West Bengal, India. It was created on 1 April 1992 by the division of the erstwhile West Dinajpur District. The headquarters of the district is at Balurghat. It comprises two subdivisions: Balurghat and Gangarampur. According to the 2011 census, it is the seventh populous district of West Bengal ."
+   },
+   "area_km2": 2219.0,
+   "aspirational": true,
+   "census2011": {
+    "female": 819077,
+    "households": 396406,
+    "male": 857199,
+    "population": 1676276,
+    "rural": 1439981,
+    "urban": 236295
+   },
+   "hq": "Balurghat",
+   "jjm": {
+    "homes": 338391,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 54.45,
+    "rank_india": 690,
+    "rank_wb": 13,
+    "tap": 184254
+   },
+   "lgd": 310,
+   "name": "Dakshin Dinajpur",
+   "name_bn": "দক্ষিণ দিনাজপুর",
+   "nfhs_district": "Dakshin Dinajpur",
+   "website": "http://ddinajpur.nic.in",
+   "wikidata": "http://www.wikidata.org/entity/Q533839",
+   "wikipedia": "https://en.wikipedia.org/wiki/Dakshin_Dinajpur_district"
+  },
+  "darjeeling": {
+   "about": {
+    "revid": 1375733436,
+    "text": "Darjeeling district is the northernmost district of the state of West Bengal in eastern India in the foothills of the Himalayas, in the eastern Sivalik Hills.The district is famous for its hill station and Darjeeling tea. Darjeeling is the district headquarters. Kurseong, Siliguri and Mirik, three major towns in the district, are the subdivisional headquarters of the district."
+   },
+   "area_km2": 3149.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 909564,
+    "households": 391234,
+    "male": 937259,
+    "population": 1846823,
+    "rural": 1118860,
+    "urban": 727963
+   },
+   "hq": "Darjeeling",
+   "jjm": {
+    "homes": 340994,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 49.68,
+    "rank_india": 704,
+    "rank_wb": 16,
+    "tap": 169400
+   },
+   "lgd": 309,
+   "name": "Darjeeling",
+   "name_bn": "দার্জিলিং",
+   "nfhs_district": "Darjeeling",
+   "website": "http://darjeeling.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q1134759",
+   "wikipedia": "https://en.wikipedia.org/wiki/Darjeeling_district"
+  },
+  "hooghly": {
+   "about": {
+    "revid": 1373980308,
+    "text": "Hooghly district is one of the 23 districts in the Indian state of West Bengal. It can alternatively be spelt Hoogli. The headquarters of the district is Hugli-Chuchura. The district is named after the Hooghly River and is located in the Burdwan division. There are four subdivisions of the district: Chinsurah Sadar, Serampore, Chandannagore, and Arambagh."
+   },
+   "area_km2": 3149.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 2704492,
+    "households": 1287423,
+    "male": 2814653,
+    "population": 5519145,
+    "rural": 3390646,
+    "urban": 2128499
+   },
+   "hq": "Chinsurah",
+   "jjm": {
+    "homes": 975515,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 68.11,
+    "rank_india": 630,
+    "rank_wb": 4,
+    "tap": 664424
+   },
+   "lgd": 312,
+   "name": "Hooghly",
+   "name_bn": "হুগলি",
+   "nfhs_district": "Hugli",
+   "website": "http://hooghly.nic.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q548518",
+   "wikipedia": "https://en.wikipedia.org/wiki/Hooghly_district"
+  },
+  "howrah": {
+   "about": {
+    "revid": 1376110460,
+    "text": "Howrah district is a district of the West Bengal state in eastern India. Howrah district is one of the most highly urbanized areas in West Bengal. It has thousands of years of rich heritage in the form of the great Bengali kingdom of Bhurshut. The district is named after its headquarters, the city of Howrah."
+   },
+   "area_km2": 1467.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 2349210,
+    "households": 1061336,
+    "male": 2500819,
+    "population": 4850029,
+    "rural": 1775885,
+    "urban": 3074144
+   },
+   "hq": "Howrah",
+   "jjm": {
+    "homes": 677705,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 61.66,
+    "rank_india": 664,
+    "rank_wb": 7,
+    "tap": 417866
+   },
+   "lgd": 313,
+   "name": "Howrah",
+   "name_bn": "হাওড়া",
+   "nfhs_district": "Haora",
+   "website": "http://www.howrah.gov.in",
+   "wikidata": "http://www.wikidata.org/entity/Q1478937",
+   "wikipedia": "https://en.wikipedia.org/wiki/Howrah_district"
+  },
+  "jalpaiguri": {
+   "about": {
+    "revid": 1377515982,
+    "text": "Jalpaiguri district is a district of the Indian state of West Bengal. The district was established in 1869 during British Raj. The headquarters of the district are in the city of Jalpaiguri, which is also the divisional headquarters of Jalpaiguri division."
+   },
+   "area_km2": 3044.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 1889782,
+    "households": 868326,
+    "male": 1983064,
+    "population": 3872846,
+    "rural": 2812495,
+    "urban": 1060351
+   },
+   "hq": "Jalpaiguri",
+   "jjm": {
+    "homes": 438180,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 53.49,
+    "rank_india": 693,
+    "rank_wb": 14,
+    "tap": 234362
+   },
+   "lgd": 314,
+   "name": "Jalpaiguri",
+   "name_bn": "জলপাইগুড়ি",
+   "nfhs_district": "Jalpaiguri",
+   "website": "http://www.jalpaiguri.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q1351487",
+   "wikipedia": "https://en.wikipedia.org/wiki/Jalpaiguri_district"
+  },
+  "jhargram": {
+   "about": {
+    "revid": 1376369081,
+    "text": "Jhargram is a district in the state of West Bengal, India.The district lies between the Kangsabati River in the north and the Subarnarekha in the south. Jhargram has one of the lowest population densities among the districts of West Bengal, with almost all its population living in rural areas. It is a popular tourist destination known for its sal forests, elephants, ancient temples and royal palaces."
+   },
+   "area_km2": 3037.64,
+   "aspirational": false,
+   "census2011": null,
+   "hq": "Jhargram",
+   "jjm": {
+    "homes": 255391,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 61.03,
+    "rank_india": 667,
+    "rank_wb": 8,
+    "tap": 155859
+   },
+   "lgd": 703,
+   "name": "Jhargram",
+   "name_bn": "ঝাড়গ্রাম",
+   "nfhs_district": "Paschim Medinipur",
+   "nfhs_part_of": "Paschim Medinipur",
+   "website": "http://www.jhargram.org/",
+   "wikidata": "http://www.wikidata.org/entity/Q29168456",
+   "wikipedia": "https://en.wikipedia.org/wiki/Jhargram_district"
+  },
+  "kalimpong": {
+   "about": {
+    "revid": 1373984844,
+    "text": "Kalimpong district is a district in the state of West Bengal, India. In 2017, it was carved out as a separate district to become the 21st district of West Bengal. The district is headquartered at Kalimpong, which grew to prominence as a market town for Indo-Tibetan trade during the British period."
+   },
+   "area_km2": 1053.6,
+   "aspirational": false,
+   "census2011": {
+    "population": 251642
+   },
+   "hq": "Kalimpong",
+   "jjm": {
+    "homes": 64555,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 55.59,
+    "rank_india": 687,
+    "rank_wb": 12,
+    "tap": 35889
+   },
+   "lgd": 702,
+   "name": "Kalimpong",
+   "name_bn": "কালিম্পং",
+   "nfhs_district": "Darjeeling",
+   "nfhs_part_of": "Darjeeling",
+   "website": "https://kalimpong.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q28769140",
+   "wikipedia": "https://en.wikipedia.org/wiki/Kalimpong_district"
+  },
+  "kolkata": {
+   "about": {
+    "revid": 1377013660,
+    "text": "Kolkata district is a district in the Indian state of West Bengal. It only contains the entire city proper of Kolkata, the capital city of the state and therefore it is a city district. It is the smallest district in the state and also the most densely populated district."
+   },
+   "area_km2": 206.08,
+   "aspirational": false,
+   "census2011": {
+    "female": 2139928,
+    "households": 1024928,
+    "male": 2356766,
+    "population": 4496694,
+    "rural": 0,
+    "urban": 4496694
+   },
+   "hq": "Kolkata",
+   "lgd": 315,
+   "name": "Kolkata",
+   "name_bn": "কলকাতা",
+   "nfhs_district": "Kolkata",
+   "website": "https://www.kmcgov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2088496",
+   "wikipedia": "https://en.wikipedia.org/wiki/Kolkata_district"
+  },
+  "malda": {
+   "about": {
+    "revid": 1377518341,
+    "text": "Malda district, also spelt Maldah or Maldaha, is a district in West Bengal, India. The capital of the Bengal Sultanate, Gauda and Pandua, was situated in this district. Mango, jute and silk are the most notable products of this district. The special variety of mango, Fazli, produced in this region is popularly known by the name of the district and is exported across the world and is internationally acclaimed."
+   },
+   "area_km2": 3733.0,
+   "aspirational": true,
+   "census2011": {
+    "female": 1937304,
+    "households": 846991,
+    "male": 2051541,
+    "population": 3988845,
+    "rural": 3447185,
+    "urban": 541660
+   },
+   "hq": "Malda",
+   "jjm": {
+    "homes": 870236,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 38.31,
+    "rank_india": 732,
+    "rank_wb": 21,
+    "tap": 333398
+   },
+   "lgd": 316,
+   "name": "Malda",
+   "name_bn": "মালদহ",
+   "nfhs_district": "Maldah",
+   "website": "http://malda.nic.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2049820",
+   "wikipedia": "https://en.wikipedia.org/wiki/Malda_district"
+  },
+  "murshidabad": {
+   "about": {
+    "revid": 1376867430,
+    "text": "Murshidabad district is a district in the Indian state of West Bengal. Situated on the left bank of the river Ganges, the district is very fertile. Covering an area of 5,341 km2 and having a population 7.103 million, it is a densely populated district and the ninth most populous in India . Berhampore city is the headquarters of the district."
+   },
+   "area_km2": 5324.0,
+   "aspirational": true,
+   "census2011": {
+    "female": 3476243,
+    "households": 1570759,
+    "male": 3627564,
+    "population": 7103807,
+    "rural": 5703115,
+    "urban": 1400692
+   },
+   "hq": "Berhampore",
+   "jjm": {
+    "homes": 1678382,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 43.76,
+    "rank_india": 720,
+    "rank_wb": 18,
+    "tap": 734504
+   },
+   "lgd": 319,
+   "name": "Murshidabad",
+   "name_bn": "মুর্শিদাবাদ",
+   "nfhs_district": "Murshidabad",
+   "website": "http://murshidabad.nic.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q1546240",
+   "wikipedia": "https://en.wikipedia.org/wiki/Murshidabad_district"
+  },
+  "nadia": {
+   "about": {
+    "revid": 1376879676,
+    "text": "Nadia district is a district in the Indian state of West Bengal. It lies in the Presidency division. It borders Bangladesh to the east, North 24 Parganas and Hooghly districts to the south, Purba Bardhaman to the west, and Murshidabad to the north. Nadia district is highly influential in the cultural history of Bengal."
+   },
+   "area_km2": 3927.0,
+   "aspirational": true,
+   "census2011": {
+    "female": 2513832,
+    "households": 1232282,
+    "male": 2653768,
+    "population": 5167600,
+    "rural": 3728727,
+    "urban": 1438873
+   },
+   "hq": "Krishnanagar",
+   "jjm": {
+    "homes": 1193370,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 89.0,
+    "rank_india": 435,
+    "rank_wb": 1,
+    "tap": 1062123
+   },
+   "lgd": 320,
+   "name": "Nadia",
+   "name_bn": "নদিয়া",
+   "nfhs_district": "Nadia",
+   "website": "http://www.nadia.nic.in",
+   "wikidata": "http://www.wikidata.org/entity/Q1143880",
+   "wikipedia": "https://en.wikipedia.org/wiki/Nadia_district"
+  },
+  "north-24-parganas": {
+   "about": {
+    "revid": 1376937210,
+    "text": "North 24 Parganas (abv. 24 PGS ) or sometimes North Twenty Four Parganas is a district in southern West Bengal, of eastern India. North 24 Parganas extends in the tropical zone from latitude 22°11′6″ N to 23°15′2″ N and from longitude 88°20′ E to 89°5′ E. Barasat is the district headquarters of North 24 Parganas."
+   },
+   "area_km2": 4094.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 4890392,
+    "households": 2348683,
+    "male": 5119389,
+    "population": 10009781,
+    "rural": 4277619,
+    "urban": 5732162
+   },
+   "hq": "Barasat",
+   "jjm": {
+    "homes": 1433870,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 66.83,
+    "rank_india": 638,
+    "rank_wb": 6,
+    "tap": 958256
+   },
+   "lgd": 303,
+   "name": "North 24 Parganas",
+   "name_bn": "উত্তর চব্বিশ পরগনা",
+   "nfhs_district": "North Twenty Four Parganas",
+   "website": "http://www.north24parganas.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q338425",
+   "wikipedia": "https://en.wikipedia.org/wiki/North_24_Parganas_district"
+  },
+  "paschim-bardhaman": {
+   "about": {
+    "revid": 1377063482,
+    "text": "Paschim Bardhaman district is a predominantly urban mining-industrial district in West Bengal. The headquarter of the district is Asansol. It was formed on 7 April 2017 after bifurcation of the erstwhile Bardhaman district as the 23rd district of West Bengal."
+   },
+   "area_km2": 1603.17,
+   "aspirational": false,
+   "census2011": {
+    "population": 2882031
+   },
+   "hq": "Asansol",
+   "jjm": {
+    "homes": 255243,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 72.13,
+    "rank_india": 600,
+    "rank_wb": 3,
+    "tap": 184112
+   },
+   "lgd": 704,
+   "name": "Paschim Bardhaman",
+   "name_bn": "পশ্চিম বর্ধমান",
+   "nfhs_district": "Paschim Barddhaman",
+   "website": "http://paschimbardhaman.co.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q29215602",
+   "wikipedia": "https://en.wikipedia.org/wiki/Paschim_Bardhaman_district"
+  },
+  "paschim-medinipur": {
+   "about": {
+    "revid": 1377063498,
+    "text": "Paschim Medinipur district is one of the districts of the state of West Bengal, India. It was formed on 1 January 2002 after the partition of Midnapore into Paschim Medinipur and Purba Medinipur. On 4 April 2017, the Jhargram subdivision was upgraded to a district. GDP of West Midnapore district is 12 billion USD."
+   },
+   "area_km2": 6308.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 2905572,
+    "households": 1301610,
+    "male": 3007885,
+    "population": 5913457,
+    "rural": 5190771,
+    "urban": 722686
+   },
+   "hq": "Medinipur",
+   "jjm": {
+    "homes": 1042708,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 40.35,
+    "rank_india": 729,
+    "rank_wb": 20,
+    "tap": 420742
+   },
+   "lgd": 318,
+   "name": "Paschim Medinipur",
+   "name_bn": "পশ্চিম মেদিনীপুর",
+   "nfhs_district": "Paschim Medinipur",
+   "website": "http://paschimmedinipur.gov.in",
+   "wikidata": "http://www.wikidata.org/entity/Q1855537",
+   "wikipedia": "https://en.wikipedia.org/wiki/Paschim_Medinipur_district"
+  },
+  "purba-bardhaman": {
+   "about": {
+    "revid": 1377113100,
+    "text": "Purba Bardhaman district is in the Indian state of West Bengal. Its headquarters is in Bardhaman. It was formed on 7 April 2017 after the division of the previous Bardhaman district."
+   },
+   "area_km2": 5432.69,
+   "aspirational": false,
+   "census2011": {
+    "population": 4835532
+   },
+   "hq": "Bardhaman",
+   "jjm": {
+    "homes": 1120030,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 76.76,
+    "rank_india": 570,
+    "rank_wb": 2,
+    "tap": 859763
+   },
+   "lgd": 306,
+   "name": "Purba Bardhaman",
+   "name_bn": "পূর্ব বর্ধমান",
+   "nfhs_district": "Purba Barddhaman",
+   "website": "http://purbabardhaman.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q29257278",
+   "wikipedia": "https://en.wikipedia.org/wiki/Purba_Bardhaman_district"
+  },
+  "purba-medinipur": {
+   "about": {
+    "revid": 1377113115,
+    "text": "Purba Medinipur district is an administrative unit in the Indian state of West Bengal. It is the southernmost district of Medinipur division – one of the five administrative divisions of West Bengal. The headquarters is Tamluk. It was formed on 1 January 2002 after the Partition of Medinipur into East Midnapore and West Midnapore which lies at the northern and western border of it."
+   },
+   "area_km2": 4736.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 2466041,
+    "households": 1114170,
+    "male": 2629834,
+    "population": 5095875,
+    "rural": 4503161,
+    "urban": 592714
+   },
+   "hq": "Tamluk",
+   "jjm": {
+    "homes": 1163833,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 56.04,
+    "rank_india": 686,
+    "rank_wb": 11,
+    "tap": 652151
+   },
+   "lgd": 317,
+   "name": "Purba Medinipur",
+   "name_bn": "পূর্ব মেদিনীপুর",
+   "nfhs_district": "Purba Medinipur",
+   "website": "http://purbamedinipur.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q1431920",
+   "wikipedia": "https://en.wikipedia.org/wiki/Purba_Medinipur_district"
+  },
+  "purulia": {
+   "about": {
+    "revid": 1377113419,
+    "text": "Purulia district is one of the twenty-three districts of West Bengal state in Eastern India. Purulia is the administrative headquarters of the district. Some of the other important towns of Purulia district are Raghunathpur-Adra, Manbazar, Jhalda, Anara and Balarampur."
+   },
+   "area_km2": 6259.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 1433119,
+    "households": 567824,
+    "male": 1496996,
+    "population": 2930115,
+    "rural": 2556801,
+    "urban": 373314
+   },
+   "hq": "Purulia",
+   "jjm": {
+    "homes": 547724,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 32.45,
+    "rank_india": 749,
+    "rank_wb": 22,
+    "tap": 177745
+   },
+   "lgd": 321,
+   "name": "Purulia",
+   "name_bn": "পুরুলিয়া",
+   "nfhs_district": "Puruliya",
+   "website": "http://www.purulia.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q307474",
+   "wikipedia": "https://en.wikipedia.org/wiki/Purulia_district"
+  },
+  "south-24-parganas": {
+   "about": {
+    "revid": 1376882460,
+    "text": "South 24 Parganas (abbr. 24 PGS ), or sometimes South Twenty Four Parganas and Dakshin 24 Parganas, is a district in the Indian state of West Bengal, headquartered in Alipore, with its Zilla Parishad in Baruipur. It is the largest district of West Bengal by area and second largest by population. It is the sixth most populous district in India ."
+   },
+   "area_km2": 9960.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 3988183,
+    "households": 1781221,
+    "male": 4173778,
+    "population": 8161961,
+    "rural": 6074188,
+    "urban": 2087773
+   },
+   "hq": "Alipore",
+   "jjm": {
+    "homes": 1914544,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 52.7,
+    "rank_india": 696,
+    "rank_wb": 15,
+    "tap": 1008950
+   },
+   "lgd": 304,
+   "name": "South 24 Parganas",
+   "name_bn": "দক্ষিণ চব্বিশ পরগনা",
+   "nfhs_district": "South Twenty Four Parganas",
+   "website": "http://s24pgs.gov.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2308319",
+   "wikipedia": "https://en.wikipedia.org/wiki/South_24_Parganas"
+  },
+  "uttar-dinajpur": {
+   "about": {
+    "revid": 1377150190,
+    "text": "Uttar Dinajpur, also known as North Dinajpur, is one of the 23 districts of the state of West Bengal in India. The district is the part of Malda Division. Raiganj city is the headquarters of the district. This district bifurcated on 1 April 1992 from the erstwhile West Dinajpur district."
+   },
+   "area_km2": 3142.0,
+   "aspirational": false,
+   "census2011": {
+    "female": 1456068,
+    "households": 605674,
+    "male": 1551066,
+    "population": 3007134,
+    "rural": 2644906,
+    "urban": 362228
+   },
+   "hq": "Raiganj",
+   "jjm": {
+    "homes": 581492,
+    "of_india": 754,
+    "of_wb": 22,
+    "pct": 41.27,
+    "rank_india": 727,
+    "rank_wb": 19,
+    "tap": 239954
+   },
+   "lgd": 311,
+   "name": "Uttar Dinajpur",
+   "name_bn": "উত্তর দিনাজপুর",
+   "nfhs_district": "Uttar Dinajpur",
+   "website": "http://uttardinajpur.nic.in/",
+   "wikidata": "http://www.wikidata.org/entity/Q2019766",
+   "wikipedia": "https://en.wikipedia.org/wiki/Uttar_Dinajpur_district"
+  }
+ },
+ "generated": "2026-09-30",
+ "nfhs": {
+  "districts": {
+   "Bankura": {
+    "anc4": [
+     75.7,
+     89.5
+    ],
+    "child_anaemia": [
+     67.1,
+     47.3
+    ],
+    "child_marriage": [
+     45.7,
+     39.0
+    ],
+    "clean_fuel": [
+     20.8,
+     16.3
+    ],
+    "electricity": [
+     92.3,
+     90.5
+    ],
+    "inst_births": [
+     93.3,
+     85.6
+    ],
+    "insurance": [
+     43.4,
+     48.6
+    ],
+    "sanitation": [
+     49.2,
+     32.0
+    ],
+    "stunted": [
+     30.3,
+     34.0
+    ],
+    "teen_mothers": [
+     16.0,
+     16.6
+    ],
+    "underweight": [
+     38.8,
+     39.8
+    ],
+    "vaccinated": [
+     85.0,
+     96.2
+    ],
+    "wasted": [
+     26.0,
+     27.0
+    ],
+    "water": [
+     96.3,
+     97.9
+    ],
+    "women_10yrs": [
+     27.9,
+     23.2
+    ],
+    "women_anaemia": [
+     77.0,
+     66.9
+    ],
+    "women_literate": [
+     68.3,
+     null
+    ]
+   },
+   "Birbhum": {
+    "anc4": [
+     78.4,
+     78.1
+    ],
+    "child_anaemia": [
+     76.5,
+     59.0
+    ],
+    "child_marriage": [
+     49.9,
+     51.3
+    ],
+    "clean_fuel": [
+     28.1,
+     15.5
+    ],
+    "electricity": [
+     97.8,
+     96.4
+    ],
+    "inst_births": [
+     90.3,
+     86.3
+    ],
+    "insurance": [
+     37.7,
+     40.9
+    ],
+    "sanitation": [
+     55.0,
+     31.1
+    ],
+    "stunted": [
+     37.0,
+     40.5
+    ],
+    "teen_mothers": [
+     25.0,
+     24.9
+    ],
+    "underweight": [
+     41.8,
+     43.1
+    ],
+    "vaccinated": [
+     81.6,
+     91.4
+    ],
+    "wasted": [
+     25.5,
+     29.5
+    ],
+    "water": [
+     99.4,
+     97.7
+    ],
+    "women_10yrs": [
+     25.8,
+     22.1
+    ],
+    "women_anaemia": [
+     77.7,
+     63.8
+    ],
+    "women_literate": [
+     70.8,
+     null
+    ]
+   },
+   "Dakshin Dinajpur": {
+    "anc4": [
+     76.4,
+     68.6
+    ],
+    "child_anaemia": [
+     72.5,
+     66.7
+    ],
+    "child_marriage": [
+     45.6,
+     45.1
+    ],
+    "clean_fuel": [
+     28.7,
+     12.6
+    ],
+    "electricity": [
+     96.5,
+     94.8
+    ],
+    "inst_births": [
+     91.4,
+     78.2
+    ],
+    "insurance": [
+     28.3,
+     40.7
+    ],
+    "sanitation": [
+     79.0,
+     47.5
+    ],
+    "stunted": [
+     31.9,
+     32.9
+    ],
+    "teen_mothers": [
+     18.2,
+     19.5
+    ],
+    "underweight": [
+     30.2,
+     28.1
+    ],
+    "vaccinated": [
+     92.6,
+     83.2
+    ],
+    "wasted": [
+     22.8,
+     17.1
+    ],
+    "water": [
+     99.7,
+     100.0
+    ],
+    "women_10yrs": [
+     30.5,
+     21.7
+    ],
+    "women_anaemia": [
+     82.0,
+     77.0
+    ],
+    "women_literate": [
+     74.3,
+     null
+    ]
+   },
+   "Darjeeling": {
+    "anc4": [
+     79.2,
+     65.9
+    ],
+    "child_anaemia": [
+     68.1,
+     45.8
+    ],
+    "child_marriage": [
+     21.2,
+     21.9
+    ],
+    "clean_fuel": [
+     68.8,
+     56.3
+    ],
+    "electricity": [
+     98.2,
+     96.4
+    ],
+    "inst_births": [
+     98.4,
+     94.5
+    ],
+    "insurance": [
+     26.3,
+     24.5
+    ],
+    "sanitation": [
+     83.0,
+     67.0
+    ],
+    "stunted": [
+     34.3,
+     29.1
+    ],
+    "teen_mothers": [
+     6.3,
+     10.1
+    ],
+    "underweight": [
+     31.6,
+     25.7
+    ],
+    "vaccinated": [
+     94.2,
+     84.2
+    ],
+    "wasted": [
+     20.6,
+     11.3
+    ],
+    "water": [
+     90.8,
+     71.8
+    ],
+    "women_10yrs": [
+     41.3,
+     32.2
+    ],
+    "women_anaemia": [
+     59.2,
+     48.3
+    ],
+    "women_literate": [
+     77.0,
+     null
+    ]
+   },
+   "Haora": {
+    "anc4": [
+     82.7,
+     86.6
+    ],
+    "child_anaemia": [
+     67.7,
+     56.8
+    ],
+    "child_marriage": [
+     30.4,
+     25.6
+    ],
+    "clean_fuel": [
+     61.9,
+     47.2
+    ],
+    "electricity": [
+     99.0,
+     98.0
+    ],
+    "inst_births": [
+     95.5,
+     86.6
+    ],
+    "insurance": [
+     20.1,
+     21.1
+    ],
+    "sanitation": [
+     72.9,
+     61.3
+    ],
+    "stunted": [
+     27.5,
+     34.6
+    ],
+    "teen_mothers": [
+     9.4,
+     7.2
+    ],
+    "underweight": [
+     27.3,
+     28.4
+    ],
+    "vaccinated": [
+     87.8,
+     73.8
+    ],
+    "wasted": [
+     21.3,
+     14.6
+    ],
+    "water": [
+     99.5,
+     99.5
+    ],
+    "women_10yrs": [
+     40.1,
+     33.1
+    ],
+    "women_anaemia": [
+     65.3,
+     58.1
+    ],
+    "women_literate": [
+     80.5,
+     null
+    ]
+   },
+   "Hugli": {
+    "anc4": [
+     72.2,
+     76.6
+    ],
+    "child_anaemia": [
+     67.9,
+     53.3
+    ],
+    "child_marriage": [
+     40.8,
+     31.9
+    ],
+    "clean_fuel": [
+     54.6,
+     30.8
+    ],
+    "electricity": [
+     98.4,
+     95.5
+    ],
+    "inst_births": [
+     97.0,
+     91.3
+    ],
+    "insurance": [
+     26.5,
+     39.1
+    ],
+    "sanitation": [
+     76.2,
+     58.1
+    ],
+    "stunted": [
+     28.9,
+     30.1
+    ],
+    "teen_mothers": [
+     13.2,
+     19.6
+    ],
+    "underweight": [
+     33.4,
+     28.7
+    ],
+    "vaccinated": [
+     95.4,
+     88.4
+    ],
+    "wasted": [
+     20.0,
+     18.5
+    ],
+    "water": [
+     98.1,
+     100.0
+    ],
+    "women_10yrs": [
+     37.0,
+     26.2
+    ],
+    "women_anaemia": [
+     75.1,
+     63.2
+    ],
+    "women_literate": [
+     77.4,
+     null
+    ]
+   },
+   "Jalpaiguri": {
+    "anc4": [
+     88.4,
+     80.7
+    ],
+    "child_anaemia": [
+     67.4,
+     71.0
+    ],
+    "child_marriage": [
+     18.7,
+     34.5
+    ],
+    "clean_fuel": [
+     42.7,
+     27.0
+    ],
+    "electricity": [
+     97.4,
+     90.5
+    ],
+    "inst_births": [
+     95.8,
+     84.0
+    ],
+    "insurance": [
+     35.8,
+     25.3
+    ],
+    "sanitation": [
+     73.2,
+     51.0
+    ],
+    "stunted": [
+     28.9,
+     31.2
+    ],
+    "teen_mothers": [
+     11.8,
+     9.7
+    ],
+    "underweight": [
+     25.4,
+     24.6
+    ],
+    "vaccinated": [
+     87.9,
+     81.7
+    ],
+    "wasted": [
+     18.3,
+     17.7
+    ],
+    "water": [
+     95.2,
+     85.2
+    ],
+    "women_10yrs": [
+     33.9,
+     22.7
+    ],
+    "women_anaemia": [
+     71.4,
+     67.0
+    ],
+    "women_literate": [
+     73.6,
+     null
+    ]
+   },
+   "Koch Bihar": {
+    "anc4": [
+     77.3,
+     74.4
+    ],
+    "child_anaemia": [
+     66.4,
+     58.2
+    ],
+    "child_marriage": [
+     46.7,
+     41.8
+    ],
+    "clean_fuel": [
+     25.7,
+     13.7
+    ],
+    "electricity": [
+     98.2,
+     90.7
+    ],
+    "inst_births": [
+     93.0,
+     81.2
+    ],
+    "insurance": [
+     36.0,
+     44.5
+    ],
+    "sanitation": [
+     75.7,
+     53.3
+    ],
+    "stunted": [
+     28.7,
+     32.9
+    ],
+    "teen_mothers": [
+     27.3,
+     23.6
+    ],
+    "underweight": [
+     22.5,
+     29.3
+    ],
+    "vaccinated": [
+     94.2,
+     76.6
+    ],
+    "wasted": [
+     16.8,
+     20.1
+    ],
+    "water": [
+     99.3,
+     98.8
+    ],
+    "women_10yrs": [
+     26.7,
+     20.9
+    ],
+    "women_anaemia": [
+     74.8,
+     69.1
+    ],
+    "women_literate": [
+     79.2,
+     null
+    ]
+   },
+   "Kolkata": {
+    "anc4": [
+     71.7,
+     84.6
+    ],
+    "child_anaemia": [
+     72.3,
+     70.0
+    ],
+    "child_marriage": [
+     16.7,
+     13.4
+    ],
+    "clean_fuel": [
+     91.7,
+     69.4
+    ],
+    "electricity": [
+     99.6,
+     99.9
+    ],
+    "inst_births": [
+     97.5,
+     94.8
+    ],
+    "insurance": [
+     21.1,
+     26.1
+    ],
+    "sanitation": [
+     60.9,
+     48.4
+    ],
+    "stunted": [
+     29.6,
+     24.2
+    ],
+    "teen_mothers": [
+     4.9,
+     4.8
+    ],
+    "underweight": [
+     32.9,
+     19.6
+    ],
+    "vaccinated": [
+     80.2,
+     66.6
+    ],
+    "wasted": [
+     29.3,
+     17.4
+    ],
+    "water": [
+     99.3,
+     100.0
+    ],
+    "women_10yrs": [
+     55.4,
+     49.5
+    ],
+    "women_anaemia": [
+     58.2,
+     46.4
+    ],
+    "women_literate": [
+     87.6,
+     null
+    ]
+   },
+   "Maldah": {
+    "anc4": [
+     82.8,
+     52.6
+    ],
+    "child_anaemia": [
+     71.0,
+     55.2
+    ],
+    "child_marriage": [
+     49.1,
+     56.8
+    ],
+    "clean_fuel": [
+     29.6,
+     15.8
+    ],
+    "electricity": [
+     98.1,
+     95.6
+    ],
+    "inst_births": [
+     87.7,
+     55.0
+    ],
+    "insurance": [
+     29.0,
+     40.6
+    ],
+    "sanitation": [
+     62.0,
+     47.2
+    ],
+    "stunted": [
+     40.5,
+     37.8
+    ],
+    "teen_mothers": [
+     18.9,
+     24.9
+    ],
+    "underweight": [
+     35.3,
+     37.2
+    ],
+    "vaccinated": [
+     87.2,
+     69.5
+    ],
+    "wasted": [
+     20.0,
+     22.8
+    ],
+    "water": [
+     99.0,
+     92.1
+    ],
+    "women_10yrs": [
+     30.0,
+     19.2
+    ],
+    "women_anaemia": [
+     73.6,
+     59.0
+    ],
+    "women_literate": [
+     72.3,
+     null
+    ]
+   },
+   "Murshidabad": {
+    "anc4": [
+     66.9,
+     72.1
+    ],
+    "child_anaemia": [
+     72.1,
+     46.7
+    ],
+    "child_marriage": [
+     55.4,
+     53.5
+    ],
+    "clean_fuel": [
+     30.7,
+     19.2
+    ],
+    "electricity": [
+     96.7,
+     93.1
+    ],
+    "inst_births": [
+     87.0,
+     63.8
+    ],
+    "insurance": [
+     28.4,
+     40.9
+    ],
+    "sanitation": [
+     69.7,
+     54.1
+    ],
+    "stunted": [
+     39.8,
+     41.9
+    ],
+    "teen_mothers": [
+     20.6,
+     29.5
+    ],
+    "underweight": [
+     32.4,
+     34.6
+    ],
+    "vaccinated": [
+     90.0,
+     78.9
+    ],
+    "wasted": [
+     16.3,
+     17.5
+    ],
+    "water": [
+     99.1,
+     100.0
+    ],
+    "women_10yrs": [
+     24.2,
+     22.3
+    ],
+    "women_anaemia": [
+     77.6,
+     57.5
+    ],
+    "women_literate": [
+     67.6,
+     null
+    ]
+   },
+   "Nadia": {
+    "anc4": [
+     71.2,
+     91.6
+    ],
+    "child_anaemia": [
+     63.6,
+     36.6
+    ],
+    "child_marriage": [
+     39.9,
+     43.1
+    ],
+    "clean_fuel": [
+     34.2,
+     28.2
+    ],
+    "electricity": [
+     98.2,
+     96.4
+    ],
+    "inst_births": [
+     97.7,
+     93.1
+    ],
+    "insurance": [
+     23.0,
+     38.5
+    ],
+    "sanitation": [
+     78.4,
+     70.4
+    ],
+    "stunted": [
+     26.1,
+     23.3
+    ],
+    "teen_mothers": [
+     15.1,
+     21.9
+    ],
+    "underweight": [
+     25.1,
+     19.3
+    ],
+    "vaccinated": [
+     89.9,
+     93.2
+    ],
+    "wasted": [
+     17.6,
+     10.7
+    ],
+    "water": [
+     98.2,
+     99.8
+    ],
+    "women_10yrs": [
+     28.3,
+     24.6
+    ],
+    "women_anaemia": [
+     73.4,
+     57.1
+    ],
+    "women_literate": [
+     76.2,
+     null
+    ]
+   },
+   "North Twenty Four Parganas": {
+    "anc4": [
+     89.9,
+     79.3
+    ],
+    "child_anaemia": [
+     57.9,
+     53.5
+    ],
+    "child_marriage": [
+     33.6,
+     36.5
+    ],
+    "clean_fuel": [
+     58.9,
+     50.7
+    ],
+    "electricity": [
+     99.5,
+     97.3
+    ],
+    "inst_births": [
+     97.5,
+     86.9
+    ],
+    "insurance": [
+     30.7,
+     35.9
+    ],
+    "sanitation": [
+     80.4,
+     70.3
+    ],
+    "stunted": [
+     32.4,
+     23.8
+    ],
+    "teen_mothers": [
+     11.5,
+     18.7
+    ],
+    "underweight": [
+     23.6,
+     18.3
+    ],
+    "vaccinated": [
+     92.8,
+     88.7
+    ],
+    "wasted": [
+     13.3,
+     13.6
+    ],
+    "water": [
+     99.5,
+     100.0
+    ],
+    "women_10yrs": [
+     40.7,
+     35.2
+    ],
+    "women_anaemia": [
+     65.3,
+     62.7
+    ],
+    "women_literate": [
+     85.5,
+     null
+    ]
+   },
+   "Paschim Barddhaman": {
+    "anc4": [
+     70.4,
+     null
+    ],
+    "child_anaemia": [
+     74.7,
+     null
+    ],
+    "child_marriage": [
+     31.8,
+     null
+    ],
+    "clean_fuel": [
+     56.3,
+     null
+    ],
+    "electricity": [
+     97.0,
+     null
+    ],
+    "inst_births": [
+     89.8,
+     null
+    ],
+    "insurance": [
+     21.8,
+     null
+    ],
+    "sanitation": [
+     71.5,
+     null
+    ],
+    "stunted": [
+     39.7,
+     null
+    ],
+    "teen_mothers": [
+     15.4,
+     null
+    ],
+    "underweight": [
+     41.0,
+     null
+    ],
+    "vaccinated": [
+     62.4,
+     null
+    ],
+    "wasted": [
+     25.5,
+     null
+    ],
+    "water": [
+     95.2,
+     null
+    ],
+    "women_10yrs": [
+     37.1,
+     null
+    ],
+    "women_anaemia": [
+     65.8,
+     null
+    ],
+    "women_literate": [
+     73.5,
+     null
+    ]
+   },
+   "Paschim Medinipur": {
+    "anc4": [
+     63.1,
+     84.0
+    ],
+    "child_anaemia": [
+     66.0,
+     53.0
+    ],
+    "child_marriage": [
+     55.7,
+     52.6
+    ],
+    "clean_fuel": [
+     17.5,
+     13.9
+    ],
+    "electricity": [
+     95.4,
+     96.5
+    ],
+    "inst_births": [
+     87.6,
+     77.7
+    ],
+    "insurance": [
+     25.8,
+     29.8
+    ],
+    "sanitation": [
+     58.3,
+     43.8
+    ],
+    "stunted": [
+     31.1,
+     29.4
+    ],
+    "teen_mothers": [
+     25.0,
+     15.6
+    ],
+    "underweight": [
+     40.0,
+     40.3
+    ],
+    "vaccinated": [
+     76.9,
+     92.2
+    ],
+    "wasted": [
+     30.3,
+     28.0
+    ],
+    "water": [
+     95.5,
+     96.9
+    ],
+    "women_10yrs": [
+     26.2,
+     24.3
+    ],
+    "women_anaemia": [
+     81.5,
+     67.0
+    ],
+    "women_literate": [
+     70.9,
+     null
+    ]
+   },
+   "Purba Barddhaman": {
+    "anc4": [
+     80.5,
+     null
+    ],
+    "child_anaemia": [
+     71.5,
+     null
+    ],
+    "child_marriage": [
+     50.4,
+     null
+    ],
+    "clean_fuel": [
+     32.1,
+     null
+    ],
+    "electricity": [
+     96.8,
+     null
+    ],
+    "inst_births": [
+     96.0,
+     null
+    ],
+    "insurance": [
+     37.2,
+     null
+    ],
+    "sanitation": [
+     64.2,
+     null
+    ],
+    "stunted": [
+     32.7,
+     null
+    ],
+    "teen_mothers": [
+     21.9,
+     null
+    ],
+    "underweight": [
+     31.6,
+     null
+    ],
+    "vaccinated": [
+     97.2,
+     null
+    ],
+    "wasted": [
+     21.1,
+     null
+    ],
+    "water": [
+     99.1,
+     null
+    ],
+    "women_10yrs": [
+     27.3,
+     null
+    ],
+    "women_anaemia": [
+     77.9,
+     null
+    ],
+    "women_literate": [
+     73.2,
+     null
+    ]
+   },
+   "Purba Medinipur": {
+    "anc4": [
+     56.8,
+     79.3
+    ],
+    "child_anaemia": [
+     67.5,
+     42.5
+    ],
+    "child_marriage": [
+     57.6,
+     44.0
+    ],
+    "clean_fuel": [
+     17.0,
+     10.9
+    ],
+    "electricity": [
+     99.0,
+     97.9
+    ],
+    "inst_births": [
+     91.5,
+     74.1
+    ],
+    "insurance": [
+     21.5,
+     33.8
+    ],
+    "sanitation": [
+     69.8,
+     71.2
+    ],
+    "stunted": [
+     25.8,
+     29.9
+    ],
+    "teen_mothers": [
+     22.0,
+     19.6
+    ],
+    "underweight": [
+     30.6,
+     32.8
+    ],
+    "vaccinated": [
+     88.4,
+     92.6
+    ],
+    "wasted": [
+     15.5,
+     24.5
+    ],
+    "water": [
+     87.8,
+     99.8
+    ],
+    "women_10yrs": [
+     30.9,
+     28.6
+    ],
+    "women_anaemia": [
+     70.4,
+     59.0
+    ],
+    "women_literate": [
+     77.0,
+     null
+    ]
+   },
+   "Puruliya": {
+    "anc4": [
+     57.8,
+     68.6
+    ],
+    "child_anaemia": [
+     77.9,
+     66.8
+    ],
+    "child_marriage": [
+     37.0,
+     43.7
+    ],
+    "clean_fuel": [
+     23.2,
+     6.8
+    ],
+    "electricity": [
+     88.6,
+     82.3
+    ],
+    "inst_births": [
+     89.8,
+     72.9
+    ],
+    "insurance": [
+     35.6,
+     27.1
+    ],
+    "sanitation": [
+     29.2,
+     12.1
+    ],
+    "stunted": [
+     36.9,
+     45.5
+    ],
+    "teen_mothers": [
+     12.0,
+     21.7
+    ],
+    "underweight": [
+     46.3,
+     58.2
+    ],
+    "vaccinated": [
+     84.7,
+     87.4
+    ],
+    "wasted": [
+     29.4,
+     34.6
+    ],
+    "water": [
+     87.6,
+     82.4
+    ],
+    "women_10yrs": [
+     26.9,
+     15.7
+    ],
+    "women_anaemia": [
+     76.7,
+     80.0
+    ],
+    "women_literate": [
+     61.0,
+     null
+    ]
+   },
+   "South Twenty Four Parganas": {
+    "anc4": [
+     87.5,
+     75.6
+    ],
+    "child_anaemia": [
+     70.4,
+     65.2
+    ],
+    "child_marriage": [
+     41.9,
+     48.8
+    ],
+    "clean_fuel": [
+     36.2,
+     19.3
+    ],
+    "electricity": [
+     99.2,
+     88.2
+    ],
+    "inst_births": [
+     91.0,
+     52.2
+    ],
+    "insurance": [
+     36.7,
+     25.3
+    ],
+    "sanitation": [
+     70.1,
+     53.9
+    ],
+    "stunted": [
+     36.7,
+     27.3
+    ],
+    "teen_mothers": [
+     13.1,
+     19.3
+    ],
+    "underweight": [
+     32.2,
+     27.8
+    ],
+    "vaccinated": [
+     91.7,
+     94.8
+    ],
+    "wasted": [
+     21.2,
+     20.1
+    ],
+    "water": [
+     100.0,
+     99.9
+    ],
+    "women_10yrs": [
+     34.9,
+     22.8
+    ],
+    "women_anaemia": [
+     61.6,
+     66.8
+    ],
+    "women_literate": [
+     85.6,
+     null
+    ]
+   },
+   "Uttar Dinajpur": {
+    "anc4": [
+     70.1,
+     43.1
+    ],
+    "child_anaemia": [
+     77.2,
+     64.4
+    ],
+    "child_marriage": [
+     30.3,
+     39.7
+    ],
+    "clean_fuel": [
+     27.2,
+     12.3
+    ],
+    "electricity": [
+     96.9,
+     90.3
+    ],
+    "inst_births": [
+     76.9,
+     47.0
+    ],
+    "insurance": [
+     21.0,
+     27.3
+    ],
+    "sanitation": [
+     63.8,
+     33.3
+    ],
+    "stunted": [
+     44.8,
+     40.4
+    ],
+    "teen_mothers": [
+     12.7,
+     17.4
+    ],
+    "underweight": [
+     32.0,
+     34.7
+    ],
+    "vaccinated": [
+     84.4,
+     66.0
+    ],
+    "wasted": [
+     16.0,
+     14.0
+    ],
+    "water": [
+     99.8,
+     97.9
+    ],
+    "women_10yrs": [
+     29.3,
+     17.0
+    ],
+    "women_anaemia": [
+     72.4,
+     62.1
+    ],
+    "women_literate": [
+     65.4,
+     null
+    ]
+   }
+  },
+  "india": {
+   "anc4": 58.1,
+   "child_anaemia": 67.1,
+   "child_marriage": 23.3,
+   "clean_fuel": 58.6,
+   "electricity": 96.8,
+   "inst_births": 88.6,
+   "insurance": 41.0,
+   "sanitation": 70.2,
+   "stunted": 35.5,
+   "teen_mothers": 6.8,
+   "underweight": 32.1,
+   "vaccinated": 76.4,
+   "wasted": 19.3,
+   "water": 95.9,
+   "women_10yrs": 41.0,
+   "women_anaemia": 57.0,
+   "women_literate": 71.5
+  },
+  "indicators": {
+   "anc4": {
+    "higher_is_better": true,
+    "label": "Mothers with 4+ antenatal check-ups"
+   },
+   "child_anaemia": {
+    "higher_is_better": false,
+    "label": "Young children with anaemia"
+   },
+   "child_marriage": {
+    "higher_is_better": false,
+    "label": "Young women married before 18"
+   },
+   "clean_fuel": {
+    "higher_is_better": true,
+    "label": "Homes cooking with clean fuel"
+   },
+   "electricity": {
+    "higher_is_better": true,
+    "label": "People with electricity at home"
+   },
+   "inst_births": {
+    "higher_is_better": true,
+    "label": "Births in a hospital or clinic"
+   },
+   "insurance": {
+    "higher_is_better": true,
+    "label": "Homes with any health cover"
+   },
+   "sanitation": {
+    "higher_is_better": true,
+    "label": "People with a proper toilet"
+   },
+   "stunted": {
+    "higher_is_better": false,
+    "label": "Children under 5 who are stunted"
+   },
+   "teen_mothers": {
+    "higher_is_better": false,
+    "label": "Teenage girls already mothers or pregnant"
+   },
+   "underweight": {
+    "higher_is_better": false,
+    "label": "Children under 5 who are underweight"
+   },
+   "vaccinated": {
+    "higher_is_better": true,
+    "label": "Children fully vaccinated"
+   },
+   "wasted": {
+    "higher_is_better": false,
+    "label": "Children under 5 who are wasted"
+   },
+   "water": {
+    "higher_is_better": true,
+    "label": "People with safe drinking water"
+   },
+   "women_10yrs": {
+    "higher_is_better": true,
+    "label": "Women with 10+ years of school"
+   },
+   "women_anaemia": {
+    "higher_is_better": false,
+    "label": "Women with anaemia"
+   },
+   "women_literate": {
+    "higher_is_better": true,
+    "label": "Women who can read and write"
+   }
+  },
+  "west_bengal": {
+   "anc4": 75.8,
+   "child_anaemia": 69.0,
+   "child_marriage": 41.6,
+   "clean_fuel": 40.2,
+   "electricity": 97.5,
+   "inst_births": 91.7,
+   "insurance": 29.3,
+   "sanitation": 68.0,
+   "stunted": 33.8,
+   "teen_mothers": 16.4,
+   "underweight": 32.2,
+   "vaccinated": 87.8,
+   "wasted": 20.3,
+   "water": 97.5,
+   "women_10yrs": 32.9,
+   "women_anaemia": 71.4,
+   "women_literate": 76.1
+  }
+ },
+ "sources": {
+  "jjm": {
+   "name": "Jal Jeevan Mission dashboard, Ministry of Jal Shakti",
+   "read": "2026-09-30",
+   "url": "https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx"
+  },
+  "nfhs": {
+   "name": "NFHS-5 (2019-21) and NFHS-4 (2015-16) district fact sheets, IIPS / MoHFW",
+   "read": "2026-09-30",
+   "url": "https://rchiips.org/nfhs/districtfactsheet_NFHS-5.shtml"
+  },
+  "niti": {
+   "name": "Aspirational Districts Programme, NITI Aayog",
+   "url": "https://www.niti.gov.in/aspirational-districts-programme"
+  },
+  "wikidata": {
+   "licence": "CC0",
+   "name": "Wikidata (Census of India 2011 figures)",
+   "read": "2026-09-30"
+  },
+  "wikipedia": {
+   "licence": "CC BY-SA 4.0",
+   "name": "Wikipedia",
+   "read": "2026-09-30"
+  }
+ }
+}

@@ -36,7 +36,7 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await ctx.close();
 });
 
-test('a spot in a Kolkata ward is placed there; one in no ward is filed under its district', async ({ page }) => {
+test('a spot in a Kolkata ward is placed there; one outside any town is filed under its district', async ({ page }) => {
   await page.goto('kasa.html?place=kolkata');
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   const esplanade = await page.evaluate(() => KasaPlaces.at(22.5646, 88.3510));

@@ -3,9 +3,9 @@ name: Kasa tests
 on:
   push:
     branches: [main]
-    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'translate-fix.js', 'page-lang.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
+    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'translate-fix.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
   pull_request:
-    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'translate-fix.js', 'page-lang.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
+    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'translate-fix.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
   workflow_dispatch:
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax check
-        run: for f in kasa.js kasa-i18n.js digest-sheet.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js waste.js toilets.js promises.js noticeboard.js bug-report.js translate-fix.js page-lang.js version.js places.js add-town.js districts.js; do node --check "$f"; done
+        run: for f in kasa.js kasa-i18n.js digest-sheet.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js waste.js toilets.js promises.js noticeboard.js bug-report.js translate-fix.js page-lang.js version.js places.js add-town.js districts.js place-facts.js data-place.js; do node --check "$f"; done
       - name: Version matches the changelog
         run: node tools/version.mjs --check
       - name: Photo metadata reader (three time zones)
