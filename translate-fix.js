@@ -75,8 +75,13 @@
   patch();
 
   // ── Find which string a tapped element shows ──────────────────────────
-  const plain = (s) => String(s).replace(/<[^>]+>/g, '').replace(/\[\[\d+\|([^\]]*)\]\]/g, '$1')
-    .replace(/&nbsp;/g, ' ').replace(/&amp;/g, '&').replace(/\s+/g, ' ').trim();
+  // Text as the page shows it: markup and [[n|link]] wrappers dropped (parsed inertly, never inserted).
+  const parser = new DOMParser();
+  const plain = (s) => {
+    s = String(s).replace(/\[\[\d+\|([^\]]*)\]\]/g, '$1');
+    if (/[<&]/.test(s)) s = parser.parseFromString(s, 'text/html').body.textContent || '';
+    return s.replace(/\s+/g, ' ').trim();
+  };
   function build() {
     const exact = new Map(), pats = [];
     dicts().forEach(([ns, d]) => Object.keys(d).forEach((key) => {
