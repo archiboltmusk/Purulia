@@ -1261,6 +1261,14 @@ async function addDistrictLayers(){
     filter: ['!=', ['get', 'slug'], 'purulia'],
     layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
     paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  // Every district's blocks from the first screen, drawn and named like Purulia's (coarse file;
+  // each district's detailed outlines take over from zoom 8).
+  mainMap.addSource('wb-blocks', { type: 'geojson', data: 'places/wb_blocks.geojson' });
+  mainMap.addLayer({ id: 'wb-blocks-line', type: 'line', source: 'wb-blocks', maxzoom: WB_LOCAL_ZOOM,
+    paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
+  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', maxzoom: 12,
+    layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
   mainMap.on('click', onAreaTap);
   loadLocalInView();
@@ -1293,9 +1301,6 @@ function addDistrictLocal(slug, attribution){
       paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, 'clusters');
     mainMap.addLayer({ id: src + '-block-line', type: 'line', source: src, minzoom: WB_LOCAL_ZOOM, filter: kind('block'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
-    mainMap.addLayer({ id: src + '-block-label', type: 'symbol', source: src, minzoom: 9, maxzoom: 12, filter: kind('block'),
-      layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { ...green, 'text-opacity': .7 } }, 'clusters');
     mainMap.addLayer({ id: src + '-gp-label', type: 'symbol', source: src, minzoom: 11.5, filter: kind('gp'),
       layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
       paint: { ...green, 'text-opacity': .6 } }, 'clusters');
@@ -1435,7 +1440,8 @@ function renderAreaCard(){
       <button type="submit" class="k-ward-filter">${esc(t('ar_add_send'))}</button>
     </form>
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
-      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>`;
+      · <a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    <div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`;
   el.hidden = false;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
   if (!mainMap.getSource('area-sel')){
