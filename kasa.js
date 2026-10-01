@@ -3406,6 +3406,19 @@ const SC_QUESTIONS = ['water', 'toilets', 'boundary', 'electricity', 'mdm'];
 const SC_MAYBE = ['girls_toilet', 'meal_today'];
 let sc = null;
 
+// Which district's school list a check uses: the school's own, else where GPS puts you
+// (loadNearbySchools), else the place chosen on the map.
+function savedDistrict(){
+  let k = null;
+  try { k = localStorage.getItem('parishkar_place'); } catch (e) {}
+  return k && k.startsWith('district:') ? k.slice(9) : k === 'kolkata' ? 'kolkata' : 'purulia';
+}
+async function fillSchoolBlocks(sel, district, counts){
+  const { data } = await sb.rpc('kasa_school_blocks', { p_district: district });
+  sel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
+    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)}${counts ? ` (${b.schools})` : ''}</option>`).join('');
+}
+
 async function openSchoolCheck(code){
   sc = { schools: [], school: null, ans: {}, cond: null, pos: null, blob: null, meta: null, problems: {} };
   setDrawer(false);
@@ -3438,18 +3451,15 @@ async function openSchoolCheck(code){
   document.getElementById('k-sc-picked').textContent = '';
   document.getElementById('k-sc-near').innerHTML = `<div class="k-ev-status">${esc(t('sc_near_wait'))}</div>`;
   const blockSel = document.getElementById('k-sc-block');
-  const { data } = await sb.rpc('kasa_school_blocks');
-  blockSel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
-    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)} (${b.schools})</option>`).join('');
+  const { data: s } = code ? await sb.from('schools').select('udise_code,name,block_name,panchayat,village,lat,seen_lat,district').eq('udise_code', code).maybeSingle() : {};
+  sc.district = s?.district || savedDistrict();
+  await fillSchoolBlocks(blockSel, sc.district, true);
   document.getElementById('k-sc-find').hidden = true;
   document.getElementById('k-sc-school').hidden = true;
   updateSchoolSubmit();
   openModal('k-sc-modal');
   checkSchoolLocation();
-  if (code){
-    const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village,lat,seen_lat').eq('udise_code', code).maybeSingle();
-    if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
-  }
+  if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
 }
 
 /* Like the UTS app's nearby stations: once GPS is in, fill in the block and list the
@@ -3468,6 +3478,11 @@ async function loadNearbySchools(pos){
   ]);
   if (!sc) return;
   const blockSel = document.getElementById('k-sc-block');
+  if (nb?.district && nb.district !== sc.district && !sc.school){
+    sc.district = nb.district;
+    await fillSchoolBlocks(blockSel, sc.district, true);
+    if (!sc) return;
+  }
   if (nb?.block && !blockSel.value){
     const opt = [...blockSel.options].find(o => o.value && blockKey(o.value) === blockKey(nb.block));
     if (opt){ blockSel.value = opt.value; await loadSchoolBlock(opt.value); }
@@ -3504,7 +3519,7 @@ async function loadSchoolBlock(block){
   sc.school = null;
   document.getElementById('k-sc-picked').textContent = '';
   if (!block){ sel.hidden = find.hidden = true; updateSchoolSubmit(); return; }
-  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat').eq('block_name', block).order('name').limit(1000);
+  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat').eq('block_name', block).eq('district', sc.district).order('name').limit(1000);
   sc.schools = data || [];
   find.value = '';
   sel.hidden = find.hidden = false;
@@ -3739,15 +3754,13 @@ async function submitReportCard(){
    plus its name and block. A moderator finds its UDISE code before it joins the list. */
 let ns = null;
 async function openMissingSchool(){
-  const block = sc && document.getElementById('k-sc-block').value;
+  const block = sc && document.getElementById('k-sc-block').value, district = sc?.district || savedDistrict();
   if (sc) closeModal('k-sc-modal');
   sc = null;
   ns = { pos: null, blob: null, meta: null };
   setDrawer(false);
   const sel = document.getElementById('k-ns-block');
-  const { data } = await sb.rpc('kasa_school_blocks');
-  sel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
-    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)}</option>`).join('');
+  await fillSchoolBlocks(sel, district, false);
   if (block) sel.value = block;
   for (const id of ['k-ns-name', 'k-ns-village', 'k-ns-udise']) document.getElementById(id).value = '';
   document.getElementById('k-ns-preview').innerHTML = '';
@@ -5170,20 +5183,14 @@ function wireUI(){
   });
 }
 
-// Centre the map on the visitor, only if they already allowed location (no prompt on page load).
-/* On the first visit the phone asks for location straight away (once per device), so the
-   map opens where the person stands. After that it only uses location already allowed.
-   The position stays on the phone; nothing is sent until they file a report. */
+/* Every plain visit asks for location (the phone shows its own prompt until allowed) and flies
+   the map to street level where the person stands; the place picker follows. Denied or failed
+   keeps the home-place view. The position stays on the phone; nothing is sent until they file a report. */
 async function locateOnOpen(){
   try {
     if (!navigator.geolocation) return;
     const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
     if (st === 'denied') return startTips();
-    if (st === 'prompt'){
-      let asked = false;
-      try { asked = localStorage.getItem('kasa_loc_asked') === '1'; localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {}
-      if (asked) return startTips();
-    }
     showToast(t('locating_you'));
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
@@ -5193,7 +5200,7 @@ async function locateOnOpen(){
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
-      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
+      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 16), duration: 1200 });
       // Where they are becomes their home place for next time (once the page has been renamed after it).
       mainMap.once('moveend', () => setTimeout(() => {
         if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
