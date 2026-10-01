@@ -26,7 +26,7 @@
       news_sub: "Headlines about Purulia and the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise's status on their own.",
       news_checked: 'Last checked {d}.', news_none: 'No headlines yet. The first daily check will add them.',
       none: 'No promises match.', none_yet: 'No promises published yet. Add one below.', load_err: 'Could not load the promises. Check your connection and reload.',
-      said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence',
+      said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence', earlier: 'Earlier verdicts ({n})',
       in_news: 'In the news', suggest_update: 'Suggest an update',
       form_h: 'Add a promise, or an update',
       form_sub: 'Heard a promise in a speech, a newspaper or an official post? Add it with a link to where it was said. Seen a promise delivered, started or dropped? Use "Suggest an update" on that promise and add a link that shows it. A moderator checks every link before anything appears here.',
@@ -62,7 +62,7 @@
       news_sub: 'পুরুলিয়া ও ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। লিঙ্কগুলি মূল খবরে নিয়ে যায়। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
       news_checked: 'শেষ দেখা হয়েছে {d}।', news_none: 'এখনও কোনও শিরোনাম নেই। প্রথম দৈনিক খোঁজে যোগ হবে।',
       none: 'কোনও প্রতিশ্রুতি মেলেনি।', none_yet: 'এখনও কোনও প্রতিশ্রুতি প্রকাশ হয়নি। নিচে যোগ করুন।', load_err: 'প্রতিশ্রুতি লোড করা গেল না। সংযোগ দেখে আবার লোড করুন।',
-      said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ',
+      said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ', earlier: 'আগের রায় ({n})',
       in_news: 'খবরে', suggest_update: 'আপডেট জানান',
       form_h: 'প্রতিশ্রুতি বা আপডেট যোগ করুন',
       form_sub: 'ভাষণে, খবরের কাগজে বা সরকারি পোস্টে কোনও প্রতিশ্রুতি শুনেছেন? যেখানে বলা হয়েছিল তার লিঙ্ক দিয়ে যোগ করুন। কোনও প্রতিশ্রুতি পূরণ হতে, শুরু হতে বা বাদ পড়তে দেখেছেন? সেই প্রতিশ্রুতিতে "আপডেট জানান" চাপুন আর প্রমাণের লিঙ্ক দিন। কিছু প্রকাশের আগে একজন মডারেটর প্রতিটি লিঙ্ক দেখে নেন।',
@@ -98,7 +98,7 @@
       news_sub: 'पुरुलिया और ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। लिंक मूल ख़बर पर ले जाते हैं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
       news_checked: 'आख़िरी बार देखा गया {d}।', news_none: 'अभी कोई सुर्ख़ी नहीं। पहली रोज़ की जाँच में जुड़ेंगी।',
       none: 'कोई वादा नहीं मिला।', none_yet: 'अभी कोई वादा प्रकाशित नहीं हुआ। नीचे जोड़ें।', load_err: 'वादे लोड नहीं हो सके। कनेक्शन देखकर फिर लोड करें।',
-      said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत',
+      said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत', earlier: 'पहले के फ़ैसले ({n})',
       in_news: 'ख़बरों में', suggest_update: 'अपडेट बताएँ',
       form_h: 'वादा या अपडेट जोड़ें',
       form_sub: 'किसी भाषण, अख़बार या सरकारी पोस्ट में वादा सुना? जहाँ कहा गया उसका लिंक देकर जोड़ें। कोई वादा पूरा होते, शुरू होते या छूटते देखा? उस वादे पर "अपडेट बताएँ" दबाएँ और सबूत का लिंक दें। कुछ भी दिखने से पहले एक मॉडरेटर हर लिंक जाँचता है।',
@@ -202,6 +202,8 @@
           ${p.due_by ? ` · ${esc(t('due', { d: fmtDate(p.due_by) }))}${late ? ` (${esc(t('overdue'))})` : ''}` : ''}
           ${p.status !== 'promised' && p.status_source_url ? `<br>${esc(t('status_on', { s: t('st_' + p.status), d: fmtDate(p.status_date) }))} · <a href="${esc(safeUrl(p.status_source_url))}" target="_blank" rel="noopener nofollow">${esc(t('evidence'))} ↗</a>${p.status_note ? ` · ${esc(p.status_note)}` : ''}` : ''}
         </div>
+        ${p.history && p.history.length ? `<details class="pr-hist"><summary class="pr-meta">${esc(t('earlier', { n: p.history.length }))}</summary><ul>${p.history.map(h =>
+          `<li class="pr-meta">${esc(t('status_on', { s: t('st_' + h.status), d: fmtDate(h.status_date) }))} · <a href="${esc(safeUrl(h.status_source_url))}" target="_blank" rel="noopener nofollow">${esc(t('evidence'))} ↗</a>${h.status_note ? ` · ${esc(h.status_note)}` : ''}</li>`).join('')}</ul></details>` : ''}
         ${news.length ? `<div class="pr-news"><span class="pr-meta">${esc(t('in_news'))}</span>${news.map(n =>
           `<a href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener nofollow">${esc(n.title)}${n.source ? ` — ${esc(n.source)}` : ''}</a>`).join('')}</div>` : ''}
         <button type="button" class="pr-upd" data-upd="${esc(p.id)}">${esc(t('suggest_update'))}</button>

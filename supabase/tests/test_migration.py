@@ -2097,6 +2097,18 @@ check('a published update changes the promise status with its evidence',
       got['status'] == 'delivered' and got['status_source_url'] == 'https://example.com/done', got)
 check('only published promises are listed once (updates are not separate entries)',
       sum(1 for x in rpc('kasa_promises')['promises'] if x['who'] == 'Test Minister') == 1)
+check('the current verdict is not repeated in its history', got['history'] == [], got)
+rpc('kasa_admin_promise_edit', uid=mod, p_id=pr['id'], p_fields={'status': 'broken', 'status_source_url': 'https://example.com/broke', 'status_date': '2026-09-15'})
+got = next(x for x in rpc('kasa_promises')['promises'] if x['id'] == pr['id'])
+check('an earlier verdict stays on the record with its date and evidence',
+      got['status'] == 'broken' and [(h['status'], h['status_source_url'], h['status_date']) for h in got['history']]
+      == [('delivered', 'https://example.com/done', '2026-09-01')], got)
+rpc('kasa_admin_promise_edit', uid=mod, p_id=pr['id'], p_fields={'status_note': 'typo fix'})
+rpc('kasa_admin_promise_edit', uid=mod, p_id=pr['id'], p_fields={'status': 'in_progress', 'status_source_url': 'https://example.com/work', 'status_date': '2026-09-20'})
+got = next(x for x in rpc('kasa_promises')['promises'] if x['id'] == pr['id'])
+check('a verdict set by a moderator edit is also kept when replaced, newest first',
+      [h['status'] for h in got['history']] == ['broken', 'delivered'], got)
+rpc('kasa_admin_promise_edit', uid=mod, p_id=pr['id'], p_fields={'status': 'delivered', 'status_source_url': 'https://example.com/done', 'status_date': '2026-09-01'})
 for i in range(5):
     err(rpc, 'kasa_promise_suggest', ip='10.7.9.9', **pr_new)
 check('one network can suggest at most five promises a day',
