@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -725,6 +725,63 @@ async function loadAdoptions(){
     const { error: e2 } = await sb.rpc('kasa_admin_set_spot_office', { p_id: a.id, p_note: note, p_source_url: url });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadAdoptions();
+  }));
+}
+
+/* Dog feeding spots: waiting ones to approve or reject, approved ones to remove or mark as officially designated. */
+async function loadFeedingSpots(){
+  const el = document.getElementById('adFeeding');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_feeding_queue'), sb.rpc('kasa_feeding_spots')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [];
+  const where = f => esc([f.ward_no ? 'Ward ' + f.ward_no : f.block_name, f.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Caregiver</th><th>Where</th><th>Nearest school</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(f => `<tr>
+          <td><strong>${esc(f.name)}</strong><br><small>${esc(f.feed_time)} · ${esc(f.dogs)} dogs${f.helps_abc ? ' · helps with ABC' : ''} · sent ${esc(new Date(f.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(f.lat)}&mlon=${esc(f.lng)}#map=18/${esc(f.lat)}/${esc(f.lng)}" target="_blank" rel="noopener">${where(f)}</a><br><small>GPS ±${esc(f.accuracy_m)} m</small></td>
+          <td>${f.near_school ? `<span class="ad-bad">${esc(f.near_school_m)} m</span> ${esc(f.near_school)}` : '<small>none within 200 m</small>'}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-fd="${esc(f.id)}" data-fd-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-fd="${esc(f.id)}" data-fd-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((f, i) => `<tr>
+        <td><strong>${esc(f.name)}</strong> <small>${esc(f.feed_time)}</small>${f.designated ? `<br>Designated: ${esc(f.designated.note)} (<a href="${esc(f.designated.source_url)}" target="_blank" rel="noopener">source</a>)` : ''}</td>
+        <td><a href="kasa.html?at=${esc(f.lat)},${esc(f.lng)}" target="_blank" rel="noopener">${where(f)}</a></td>
+        <td style="white-space:nowrap;"><button data-fd-desig="${i}">${f.designated ? 'Change designation' : 'Mark designated'}</button>
+          <button class="ad-bad" data-fd-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-fd]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_feeding_spot', { p_id: Number(b.dataset.fd), p_action: b.dataset.fdAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadFeedingSpots();
+  }));
+  el.querySelectorAll('[data-fd-rm]').forEach(b => b.addEventListener('click', async () => {
+    const f = live[+b.dataset.fdRm];
+    const reason = prompt(`Reason for removing "${f.name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_feeding_spot', { p_id: f.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadFeedingSpots();
+  }));
+  el.querySelectorAll('[data-fd-desig]').forEach(b => b.addEventListener('click', async () => {
+    const f = live[+b.dataset.fdDesig];
+    const note = prompt('Who designated this spot? (e.g. "Ward 5 feeding spot, Purulia Municipality order 12/2026"). Leave empty to clear.', f.designated?.note || '');
+    if (note === null) return;
+    const url = note.trim() ? prompt('https link to the order, letter or minutes:', f.designated?.source_url || '') : '';
+    if (url === null) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_set_feeding_designation', { p_id: f.id, p_note: note, p_source_url: url });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadFeedingSpots();
   }));
 }
 
