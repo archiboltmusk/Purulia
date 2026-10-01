@@ -529,3 +529,16 @@ test('the home page follows the chosen district, with sourced figures', async ({
   await expect(page.locator('#reframe')).toBeVisible();
   await expect(page.locator('#homeAbout')).toBeHidden();
 });
+
+test('The Circle follows the chosen district, and asks for a source where none is published', async ({ page, backend }) => {
+  await page.goto('circle.html?d=bankura');
+  await expect(page.locator('#marriage .ci-facts')).toContainText('of the 20 West Bengal districts');
+  await expect(page.locator('#marriage .ci-src')).toContainText('Bankura');
+  await expect(page.locator('#water .ci-facts')).toContainText('Rural homes still waiting for a tap');
+  await expect(page.locator('#work .ci-facts')).toContainText('No published figure for Bankura yet');
+  for (const s of ['.an-sub', '#leaving', '#who', '.ci-list']) await expect(page.locator(s).first()).not.toContainText('Purulia');
+  await expect(page.locator('#circlePick')).toHaveValue('bankura');
+
+  await page.goto('circle.html?d=purulia');
+  await expect(page.locator('#marriage .ci-facts')).toContainText('63.6%');
+});
