@@ -979,6 +979,24 @@ check('a community registers as pending',
 check('pending communities are not public', q('select count(*) from public.kasa_public_communities')[0][0] == 0)
 check('coordinator contacts are never public',
       not {'coordinator_contact', 'coordinator_name', 'ip_hash'} & {r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_communities'")})
+cm_id = admin_sql("select id from kasa_private.communities order by created_at desc limit 1")[0][0]
+def cm_edit(**kw):
+    a = dict(p_id=str(cm_id), p_name='Ward 5 Youth Club', p_tagline='Sunday cleanups', p_about=None, p_all_district=True,
+             p_districts='{purulia,bankura}', p_wards='{}', p_blocks='{}',
+             p_links={'instagram': 'https://www.instagram.com/ward5', 'website': 'https://ward5.org', 'phone': '+91 98765 43210',
+                      'email': 'Hi@Ward5.org'}, p_logo=None, p_contact_name=None, p_contact_phone=None)
+    a.update(kw)
+    return a
+check('only moderators can edit a community', err(rpc, 'kasa_admin_update_community', uid=bob, **cm_edit()) == 'KASA_NOT_ADMIN')
+check('a community district must be in West Bengal',
+      err(rpc, 'kasa_admin_update_community', uid=mod, **cm_edit(p_districts='{atlantis}')) == 'KASA_BAD_FORM')
+check('a public phone must be a real number',
+      err(rpc, 'kasa_admin_update_community', uid=mod, **cm_edit(p_links={'phone': '123'})) == 'KASA_BAD_LINK')
+rpc('kasa_admin_update_community', uid=mod, **cm_edit())
+cm = admin_sql("select districts, links->>'phone', links->>'email', logo, coordinator_contact from kasa_private.communities where id = %s", (cm_id,))[0]
+check('a moderator edit sets districts and contact links, keeping logo and coordinator',
+      cm[0] == ['bankura', 'purulia'] and cm[1] == '9876543210' and cm[2] == 'hi@ward5.org' and cm[3] == LOGO and cm[4] == '9876543210', cm)
+
 
 # ─────────────────────── Claim integrity (rings, cooldown, night, flags, times) ───────────────────────
 def final_after(ts):
