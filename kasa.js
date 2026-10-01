@@ -5166,20 +5166,14 @@ function wireUI(){
   });
 }
 
-// Centre the map on the visitor, only if they already allowed location (no prompt on page load).
-/* On the first visit the phone asks for location straight away (once per device), so the
-   map opens where the person stands. After that it only uses location already allowed.
-   The position stays on the phone; nothing is sent until they file a report. */
+/* Every plain visit asks for location (the phone shows its own prompt until allowed) and flies
+   the map to street level where the person stands; the place picker follows. Denied or failed
+   keeps the home-place view. The position stays on the phone; nothing is sent until they file a report. */
 async function locateOnOpen(){
   try {
     if (!navigator.geolocation) return;
     const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
     if (st === 'denied') return startTips();
-    if (st === 'prompt'){
-      let asked = false;
-      try { asked = localStorage.getItem('kasa_loc_asked') === '1'; localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {}
-      if (asked) return startTips();
-    }
     showToast(t('locating_you'));
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
@@ -5189,7 +5183,7 @@ async function locateOnOpen(){
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();
       if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
-      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 15), duration: 1200 });
+      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 16), duration: 1200 });
       // Where they are becomes their home place for next time (once the page has been renamed after it).
       mainMap.once('moveend', () => setTimeout(() => {
         if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
