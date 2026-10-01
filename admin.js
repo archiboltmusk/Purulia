@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1178,6 +1178,38 @@ async function loadOfficials(){
       p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadOfficials();
+  }));
+}
+
+async function loadTranslations(){
+  const el = document.getElementById('adTranslations');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_translation_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  const en = (s) => s.ns === 'kasa' ? (window.KASA_I18N?.en?.[s.key] || '') : '';
+  const toks = (s) => (String(s).match(/\{\w+\}|\[\[\d+\|/g) || []).sort().join(' ');
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Line</th><th>On the site now</th><th>Suggested (edit before approving)</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(s => `<tr>
+          <td><small>${esc(s.ns)} · ${esc(s.key)}${s.page ? ` · <a href="${esc(s.page)}" target="_blank" rel="noopener">page</a>` : ''}<br>sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small>${en(s) ? `<br><small lang="en">EN: ${esc(en(s))}</small>` : ''}</td>
+          <td lang="bn">${esc(s.current)}</td>
+          <td><textarea class="ad-input" data-tr-text="${esc(s.id)}" lang="bn" rows="3" style="width:100%;">${esc(s.suggested)}</textarea>${s.note ? `<br><small>Why: ${esc(s.note)}</small>` : ''}${toks(s.suggested) !== toks(s.current) ? '<br><small style="color:#b3261e">{…} or [[n|…]] parts differ from the current line</small>' : ''}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-tr="${esc(s.id)}" data-tr-act="approve">✓ Use it</button>
+            <button class="ad-bad" data-tr="${esc(s.id)}" data-tr-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-tr]').forEach(b => b.addEventListener('click', async () => {
+    const id = b.dataset.tr;
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_translation', { p_id: Number(id), p_action: b.dataset.trAct,
+      p_text: el.querySelector(`[data-tr-text="${id}"]`).value });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadTranslations();
   }));
 }
 

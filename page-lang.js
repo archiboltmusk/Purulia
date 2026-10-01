@@ -48,5 +48,7 @@
   else { const wrap = document.createElement('div'); wrap.className = 'pl-lang-top'; wrap.appendChild(box); (document.querySelector('main') || document.body).prepend(wrap); }
 
   window.PAGE_LANG = () => lang;
+  window.PAGE_LANG_EN = (k) => { const el = els.find(e => e.dataset.t === k); return el ? orig.get(el) : ''; };
+  document.addEventListener('kasa-translations', () => apply(lang));  // approved reader fixes (translate-fix.js)
   apply(lang);
 })();

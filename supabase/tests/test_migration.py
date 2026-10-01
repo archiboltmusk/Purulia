@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2281,6 +2281,32 @@ check('a name cannot be reviewed twice', err(rpc, 'kasa_admin_review_official', 
 for i in range(10):
     send_official(ip='10.82.0.9')
 check('one network can add at most ten names a day', err(send_official, ip='10.82.0.9') == 'KASA_RATE_LIMIT')
+
+# ── Readers fix the Bengali wording ─────────────────────────────────────────
+def send_tr(ip='10.91.0.1', **kw):
+    args = dict(p_ns='kasa', p_key='hero_cta', p_current='এখনই রিপোর্ট করুন', p_suggested='এখনই জানান', p_note=None, p_page='/kasa.html')
+    args.update(kw)
+    return rpc('kasa_suggest_translation', ip=ip, **args)
+check('a suggestion must name a line', err(send_tr, p_key='bad key!') == 'KASA_BAD_FORM')
+check('a suggestion must change the text', err(send_tr, p_suggested='এখনই রিপোর্ট করুন') == 'KASA_BAD_FORM')
+check('anyone can suggest better wording; it waits for a moderator', send_tr() == {'ok': True, 'status': 'pending'})
+send_tr(ip='10.91.0.2', p_ns='ward', p_key='w4', p_current=', সবার সামনে হিসাব', p_suggested=', সবার সামনে খতিয়ান')
+check('nothing changes before a moderator approves', rpc('kasa_translations', p_lang='bn') == {})
+check('the public cannot read waiting suggestions', refused(err(q, 'select * from kasa_private.translation_suggestions')))
+check('non-admins cannot see the wording queue', err(rpc, 'kasa_admin_translation_queue', uid=user()) == 'KASA_NOT_ADMIN')
+tq = rpc('kasa_admin_translation_queue', uid=mod)
+tk = next(x for x in tq if x['key'] == 'hero_cta')
+tw = next(x for x in tq if x['key'] == 'w4')
+check('moderators see the old and new wording, not the network', tk['current'] and 'ip_hash' not in tk, tk.keys())
+check('non-admins cannot approve wording', err(rpc, 'kasa_admin_review_translation', uid=user(), p_id=tk['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_translation', uid=mod, p_id=tk['id'], p_action='approve', p_text='এখনই জানান ')
+rpc('kasa_admin_review_translation', uid=mod, p_id=tw['id'], p_action='reject')
+got = rpc('kasa_translations', p_lang='bn')
+check('approved wording replaces the line; rejected wording does not', got == {'kasa': {'hero_cta': 'এখনই জানান'}}, got)
+check('wording cannot be reviewed twice', err(rpc, 'kasa_admin_review_translation', uid=mod, p_id=tk['id'], p_action='approve') == 'KASA_NOT_FOUND')
+for i in range(30):
+    send_tr(ip='10.92.0.9')
+check('one network can send at most thirty wording fixes a day', err(send_tr, ip='10.92.0.9') == 'KASA_RATE_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
