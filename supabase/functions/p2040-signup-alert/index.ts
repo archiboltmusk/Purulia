@@ -1,4 +1,4 @@
-// Supabase Edge Function: emails new Purulia 2040 Join / Follow sign-ups via Resend.
+// Supabase Edge Function: emails new Parishkar Bengal Join / Follow sign-ups via Resend.
 //
 // The database calls this after every sign-up. It sends only sign-ups the
 // database hands out (saved and not yet emailed), so calling it directly
@@ -7,7 +7,7 @@
 // Deploy:  supabase functions deploy p2040-signup-alert
 // Secrets: RESEND_API_KEY                 (required; from resend.com → API Keys)
 //          SIGNUP_ALERT_TO                (optional; default thelosthillproject@gmail.com)
-//          SIGNUP_ALERT_FROM              (optional; default "Purulia 2040 <onboarding@resend.dev>",
+//          SIGNUP_ALERT_FROM              (optional; default "Parishkar Bengal <onboarding@resend.dev>",
 //                                          which only delivers to your own Resend account's address
 //                                          until you verify a domain in Resend)
 
@@ -17,7 +17,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const TO = Deno.env.get('SIGNUP_ALERT_TO') || 'thelosthillproject@gmail.com';
-const FROM = Deno.env.get('SIGNUP_ALERT_FROM') || 'Purulia 2040 <onboarding@resend.dev>';
+const FROM = Deno.env.get('SIGNUP_ALERT_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 
 interface Signup { id: string; kind: 'join' | 'follow'; name: string | null; role: string | null; location: string | null;
   contact: string; message: string | null; created_at: string }
@@ -28,10 +28,10 @@ const reply = (status: number, body: unknown) =>
 function render(s: Signup): { subject: string; text: string } {
   const when = new Date(s.created_at).toLocaleString('en-IN', { timeZone: 'Asia/Kolkata' });
   if (s.kind === 'follow') {
-    return { subject: `New follower: ${s.contact}`, text: `New follow sign-up on Purulia 2040\n\nEmail: ${s.contact}\nWhen: ${when} IST\n` };
+    return { subject: `New follower: ${s.contact}`, text: `New follow sign-up on Parishkar Bengal\n\nEmail: ${s.contact}\nWhen: ${when} IST\n` };
   }
   const lines = [
-    'New Join sign-up on Purulia 2040', '',
+    'New Join sign-up on Parishkar Bengal', '',
     `Name: ${s.name ?? ''}`, `Role: ${s.role ?? ''}`, `Location: ${s.location ?? 'Not provided'}`,
     `Contact: ${s.contact}`, `When: ${when} IST`, '', 'Message:', s.message ?? '(none)', '',
     'All sign-ups: https://archiboltmusk.github.io/Purulia/admin.html',
