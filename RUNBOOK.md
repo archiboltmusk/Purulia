@@ -6,7 +6,7 @@ For whoever runs the site next. Not published on the website (`*.md` files are e
 
 | Part | Where | Notes |
 |---|---|---|
-| Website (Purulia 2040, Parishkar map, analytics, admin) | GitHub Pages, from `main` only | `.github/workflows/github-pages.yml` deploys the repo root on every push to `main`. |
+| Website (blueprint pages, Parishkar map, analytics, admin) | GitHub Pages, from `main` only | `.github/workflows/github-pages.yml` deploys the repo root on every push to `main`. |
 | Database, sign-in, photo storage | Supabase project `cnmikcyvyamplbldiivp` | All rules run in Postgres functions; the pages can't skip them. |
 | Edge functions | Supabase | `kasa-photo-token`, `kasa-photo-check`, `kasa-notify`, `kasa-cleanup`, `p2040-signup-alert` |
 | Claim finalisation | `pg_cron` job `kasa-finalize`, every 10 min | Calls `public.kasa_finalize_due()`. |

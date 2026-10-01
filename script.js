@@ -133,12 +133,12 @@ function showAud(id,btn){
 /* ── Share section ── */
 var shareMsgs={
   doctors:'77.9% of young children anaemic (NFHS-5). Purulia needs doctors — send this to every doctor from Purulia you know:',
-  engineers:'Build water systems from scratch. Design solar grids for tribal hamlets. First-principles engineering that actually matters. Purulia 2040:',
-  architects:'A district being redesigned from zero. Medical college, railway station, crafts cluster — all open briefs, right now. Purulia 2040:',
+  engineers:'Build water systems from scratch. Design solar grids for tribal hamlets. First-principles engineering that actually matters. Parishkar Bengal:',
+  architects:'A district being redesigned from zero. Medical college, railway station, crafts cluster — all open briefs, right now. Parishkar Bengal:',
   politicians:'The schemes exist. Purulia still ranks last in West Bengal on child anaemia and women\'s literacy. This blueprint shows how to deliver:',
   students:'Every system is telling young people from Purulia to leave. This is the counter-argument — share with every student you know:',
-  entrepreneurs:'Structural gaps mean first-mover advantages. The enterprise case for Purulia 2040:',
-  business:'Dry laterite land, a state single window for clearances, and forest produce that leaves the district raw. The business case for Purulia 2040:',
+  entrepreneurs:'Structural gaps mean first-mover advantages. The enterprise case for Parishkar Bengal:',
+  business:'Dry laterite land, a state single window for clearances, and forest produce that leaves the district raw. The business case for Parishkar Bengal:',
   artists:'Chhau is on UNESCO\'s heritage list. Dokra is an ancient lost-wax craft. The world wants what Purulia has — it just doesn\'t know where to find it yet:',
   diaspora:'For everyone from Purulia who left. The sentence "there\'s nothing here for someone with ambition" is becoming past tense:',
   impact:'If this model works in Purulia, it can work in similar districts across India. A case for patient impact capital:'
@@ -146,10 +146,10 @@ var shareMsgs={
 
 function shareSection(id){
   var url=window.location.origin+window.location.pathname+'#aud-'+id;
-  var msg=shareMsgs[id]||'A complete transformation blueprint for Purulia, West Bengal — Purulia 2040:';
+  var msg=shareMsgs[id]||'A complete transformation blueprint for Purulia, West Bengal — Parishkar Bengal:';
 
   if(navigator.share&&/Mobi|Android/i.test(navigator.userAgent)){
-    navigator.share({title:'Purulia 2040',text:msg,url:url});
+    navigator.share({title:'Parishkar Bengal',text:msg,url:url});
     return;
   }
 
@@ -392,7 +392,7 @@ document.addEventListener('click',function(e){
   var baseUrl=window.location.origin+window.location.pathname.replace('index.html','');
   var stripMsgs={
     'index.html':'A public record of civic problems in Purulia — every report visible, every ward ranked. Worth 5 minutes:',
-    'blueprint.html':'The full 15-year plan to transform a district — six pillars, real funding sources. Purulia 2040:'
+    'blueprint.html':'The full 15-year plan to transform a district — six pillars, real funding sources. Parishkar Bengal:'
   };
   var msg=stripMsgs[page]||stripMsgs['index.html'];
   var url=baseUrl.endsWith('/')?baseUrl:baseUrl+'/';
