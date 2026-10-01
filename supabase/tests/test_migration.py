@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2062,6 +2062,25 @@ check('a grievance number is kept once, tidied, and shown on the report without 
 check('a made-up portal or a junk number is refused',
       err(rpc, 'kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='whatsapp', p_number='1234') == 'KASA_BAD_FORM'
       and err(rpc, 'kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='rti', p_number='<b>x</b>') == 'KASA_BAD_FORM')
+# ─────────────────────────────── Cleanup drives ────────────────────────────
+dv = dict(title='Test drive', starts_at='2099-10-02T06:00:00+05:30', meet_point='Bus stand gate', end_point='Market temple',
+          organisers=[{'name': 'Test group', 'url': 'https://example.com/g'}], provided='Gloves and masks',
+          route=[[86.36, 23.33], [86.365, 23.335]])
+check('only moderators post a cleanup drive',
+      err(rpc, 'kasa_admin_save_drive', uid=bob, p_id=None, p_drive=dv) == 'KASA_NOT_ADMIN')
+check('a drive needs a meeting point, and organiser links must be https',
+      err(rpc, 'kasa_admin_save_drive', uid=mod, p_id=None, p_drive={**dv, 'meet_point': ' '}) == 'KASA_BAD_FORM'
+      and err(rpc, 'kasa_admin_save_drive', uid=mod, p_id=None, p_drive={**dv, 'organisers': [{'name': 'x', 'url': 'javascript:1'}]}) == 'KASA_BAD_FORM'
+      and err(rpc, 'kasa_admin_save_drive', uid=mod, p_id=None, p_drive={**dv, 'route': [[0, 0], [1, 1]]}) == 'KASA_BAD_FORM')
+drv = rpc('kasa_admin_save_drive', uid=mod, p_id=None, p_drive=dv)['id']
+rpc('kasa_drive_going', ip='10.9.0.1', p_id=drv)
+going = rpc('kasa_drive_going', ip='10.9.0.1', p_id=drv)['going']
+rpc('kasa_admin_save_drive', uid=mod, p_id=drv, p_drive={**dv, 'route': None, 'title': 'Edited drive'})
+pub = [d for d in rpc('kasa_drives') if d['id'] == drv]
+check('a posted drive is on the map, edits show, and "I\'m coming" counts once per network',
+      going == 1 and pub and pub[0]['title'] == 'Edited drive' and pub[0]['route'] is None and pub[0]['going'] == 1)
+rpc('kasa_admin_save_drive', uid=mod, p_id=drv, p_drive={**dv, 'hidden': True})
+check('a hidden drive leaves the map', not any(d['id'] == drv for d in rpc('kasa_drives')))
 # ─────────────────────────────── Promises page ─────────────────────────────
 pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
               p_made_on='2026-08-01', p_source_url='https://example.com/said')
