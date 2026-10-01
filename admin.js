@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -728,6 +728,63 @@ async function loadAdoptions(){
   }));
 }
 
+/* Dog feeding spots: waiting ones to approve or reject, approved ones to remove or mark as officially designated. */
+async function loadFeedingSpots(){
+  const el = document.getElementById('adFeeding');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_feeding_queue'), sb.rpc('kasa_feeding_spots')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [];
+  const where = f => esc([f.ward_no ? 'Ward ' + f.ward_no : f.block_name, f.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Caregiver</th><th>Where</th><th>Nearest school</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(f => `<tr>
+          <td><strong>${esc(f.name)}</strong><br><small>${esc(f.feed_time)} · ${esc(f.dogs)} dogs${f.helps_abc ? ' · helps with ABC' : ''} · sent ${esc(new Date(f.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(f.lat)}&mlon=${esc(f.lng)}#map=18/${esc(f.lat)}/${esc(f.lng)}" target="_blank" rel="noopener">${where(f)}</a><br><small>GPS ±${esc(f.accuracy_m)} m</small></td>
+          <td>${f.near_school ? `<span class="ad-bad">${esc(f.near_school_m)} m</span> ${esc(f.near_school)}` : '<small>none within 200 m</small>'}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-fd="${esc(f.id)}" data-fd-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-fd="${esc(f.id)}" data-fd-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((f, i) => `<tr>
+        <td><strong>${esc(f.name)}</strong> <small>${esc(f.feed_time)}</small>${f.designated ? `<br>Designated: ${esc(f.designated.note)} (<a href="${esc(f.designated.source_url)}" target="_blank" rel="noopener">source</a>)` : ''}</td>
+        <td><a href="kasa.html?at=${esc(f.lat)},${esc(f.lng)}" target="_blank" rel="noopener">${where(f)}</a></td>
+        <td style="white-space:nowrap;"><button data-fd-desig="${i}">${f.designated ? 'Change designation' : 'Mark designated'}</button>
+          <button class="ad-bad" data-fd-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-fd]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_feeding_spot', { p_id: Number(b.dataset.fd), p_action: b.dataset.fdAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadFeedingSpots();
+  }));
+  el.querySelectorAll('[data-fd-rm]').forEach(b => b.addEventListener('click', async () => {
+    const f = live[+b.dataset.fdRm];
+    const reason = prompt(`Reason for removing "${f.name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_feeding_spot', { p_id: f.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadFeedingSpots();
+  }));
+  el.querySelectorAll('[data-fd-desig]').forEach(b => b.addEventListener('click', async () => {
+    const f = live[+b.dataset.fdDesig];
+    const note = prompt('Who designated this spot? (e.g. "Ward 5 feeding spot, Purulia Municipality order 12/2026"). Leave empty to clear.', f.designated?.note || '');
+    if (note === null) return;
+    const url = note.trim() ? prompt('https link to the order, letter or minutes:', f.designated?.source_url || '') : '';
+    if (url === null) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_set_feeding_designation', { p_id: f.id, p_note: note, p_source_url: url });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadFeedingSpots();
+  }));
+}
+
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
 async function loadLatest(){
   const el = document.getElementById('adLatest');
@@ -1083,12 +1140,15 @@ async function loadCommunities(){
   const { data, error } = await sb.rpc('kasa_admin_communities');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No communities registered yet.</div>'; return; }
-  const where = c => c.all_district ? 'All of Purulia district'
-    : [...(c.wards || []).map(w => 'Ward ' + w), ...(c.blocks || []).map(b => b + ' block')].join(', ');
+  const dists = c => (c.districts?.length ? c.districts : ['purulia']).map(d => CM_DISTRICTS[d] || d);
+  const where = c => c.all_district ? 'All of ' + dists(c).join(' + ')
+    : [...(c.wards || []).map(w => 'Ward ' + w), ...(c.blocks || []).map(b => b + ' block'),
+       ...dists(c).filter(d => d !== 'Purulia')].join(', ');
   const logo = c => /^data:image\/(jpeg|png|webp);base64,/.test(c.logo || '')
     ? `<img src="${esc(c.logo)}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` : '—';
-  const links = c => Object.entries(c.links || {}).filter(([, u]) => /^https:\/\//i.test(u))
-    .map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(k)}</a>`).join('<br>')
+  const links = c => Object.entries(c.links || {}).map(([k, u]) => /^https:\/\//i.test(u)
+      ? `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(k)}</a>`
+      : k === 'phone' || k === 'email' ? `${esc(k)}: ${esc(u)}` : '').filter(Boolean).join('<br>')
     || esc(c.public_contact || '');
   el.innerHTML = `
     <table class="ad-table">
@@ -1102,6 +1162,7 @@ async function loadCommunities(){
           <td>${esc(c.coordinator_name || '')}<br>${/^[6-9][0-9]{9}$/.test(c.coordinator_contact || '')
             ? `<a href="tel:+91${esc(c.coordinator_contact)}">${esc(c.coordinator_contact)}</a>` : esc(c.coordinator_contact)}</td>
           <td style="white-space:nowrap;">
+            <button data-group-edit="${esc(c.id)}">✎ Edit</button>
             ${c.status !== 'approved' ? `<button class="ad-ok" data-group="${esc(c.id)}" data-group-act="approve">✓ Approve</button>` : ''}
             ${c.status !== 'hidden' ? `<button class="ad-bad" data-group="${esc(c.id)}" data-group-act="hide">✕ Hide</button>` : ''}
           </td></tr>`).join('')}
@@ -1113,6 +1174,211 @@ async function loadCommunities(){
     const { error: e2 } = await sb.rpc('kasa_admin_moderate_community', { p_id: b.dataset.group, p_action: b.dataset.groupAct, p_note: note });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadCommunities();
+  }));
+  el.querySelectorAll('[data-group-edit]').forEach(b => b.addEventListener('click', () => {
+    const tr = b.closest('tr');
+    if (tr.nextElementSibling?.classList.contains('cm-edit')) { tr.nextElementSibling.remove(); return; }
+    const c = data.find(x => x.id === b.dataset.groupEdit);
+    const row = document.createElement('tr');
+    row.className = 'cm-edit';
+    row.innerHTML = `<td colspan="7">${communityForm(c)}</td>`;
+    tr.after(row);
+    wireCommunityForm(row, c);
+  }));
+}
+
+// Moderator edit for a volunteer community (kasa_admin_update_community).
+const CM_DISTRICTS = { alipurduar: 'Alipurduar', bankura: 'Bankura', birbhum: 'Birbhum', 'cooch-behar': 'Cooch Behar',
+  'dakshin-dinajpur': 'Dakshin Dinajpur', darjeeling: 'Darjeeling', hooghly: 'Hooghly', howrah: 'Howrah', jalpaiguri: 'Jalpaiguri',
+  jhargram: 'Jhargram', kalimpong: 'Kalimpong', kolkata: 'Kolkata', malda: 'Malda', murshidabad: 'Murshidabad', nadia: 'Nadia',
+  'north-24-parganas': 'North 24 Parganas', 'paschim-bardhaman': 'Paschim Bardhaman', 'paschim-medinipur': 'Paschim Medinipur',
+  'purba-bardhaman': 'Purba Bardhaman', 'purba-medinipur': 'Purba Medinipur', purulia: 'Purulia',
+  'south-24-parganas': 'South 24 Parganas', 'uttar-dinajpur': 'Uttar Dinajpur' };
+const CM_BLOCKS = ['Arsha', 'Bagmundi', 'Balarampur', 'Barabazar', 'Bundwan', 'Hura', 'Jaipur', 'Jhalda I', 'Jhalda II', 'Kashipur',
+  'Manbazar I', 'Manbazar II', 'Neturia', 'Para', 'Puncha', 'Purulia I', 'Purulia II', 'Raghunathpur I', 'Raghunathpur II', 'Santuri'];
+const CM_LINKS = [['website', 'Website (https://…)'], ['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X / Twitter'],
+  ['youtube', 'YouTube'], ['whatsapp', 'WhatsApp group / wa.me link'], ['telegram', 'Telegram'], ['linkedin', 'LinkedIn'],
+  ['phone', 'Public phone'], ['email', 'Public email']];
+function communityForm(c){
+  const ds = new Set(c.districts?.length ? c.districts : ['purulia']);
+  const inp = (k, v, ph, type = 'text') => `<input data-f="${k}" type="${type}" value="${esc(v || '')}" placeholder="${esc(ph)}" style="width:100%;">`;
+  return `<div style="display:grid;gap:.5rem;max-width:720px;">
+    <label>Name ${inp('name', c.name, 'Community name')}</label>
+    <label>One line ${inp('tagline', c.tagline, 'What they do')}</label>
+    <label>About <textarea data-f="about" rows="3" style="width:100%;">${esc(c.description || '')}</textarea></label>
+    <fieldset><legend>Districts</legend>${Object.entries(CM_DISTRICTS).map(([k, n]) =>
+      `<label style="display:inline-block;margin-right:.6rem;"><input type="checkbox" data-dist="${k}"${ds.has(k) ? ' checked' : ''}> ${esc(n)}</label>`).join('')}
+      <br><label><input type="checkbox" data-f="all"${c.all_district ? ' checked' : ''}> Works across the whole of every ticked district</label></fieldset>
+    <fieldset data-areas><legend>Or Purulia wards / blocks</legend>
+      <label>Wards (comma separated, 1–23) ${inp('wards', (c.wards || []).join(', '), 'e.g. 3, 5, 12')}</label>
+      ${CM_BLOCKS.map(b => `<label style="display:inline-block;margin-right:.6rem;"><input type="checkbox" data-block="${esc(b)}"${(c.blocks || []).includes(b) ? ' checked' : ''}> ${esc(b)}</label>`).join('')}
+    </fieldset>
+    <fieldset><legend>Public links and contact</legend>${CM_LINKS.map(([k, l]) =>
+      `<label>${esc(l)} ${inp('l_' + k, c.links?.[k], k === 'phone' ? '10-digit mobile or STD landline' : k === 'email' ? 'name@example.org' : 'https://…',
+        k === 'phone' ? 'tel' : k === 'email' ? 'email' : 'url')}</label>`).join('')}</fieldset>
+    <label>Replace logo <input data-f="logo" type="file" accept="image/*"></label>
+    <fieldset><legend>Coordinator (private)</legend>
+      <label>Name ${inp('cname', c.coordinator_name, 'Coordinator name')}</label>
+      <label>Mobile ${inp('cphone', c.coordinator_contact, '10-digit mobile', 'tel')}</label></fieldset>
+    <div><button class="ad-ok" data-save>Save changes</button> <span data-msg></span></div></div>`;
+}
+function wireCommunityForm(row, c){
+  const f = k => row.querySelector(`[data-f="${k}"]`);
+  const areas = row.querySelector('[data-areas]');
+  const sync = () => { areas.hidden = f('all').checked; };
+  f('all').addEventListener('change', sync); sync();
+  let logo = null;
+  f('logo').addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.naturalWidth, img.naturalHeight), cv = document.createElement('canvas');
+      cv.width = cv.height = 256;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 256, 256);
+      ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 256, 256);
+      URL.revokeObjectURL(url);
+      logo = cv.toDataURL('image/jpeg', 0.85);
+    };
+    img.src = url;
+  });
+  row.querySelector('[data-save]').addEventListener('click', async () => {
+    const msg = row.querySelector('[data-msg]');
+    const links = {};
+    for (const [k] of CM_LINKS){
+      let v = f('l_' + k).value.trim();
+      if (!v) continue;
+      if (k !== 'phone' && k !== 'email' && !/^https?:\/\//i.test(v)) v = 'https://' + v;
+      links[k] = v.replace(/^http:/i, 'https:');
+    }
+    const all = f('all').checked;
+    const { error } = await sb.rpc('kasa_admin_update_community', {
+      p_id: c.id, p_name: f('name').value, p_tagline: f('tagline').value, p_about: f('about').value || null,
+      p_all_district: all, p_districts: [...row.querySelectorAll('[data-dist]:checked')].map(i => i.dataset.dist),
+      p_wards: all ? [] : f('wards').value.split(/[^0-9]+/).filter(Boolean).map(Number),
+      p_blocks: all ? [] : [...row.querySelectorAll('[data-block]:checked')].map(i => i.dataset.block),
+      p_links: links, p_logo: logo, p_contact_name: f('cname').value || null, p_contact_phone: f('cphone').value || null });
+    if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
+    loadCommunities();
+  });
+}
+
+/* ── Cleanup drives: the form draws the route on a map (tap points; "Follow roads" asks the
+   public OSM foot router for each leg). Times are typed in India time. ── */
+const drive = { id: null, route: [], undo: [], map: null, list: [] };
+const istInput = iso => new Date(new Date(iso).getTime() + 5.5 * 3600e3).toISOString().slice(0, 16);
+function driveLenKm(r){
+  let m = 0;
+  for (let i = 1; i < r.length; i++){
+    const k = 111320 * Math.cos(r[i][1] * Math.PI / 180);
+    m += Math.hypot((r[i][0] - r[i - 1][0]) * k, (r[i][1] - r[i - 1][1]) * 110540);
+  }
+  return (m / 1000).toFixed(2);
+}
+function drawAdminRoute(){
+  document.getElementById('adDriveLen').textContent = drive.route.length > 1 ? `${driveLenKm(drive.route)} km` : drive.route.length ? 'Tap the next point' : 'Tap the start on the map';
+  const src = drive.map?.getSource('route');
+  if (!src) return;
+  const r = drive.route;
+  src.setData({ type: 'FeatureCollection', features: [
+    ...(r.length > 1 ? [{ type: 'Feature', geometry: { type: 'LineString', coordinates: r }, properties: {} }] : []),
+    ...(r.length ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: r[0] }, properties: {} },
+                    { type: 'Feature', geometry: { type: 'Point', coordinates: r[r.length - 1] }, properties: {} }] : [])] });
+}
+function loadMaplibre(){
+  if (window.maplibregl) return Promise.resolve();
+  return new Promise((ok, bad) => {
+    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+    const js = document.createElement('script'); js.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+    js.onload = ok; js.onerror = bad; document.head.append(css, js);
+  });
+}
+async function initDriveMap(){
+  if (drive.map) return;
+  await loadMaplibre();
+  drive.map = new maplibregl.Map({ container: 'adDriveMap', style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: (window.CITY?.mapCenter) || [86.3654, 23.3320], zoom: 14 });
+  drive.map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
+  drive.map.on('load', () => {
+    drive.map.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    drive.map.addLayer({ id: 'route-line', type: 'line', source: 'route', filter: ['==', ['geometry-type'], 'LineString'],
+      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#1f78b4', 'line-width': 5 } });
+    drive.map.addLayer({ id: 'route-ends', type: 'circle', source: 'route', filter: ['==', ['geometry-type'], 'Point'],
+      paint: { 'circle-radius': 6, 'circle-color': '#1f78b4', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
+    drawAdminRoute();
+  });
+  drive.map.on('click', async e => {
+    const p = [+e.lngLat.lng.toFixed(6), +e.lngLat.lat.toFixed(6)], last = drive.route[drive.route.length - 1];
+    drive.undo.push(drive.route.length);
+    if (last && document.getElementById('adDriveSnap').checked){
+      try {
+        const r = await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${last[0]},${last[1]};${p[0]},${p[1]}?overview=full&geometries=geojson`).then(x => x.json());
+        const c = r.routes?.[0]?.geometry?.coordinates;
+        if (c?.length) { drive.route.push(...c.slice(1).map(q => [+q[0].toFixed(6), +q[1].toFixed(6)])); drawAdminRoute(); return; }
+      } catch (err) {}
+      document.getElementById('adDriveMsg').textContent = 'Could not follow roads for that leg; drew a straight line.';
+    }
+    drive.route.push(p);
+    drawAdminRoute();
+  });
+}
+function editDrive(d){
+  drive.id = d?.id || null;
+  const v = (id, x) => { document.getElementById(id).value = x || ''; };
+  v('adDriveTitle', d?.title); v('adDriveStart', d ? istInput(d.starts_at) : ''); v('adDriveMeet', d?.meet_point); v('adDriveEnd', d?.end_point);
+  v('adDriveOrgs', (d?.organisers || []).map(o => o.url ? `${o.name} | ${o.url}` : o.name).join('\n'));
+  v('adDriveProvided', d?.provided); v('adDriveNotes', d?.notes);
+  document.getElementById('adDriveHidden').checked = !!d?.hidden;
+  document.getElementById('adDriveNew').hidden = !d;
+  document.getElementById('adDriveSave').textContent = d ? 'Save changes' : 'Save drive';
+  drive.route = (d?.route || []).slice(); drive.undo = [];
+  drawAdminRoute();
+  if (drive.map && drive.route.length > 1){
+    const xs = drive.route.map(p => p[0]), ys = drive.route.map(p => p[1]);
+    drive.map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 40, maxZoom: 17 });
+  }
+}
+async function loadDrives(){
+  const el = document.getElementById('adDrives');
+  if (!el) return;
+  if (!loadDrives.wired){
+    loadDrives.wired = true;
+    initDriveMap().catch(() => { document.getElementById('adDriveMap').textContent = 'Map did not load.'; });
+    document.getElementById('adDriveUndo').onclick = () => { if (drive.undo.length){ drive.route.length = drive.undo.pop(); drawAdminRoute(); } };
+    document.getElementById('adDriveClear').onclick = () => { drive.route = []; drive.undo = []; drawAdminRoute(); };
+    document.getElementById('adDriveNew').onclick = () => editDrive(null);
+    document.getElementById('adDriveForm').addEventListener('submit', async e => {
+      e.preventDefault();
+      const msg = document.getElementById('adDriveMsg'), val = id => document.getElementById(id).value.trim();
+      const organisers = val('adDriveOrgs').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
+        const [name, url] = l.split('|').map(x => x.trim());
+        return url ? { name, url } : { name };
+      });
+      const { error } = await sb.rpc('kasa_admin_save_drive', { p_id: drive.id, p_drive: {
+        title: val('adDriveTitle'), starts_at: val('adDriveStart') + ':00+05:30', meet_point: val('adDriveMeet'),
+        end_point: val('adDriveEnd'), organisers, provided: val('adDriveProvided'), notes: val('adDriveNotes'),
+        route: drive.route.length > 1 ? drive.route : null, hidden: document.getElementById('adDriveHidden').checked } });
+      if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
+      msg.textContent = 'Saved. It is on the report map now' + (drive.route.length > 1 ? '.' : ' (no route drawn yet).');
+      editDrive(null);
+      loadDrives();
+    });
+  }
+  const { data, error } = await sb.rpc('kasa_admin_drives');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  drive.list = data || [];
+  if (!drive.list.length){ el.innerHTML = '<div class="ad-empty">No drives yet.</div>'; return; }
+  el.innerHTML = `<table class="ad-table"><thead><tr><th>Starts</th><th>Drive</th><th>Route</th><th>Coming</th><th></th></tr></thead><tbody>
+    ${drive.list.map(d => `<tr><td>${esc(new Date(d.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }))}</td>
+      <td><strong>${esc(d.title)}</strong>${d.hidden ? ' <small>(hidden)</small>' : ''}<br><small>${esc(d.meet_point)}${d.end_point ? ' → ' + esc(d.end_point) : ''}</small></td>
+      <td>${d.route ? driveLenKm(d.route) + ' km' : '<span style="color:var(--red)">not drawn</span>'}</td><td>${d.going}</td>
+      <td style="white-space:nowrap"><button class="ad-ok" data-drive-edit="${esc(d.id)}">✎ Edit</button>
+        <a class="ad-ok" style="padding:.4rem .6rem;border-radius:3px" href="kasa.html?drive=${esc(d.id)}" target="_blank" rel="noopener">View</a></td></tr>`).join('')}
+    </tbody></table>`;
+  el.querySelectorAll('[data-drive-edit]').forEach(b => b.addEventListener('click', () => {
+    editDrive(drive.list.find(d => d.id === b.dataset.driveEdit));
+    document.getElementById('adDriveForm').scrollIntoView({ behavior: 'smooth' });
   }));
 }
 
