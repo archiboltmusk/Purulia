@@ -29,6 +29,44 @@
   const cardUrl = code => `kasa.html?card=${encodeURIComponent(code)}`;
   const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
+  // Only Purulia's UDISE+ school list is loaded so far. Another district chosen on the map
+  // gets the official state and national figures and its own NFHS-5 schooling figures, not Purulia's list.
+  const PF = window.PlaceFacts;
+  if (PF){
+    await PF.load().catch(() => null);
+    const slug = PF.data ? PF.current() : 'purulia';
+    if (slug !== 'purulia'){ otherDistrict(PF.data.districts[slug], slug); return; }
+  }
+
+  function otherDistrict(d, slug){
+    const name = esc(d.name), N = PF.data.nfhs, v = N.districts[d.nfhs_district] || {};
+    document.title = `Schools in ${d.name} — Parishkar Bengal`;
+    const heads = () => {
+    document.querySelector('.an-title').innerHTML = `Schools in ${name}, <em>checked by residents</em>`;
+    document.querySelector('.an-head .an-sub').innerHTML = `The government's UDISE+ school list for ${name} is not on this page yet, so its schools can't be listed or checked here. Purulia's list was loaded from the district's UDISE+ spreadsheet; if you can get ${name}'s, <a href="grievance.html">send it</a>. Meanwhile, the official West Bengal and India figures are below. <a href="schools.html?d=purulia">See Purulia's schools</a>.`;
+    set('sc-updated', '');
+    ['sc-near', 'sc-list'].forEach(id => { document.getElementById(id).hidden = true; });
+    document.querySelectorAll('.an-tiles, .an-grid > .an-card:not(#sc-compare-card)').forEach(e => { e.hidden = true; });
+    document.querySelector('#sc-compare-card h2').textContent = `West Bengal and India`;
+    document.querySelector('#sc-compare-card .an-card-sub').textContent = `What schools officially report, by state, and ${d.name}'s own schooling figures from the National Family Health Survey.`;
+    };
+    heads();
+    // The translations describe Purulia, so a language switch would put its text back.
+    document.addEventListener('pagelang', heads);
+    const school = [['women_literate', 'Women aged 15–49 who can read and write'], ['women_10yrs', 'Women with 10 or more years of schooling']]
+      .filter(([k]) => v[k] && v[k][0] != null)
+      .map(([k, l]) => { const r = PF.rank(k, d.nfhs_district); return `<li><strong>${v[k][0]}%</strong> ${esc(l)}: ${PF.rankText(r)} (median ${r.median}%, West Bengal ${N.west_bengal[k]}%).</li>`; }).join('');
+    const box = document.getElementById('sc-compare');
+    const rows = bench ? bench.indicators.map(i => {
+      const f = x => i.better === 'low' ? String(x) : pct(x);
+      return `<tr><td>${esc(i.label)}</td><td class="n"><strong>${f(i.west_bengal)}</strong> <small>#${i.west_bengal_rank} of ${i.of}</small></td><td class="n">${f(i.india)}</td>
+        <td>${esc(i.best.name)} <small>${f(i.best.value)}</small></td><td>${esc(i.worst.name)} <small>${f(i.worst.value)}</small></td></tr>`;
+    }).join('') : '';
+    box.innerHTML = (school ? `<ul class="sc-nfhs">${school}</ul><p class="an-card-sub">Source: <a href="${esc(PF.data.sources.nfhs.url)}" target="_blank" rel="noopener">NFHS-5 District Fact Sheet, ${esc(d.nfhs_district)} (2019–21)</a>.</p>` : '')
+      + (rows ? `<div class="an-table-wrap"><table class="an-table sc-cmp"><thead><tr><th>Indicator</th><th class="n">West Bengal</th><th class="n">India</th><th>Best state/UT</th><th>Worst state/UT</th></tr></thead><tbody>${rows}</tbody></table></div>
+        <p class="an-card-sub">Source: <a href="${esc(bench.source.url)}" target="_blank" rel="noopener">${esc(bench.source.title)}</a>, ${esc(bench.source.publisher)}.</p>` : '<div class="an-empty">The state and national figures could not be loaded.</div>');
+  }
+
   // The API returns at most 1,000 rows per request, so fetch the list in pages.
   const all = [];
   for (let from = 0; ; from += 1000){
