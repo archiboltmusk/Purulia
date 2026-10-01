@@ -35,7 +35,7 @@ test('communities list shows cards with logo, place and link chips, and filters 
   await expect(page.locator('.cm-card')).toHaveCount(3);
 
   await page.locator('.cm-lang [data-lang="bn"]').click();
-  await expect(page.locator('#cm-open')).toContainText('আপনার দল নথিভুক্ত করুন');
+  await expect(page.locator('#cm-open')).toContainText('নিজের দল যুক্ত করুন');
 });
 
 test('registering a community needs a link and a logo, and sends the private contact separately', async ({ page, backend }) => {
