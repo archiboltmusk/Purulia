@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2053,6 +2053,26 @@ admin_sql("insert into kasa_private.office_letter_log (office, week, sent_at, re
 ol = rpc('kasa_office_letters_public')
 check('anyone can see how many letters each office got, with no email addresses',
       any(o['office'] == 'dm' and o['letters'] >= 1 and o['last_count'] == 2 for o in ol) and 'emails' not in json.dumps(ol))
+admin_sql("update public.reports set moderation_status = 'review', created_at = now() - interval '4 days' where id = %s", (hc['id'],))
+backlog = admin_sql('select kasa_private.queue_backlog()')[0][0]
+check('a report held for review over 72 hours shows in the moderators\' daily nudge, and nobody else can ask for it',
+      backlog.get('Reports held for review', 0) >= 1 and err(rpc, 'kasa_queue_alert_claim') is not None)
+admin_sql("update public.reports set moderation_status = 'approved' where id = %s", (hc['id'],))
+rj = rpc('kasa_create_report', uid=wt_user, p_category=None, p_severity='minor',
+         p_lat=offset(-3300, 3400)[0], p_lng=offset(-3300, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
+         p_waste_type='no_signboard')
+check('a rural jobs site with no signboard is a rural_jobs report',
+      admin_sql('select category, waste_type from public.reports where id = %s', (rj['id'],))[0] == ('rural_jobs', 'no_signboard'))
+rid = str(rj['id'])
+rpc('kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='cpgrams', p_number=' pmopg/e/2026/0001234 ')
+rpc('kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='cpgrams', p_number='PMOPG/E/2026/0001234')
+dk = rpc('kasa_report_dockets', p_report_id=rid)
+check('a grievance number is kept once, tidied, and shown on the report without who added it',
+      len(dk) == 1 and dk[0]['number'] == 'PMOPG/E/2026/0001234' and dk[0]['portal'] == 'cpgrams' and 'ip_hash' not in dk[0])
+check('a made-up portal or a junk number is refused',
+      err(rpc, 'kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='whatsapp', p_number='1234') == 'KASA_BAD_FORM'
+      and err(rpc, 'kasa_add_docket', ip='10.8.0.1', p_report_id=rid, p_portal='rti', p_number='<b>x</b>') == 'KASA_BAD_FORM')
 # ─────────────────────────────── Promises page ─────────────────────────────
 pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
               p_made_on='2026-08-01', p_source_url='https://example.com/said')

@@ -86,7 +86,9 @@ const ISSUE_GROUPS = [
     ['no_medicine', '💊', 'health_centre', 'health centre medicine'],
     ['centre_closed', '🏥', 'health_centre', 'health centre closed shut'],
     ['pothole', '🚧', 'road', 'road broken pothole'],
-    ['light_out', '💡', 'streetlight', 'streetlight lamp dark']]]
+    ['light_out', '💡', 'streetlight', 'streetlight lamp dark'],
+    ['work_missing', '⛏', 'rural_jobs', 'mgnrega nrega 100 days job card work rural jobs'],
+    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs']]]
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
@@ -111,7 +113,8 @@ const CATEGORIES = {
   anganwadi:            { icon: '🧒', group: 'services', chain: 'icds',        fix: 'fixed' },
   health_centre:        { icon: '🏥', group: 'services', chain: 'health',      fix: 'fixed' },
   school:               { icon: '🏫', group: 'services', chain: 'education',   fix: 'repaired' },
-  toilet:               { icon: '🚻', group: 'services', chain: 'sanitation',  fix: 'fixed' }
+  toilet:               { icon: '🚻', group: 'services', chain: 'sanitation',  fix: 'fixed' },
+  rural_jobs:           { icon: '⛏', group: 'services', chain: 'rural_jobs',  fix: 'fixed' }
 };
 const GROUPS = ['clean', 'infra', 'services', 'illegal'];
 
@@ -128,7 +131,9 @@ const CHAINS = {
   police:       { agency: 'agency_police', nodes: ['ps', 'sdpo', 'sp'], note: 'note_112' },
   icds:         { agency: 'agency_icds', nodes: ['cdpo', 'dpo', 'dm'] },
   health:       { agency: 'agency_health', nodes: ['bmoh', 'cmoh', 'dm'] },
-  education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] }
+  education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] },
+  // MGNREGA: the gram panchayat runs the work, the BDO is the block's programme officer.
+  rural_jobs:   { agency: 'agency_panchayat', nodes: ['pradhan', 'bdo', 'dm'] }
 };
 
 /* Outside Purulia town the municipality's work falls to the gram panchayat and the block,
@@ -255,6 +260,7 @@ const state = {
   seen: new Set(),
   ratings: {},
   replies: new Map(),
+  dockets: new Map(),  // report id → official grievance numbers (kasa_report_dockets)
   selectedWard: null,
   selectedPlace: null,
   chainTab: 'sanitation'
@@ -942,6 +948,16 @@ const api = {
     });
     if (error) throw rpcError(error);
     return data;
+  },
+
+  async dockets(id){
+    const { data, error } = await sb.rpc('kasa_report_dockets', { p_report_id: String(id) });
+    return error ? [] : (data || []);
+  },
+
+  async addDocket(id, portal, number){
+    const { error } = await sb.rpc('kasa_add_docket', { p_report_id: String(id), p_portal: portal, p_number: number });
+    if (error) throw rpcError(error);
   },
 
   async replies(id){
@@ -2062,6 +2078,10 @@ function openSheet(id){
       state.events.set(r.id, list);
       if (state.sheetId === r.id) renderTimeline();
     });
+    api.dockets(r.id).then(list => {
+      state.dockets.set(r.id, list);
+      if (state.sheetId === r.id){ const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    });
     if (r.replyCount){
       api.replies(r.id).then(list => {
         state.replies.set(r.id, list);
@@ -2343,6 +2363,7 @@ function renderPlaceAccountability(r){
           <summary>${esc(t('acc_more'))}</summary>
           ${renderEscalate(r)}
         </details>
+        ${r.pending ? '' : `<div id="k-dockets">${renderDocketsHTML(r)}</div>`}
       </div>
     </div>`;
 }
@@ -2393,6 +2414,7 @@ function renderAccountability(r){
           ${rural ? '' : `<a class="k-acc-money" href="municipality.html">${esc(t('wc_money'))}</a>`}
           ${renderEscalate(r)}
         </details>
+        ${r.pending ? '' : `<div id="k-dockets">${renderDocketsHTML(r)}</div>`}
         <a class="k-respond" href="${esc(replyMailto(r))}">${esc(t('reply_cta'))}</a>
       </div>
     </div>`;
@@ -2401,12 +2423,13 @@ function renderAccountability(r){
 /* Official channels with their own deadlines, from city.js. */
 const STATE_HELPLINE = CITY.stateHelpline || '';
 const STATE_HELPLINE_EMAIL = CITY.stateHelplineEmail || '';
-const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
+const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school', 'rural_jobs'];
 function renderEscalate(r){
   const msg = reportMessage(r);
   const items = [];
   if (STATE_HELPLINE) items.push([`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: CITY.stateHelplineDisplay || STATE_HELPLINE }), t('esc_state_s')]);
   if (STATE_HELPLINE_EMAIL) items.push([`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent(CITY_NAME + ' — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]);
+  if (r.category === 'rural_jobs') items.push(['https://nrega.dord.gov.in/', t('esc_nrega'), t('esc_nrega_s')]);
   if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
   // WBSEDCL is Purulia's supplier; other places (Kolkata: CESC) have their own.
   if (r.category === 'streetlight' && CITY.powerUtilityUrl && r.area !== 'place') items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);
@@ -2421,6 +2444,38 @@ function renderEscalate(r){
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
 }
+
+/* Official reference numbers people got when they filed this report on a grievance portal,
+   so the next person follows up the same complaint. Public; who added them is not. */
+const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
+function renderDocketsHTML(r){
+  const list = state.dockets.get(r.id) || [];
+  const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
+      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
+    <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
+      <form id="k-docket-form" data-report="${esc(r.id)}">
+        <select id="k-docket-portal" aria-label="${esc(t('dk_where'))}">${DOCKET_PORTALS.map(p => `<option value="${p}">${esc(t('dk_' + p))}</option>`).join('')}</select>
+        <input id="k-docket-number" maxlength="40" autocomplete="off" placeholder="${esc(t('dk_number'))}" aria-label="${esc(t('dk_number'))}" required>
+        <button type="submit" class="k-btn k-btn-ghost">${esc(t('dk_save'))}</button>
+      </form>
+    </details>`;
+}
+
+document.addEventListener('submit', async e => {
+  const form = e.target.closest?.('#k-docket-form');
+  if (!form) return;
+  e.preventDefault();
+  const id = form.dataset.report, number = document.getElementById('k-docket-number').value.trim();
+  if (!number) return;
+  try {
+    await api.addDocket(id, document.getElementById('k-docket-portal').value, number);
+    state.dockets.set(id, await api.dockets(id));
+    const r = state.byId.get(String(id)), el = document.getElementById('k-dockets');
+    if (r && el) el.innerHTML = renderDocketsHTML(r);
+    showToast(t('dk_saved'));
+  } catch (err){ showToast(errorText(err), 6000); }
+});
 
 /* RTI application generator. Produces a filled draft the citizen reviews, signs with their
    own name/address, and files themselves — never auto-submitted, never sent by this site.

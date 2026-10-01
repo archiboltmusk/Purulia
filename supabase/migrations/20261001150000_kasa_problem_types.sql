@@ -6,9 +6,10 @@
 -- dustbins, open defecation, sewage/storm water, stagnant water, septic tank,
 -- public toilet power/water/blockage/cleaning, yellow spot, faecal sludge, open
 -- manholes, unsafe manhole entry, debris, dead animals) plus a locked toilet,
--- blocked drain, water leak, pothole and dead streetlight. Each is kept in
+-- blocked drain, water leak, pothole and dead streetlight; the two rural
+-- jobs types (20261001130000) are kept. Each is kept in
 -- reports.waste_type and sets the category (kasa_private.subtype_category).
--- kasa_create_report body is the 20261001110000 one with that lookup.
+-- kasa_create_report body is the 20261001130000 one with that lookup.
 --
 -- Safe to re-run.
 -- ════════════════════════════════════════════════════════════════════════
@@ -52,6 +53,8 @@ language sql immutable set search_path = '' as $$
     when 'centre_closed' then 'health_centre'
     when 'pothole' then 'road'
     when 'light_out' then 'streetlight'
+    when 'work_missing' then 'rural_jobs'
+    when 'no_signboard' then 'rural_jobs'
   end
 $$;
 
@@ -63,7 +66,7 @@ alter table public.reports add constraint reports_waste_type_check
     'toilet_dirty', 'toilet_no_water', 'toilet_no_power', 'toilet_blocked', 'toilet_locked', 'open_defecation',
     'yellow_spot', 'drain_blocked', 'sewer_overflow', 'stagnant_water', 'septic_overflow', 'sludge_dumped',
     'open_manhole', 'manhole_entry', 'dry_tap', 'water_leak', 'pump_broken', 'no_doctor',
-    'no_medicine', 'centre_closed', 'pothole', 'light_out'));
+    'no_medicine', 'centre_closed', 'pothole', 'light_out', 'work_missing', 'no_signboard'));
 
 create or replace function public.kasa_create_report(p_category text, p_severity text, p_lat double precision, p_lng double precision, p_accuracy double precision, p_ward_no integer, p_description text, p_landmark text, p_photo_path text, p_client_id text default null::text, p_boundary_type text default null::text, p_waste_type text default null::text)
  returns jsonb
@@ -112,7 +115,7 @@ begin
   end if;
   if p_category not in ('garbage', 'drain', 'road', 'streetlight', 'water', 'missing',
       'encroachment', 'illegal_construction', 'illegal_mining', 'illegal_other', 'other',
-      'hand_pump', 'anganwadi', 'health_centre', 'school', 'dumpsite', 'toilet') then
+      'hand_pump', 'anganwadi', 'health_centre', 'school', 'dumpsite', 'toilet', 'rural_jobs') then
     perform kasa_private.fail('KASA_BAD_CATEGORY', 'Choose what kind of problem this is.');
   end if;
   if p_severity is null then
