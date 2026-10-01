@@ -98,22 +98,30 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
 
-test('report form sends the picked severity and waste type', async ({ page, backend }) => {
+test('report form sends the picked severity and problem type', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await page.locator('.k-map-report-btn').click();
   await expect(page.locator('#k-cam-shutter')).toBeEnabled();
   await page.locator('#k-cam-shutter').click();
   await page.locator('#k-cam-use').click();
-  // Defaults: Minor picked, no waste type.
+  // Defaults: Minor picked, no problem type; groups folded so the form stays short.
   await expect(page.locator('#k-severity [data-sev="minor"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('#k-waste [aria-checked="true"]')).toHaveCount(0);
+  await expect(page.locator('#k-issues [aria-checked="true"]')).toHaveCount(0);
+  await expect(page.locator('#k-issues details[open]')).toHaveCount(0);
   await page.locator('#k-severity [data-sev="severe"]').click();
-  // One choice across the waste and service rows: a service problem replaces a waste type.
-  await page.locator('#k-service [data-waste="dry_tap"]').click();
-  await page.locator('#k-waste [data-waste="construction"]').click();
-  await expect(page.locator('#k-waste [data-waste="construction"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('#k-service [aria-checked="true"]')).toHaveCount(0);
+  // Search finds the Swachhata-app types; one choice across all groups, and it names who fixes it.
+  await page.locator('#k-issue-search').fill('manhole');
+  await expect(page.locator('#k-issues [data-waste="open_manhole"]')).toBeVisible();
+  await expect(page.locator('#k-issues [data-waste="dry_tap"]')).toHaveCount(0);
+  await page.locator('#k-issue-search').fill('');
+  await page.locator('#k-issues details[data-group="service"] summary').click();
+  await page.locator('#k-issues [data-waste="dry_tap"]').click();
+  await page.locator('#k-issues details[data-group="waste"] summary').click();
+  await page.locator('#k-issues [data-waste="construction"]').click();
+  await expect(page.locator('#k-issues [data-waste="construction"]')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('#k-issues [aria-checked="true"]')).toHaveCount(1);
+  await expect(page.locator('#k-issue-route')).toContainText('Goes to');
   const submit = page.locator('#k-submit');
   await expect(submit).toBeEnabled();
   await submit.click();

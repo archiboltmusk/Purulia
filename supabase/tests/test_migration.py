@@ -2056,6 +2056,17 @@ hc = rpc('kasa_create_report', uid=wt_user, p_category='garbage', p_severity='mi
 check('a dry tap is a water report and a health centre with no doctor a health centre report, sub-type kept',
       admin_sql('select category, waste_type from public.reports where id = %s', (sv['id'],))[0] == ('water', 'dry_tap')
       and admin_sql('select category, waste_type from public.reports where id = %s', (hc['id'],))[0] == ('health_centre', 'no_doctor'))
+# Swachhata-app problem types: each files under its own category, whatever the category sent.
+pt, pt_user = {}, user()
+for i, (kind, cat) in enumerate([('open_defecation', 'toilet'), ('septic_overflow', 'drain'), ('open_manhole', 'missing'),
+                                 ('garbage_dump', 'dumpsite'), ('burning', 'garbage')]):
+    pt[kind] = (cat, rpc('kasa_create_report', uid=pt_user, p_category='streetlight' if i % 2 else None, p_severity='minor',
+         p_lat=offset(-3300 - i * 100, 3400)[0], p_lng=offset(-3300 - i * 100, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(pt_user, 'reports'), p_client_id=None,
+         p_waste_type=kind)['id'])
+check('each Swachhata-app problem type sets its category and is kept',
+      all(admin_sql('select category, waste_type from public.reports where id = %s', (rid,))[0] == (cat, kind)
+          for kind, (cat, rid) in pt.items()))
 admin_sql("insert into kasa_private.office_letter_log (office, week, sent_at, report_count) values ('dm', '2026-09-28', now(), 2) on conflict do nothing")
 ol = rpc('kasa_office_letters_public')
 check('anyone can see how many letters each office got, with no email addresses',

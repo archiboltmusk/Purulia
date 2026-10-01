@@ -24,6 +24,14 @@ interface Office { office: string; title: string; addressee: string; emails: str
 
 const KIND: Record<string, string> = { dry_tap: 'tap fitted but no water', pump_broken: 'hand pump not working',
   no_doctor: 'no doctor present', no_medicine: 'medicines not in stock', centre_closed: 'closed in working hours',
+  dirty_spot: 'dirty spot', garbage_dump: 'garbage dump', bin_full: 'dustbin not cleaned', vehicle_missed: 'garbage van did not come',
+  not_swept: 'sweeping not done', burning: 'garbage being burnt', construction: 'construction debris', dead_animal: 'dead animal',
+  toilet_dirty: 'public toilet not cleaned', toilet_no_water: 'no water in public toilet', toilet_no_power: 'no electricity in public toilet',
+  toilet_blocked: 'public toilet blocked', toilet_locked: 'public toilet locked', open_defecation: 'open defecation',
+  yellow_spot: 'public urination spot', drain_blocked: 'drain blocked', sewer_overflow: 'sewage or storm water overflow',
+  stagnant_water: 'stagnant water', septic_overflow: 'septic tank overflowing', sludge_dumped: 'faecal sludge dumped in the open',
+  open_manhole: 'open manhole or drain', manhole_entry: 'worker sent into a sewer without safety gear',
+  water_leak: 'water pipe leaking', pothole: 'pothole', light_out: 'streetlight not working',
   work_missing: 'MGNREGA work not found at the site', no_signboard: 'no citizen information board at the MGNREGA site' };
 
 const reply = (status: number, body: unknown) =>

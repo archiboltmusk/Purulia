@@ -46,8 +46,52 @@ const DEFAULT_RULES = {
 };
 const SEVERITIES = ['minor', 'severe', 'critical'];
 const WASTE_TYPES = ['household', 'construction', 'mixed', 'e_waste', 'biomedical'];
-/* Service problems share the same field (reports.waste_type); the server sets the category from them. */
-const SERVICE_TYPES = ['dry_tap', 'pump_broken', 'no_doctor', 'no_medicine', 'centre_closed', 'work_missing', 'no_signboard'];
+/* What exactly is wrong: every Swachhata app category and more, in one searchable, grouped list.
+   Kept in reports.waste_type (the report's sub-type); the server sets the category from it
+   (kasa_private.subtype_category). `kw` = extra English search words; labels are t('waste_' + key). */
+const ISSUE_GROUPS = [
+  ['waste', '🗑️', [
+    ['dirty_spot', '🗑️', 'garbage', 'litter kachra gvp dirty spot'],
+    ['garbage_dump', '🚛', 'dumpsite', 'dump heap pile dhalao'],
+    ['bin_full', '🚮', 'garbage', 'dustbin bin overflowing not emptied cleaned'],
+    ['vehicle_missed', '🚚', 'garbage', 'van truck collection door to door pickup'],
+    ['not_swept', '🧹', 'garbage', 'sweeping broom road street'],
+    ['burning', '🔥', 'garbage', 'fire smoke burn open'],
+    ['construction', '🧱', 'garbage', 'debris rubble malba construction material'],
+    ['dead_animal', '🐾', 'garbage', 'carcass dog cow cattle'],
+    ['household', '🏠', 'garbage', 'home kitchen'],
+    ['e_waste', '🔌', 'garbage', 'electronic battery phone'],
+    ['biomedical', '💉', 'garbage', 'syringe hospital medical clinic']]],
+  ['toilet', '🚻', [
+    ['toilet_dirty', '🚽', 'toilet', 'unclean public toilet'],
+    ['toilet_no_water', '🚱', 'toilet', 'water supply public toilet'],
+    ['toilet_no_power', '🔦', 'toilet', 'electricity light dark public toilet'],
+    ['toilet_blocked', '🪠', 'toilet', 'blockage choked public toilet'],
+    ['toilet_locked', '🔒', 'toilet', 'closed shut public toilet'],
+    ['open_defecation', '💩', 'toilet', 'od toilet field'],
+    ['yellow_spot', '🟡', 'toilet', 'urination urinating peeing wall']]],
+  ['drain', '🌊', [
+    ['drain_blocked', '🌊', 'drain', 'nala nali clogged choked'],
+    ['sewer_overflow', '🌧️', 'drain', 'sewerage sewage storm water overflow'],
+    ['stagnant_water', '🦟', 'drain', 'waterlogging puddle mosquito road open area'],
+    ['septic_overflow', '🛢️', 'drain', 'septic tank soak pit'],
+    ['sludge_dumped', '☣️', 'drain', 'faecal fecal sludge septage disposal'],
+    ['open_manhole', '🕳️', 'missing', 'manhole drain cover open uncovered'],
+    ['manhole_entry', '🦺', 'illegal_other', 'unsafe manhole entry manual scavenging sewer worker gear']]],
+  ['service', '🚰', [
+    ['dry_tap', '🚰', 'water', 'tap no water supply'],
+    ['water_leak', '💦', 'water', 'pipe leak burst'],
+    ['pump_broken', '💧', 'hand_pump', 'tubewell tube well hand pump'],
+    ['no_doctor', '🩺', 'health_centre', 'health centre doctor'],
+    ['no_medicine', '💊', 'health_centre', 'health centre medicine'],
+    ['centre_closed', '🏥', 'health_centre', 'health centre closed shut'],
+    ['pothole', '🚧', 'road', 'road broken pothole'],
+    ['light_out', '💡', 'streetlight', 'streetlight lamp dark'],
+    ['work_missing', '⛏', 'rural_jobs', 'mgnrega nrega 100 days job card work rural jobs'],
+    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs']]]
+];
+const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
+  list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
 const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
@@ -493,7 +537,7 @@ function normalize(r){
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
-    wasteType: WASTE_TYPES.includes(r.waste_type) || SERVICE_TYPES.includes(r.waste_type) ? r.waste_type : null,
+    wasteType: WASTE_TYPES.includes(r.waste_type) || ISSUES[r.waste_type] ? r.waste_type : null,
     status,
     description: r.description || '',
     landmark: r.landmark || '',
@@ -3262,6 +3306,9 @@ function openReport(prefill){
   document.getElementById('k-iab-report-note').hidden = true;
   document.getElementById('k-iab-report-copy').hidden = true;
   setSeverity('minor');
+  const issueSearch = document.getElementById('k-issue-search');
+  if (issueSearch) issueSearch.value = '';
+  document.querySelectorAll('#k-issues details[open]').forEach(d => d.removeAttribute('open'));
   setWasteType(null);
   if (miniMarker){ miniMarker.remove(); miniMarker = null; }
   renderCategoryGrid();
@@ -3288,6 +3335,7 @@ function goToStep(n){
 function renderCategoryGrid(){
   // No-op once the create-report flow drops the category step; #k-cat-grid no longer
   // exists in the DOM. Left callable so init()/setLang() don't need special-casing.
+  renderIssues();
   const grid = document.getElementById('k-cat-grid');
   if (!grid) return;
   grid.innerHTML = GROUPS.map(g => `
@@ -3416,6 +3464,7 @@ function setLocation(lat, lng, accuracy){
     (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   placeMiniMarker();
   if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
+  if (draft.wasteType) renderIssues();
   updateSubmitState();
 }
 
@@ -4194,12 +4243,62 @@ function setSeverity(sev){
   document.querySelectorAll('#k-severity button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sev === sev)));
 }
 
-/* Optional: picking a waste type marks the report as garbage, and a service problem marks it as
-   water, hand pump or health centre (the server does the same). One choice across both rows;
-   tapping the chosen one again clears it. */
+/* Optional "What's the problem?": one pick from ISSUE_GROUPS sets the report's category on the
+   server. Groups stay folded so the form stays short; typing searches every language at once.
+   Tapping the chosen one again clears it. */
 function setWasteType(type){
   if (draft) draft.wasteType = type;
-  document.querySelectorAll('#k-waste button, #k-service button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.waste === type)));
+  renderIssues();
+}
+
+function issueMatches(key, q){
+  if (!q) return true;
+  const hay = [t('waste_' + key), ...['en', 'bn', 'hi'].map(l => window.KASA_I18N?.[l]?.['waste_' + key] || ''), ISSUES[key].kw, key.replace(/_/g, ' ')]
+    .join(' ').toLowerCase();
+  return q.toLowerCase().split(/\s+/).filter(Boolean).every(w => hay.includes(w));
+}
+
+function renderIssues(){
+  const box = document.getElementById('k-issues');
+  if (!box) return;
+  const q = (document.getElementById('k-issue-search')?.value || '').trim();
+  const sel = draft?.wasteType || null;
+  const open = new Set([...box.querySelectorAll('details[open]')].map(d => d.dataset.group));
+  const chip = key => `<button type="button" role="radio" data-waste="${key}" aria-checked="${key === sel}">
+      <span aria-hidden="true">${ISSUES[key].icon}</span> ${esc(t('waste_' + key))}</button>`;
+  let any = false;
+  box.innerHTML = ISSUE_GROUPS.map(([g, icon, list]) => {
+    const keys = list.map(([k]) => k).filter(k => issueMatches(k, q));
+    if (!keys.length) return '';
+    any = true;
+    const has = sel && keys.includes(sel);
+    return `<details class="k-issue-group" data-group="${g}"${q || has || open.has(g) ? ' open' : ''}>
+      <summary><span aria-hidden="true">${icon}</span> ${esc(t('igrp_' + g))}${has ? ` · <b>${esc(t('waste_' + sel))}</b>` : ''}</summary>
+      <div class="k-waste-chips">${keys.map(chip).join('')}</div></details>`;
+  }).join('') || `<div class="k-field-note">${esc(t('issue_none'))}</div>`;
+  const route = document.getElementById('k-issue-route');
+  if (route){
+    route.hidden = !sel;
+    route.textContent = sel ? issueRoute(ISSUES[sel].cat) + (ISSUE_NOTES[sel] ? ' ' + t(ISSUE_NOTES[sel]) : '') : '';
+  }
+}
+
+// One-line legal or safety reminders, only where they change what the reporter should do.
+const ISSUE_NOTES = { manhole_entry: 'issue_note_manhole_entry', open_manhole: 'issue_note_open_manhole' };
+
+/* "Goes to: Conservancy Supervisor, Purulia Municipality" — the first office on the report's
+   accountability tree for this spot. Other West Bengal places name only the body. */
+function issueRoute(cat){
+  const p = draft?.place || {};
+  if (p.kind === 'place'){
+    const c = CHAINS[CATEGORIES[cat].chain];
+    const who = c.agency !== 'agency_municipality' ? t(c.agency)
+      : p.isDistrict ? t('agency_panchayat') : p.body || p.name || t('agency_panchayat');
+    return t('issue_goes_to', { who });
+  }
+  const c = chainFor({ category: cat, area: p.kind === 'rural' ? 'rural' : 'town', body: p.body, bodyType: p.bodyType });
+  const agency = c.agencyName || t(c.agency);
+  return t('issue_goes_to', { who: c.agencyName ? agency : t('role_' + c.nodes[0]) + ', ' + agency });
 }
 
 /* No category to pick any more — the server assigns it. A ward is needed only inside the
@@ -4307,7 +4406,7 @@ async function afterSubmit(res, d){
   // stores it as 'other', so match that here for the share text and WhatsApp message.
   const fake = { ...d, id: id || d.clientId, createdAt: new Date().toISOString(), ward: d.ward,
     place: d.otherPlace || null, placeWard: d.placeWard || null,
-    category: d.category || 'other', pending: !id };
+    category: d.category || ISSUES[d.wasteType]?.cat || 'other', pending: !id };
   document.getElementById('k-wa-escalate').href = d.area === 'rural' || d.area === 'place'
     ? `https://wa.me/?text=${encodeURIComponent(reportMessage(fake))}`
     : `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(reportMessage(fake))}`;
@@ -5428,6 +5527,7 @@ function wireUI(){
   document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
+  document.getElementById('k-issue-search').addEventListener('input', renderIssues);
   document.getElementById('k-photo-more').addEventListener('click', captureExtraPhoto);
   document.getElementById('k-photo-extras').addEventListener('click', e => {
     const b = e.target.closest('[data-extra-remove]');

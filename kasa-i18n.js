@@ -1172,6 +1172,65 @@ Object.assign(window.KASA_I18N.hi, {
   esc_nrega: 'सरकारी काम की सूची देखें (मनरेगा)', esc_nrega_s: 'nrega.dord.gov.in: हर ग्राम पंचायत के काम, भुगतान और मस्टर रोल, ज़मीन पर जो है उससे मिलाने के लिए।'
 });
 
+/* Report screen: "What's the problem?" — every Swachhata app category and more, grouped and searchable. */
+Object.assign(window.KASA_I18N.en, {
+  issue_label: "What's the problem? (optional)",
+  issue_search_ph: 'Search: toilet, manhole, burning…', issue_none: 'Nothing matches. Leave it blank; the photo is enough.',
+  issue_goes_to: 'Goes to: {who}',
+  igrp_waste: 'Garbage and sweeping', igrp_toilet: 'Toilets and open defecation', igrp_drain: 'Drains, sewage and manholes', igrp_service: 'Water, health, roads, lights, rural jobs',
+  waste_household: 'Household waste', waste_construction: 'Construction debris to remove', waste_e_waste: 'E-waste', waste_biomedical: 'Biomedical waste (syringes, dressings)',
+  waste_dirty_spot: 'Dirty spot / litter', waste_garbage_dump: 'Garbage dump', waste_bin_full: 'Dustbin full, not cleaned',
+  waste_vehicle_missed: "Garbage van didn't come", waste_not_swept: 'Street not swept', waste_burning: 'Garbage being burnt',
+  waste_dead_animal: 'Dead animal to remove',
+  waste_toilet_dirty: 'Public toilet dirty', waste_toilet_no_water: 'Public toilet: no water', waste_toilet_no_power: 'Public toilet: no electricity',
+  waste_toilet_blocked: 'Public toilet blocked', waste_toilet_locked: 'Public toilet locked in the day',
+  waste_open_defecation: 'Open defecation', waste_yellow_spot: 'Yellow spot (public urination)',
+  waste_drain_blocked: 'Drain blocked', waste_sewer_overflow: 'Sewage or storm water overflowing', waste_stagnant_water: 'Stagnant water on road / open area',
+  waste_septic_overflow: 'Septic tank overflowing', waste_sludge_dumped: 'Faecal sludge dumped in the open',
+  waste_open_manhole: 'Open manhole or drain', waste_manhole_entry: 'Worker sent into a sewer without safety gear',
+  waste_water_leak: 'Water pipe leaking', waste_pothole: 'Pothole / broken road', waste_light_out: 'Streetlight not working',
+  issue_note_manhole_entry: 'Making anyone clean a sewer or septic tank by hand without protective gear is banned (Prohibition of Employment as Manual Scavengers Act 2013, section 7). If someone is inside now, call 112.',
+  issue_note_open_manhole: 'If you can, put a branch or stones around it so no one falls in.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  issue_label: 'সমস্যাটা কী? (ঐচ্ছিক)',
+  issue_search_ph: 'খুঁজুন: শৌচাগার, ম্যানহোল, পোড়ানো…', issue_none: 'কিছু মিলল না। ফাঁকা রাখুন; ছবিই যথেষ্ট।',
+  issue_goes_to: 'যাবে: {who}',
+  igrp_waste: 'আবর্জনা ও ঝাড়ু', igrp_toilet: 'শৌচাগার ও খোলা জায়গায় শৌচ', igrp_drain: 'নর্দমা, নোংরা জল ও ম্যানহোল', igrp_service: 'জল, স্বাস্থ্য, রাস্তা, আলো, গ্রামীণ কাজ',
+  waste_household: 'গৃহস্থালির আবর্জনা', waste_construction: 'নির্মাণের ভাঙা মাল সরাতে হবে', waste_e_waste: 'ই-বর্জ্য', waste_biomedical: 'চিকিৎসা বর্জ্য (সিরিঞ্জ, ব্যান্ডেজ)',
+  waste_dirty_spot: 'নোংরা জায়গা / ছড়ানো আবর্জনা', waste_garbage_dump: 'আবর্জনার স্তূপ', waste_bin_full: 'ডাস্টবিন ভর্তি, পরিষ্কার হয়নি',
+  waste_vehicle_missed: 'ময়লার গাড়ি আসেনি', waste_not_swept: 'রাস্তা ঝাঁট দেওয়া হয়নি', waste_burning: 'আবর্জনা পোড়ানো হচ্ছে',
+  waste_dead_animal: 'মৃত পশু সরাতে হবে',
+  waste_toilet_dirty: 'সরকারি শৌচাগার নোংরা', waste_toilet_no_water: 'সরকারি শৌচাগারে জল নেই', waste_toilet_no_power: 'সরকারি শৌচাগারে বিদ্যুৎ নেই',
+  waste_toilet_blocked: 'সরকারি শৌচাগার আটকে গেছে', waste_toilet_locked: 'দিনের বেলায় সরকারি শৌচাগার তালাবন্ধ',
+  waste_open_defecation: 'খোলা জায়গায় শৌচ', waste_yellow_spot: 'হলুদ দাগ (প্রকাশ্যে প্রস্রাব)',
+  waste_drain_blocked: 'নর্দমা আটকে গেছে', waste_sewer_overflow: 'নোংরা জল বা বৃষ্টির জল উপচে পড়ছে', waste_stagnant_water: 'রাস্তায় / খোলা জায়গায় জমা জল',
+  waste_septic_overflow: 'সেপটিক ট্যাংক উপচে পড়ছে', waste_sludge_dumped: 'মল-কাদা খোলা জায়গায় ফেলা হয়েছে',
+  waste_open_manhole: 'খোলা ম্যানহোল বা নর্দমা', waste_manhole_entry: 'সুরক্ষা সরঞ্জাম ছাড়া শ্রমিককে নর্দমায় নামানো হয়েছে',
+  waste_water_leak: 'জলের পাইপ ফুটো', waste_pothole: 'গর্ত / ভাঙা রাস্তা', waste_light_out: 'রাস্তার আলো জ্বলছে না',
+  issue_note_manhole_entry: 'সুরক্ষা সরঞ্জাম ছাড়া কাউকে দিয়ে হাতে নর্দমা বা সেপটিক ট্যাংক পরিষ্কার করানো নিষিদ্ধ (হাতে মলমূত্র সাফাই নিষেধ আইন ২০১৩, ধারা ৭)। কেউ এখন ভেতরে থাকলে ১১২-তে ফোন করুন।',
+  issue_note_open_manhole: 'পারলে চারপাশে ডাল বা পাথর রাখুন যাতে কেউ পড়ে না যায়।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  issue_label: 'समस्या क्या है? (वैकल्पिक)',
+  issue_search_ph: 'खोजें: शौचालय, मैनहोल, जलाना…', issue_none: 'कुछ नहीं मिला। ख़ाली छोड़ दें; फ़ोटो काफ़ी है।',
+  issue_goes_to: 'जाएगा: {who}',
+  igrp_waste: 'कचरा और झाड़ू', igrp_toilet: 'शौचालय और खुले में शौच', igrp_drain: 'नाली, सीवेज और मैनहोल', igrp_service: 'पानी, स्वास्थ्य, सड़क, बत्ती, ग्रामीण रोज़गार',
+  waste_household: 'घरेलू कचरा', waste_construction: 'निर्माण का मलबा हटाना है', waste_e_waste: 'ई-कचरा', waste_biomedical: 'मेडिकल कचरा (सिरिंज, पट्टी)',
+  waste_dirty_spot: 'गंदी जगह / बिखरा कचरा', waste_garbage_dump: 'कचरे का ढेर', waste_bin_full: 'कूड़ेदान भरा, साफ़ नहीं हुआ',
+  waste_vehicle_missed: 'कचरा गाड़ी नहीं आई', waste_not_swept: 'सड़क पर झाड़ू नहीं लगी', waste_burning: 'कचरा जलाया जा रहा है',
+  waste_dead_animal: 'मरा जानवर हटाना है',
+  waste_toilet_dirty: 'सार्वजनिक शौचालय गंदा', waste_toilet_no_water: 'सार्वजनिक शौचालय में पानी नहीं', waste_toilet_no_power: 'सार्वजनिक शौचालय में बिजली नहीं',
+  waste_toilet_blocked: 'सार्वजनिक शौचालय जाम', waste_toilet_locked: 'दिन में सार्वजनिक शौचालय पर ताला',
+  waste_open_defecation: 'खुले में शौच', waste_yellow_spot: 'पीला धब्बा (खुले में पेशाब)',
+  waste_drain_blocked: 'नाली जाम', waste_sewer_overflow: 'सीवेज या बारिश का पानी उफन रहा है', waste_stagnant_water: 'सड़क / खुली जगह पर जमा पानी',
+  waste_septic_overflow: 'सेप्टिक टैंक उफन रहा है', waste_sludge_dumped: 'मल-कीचड़ खुले में फेंका गया',
+  waste_open_manhole: 'खुला मैनहोल या नाली', waste_manhole_entry: 'बिना सुरक्षा उपकरण के मज़दूर को सीवर में उतारा गया',
+  waste_water_leak: 'पानी का पाइप रिस रहा है', waste_pothole: 'गड्ढा / टूटी सड़क', waste_light_out: 'स्ट्रीटलाइट बंद',
+  issue_note_manhole_entry: 'बिना सुरक्षा उपकरण किसी से सीवर या सेप्टिक टैंक हाथ से साफ़ कराना प्रतिबंधित है (हाथ से मैला उठाने वाले कर्मियों के नियोजन का प्रतिषेध अधिनियम 2013, धारा 7)। अगर कोई अभी अंदर है तो 112 पर कॉल करें।',
+  issue_note_open_manhole: 'हो सके तो चारों ओर डाली या पत्थर रख दें ताकि कोई गिरे नहीं।'
+});
+
 /* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else
    falls back to English. Draft wording: have a native Santali speaker check it. */
 window.KASA_I18N.sat = {
