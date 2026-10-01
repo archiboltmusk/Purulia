@@ -242,3 +242,20 @@ test('the Daylight map switch in the menu swaps to a light map', async ({ page, 
   expect(await page.evaluate(() => MAP_STYLE)).toContain('/positron');
   await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'true');
 });
+
+test('a report shows its official grievance numbers, and anyone can add one', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_report_dockets*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' },
+    body: JSON.stringify([{ portal: 'cpgrams', number: 'PMOPG/E/2026/0001234', added: '2026-09-30' }]) }));
+  await page.goto('kasa.html?report=102');
+  await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
+  await expect(page.locator('#k-dockets')).toContainText('PMOPG/E/2026/0001234');
+  const add = page.locator('#k-dockets details.k-docket-add');
+  await add.locator('summary').scrollIntoViewIfNeeded();
+  await add.locator('summary').click();
+  await page.locator('#k-docket-portal').selectOption('rti');
+  await page.locator('#k-docket-number').fill('PRLDM/R/2026/00042');
+  await add.locator('button[type="submit"]').click();
+  await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_add_docket')?.body)
+    .toMatchObject({ p_report_id: '102', p_portal: 'rti', p_number: 'PRLDM/R/2026/00042' });
+});

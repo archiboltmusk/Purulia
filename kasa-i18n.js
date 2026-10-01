@@ -1129,7 +1129,13 @@ Object.assign(window.KASA_I18N.en, {
   err_KASA_BAD_WASTE_TYPE: 'Choose a waste type from the list.',
   service_label: 'Or a public service not working',
   waste_dry_tap: 'Tap fitted, no water', waste_pump_broken: 'Hand pump broken', waste_no_doctor: 'Health centre: no doctor',
-  waste_no_medicine: 'Health centre: no medicines', waste_centre_closed: 'Health centre shut in working hours'
+  waste_no_medicine: 'Health centre: no medicines', waste_centre_closed: 'Health centre shut in working hours',
+  waste_work_missing: 'Rural jobs work not there', waste_no_signboard: 'Rural jobs site: no signboard',
+  cat_rural_jobs: 'Rural jobs (MGNREGA) work',
+  dk_title: 'Filed officially', dk_cpgrams: 'CPGRAMS', dk_state: 'State helpline', dk_rti: 'RTI', dk_other: 'Other office',
+  dk_added: 'added {d}', dk_add: 'Filed it on a portal? Add the reference number', dk_where: 'Where you filed it',
+  dk_number: 'Reference number', dk_save: 'Add', dk_saved: 'Added. The next person can follow up the same complaint.',
+  esc_nrega: 'Check the official work list (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: works, payments and muster rolls for each gram panchayat, to compare with what is on the ground.'
 });
 Object.assign(window.KASA_I18N.bn, {
   sev_minor_d: 'কয়েকটা ব্যাগ বা ছড়ানো আবর্জনা, ১ বর্গমিটারের কম। ৭ দিনের মধ্যে পরিষ্কার।',
@@ -1140,7 +1146,13 @@ Object.assign(window.KASA_I18N.bn, {
   err_KASA_BAD_WASTE_TYPE: 'তালিকা থেকে আবর্জনার ধরন বেছে নিন।',
   service_label: 'অথবা কোনো সরকারি পরিষেবা কাজ করছে না',
   waste_dry_tap: 'কল আছে, জল নেই', waste_pump_broken: 'টিউবওয়েল খারাপ', waste_no_doctor: 'স্বাস্থ্যকেন্দ্রে ডাক্তার নেই',
-  waste_no_medicine: 'স্বাস্থ্যকেন্দ্রে ওষুধ নেই', waste_centre_closed: 'কাজের সময়ে স্বাস্থ্যকেন্দ্র বন্ধ'
+  waste_no_medicine: 'স্বাস্থ্যকেন্দ্রে ওষুধ নেই', waste_centre_closed: 'কাজের সময়ে স্বাস্থ্যকেন্দ্র বন্ধ',
+  waste_work_missing: '১০০ দিনের কাজ হয়নি', waste_no_signboard: '১০০ দিনের কাজে বোর্ড নেই',
+  cat_rural_jobs: '১০০ দিনের কাজ (MGNREGA)',
+  dk_title: 'সরকারিভাবে জমা হয়েছে', dk_cpgrams: 'CPGRAMS', dk_state: 'রাজ্যের হেল্পলাইন', dk_rti: 'আরটিআই', dk_other: 'অন্য দপ্তর',
+  dk_added: '{d} যোগ হয়েছে', dk_add: 'পোর্টালে জমা দিয়েছেন? রেফারেন্স নম্বর যোগ করুন', dk_where: 'কোথায় জমা দিয়েছেন',
+  dk_number: 'রেফারেন্স নম্বর', dk_save: 'যোগ করুন', dk_saved: 'যোগ হয়েছে। পরের জন একই অভিযোগের খোঁজ নিতে পারবেন।',
+  esc_nrega: 'সরকারি কাজের তালিকা দেখুন (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: প্রতিটি গ্রাম পঞ্চায়েতের কাজ, মজুরি আর মাস্টার রোল, মাটির বাস্তবের সঙ্গে মেলাতে।'
 });
 Object.assign(window.KASA_I18N.hi, {
   sev_minor_d: 'कुछ थैलियाँ या बिखरा कचरा, 1 वर्ग मीटर से कम। 7 दिन में सफ़ाई।',
@@ -1151,7 +1163,13 @@ Object.assign(window.KASA_I18N.hi, {
   err_KASA_BAD_WASTE_TYPE: 'सूची से कचरे का प्रकार चुनें।',
   service_label: 'या कोई सरकारी सेवा काम नहीं कर रही',
   waste_dry_tap: 'नल लगा है, पानी नहीं', waste_pump_broken: 'हैंडपंप ख़राब', waste_no_doctor: 'स्वास्थ्य केंद्र में डॉक्टर नहीं',
-  waste_no_medicine: 'स्वास्थ्य केंद्र में दवा नहीं', waste_centre_closed: 'काम के समय स्वास्थ्य केंद्र बंद'
+  waste_no_medicine: 'स्वास्थ्य केंद्र में दवा नहीं', waste_centre_closed: 'काम के समय स्वास्थ्य केंद्र बंद',
+  waste_work_missing: 'मनरेगा का काम हुआ ही नहीं', waste_no_signboard: 'मनरेगा कार्यस्थल पर बोर्ड नहीं',
+  cat_rural_jobs: 'मनरेगा का काम',
+  dk_title: 'सरकारी तौर पर दर्ज', dk_cpgrams: 'CPGRAMS', dk_state: 'राज्य हेल्पलाइन', dk_rti: 'आरटीआई', dk_other: 'दूसरा दफ़्तर',
+  dk_added: '{d} को जोड़ा', dk_add: 'पोर्टल पर दर्ज किया? संदर्भ संख्या जोड़ें', dk_where: 'कहाँ दर्ज किया',
+  dk_number: 'संदर्भ संख्या', dk_save: 'जोड़ें', dk_saved: 'जुड़ गया। अगला व्यक्ति इसी शिकायत की खोज-ख़बर ले सकता है।',
+  esc_nrega: 'सरकारी काम की सूची देखें (मनरेगा)', esc_nrega_s: 'nrega.dord.gov.in: हर ग्राम पंचायत के काम, भुगतान और मस्टर रोल, ज़मीन पर जो है उससे मिलाने के लिए।'
 });
 
 /* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else

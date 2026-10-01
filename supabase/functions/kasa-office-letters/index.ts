@@ -23,7 +23,8 @@ interface Report { id: string; created_at: string; ward_no: number | null; categ
 interface Office { office: string; title: string; addressee: string; emails: string[]; reports: Report[] }
 
 const KIND: Record<string, string> = { dry_tap: 'tap fitted but no water', pump_broken: 'hand pump not working',
-  no_doctor: 'no doctor present', no_medicine: 'medicines not in stock', centre_closed: 'closed in working hours' };
+  no_doctor: 'no doctor present', no_medicine: 'medicines not in stock', centre_closed: 'closed in working hours',
+  work_missing: 'MGNREGA work not found at the site', no_signboard: 'no citizen information board at the MGNREGA site' };
 
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });
