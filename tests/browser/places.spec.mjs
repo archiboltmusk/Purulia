@@ -610,6 +610,22 @@ test('the ward digest and adopted spots follow the chosen district', async ({ pa
   await expect(page).toHaveURL(/d=bankura/);
 });
 
+test('community dog feeding spots follow the chosen district and fill the letter', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_feeding_spots*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { id: 1, name: 'Rina di', lat: 23.07, lng: 87.32, place: 'bishnupur', ward_no: 4, district: 'bankura', feed_time: '7 pm', dogs: 6, helps_abc: true, since: '2026-09-01T00:00:00Z',
+        designated: { note: 'Ward 4 committee', source_url: 'https://example.org/minutes' } },
+      { id: 2, name: 'Purulia feeder', lat: 23.33, lng: 86.36, place: null, ward_no: 5, feed_time: '6 am', dogs: 3, helps_abc: false, since: '2026-09-01T00:00:00Z' }]) }));
+  await page.goto('dogs.html?d=bankura');
+  await expect(page.locator('#dg-list')).toContainText('Rina di');
+  await expect(page.locator('#dg-list')).toContainText('Ward 4 committee');
+  await expect(page.locator('#dg-list')).not.toContainText('Purulia feeder');
+  await expect(page.locator('#dg-t-desig')).toHaveText('1');
+  await page.locator('#dg-f-body').fill('Bishnupur Municipality');
+  await page.locator('#dg-f-ward').fill('4');
+  await expect(page.locator('#dg-letter')).toHaveValue(/Bishnupur Municipality[\s\S]*Ward No\. 4[\s\S]*rule 20/);
+});
+
 test('municipality, promises and public demands follow the chosen district', async ({ page }) => {
   await page.goto('municipality.html?d=bankura');
   await expect(page.locator('#mu-bodies')).toContainText('Bishnupur');
