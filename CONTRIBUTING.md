@@ -1,6 +1,6 @@
 # Contributing to Parishkar Purulia
 
-Thanks for helping. This repo holds two things: the **Purulia 2040** blueprint pages and **Parishkar**, the civic reporting app (`kasa.html` + `kasa.js`, backed by Supabase). Both are plain HTML, CSS and JavaScript with no build step.
+Thanks for helping. This repo holds two things: the **Parishkar Bengal** blueprint pages and **Parishkar**, the civic reporting app (`kasa.html` + `kasa.js`, backed by Supabase). Both are plain HTML, CSS and JavaScript with no build step.
 
 ## Ways to help
 
