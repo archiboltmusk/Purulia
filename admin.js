@@ -1083,12 +1083,15 @@ async function loadCommunities(){
   const { data, error } = await sb.rpc('kasa_admin_communities');
   if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
   if (!data?.length){ el.innerHTML = '<div class="ad-empty">No communities registered yet.</div>'; return; }
-  const where = c => c.all_district ? 'All of Purulia district'
-    : [...(c.wards || []).map(w => 'Ward ' + w), ...(c.blocks || []).map(b => b + ' block')].join(', ');
+  const dists = c => (c.districts?.length ? c.districts : ['purulia']).map(d => CM_DISTRICTS[d] || d);
+  const where = c => c.all_district ? 'All of ' + dists(c).join(' + ')
+    : [...(c.wards || []).map(w => 'Ward ' + w), ...(c.blocks || []).map(b => b + ' block'),
+       ...dists(c).filter(d => d !== 'Purulia')].join(', ');
   const logo = c => /^data:image\/(jpeg|png|webp);base64,/.test(c.logo || '')
     ? `<img src="${esc(c.logo)}" alt="" style="width:56px;height:56px;object-fit:cover;border-radius:8px;">` : '—';
-  const links = c => Object.entries(c.links || {}).filter(([, u]) => /^https:\/\//i.test(u))
-    .map(([k, u]) => `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(k)}</a>`).join('<br>')
+  const links = c => Object.entries(c.links || {}).map(([k, u]) => /^https:\/\//i.test(u)
+      ? `<a href="${esc(u)}" target="_blank" rel="noopener nofollow">${esc(k)}</a>`
+      : k === 'phone' || k === 'email' ? `${esc(k)}: ${esc(u)}` : '').filter(Boolean).join('<br>')
     || esc(c.public_contact || '');
   el.innerHTML = `
     <table class="ad-table">
@@ -1102,6 +1105,7 @@ async function loadCommunities(){
           <td>${esc(c.coordinator_name || '')}<br>${/^[6-9][0-9]{9}$/.test(c.coordinator_contact || '')
             ? `<a href="tel:+91${esc(c.coordinator_contact)}">${esc(c.coordinator_contact)}</a>` : esc(c.coordinator_contact)}</td>
           <td style="white-space:nowrap;">
+            <button data-group-edit="${esc(c.id)}">✎ Edit</button>
             ${c.status !== 'approved' ? `<button class="ad-ok" data-group="${esc(c.id)}" data-group-act="approve">✓ Approve</button>` : ''}
             ${c.status !== 'hidden' ? `<button class="ad-bad" data-group="${esc(c.id)}" data-group-act="hide">✕ Hide</button>` : ''}
           </td></tr>`).join('')}
@@ -1114,6 +1118,93 @@ async function loadCommunities(){
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadCommunities();
   }));
+  el.querySelectorAll('[data-group-edit]').forEach(b => b.addEventListener('click', () => {
+    const tr = b.closest('tr');
+    if (tr.nextElementSibling?.classList.contains('cm-edit')) { tr.nextElementSibling.remove(); return; }
+    const c = data.find(x => x.id === b.dataset.groupEdit);
+    const row = document.createElement('tr');
+    row.className = 'cm-edit';
+    row.innerHTML = `<td colspan="7">${communityForm(c)}</td>`;
+    tr.after(row);
+    wireCommunityForm(row, c);
+  }));
+}
+
+// Moderator edit for a volunteer community (kasa_admin_update_community).
+const CM_DISTRICTS = { alipurduar: 'Alipurduar', bankura: 'Bankura', birbhum: 'Birbhum', 'cooch-behar': 'Cooch Behar',
+  'dakshin-dinajpur': 'Dakshin Dinajpur', darjeeling: 'Darjeeling', hooghly: 'Hooghly', howrah: 'Howrah', jalpaiguri: 'Jalpaiguri',
+  jhargram: 'Jhargram', kalimpong: 'Kalimpong', kolkata: 'Kolkata', malda: 'Malda', murshidabad: 'Murshidabad', nadia: 'Nadia',
+  'north-24-parganas': 'North 24 Parganas', 'paschim-bardhaman': 'Paschim Bardhaman', 'paschim-medinipur': 'Paschim Medinipur',
+  'purba-bardhaman': 'Purba Bardhaman', 'purba-medinipur': 'Purba Medinipur', purulia: 'Purulia',
+  'south-24-parganas': 'South 24 Parganas', 'uttar-dinajpur': 'Uttar Dinajpur' };
+const CM_BLOCKS = ['Arsha', 'Bagmundi', 'Balarampur', 'Barabazar', 'Bundwan', 'Hura', 'Jaipur', 'Jhalda I', 'Jhalda II', 'Kashipur',
+  'Manbazar I', 'Manbazar II', 'Neturia', 'Para', 'Puncha', 'Purulia I', 'Purulia II', 'Raghunathpur I', 'Raghunathpur II', 'Santuri'];
+const CM_LINKS = [['website', 'Website (https://…)'], ['instagram', 'Instagram'], ['facebook', 'Facebook'], ['x', 'X / Twitter'],
+  ['youtube', 'YouTube'], ['whatsapp', 'WhatsApp group / wa.me link'], ['telegram', 'Telegram'], ['linkedin', 'LinkedIn'],
+  ['phone', 'Public phone'], ['email', 'Public email']];
+function communityForm(c){
+  const ds = new Set(c.districts?.length ? c.districts : ['purulia']);
+  const inp = (k, v, ph, type = 'text') => `<input data-f="${k}" type="${type}" value="${esc(v || '')}" placeholder="${esc(ph)}" style="width:100%;">`;
+  return `<div style="display:grid;gap:.5rem;max-width:720px;">
+    <label>Name ${inp('name', c.name, 'Community name')}</label>
+    <label>One line ${inp('tagline', c.tagline, 'What they do')}</label>
+    <label>About <textarea data-f="about" rows="3" style="width:100%;">${esc(c.description || '')}</textarea></label>
+    <fieldset><legend>Districts</legend>${Object.entries(CM_DISTRICTS).map(([k, n]) =>
+      `<label style="display:inline-block;margin-right:.6rem;"><input type="checkbox" data-dist="${k}"${ds.has(k) ? ' checked' : ''}> ${esc(n)}</label>`).join('')}
+      <br><label><input type="checkbox" data-f="all"${c.all_district ? ' checked' : ''}> Works across the whole of every ticked district</label></fieldset>
+    <fieldset data-areas><legend>Or Purulia wards / blocks</legend>
+      <label>Wards (comma separated, 1–23) ${inp('wards', (c.wards || []).join(', '), 'e.g. 3, 5, 12')}</label>
+      ${CM_BLOCKS.map(b => `<label style="display:inline-block;margin-right:.6rem;"><input type="checkbox" data-block="${esc(b)}"${(c.blocks || []).includes(b) ? ' checked' : ''}> ${esc(b)}</label>`).join('')}
+    </fieldset>
+    <fieldset><legend>Public links and contact</legend>${CM_LINKS.map(([k, l]) =>
+      `<label>${esc(l)} ${inp('l_' + k, c.links?.[k], k === 'phone' ? '10-digit mobile or STD landline' : k === 'email' ? 'name@example.org' : 'https://…',
+        k === 'phone' ? 'tel' : k === 'email' ? 'email' : 'url')}</label>`).join('')}</fieldset>
+    <label>Replace logo <input data-f="logo" type="file" accept="image/*"></label>
+    <fieldset><legend>Coordinator (private)</legend>
+      <label>Name ${inp('cname', c.coordinator_name, 'Coordinator name')}</label>
+      <label>Mobile ${inp('cphone', c.coordinator_contact, '10-digit mobile', 'tel')}</label></fieldset>
+    <div><button class="ad-ok" data-save>Save changes</button> <span data-msg></span></div></div>`;
+}
+function wireCommunityForm(row, c){
+  const f = k => row.querySelector(`[data-f="${k}"]`);
+  const areas = row.querySelector('[data-areas]');
+  const sync = () => { areas.hidden = f('all').checked; };
+  f('all').addEventListener('change', sync); sync();
+  let logo = null;
+  f('logo').addEventListener('change', e => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const img = new Image(), url = URL.createObjectURL(file);
+    img.onload = () => {
+      const s = Math.min(img.naturalWidth, img.naturalHeight), cv = document.createElement('canvas');
+      cv.width = cv.height = 256;
+      const ctx = cv.getContext('2d');
+      ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, 256, 256);
+      ctx.drawImage(img, (img.naturalWidth - s) / 2, (img.naturalHeight - s) / 2, s, s, 0, 0, 256, 256);
+      URL.revokeObjectURL(url);
+      logo = cv.toDataURL('image/jpeg', 0.85);
+    };
+    img.src = url;
+  });
+  row.querySelector('[data-save]').addEventListener('click', async () => {
+    const msg = row.querySelector('[data-msg]');
+    const links = {};
+    for (const [k] of CM_LINKS){
+      let v = f('l_' + k).value.trim();
+      if (!v) continue;
+      if (k !== 'phone' && k !== 'email' && !/^https?:\/\//i.test(v)) v = 'https://' + v;
+      links[k] = v.replace(/^http:/i, 'https:');
+    }
+    const all = f('all').checked;
+    const { error } = await sb.rpc('kasa_admin_update_community', {
+      p_id: c.id, p_name: f('name').value, p_tagline: f('tagline').value, p_about: f('about').value || null,
+      p_all_district: all, p_districts: [...row.querySelectorAll('[data-dist]:checked')].map(i => i.dataset.dist),
+      p_wards: all ? [] : f('wards').value.split(/[^0-9]+/).filter(Boolean).map(Number),
+      p_blocks: all ? [] : [...row.querySelectorAll('[data-block]:checked')].map(i => i.dataset.block),
+      p_links: links, p_logo: logo, p_contact_name: f('cname').value || null, p_contact_phone: f('cphone').value || null });
+    if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
+    loadCommunities();
+  });
 }
 
 const CARD_FIELDS = [['enrolment', 'Pupils'], ['teachers', 'Teachers'], ['classrooms', 'Classrooms'], ['drinking_water', 'Water'],
