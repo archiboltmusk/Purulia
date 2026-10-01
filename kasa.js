@@ -1613,20 +1613,23 @@ function renderWardCard(){
   el.hidden = false;
 }
 
-/* A town's ward councillors (places.js `councillors`), fetched once. */
+/* A town's ward councillors (places.js `councillors`, else places/councillors/<slug>.json from
+   tools/build-wb-councillors.py), fetched once; false once we know there is none. */
 const placeCouncillors = {};
+const councillorsUrl = p => p?.councillors || (p?.slug && !p.isDistrict && !p.isState ? `places/councillors/${p.slug}.json` : null);
 function councillorsOf(slug){
-  const p = window.KasaPlaces?.bySlug(slug);
-  if (!p?.councillors) return null;
+  const url = councillorsUrl(window.KasaPlaces?.bySlug(slug));
+  if (!url) return null;
   if (!(slug in placeCouncillors)){
-    placeCouncillors[slug] = null;
-    fetch(p.councillors).then(r => r.ok ? r.json() : null).then(j => {
-      placeCouncillors[slug] = j;
+    placeCouncillors[slug] = undefined;
+    const done = j => {
+      placeCouncillors[slug] = j || false;
       if (j && state.selectedPlace === slug) renderWardCard();
-      if (j && KasaPlaces.current === slug) renderLeaderboard();
-    }).catch(() => {});
+      if (KasaPlaces.current === slug) renderLeaderboard();
+    };
+    fetch(url).then(r => r.ok ? r.json() : null).then(done).catch(() => done(null));
   }
-  return placeCouncillors[slug];
+  return placeCouncillors[slug] || null;
 }
 function councillorOf(slug, n){
   const c = councillorsOf(slug);
@@ -1644,7 +1647,8 @@ function renderPlaceWardCard(el, n, slug){
     <button type="button" class="k-ward-close" data-ward-close aria-label="${esc(t('sheet_close'))}">✕</button>
     <div class="k-ward-title">${esc(p.name)} · ${esc(t('acc_ward', { n }))}</div>
     <div class="k-ward-sub">${c ? esc(c.councillor) + (c.party ? ' · ' + esc(c.party) : '') : esc(t('pw_councillor_unknown'))}</div>
-    ${c ? `<div class="k-ward-note">${esc(t('pw_councillor_src', { when: c.src.elected }))} <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></div>` : ''}
+    ${c ? `<div class="k-ward-note">${esc(t('pw_councillor_src', { when: c.elected || c.src.elected }))} <a href="${esc(c.src.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></div>` : ''}
+    ${c?.src.board ? `<div class="k-ward-note">${esc(t('pw_board_dissolved', { when: c.src.board.dissolved }))} <a href="${esc(c.src.board.sourceUrl)}" target="_blank" rel="noopener">${esc(t('pw_source'))}</a></div>` : ''}
     <div class="k-ward-nums">
       <span>${esc(t('wc_reported', { n: s.open + s.resolved }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: s.open }))}</span>
@@ -1828,7 +1832,7 @@ function renderPlaceBoard(el, sp){
   let rows = [], sub = () => '', attrs = () => '', missing = '';
   if (sp.kind === 'town'){
     const cs = councillorsOf(sp.slug);
-    if (sp.p.councillors && !cs) { el.innerHTML = `<div class="k-lb-empty">${esc(t('lb_loading'))}</div>`; return; }
+    if (councillorsUrl(sp.p) && placeCouncillors[sp.slug] === undefined) { el.innerHTML = `<div class="k-lb-empty">${esc(t('lb_loading'))}</div>`; return; }
     const stats = tally(primaries().filter(r => r.place === sp.slug), r => r.placeWard || null);
     const all = sp.p.wardsTotal ? Array.from({ length: sp.p.wardsTotal }, (_, i) => i + 1) : Object.keys(stats).map(Number);
     rows = q ? all.map(n => stats[n] || { key: n, open: 0, resolved: 0, overdue: 0, fake: 0, recurring: 0 })
@@ -1838,7 +1842,7 @@ function renderPlaceBoard(el, sp){
     sub = s => { const c = cs?.wards?.[s.key]; return c ? c.councillor + (c.party ? ' · ' + c.party : '') : t('pw_councillor_unknown'); };
     attrs = s => `data-ward-select="${s.key}" data-ward-place="${esc(sp.slug)}"`;
     rows.forEach(s => { s.name = name(s); });
-    if (!sp.p.councillors) missing = t('lb_missing_councillors', { place: sp.p.name });
+    if (!cs) missing = t('lb_missing_councillors', { place: sp.p.name });
   } else if (sp.kind === 'district'){
     const geo = wbLocalGeo[sp.slug];
     if (!geo){ el.innerHTML = `<div class="k-lb-empty">${esc(t('lb_loading'))}</div>`; addDistrictLocal(sp.slug)?.then(() => renderLeaderboard()); return; }
