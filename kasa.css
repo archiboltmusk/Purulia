@@ -16,7 +16,7 @@
   --border2:rgba(212,136,42,.28);
   --text-hi:rgba(240,230,208,.92);
   --text-md:rgba(240,230,208,.68);
-  --text-lo:rgba(240,230,208,.46);
+  --text-lo:rgba(240,230,208,.55);
 }
 
 /* Light mode */
@@ -28,7 +28,9 @@
     --border2:rgba(26,20,16,.24);
     --text-hi:rgba(10,8,5,.92);
     --text-md:rgba(10,8,5,.68);
-    --text-lo:rgba(10,8,5,.46);
+    --text-lo:rgba(10,8,5,.62);
+    --amber:#7a4a0c; --amber2:#8a5410;
+    --green:#2a6e44; --red:#b8322b; --orange:#9a4a14; --violet:#5c48b8;
   }
 }
 
@@ -40,7 +42,10 @@
   --border2:rgba(26,20,16,.24);
   --text-hi:rgba(10,8,5,.92);
   --text-md:rgba(10,8,5,.68);
-  --text-lo:rgba(10,8,5,.46);
+  --text-lo:rgba(10,8,5,.62);
+  /* darker accents so text and buttons pass WCAG AA on the light background */
+  --amber:#7a4a0c; --amber2:#8a5410;
+  --green:#2a6e44; --red:#b8322b; --orange:#9a4a14; --violet:#5c48b8;
 }
 [data-theme="dark"]{
   --ink:#0a0805; --ink2:#0f0c07; --ink3:#15110a; --ink4:#1c1710;
@@ -49,7 +54,7 @@
   --border2:rgba(212,136,42,.28);
   --text-hi:rgba(240,230,208,.92);
   --text-md:rgba(240,230,208,.68);
-  --text-lo:rgba(240,230,208,.46);
+  --text-lo:rgba(240,230,208,.55);
 }
 
 *{box-sizing:border-box;margin:0;padding:0;}
