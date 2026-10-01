@@ -10,8 +10,9 @@ You need: a GitHub account, a free [Supabase](https://supabase.com) project, and
 
 1. Fork this repository.
 2. In your fork, **empty the `record/` folder** (it is Purulia's public fingerprint record) and delete `.github/workflows/public-record.yml` until your own database is live.
-3. Pick hosting (both free):
+3. Pick hosting (all free):
    - **GitHub Pages:** Settings → Pages → Source: GitHub Actions. `.github/workflows/github-pages.yml` deploys `main`.
+   - **Vercel:** [![Deploy with Vercel](https://vercel.com/button)](https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Farchiboltmusk%2FPurulia) clones this repo into your account and deploys it with `vercel.json`. Then point `config.js` at your own Supabase project (step 2).
    - **Cloudflare Workers:** connect the fork in the Cloudflare dashboard; `wrangler.jsonc` and `.assetsignore` are already set up. Change `"name"` in `wrangler.jsonc` to your project's name.
 
 Both leave out `supabase/`, `tests/`, `tools/`, `*.md` and the internal documents. If you add private files, add them to both `.assetsignore` and the `rsync` excludes in `github-pages.yml`.
