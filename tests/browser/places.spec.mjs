@@ -591,3 +591,21 @@ test('toilets, waste and analytics follow the chosen district: its own reports, 
   await expect(page.locator('#an-blocks-card')).toBeHidden();
   await expect(page.locator('#an-mla-card a[href="kasa.html?place=district:bankura"]')).toHaveCount(1);
 });
+
+test('the ward digest and adopted spots follow the chosen district', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_adopted_spots*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { id: 1, name: 'Tea stall', lat: 23.07, lng: 87.32, place: 'bishnupur', place_name: 'Bishnupur', ward_no: 2, since: '2026-09-01T00:00:00Z', open: 0, fixed: 1 },
+      { id: 2, name: 'Club', lat: 23.33, lng: 86.36, place: null, ward_no: 5, since: '2026-09-01T00:00:00Z', open: 1, fixed: 0 }]) }));
+  await page.goto('adopt.html?d=bankura');
+  await expect(page.locator('.an-title')).toContainText('Bankura');
+  await expect(page.locator('#ad-list')).toContainText('Tea stall');
+  await expect(page.locator('#ad-list')).not.toContainText('Club');
+
+  await page.goto('digest.html?d=bankura');
+  await expect(page.locator('#dg-area option')).toContainText(['All of Bankura', 'Bankura, outside the municipalities', 'Bankura Municipality', 'Bishnupur Municipality', 'Sonamukhi Municipality']);
+  await expect(page.locator('#dg-place')).toHaveText('All of Bankura');
+  await page.locator('#dg-area').selectOption({ label: 'Bishnupur Municipality' });
+  await expect(page).toHaveURL(/muni=bishnupur/);
+  await expect(page).toHaveURL(/d=bankura/);
+});
