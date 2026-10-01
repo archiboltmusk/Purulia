@@ -45,13 +45,13 @@
       f_map: 'Report map', f_privacy: 'Privacy', f_grievance: 'Grievance Officer',
       s_wards: '{n} wards ready: tap one to edit it.', s_none: 'No wards yet.', s_drawing: 'Ward {n}: {p} points. Tap the map to add more.',
       s_existing: 'Borders now on the map are shown dashed. Tap one to copy it here and edit it.',
-      h_img: 'Have a photo or scan of the ward map? Put it under the map, drag its blue corners onto the same places on the map, then trace over it. The picture stays on your device.',
+      h_img: 'Have a photo or scan of the ward map? Put it under the map. Drag the middle dot to move it and a blue corner to resize and turn it (it never stretches), until it lines up with the map, then trace over it. The picture stays on your device.',
       b_img: 'Background picture (JPG or PNG)', a_opacity: 'Picture opacity', b_lock: 'Lock picture', b_unlock: 'Move picture', b_img_clear: 'Remove picture',
       e_img: 'That picture could not be opened. Use a JPG or PNG.',
       f_e_ward: 'Ward number', f_e_name: 'Ward name (optional)', f_e_note: 'Notes on this ward (optional)',
       ph_e_note: 'e.g. councillor’s office, landmarks on the border',
       b_shape: 'Edit shape', b_shape_done: 'Stop editing shape', b_delpt: 'Delete point', b_delward: 'Delete ward', b_done: 'Done',
-      h_shape: 'Drag the white dots to move a corner. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.',
+      h_shape: 'Drag the white dots to move a corner. A corner shared with the next ward moves both, and dots snap onto nearby borders, so no gaps open. Drag a small orange dot to add a corner there. Tap a corner, then "Delete point" to remove it.',
       e_toomany: 'This ward has {n} corners, too many to edit by hand here. Edit it in a map app like QGIS and upload it.',
       e_taken: 'Ward {n} is already there.', e_minpts: 'A ward needs at least 3 corners.',
       b_export: 'Download GeoJSON',
@@ -93,13 +93,13 @@
       f_map: 'রিপোর্ট মানচিত্র', f_privacy: 'গোপনীয়তা', f_grievance: 'অভিযোগ আধিকারিক',
       s_wards: '{n}টি ওয়ার্ড তৈরি: বদলাতে ট্যাপ করুন।', s_none: 'এখনও কোনো ওয়ার্ড নেই।', s_drawing: 'ওয়ার্ড {n}: {p}টি বিন্দু। আরও যোগ করতে মানচিত্রে ট্যাপ করুন।',
       s_existing: 'এখন মানচিত্রে থাকা সীমানা ড্যাশ দিয়ে দেখানো। বদলাতে কোনোটিতে ট্যাপ করে এখানে কপি করুন।',
-      h_img: 'ওয়ার্ড মানচিত্রের ছবি বা স্ক্যান আছে? সেটা মানচিত্রের নিচে রাখুন, নীল কোণগুলো মানচিত্রের একই জায়গায় টেনে আনুন, তারপর তার ওপর আঁকুন। ছবিটি আপনার ফোনেই থাকে।',
+      h_img: 'ওয়ার্ড মানচিত্রের ছবি বা স্ক্যান আছে? সেটা মানচিত্রের নিচে রাখুন। সরাতে মাঝের বিন্দু, আর ছোট-বড় করতে বা ঘোরাতে নীল কোণ টানুন (ছবি কখনও বেঁকে যায় না), যতক্ষণ না মানচিত্রের সঙ্গে মেলে। তারপর তার ওপর আঁকুন। ছবিটি আপনার ফোনেই থাকে।',
       b_img: 'পেছনের ছবি (JPG বা PNG)', a_opacity: 'ছবির স্বচ্ছতা', b_lock: 'ছবি আটকে দিন', b_unlock: 'ছবি সরান', b_img_clear: 'ছবি মুছুন',
       e_img: 'ছবিটি খোলা গেল না। JPG বা PNG দিন।',
       f_e_ward: 'ওয়ার্ড নম্বর', f_e_name: 'ওয়ার্ডের নাম (ঐচ্ছিক)', f_e_note: 'এই ওয়ার্ড নিয়ে নোট (ঐচ্ছিক)',
       ph_e_note: 'যেমন কাউন্সিলরের অফিস, সীমানার চিহ্ন',
       b_shape: 'আকার বদলান', b_shape_done: 'আকার বদলানো শেষ', b_delpt: 'বিন্দু মুছুন', b_delward: 'ওয়ার্ড মুছুন', b_done: 'হয়ে গেছে',
-      h_shape: 'কোণ সরাতে সাদা বিন্দু টানুন। নতুন কোণ যোগ করতে ছোট কমলা বিন্দু টানুন। কোণ মুছতে সেটিতে ট্যাপ করে "বিন্দু মুছুন" চাপুন।',
+      h_shape: 'কোণ সরাতে সাদা বিন্দু টানুন। পাশের ওয়ার্ডের সঙ্গে ভাগ করা কোণ দুটোতেই সরে, আর বিন্দু কাছের সীমানায় বসে যায়, তাই ফাঁক থাকে না। নতুন কোণ যোগ করতে ছোট কমলা বিন্দু টানুন। কোণ মুছতে সেটিতে ট্যাপ করে "বিন্দু মুছুন" চাপুন।',
       e_toomany: 'এই ওয়ার্ডে {n}টি কোণ, এখানে হাতে বদলানোর পক্ষে বেশি। QGIS-এর মতো অ্যাপে বদলে আপলোড করুন।',
       e_taken: 'ওয়ার্ড {n} আগেই আছে।', e_minpts: 'একটি ওয়ার্ডে অন্তত ৩টি কোণ লাগে।',
       b_export: 'GeoJSON ডাউনলোড',
@@ -141,13 +141,13 @@
       f_map: 'रिपोर्ट नक्शा', f_privacy: 'गोपनीयता', f_grievance: 'शिकायत अधिकारी',
       s_wards: '{n} वार्ड तैयार: बदलने के लिए टैप करें।', s_none: 'अभी कोई वार्ड नहीं।', s_drawing: 'वार्ड {n}: {p} बिंदु। और जोड़ने के लिए नक्शे पर टैप करें।',
       s_existing: 'अभी नक्शे पर मौजूद सीमाएँ डैश से दिखाई गई हैं। बदलने के लिए किसी पर टैप कर उसे यहाँ कॉपी करें।',
-      h_img: 'वार्ड नक्शे की फ़ोटो या स्कैन है? उसे नक्शे के नीचे रखें, नीले कोनों को नक्शे पर उन्हीं जगहों पर खींचें, फिर उसके ऊपर बनाएँ। तस्वीर आपके फ़ोन पर ही रहती है।',
+      h_img: 'वार्ड नक्शे की फ़ोटो या स्कैन है? उसे नक्शे के नीचे रखें। खिसकाने के लिए बीच का बिंदु, और छोटा-बड़ा करने या घुमाने के लिए नीला कोना खींचें (तस्वीर कभी टेढ़ी नहीं होती), जब तक वह नक्शे से मेल न खाए। फिर उसके ऊपर बनाएँ। तस्वीर आपके फ़ोन पर ही रहती है।',
       b_img: 'पीछे की तस्वीर (JPG या PNG)', a_opacity: 'तस्वीर की पारदर्शिता', b_lock: 'तस्वीर रोकें', b_unlock: 'तस्वीर खिसकाएँ', b_img_clear: 'तस्वीर हटाएँ',
       e_img: 'तस्वीर खोली नहीं जा सकी। JPG या PNG दें।',
       f_e_ward: 'वार्ड नंबर', f_e_name: 'वार्ड का नाम (वैकल्पिक)', f_e_note: 'इस वार्ड पर नोट (वैकल्पिक)',
       ph_e_note: 'जैसे पार्षद का दफ़्तर, सीमा के निशान',
       b_shape: 'आकार बदलें', b_shape_done: 'आकार बदलना बंद करें', b_delpt: 'बिंदु हटाएँ', b_delward: 'वार्ड हटाएँ', b_done: 'हो गया',
-      h_shape: 'कोना खिसकाने के लिए सफ़ेद बिंदु खींचें। नया कोना जोड़ने के लिए छोटा नारंगी बिंदु खींचें। कोना हटाने के लिए उस पर टैप कर "बिंदु हटाएँ" दबाएँ।',
+      h_shape: 'कोना खिसकाने के लिए सफ़ेद बिंदु खींचें। पड़ोसी वार्ड के साथ साझा कोना दोनों में खिसकता है, और बिंदु पास की सीमा पर चिपक जाता है, इसलिए कोई खाली जगह नहीं बनती। नया कोना जोड़ने के लिए छोटा नारंगी बिंदु खींचें। कोना हटाने के लिए उस पर टैप कर "बिंदु हटाएँ" दबाएँ।',
       e_toomany: 'इस वार्ड में {n} कोने हैं, यहाँ हाथ से बदलने के लिए बहुत ज़्यादा। QGIS जैसे ऐप में बदलकर अपलोड करें।',
       e_taken: 'वार्ड {n} पहले से है।', e_minpts: 'एक वार्ड में कम से कम 3 कोने चाहिए।',
       b_export: 'GeoJSON डाउनलोड करें',
@@ -253,7 +253,7 @@
     map.on('click', e => {
       if (e.originalEvent?.target?.closest?.('.maplibregl-marker')) return;
       const at = round6([e.lngLat.lng, e.lngLat.lat]);
-      if (state.drawing){ state.drawing.points.push(at); return redraw(); }
+      if (state.drawing){ state.drawing.points.push(snap(at, snapTargets())); return redraw(); }
       if (state.pinning){ state.pin = at; state.pinning = false; return renderPin(); }
       if (state.shaping) return;
       const hit = map.queryRenderedFeatures(e.point, { layers: ['wards-fill'] })[0];
@@ -262,6 +262,7 @@
       if (old && copyExisting(Number(old.properties.ward))) return;
       if (state.selected != null) selectWard(null);
     });
+    map.on('zoomend', () => { if (state.shaping) drawHandles(); });
     zoomToDistrict();
   });
 
@@ -280,6 +281,7 @@
     if (map?.getSource('wards')){
       map.getSource('wards').setData(wardsFC()); map.getSource('sketch').setData(sketchFC());
       map.setFilter('wards-sel', ['==', ['get', 'ward'], state.selected ?? -1]);
+      refreshExisting();
     }
     $('at-export').disabled = !state.wards.size;
     $('at-undo').disabled = !state.drawing?.points.length;
@@ -464,6 +466,66 @@
     el.className = cls;
     return new maplibregl.Marker({ element: el, draggable: true }).setLngLat(at).addTo(map);
   };
+  // Shared borders: a corner neighbouring wards also use moves with them, so no gap opens.
+  const same = (a, b) => Math.abs(a[0] - b[0]) < 1e-7 && Math.abs(a[1] - b[1]) < 1e-7;
+  const setPt = (ring, i, p) => { ring[i] = p; if (i === 0) ring[ring.length - 1] = [...p]; };
+  function refreshExisting(){
+    if (!map?.getLayer('existing-fill')) return;
+    const f = ['!', ['in', ['to-number', ['get', 'ward']], ['literal', [...state.wards.keys()]]]];
+    ['existing-fill', 'existing-line', 'existing-label'].forEach(id => map.setFilter(id, f));
+  }
+  function twins(n, pt){     // other wards' corners at pt; a neighbour now on the map is copied in to move with it
+    let copied = false;
+    state.existing?.features.forEach(f => {
+      const m = Number(f.properties.ward);
+      if (m === n || state.wards.has(m) || !ringsOf(f.geometry).some(r => r.some(q => same(q, pt)))) return;
+      state.wards.set(m, { geometry: JSON.parse(JSON.stringify(f.geometry)), drawn: false, name: f.properties.name || '' });
+      copied = true;
+    });
+    if (copied){ refreshExisting(); renderWards(); }
+    const out = [];
+    state.wards.forEach((w, m) => { if (m !== n) ringsOf(w.geometry).forEach(ring => {
+      for (let i = 0; i < ring.length - 1; i++) if (same(ring[i], pt)) out.push({ n: m, ring, i });
+    }); });
+    return out;
+  }
+  // Snapping: a dragged or drawn corner jumps onto a nearby corner or border of any ward.
+  const SNAP_PX = 12;
+  function snapTargets(skip = () => false){
+    const b = map.getBounds(), pts = [], segs = [];
+    const inView = p => p[0] >= b.getWest() && p[0] <= b.getEast() && p[1] >= b.getSouth() && p[1] <= b.getNorth();
+    const scan = g => ringsOf(g).forEach(ring => ring.forEach((p, i) => {
+      if (i < ring.length - 1 && !skip(p) && inView(p)) pts.push(p);
+      const q = ring[i + 1];
+      if (q && !skip(p) && !skip(q) && (inView(p) || inView(q))) segs.push([p, q]);
+    }));
+    state.wards.forEach(w => scan(w.geometry));
+    state.existing?.features.forEach(f => { if (!state.wards.has(Number(f.properties.ward))) scan(f.geometry); });
+    return { pts: pts.map(p => [...p]), segs: segs.map(([p, q]) => [[...p], [...q]]) };
+  }
+  function snap(p, tg){
+    const s = map.project(p);
+    let best = null, bd = SNAP_PX;
+    tg.pts.forEach(q => { const d = s.dist(map.project(q)); if (d < bd){ bd = d; best = q; } });
+    if (best) return [...best];
+    bd = SNAP_PX * .75;
+    tg.segs.forEach(([a, c]) => {
+      const A = map.project(a), C = map.project(c), dx = C.x - A.x, dy = C.y - A.y, len = dx * dx + dy * dy;
+      if (!len) return;
+      const k = Math.max(0, Math.min(1, ((s.x - A.x) * dx + (s.y - A.y) * dy) / len));
+      const d = Math.hypot(A.x + k * dx - s.x, A.y + k * dy - s.y);
+      if (d < bd){ bd = d; best = round6([a[0] + k * (c[0] - a[0]), a[1] + k * (c[1] - a[1])]); }
+    });
+    return best || p;
+  }
+  const MID_PX = 36;         // no add-corner dot on a side shorter than this on screen
+  // A marker's dragend can be lost when the pointer is released over another handle; the window hears it anyway.
+  function onDrag(m, start, end){
+    let live = false;
+    const stop = () => { if (!live) return; live = false; end(); };
+    m.on('dragstart', () => { live = true; start(); addEventListener('pointerup', stop, { once: true }); });
+    m.on('dragend', stop);
+  }
   function drawHandles(){
     handles.forEach(m => m.remove()); handles = [];
     const w = state.shaping && state.wards.get(state.selected);
@@ -471,29 +533,46 @@
     $('at-e-shape').textContent = t(w ? 'b_shape_done' : 'b_shape');
     $('at-e-delpt').disabled = !(w && state.selVx);
     if (!w || !map) return;
+    const n = state.selected;
     ringsOf(w.geometry).forEach((ring, r) => {
       const last = ring.length - 1;               // a closed ring repeats its first corner at the end
       for (let i = 0; i < last; i++){
         const sel = state.selVx?.r === r && state.selVx.i === i;
         const m = handle('at-vx' + (sel ? ' sel' : ''), ring[i]);
+        let tw = [], tg = null;
+        onDrag(m, () => { const o = ring[i]; tw = twins(n, o); tg = snapTargets(p => same(p, o)); },
+          () => { w.drawn = true; tw.forEach(x => { state.wards.get(x.n).drawn = true; }); drawHandles(); renderWards(); });
         m.on('drag', () => {
           const { lng, lat } = m.getLngLat();
-          ring[i] = round6([lng, lat]);
-          if (i === 0) ring[last] = [...ring[0]];
+          const p = snap(round6([lng, lat]), tg);
+          setPt(ring, i, p); tw.forEach(x => setPt(x.ring, x.i, [...p]));
           refreshWards();
         });
-        m.on('dragend', () => { w.drawn = true; });
         m.getElement().addEventListener('click', ev => { ev.stopPropagation(); state.selVx = { r, i }; drawHandles(); });
         const [a, b] = [ring[i], ring[i + 1]];
+        if (map.project(a).dist(map.project(b)) < MID_PX) { handles.push(m); continue; }
         const mid = handle('at-vx mid', [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2]);
-        let added = false;
+        let added = null;
+        onDrag(mid, () => { tg = snapTargets(p => same(p, a) || same(p, b)); }, () => {
+          w.drawn = true; (added || []).forEach(x => { if (x.n != null) state.wards.get(x.n).drawn = true; });
+          state.selVx = null; drawHandles(); renderWards();
+        });
         mid.on('drag', () => {
           const { lng, lat } = mid.getLngLat();
-          if (!added){ ring.splice(i + 1, 0, null); added = true; }
-          ring[i + 1] = round6([lng, lat]);
+          const p = snap(round6([lng, lat]), tg);
+          if (!added){
+            // The neighbour on the other side of this border gets the new corner too.
+            added = [{ ring, at: i + 1 }];
+            twins(n, a).forEach(x => {
+              const L = x.ring.length - 1;
+              if (same(x.ring[(x.i + 1) % L], b)) added.push({ ring: x.ring, at: x.i + 1, n: x.n });
+              else if (same(x.ring[(x.i - 1 + L) % L], b)) added.push({ ring: x.ring, at: x.i === 0 ? L : x.i, n: x.n });
+            });
+            added.forEach(x => x.ring.splice(x.at, 0, null));
+          }
+          added.forEach(x => { x.ring[x.at] = [...p]; });
           refreshWards();
         });
-        mid.on('dragend', () => { w.drawn = true; state.selVx = null; drawHandles(); });
         handles.push(m, mid);
       }
     });
@@ -512,8 +591,12 @@
     if (!w || !v) return;
     const ring = ringsOf(w.geometry)[v.r];
     if (ring.length <= 4) return msg(t('e_minpts'), 'bad');
-    ring.splice(v.i, 1);
-    if (v.i === 0) ring[ring.length - 1] = [...ring[0]];
+    const tw = twins(state.selected, ring[v.i]).filter(x => x.ring.length > 4).sort((p, q) => q.i - p.i);
+    [...tw, { ring, i: v.i }].forEach(x => {
+      x.ring.splice(x.i, 1);
+      if (x.i === 0) x.ring[x.ring.length - 1] = [...x.ring[0]];
+      if (x.n != null) state.wards.get(x.n).drawn = true;
+    });
     w.drawn = true; state.selVx = null;
     drawHandles(); refreshWards();
   });
@@ -540,9 +623,27 @@
     if (!img.url || img.locked) return;
     const centre = () => [0, 1].map(k => img.coords.reduce((s, c) => s + c[k], 0) / 4);
     const move = handle('at-corner move', centre());
+    // A corner turns and resizes the whole picture about the opposite corner, so it is never stretched or skewed.
+    const merc = c => maplibregl.MercatorCoordinate.fromLngLat(c);
     img.coords.forEach((c, k) => {
       const m = handle('at-corner', c);
-      m.on('drag', () => { const { lng, lat } = m.getLngLat(); img.coords[k] = [lng, lat]; setImgCoords(); move.setLngLat(centre()); });
+      let from = null;
+      m.on('dragstart', () => { from = img.coords.map(merc); });
+      m.on('drag', () => {
+        const o = from[(k + 2) % 4], p = maplibregl.MercatorCoordinate.fromLngLat(m.getLngLat());
+        const ax = from[k].x - o.x, ay = from[k].y - o.y, bx = p.x - o.x, by = p.y - o.y, n = ax * ax + ay * ay;
+        if (!n) return;
+        const re = (bx * ax + by * ay) / n, im = (by * ax - bx * ay) / n;   // (p - o) / (corner - o), as complex numbers
+        img.coords = from.map(q => {
+          const dx = q.x - o.x, dy = q.y - o.y;
+          const ll = new maplibregl.MercatorCoordinate(o.x + re * dx - im * dy, o.y + im * dx + re * dy).toLngLat();
+          return [ll.lng, ll.lat];
+        });
+        setImgCoords();
+        img.coords.forEach((q, j) => { if (j !== k) img.handles[j].setLngLat(q); });
+        move.setLngLat(centre());
+      });
+      m.on('dragend', () => m.setLngLat(img.coords[k]));
       img.handles.push(m);
     });
     let start = null;

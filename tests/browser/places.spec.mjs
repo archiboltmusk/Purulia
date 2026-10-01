@@ -191,6 +191,23 @@ test('Put your town on the map: a background picture can be placed and removed',
   await page.setInputFiles('#at-img', { name: 'ward-map.png', mimeType: 'image/png', buffer: png });
   await expect(page.locator('.at-corner')).toHaveCount(5);
   await expect(page.locator('#at-opacity')).toBeEnabled();
+  // Dragging a corner turns and resizes the picture but never skews it: it stays a square, like the photo.
+  const corners = async () => Promise.all([0, 1, 2, 3].map(async i => {
+    const b = await page.locator('.at-corner:not(.move)').nth(i).boundingBox();
+    return [b.x + b.width / 2, b.y + b.height / 2];
+  }));
+  await page.locator('#at-map').scrollIntoViewIfNeeded();
+  const [c0] = await corners();
+  await page.mouse.move(c0[0], c0[1]);
+  await page.mouse.down();
+  await page.mouse.move(c0[0] - 40, c0[1] + 25, { steps: 6 });
+  await page.mouse.up();
+  const c = await corners();
+  const d = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  expect(Math.abs(c[0][0] - c0[0]) + Math.abs(c[0][1] - c0[1])).toBeGreaterThan(20);
+  expect(d(c[0], c[1])).toBeCloseTo(d(c[1], c[2]), -0.5);
+  expect(d(c[0], c[1])).toBeCloseTo(d(c[2], c[3]), -0.5);
+  expect(d(c[0], c[2])).toBeCloseTo(d(c[1], c[3]), -0.5);
   await page.click('#at-img-lock');
   await expect(page.locator('.at-corner')).toHaveCount(0);
   await expect(page.locator('#at-img-lock')).toHaveText('Move picture');
@@ -241,6 +258,34 @@ test('Fix a town: tap a ward on the map to copy it for editing', async ({ page }
   await expect(page.locator('#at-edit')).toBeVisible();
   await page.click('#at-e-shape');
   await expect(page.locator('.at-vx:not(.mid)')).toHaveCount(4);
+});
+
+test('Fix a town: moving a corner two wards share moves both, so no gap opens', async ({ page }) => {
+  const sq = (w, x0, x1) => ({ type: 'Feature', properties: { ward: w }, geometry: { type: 'Polygon',
+    coordinates: [[[x0, 23.22], [x1, 23.22], [x1, 23.25], [x0, 23.25], [x0, 23.22]]] } });
+  const calls = await stubBackend(page, { rpc: {
+    kasa_places: [{ slug: 'bankura', name: 'Bankura', body: 'Bankura Municipality', body_type: 'municipality', district: 'Bankura' }],
+    kasa_place_wards: { type: 'FeatureCollection', features: [sq(1, 87.05, 87.06), sq(2, 87.06, 87.07)] },
+    kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?fix=bankura&ward=1');
+  await expect(page.locator('#at-wards button')).toHaveText(['1']);
+  await page.waitForTimeout(1200);
+  await page.click('#at-e-shape');
+  const v = await page.locator('.at-vx:not(.mid)').nth(1).boundingBox();
+  await page.mouse.move(v.x + v.width / 2, v.y + v.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(v.x + 60, v.y + 40, { steps: 6 });
+  await page.mouse.up();
+  await expect(page.locator('#at-wards button')).toHaveText(['1', '2']);
+  await page.fill('#at-source', 'Ward map at the municipality office');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  const sent = calls.find(c => c.name === 'kasa_submit_place').body;
+  expect(sent.p_drawn).toBe(true);
+  const [w1, w2] = sent.p_geojson.features.map(f => f.geometry.coordinates.flat(Infinity));
+  const moved = [w1[2], w1[3]];
+  expect(moved).not.toEqual([87.06, 23.22]);
+  expect(w2.slice(0, 2)).toEqual(moved);
 });
 
 test("Fix a Purulia ward from its card: the ward opens ready to edit", async ({ page }) => {
