@@ -1679,3 +1679,6 @@ a:focus-visible{
   position: fixed;
   inset: 0;
 }
+[data-only][hidden],.gt-pick[hidden],#homeAbout[hidden]{display:none!important;}
+.home-about{max-width:62rem;margin:0 auto;padding:4rem 2rem;}
+.home-about .ss{margin:1rem 0 1.6rem;}

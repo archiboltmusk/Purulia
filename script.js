@@ -932,9 +932,11 @@ window.followSubmit=async function(){
   var original=el.textContent;
   var chars='ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789*#@!?/\\|';
   var stepsPerChar=9;
-  var totalFrames=original.length*stepsPerChar;
   var frame=0;
   function scramble(){
+    // home-place.js may swap in the chosen district's name while this runs.
+    original=el.dataset.final||original;
+    var totalFrames=original.length*stepsPerChar;
     var revealed=Math.floor(frame/stepsPerChar);
     var out='';
     for(var i=0;i<original.length;i++){

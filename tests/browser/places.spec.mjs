@@ -467,3 +467,20 @@ test("the leaderboard and \"Who's responsible\" follow the place: Kolkata's own 
   await expect(page.locator('#k-lb-list')).toContainText('Bankura-I block');
   await expect(page.locator('#k-lb-list')).toContainText('BDO');
 });
+
+test('the home page follows the chosen district, with sourced figures', async ({ page, backend }) => {
+  await page.goto('index.html?d=bankura');
+  await expect(page.locator('#hero .h-bar')).toContainText('Gram panchayats');
+  await expect(page.locator('#hero .h-bar')).toContainText('190');
+  await expect(page.locator('#crisis .crisis-stat')).toHaveCount(6);
+  await expect(page.locator('#crisis .crisis-grid')).toContainText('Bankura is not on the list of 112 districts');
+  await expect(page.locator('#crisis .crisis-grid')).not.toContainText('Chhau');
+  await expect(page.locator('#reframe')).toBeHidden();
+  await expect(page.locator('#homeAbout')).toBeVisible();
+  await expect(page.locator('#homePick')).toHaveValue('bankura');
+
+  await page.goto('index.html?d=purulia');
+  await expect(page.locator('#homePick')).toHaveValue('purulia');
+  await expect(page.locator('#reframe')).toBeVisible();
+  await expect(page.locator('#homeAbout')).toBeHidden();
+});
