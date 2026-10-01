@@ -489,3 +489,26 @@ test('representatives follow the place on the map: Hooghly shows its own MPs and
   await grid.locator('.k-auth-card', { hasText: 'Rachana Banerjee' }).locator('[data-profile]').click();
   await expect(page.locator('#k-rep-modal')).toContainText('Assembly seats in this constituency');
 });
+
+test("the leaderboard and \"Who's responsible\" follow the place: Kolkata's own body and police, a district's blocks and panchayat chain", async ({ page, backend }) => {
+  await page.goto('kasa.html?place=kolkata');
+  await expect(wordmark(page)).toHaveText('Kolkata');
+  const chain = page.locator('#k-chain');
+  await expect(chain).toContainText('Kolkata Municipal Corporation');
+  await expect(chain).not.toContainText('Purulia');
+  await page.evaluate(() => { state.chainTab = 'police'; renderChainSection(); });
+  await expect(chain).toContainText('Commissioner of Police, Kolkata');
+  await expect(page.locator('#k-lb .k-section-title')).toHaveText('Ward accountability');
+
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.07, 23.23], zoom: 11 }); });
+  await expect(wordmark(page)).toHaveText('Bankura');
+  await expect(page.locator('#k-lb .k-section-title')).toHaveText('Block accountability');
+  await expect(chain).toContainText('Superintendent of Police, Bankura');
+  await page.evaluate(() => { state.chainTab = 'sanitation'; renderChainSection(); });
+  await expect(chain).toContainText('Gram panchayat and block office');
+  await expect(chain).toContainText('District Magistrate, Bankura');
+  await expect(chain).not.toContainText('Purulia');
+  await page.evaluate(() => { state.lbQuery = 'Bankura-I'; renderLeaderboard(); });
+  await expect(page.locator('#k-lb-list')).toContainText('Bankura-I block');
+  await expect(page.locator('#k-lb-list')).toContainText('BDO');
+});
