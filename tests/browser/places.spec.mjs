@@ -637,6 +637,7 @@ test('municipality, promises and public demands follow the chosen district', asy
   await expect(page.locator('#nb-list')).not.toContainText('Street lights');
   await expect(page.locator('#nb-leader optgroup[label="MLA"] option', { hasText: 'Saltora: Chandana Bauri' })).toHaveCount(1);
   await expect(page.locator('#nb-leader option[value="councillor"]')).toHaveCount(0);
+});
 
 test('analytics lists the weekly letters to each office in Purulia, and not elsewhere', async ({ page, backend }) => {
   await page.route('**/rest/v1/rpc/kasa_office_letters_public*', route => route.fulfill({
