@@ -239,6 +239,7 @@
       <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
       <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
       <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
+      <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
       <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
       <a href="municipality.html" class="k-drawer-link" data-i18n="nav_money">Who runs the municipality</a>
@@ -556,6 +557,33 @@
     <div class="k-ev-status" id="k-ad-loc"></div>
     <button type="button" class="k-btn k-btn-primary" id="k-ad-submit" disabled data-i18n="ad_submit">🤝 We look after this spot</button>
     <div class="k-privacy" data-i18n="ad_note">Only the name you type is public, never your account. You can let the spot go any time from the Adopted spots page.</div>
+  </div>
+</div>
+
+<!-- Register a dog feeding spot where you stand -->
+<div class="k-modal" id="k-fd-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-fd-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-fd-title" data-i18n="fd_title">Register a dog feeding spot</h3>
+    <p class="k-modal-sub" data-i18n="fd_sub">Stand where you feed the dogs. Pick a spot away from school gates, play areas, entrances and stairs. A moderator checks it before it goes on the public list.</p>
+    <div class="k-field">
+      <label for="k-fd-name" data-i18n="fd_name">Public name</label>
+      <input type="text" id="k-fd-name" class="k-input" maxlength="60" data-i18n-placeholder="fd_name_ph" placeholder="e.g. Rina di, Station Para feeders">
+    </div>
+    <div class="k-field">
+      <label for="k-fd-time" data-i18n="fd_time">When you feed</label>
+      <input type="text" id="k-fd-time" class="k-input" maxlength="40" data-i18n-placeholder="fd_time_ph" placeholder="e.g. 7 to 7:30 pm">
+    </div>
+    <div class="k-field">
+      <label for="k-fd-dogs" data-i18n="fd_dogs">About how many dogs</label>
+      <input type="number" id="k-fd-dogs" class="k-input" min="1" max="60" inputmode="numeric">
+    </div>
+    <label class="k-field"><input type="checkbox" id="k-fd-abc"> <span data-i18n="fd_abc">I can help catch these dogs for rabies vaccination and sterilisation</span></label>
+    <div class="k-ev-status" id="k-fd-loc"></div>
+    <button type="button" class="k-btn k-btn-primary" id="k-fd-submit" disabled data-i18n="fd_submit">🐕 Register this feeding spot</button>
+    <div class="k-privacy" data-i18n="fd_note">Only the name you type is public, never your account. You promise to clean up after every feed. You can stop any time from the Community dogs page.</div>
   </div>
 </div>
 
