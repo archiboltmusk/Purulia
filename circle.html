@@ -36,6 +36,9 @@
   .ci-link{text-align:center;padding:.55rem 1rem;color:var(--amber);font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;line-height:1.5;}
   .ci-link::before{content:"↓ ";}
   .ci-back{border-style:dashed;}
+  .gt-pick{display:inline-flex;align-items:center;gap:.6rem;margin:.4rem 0 1rem;font:500 11px/1 var(--mono,monospace);letter-spacing:.14em;text-transform:uppercase;opacity:.8;}
+  .gt-pick[hidden],.ci [hidden],#who [hidden]{display:none!important;}
+  .gt-pick select{font:inherit;font-size:13px;letter-spacing:.02em;text-transform:none;color:inherit;background:transparent;border:1px solid rgba(212,136,42,.35);padding:.45rem .6rem;}
   .an-card{margin-top:2.6rem;background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
   .an-card h2{font-family:var(--serif);font-size:1.5rem;font-weight:700;color:var(--cream);}
   .an-card-sub{margin-top:.4rem;font-size:.9rem;color:var(--text-md);line-height:1.6;}
@@ -69,6 +72,7 @@
 <main class="an-wrap">
   <h1 class="an-title" data-t="c4">The <em>Circle</em></h1>
   <p class="an-sub" data-t="c5">In Purulia, no problem stays in its own department. A girl married at sixteen becomes an anaemic mother; her child is born small into a home without a tap; the land gives one crop, so the father leaves to find work; and the family that stays behind is poorer and more likely to marry the next daughter young. This page follows that circle through the official figures, one step at a time.</p>
+  <label class="gt-pick" hidden>District <select id="circlePick" aria-label="Choose a district"></select></label>
   <p class="an-sub" data-t="c6">Every number below comes from a government source, linked beside it. How each step feeds the next is our reading of those figures, not a finding of any one survey. Where nobody has published a number, we say so.</p>
 
   <ol class="ci-list">
@@ -178,5 +182,7 @@
 </main>
 <script src="circle-i18n.js"></script>
 <script src="page-lang.js"></script>
+<script defer src="place-facts.js"></script>
+<script defer src="circle-place.js"></script>
 </body>
 </html>
