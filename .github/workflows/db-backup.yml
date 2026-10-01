@@ -2,7 +2,9 @@ name: Weekly database backup
 
 # The free Supabase plan keeps no backups. Once a week this dumps the site's own
 # data (public + kasa_private, and the sign-in accounts from auth), encrypts it
-# with a passphrase, and keeps it as a workflow artifact for 90 days.
+# with a passphrase, and keeps it as a workflow artifact for 90 days. Report photos
+# (public kasa-photos bucket) are listed from the database, downloaded from their public
+# URLs and kept the same way, encrypted, as a second artifact.
 #
 # Needs two repository secrets (Settings → Secrets and variables → Actions):
 #   SUPABASE_DB_URL     the Session pooler connection string from Supabase →
@@ -14,6 +16,7 @@ name: Weekly database backup
 # Restore: download the artifact, then
 #   gpg --batch --passphrase '<passphrase>' -d purulia-db-<date>.sql.gz.gpg | gunzip > backup.sql
 #   psql "<target connection string>" -f backup.sql
+#   gpg --batch --passphrase '<passphrase>' -d purulia-photos-<date>.tar.gpg | tar -x -C photos/
 on:
   schedule:
     - cron: '20 22 * * 0'   # Monday 03:50 IST
@@ -50,6 +53,12 @@ jobs:
           sudo apt-get install -y -qq postgresql-client-17
           /usr/lib/postgresql/17/bin/pg_dump --version
 
+      - uses: actions/checkout@v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          sparse-checkout: config.js
+          sparse-checkout-cone-mode: false
+
       - name: Dump and encrypt
         if: steps.cfg.outputs.ok == 'true'
         run: |
@@ -68,5 +77,32 @@ jobs:
         with:
           name: ${{ env.OUT }}
           path: ${{ env.OUT }}
+          retention-days: 90
+          compression-level: 0
+
+      - name: Download and encrypt photos
+        if: steps.cfg.outputs.ok == 'true'
+        run: |
+          set -euo pipefail
+          BASE=$(grep -oE "https://[a-z0-9]+\.supabase\.co" config.js | head -1)
+          mkdir -p photos
+          /usr/lib/postgresql/17/bin/psql "$DB_URL" -Atc "select name from storage.objects where bucket_id = 'kasa-photos' order by name" > photos.txt
+          fail=0
+          while IFS= read -r name; do
+            [ -n "$name" ] || continue
+            mkdir -p "photos/$(dirname "$name")"
+            curl -fsS --retry 3 -o "photos/$name" "$BASE/storage/v1/object/public/kasa-photos/$name" || { echo "::warning::could not download $name"; fail=$((fail+1)); }
+          done < photos.txt
+          echo "$(wc -l < photos.txt) photos listed, $fail failed"
+          PHOTOS="purulia-photos-$(date -u +%Y-%m-%d).tar.gpg"
+          tar -C photos -cf - . | gpg --batch --yes --symmetric --cipher-algo AES256 --passphrase "$PASSPHRASE" -o "$PHOTOS"
+          ls -lh "$PHOTOS"
+          echo "PHOTOS=$PHOTOS" >> "$GITHUB_ENV"
+
+      - uses: actions/upload-artifact@v4
+        if: steps.cfg.outputs.ok == 'true'
+        with:
+          name: ${{ env.PHOTOS }}
+          path: ${{ env.PHOTOS }}
           retention-days: 90
           compression-level: 0
