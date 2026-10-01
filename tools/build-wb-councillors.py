@@ -26,7 +26,10 @@ UA = {'User-Agent': 'ParishkarBengal/1.0 (civic map; https://github.com/archibol
 PARTY = {'AITC': 'Trinamool Congress', 'BJP': 'BJP', 'CPI(M)': 'CPI(M)', 'CPIM': 'CPI(M)', 'INC': 'Congress',
          'CPI': 'CPI', 'AIFB': 'Forward Bloc', 'RSP': 'RSP', 'IND': 'Independent', 'CPI(ML)L': 'CPI(ML) Liberation'}
 # SEC portal name -> our town body, where they differ beyond spelling/punctuation.
-ALIAS = {}
+ALIAS = {'CHAMPDANY MUNICIPALITY': 'Champdani', 'CHANDERNAGORE MUNICIPAL CORPORATION': 'Chandannagar',
+         'HOOGHLY - CHUCHURA MUNICIPALITY': 'Hooghly–Chunchura', 'ASHOKENAGAR - KALYANGARH MUNICIPALITY': 'Ashoknagar–Kalyangarh',
+         'KHARDAH MUNICIPALITY': 'Khardaha', 'NEW BARRACKPUR MUNICIPALITY': 'New Barrackpore',
+         'NORTH BARRACKPUR MUNICIPALITY': 'North Barrackpore', 'MEKHLIGANJ MUNICIPALITY': 'Mekliganj'}
 # Boards dissolved after the 2022 election (cited); the card then says so.
 BOARD = {
     'bidhannagar': {'dissolved': 'June 2026',
@@ -34,7 +37,6 @@ BOARD = {
     'nabadwip': {'dissolved': 'July 2026',
                  'sourceUrl': 'https://en.wikipedia.org/wiki/Nabadwip_Municipality'},
 }
-SMALL = {'of', 'and', 'ud', 'md', 'sk', 'kr', 'dr'}
 
 
 CACHE = Path(__file__).resolve().parent / 'data/.wbme-cache'
@@ -67,34 +69,45 @@ def title(name):
     out = []
     for w in name.split(' '):
         lw = w.lower()
-        if '.' in w and len(w) <= 4: out.append(w.capitalize())       # MD., KR.
-        else: out.append('-'.join(p[:1].upper() + p[1:] for p in lw.split('-')))
+        out.append(re.sub(r"(^|[-(.'])([a-z])", lambda m: m.group(1) + m.group(2).upper(), lw))
     return ' '.join(out)
 
 
-def winners(muni_id):
-    """{ward: {councillor, party, date, unopposed?}} over every result date, by-elections last."""
-    dates = call('SelectMunicipalityWisePollResultDate', {'MunicipalityDirectoryID': muni_id})
-    dates.sort(key=lambda d: tuple(reversed(d['PollResultDate'].split('/'))))
+def winners(muni_id, dates):
+    """{ward: {councillor, party, result, unopposed?}} over every result date, by-elections last.
+    A ward with votes takes the top candidate; a ward with no votes but exactly one contesting
+    candidate (after withdrawals) was won unopposed."""
     wards = {}
     for d in dates:
-        rows = call('SelectCandidateVotesinFavourPortalList',
-                    {'MunicipalityDirectoryID': str(muni_id), 'MunicipalitySeatID': '0', 'PanchayatPollDateID': str(d['ID'])})
-        by = {}
-        for r in rows:
-            m = re.match(r'WARD-(\d+)$', (r.get('SeatName') or '').strip().upper())
-            if m: by.setdefault(int(m.group(1)), []).append(r)
+        q = {'MunicipalityDirectoryID': str(muni_id), 'MunicipalitySeatID': '0', 'PanchayatPollDateID': str(d['ID'])}
+        votes, sole = {}, {}
+        for r in call('SelectCandidateVotesinFavourPortalList', q):
+            n = seat(r.get('SeatName'))
+            if n: votes.setdefault(n, []).append(r)
+        for r in call('SelectContestingCandidatesPortalList', {'PanchayatDirectoryID': str(muni_id), 'PanchayatPollDateID': str(d['ID'])}):
+            n = seat(r.get('PanchayatSeatFullDescription'))
+            if n: sole.setdefault(n, []).append(r)
         when = '-'.join(reversed(d['PollResultDate'].split('/')))
-        for n, cands in by.items():
+        for n, cands in votes.items():
             cands.sort(key=lambda r: -(r.get('VoteInFavour') or 0))
             top = cands[0]
             if len(cands) > 1 and (top.get('VoteInFavour') or 0) == (cands[1].get('VoteInFavour') or 0): continue
-            p = (top.get('PartyAffiliation') or '').strip().upper()
-            w = {'councillor': title(top['CandidateName']), 'party': PARTY.get(p, p or None), 'result': when}
-            if len(cands) == 1: w['unopposed'] = True
-            wards[n] = w
-        time.sleep(0.5)
-    return dates, wards
+            wards[n] = entry(top['CandidateName'], top.get('PartyAffiliation'), when)
+        for n, cands in sole.items():
+            if n not in votes and len(cands) == 1:
+                wards[n] = entry(cands[0]['Name'], cands[0].get('PanchayatPartyDescription'), when)
+                wards[n]['unopposed'] = True
+    return wards
+
+
+def seat(name):
+    m = re.match(r'WARD-(\d+)$', (name or '').strip().upper())
+    return int(m.group(1)) if m else None
+
+
+def entry(name, party, when):
+    p = re.sub(r'\s+', '', party or '').upper()
+    return {'councillor': title(name), 'party': PARTY.get(p, p or None), 'result': when}
 
 
 def main():
@@ -104,13 +117,14 @@ def main():
         for s in z['SubDivisions']:
             for m in s['Municipalities']:
                 munis[norm(ALIAS.get(m['Name'], m['Name']))] = m
+    dates = sorted(call('SelectPollResultDate', {}), key=lambda d: tuple(reversed(d['PollResultDate'].split('/'))))
     OUT.mkdir(exist_ok=True)
     today = date.today().isoformat()
     missing = []
     for t in towns:
         m = munis.get(norm(t['body'])) or munis.get(norm(t['name']))
         if not m: missing.append(t['body']); continue
-        dates, wards = winners(m['ID'])
+        wards = winners(m['ID'], dates)
         if not wards: missing.append(t['body'] + ' (no results)'); continue
         first = min(w['result'] for w in wards.values())
         for w in wards.values():
