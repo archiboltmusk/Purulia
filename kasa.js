@@ -47,7 +47,7 @@ const DEFAULT_RULES = {
 const SEVERITIES = ['minor', 'severe', 'critical'];
 const WASTE_TYPES = ['household', 'construction', 'mixed', 'e_waste', 'biomedical'];
 /* Service problems share the same field (reports.waste_type); the server sets the category from them. */
-const SERVICE_TYPES = ['dry_tap', 'pump_broken', 'no_doctor', 'no_medicine', 'centre_closed'];
+const SERVICE_TYPES = ['dry_tap', 'pump_broken', 'no_doctor', 'no_medicine', 'centre_closed', 'work_missing', 'no_signboard'];
 const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
@@ -69,7 +69,8 @@ const CATEGORIES = {
   anganwadi:            { icon: '🧒', group: 'services', chain: 'icds',        fix: 'fixed' },
   health_centre:        { icon: '🏥', group: 'services', chain: 'health',      fix: 'fixed' },
   school:               { icon: '🏫', group: 'services', chain: 'education',   fix: 'repaired' },
-  toilet:               { icon: '🚻', group: 'services', chain: 'sanitation',  fix: 'fixed' }
+  toilet:               { icon: '🚻', group: 'services', chain: 'sanitation',  fix: 'fixed' },
+  rural_jobs:           { icon: '⛏', group: 'services', chain: 'rural_jobs',  fix: 'fixed' }
 };
 const GROUPS = ['clean', 'infra', 'services', 'illegal'];
 
@@ -86,7 +87,9 @@ const CHAINS = {
   police:       { agency: 'agency_police', nodes: ['ps', 'sdpo', 'sp'], note: 'note_112' },
   icds:         { agency: 'agency_icds', nodes: ['cdpo', 'dpo', 'dm'] },
   health:       { agency: 'agency_health', nodes: ['bmoh', 'cmoh', 'dm'] },
-  education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] }
+  education:    { agency: 'agency_education', nodes: ['si_school', 'adi_school', 'di_school', 'dm'] },
+  // MGNREGA: the gram panchayat runs the work, the BDO is the block's programme officer.
+  rural_jobs:   { agency: 'agency_panchayat', nodes: ['pradhan', 'bdo', 'dm'] }
 };
 
 /* Outside Purulia town the municipality's work falls to the gram panchayat and the block,
@@ -2359,12 +2362,13 @@ function renderAccountability(r){
 /* Official channels with their own deadlines, from city.js. */
 const STATE_HELPLINE = CITY.stateHelpline || '';
 const STATE_HELPLINE_EMAIL = CITY.stateHelplineEmail || '';
-const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
+const CENTRAL_CATS = ['road', 'water', 'hand_pump', 'anganwadi', 'health_centre', 'school', 'rural_jobs'];
 function renderEscalate(r){
   const msg = reportMessage(r);
   const items = [];
   if (STATE_HELPLINE) items.push([`tel:+91${STATE_HELPLINE}`, t('esc_state', { n: CITY.stateHelplineDisplay || STATE_HELPLINE }), t('esc_state_s')]);
   if (STATE_HELPLINE_EMAIL) items.push([`mailto:${STATE_HELPLINE_EMAIL}?subject=${encodeURIComponent(CITY_NAME + ' — ' + t('cat_' + r.category))}&body=${encodeURIComponent(msg)}`, t('esc_state_mail'), STATE_HELPLINE_EMAIL]);
+  if (r.category === 'rural_jobs') items.push(['https://nrega.dord.gov.in/', t('esc_nrega'), t('esc_nrega_s')]);
   if (CENTRAL_CATS.includes(r.category)) items.push(['https://pgportal.gov.in/', t('esc_cpgrams'), t('esc_cpgrams_s')]);
   // WBSEDCL is Purulia's supplier; other places (Kolkata: CESC) have their own.
   if (r.category === 'streetlight' && CITY.powerUtilityUrl && r.area !== 'place') items.push([CITY.powerUtilityUrl, t('esc_power'), t('esc_power_s')]);

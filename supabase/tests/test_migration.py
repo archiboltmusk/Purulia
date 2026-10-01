@@ -2047,6 +2047,12 @@ backlog = admin_sql('select kasa_private.queue_backlog()')[0][0]
 check('a report held for review over 72 hours shows in the moderators\' daily nudge, and nobody else can ask for it',
       backlog.get('Reports held for review', 0) >= 1 and err(rpc, 'kasa_queue_alert_claim') is not None)
 admin_sql("update public.reports set moderation_status = 'approved' where id = %s", (hc['id'],))
+rj = rpc('kasa_create_report', uid=wt_user, p_category=None, p_severity='minor',
+         p_lat=offset(-3300, 3400)[0], p_lng=offset(-3300, 3400)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
+         p_waste_type='no_signboard')
+check('a rural jobs site with no signboard is a rural_jobs report',
+      admin_sql('select category, waste_type from public.reports where id = %s', (rj['id'],))[0] == ('rural_jobs', 'no_signboard'))
 # ─────────────────────────────── Promises page ─────────────────────────────
 pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
               p_made_on='2026-08-01', p_source_url='https://example.com/said')

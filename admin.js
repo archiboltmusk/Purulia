@@ -249,7 +249,7 @@ async function loadSla(){
 }
 
 const CATEGORY_KEYS = ['garbage', 'drain', 'road', 'streetlight', 'water', 'missing', 'encroachment',
-  'illegal_construction', 'illegal_mining', 'illegal_other', 'other', 'dumpsite', 'toilet', 'hand_pump', 'anganwadi', 'health_centre', 'school'];
+  'illegal_construction', 'illegal_mining', 'illegal_other', 'other', 'dumpsite', 'toilet', 'hand_pump', 'anganwadi', 'health_centre', 'school', 'rural_jobs'];
 
 /* Count tiles over the queue: waiting now, hidden, and this month's decisions (the same
    public counts analytics.html shows, so the team and the public see one set of numbers). */
