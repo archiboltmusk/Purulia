@@ -109,8 +109,11 @@ test('report form sends the picked severity and waste type', async ({ page, back
   await expect(page.locator('#k-severity [data-sev="minor"]')).toHaveAttribute('aria-checked', 'true');
   await expect(page.locator('#k-waste [aria-checked="true"]')).toHaveCount(0);
   await page.locator('#k-severity [data-sev="severe"]').click();
+  // One choice across the waste and service rows: a service problem replaces a waste type.
+  await page.locator('#k-service [data-waste="dry_tap"]').click();
   await page.locator('#k-waste [data-waste="construction"]').click();
   await expect(page.locator('#k-waste [data-waste="construction"]')).toHaveAttribute('aria-checked', 'true');
+  await expect(page.locator('#k-service [aria-checked="true"]')).toHaveCount(0);
   const submit = page.locator('#k-submit');
   await expect(submit).toBeEnabled();
   await submit.click();

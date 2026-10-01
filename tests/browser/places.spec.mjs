@@ -638,3 +638,18 @@ test('municipality, promises and public demands follow the chosen district', asy
   await expect(page.locator('#nb-leader optgroup[label="MLA"] option', { hasText: 'Saltora: Chandana Bauri' })).toHaveCount(1);
   await expect(page.locator('#nb-leader option[value="councillor"]')).toHaveCount(0);
 });
+
+test('analytics lists the weekly letters to each office in Purulia, and not elsewhere', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_office_letters_public*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { office: 'dm', title: 'District Magistrate, Purulia', letters: 1, first: '2026-10-05', last: '2026-10-05', last_count: 2 },
+      { office: 'municipality', title: 'Purulia Municipality', letters: 3, first: '2026-09-21', last: '2026-10-05', last_count: 7 }]) }));
+  await page.goto('analytics.html?d=purulia');
+  await expect(page.locator('#an-letters-card')).toBeVisible();
+  await expect(page.locator('#an-letters')).toContainText('District Magistrate, Purulia');
+  await expect(page.locator('#an-letters')).toContainText('14+ days past deadline');
+  await expect(page.locator('#an-letters')).toContainText('Purulia Municipality');
+  await page.goto('analytics.html?d=bankura');
+  await expect(page.locator('.an-title')).toContainText('Bankura');
+  await expect(page.locator('#an-letters-card')).toBeHidden();
+});

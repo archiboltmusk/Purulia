@@ -46,6 +46,8 @@ const DEFAULT_RULES = {
 };
 const SEVERITIES = ['minor', 'severe', 'critical'];
 const WASTE_TYPES = ['household', 'construction', 'mixed', 'e_waste', 'biomedical'];
+/* Service problems share the same field (reports.waste_type); the server sets the category from them. */
+const SERVICE_TYPES = ['dry_tap', 'pump_broken', 'no_doctor', 'no_medicine', 'centre_closed'];
 const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
@@ -486,7 +488,7 @@ function normalize(r){
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
     category: CATEGORIES[r.category] ? r.category : 'garbage',
     severity: SEVERITIES.includes(r.severity) ? r.severity : 'minor',
-    wasteType: WASTE_TYPES.includes(r.waste_type) ? r.waste_type : null,
+    wasteType: WASTE_TYPES.includes(r.waste_type) || SERVICE_TYPES.includes(r.waste_type) ? r.waste_type : null,
     status,
     description: r.description || '',
     landmark: r.landmark || '',
@@ -4092,11 +4094,12 @@ function setSeverity(sev){
   document.querySelectorAll('#k-severity button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.sev === sev)));
 }
 
-/* Optional: picking a waste type marks the report as garbage (the server does the same).
-   Tapping the chosen one again clears it, for problems that aren't garbage. */
+/* Optional: picking a waste type marks the report as garbage, and a service problem marks it as
+   water, hand pump or health centre (the server does the same). One choice across both rows;
+   tapping the chosen one again clears it. */
 function setWasteType(type){
   if (draft) draft.wasteType = type;
-  document.querySelectorAll('#k-waste button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.waste === type)));
+  document.querySelectorAll('#k-waste button, #k-service button').forEach(b => b.setAttribute('aria-checked', String(b.dataset.waste === type)));
 }
 
 /* No category to pick any more — the server assigns it. A ward is needed only inside the
