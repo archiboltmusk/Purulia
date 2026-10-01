@@ -609,3 +609,32 @@ test('the ward digest and adopted spots follow the chosen district', async ({ pa
   await expect(page).toHaveURL(/muni=bishnupur/);
   await expect(page).toHaveURL(/d=bankura/);
 });
+
+test('municipality, promises and public demands follow the chosen district', async ({ page }) => {
+  await page.goto('municipality.html?d=bankura');
+  await expect(page.locator('#mu-bodies')).toContainText('Bishnupur');
+  await expect(page.locator('#mu-body option', { hasText: 'Bankura Municipality' })).toHaveCount(1);
+
+  const ok = body => route => route.fulfill({ status: 200, contentType: 'application/json',
+    headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
+  const promise = (id, who, area) => ({ id, who, role: null, area, promise: `Promise ${id} for the area`, made_on: '2026-05-01',
+    source_url: 'https://example.org/' + id, status: 'promised' });
+  await page.route('**/rest/v1/rpc/kasa_promises*', ok({ promises: [
+    promise('a', 'Arup Chakraborty', null), promise('b', 'Someone', 'Purulia'), promise('c', 'Minister', 'All of West Bengal'),
+    promise('d', 'Someone else', 'Sonamukhi')], news: [] }));
+  await page.goto('promises.html?d=bankura');
+  await expect(page.locator('#pr-reps')).toContainText('Chandana Bauri');
+  await expect(page.locator('#pr-reps')).toContainText('MP, Bishnupur');
+  await expect(page.locator('#pr-list .pr-item')).toHaveCount(3);
+  await expect(page.locator('#pr-list')).not.toContainText('Promise b');
+  await expect(page.locator('.an-sub').first()).toContainText('Bankura');
+
+  await page.route('**/rest/v1/rpc/kasa_demands*', ok([
+    { id: 1, leader_role: 'mla', leader_name: 'Kshudiram Tudu', leader_area: 'Ranibandh', title: 'A bridge over the river', details: 'x', supports: 2, created_at: '2026-09-01T00:00:00Z' },
+    { id: 2, leader_role: 'mla', leader_name: 'Someone', leader_area: 'Purulia', title: 'Street lights in Purulia', details: 'x', supports: 1, created_at: '2026-09-01T00:00:00Z' }]));
+  await page.goto('noticeboard.html?d=bankura');
+  await expect(page.locator('#nb-list')).toContainText('A bridge over the river');
+  await expect(page.locator('#nb-list')).not.toContainText('Street lights');
+  await expect(page.locator('#nb-leader optgroup[label="MLA"] option', { hasText: 'Saltora: Chandana Bauri' })).toHaveCount(1);
+  await expect(page.locator('#nb-leader option[value="councillor"]')).toHaveCount(0);
+});
