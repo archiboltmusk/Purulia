@@ -6,14 +6,23 @@ const LIST = [
     wards: [5], blocks: ['Jhalda I'], logo: LOGO, listed_at: '2026-09-27T00:00:00Z',
     links: { whatsapp: 'https://chat.whatsapp.com/abc', instagram: 'https://www.instagram.com/sahebbandh' } },
   { id: 'c2', name: 'Purulia Green Riders', tagline: 'Tree planting across the district', description: 'Join us on weekends.', all_district: true,
-    wards: [], blocks: [], logo: LOGO, listed_at: '2026-09-26T00:00:00Z', links: { x: 'https://x.com/greenriders' } }
+    wards: [], blocks: [], logo: LOGO, listed_at: '2026-09-26T00:00:00Z', links: { x: 'https://x.com/greenriders' } },
+  { id: 'c3', name: 'Two District Crew', tagline: 'Plogging', description: null, all_district: true, districts: ['bankura', 'purulia'],
+    wards: [], blocks: [], logo: LOGO, listed_at: '2026-09-25T00:00:00Z',
+    links: { instagram: 'https://www.instagram.com/crew', phone: '9876543210', email: 'hi@crew.org' } }
 ];
 const ok = (body) => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
 
 test('communities list shows cards with logo, place and link chips, and filters by place', async ({ page, backend }) => {
   await page.route('**/rest/v1/kasa_public_communities*', ok(LIST));
   await page.goto('communities.html');
-  await expect(page.locator('.cm-card')).toHaveCount(2);
+  await expect(page.locator('.cm-card')).toHaveCount(3);
+  await expect(page.locator('#c-c3 .cm-where')).toContainText('Works across Bankura and Purulia districts');
+  await expect(page.locator('#c-c3 a.cm-chip[href="tel:+919876543210"]')).toBeVisible();
+  await expect(page.locator('#c-c3 a.cm-chip[href="mailto:hi@crew.org"]')).toBeVisible();
+  await page.locator('#cm-where').selectOption('d:bankura');
+  await expect(page.locator('.cm-card')).toHaveCount(1);
+  await page.locator('#cm-where').selectOption('');
   const first = page.locator('#c-c1');
   await expect(first.locator('.cm-where')).toContainText('Ward 5, Jhalda I block');
   await expect(first.locator('a.cm-chip[href="https://www.instagram.com/sahebbandh"]')).toContainText('sahebbandh');
@@ -21,9 +30,9 @@ test('communities list shows cards with logo, place and link chips, and filters 
   await expect(page.locator('#c-c2 .cm-where')).toContainText('Works across Purulia district');
 
   await page.locator('#cm-where').selectOption('w7');
-  await expect(page.locator('.cm-card')).toHaveCount(1); // the district-wide one
+  await expect(page.locator('.cm-card')).toHaveCount(2); // the district-wide ones
   await page.locator('#cm-where').selectOption('b:Jhalda I');
-  await expect(page.locator('.cm-card')).toHaveCount(2);
+  await expect(page.locator('.cm-card')).toHaveCount(3);
 
   await page.locator('.cm-lang [data-lang="bn"]').click();
   await expect(page.locator('#cm-open')).toContainText('আপনার দল নথিভুক্ত করুন');

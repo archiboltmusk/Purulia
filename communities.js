@@ -19,7 +19,7 @@
       sub: 'People already cleaning up and looking after Purulia. Find one near you and join them.',
       loading: 'Loading…', load_err: 'Could not load communities right now.',
       count: '{n} communities', count_1: '1 community', where_all: 'Everywhere', ward: 'Ward {n}', block: '{b} block',
-      works_all: 'Works across Purulia district', works_in: 'Works in {p}',
+      works_all: 'Works across {p} district', works_all_n: 'Works across {p} districts', works_in: 'Works in {p}', and: ' and ',
       empty: 'No community listed yet. If you run one, register it so people can find you.',
       empty_here: 'No community listed here yet. If you run one, register it so people nearby can find you.',
       register: 'Register your community', register_sub: 'Get listed so people nearby can find and join you',
@@ -31,7 +31,7 @@
       ph_area: 'Search a ward or block', h_area: 'Pick the town wards and blocks your community covers.',
       f_links: 'Links', h_links: 'Add at least one so people can reach you.', h_addlinks: 'Tap an icon to add more links.',
       l_whatsapp: 'WhatsApp group or community link', l_instagram: 'Instagram link or @handle', l_facebook: 'Facebook page link',
-      l_x: 'X link or @handle', l_website: 'Website', l_linkedin: 'LinkedIn page link', l_youtube: 'YouTube channel link', l_telegram: 'Telegram link or @handle',
+      l_x: 'X link or @handle', l_website: 'Website', l_linkedin: 'LinkedIn page link', l_youtube: 'YouTube channel link', l_telegram: 'Telegram link or @handle', l_phone: 'Public phone number', l_email: 'Public email',
       f_logo: 'Logo', h_logo: 'Any image works; it is cropped to a square.', logo_btn: 'Upload a logo', logo_change: 'Change logo', logo_err: 'That image could not be read. Try another.',
       f_verify: 'Verification details', h_verify: 'Not shown publicly. Only so the Parishkar team can verify and contact you about your listing.',
       ph_cname: 'Your name', ph_cphone: 'Phone', adult: 'I am 18 or older and I run this community.',
@@ -48,7 +48,7 @@
       sub: 'যাঁরা ইতিমধ্যেই পুরুলিয়া পরিষ্কার রাখছেন ও দেখাশোনা করছেন। আপনার কাছের একটি দল খুঁজে যোগ দিন।',
       loading: 'লোড হচ্ছে…', load_err: 'এখন দলগুলি লোড করা যাচ্ছে না।',
       count: '{n}টি দল', count_1: '১টি দল', where_all: 'সব জায়গা', ward: 'ওয়ার্ড {n}', block: '{b} ব্লক',
-      works_all: 'সারা পুরুলিয়া জেলায় কাজ করে', works_in: '{p}-এ কাজ করে',
+      works_all: 'সারা {p} জেলায় কাজ করে', works_all_n: '{p} জেলা জুড়ে কাজ করে', works_in: '{p}-এ কাজ করে', and: ' ও ',
       empty: 'এখনও কোনো দল তালিকায় নেই। আপনি কোনো দল চালালে নথিভুক্ত করুন, যাতে মানুষ আপনাকে খুঁজে পায়।',
       empty_here: 'এখানে এখনও কোনো দল তালিকায় নেই। আপনি কোনো দল চালালে নথিভুক্ত করুন, যাতে কাছের মানুষ আপনাকে খুঁজে পায়।',
       register: 'আপনার দল নথিভুক্ত করুন', register_sub: 'তালিকায় থাকলে কাছের মানুষ আপনাকে খুঁজে যোগ দিতে পারবেন',
@@ -60,7 +60,7 @@
       ph_area: 'ওয়ার্ড বা ব্লক খুঁজুন', h_area: 'আপনার দল শহরের যে ওয়ার্ড ও ব্লকগুলিতে কাজ করে, বেছে নিন।',
       f_links: 'লিঙ্ক', h_links: 'অন্তত একটি দিন, যাতে মানুষ আপনার সঙ্গে যোগাযোগ করতে পারে।', h_addlinks: 'আরও লিঙ্ক যোগ করতে আইকনে চাপুন।',
       l_whatsapp: 'হোয়াটসঅ্যাপ গ্রুপ বা কমিউনিটির লিঙ্ক', l_instagram: 'ইনস্টাগ্রাম লিঙ্ক বা @হ্যান্ডেল', l_facebook: 'ফেসবুক পেজের লিঙ্ক',
-      l_x: 'X লিঙ্ক বা @হ্যান্ডেল', l_website: 'ওয়েবসাইট', l_linkedin: 'লিংকডইন পেজের লিঙ্ক', l_youtube: 'ইউটিউব চ্যানেলের লিঙ্ক', l_telegram: 'টেলিগ্রাম লিঙ্ক বা @হ্যান্ডেল',
+      l_x: 'X লিঙ্ক বা @হ্যান্ডেল', l_website: 'ওয়েবসাইট', l_linkedin: 'লিংকডইন পেজের লিঙ্ক', l_youtube: 'ইউটিউব চ্যানেলের লিঙ্ক', l_telegram: 'টেলিগ্রাম লিঙ্ক বা @হ্যান্ডেল', l_phone: 'সবার জন্য ফোন নম্বর', l_email: 'সবার জন্য ইমেল',
       f_logo: 'লোগো', h_logo: 'যেকোনো ছবি চলবে; বর্গাকারে কেটে নেওয়া হবে।', logo_btn: 'লোগো আপলোড করুন', logo_change: 'লোগো বদলান', logo_err: 'এই ছবিটি পড়া গেল না। অন্য একটি দিন।',
       f_verify: 'যাচাইয়ের তথ্য', h_verify: 'সর্বজনীনভাবে দেখানো হবে না। শুধু পরিষ্কার টিম যাচাই করতে ও আপনার তালিকা নিয়ে যোগাযোগ করতে ব্যবহার করবে।',
       ph_cname: 'আপনার নাম', ph_cphone: 'ফোন', adult: 'আমার বয়স ১৮ বা তার বেশি এবং আমি এই দলটি চালাই।',
@@ -77,7 +77,7 @@
       sub: 'जो लोग पहले से पुरुलिया को साफ़ रख रहे हैं और उसकी देखभाल कर रहे हैं। अपने पास का समूह खोजें और जुड़ें।',
       loading: 'लोड हो रहा है…', load_err: 'अभी समूह लोड नहीं हो पा रहे।',
       count: '{n} समूह', count_1: '1 समूह', where_all: 'हर जगह', ward: 'वार्ड {n}', block: '{b} ब्लॉक',
-      works_all: 'पूरे पुरुलिया ज़िले में काम करता है', works_in: '{p} में काम करता है',
+      works_all: 'पूरे {p} ज़िले में काम करता है', works_all_n: '{p} ज़िलों में काम करता है', works_in: '{p} में काम करता है', and: ' और ',
       empty: 'अभी कोई समूह सूची में नहीं है। अगर आप कोई समूह चलाते हैं, तो उसे दर्ज करें ताकि लोग आपको खोज सकें।',
       empty_here: 'यहाँ अभी कोई समूह सूची में नहीं है। अगर आप कोई समूह चलाते हैं, तो उसे दर्ज करें ताकि पास के लोग आपको खोज सकें।',
       register: 'अपना समूह दर्ज करें', register_sub: 'सूची में आने से पास के लोग आपको खोजकर जुड़ सकेंगे',
@@ -89,7 +89,7 @@
       ph_area: 'वार्ड या ब्लॉक खोजें', h_area: 'शहर के वे वार्ड और ब्लॉक चुनें जहाँ आपका समूह काम करता है।',
       f_links: 'लिंक', h_links: 'कम से कम एक दें ताकि लोग आपसे संपर्क कर सकें।', h_addlinks: 'और लिंक जोड़ने के लिए आइकन दबाएँ।',
       l_whatsapp: 'व्हाट्सऐप ग्रुप या कम्युनिटी लिंक', l_instagram: 'इंस्टाग्राम लिंक या @हैंडल', l_facebook: 'फ़ेसबुक पेज लिंक',
-      l_x: 'X लिंक या @हैंडल', l_website: 'वेबसाइट', l_linkedin: 'लिंक्डइन पेज लिंक', l_youtube: 'यूट्यूब चैनल लिंक', l_telegram: 'टेलीग्राम लिंक या @हैंडल',
+      l_x: 'X लिंक या @हैंडल', l_website: 'वेबसाइट', l_linkedin: 'लिंक्डइन पेज लिंक', l_youtube: 'यूट्यूब चैनल लिंक', l_telegram: 'टेलीग्राम लिंक या @हैंडल', l_phone: 'सार्वजनिक फ़ोन नंबर', l_email: 'सार्वजनिक ईमेल',
       f_logo: 'लोगो', h_logo: 'कोई भी तस्वीर चलेगी; उसे चौकोर काटा जाएगा।', logo_btn: 'लोगो अपलोड करें', logo_change: 'लोगो बदलें', logo_err: 'यह तस्वीर पढ़ी नहीं जा सकी। कोई दूसरी दें।',
       f_verify: 'सत्यापन विवरण', h_verify: 'सार्वजनिक नहीं दिखेगा। सिर्फ़ परिष्कार टीम जाँचने और आपकी सूची के बारे में संपर्क करने के लिए इस्तेमाल करेगी।',
       ph_cname: 'आपका नाम', ph_cphone: 'फ़ोन', adult: 'मेरी उम्र 18 या उससे अधिक है और मैं यह समूह चलाता/चलाती हूँ।',
@@ -124,8 +124,29 @@
     website:   { name: 'Website', color: 'currentColor', icon: svg('<circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/>') },
     linkedin:  { name: 'LinkedIn', color: '#0a66c2', icon: svg('<rect x="3" y="3" width="18" height="18" rx="2"/><path d="M8 10v7M8 7v.01M12 17v-4a2 2 0 0 1 4 0v4M12 10v7"/>') },
     youtube:   { name: 'YouTube', color: '#ff0033', icon: svg('<rect x="2" y="5" width="20" height="14" rx="4"/><path d="M10 9l5 3-5 3z"/>') },
-    telegram:  { name: 'Telegram', color: '#229ed9', handle: 'https://t.me/', icon: svg('<path d="M22 3L2 11l7 2 2 7 4-5 5 4z"/><path d="M9 13l13-10"/>') }
+    telegram:  { name: 'Telegram', color: '#229ed9', handle: 'https://t.me/', icon: svg('<path d="M22 3L2 11l7 2 2 7 4-5 5 4z"/><path d="M9 13l13-10"/>') },
+    phone:     { name: 'Phone', color: 'currentColor', type: 'tel', icon: svg('<path d="M5 4h4l2 5-2.5 1.5a11 11 0 0 0 5 5L15 13l5 2v4a2 2 0 0 1-2 2A16 16 0 0 1 3 6a2 2 0 0 1 2-2"/>') },
+    email:     { name: 'Email', color: 'currentColor', type: 'email', icon: svg('<rect x="3" y="5" width="18" height="14" rx="2"/><path d="M3 7l9 6 9-6"/>') }
   };
+  // Phone and email are stored bare; everything else is an https link.
+  const hrefOf = (k, v) => k === 'phone' ? 'tel:' + (/^[6-9]\d{9}$/.test(v) ? '+91' + v : v)
+    : k === 'email' ? 'mailto:' + v : v;
+  const linkOk = (k, v) => typeof v === 'string' && (k === 'phone' ? /^\d{10,12}$/.test(v) : k === 'email' ? /^[^@\s]+@[^@\s]+$/.test(v) : /^https:\/\//i.test(v));
+  // West Bengal districts (slugs as in places/wb_district_facts.json): en, bn, hi.
+  const DISTRICTS = {
+    alipurduar: ['Alipurduar', 'আলিপুরদুয়ার', 'अलीपुरद्वार'], bankura: ['Bankura', 'বাঁকুড়া', 'बांकुड़ा'], birbhum: ['Birbhum', 'বীরভূম', 'बीरभूम'],
+    'cooch-behar': ['Cooch Behar', 'কোচবিহার', 'कूचबिहार'], 'dakshin-dinajpur': ['Dakshin Dinajpur', 'দক্ষিণ দিনাজপুর', 'दक्षिण दिनाजपुर'],
+    darjeeling: ['Darjeeling', 'দার্জিলিং', 'दार्जिलिंग'], hooghly: ['Hooghly', 'হুগলি', 'हुगली'], howrah: ['Howrah', 'হাওড়া', 'हावड़ा'],
+    jalpaiguri: ['Jalpaiguri', 'জলপাইগুড়ি', 'जलपाईगुड़ी'], jhargram: ['Jhargram', 'ঝাড়গ্রাম', 'झाड़ग्राम'], kalimpong: ['Kalimpong', 'কালিম্পং', 'कलिम्पोंग'],
+    kolkata: ['Kolkata', 'কলকাতা', 'कोलकाता'], malda: ['Malda', 'মালদা', 'मालदा'], murshidabad: ['Murshidabad', 'মুর্শিদাবাদ', 'मुर्शिदाबाद'],
+    nadia: ['Nadia', 'নদিয়া', 'नदिया'], 'north-24-parganas': ['North 24 Parganas', 'উত্তর ২৪ পরগনা', 'उत्तर 24 परगना'],
+    'paschim-bardhaman': ['Paschim Bardhaman', 'পশ্চিম বর্ধমান', 'पश्चिम बर्धमान'], 'paschim-medinipur': ['Paschim Medinipur', 'পশ্চিম মেদিনীপুর', 'पश्चिम मेदिनीपुर'],
+    'purba-bardhaman': ['Purba Bardhaman', 'পূর্ব বর্ধমান', 'पूर्व बर्धमान'], 'purba-medinipur': ['Purba Medinipur', 'পূর্ব মেদিনীপুর', 'पूर्व मेदिनीपुर'],
+    purulia: ['Purulia', 'পুরুলিয়া', 'पुरुलिया'], 'south-24-parganas': ['South 24 Parganas', 'দক্ষিণ ২৪ পরগনা', 'दक्षिण 24 परगना'],
+    'uttar-dinajpur': ['Uttar Dinajpur', 'উত্তর দিনাজপুর', 'उत्तर दिनाजपुर']
+  };
+  const distName = d => (DISTRICTS[d] || [d])[{ en: 0, bn: 1, hi: 2 }[lang] || 0] || d;
+  const distsOf = g => Array.isArray(g.districts) && g.districts.length ? g.districts : ['purulia'];
   const ALWAYS = ['whatsapp', 'instagram'];
 
   const state = { list: [], loaded: false, failed: false, where: '', all: false, areas: [], shown: new Set(ALWAYS), logo: null };
@@ -139,6 +160,7 @@
 
   // What a link chip reads: the handle for profile links, the host for a website.
   function chipText(k, url){
+    if (k === 'phone' || k === 'email') return url;
     let u;
     try { u = new URL(url); } catch (e) { return NETS[k].name; }
     const seg = u.pathname.split('/').filter(Boolean)[0];
@@ -148,20 +170,24 @@
   }
 
   function placesOf(g){
-    if (g.all_district) return t('works_all');
-    const p = [...(g.wards || []).map(n => t('ward', { n })), ...(g.blocks || []).map(b => t('block', { b }))];
+    const ds = distsOf(g).map(distName);
+    const names = ds.length > 1 ? ds.slice(0, -1).join(', ') + t('and') + ds[ds.length - 1] : ds[0];
+    if (g.all_district) return t(ds.length > 1 ? 'works_all_n' : 'works_all', { p: names });
+    const p = [...(g.wards || []).map(n => t('ward', { n })), ...(g.blocks || []).map(b => t('block', { b })),
+      ...distsOf(g).filter(d => d !== 'purulia').map(distName)];
     return t('works_in', { p: p.join(', ') });
   }
 
   function renderList(){
     const w = state.where;
-    const list = !w ? state.list : state.list.filter(g => g.all_district
+    const list = !w ? state.list : state.list.filter(g => w.startsWith('d:') ? distsOf(g).includes(w.slice(2))
+      : (g.all_district && distsOf(g).includes('purulia'))
       || (w[0] === 'w' ? (g.wards || []).includes(Number(w.slice(1))) : (g.blocks || []).includes(w.slice(2))));
     if (state.failed){ $('cm-count').textContent = t('load_err'); $('cm-list').innerHTML = ''; return; }
     if (!state.loaded) return;
     $('cm-count').textContent = list.length === 1 ? t('count_1') : t('count', { n: list.length });
     $('cm-list').innerHTML = list.length ? list.map(g => {
-      const links = Object.keys(NETS).filter(k => g.links && typeof g.links[k] === 'string' && /^https:\/\//i.test(g.links[k]));
+      const links = Object.keys(NETS).filter(k => g.links && linkOk(k, g.links[k]));
       const logo = /^data:image\/(jpeg|png|webp);base64,/.test(g.logo || '') ? g.logo : '';
       return `<article class="cm-card" id="c-${esc(g.id)}">
         <div class="cm-head">
@@ -170,7 +196,7 @@
         </div>
         ${g.tagline ? `<p class="cm-tag">${esc(g.tagline)}</p>` : ''}
         ${g.description ? `<p class="cm-about">${esc(g.description)}</p>` : ''}
-        ${links.length ? `<div class="cm-links">${links.map(k => `<a class="cm-chip" href="${esc(g.links[k])}" target="_blank" rel="noopener nofollow ugc">
+        ${links.length ? `<div class="cm-links">${links.map(k => `<a class="cm-chip" href="${esc(hrefOf(k, g.links[k]))}"${k === 'phone' || k === 'email' ? '' : ' target="_blank" rel="noopener nofollow ugc"'}>
           <span class="cm-ico" style="color:${NETS[k].color}">${NETS[k].icon}</span><span>${esc(chipText(k, g.links[k]))}</span></a>`).join('')}</div>` : ''}
       </article>`;
     }).join('') : `<div class="cm-empty">${esc(t(w ? 'empty_here' : 'empty'))}</div>`;
@@ -178,7 +204,9 @@
 
   function renderWhere(){
     const sel = $('cm-where');
+    const ds = [...new Set(state.list.flatMap(distsOf))].sort();
     sel.innerHTML = `<option value="">${esc(t('where_all'))}</option>`
+      + (ds.length > 1 ? ds.map(d => `<option value="d:${esc(d)}">${esc(distName(d))}</option>`).join('') : '')
       + WARDS.map(n => `<option value="w${n}">${esc(t('ward', { n }))}</option>`).join('')
       + BLOCKS.map(b => `<option value="b:${esc(b)}">${esc(t('block', { b }))}</option>`).join('');
     sel.value = state.where;
@@ -201,7 +229,7 @@
     const keep = {};
     rows.querySelectorAll('input[data-net]').forEach(i => { keep[i.dataset.net] = i.value; });
     rows.innerHTML = Object.keys(NETS).filter(k => state.shown.has(k)).map(k =>
-      `<div class="cm-linkrow"><input class="cm-input" data-net="${k}" type="url" inputmode="url" maxlength="300" autocomplete="off"
+      `<div class="cm-linkrow"><input class="cm-input" data-net="${k}" type="${NETS[k].type || 'url'}" inputmode="${NETS[k].type || 'url'}" maxlength="300" autocomplete="off"
         placeholder="${esc(t('l_' + k))}" aria-label="${esc(NETS[k].name)}" value="${esc(keep[k] || '')}"></div>`).join('');
     $('cm-addlinks').innerHTML = Object.keys(NETS).filter(k => !ALWAYS.includes(k)).map(k =>
       `<button type="button" data-net-add="${k}" aria-label="${esc(NETS[k].name)}" title="${esc(NETS[k].name)}" style="color:${NETS[k].color}"${state.shown.has(k) ? ' hidden' : ''}>${NETS[k].icon}</button>`).join('');
@@ -221,6 +249,8 @@
   function normLink(k, v){
     v = v.trim();
     if (!v) return '';
+    if (k === 'phone') return v.replace(/\D/g, '').replace(/^(91|0)(?=[6-9]\d{9}$)/, '');
+    if (k === 'email') return v.toLowerCase();
     if (NETS[k].handle && /^@?[A-Za-z0-9_.]{1,60}$/.test(v) && !/\.[a-z]{2,}$/i.test(v)) return NETS[k].handle + v.replace(/^@/, '');
     if (/^http:\/\//i.test(v)) v = v.replace(/^http:/i, 'https:');
     if (!/^https:\/\//i.test(v)) v = 'https://' + v;
@@ -251,14 +281,14 @@
 
   async function load(){
     try {
-      const res = await fetch(API + 'kasa_public_communities?select=id,name,tagline,description,all_district,wards,blocks,links,logo,listed_at&order=listed_at.desc', { headers: HEAD });
+      const res = await fetch(API + 'kasa_public_communities?select=id,name,tagline,description,all_district,districts,wards,blocks,links,logo,listed_at&order=listed_at.desc', { headers: HEAD });
       if (!res.ok) throw new Error();
       state.list = await res.json();
       state.loaded = true;
     } catch (e) {
       state.failed = true;
     }
-    renderList();
+    renderWhere(); renderList();
   }
 
   // ── events ──
@@ -327,7 +357,8 @@
     for (const i of $('cm-linkrows').querySelectorAll('input[data-net]')){
       const v = normLink(i.dataset.net, i.value);
       if (!v) continue;
-      try { new URL(v); } catch (err) { return fail('e_link_bad', { k: NETS[i.dataset.net].name }); }
+      if (!linkOk(i.dataset.net, v)) return fail('e_link_bad', { k: NETS[i.dataset.net].name });
+      if (/^https:/.test(v)) try { new URL(v); } catch (err) { return fail('e_link_bad', { k: NETS[i.dataset.net].name }); }
       links[i.dataset.net] = v;
     }
     const phone = $('cm-cphone').value.replace(/\D/g, '').replace(/^(91|0)(?=[6-9]\d{9}$)/, '');
