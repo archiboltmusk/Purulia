@@ -40,7 +40,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 ## Supabase (`supabase/`)
 - Public tables: `reports`, `schools`, `promises`, `promise_news`, `demands` (+`_supports`, `_replies`), `digest_subscribers`, `feature_suggestions`, `bug_reports`, `admins`. Everything else is in schema `kasa_private` (votes, flags, claims, photos, places, areas, adoptions, communities, settings…), reached only through `security definer` RPCs and `kasa_public_*` views.
 - Pages call RPCs named `kasa_*` (`kasa_admin_*` = moderator-only, checked server-side). Find callers: `grep -n "rpc('kasa_x'" *.js`; definition: `grep -ln 'function public.kasa_x' supabase/migrations`, newest file wins.
-- Edge functions `supabase/functions/<name>/index.ts` (first line says what it does): photo check/token/shrink/cleanup, geocode, notify + notify-watch, flag/bug alerts, weekly digest/pattern, office letters, promise news, team invite, unsubscribe, p2040 signup alert.
+- Edge functions `supabase/functions/<name>/index.ts` (first line says what it does): photo check/token/shrink/cleanup, geocode, notify + notify-watch, flag/bug alerts, queue alert (72 h backlog), weekly digest/pattern, office letters, promise news, team invite, unsubscribe, p2040 signup alert.
 - New migration: `supabase/migrations/<YYYYMMDDHHMMSS>_kasa_<what>.sql`, idempotent (`create or replace`, `if not exists`); tests run every migration twice.
 
 ## Tests (CI: `kasa-tests.yml`, `browser-tests.yml`)

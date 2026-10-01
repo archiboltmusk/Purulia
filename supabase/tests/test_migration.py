@@ -2042,6 +2042,11 @@ admin_sql("insert into kasa_private.office_letter_log (office, week, sent_at, re
 ol = rpc('kasa_office_letters_public')
 check('anyone can see how many letters each office got, with no email addresses',
       any(o['office'] == 'dm' and o['letters'] >= 1 and o['last_count'] == 2 for o in ol) and 'emails' not in json.dumps(ol))
+admin_sql("update public.reports set moderation_status = 'review', created_at = now() - interval '4 days' where id = %s", (hc['id'],))
+backlog = admin_sql('select kasa_private.queue_backlog()')[0][0]
+check('a report held for review over 72 hours shows in the moderators\' daily nudge, and nobody else can ask for it',
+      backlog.get('Reports held for review', 0) >= 1 and err(rpc, 'kasa_queue_alert_claim') is not None)
+admin_sql("update public.reports set moderation_status = 'approved' where id = %s", (hc['id'],))
 # ─────────────────────────────── Promises page ─────────────────────────────
 pr_new = dict(p_who='Test Minister', p_role='Minister', p_promise='A new bridge over the river by next year',
               p_made_on='2026-08-01', p_source_url='https://example.com/said')
