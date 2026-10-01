@@ -543,11 +543,20 @@ test('The Circle follows the chosen district, and asks for a source where none i
   await expect(page.locator('#marriage .ci-facts')).toContainText('63.6%');
 });
 
-test('the schools page outside Purulia says its school list is not loaded, and shows that district\'s own figures', async ({ page, backend }) => {
+test('the schools page lists the chosen district\'s own schools, with its own figures', async ({ page, backend }) => {
+  let sent = null;
+  await page.route('**/rest/v1/rpc/kasa_school_coverage*', route => { sent = route.request().postDataJSON(); return route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { udise_code: '19130100101', name: 'BANCHINGRA P.S', lat: 23.19518, lng: 86.93026, block_name: 'Bankura-I', panchayat: null, village: 'Kalpathar/I',
+        management: 'Department of Education', category: 'Primary', audits: 1, last_audit_at: '2026-10-01T08:00:00Z', located: 'official',
+        water_ok: true, toilets_ok: true, boundary_ok: true, electricity_ok: true, mdm_ok: true, building_condition: 'good', score: 6, score_of: 6,
+        official: { enrolment: 30, teachers: 2, classrooms: 3, source: 'india_data_portal' }, official_year: 'as listed in Jan 2022' }]) }); });
   await page.goto('schools.html?d=bankura');
-  await expect(page.locator('.an-title')).toContainText('Schools in Bankura');
+  await expect(page.locator('.an-title')).toContainText("Bankura's schools");
+  await expect(page.locator('#sc-t-listed')).toHaveText('1');
   await expect(page.locator('#sc-compare')).toContainText('Women with 10 or more years of schooling');
-  await expect(page.locator('#sc-near')).toBeHidden();
-  await expect(page.locator('#sc-list')).toBeHidden();
-  expect(backend.calls.some(c => c.name === 'kasa_school_coverage')).toBe(false);
+  await expect(page.locator('#sc-compare th').nth(1)).toContainText('Bankura: residents found');
+  await expect(page.locator('#s-19130100101 .sc-off')).toContainText('30 pupils');
+  await expect(page.locator('#s-19130100101 .sc-off a[href*="indiadataportal"]')).toHaveCount(1);
+  expect(sent.p_district).toBe('bankura');
 });

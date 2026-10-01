@@ -1,9 +1,8 @@
-/* Schools page for Parishkar Purulia: every listed school and residents' latest checks, worst first. */
+/* Schools page: every listed school in the chosen district (place-facts.js) and residents' latest checks, worst first. */
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const sb = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY, { auth: { persistSession: false } });
   const CITY = window.KASA_CITY || {};
-  const DISTRICT = CITY.name || 'Purulia';
   const set = (id, v) => { const el = document.getElementById(id); if (el) el.textContent = v; };
   const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const QS = [
@@ -29,48 +28,35 @@
   const cardUrl = code => `kasa.html?card=${encodeURIComponent(code)}`;
   const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
-  // Only Purulia's UDISE+ school list is loaded so far. Another district chosen on the map
-  // gets the official state and national figures and its own NFHS-5 schooling figures, not Purulia's list.
+  // The chosen district. Purulia keeps the hand-written text (and its translations);
+  // any other district gets its own heading and its NFHS-5 schooling figures.
   const PF = window.PlaceFacts;
+  let slug = 'purulia', D = null;
   if (PF){
     await PF.load().catch(() => null);
-    const slug = PF.data ? PF.current() : 'purulia';
-    if (slug !== 'purulia'){ otherDistrict(PF.data.districts[slug], slug); return; }
+    if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; }
   }
-
-  function otherDistrict(d, slug){
-    const name = esc(d.name), N = PF.data.nfhs, v = N.districts[d.nfhs_district] || {};
-    document.title = `Schools in ${d.name} — Parishkar Bengal`;
+  const DISTRICT = D ? D.name : (CITY.name || 'Purulia');
+  const IDP = 'https://ckan.indiadataportal.com/dataset/f1b2fdba-3b56-47ca-bfc6-819fc64b712a';
+  const IDP_NOTE = `the UDISE+ school list as published on <a href="${IDP}" target="_blank" rel="noopener">India Data Portal</a> (read from UDISE+ on 12 Jan 2022)`;
+  if (slug !== 'purulia'){
+    const name = esc(DISTRICT);
+    document.title = `Schools in ${DISTRICT} — Parishkar Bengal`;
     const heads = () => {
-    document.querySelector('.an-title').innerHTML = `Schools in ${name}, <em>checked by residents</em>`;
-    document.querySelector('.an-head .an-sub').innerHTML = `The government's UDISE+ school list for ${name} is not on this page yet, so its schools can't be listed or checked here. Purulia's list was loaded from the district's UDISE+ spreadsheet; if you can get ${name}'s, <a href="grievance.html">send it</a>. Meanwhile, the official West Bengal and India figures are below. <a href="schools.html?d=purulia">See Purulia's schools</a>.`;
-    set('sc-updated', '');
-    ['sc-near', 'sc-list'].forEach(id => { document.getElementById(id).hidden = true; });
-    document.querySelectorAll('.an-tiles, .an-grid > .an-card:not(#sc-compare-card)').forEach(e => { e.hidden = true; });
-    document.querySelector('#sc-compare-card h2').textContent = `West Bengal and India`;
-    document.querySelector('#sc-compare-card .an-card-sub').textContent = `What schools officially report, by state, and ${d.name}'s own schooling figures from the National Family Health Survey.`;
+      document.querySelector('.an-title').innerHTML = `${name}'s schools, <em>checked by residents</em>`;
+      document.querySelector('.an-head .an-sub').innerHTML = `Every school on ${IDP_NOTE} for ${name}. Anyone standing at a school can check the basics with a live photo: water, toilets, girls' toilet, electricity, the mid-day meal, teachers and the building. Worst first, compared with West Bengal and India. Checks are residents' observations on the day, not an official inspection.`;
+      document.querySelector('#sc-compare-card h2').textContent = `How ${DISTRICT} compares`;
+      document.querySelector('#sc-compare-card .an-card-sub').textContent = `What residents found here and what schools officially report, beside West Bengal, India, and the best and worst state.`;
     };
     heads();
     // The translations describe Purulia, so a language switch would put its text back.
     document.addEventListener('pagelang', heads);
-    const school = [['women_literate', 'Women aged 15–49 who can read and write'], ['women_10yrs', 'Women with 10 or more years of schooling']]
-      .filter(([k]) => v[k] && v[k][0] != null)
-      .map(([k, l]) => { const r = PF.rank(k, d.nfhs_district); return `<li><strong>${v[k][0]}%</strong> ${esc(l)}: ${PF.rankText(r)} (median ${r.median}%, West Bengal ${N.west_bengal[k]}%).</li>`; }).join('');
-    const box = document.getElementById('sc-compare');
-    const rows = bench ? bench.indicators.map(i => {
-      const f = x => i.better === 'low' ? String(x) : pct(x);
-      return `<tr><td>${esc(i.label)}</td><td class="n"><strong>${f(i.west_bengal)}</strong> <small>#${i.west_bengal_rank} of ${i.of}</small></td><td class="n">${f(i.india)}</td>
-        <td>${esc(i.best.name)} <small>${f(i.best.value)}</small></td><td>${esc(i.worst.name)} <small>${f(i.worst.value)}</small></td></tr>`;
-    }).join('') : '';
-    box.innerHTML = (school ? `<ul class="sc-nfhs">${school}</ul><p class="an-card-sub">Source: <a href="${esc(PF.data.sources.nfhs.url)}" target="_blank" rel="noopener">NFHS-5 District Fact Sheet, ${esc(d.nfhs_district)} (2019–21)</a>.</p>` : '')
-      + (rows ? `<div class="an-table-wrap"><table class="an-table sc-cmp"><thead><tr><th>Indicator</th><th class="n">West Bengal</th><th class="n">India</th><th>Best state/UT</th><th>Worst state/UT</th></tr></thead><tbody>${rows}</tbody></table></div>
-        <p class="an-card-sub">Source: <a href="${esc(bench.source.url)}" target="_blank" rel="noopener">${esc(bench.source.title)}</a>, ${esc(bench.source.publisher)}.</p>` : '<div class="an-empty">The state and national figures could not be loaded.</div>');
   }
 
   // The API returns at most 1,000 rows per request, so fetch the list in pages.
   const all = [];
   for (let from = 0; ; from += 1000){
-    const { data, error } = await sb.rpc('kasa_school_coverage').range(from, from + 999);
+    const { data, error } = await sb.rpc('kasa_school_coverage', { p_district: slug }).range(from, from + 999);
     if (error){ set('sc-updated', 'Could not load the schools. Please try again later.'); return; }
     all.push(...(data || []));
     if (!data || data.length < 1000) break;
@@ -148,7 +134,8 @@
     const gaps = OFFICIAL.filter(([k, , r]) => r && o[k] === true && s[r] === false).map(([, label]) => label);
     if (o.teachers != null && s.teachers_seen != null && s.teachers_seen < o.teachers) gaps.push(`teachers (${s.teachers_seen} of ${o.teachers} seen)`);
     const src = o.source === 'report_card' && /^https:\/\//.test(o.source_url || '')
-      ? ` <a href="${esc(o.source_url)}" target="_blank" rel="noopener">from the report card a resident shared, checked by a moderator ↗</a>` : '';
+      ? ` <a href="${esc(o.source_url)}" target="_blank" rel="noopener">from the report card a resident shared, checked by a moderator ↗</a>`
+      : o.source === 'india_data_portal' ? ` <a href="${IDP}" target="_blank" rel="noopener">India Data Portal ↗</a>` : '';
     return `<div class="sc-off">Official record (UDISE+${s.official_year ? ' ' + esc(s.official_year) : ''}): ${esc([...nums, ...has].join(' · '))}${src}</div>` +
       (gaps.length ? `<div class="sc-gap">Records say yes, the latest check found no: ${esc(gaps.join(', '))}</div>` : '');
   }
@@ -231,7 +218,7 @@
   }
 
   // "Schools near me": the block you stand in and the schools placed nearby, nearest first.
-  set('sc-near-text', `${all.length.toLocaleString('en-IN')} schools in Purulia, ${checked.length.toLocaleString('en-IN')} checked so far. Stand at one, answer a few questions and take one photo: about two minutes.`);
+  set('sc-near-text', `${all.length.toLocaleString('en-IN')} schools in ${esc(DISTRICT)}, ${checked.length.toLocaleString('en-IN')} checked so far. Stand at one, answer a few questions and take one photo: about two minutes.`);
   document.getElementById('sc-near-btn').addEventListener('click', () => {
     const btn = document.getElementById('sc-near-btn'), out = document.getElementById('sc-near-list');
     if (!navigator.geolocation){ set('sc-near-text', 'This phone cannot share its location. Choose your block below instead.'); return; }
@@ -247,7 +234,7 @@
       const inTown = data?.area === 'town';
       set('sc-near-text', blk ? `You are in ${blk} block: ${all.filter(s => s.block_name === blk).length} schools, ${all.filter(s => s.block_name === blk && s.audits).length} checked.`
         : inTown ? 'You are in Purulia town. Few town schools are on the list yet; pick one below or check the one you are standing at.'
-        : 'You seem to be outside Purulia district. Choose a block below to see its schools.');
+        : `You seem to be outside ${DISTRICT}. Choose a block below to see its schools.`);
       out.innerHTML = rows.map(({ s, note }) => `<li><span><strong>${esc(s.name)}</strong> <small>${esc(note)}</small></span>
         <span class="sc-todo-acts"><a href="${checkUrl(s.udise_code)}">Check</a></span></li>`).join('');
       if (blk && sel.querySelector(`option[value="${CSS.escape(blk)}"]`)){ sel.value = blk; render(); }
@@ -288,7 +275,7 @@
   drawCompare();
   drawMap();
 
-  /* How Purulia compares: residents' checks and official records here, beside West Bengal, India and the best and worst state. */
+  /* How the district compares: residents' checks and official records here, beside West Bengal, India and the best and worst state. */
   function drawCompare(){
     const box = document.getElementById('sc-compare');
     if (!bench){ box.innerHTML = '<div class="an-empty">The state and national figures could not be loaded.</div>'; return; }
@@ -313,12 +300,19 @@
         <td class="n"><strong>${f(i.west_bengal)}</strong> <small>#${i.west_bengal_rank} of ${i.of}</small></td><td class="n">${f(i.india)}</td>
         <td>${esc(i.best.name)} <small>${f(i.best.value)}</small></td><td>${esc(i.worst.name)} <small>${f(i.worst.value)}</small></td></tr>`;
     }).join('');
-    box.innerHTML = `<div class="an-table-wrap"><table class="an-table sc-cmp"><thead><tr><th>Indicator</th>
-      <th class="n">Purulia: residents found</th><th class="n">Purulia: official</th><th class="n">West Bengal</th><th class="n">India</th>
+    const N = D && PF.data.nfhs, v = N ? N.districts[D.nfhs_district] || {} : {};
+    const nfhs = slug === 'purulia' || !N ? '' : [['women_literate', 'Women aged 15–49 who can read and write'], ['women_10yrs', 'Women with 10 or more years of schooling']]
+      .filter(([k]) => v[k] && v[k][0] != null)
+      .map(([k, l]) => { const r = PF.rank(k, D.nfhs_district); return `<li><strong>${v[k][0]}%</strong> ${esc(l)}: ${PF.rankText(r)} (median ${r.median}%, West Bengal ${N.west_bengal[k]}%).</li>`; }).join('');
+    const idp = official.some(s => s.official.source === 'india_data_portal');
+    const dn = esc(DISTRICT);
+    box.innerHTML = (nfhs ? `<ul class="sc-nfhs">${nfhs}</ul><p class="an-card-sub">Source: <a href="${esc(PF.data.sources.nfhs.url)}" target="_blank" rel="noopener">NFHS-5 District Fact Sheet, ${esc(D.nfhs_district)} (2019–21)</a>.</p>` : '') +
+      `<div class="an-table-wrap"><table class="an-table sc-cmp"><thead><tr><th>Indicator</th>
+      <th class="n">${dn}: residents found</th><th class="n">${dn}: official</th><th class="n">West Bengal</th><th class="n">India</th>
       <th>Best state/UT</th><th>Worst state/UT</th></tr></thead><tbody>${rows}</tbody></table></div>
       <details class="an-details"><summary>Where these numbers come from</summary>
         <p>West Bengal, India and the best and worst of ${bench.indicators[0].of} states and union territories: <a href="${esc(bench.source.url)}" target="_blank" rel="noopener">${esc(bench.source.title)}</a>, ${esc(bench.source.publisher)}. ${esc(bench.source.note)} Each row is read from the report: ${esc(bench.indicators.map(i => `${i.label}: ${i.cite}, p. ${i.page}`).join('; '))}. Pupils per teacher: lower is better.</p>
-        <p>Purulia, residents found: the latest check of each school that answered that question. Purulia, official: the schools' own UDISE+ returns, where loaded${official.length ? ` (${official.length.toLocaleString('en-IN')} schools)` : ' (not loaded yet)'}. A resident's check is what one person saw on one day; UDISE+ is what schools report about themselves. A gap between the two is worth asking about, not proof.</p>
+        <p>${dn}, residents found: the latest check of each school that answered that question. ${dn}, official: the schools' own UDISE+ returns, where loaded${official.length ? ` (${official.length.toLocaleString('en-IN')} schools)` : ' (not loaded yet)'}${idp ? `; enrolment, teachers and classrooms come from ${IDP_NOTE}, so they are that year's figures` : ''}. A resident's check is what one person saw on one day; UDISE+ is what schools report about themselves. A gap between the two is worth asking about, not proof.</p>
       </details>`;
   }
 
@@ -339,7 +333,9 @@
     map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     map.on('load', async () => {
       try {
-        const geo = await (await fetch(CITY.blocksGeojson || 'purulia_blocks.geojson')).json();
+        // Purulia's own block outlines; another district's from places/wb/<district>.geojson (Kolkata has none).
+        const geo = await (await fetch(slug === 'purulia' ? CITY.blocksGeojson || 'purulia_blocks.geojson' : `places/wb/${slug}.geojson`)).json();
+        geo.features = geo.features.filter(f => !f.properties.kind || f.properties.kind === 'block');
         for (const f of geo.features){
           const st = stat[key(f.properties.block)] || { n: 0, c: 0 };
           f.properties.share = st.n ? st.c / st.n : 0;
@@ -354,6 +350,7 @@
           'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
           paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1.2 } });
         map.on('click', 'block-fill', e => {
+          if (map.getLayer('school-dot') && map.queryRenderedFeatures(e.point, { layers: ['school-dot'] }).length) return;
           const f = e.features[0];
           new maplibregl.Popup({ closeButton: false }).setLngLat(e.lngLat)
             .setHTML(`<strong>${esc(f.properties.label)}</strong><br><a href="#sc-list" data-block="${esc(f.properties.listName)}">List its schools ↓</a>`).addTo(map);
@@ -361,24 +358,27 @@
         map.on('mouseenter', 'block-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
         map.on('mouseleave', 'block-fill', () => { map.getCanvas().style.cursor = ''; });
       } catch (err) { console.warn('block outlines unavailable', err); }
-      // A 🏫 icon, not a plain dot — the colour ring around it still carries the check status.
+      // One layer of dots (thousands of schools), coloured by the latest check.
       const bounds = new maplibregl.LngLatBounds();
-      placedSchools.forEach(s => {
-        const el = document.createElement('div');
-        el.style.cssText = `width:24px;height:24px;border-radius:50%;background:${colour(s)};border:1px solid #0a0805;` +
-          'display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;';
-        el.textContent = '🏫';
-        new maplibregl.Marker({ element: el })
-          .setLngLat([s.lng, s.lat])
-          .setPopup(new maplibregl.Popup({ closeButton: false }).setHTML(
+      placedSchools.forEach(s => bounds.extend([s.lng, s.lat]));
+      map.addSource('schools', { type: 'geojson', data: { type: 'FeatureCollection', features: placedSchools.map(s => ({
+        type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { code: s.udise_code, colour: colour(s), checked: s.audits ? 1 : 0 } })) } });
+      map.addLayer({ id: 'school-dot', type: 'circle', source: 'schools', paint: {
+        'circle-color': ['get', 'colour'], 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1,
+        'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, ['+', 2.5, ['*', 2, ['get', 'checked']]], 13, ['+', 6, ['*', 2, ['get', 'checked']]]] } });
+      const byCode = Object.fromEntries(placedSchools.map(s => [s.udise_code, s]));
+      map.on('click', 'school-dot', e => {
+        const s = byCode[e.features[0].properties.code];
+        if (!s) return;
+        new maplibregl.Popup({ closeButton: false }).setLngLat([s.lng, s.lat]).setHTML(
             `<strong>${esc(s.name)}</strong><br>${esc([s.village, s.block_name].filter(Boolean).join(', '))}<br>` +
             (s.audits ? `Score ${s.score}/${s.score_of} · checked ${esc(fmt(s.last_audit_at))}` : 'Not checked yet') +
             (s.located === 'checks' ? '<br><small>Location from residents’ checks</small>' : '') +
             `<br><a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>` +
-            ` · <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">Wrong place? Fix it</a>`))
-          .addTo(map);
-        bounds.extend([s.lng, s.lat]);
+            ` · <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">Wrong place? Fix it</a>`).addTo(map);
       });
+      map.on('mouseenter', 'school-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
+      map.on('mouseleave', 'school-dot', () => { map.getCanvas().style.cursor = ''; });
       if (placed > 1) map.fitBounds(bounds, { padding: 50, maxZoom: 12 });
     });
     document.getElementById('sc-map').addEventListener('click', e => {
