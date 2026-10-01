@@ -54,6 +54,41 @@ window.PlaceFacts = (() => {
     });
   }
 
+  // A district's MPs and MLAs: [{ key: 'pc:N'|'ac:N', role: 'mp'|'mla', name, seat }], from
+  // places/wb_assembly.geojson (each seat's district and Lok Sabha seat) and places/wb_leaders.json.
+  let seatData = null;
+  function reps(slug) {
+    seatData = seatData || Promise.all(['places/wb_assembly.geojson', 'places/wb_leaders.json']
+      .map(u => fetch(u).then(r => r.ok ? r.json() : null).catch(() => null)));
+    return seatData.then(([g, L]) => {
+      if (!g || !L) return [];
+      const seats = g.features.map(f => f.properties).filter(x => x.d === slug).sort((a, b) => a.ac - b.ac);
+      const out = [];
+      [...new Set(seats.map(x => x.pc))].sort((a, b) => a - b).forEach(k => {
+        const m = L.pc[k]; if (m && m.person) out.push({ key: 'pc:' + k, role: 'mp', name: m.person, seat: m.name });
+      });
+      seats.forEach(x => { const m = L.ac[x.ac]; if (m && m.person) out.push({ key: 'ac:' + x.ac, role: 'mla', name: m.person, seat: m.name }); });
+      return out;
+    });
+  }
+
+  // Free text (an area, role or place) -> is it about this district? True when it names the
+  // district or one of its towns. For Purulia, text naming no other district also counts
+  // (rows written before the map opened statewide). statewide(text) = names all of West Bengal.
+  function textFilter(slug) {
+    return towns().then(tl => {
+      const names = {};
+      for (const [k, v] of Object.entries(data.districts)) names[k] = [v.name, v.name_bn].filter(Boolean);
+      tl.forEach(x => { (names[x.district] = names[x.district] || []).push(x.name); });
+      const re = {};
+      for (const [k, v] of Object.entries(names))
+        re[k] = new RegExp('(^|[^a-z])(' + v.map(x => x.toLowerCase().replace(/[.*+?^${}()|[\]\\]/g, '\\$&')).join('|') + ')($|[^a-z])', 'i');
+      if (slug === 'purulia') return txt => !Object.keys(re).some(k => k !== 'purulia' && re[k].test(txt || ''));
+      return txt => !!re[slug] && re[slug].test(txt || '');
+    });
+  }
+  const statewide = txt => /west bengal|পশ্চিমবঙ্গ|पश्चिम बंगाल/i.test(txt || '');
+
   // Map-place key ('purulia', 'kolkata', 'district:bankura', a town slug) -> district slug.
   function fromKey(key) {
     if (!key || key === 'purulia') return 'purulia';
@@ -105,5 +140,5 @@ window.PlaceFacts = (() => {
     el.onchange = () => { choose(el.value); onChange(el.value); };
   }
 
-  return { load, current, choose, rank, rankText, picker, towns, bodies, reportFilter, esc, n, get data() { return data; } };
+  return { load, current, choose, rank, rankText, picker, towns, bodies, reportFilter, reps, textFilter, statewide, esc, n, get data() { return data; } };
 })();

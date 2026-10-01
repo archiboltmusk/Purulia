@@ -9,6 +9,10 @@
 
   const T = {
     en: {
+      sub_d: 'Promises made to {d} by its MPs, MLAs, municipalities and the state government, and promises made to all of West Bengal. Every promise links to where and when it was said. A promise is only marked in progress, delivered or broken with a link that shows it.',
+      reps_h_d: "{d}'s MPs and MLAs", reps_sub_d: 'Everyone elected from {d}, from the 2026 Assembly and 2024 Lok Sabha results on Wikipedia, with the promises on record for each. "No promise on record" means we found none with a source; send one below if you know of one.',
+      news_sub_d: 'Headlines about the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise\'s status on their own.',
+      empty_d: 'No promise made to {d} is on record yet. If you have a news link or video of one, add it below.', f_role_ph_d: 'e.g. MLA, {d}',
       reps_h: "Purulia's MPs and MLAs",
       reps_sub: 'Promises on record for each of Purulia\'s elected representatives. "No promise on record" means we found no promise with a source; send one below if you know of one.',
       reps_none: 'No promise on record', reps_n: '{n} on record', rep_mp: 'MP, {s}', rep_mla: 'MLA, {s}',
@@ -41,6 +45,10 @@
       rule_4: 'Anyone named here can reply or correct an entry through the <a href="grievance.html">Grievance Officer</a>. For who controls the municipality and its money, see <a href="municipality.html">Who runs the municipality</a>.'
     },
     bn: {
+      sub_d: '{d}-এর সাংসদ, বিধায়ক, পুরসভা ও রাজ্য সরকারের দেওয়া প্রতিশ্রুতি, আর গোটা পশ্চিমবঙ্গকে দেওয়া প্রতিশ্রুতি। প্রতিটির সঙ্গে কোথায় ও কবে বলা হয়েছিল তার লিঙ্ক আছে। প্রমাণের লিঙ্ক ছাড়া কোনও প্রতিশ্রুতিকে "কাজ চলছে", "পূরণ হয়েছে" বা "ভাঙা" বলা হয় না।',
+      reps_h_d: '{d}-এর সাংসদ ও বিধায়ক', reps_sub_d: '{d} থেকে নির্বাচিত সবাই (উইকিপিডিয়ায় ২০২৬ বিধানসভা ও ২০২৪ লোকসভার ফল), প্রত্যেকের নথিভুক্ত প্রতিশ্রুতি সহ। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কিছু পাইনি; জানা থাকলে নিচে পাঠান।',
+      news_sub_d: 'ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
+      empty_d: '{d}-কে দেওয়া কোনও প্রতিশ্রুতি এখনও নথিভুক্ত নেই। খবরের লিঙ্ক বা ভিডিও থাকলে নিচে যোগ করুন।', f_role_ph_d: 'যেমন বিধায়ক, {d}',
       reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
       reps_sub: 'পুরুলিয়ার প্রত্যেক নির্বাচিত প্রতিনিধির নথিভুক্ত প্রতিশ্রুতি। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কোনও প্রতিশ্রুতি আমরা পাইনি; জানা থাকলে নিচে পাঠান।',
       reps_none: 'কোনও প্রতিশ্রুতি নথিভুক্ত নেই', reps_n: '{n}টি নথিভুক্ত', rep_mp: 'সাংসদ, {s}', rep_mla: 'বিধায়ক, {s}',
@@ -73,6 +81,10 @@
       rule_4: 'এখানে যাঁর নাম আছে তিনি <a href="grievance.html">অভিযোগ আধিকারিক</a>-এর মাধ্যমে উত্তর বা সংশোধন দিতে পারেন। পুরসভা কে চালায় ও টাকা কোথায় যায় জানতে দেখুন <a href="municipality.html">পুরসভা কে চালায়</a>।'
     },
     hi: {
+      sub_d: '{d} के सांसदों, विधायकों, नगरपालिकाओं और राज्य सरकार के वादे, और पूरे पश्चिम बंगाल से किए गए वादे। हर वादे के साथ लिंक है कि वह कहाँ और कब कहा गया। सबूत के लिंक के बिना किसी वादे को "काम जारी", "पूरा" या "टूटा" नहीं कहा जाता।',
+      reps_h_d: '{d} के सांसद और विधायक', reps_sub_d: '{d} से चुने गए सभी (विकिपीडिया पर 2026 विधानसभा और 2024 लोकसभा नतीजे), हर एक के दर्ज वादों के साथ। "कोई वादा दर्ज नहीं" का मतलब है कि स्रोत के साथ कुछ नहीं मिला; पता हो तो नीचे भेजें।',
+      news_sub_d: 'ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
+      empty_d: '{d} से किया गया कोई वादा अभी दर्ज नहीं है। ख़बर का लिंक या वीडियो हो तो नीचे जोड़ें।', f_role_ph_d: 'जैसे विधायक, {d}',
       reps_h: 'पुरुलिया के सांसद और विधायक',
       reps_sub: 'पुरुलिया के हर चुने हुए प्रतिनिधि के दर्ज वादे। "कोई वादा दर्ज नहीं" का मतलब है कि हमें स्रोत के साथ कोई वादा नहीं मिला; आपको पता हो तो नीचे भेजें।',
       reps_none: 'कोई वादा दर्ज नहीं', reps_n: '{n} दर्ज', rep_mp: 'सांसद, {s}', rep_mla: 'विधायक, {s}',
@@ -109,7 +121,11 @@
   let lang = 'en';
   try { lang = localStorage.getItem('kasa_lang') || 'en'; } catch (e) {}
   if (!T[lang]) lang = 'en';
+  // Outside Purulia, keys with a '_d' twin use it, with {d} = the district's name.
+  const place = { slug: 'purulia', name: '', name_bn: '' };
   const t = (k, vars) => {
+    if (place.slug !== 'purulia' && T.en[k + '_d']) k += '_d';
+    vars = { d: lang === 'bn' && place.name_bn ? place.name_bn : place.name, ...vars };
     let s = (T[lang] && T[lang][k]) || T.en[k] || k;
     if (vars) for (const [a, b] of Object.entries(vars)) s = s.split('{' + a + '}').join(b);
     return s;
@@ -123,7 +139,7 @@
     return isNaN(+x) ? '' : x.toLocaleDateString(locale(), { day: 'numeric', month: 'short', year: 'numeric' });
   };
 
-  const state = { promises: [], news: [], checked: null, who: '', status: '', q: '', updateOf: null, loaded: false, failed: false };
+  const state = { promises: [], news: [], reps: [], checked: null, who: '', status: '', q: '', updateOf: null, loaded: false, failed: false };
 
   function applyStatic(){
     document.documentElement.lang = lang;
@@ -167,7 +183,7 @@
     const el = document.getElementById('pr-list');
     if (state.failed){ el.innerHTML = `<li class="an-empty">${esc(t('load_err'))}</li>`; return; }
     if (!state.loaded) return;
-    if (!state.promises.length){ el.innerHTML = `<li class="an-empty">${esc(t('none_yet'))}</li>`; return; }
+    if (!state.promises.length){ el.innerHTML = `<li class="an-empty">${esc(t(place.slug === 'purulia' ? 'none_yet' : 'empty_d'))}</li>`; return; }
     const q = state.q.toLowerCase();
     const rows = state.promises.filter(p => (!state.who || p.who === state.who) && (!state.status || p.status === state.status) &&
       (!q || [p.who, p.role, p.promise, p.area].join(' ').toLowerCase().includes(q)));
@@ -220,7 +236,19 @@
     'jyotirmay singh mahato': [{ k: 'rec_mplads', url: 'https://sundayguardianlive.com/news/bengal-mps-show-uneven-mplads-delivery-164124/', src: 'The Sunday Guardian, 11 Jan 2026' }]
   };
 
+  // Which promises are this district's: made to all of West Bengal, by one of its MPs/MLAs, or
+  // naming the district or one of its towns in their area or role.
+  async function promiseFilter(slug){
+    const PF = window.PlaceFacts, about = await PF.textFilter(slug);
+    const mine = new Set(state.reps.map(r => r.name.trim().toLowerCase()));
+    return p => {
+      const txt = [p.area, p.role].filter(Boolean).join(' ');
+      return PF.statewide(txt) || mine.has((p.who || '').trim().toLowerCase()) || about(txt);
+    };
+  }
+
   function reps(){
+    if (place.slug !== 'purulia') return state.reps.map(r => ({ name: r.name, role: t('rep_' + r.role, { s: r.seat }) }));
     const C = window.KASA_CITY || {};
     const out = [];
     Object.entries(C.lokSabha || {}).forEach(([seat, v]) => {
@@ -250,10 +278,23 @@
   function renderAll(){ applyStatic(); renderTiles(); renderReps(); renderWho(); renderList(); renderNews(); renderForm(); }
 
   async function load(){
+    const PF = window.PlaceFacts;
+    if (PF){
+      await PF.load().catch(() => null);
+      if (PF.data){
+        const D = PF.data.districts[PF.current()];
+        Object.assign(place, { slug: PF.current(), name: D.name, name_bn: D.name_bn || '' });
+      }
+    }
+    if (place.slug !== 'purulia') state.reps = await PF.reps(place.slug);
+    applyStatic(); renderReps();
     try {
       const d = await rpc('kasa_promises');
-      state.promises = (d && d.promises) || [];
-      state.news = (d && d.news) || [];
+      const keep = PF && PF.data ? await promiseFilter(place.slug) : () => true;
+      state.promises = ((d && d.promises) || []).filter(keep);
+      // The daily news check searches Purulia; elsewhere keep only headlines about the people shown.
+      const people = new Set(state.promises.map(p => p.who).concat(state.reps.map(r => r.name)));
+      state.news = ((d && d.news) || []).filter(n => place.slug === 'purulia' || people.has(n.who));
       state.checked = d && d.news_checked_at;
       state.loaded = true;
       // promises.html?who=Name (from a representative's sheet on the report map) opens on that person.

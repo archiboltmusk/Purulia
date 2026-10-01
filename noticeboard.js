@@ -12,6 +12,8 @@
 
   const T = {
     en: {
+      sub_d: 'Public demands from {d} to its MLAs, MPs and other officials: things the whole area needs. Add your +1 to the ones you agree with. When a leader answers or makes a promise, it is shown here with a link to where they said it.',
+      empty_d: 'No demand from {d} yet. Be the first: ask for something the whole area needs below.',
       nav_home: 'Home', nav_promises: 'Promises',
       title: 'Ask your <em>leaders</em>',
       sub: 'Public demands from Purulia to its municipality chairman, ward councillors, MLAs and MPs: things the whole area needs. Add your +1 to the ones you agree with. When a leader answers or makes a promise, it is shown here with a link to where they said it.',
@@ -64,6 +66,8 @@
       share_text: 'Demand to {w}: {t}. Add your +1:'
     },
     bn: {
+      sub_d: '{d}-এর বিধায়ক, সাংসদ ও অন্য আধিকারিকদের কাছে গোটা এলাকার দরকারি জিনিসের দাবি। যেগুলিতে আপনি একমত, সেখানে +1 দিন। কোনও নেতা উত্তর দিলে বা প্রতিশ্রুতি দিলে, কোথায় বলেছেন তার লিঙ্কসহ এখানে দেখানো হয়।',
+      empty_d: '{d} থেকে এখনও কোনও দাবি নেই। প্রথম হন: নিচে গোটা এলাকার দরকারি কিছু চান।',
       nav_home: 'হোম', nav_promises: 'প্রতিশ্রুতি',
       title: 'নেতাদের কাছে <em>দাবি</em>',
       sub: 'পুরুলিয়ার পুরপ্রধান, কাউন্সিলর, বিধায়ক ও সাংসদের কাছে গোটা এলাকার দরকারি জিনিসের দাবি। যেগুলিতে আপনি একমত, সেখানে +1 দিন। কোনও নেতা উত্তর দিলে বা প্রতিশ্রুতি দিলে, কোথায় বলেছেন তার লিঙ্কসহ এখানে দেখানো হয়।',
@@ -116,6 +120,8 @@
       share_text: '{w}-এর কাছে দাবি: {t}। আপনার +1 দিন:'
     },
     hi: {
+      sub_d: '{d} के विधायकों, सांसदों और दूसरे अधिकारियों से पूरे इलाक़े की ज़रूरतों की सार्वजनिक माँगें। जिनसे आप सहमत हैं उन पर +1 दें। कोई नेता जवाब दे या वादा करे, तो कहाँ कहा उसके लिंक के साथ यहाँ दिखता है।',
+      empty_d: '{d} से अभी कोई माँग नहीं। पहले बनें: नीचे पूरे इलाक़े की कोई ज़रूरत माँगें।',
       nav_home: 'होम', nav_promises: 'वादे',
       title: 'अपने <em>नेताओं</em> से माँगें',
       sub: 'पुरुलिया के नगरपालिका अध्यक्ष, वार्ड पार्षदों, विधायकों और सांसदों से पूरे इलाक़े की ज़रूरतों की सार्वजनिक माँगें। जिनसे आप सहमत हैं उन पर +1 दें। कोई नेता जवाब दे या वादा करे, तो कहाँ कहा उसके लिंक के साथ यहाँ दिखता है।',
@@ -172,7 +178,11 @@
   let lang = 'en';
   try { lang = localStorage.getItem('kasa_lang') || 'en'; } catch (e) {}
   if (!T[lang]) lang = 'en';
+  // Outside Purulia, keys with a '_d' twin use it, with {d} = the district's name.
+  const place = { slug: 'purulia', name: '', name_bn: '', at: null };
   const t = (k, vars) => {
+    if (place.slug !== 'purulia' && T.en[k + '_d']) k += '_d';
+    vars = { d: lang === 'bn' && place.name_bn ? place.name_bn : place.name, ...vars };
     let s = (T[lang] && T[lang][k]) || T.en[k] || k;
     if (vars) for (const [a, b] of Object.entries(vars)) s = s.split('{' + a + '}').join(b);
     return s;
@@ -246,7 +256,7 @@
     if (CITY.zillaParishad && CITY.zillaParishad.name) out.push({ key: 'zp', role: 'other', name: CITY.zillaParishad.name, area: 'Purulia Zilla Parishad', group: 'g_zp' });
     return out;
   }
-  const LEADERS = leaders();
+  let LEADERS = leaders();
   const ROLE_OF = { chairman: 'r_chairman', councillor: 'r_councillor', mla: 'r_mla', mp: 'r_mp', other: 'r_other' };
   const norm = (n) => String(n || '').trim().toLowerCase();
   const photoOf = (name) => Object.values(CITY.reps || {}).find(r => norm(r.name) === norm(name));
@@ -291,7 +301,7 @@
     const opt = (v, label) => `<option value="${esc(v)}"${v === cur ? ' selected' : ''}>${esc(label)}</option>`;
     sel.innerHTML = opt('', t('f_pick')) +
       (groups.g_chair ? `<optgroup label="${esc(t('g_chair'))}">${groups.g_chair.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
-      `<optgroup label="${esc(t('g_councillor'))}">${opt('councillor', t('o_councillor'))}</optgroup>` +
+      (place.slug === 'purulia' ? `<optgroup label="${esc(t('g_councillor'))}">${opt('councillor', t('o_councillor'))}</optgroup>` : '') +
       (groups.g_mla ? `<optgroup label="${esc(t('g_mla'))}">${groups.g_mla.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
       (groups.g_mp ? `<optgroup label="${esc(t('g_mp'))}">${groups.g_mp.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
       (groups.g_zp ? `<optgroup label="${esc(t('g_zp'))}">${groups.g_zp.map(l => opt(l.key, `${l.area}: ${l.name}`)).join('')}</optgroup>` : '') +
@@ -314,7 +324,7 @@
     if (state.failed){ el.innerHTML = `<li class="an-empty">${esc(t('load_err'))}</li>`; return; }
     if (!state.loaded) return;
     if (!state.demands.length || (state.leader && !state.demands.some(d => norm(d.leader_name) === norm(state.leader)))){
-      el.innerHTML = `<li class="an-empty">${esc(t(state.leader ? 'lv_none_d' : 'none_yet'))}</li>`; return;
+      el.innerHTML = `<li class="an-empty">${esc(t(state.leader ? 'lv_none_d' : place.slug === 'purulia' ? 'none_yet' : 'empty_d'))}</li>`; return;
     }
     const q = state.q.toLowerCase();
     const rows = state.demands.filter(d => (!state.role || d.leader_role === state.role) &&
@@ -402,7 +412,7 @@
         <div class="pr-meta">${esc(t('said_on', { d: fmtDate(p.made_on) }))} · <a href="${esc(safeUrl(p.source_url))}" target="_blank" rel="noopener nofollow">${esc(p.source_name || t('source'))} ↗</a>
           · <a href="promises.html#p-${esc(p.id)}">${esc(t('lv_promise_more'))} ↗</a></div></li>`).join('')
       : `<li class="an-empty">${esc(t('lv_none_p'))}</li>`;
-    document.title = `${c.name} — Ask your leaders — Parishkar Purulia`;
+    document.title = `${c.name} — Ask your leaders — Parishkar ${place.slug === 'purulia' ? 'Purulia' : 'Bengal'}`;
   }
 
   function renderReplyForm(){
@@ -427,7 +437,8 @@
       document.head.appendChild(sc);
     });
   }
-  const center = () => CITY.mapCenter || [86.3654, 23.3320];
+  const center = () => place.at || CITY.mapCenter || [86.3654, 23.3320];
+  const zoom = () => place.slug === 'purulia' ? CITY.mapZoom || 12 : 10;
 
   async function renderMap(){
     const note = document.getElementById('nb-map-note');
@@ -436,7 +447,7 @@
     note.textContent = pins.length ? '' : t('map_none');
     try { await loadMapLib(); } catch (e){ note.textContent = t('map_err'); return; }
     if (!boardMap){
-      boardMap = new maplibregl.Map({ container: 'nb-map', style: MAP_STYLE, center: center(), zoom: CITY.mapZoom || 12, attributionControl: { compact: true } });
+      boardMap = new maplibregl.Map({ container: 'nb-map', style: MAP_STYLE, center: center(), zoom: zoom(), attributionControl: { compact: true } });
       boardMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     }
     boardMarkers.forEach(m => m.remove());
@@ -477,7 +488,7 @@
     if (!state.pin) document.getElementById('nb-pin-msg').textContent = t('f_pin_hint');
     try { await loadMapLib(); } catch (e){ document.getElementById('nb-pin-msg').textContent = t('map_err'); return; }
     if (!pickMap){
-      pickMap = new maplibregl.Map({ container: 'nb-pick', style: MAP_STYLE, center: center(), zoom: CITY.mapZoom || 12, attributionControl: { compact: true } });
+      pickMap = new maplibregl.Map({ container: 'nb-pick', style: MAP_STYLE, center: center(), zoom: zoom(), attributionControl: { compact: true } });
       pickMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
       pickMap.on('click', e => setPin(e.lngLat.lng, e.lngLat.lat));
     }
@@ -489,11 +500,34 @@
     if (state.view === 'map') renderMap();
   }
 
+  // The board follows the district chosen on the map (place-facts.js): its MPs and MLAs
+  // (Wikipedia results), and only demands and promises about it.
+  async function followPlace(){
+    const PF = window.PlaceFacts;
+    if (!PF) return null;
+    await PF.load().catch(() => null);
+    if (!PF.data) return null;
+    const slug = PF.current(), D = PF.data.districts[slug];
+    Object.assign(place, { slug, name: D.name, name_bn: D.name_bn || '' });
+    if (slug !== 'purulia'){
+      const [reps, bodies] = await Promise.all([PF.reps(slug), PF.bodies(slug)]);
+      LEADERS = reps.map(r => ({ key: r.key, role: r.role, name: r.name, area: r.role === 'mp' ? `${r.seat} (Lok Sabha)` : r.seat, group: 'g_' + r.role }));
+      const hq = bodies.find(b => b.name === D.hq) || bodies[0];
+      place.at = hq && hq.at;
+    }
+    const about = await PF.textFilter(slug);
+    const mine = new Set(LEADERS.map(l => norm(l.name)));
+    return {
+      demand: d => mine.has(norm(d.leader_name)) || about([d.place, d.leader_area].filter(Boolean).join(' ')),
+      promise: p => { const x = [p.area, p.role].filter(Boolean).join(' '); return PF.statewide(x) || mine.has(norm(p.who)) || about(x); }
+    };
+  }
+
   async function load(){
     try {
-      const [d, p] = await Promise.all([rpc('kasa_demands'), rpc('kasa_promises').catch(() => null)]);
-      state.demands = d || [];
-      state.promises = (p && p.promises) || [];
+      const [d, p, keep] = await Promise.all([rpc('kasa_demands'), rpc('kasa_promises').catch(() => null), followPlace().catch(() => null)]);
+      state.demands = (d || []).filter(keep ? keep.demand : () => true);
+      state.promises = ((p && p.promises) || []).filter(keep ? keep.promise : () => true);
       state.loaded = true;
     } catch (e){ state.failed = true; }
     renderAll();
@@ -614,7 +648,7 @@
     try {
       await rpc('kasa_demand_submit', {
         p_leader_role: role, p_leader_name: name, p_leader_area: area, p_title: v('title'), p_details: v('details'),
-        p_place: v('place') || null, p_for_community: true, p_note: v('note') || null,
+        p_place: [v('place'), place.slug === 'purulia' ? '' : place.name].filter(Boolean).join(', ') || null, p_for_community: true, p_note: v('note') || null,
         p_lat: state.pin ? state.pin.lat : null, p_lng: state.pin ? state.pin.lng : null
       });
       f.reset(); toggleLeaderFields(); setPin(null, null); document.getElementById('nb-pick-wrap').hidden = true;
