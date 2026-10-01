@@ -1424,7 +1424,7 @@ check('every checklist question is required',
           p_boundary_ok=True, p_building_condition='good', p_photo_path=upload(user(), 'reports')) == 'KASA_INCOMPLETE_AUDIT')
 check('building condition must be one of the three options',
       err(school_audit, user(), where=offset(14200, 15000), condition='great') == 'KASA_BAD_CONDITION')
-check('a school audit outside the district is refused', err(school_audit, user(), where=(22.0, 85.0)) == 'KASA_OUTSIDE_AREA')
+check('a school audit outside West Bengal is refused', err(school_audit, user(), where=(22.0, 85.0)) == 'KASA_OUTSIDE_AREA')
 
 rl_uid = user()
 for i in range(5):
@@ -1645,6 +1645,9 @@ school_audit(user(), where=offset(40, 0, base=sc_where), name='Test Listed Schoo
 cov = {r[0]['udise_code']: r[0] for r in q('select row_to_json(c) from public.kasa_school_coverage() c')}
 check('an audit at a listed school counts for it', cov['19210199901']['audits'] == 1, cov.get('19210199901'))
 check('a school nobody visited shows no audits', cov['19210199902']['audits'] == 0 and cov['19210199902']['last_audit_at'] is None)
+check('a school gets its district from its UDISE code', q("select district from public.schools where udise_code = '19210199901'")[0][0] == 'darjeeling')
+dcov = {r[0]['udise_code'] for r in q("select row_to_json(c) from public.kasa_school_coverage('darjeeling') c")}
+check("one district's list has only its own schools", '19210199901' in dcov and not any(c[2:4] == '14' for c in dcov), dcov)
 
 # A fix that didn't last: reported again at the spot within 14 days → the weekly digest doesn't count it as fixed.
 fl_spot = offset(-1100, -600)
@@ -2168,6 +2171,9 @@ check('a spot in Sonamukhi with no town map is filed under Bankura district',
 check('Purulia stays with its own blocks, not a district',
       admin_sql("select kasa_private.locate_any(%s, %s, null) ->> 'kind'", SPOT)[0][0] in ('town', 'rural'))
 check('all 22 other West Bengal districts are loaded', admin_sql("select count(*) from kasa_private.areas where kind = 'district'")[0][0] == 22)
+bk_audit = school_audit(user(), where=(23.305, 87.435), name='Sonamukhi Test School')
+check('a school check in another West Bengal district is accepted, filed under that district',
+      admin_sql("select area_kind, ward_no from public.school_audits where id::text = %s", (bk_audit['id'],))[0] == ('wb', None), bk_audit)
 check('a town map must be a FeatureCollection', err(send_town, p_geojson={'type': 'Polygon'}) == 'KASA_BAD_MAP')
 check('every ward needs a number',
       err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*SONAMUKHI)['features'][0], properties={})]}) == 'KASA_BAD_MAP')

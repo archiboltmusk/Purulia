@@ -3402,6 +3402,19 @@ const SC_QUESTIONS = ['water', 'toilets', 'boundary', 'electricity', 'mdm'];
 const SC_MAYBE = ['girls_toilet', 'meal_today'];
 let sc = null;
 
+// Which district's school list a check uses: the school's own, else where GPS puts you
+// (loadNearbySchools), else the place chosen on the map.
+function savedDistrict(){
+  let k = null;
+  try { k = localStorage.getItem('parishkar_place'); } catch (e) {}
+  return k && k.startsWith('district:') ? k.slice(9) : k === 'kolkata' ? 'kolkata' : 'purulia';
+}
+async function fillSchoolBlocks(sel, district, counts){
+  const { data } = await sb.rpc('kasa_school_blocks', { p_district: district });
+  sel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
+    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)}${counts ? ` (${b.schools})` : ''}</option>`).join('');
+}
+
 async function openSchoolCheck(code){
   sc = { schools: [], school: null, ans: {}, cond: null, pos: null, blob: null, meta: null, problems: {} };
   setDrawer(false);
@@ -3434,18 +3447,15 @@ async function openSchoolCheck(code){
   document.getElementById('k-sc-picked').textContent = '';
   document.getElementById('k-sc-near').innerHTML = `<div class="k-ev-status">${esc(t('sc_near_wait'))}</div>`;
   const blockSel = document.getElementById('k-sc-block');
-  const { data } = await sb.rpc('kasa_school_blocks');
-  blockSel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
-    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)} (${b.schools})</option>`).join('');
+  const { data: s } = code ? await sb.from('schools').select('udise_code,name,block_name,panchayat,village,lat,seen_lat,district').eq('udise_code', code).maybeSingle() : {};
+  sc.district = s?.district || savedDistrict();
+  await fillSchoolBlocks(blockSel, sc.district, true);
   document.getElementById('k-sc-find').hidden = true;
   document.getElementById('k-sc-school').hidden = true;
   updateSchoolSubmit();
   openModal('k-sc-modal');
   checkSchoolLocation();
-  if (code){
-    const { data: s } = await sb.from('schools').select('udise_code,name,block_name,panchayat,village,lat,seen_lat').eq('udise_code', code).maybeSingle();
-    if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
-  }
+  if (s){ blockSel.value = s.block_name; await loadSchoolBlock(s.block_name); pickSchool(s.udise_code); }
 }
 
 /* Like the UTS app's nearby stations: once GPS is in, fill in the block and list the
@@ -3464,6 +3474,11 @@ async function loadNearbySchools(pos){
   ]);
   if (!sc) return;
   const blockSel = document.getElementById('k-sc-block');
+  if (nb?.district && nb.district !== sc.district && !sc.school){
+    sc.district = nb.district;
+    await fillSchoolBlocks(blockSel, sc.district, true);
+    if (!sc) return;
+  }
   if (nb?.block && !blockSel.value){
     const opt = [...blockSel.options].find(o => o.value && blockKey(o.value) === blockKey(nb.block));
     if (opt){ blockSel.value = opt.value; await loadSchoolBlock(opt.value); }
@@ -3500,7 +3515,7 @@ async function loadSchoolBlock(block){
   sc.school = null;
   document.getElementById('k-sc-picked').textContent = '';
   if (!block){ sel.hidden = find.hidden = true; updateSchoolSubmit(); return; }
-  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat').eq('block_name', block).order('name').limit(1000);
+  const { data } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat').eq('block_name', block).eq('district', sc.district).order('name').limit(1000);
   sc.schools = data || [];
   find.value = '';
   sel.hidden = find.hidden = false;
@@ -3735,15 +3750,13 @@ async function submitReportCard(){
    plus its name and block. A moderator finds its UDISE code before it joins the list. */
 let ns = null;
 async function openMissingSchool(){
-  const block = sc && document.getElementById('k-sc-block').value;
+  const block = sc && document.getElementById('k-sc-block').value, district = sc?.district || savedDistrict();
   if (sc) closeModal('k-sc-modal');
   sc = null;
   ns = { pos: null, blob: null, meta: null };
   setDrawer(false);
   const sel = document.getElementById('k-ns-block');
-  const { data } = await sb.rpc('kasa_school_blocks');
-  sel.innerHTML = `<option value="">${esc(t('sc_block_pick'))}</option>` +
-    (data || []).map(b => `<option value="${esc(b.block)}">${esc(b.block)}</option>`).join('');
+  await fillSchoolBlocks(sel, district, false);
   if (block) sel.value = block;
   for (const id of ['k-ns-name', 'k-ns-village', 'k-ns-udise']) document.getElementById(id).value = '';
   document.getElementById('k-ns-preview').innerHTML = '';
