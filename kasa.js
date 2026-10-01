@@ -551,11 +551,11 @@ async function loadWards(){
 
 async function loadCommunities(){
   if (!sb) return;
-  const { data, error } = await sb.from('kasa_public_communities').select('wards,all_district');
+  const { data, error } = await sb.from('kasa_public_communities').select('wards,all_district,districts');
   if (error) return;
   state.groupsByWard = {};
-  // A district-wide community counts in every ward.
-  const everywhere = (data || []).filter(g => g.all_district).length;
+  // A community covering all of Purulia district counts in every ward.
+  const everywhere = (data || []).filter(g => g.all_district && (!g.districts || g.districts.includes('purulia'))).length;
   for (let w = 1; w <= 23; w++) if (everywhere) state.groupsByWard[w] = everywhere;
   for (const g of data || []) if (!g.all_district) for (const w of g.wards || []) state.groupsByWard[w] = (state.groupsByWard[w] || 0) + 1;
 }
