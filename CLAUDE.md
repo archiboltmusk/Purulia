@@ -19,7 +19,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 ## Shared modules
 - `config.js` — `window.KASA_CONFIG` (Supabase URL, anon key, Turnstile, share URL). Public keys only.
 - `city.js` — everything Purulia-specific (names, boundary files, reps). `places.js` — other towns (`places/*_wards.geojson`) + district fallback (`places/wb_districts.geojson`).
-- `categories.js` — report categories; mirrors `categories.yaml` (no generator in repo, keep both in sync).
+- `categories.js` — report categories (report sub-types incl. dry tap/hand pump/health centre problems live in `reports.waste_type`); mirrors `categories.yaml` (no generator in repo, keep both in sync).
 - `bug-report.js` — "Report a bug" button on every page (load early, no defer).
 - `translate-fix.js` — "অনুবাদ ঠিক করুন" toggle (Bengali only; kasa drawer / next to page-lang switch): tap Bengali text → `kasa_suggest_translation` → `kasa_private.translation_suggestions` → admin `kasa_admin_translation_queue`/`kasa_admin_review_translation` → public `kasa_translations()` patches `KASA_I18N.bn` (ns `kasa`) / `PAGE_I18N.bn` (ns = page name). Load after the dictionaries.
 - `page-lang.js` — bn/hi for static pages via `data-t` keys. `digest-sheet.js`/`.css` — digest sign-up banner.
