@@ -43,7 +43,7 @@ with rec as (
               then (x ->> 'latitude')::float end as lat,
          case when (x ->> 'latitude')::float between 21.4 and 27.3 and (x ->> 'longitude')::float between 85.8 and 89.95
               then (x ->> 'longitude')::float end as lng,
-         case when slug = 'purulia' then upper(x ->> 'subdistrict_name') else x ->> 'subdistrict_name' end as block,
+         nullif(btrim(case when slug = 'purulia' then upper(x ->> 'subdistrict_name') else x ->> 'subdistrict_name' end), '') as block,
          nullif(coalesce(nullif(x ->> 'village_name', ''), nullif(x ->> 'ward', '')), '') as village,
          nullif(x ->> 'management', '') as management, nullif(x ->> 'school_category', '') as category,
          jsonb_strip_nulls(jsonb_build_object(
