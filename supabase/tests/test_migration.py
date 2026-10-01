@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2329,6 +2329,31 @@ check('wording cannot be reviewed twice', err(rpc, 'kasa_admin_review_translatio
 for i in range(30):
     send_tr(ip='10.92.0.9')
 check('one network can send at most thirty wording fixes a day', err(send_tr, ip='10.92.0.9') == 'KASA_RATE_LIMIT')
+
+# ── Readers correct the figures ─────────────────────────────────────────────
+def send_df(ip='10.93.0.1', **kw):
+    args = dict(p_what='32.45% rural homes with tap water', p_correction='The dashboard now shows 41.2%',
+                p_source_url='https://ejalshakti.gov.in/jjmreport/JJMIndia.aspx', p_note=None, p_email=None, p_page='/data.html')
+    args.update(kw)
+    return rpc('kasa_suggest_data_fix', ip=ip, **args)
+check('a correction must say which figure', err(send_df, p_what=' ') == 'KASA_BAD_FORM')
+check('a correction source must be a web link', err(send_df, p_source_url='ejalshakti dashboard') == 'KASA_BAD_FORM')
+check('a correction email must look like one', err(send_df, p_email='not-an-email') == 'KASA_BAD_FORM')
+check('anyone can suggest a correction; it waits for a moderator', send_df() == {'ok': True, 'status': 'pending'})
+send_df(ip='10.93.0.2', p_source_url=None, p_email='reader@example.com')
+check('the public cannot read waiting corrections', refused(err(q, 'select * from kasa_private.data_corrections')))
+check('non-admins cannot see the corrections queue', err(rpc, 'kasa_admin_data_fix_queue', uid=user()) == 'KASA_NOT_ADMIN')
+dq = rpc('kasa_admin_data_fix_queue', uid=mod)
+check('moderators see the figure, the fix and the link, not the network',
+      len(dq) == 2 and dq[0]['source_url'] and 'ip_hash' not in dq[0] and dq[1]['email'] == 'reader@example.com', dq)
+check('non-admins cannot close a correction', err(rpc, 'kasa_admin_review_data_fix', uid=user(), p_id=dq[0]['id'], p_action='fixed') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_data_fix', uid=mod, p_id=dq[0]['id'], p_action='fixed')
+rpc('kasa_admin_review_data_fix', uid=mod, p_id=dq[1]['id'], p_action='reject')
+check('closed corrections leave the queue', rpc('kasa_admin_data_fix_queue', uid=mod) == [])
+check('a correction cannot be closed twice', err(rpc, 'kasa_admin_review_data_fix', uid=mod, p_id=dq[0]['id'], p_action='fixed') == 'KASA_NOT_FOUND')
+for i in range(20):
+    send_df(ip='10.94.0.9')
+check('one network can send at most twenty corrections a day', err(send_df, ip='10.94.0.9') == 'KASA_RATE_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
