@@ -542,3 +542,12 @@ test('The Circle follows the chosen district, and asks for a source where none i
   await page.goto('circle.html?d=purulia');
   await expect(page.locator('#marriage .ci-facts')).toContainText('63.6%');
 });
+
+test('the schools page outside Purulia says its school list is not loaded, and shows that district\'s own figures', async ({ page, backend }) => {
+  await page.goto('schools.html?d=bankura');
+  await expect(page.locator('.an-title')).toContainText('Schools in Bankura');
+  await expect(page.locator('#sc-compare')).toContainText('Women with 10 or more years of schooling');
+  await expect(page.locator('#sc-near')).toBeHidden();
+  await expect(page.locator('#sc-list')).toBeHidden();
+  expect(backend.calls.some(c => c.name === 'kasa_school_coverage')).toBe(false);
+});
