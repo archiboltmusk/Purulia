@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_feeding_spots'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_feeding_spots'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2415,6 +2415,42 @@ check('a correction cannot be closed twice', err(rpc, 'kasa_admin_review_data_fi
 for i in range(20):
     send_df(ip='10.94.0.9')
 check('one network can send at most twenty corrections a day', err(send_df, ip='10.94.0.9') == 'KASA_RATE_LIMIT')
+
+# ── Community dog feeding spots ─────────────────────────────────────────────
+fd_spot = offset(-4200, -2400)
+def feed(uid, name='Rina Mahato', where=fd_spot, acc=10.0, **kw):
+    args = dict(p_name=name, p_lat=where[0], p_lng=where[1], p_accuracy=acc, p_feed_time='7 to 7:30 pm', p_dogs=5, p_helps_abc=True)
+    args.update(kw)
+    return rpc('kasa_register_feeding_spot', uid=uid, **args)
+fd_u = user()
+check('the public cannot register a feeding spot without signing in',
+      refused(err(rpc, 'kasa_register_feeding_spot', p_name='Rina', p_lat=fd_spot[0], p_lng=fd_spot[1], p_accuracy=10.0, p_feed_time='7 pm', p_dogs=3)))
+check('a weak GPS fix cannot register a feeding spot', err(feed, fd_u, acc=500.0) == 'KASA_GPS_WEAK')
+check('a feeding spot needs a feeding time', err(feed, fd_u, p_feed_time=' ') == 'KASA_BAD_FORM')
+check('a feeding spot needs a sensible dog count', err(feed, fd_u, p_dogs=0) == 'KASA_BAD_FORM')
+f1 = feed(fd_u)
+check('a caregiver standing at the spot can register it; it waits for a moderator', f1['status'] == 'pending', f1)
+check('a waiting spot is not public', not any(x['id'] == f1['id'] for x in rpc('kasa_feeding_spots')))
+check('a second spot on top of the first is refused', err(feed, user(), 'Other', offset(10, 0, base=fd_spot)) == 'KASA_FEED_TAKEN')
+check('non-admins cannot see the feeding queue', err(rpc, 'kasa_admin_feeding_queue', uid=user()) == 'KASA_NOT_ADMIN')
+fq = [x for x in rpc('kasa_admin_feeding_queue', uid=mod) if x['id'] == f1['id']]
+check('moderators see the waiting spot without the account', fq and fq[0]['dogs'] == 5 and 'user_id' not in fq[0], fq)
+check('non-admins cannot approve a feeding spot', err(rpc, 'kasa_admin_review_feeding_spot', uid=user(), p_id=f1['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_feeding_spot', uid=mod, p_id=f1['id'], p_action='approve')
+pub = [x for x in rpc('kasa_feeding_spots') if x['id'] == f1['id']]
+check('an approved spot is public with its time and caregiver name', pub and pub[0]['name'] == 'Rina Mahato' and pub[0]['feed_time'] == '7 to 7:30 pm' and pub[0]['mine'] is not True, pub)
+check('designation needs a source link',
+      err(rpc, 'kasa_admin_set_feeding_designation', uid=mod, p_id=f1['id'], p_note='Ward 5 committee', p_source_url='minutes.pdf') == 'KASA_SOURCE_NEEDED')
+rpc('kasa_admin_set_feeding_designation', uid=mod, p_id=f1['id'], p_note='Ward 5 committee', p_source_url='https://example.org/minutes')
+pub = [x for x in rpc('kasa_feeding_spots') if x['id'] == f1['id']]
+check('a designated spot shows who designated it', pub and pub[0]['designated']['note'] == 'Ward 5 committee', pub)
+check('only the caregiver can stop a spot', err(rpc, 'kasa_leave_feeding_spot', uid=user(), p_id=f1['id']) == 'KASA_NOT_FOUND')
+rpc('kasa_leave_feeding_spot', uid=fd_u, p_id=f1['id'])
+check('a stopped spot leaves the list', not any(x['id'] == f1['id'] for x in rpc('kasa_feeding_spots')))
+fl = user()
+for i in range(3):
+    feed(fl, f'Feeder {i}', offset(-4600 - i * 200, -2400))
+check('one caregiver can register at most three spots', err(feed, fl, 'Feeder 4', offset(-5400, -2400)) == 'KASA_FEED_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

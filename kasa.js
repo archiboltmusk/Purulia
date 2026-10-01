@@ -4032,6 +4032,48 @@ async function submitAdopt(){
   }
 }
 
+/* A caregiver standing where they feed community dogs registers the spot (ABC Rules 2023, rule 20).
+   It waits for a moderator before it shows on dogs.html. */
+let fd = null;
+async function openFeed(){
+  fd = { pos: null };
+  const btn = document.getElementById('k-fd-submit'), status = document.getElementById('k-fd-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-fd-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!fd) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    fd.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (fd) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitFeed(){
+  if (!fd?.pos) return;
+  const btn = document.getElementById('k-fd-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_register_feeding_spot', {
+      p_name: document.getElementById('k-fd-name').value, p_lat: fd.pos.lat, p_lng: fd.pos.lng, p_accuracy: fd.pos.accuracy,
+      p_feed_time: document.getElementById('k-fd-time').value, p_dogs: Number(document.getElementById('k-fd-dogs').value) || null,
+      p_helps_abc: document.getElementById('k-fd-abc').checked, p_note: null });
+    if (error) throw rpcError(error);
+    closeModal('k-fd-modal');
+    showToast(t('fd_done'), 7000);
+    fd = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4052,6 +4094,7 @@ function initSchoolCheck(){
   document.getElementById('k-ns-block').addEventListener('change', updateMissingSchoolSubmit);
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
+  document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
   document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
   document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
@@ -4077,6 +4120,7 @@ function initSchoolCheck(){
   const q = new URLSearchParams(location.search), code = q.get('school');
   const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
+  else if (q.get('feed') === '1') openFeed();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
