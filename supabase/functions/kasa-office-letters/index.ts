@@ -1,5 +1,6 @@
 // Supabase Edge Function: the weekly email to each office (Purulia Municipality for town
-// wards, the BDO for a village block) listing its open reports.
+// wards, the BDO for a village block) listing its open reports. Reports still open 14 days
+// past their deadline also go to the District Magistrate (office 'dm'), naming who was told.
 //
 // Runs every Monday from pg_cron. It only writes to offices the database hands out: ones
 // with open reports that haven't had this week's letter. An office with nothing open gets
@@ -18,7 +19,7 @@ const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '') + '/';
 
-interface Report { id: string; created_at: string; ward_no: number | null; category: string; landmark: string | null; sla_days: number | null; councillor: string | null }
+interface Report { id: string; created_at: string; ward_no: number | null; category: string; landmark: string | null; sla_days: number | null; councillor: string | null; via?: string | null }
 interface Office { office: string; title: string; addressee: string; emails: string[]; reports: Report[] }
 
 const reply = (status: number, body: unknown) =>
@@ -29,10 +30,16 @@ function render(o: Office): { subject: string; text: string } {
   const now = Date.now(), age = (r: Report) => Math.floor((now - Date.parse(r.created_at)) / 86400000);
   const overdue = (r: Report) => age(r) > (r.sla_days || 7);
   const line = (r: Report) => {
-    const where = r.ward_no != null ? `Ward ${r.ward_no}${r.councillor ? ` (Councillor ${r.councillor})` : ''}` : `${o.office} block`;
+    const where = r.ward_no != null ? `Ward ${r.ward_no}${r.councillor ? ` (Councillor ${r.councillor})` : ''}` : r.via ? r.via.replace(/^BDO, /, '') + ' block' : `${o.office} block`;
+    const past = age(r) - (r.sla_days || 7);
+    if (r.via) return `- ${r.category}${r.landmark ? ' near ' + r.landmark : ''}, ${where}: open ${age(r)} days, ${past} days past its ${r.sla_days || 7}-day deadline. Sent weekly to ${r.via}. Photo and location: ${SITE}kasa.html?report=${r.id}`;
     return `- ${r.category}${r.landmark ? ' near ' + r.landmark : ''}, ${where}: open ${age(r)} days${overdue(r) ? ', overdue' : ''}. Photo and location: ${SITE}kasa.html?report=${r.id}`;
   };
   const n = o.reports.length, late = o.reports.filter(overdue).length;
+  if (o.office === 'dm') return {
+    subject: `${n} civic report${n === 1 ? '' : 's'} still open more than 14 days past deadline`,
+    text: `To ${o.addressee},\n\nThe reports below were sent every week to the office responsible and are still open more than 14 days after their deadline. Each has a live-camera photo taken at the spot with GPS. We bring them to your notice for follow-up.\n\n${o.reports.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nThis is a weekly summary, sent only in weeks when a report has gone this far past its deadline.\n\nParishkar Purulia\n${SITE}`,
+  };
   const page = o.office === 'municipality' ? SITE + 'municipality.html' : SITE + 'ward.html?block=' + encodeURIComponent(o.office);
   const wards = o.office === 'municipality' ? '\n\nFor town wards, please pass each item to the attention of the Councillor of that ward.' : '';
   return {
