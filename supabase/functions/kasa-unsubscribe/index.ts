@@ -45,8 +45,9 @@ Deno.serve(async (req) => {
   const { data, error } = await admin.rpc('kasa_digest_unsubscribe', { p_token: token });
 
   const success = data?.success;
-  const message = data?.message || error?.message || 'Unknown error';
-  const email = data?.email;
+  const esc = (v: unknown) => String(v ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]!));
+  const message = esc(data?.message || error?.message || 'Unknown error');
+  const email = esc(data?.email);
 
   return new Response(
     `<!DOCTYPE html>

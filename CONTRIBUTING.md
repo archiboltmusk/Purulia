@@ -10,6 +10,16 @@ Thanks for helping. This repo holds two things: the **Purulia 2040** blueprint p
 - **Security issue** — never open a public issue; follow [SECURITY.md](SECURITY.md).
 - **Run it in your own town** — see [DEPLOY.md](DEPLOY.md).
 
+## Good first tasks
+
+Pick one size, comment on the issue (or open one) so nobody doubles up, then send a pull request.
+
+- **Small (about an hour):** fix a wrong Bengali or Hindi string in `kasa-i18n.js` or a `*-i18n.js` file; fix padding or overflow on a 360 px wide phone; add a missing `alt` text or `aria-label`.
+- **Medium (about a day):** add a filter (ward, category, age) to a moderation queue in `admin.js`; add a chart to `analytics.html` from an existing `kasa_*` RPC; add a browser test in `tests/browser/` for a flow that has none.
+- **Large (a week or more):** a printable ward report for councillors and officials built from existing RPCs; an offline-first list view for areas with no signal; a new district's boundaries and officials via `tools/`.
+
+Read [CLAUDE.md](CLAUDE.md) first: it maps every page, module and RPC, so you only open the files you need.
+
 ## Running it locally
 
 Any static file server works:
