@@ -9,14 +9,49 @@
 window.PlaceFacts = (() => {
   const SAVED = 'parishkar_place';
   const URL_ = 'places/wb_district_facts.json';
-  let data = null, loading = null;
+  let data = null, loading = null, townList = null, savedTown = null;
 
   const esc = s => String(s == null ? '' : s).replace(/[&<>"]/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const n = v => Number(v).toLocaleString('en-IN');
 
   function load() {
     return loading || (loading = fetch(URL_).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
-      .then(d => (data = d)));
+      .then(d => {
+        data = d;
+        // A town chosen on the map (its slug) counts as the district it is in.
+        let k = null;
+        try { k = localStorage.getItem(SAVED); } catch (e) {}
+        if (!k || k === 'purulia' || k === 'kolkata' || k === 'bengal' || k.startsWith('district:')) return d;
+        return towns().then(t => { const x = t.find(p => p.slug === k); savedTown = x ? x.district : null; return d; });
+      }));
+  }
+
+  // Every West Bengal municipality outside Kolkata and Purulia (places/wb_towns.geojson):
+  // slug, name, body, district, wards and a [lng, lat] point inside or at it.
+  function towns() {
+    return townList || (townList = fetch('places/wb_towns.geojson').then(r => r.ok ? r.json() : { features: [] })
+      .then(g => g.features.map(f => {
+        const c = [], walk = a => typeof a[0] === 'number' ? c.push(a) : a.forEach(walk);
+        walk(f.geometry.coordinates);
+        return { ...f.properties, at: c.length ? [c.reduce((s, p) => s + p[0], 0) / c.length, c.reduce((s, p) => s + p[1], 0) / c.length] : null };
+      })).catch(() => []));
+  }
+
+  // The district's municipal bodies, for RTI letters: [{ name, body, at }], by name.
+  function bodies(slug) {
+    if (slug === 'kolkata') return Promise.resolve([{ name: 'Kolkata', body: 'Kolkata Municipal Corporation', at: [88.3639, 22.5726] }]);
+    return towns().then(t => t.filter(p => p.district === slug).sort((a, b) => a.name.localeCompare(b.name)));
+  }
+
+  // Which reports (kasa_public_reports rows, by their `place`) belong to a district: Purulia's
+  // carry no place, Kolkata's 'kolkata', others 'district:<slug>' or one of the district's towns.
+  function reportFilter(slug) {
+    if (slug === 'purulia') return Promise.resolve(r => !r.place);
+    if (slug === 'kolkata') return Promise.resolve(r => r.place === 'kolkata');
+    return towns().then(t => {
+      const mine = new Set(t.filter(p => p.district === slug).map(p => p.slug));
+      return r => r.place === 'district:' + slug || mine.has(r.place);
+    });
   }
 
   // Map-place key ('purulia', 'kolkata', 'district:bankura', a town slug) -> district slug.
@@ -29,7 +64,7 @@ window.PlaceFacts = (() => {
   function current() {
     let s = null;
     try { s = new URLSearchParams(location.search).get('d'); } catch (e) {}
-    if (!s) { try { s = fromKey(localStorage.getItem(SAVED)); } catch (e) {} }
+    if (!s) { try { s = savedTown || fromKey(localStorage.getItem(SAVED)); } catch (e) {} }
     s = (s || 'purulia').toLowerCase();
     if (data && !data.districts[s]) s = 'purulia';
     return s;
@@ -70,5 +105,5 @@ window.PlaceFacts = (() => {
     el.onchange = () => { choose(el.value); onChange(el.value); };
   }
 
-  return { load, current, choose, rank, rankText, picker, esc, n, get data() { return data; } };
+  return { load, current, choose, rank, rankText, picker, towns, bodies, reportFilter, esc, n, get data() { return data; } };
 })();

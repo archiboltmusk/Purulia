@@ -1,6 +1,6 @@
-/* Public analytics for Parishkar Purulia: computed in the browser from the public view. */
+/* Public analytics for the chosen district (place-facts.js): computed in the browser from the public view. */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name,parent_report_id';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name,parent_report_id,place,place_ward';
   const DAY = 86400000;
 
   // Fixes that didn't last: a new report at the spot (a recurrence) within fixMustLastDays of the fix.
@@ -27,13 +27,22 @@
   const fixDays = r => Math.max(0, (new Date(r.resolved_at) - new Date(r.created_at)) / DAY);
   const reportLink = r => `kasa.html?report=${encodeURIComponent(r.id)}`;
 
+  // The chosen district. Purulia keeps its wards, blocks and seats; any other district gets
+  // its own reports grouped by municipality.
+  const PF = window.PlaceFacts;
+  let slug = 'purulia', D = null;
+  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  const isPurulia = slug === 'purulia', NAME = D ? D.name : 'Purulia';
+  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+
   const [rep, wardRes] = await Promise.all([
     sb.from('kasa_public_reports').select(COLUMNS).order('created_at', { ascending: false }).limit(5000),
     sb.from('wards').select('ward_no,councillor_name').order('ward_no'),
   ]);
   if (rep.error){ set('an-updated', 'Could not load the data. Please try again later.'); return; }
   const relapsed = relapsedIds(rep.data || []);
-  const all = (rep.data || []).filter(r => !r.is_duplicate);
+  const all = (rep.data || []).filter(r => !r.is_duplicate && inPlace(r));
+  const mine = new Set(all.map(r => String(r.id)));
   const wards = {}; (wardRes.data || []).forEach(w => { wards[w.ward_no] = w; });
   const now = Date.now();
   const open = all.filter(r => r.status !== 'resolved');
@@ -127,11 +136,13 @@
     if (error){ el.innerHTML = '<div class="an-empty">Could not load problem spots.</div>'; return; }
     const where = s => esc(s.landmark || (s.ward_no ? 'Ward ' + s.ward_no : s.block_name ? s.block_name + ' block' : 'Near ' + s.lat + ', ' + s.lng));
     el.innerHTML = table('<th>Where</th><th>Mostly</th><th class="n">Reports</th><th class="n">Still open</th><th class="n">Fixed</th><th class="n">Came back after a fix</th><th>Last report</th>',
-      (data || []).map(s => `<tr><td><a href="kasa.html?report=${encodeURIComponent(s.report_id)}">${where(s)}</a></td><td>${esc(cat(s.category))}</td>
+      (data || []).filter(s => mine.has(String(s.report_id))).map(s => `<tr><td><a href="kasa.html?report=${encodeURIComponent(s.report_id)}">${where(s)}</a></td><td>${esc(cat(s.category))}</td>
         <td class="n">${s.reports}</td><td class="n">${s.open}</td><td class="n">${s.fixed}</td><td class="n">${s.came_back}</td>
         <td>${esc(new Date(s.last_at).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }))}</td></tr>`),
       'No place has 3 or more reports in the last 90 days.');
   });
+
+  if (!isPurulia) return otherDistrict();
 
   // Every ward
   const stats = {};
@@ -213,19 +224,60 @@
     'No Lok Sabha seats set up yet.');
   set('an-mla-note', 'Town reports count toward the Purulia seat; village reports count by CD block. Arsha, Purulia I and Hura blocks are divided between assembly seats by gram panchayat, so they have their own rows. Seats: Delimitation Commission Order No. 18 (2006). MLAs: 2026 assembly election. MPs: 2024 Lok Sabha election. Spotted a mistake? Write to the Grievance Officer.');
 
-  // Moderation in public: monthly counts only, no IDs (kasa_public_transparency).
-  const { data: tr, error: trErr } = await sb.rpc('kasa_public_transparency');
-  if (trErr || !tr){ document.getElementById('an-mod').innerHTML = '<div class="an-empty">Could not load moderation counts.</div>'; return; }
-  const n = tr.now || {};
-  set('an-mod-now', `Right now: ${n.waiting_review ?? 0} waiting for a moderator · ${n.hidden ?? 0} hidden · team of ${n.admins ?? 0} admin${n.admins === 1 ? '' : 's'} and ${n.moderators ?? 0} moderator${n.moderators === 1 ? '' : 's'}. Reasons are shown on each report's own evidence trail.`);
-  const MOD_COLS = [['reported', 'Reports'], ['flagged', 'Flags'], ['hidden', 'Hidden'], ['kept', 'Kept after review'],
-    ['recategorized', 'Category fixed by moderator'], ['auto_recategorized', 'Category fixed automatically'],
-    ['claims_rejected', 'Fake cleanups thrown out'], ['claims_expired', 'Cleanup claims expired'],
-    ['votes_voided', 'Confirmations voided'], ['official_replies', 'Official replies']];
-  const months = (tr.months || []).filter(m => MOD_COLS.some(([k]) => m[k]));
-  document.getElementById('an-mod').innerHTML = table(
-    '<th>Month</th>' + MOD_COLS.map(([, l]) => `<th class="n">${esc(l)}</th>`).join(''),
-    months.map(m => `<tr><td>${esc(new Date(m.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }))}</td>`
-      + MOD_COLS.map(([k]) => `<td class="n">${m[k] || 0}</td>`).join('') + '</tr>'),
-    'Nothing yet in the last 12 months.');
+  moderation();
+
+  // Another district: its municipalities instead of Purulia's wards, blocks and seats; the
+  // moderation counts (statewide) and the forest map, opened on the district.
+  async function otherDistrict(){
+    const n = esc(NAME), hide = el => { el.hidden = true; el.style.display = 'none'; };
+    document.title = `${NAME} in numbers — Parishkar Bengal`;
+    document.querySelector('.an-title').innerHTML = `Parishkar Bengal: ${n}, <em>in numbers</em>`;
+    const bodies = await PF.bodies(slug);
+    const tstats = new Map(bodies.map(b => [b.slug || 'kolkata', { name: b.body || b.name, open: 0, overdue: 0, fixed: 0, fake: 0, days: [] }]));
+    const rest = { name: `Rest of ${NAME}`, open: 0, overdue: 0, fixed: 0, fake: 0, days: [] };
+    all.forEach(r => {
+      const s = tstats.get(r.place) || rest;
+      if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
+      else if (fixed.includes(r)){ s.fixed++; s.days.push(fixDays(r)); }
+      s.fake += r.rejected_claims || 0;
+    });
+    const trows = [...tstats.values(), rest].filter(s => s !== rest || s.open + s.fixed + s.fake)
+      .sort((a, b) => b.open - a.open || b.overdue - a.overdue || a.name.localeCompare(b.name));
+    document.querySelector('#an-wards-card h2').textContent = `Every municipality in ${NAME}`;
+    document.querySelector('#an-wards-card .an-card-sub').textContent = `Ordered by unresolved reports. Reports outside a municipality are counted under "Rest of ${NAME}".`;
+    document.getElementById('an-wards').innerHTML = table(
+      '<th>Municipality</th><th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>',
+      trows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.name)}</td><td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
+      `No report from ${NAME} yet. Be the first: report a problem on the map.`);
+    hide(document.getElementById('an-blocks-card'));
+    document.querySelector('#an-mla-card .an-card-sub').innerHTML = `Who answers for each part of ${n}, with their reports, is on the map: <a href="kasa.html?place=district:${esc(slug)}">open ${n}'s leaderboard</a>.`;
+    ['an-mla', 'an-mp', 'an-mla-note'].forEach(id => hide(document.getElementById(id)));
+    const pts = bodies.map(b => b.at).filter(Boolean);
+    const forest = document.getElementById('an-forest');
+    if (pts.length){
+      const lat = pts.reduce((a, p) => a + p[1], 0) / pts.length, lng = pts.reduce((a, p) => a + p[0], 0) / pts.length;
+      const url = 'https://www.globalforestwatch.org/map/?map=' + btoa(JSON.stringify({ center: { lat: +lat.toFixed(2), lng: +lng.toFixed(2) }, zoom: 9 }));
+      forest.querySelector('.an-card-sub').innerHTML = forest.querySelector('.an-card-sub').innerHTML.replace('opens on Purulia', `opens on ${n}`);
+      forest.querySelectorAll('.an-card-sub')[1].innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">Open the Global Forest Watch map of ${n} ↗</a> · Data: Global Forest Watch, CC BY 4.0`;
+    } else hide(forest);
+    moderation();
+  }
+
+  async function moderation(){
+    // Moderation in public: monthly counts only, no IDs (kasa_public_transparency).
+    const { data: tr, error: trErr } = await sb.rpc('kasa_public_transparency');
+    if (trErr || !tr){ document.getElementById('an-mod').innerHTML = '<div class="an-empty">Could not load moderation counts.</div>'; return; }
+    const n = tr.now || {};
+    set('an-mod-now', `${isPurulia ? '' : 'Across all of Parishkar Bengal. '}Right now: ${n.waiting_review ?? 0} waiting for a moderator · ${n.hidden ?? 0} hidden · team of ${n.admins ?? 0} admin${n.admins === 1 ? '' : 's'} and ${n.moderators ?? 0} moderator${n.moderators === 1 ? '' : 's'}. Reasons are shown on each report's own evidence trail.`);
+    const MOD_COLS = [['reported', 'Reports'], ['flagged', 'Flags'], ['hidden', 'Hidden'], ['kept', 'Kept after review'],
+      ['recategorized', 'Category fixed by moderator'], ['auto_recategorized', 'Category fixed automatically'],
+      ['claims_rejected', 'Fake cleanups thrown out'], ['claims_expired', 'Cleanup claims expired'],
+      ['votes_voided', 'Confirmations voided'], ['official_replies', 'Official replies']];
+    const months = (tr.months || []).filter(m => MOD_COLS.some(([k]) => m[k]));
+    document.getElementById('an-mod').innerHTML = table(
+      '<th>Month</th>' + MOD_COLS.map(([, l]) => `<th class="n">${esc(l)}</th>`).join(''),
+      months.map(m => `<tr><td>${esc(new Date(m.month + '-01').toLocaleDateString('en-IN', { month: 'short', year: 'numeric' }))}</td>`
+        + MOD_COLS.map(([k]) => `<td class="n">${m[k] || 0}</td>`).join('') + '</tr>'),
+      'Nothing yet in the last 12 months.');
+  }
 })();

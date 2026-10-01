@@ -1,9 +1,11 @@
 /* Weekly ward digest: one ward's (or block's) Monday–Sunday week, from the public view.
    digest.html?ward=5 · digest.html?block=Arsha · digest.html?all=district|town|villages (the default
    is all of Purulia) · add &week=YYYY-MM-DD (a Monday) for an earlier week, or &month=YYYY-MM for a
-   whole calendar month (the monthly "State of Purulia"). */
+   whole calendar month (the monthly "State of Purulia"). Another district chosen on the map
+   (place-facts.js, ?d=<slug>) gets all of it, each of its municipalities (?muni=<town slug>)
+   and the rest of the district (?all=rest). */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,rejected_claims,area_kind,block_name,parent_report_id';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,rejected_claims,area_kind,block_name,parent_report_id,place';
   const DAY = 86400000, IST = 330 * 60000;
 
   // Fixes that didn't last: a new report at the spot (a recurrence) within fixMustLastDays of the fix.
@@ -34,10 +36,18 @@
   const thisWeek = mondayOf(Date.now()), lastFullWeek = thisWeek - 7 * DAY;
 
   const q = new URLSearchParams(location.search);
-  const blocks = [...new Set([...(city.constituencies || []).flatMap(c => c.blocks || []), ...Object.keys(city.splitBlocks || {})])].sort();
-  const ALL = { district: 'All of Purulia', town: 'All of Purulia town', villages: 'All villages' };
-  let area = q.get('block') ? { kind: 'block', id: q.get('block') }
-    : q.get('ward') ? { kind: 'ward', id: Number(q.get('ward')) || 1 }
+  const PF = window.PlaceFacts;
+  let slug = 'purulia', D = null;
+  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  const isPurulia = slug === 'purulia', NAME = D ? D.name : 'Purulia';
+  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+  const munis = isPurulia || !PF ? [] : (await PF.bodies(slug)).map(b => ({ id: b.slug || 'kolkata', name: b.body || b.name }));
+  const blocks = isPurulia ? [...new Set([...(city.constituencies || []).flatMap(c => c.blocks || []), ...Object.keys(city.splitBlocks || {})])].sort() : [];
+  const ALL = isPurulia ? { district: 'All of Purulia', town: 'All of Purulia town', villages: 'All villages' }
+    : slug === 'kolkata' ? { district: 'All of Kolkata' } : { district: `All of ${NAME}`, rest: `${NAME}, outside the municipalities` };
+  let area = isPurulia && q.get('block') ? { kind: 'block', id: q.get('block') }
+    : isPurulia && q.get('ward') ? { kind: 'ward', id: Number(q.get('ward')) || 1 }
+    : munis.some(m => m.id === q.get('muni')) ? { kind: 'muni', id: q.get('muni') }
     : { kind: 'all', id: ALL[q.get('all')] ? q.get('all') : 'district' };
   const w = q.get('week') && Date.parse(q.get('week') + 'T00:00:00+05:30');
   let start = Number.isFinite(w) ? mondayOf(w) : lastFullWeek;
@@ -59,15 +69,18 @@
   const promises = promRes.error ? null : ((promRes.data && promRes.data.promises) || []);
   if (rep.error){ set('an-updated', 'Could not load the data. Please try again later.'); return; }
   const relapsed = relapsedIds(rep.data || []);
-  const all = (rep.data || []).filter(r => !r.is_duplicate);
-  const wards = wardRes.data || [];
+  const all = (rep.data || []).filter(r => !r.is_duplicate && inPlace(r));
+  const wards = isPurulia ? wardRes.data || [] : [];
 
   const sel = document.getElementById('dg-area');
-  sel.innerHTML = '<optgroup label="Everything">' + Object.entries(ALL).map(([k, v]) => `<option value="all:${k}">${v}</option>`).join('') + '</optgroup>'
-    + '<optgroup label="Purulia town">' + wards.map(x => `<option value="ward:${x.ward_no}">Ward ${x.ward_no}</option>`).join('')
-    + '</optgroup><optgroup label="Villages, by block">' + blocks.map(b => `<option value="block:${esc(b)}">${esc(b)} block</option>`).join('') + '</optgroup>';
+  sel.innerHTML = '<optgroup label="Everything">' + Object.entries(ALL).map(([k, v]) => `<option value="all:${k}">${esc(v)}</option>`).join('') + '</optgroup>'
+    + (isPurulia ? '<optgroup label="Purulia town">' + wards.map(x => `<option value="ward:${x.ward_no}">Ward ${x.ward_no}</option>`).join('')
+      + '</optgroup><optgroup label="Villages, by block">' + blocks.map(b => `<option value="block:${esc(b)}">${esc(b)} block</option>`).join('') + '</optgroup>'
+      : munis.length > 1 ? '<optgroup label="Municipalities">' + munis.map(m => `<option value="muni:${esc(m.id)}">${esc(m.name)}</option>`).join('') + '</optgroup>' : '');
 
-  const inArea = r => area.kind === 'all'
+  const inArea = r => area.kind === 'muni' ? r.place === area.id
+    : area.kind === 'all' && area.id === 'rest' ? r.place === 'district:' + slug
+    : area.kind === 'all'
     ? area.id === 'district' || (area.id === 'town' ? r.area_kind !== 'rural' : r.area_kind === 'rural')
     : area.kind === 'ward'
     ? r.area_kind !== 'rural' && Number(r.ward_no) === area.id
@@ -82,7 +95,7 @@
     const openAtEnd = mine.filter(r => Date.parse(r.created_at) < end && !(r.status === 'resolved' && (!r.resolved_at || Date.parse(r.resolved_at) < end)));
     const overdue = openAtEnd.filter(r => (cut - Date.parse(r.created_at)) / DAY > (r.sla_days || 7));
     const ward = area.kind === 'ward' && wards.find(x => x.ward_no === area.id);
-    const place = area.kind === 'all' ? ALL[area.id] : area.kind === 'ward' ? `Ward ${area.id}` : `${area.id} block`;
+    const place = area.kind === 'all' ? ALL[area.id] : area.kind === 'muni' ? munis.find(m => m.id === area.id).name : area.kind === 'ward' ? `Ward ${area.id}` : `${area.id} block`;
     const week = (monthly ? fmt(start, { month: 'long', year: 'numeric' })
       : `${fmt(start, { day: 'numeric', month: 'short' })} – ${fmt(end - 1, { day: 'numeric', month: 'short', year: 'numeric' })}`) + (soFar ? ' (so far)' : '');
     const U = unit();
@@ -119,8 +132,9 @@
     document.getElementById('dg-next').disabled = start >= (monthly ? thisMonth : thisWeek);
     // Promises (whole district; they belong to named leaders, not a ward). Month view only.
     const pc = document.getElementById('dg-promises');
-    pc.hidden = !monthly || !promises;
-    if (monthly && promises){
+    // The tracked promises are Purulia's leaders'.
+    pc.hidden = !monthly || !promises || !isPurulia;
+    if (monthly && promises && isPurulia){
       const n = s => promises.filter(x => x.status === s).length;
       const moved = promises.filter(x => x.status !== 'promised' && x.status_date && Date.parse(x.status_date + 'T00:00:00+05:30') >= start && Date.parse(x.status_date + 'T00:00:00+05:30') < end);
       document.getElementById('dg-prom').innerHTML = `<li><small>${promises.length} tracked: ${n('promised')} still only promised, ${n('in_progress')} in progress, ${n('delivered')} delivered, ${n('broken')} broken.</small></li>`
@@ -129,6 +143,7 @@
     }
     sel.value = `${area.kind}:${area.id}`;
     const p = new URLSearchParams({ [area.kind]: area.id });
+    if (!isPurulia) p.set('d', slug);
     if (monthly) p.set('month', new Date(start + IST).toISOString().slice(0, 7));
     else if (start !== lastFullWeek) p.set('week', new Date(start + IST).toISOString().slice(0, 10));
     history.replaceState(null, '', '?' + p);
@@ -136,7 +151,7 @@
       .sort((a, b) => a.d - b.d)[0];
     render.card = { kind: monthly ? 'MONTHLY DIGEST' : 'WEEKLY DIGEST', place, week, opened: opened.length, fixed: fixed.length, open: openAtEnd.length, overdue: overdue.length,
       fastest: fastest && `${cat(fastest.r.category)}${fastest.r.landmark ? ' · ' + fastest.r.landmark : ''}, ${fastest.d < 1 ? 'fixed same day' : 'fixed in ' + fastest.d + (fastest.d === 1 ? ' day' : ' days')}` };
-    render.summary = `${place}, ${week} — ${opened.length} new, ${fixed.length} verified fixed, ${openAtEnd.length} still unresolved (${overdue.length} overdue). Parishkar Purulia:`;
+    render.summary = `${place}, ${week} — ${opened.length} new, ${fixed.length} verified fixed, ${openAtEnd.length} still unresolved (${overdue.length} overdue). Parishkar ${isPurulia ? 'Purulia' : 'Bengal'}:`;
   }
 
   sel.addEventListener('change', () => { const [k, ...v] = sel.value.split(':'); area = { kind: k, id: k === 'ward' ? Number(v[0]) : v.join(':') }; render(); });
@@ -149,7 +164,7 @@
   });
   document.getElementById('dg-share').addEventListener('click', async () => {
     const url = location.href;
-    if (navigator.share){ navigator.share({ title: 'Parishkar Purulia — weekly digest', text: render.summary, url }).catch(() => {}); return; }
+    if (navigator.share){ navigator.share({ title: `Parishkar ${isPurulia ? 'Purulia' : 'Bengal'} — weekly digest`, text: render.summary, url }).catch(() => {}); return; }
     try { await navigator.clipboard.writeText(`${render.summary} ${url}`); set('dg-share', 'Copied ✓'); setTimeout(() => set('dg-share', 'Share this digest'), 2000); }
     catch (e) { prompt('Copy this link:', url); }
   });
@@ -157,7 +172,7 @@
     const blob = await weekCard(render.card);
     const file = new File([blob], 'parishkar-week.png', { type: 'image/png' });
     if (navigator.canShare && navigator.canShare({ files: [file] })){
-      try { await navigator.share({ files: [file], title: 'Parishkar Purulia — weekly digest', text: `${render.summary} ${location.href}` }); } catch (e) {}
+      try { await navigator.share({ files: [file], title: `Parishkar ${isPurulia ? 'Purulia' : 'Bengal'} — weekly digest`, text: `${render.summary} ${location.href}` }); } catch (e) {}
       return;
     }
     const a = document.createElement('a');
@@ -195,7 +210,7 @@
     g.fillStyle = 'rgba(240,230,208,.6)'; g.font = `400 30px ${serif}`;
     g.fillText('Fixed means neighbours confirmed it on the spot.', PAD, 1150, W - 2 * PAD);
     g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
-    g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`; g.fillText('Parishkar Purulia', PAD, H - 68);
+    g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`; g.fillText(isPurulia ? 'Parishkar Purulia' : 'Parishkar Bengal', PAD, H - 68);
     g.font = `500 28px ${mono}`; g.fillText('Report a problem in 30 seconds · archiboltmusk.github.io/Purulia', PAD, H - 28, W - 2 * PAD);
     return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));
   }

@@ -1,4 +1,4 @@
-/* Adopted spots page for Parishkar Purulia: who looks after which spot, and how each is doing. */
+/* Adopted spots in the chosen district (place-facts.js): who looks after which spot, and how each is doing. */
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   // Same saved session as the report map, so the adopter sees "Let go" on their own spots.
@@ -8,17 +8,28 @@
   const DAY = 86400000;
   const fmt = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
 
+  // Spots carry the same `place` as reports, so the district's report filter picks its spots.
+  const PF = window.PlaceFacts;
+  let slug = 'purulia', D = null;
+  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  const NAME = D ? D.name : 'Purulia';
+  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+  if (slug !== 'purulia'){
+    document.title = `Spots people look after in ${NAME} — Parishkar Bengal`;
+    document.querySelector('.an-title').innerHTML = `Spots people <em>look after</em> in ${esc(NAME)}`;
+  }
+
   async function load(){
     const { data, error } = await sb.rpc('kasa_adopted_spots');
     const el = document.getElementById('ad-list');
     if (error){ set('ad-updated', 'Could not load. Please try again later.'); el.innerHTML = ''; return; }
-    const spots = data || [];
+    const spots = (data || []).filter(inPlace);
     set('ad-updated', 'Updated ' + new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }));
     set('ad-t-spots', spots.length);
     set('ad-t-clean', spots.filter(s => !s.open).length);
     set('ad-t-fixed', spots.reduce((n, s) => n + (s.fixed || 0), 0));
     if (!spots.length){
-      el.innerHTML = '<div class="an-empty">No spot adopted yet. Be the first: <a href="kasa.html?adopt=1">adopt the spot where you stand</a>.</div>';
+      el.innerHTML = `<div class="an-empty">No spot adopted in ${esc(NAME)} yet. Be the first: <a href="kasa.html?adopt=1">adopt the spot where you stand</a>.</div>`;
       return;
     }
     const where = s => [s.place_name || '',

@@ -118,8 +118,8 @@
     <section class="ws-link"><div class="ws-n">2</div><div>
       <h2>Door-to-door collection</h2>
       <p>A worker or vehicle takes both bins from every house, every day, without mixing them. The rules make the municipality responsible for this. If collection is irregular, people stop sorting and start dumping at the corner.</p>
-      <p>Purulia Municipality runs this with 840 safai karmachari (permanent and contractual), 12 tractors, 4 small pick-up vans (TATA ACE), one TATA 407 pick-up van and 3 highway compactors. A 2022 GIS study found street dustbins are placed with no planning logic behind them — statistically random for plastic bins (Nearest Neighbour R = 0.95) and sharply clustered for cemented bins (R = 52.28, Z = 915.17, under 1% chance of that being random): ward 12 has the most cemented bins, ward 3 the most plastic bins, and <b>ward 21 has none of either</b>.</p>
-      <p class="ws-src">Source: Palit &amp; Patra, <a href="https://doi.org/10.53730/ijhs.v6nS3.5981" rel="noopener">"Solid waste management in Purulia municipality, Purulia, WB: Challenges and opportunities,"</a> International Journal of Health Sciences 6(S3), 2022, citing Purulia Municipality records.</p>
+      <p data-only="purulia">Purulia Municipality runs this with 840 safai karmachari (permanent and contractual), 12 tractors, 4 small pick-up vans (TATA ACE), one TATA 407 pick-up van and 3 highway compactors. A 2022 GIS study found street dustbins are placed with no planning logic behind them — statistically random for plastic bins (Nearest Neighbour R = 0.95) and sharply clustered for cemented bins (R = 52.28, Z = 915.17, under 1% chance of that being random): ward 12 has the most cemented bins, ward 3 the most plastic bins, and <b>ward 21 has none of either</b>.</p>
+      <p class="ws-src" data-only="purulia">Source: Palit &amp; Patra, <a href="https://doi.org/10.53730/ijhs.v6nS3.5981" rel="noopener">"Solid waste management in Purulia municipality, Purulia, WB: Challenges and opportunities,"</a> International Journal of Health Sciences 6(S3), 2022, citing Purulia Municipality records.</p>
       <p><b>What the app shows:</b> garbage reports by ward on the <a href="analytics.html">Analytics</a> page, and spots that keep filling up.</p>
       <span class="ws-status">Purulia: named by the <a href="#ws-ngt">National Green Tribunal</a> (July 2026) as not transporting all its waste; no published route or schedule by ward; ward 21 has zero street dustbins</span>
     </div></section>
@@ -140,7 +140,7 @@
     <section class="ws-link"><div class="ws-n">5</div><div>
       <h2>Safe landfill</h2>
       <p>Only what cannot be composted or recycled should go to a lined, covered sanitary landfill. Open dumps leak into groundwater and catch fire. The same April 2025 report says 42 dumping grounds in 28 West Bengal municipalities had been cleared by bio-mining.</p>
-      <p class="ws-src">Purulia Municipality has three known legacy dumpsites — Bongabari, Chharma and Hutmura — named in the state's NGT-monitored bio-mining progress report to the National Mission for Clean Ganga (February 2026). They're marked ⚠️ on the map below.</p>
+      <p class="ws-src" data-only="purulia">Purulia Municipality has three known legacy dumpsites — Bongabari, Chharma and Hutmura — named in the state's NGT-monitored bio-mining progress report to the National Mission for Clean Ganga (February 2026). They're marked ⚠️ on the map below.</p>
       <span class="ws-status">Purulia: exact clean-up timeline for these sites not published</span>
     </div></section>
   </div>
@@ -238,6 +238,7 @@ Date:</div>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
 <script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="place-facts.js"></script>
 <script defer src="waste.js"></script>
 <script>
   document.getElementById('ws-copy').addEventListener('click', async (e) => {
