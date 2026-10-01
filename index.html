@@ -131,6 +131,7 @@ if (sessionStorage.getItem("pgt")) {
       <span class="l3">Parishkar Purulia</span>
     </h1>
     <p class="h-lead">Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
+    <label class="gt-pick" hidden>District <select id="homePick" aria-label="Choose a district"></select></label>
     <div class="h-btns">
       <a href="kasa.html" class="btn btn-a h-btn-primary">Report a Problem →</a>
       <div class="h-btns-sub">
@@ -217,7 +218,13 @@ if (sessionStorage.getItem("pgt")) {
 </section>
 
 <!-- ══ REFRAME ══ -->
-<section id="reframe">
+<section id="homeAbout" class="home-about" hidden>
+  <div class="sl">// About <span class="home-dname"></span></div>
+  <p class="ss"></p>
+  <a href="kasa.html" class="btn btn-b">Open <span class="home-dname"></span> on the map →</a>
+</section>
+
+<section id="reframe" data-only="purulia">
   <div class="rf-map-wrap rv">
     <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
       <circle cx="200" cy="200" r="185" stroke="rgba(212,136,42,.14)" stroke-width="1"/>
@@ -254,7 +261,7 @@ if (sessionStorage.getItem("pgt")) {
 </section>
 
 <!-- ══ PILLARS ══ -->
-<section id="pillars">
+<section id="pillars" data-only="purulia">
   <div class="ph">
     <div class="rv">
       <div class="sl">// 01 — Framework</div>
@@ -284,13 +291,15 @@ if (sessionStorage.getItem("pgt")) {
       <li id="src-nfhs5"><strong>National Family Health Survey (NFHS-5), 2019–21</strong>, Government of India, Ministry of Health and Family Welfare. District factsheet for Purulia. <a href="https://rchiips.org/nfhs/" target="_blank" rel="noopener">rchiips.org/nfhs</a></li>
       <li id="src-lds"><strong>Aspirational Districts Programme</strong>, NITI Aayog, list of 112 districts (2018). <a href="https://www.niti.gov.in/aspirational-districts-programme" target="_blank" rel="noopener">niti.gov.in</a></li>
       <li id="src-census"><strong>Census of India 2011</strong>, District Census Handbook, Puruliya: population 2,930,115. <a href="https://censusindia.gov.in/" target="_blank" rel="noopener">censusindia.gov.in</a></li>
-      <li id="src-unesco"><strong>UNESCO Representative List of the Intangible Cultural Heritage of Humanity</strong>, Chhau dance inscription, 2010. <a href="https://ich.unesco.org/" target="_blank" rel="noopener">ich.unesco.org</a></li>
+      <li id="src-jjm" hidden><strong>Jal Jeevan Mission dashboard</strong>, Ministry of Jal Shakti: rural homes with a tap connection, by district. <a href="https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx" target="_blank" rel="noopener">ejalshakti.gov.in</a></li>
+      <li id="src-towns" hidden><strong>Blocks, gram panchayats, municipalities and wards</strong>: Local Government Directory codes via <a href="https://github.com/datta07/INDIAN-SHAPEFILES" target="_blank" rel="noopener">INDIAN-SHAPEFILES</a>; municipalities and ward counts from the State Election Commission's 2022 results, via <a href="https://en.wikipedia.org/wiki/2022_West_Bengal_local_elections" target="_blank" rel="noopener">Wikipedia</a>.</li>
+      <li id="src-unesco" data-only="purulia"><strong>UNESCO Representative List of the Intangible Cultural Heritage of Humanity</strong>, Chhau dance inscription, 2010. <a href="https://ich.unesco.org/" target="_blank" rel="noopener">ich.unesco.org</a></li>
     </ol>
   </div>
 </section>
 
 <!-- ══ PATH FINDER ══ -->
-<section id="path-finder">
+<section id="path-finder" data-only="purulia">
   <div class="pf-intro rv">
     <div class="sl">// Where Do You Start?</div>
     <h2 class="sh">Tell Us Who You Are.<br><em>Get Your Next Move.</em></h2>
@@ -353,7 +362,7 @@ if (sessionStorage.getItem("pgt")) {
     </div>
   </div>
   <div class="mom-grid rv">
-    <div class="mom-item mom-item-wide">
+    <div class="mom-item mom-item-wide" data-only="purulia">
       <div class="mom-item-head">
         <div class="mom-tag">Government</div>
         <div class="mom-date">2018</div>
@@ -361,7 +370,7 @@ if (sessionStorage.getItem("pgt")) {
       <div class="mom-title">Purulia left out of the Aspirational Districts Programme</div>
       <div class="mom-body">NITI Aayog's programme covers 112 districts across India, five of them in West Bengal. Purulia is not one of them. <a href="#src-lds" class="src-link">Source</a></div>
     </div>
-    <div class="mom-item">
+    <div class="mom-item" data-only="purulia">
       <div class="mom-item-head">
         <div class="mom-tag">Culture</div>
         <div class="mom-date">2010</div>
@@ -374,7 +383,7 @@ if (sessionStorage.getItem("pgt")) {
         <div class="mom-tag">Platform</div>
         <div class="mom-date"><span class="mlb-dot" aria-hidden="true"></span> Now</div>
       </div>
-      <div class="mom-title">Parishkar Purulia is live. The map is open.</div>
+      <div class="mom-title">Parishkar Bengal is live. The map is open.</div>
       <div class="mom-body">Every report is public. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it. Be the first to file a report — the record begins with you.</div>
     </div>
   </div>
@@ -436,6 +445,8 @@ if (sessionStorage.getItem("pgt")) {
 <script src="config.js"></script>
 <script defer src="digest-sheet.js" data-banner></script>
 <script src="script.js"></script>
+<script defer src="place-facts.js"></script>
+<script defer src="home-place.js"></script>
 <script>
 (function(){
   var cards={
