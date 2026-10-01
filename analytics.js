@@ -225,6 +225,7 @@
   set('an-mla-note', 'Town reports count toward the Purulia seat; village reports count by CD block. Arsha, Purulia I and Hura blocks are divided between assembly seats by gram panchayat, so they have their own rows. Seats: Delimitation Commission Order No. 18 (2006). MLAs: 2026 assembly election. MPs: 2024 Lok Sabha election. Spotted a mistake? Write to the Grievance Officer.');
 
   moderation();
+  letters();
 
   // Another district: its municipalities instead of Purulia's wards, blocks and seats; the
   // moderation counts (statewide) and the forest map, opened on the district.
@@ -261,6 +262,20 @@
       forest.querySelectorAll('.an-card-sub')[1].innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">Open the Global Forest Watch map of ${n} ↗</a> · Data: Global Forest Watch, CC BY 4.0`;
     } else hide(forest);
     moderation();
+  }
+
+  // Weekly letters to the offices responsible (Purulia only), and to the DM for reports 14 days past deadline.
+  async function letters(){
+    const card = document.getElementById('an-letters-card');
+    const { data, error } = await sb.rpc('kasa_office_letters_public');
+    if (error || !Array.isArray(data)) return;
+    card.hidden = false; card.style.display = '';
+    const day = d => new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+    document.getElementById('an-letters').innerHTML = table(
+      '<th>Office</th><th class="n">Weekly letters sent</th><th>First</th><th>Latest</th><th class="n">Open reports in latest</th>',
+      data.map(o => `<tr><td>${esc(o.title)}${o.office === 'dm' ? ' <small>(reports 14+ days past deadline)</small>' : ''}</td><td class="n">${o.letters}</td>
+        <td>${day(o.first)}</td><td>${day(o.last)}</td><td class="n">${o.last_count ?? '—'}</td></tr>`),
+      'No letter has been sent yet. An office gets one only in a week when a report in its area is open.');
   }
 
   async function moderation(){

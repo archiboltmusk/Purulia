@@ -72,4 +72,21 @@ end $$;
 revoke all on function public.kasa_office_letters_claim() from public, anon, authenticated;
 grant execute on function public.kasa_office_letters_claim() to service_role;
 
+-- Public: how often each office has been written to, for analytics.html.
+create or replace function public.kasa_office_letters_public() returns jsonb
+language sql stable security definer set search_path = '' as $$
+  select coalesce(jsonb_agg(x order by x->>'office' = 'dm' desc, (x->>'letters')::int desc, x->>'title'), '[]'::jsonb)
+  from (
+    select jsonb_build_object('office', c.office, 'title', c.title, 'source', c.source,
+             'letters', count(*), 'first', min(l.week), 'last', max(l.week),
+             'last_count', (select l2.report_count from kasa_private.office_letter_log l2
+                            where l2.office = c.office and l2.sent_at is not null order by l2.week desc limit 1)) x
+    from kasa_private.office_letter_log l join kasa_private.office_contacts c using (office)
+    where l.sent_at is not null
+    group by c.office, c.title, c.source
+  ) t
+$$;
+revoke all on function public.kasa_office_letters_public() from public;
+grant execute on function public.kasa_office_letters_public() to anon, authenticated;
+
 commit;
