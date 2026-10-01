@@ -176,6 +176,13 @@ body:has(#waFloat) .br-fab{bottom:calc(88px + env(safe-area-inset-bottom,0px))}
   }
   window.openBugReport = show;
 
+  // "Suggest a correction" for the site's figures rides along on every page (source-fix.js).
+  if (!window.SourceFix) {
+    const sf = document.createElement('script');
+    sf.src = 'source-fix.js';
+    document.head.appendChild(sf);
+  }
+
   function init() {
     const style = document.createElement('style');
     style.textContent = CSS;

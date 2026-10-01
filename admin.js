@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1178,6 +1178,35 @@ async function loadOfficials(){
       p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadOfficials();
+  }));
+}
+
+async function loadDataFixes(){
+  const el = document.getElementById('adDataFixes');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_data_fix_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  const link = (u, n) => /^https?:\/\//i.test(u || '') ? `<a href="${esc(u)}" target="_blank" rel="noopener noreferrer">${esc(n || u.replace(/^https?:\/\//, '').slice(0, 60))}</a>` : '';
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Figure</th><th>What is right</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(c => `<tr>
+          <td>${esc(c.what)}<br><small>${link(c.page, (c.page || '').split('/').pop().split('#')[0] || 'page')} · sent ${esc(new Date(c.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(c.correction)}${c.note ? `<br><small>How they know: ${esc(c.note)}</small>` : ''}${c.email ? `<br><small><a href="mailto:${esc(c.email)}">${esc(c.email)}</a></small>` : ''}</td>
+          <td>${link(c.source_url) || '<small>No link</small>'}</td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-df="${esc(c.id)}" data-df-act="fixed">✓ Page fixed</button>
+            <button class="ad-bad" data-df="${esc(c.id)}" data-df-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-df]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_data_fix', { p_id: Number(b.dataset.df), p_action: b.dataset.dfAct });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadDataFixes();
   }));
 }
 

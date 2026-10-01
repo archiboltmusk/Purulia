@@ -1496,7 +1496,7 @@ function renderAreaCard(){
       ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>`}
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
       · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
-             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''} · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
     ${T ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
   el.hidden = false;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
