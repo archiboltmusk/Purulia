@@ -17,6 +17,8 @@ counted in places/in/index.json, so gaps are visible rather than guessed.
 Jammu and Kashmir: the boundary file has the seats from before the 2022 delimitation,
 so no seat outlines and no names are attached there; the card links the member lists.
 
+Towns with a ward map (places/in/towns.json, run tools/build-in-wards.py first) are added to each
+state file as kind "town".
 Writes places/in_states.geojson (all states, about 1 km), places/in/<state>.geojson
 (districts + assembly seats, about 200 m, loaded only when that state is in view) and
 places/in/index.json.
@@ -26,7 +28,7 @@ from datetime import date
 from difflib import SequenceMatcher
 from pathlib import Path
 import geopandas as gpd, pandas as pd
-from shapely.geometry import mapping
+from shapely.geometry import mapping, shape
 from shapely.ops import unary_union
 
 ROOT = Path(__file__).resolve().parent.parent
@@ -163,7 +165,34 @@ def lok_sabha():
         if rows and head not in out: out[head] = rows
     return out
 
+def town_features(state_geom, towns, ulbs):
+    """Towns with a ward map (places/in/towns.json, tools/build-in-wards.py) inside this state: the
+    town's limits (its wards merged), else a dot."""
+    from shapely.geometry import Point
+    from shapely.prepared import prep
+    inside, out = prep(state_geom), []
+    for code, t in towns.items():
+        x0, y0, x1, y1 = t['bbox']
+        if not inside.contains(Point((x0 + x1) / 2, (y0 + y1) / 2)): continue
+        props = {'kind': 'town', 'ulb': code, 'name': t['name'], 'wards': t['wards']}
+        try: g, b = outline([ulbs[code]], TOL / 4) if code in ulbs else (None, None)
+        except ValueError: g = None
+        if g:
+            out.append({'type': 'Feature', 'bbox': b, 'properties': props, 'geometry': g})
+        else:
+            out.append({'type': 'Feature', 'bbox': t['bbox'], 'properties': props,
+                        'geometry': {'type': 'Point', 'coordinates': [round((x0 + x1) / 2, 4), round((y0 + y1) / 2, 4)]}})
+    return out
+
 def main():
+    tj = ROOT / 'places' / 'in' / 'towns.json'
+    towns = json.loads(tj.read_text())['towns'] if tj.exists() else {}
+    ulbs = {}   # town limits = the union of its wards (the SBM town outline often misses newer wards)
+    for c in towns:
+        try:
+            fs = json.loads((ROOT / 'places' / 'in' / 'wards' / f'{c}.geojson').read_text())['features']
+            ulbs[c] = unary_union([shape(f['geometry']).buffer(0.0003) for f in fs]).buffer(-0.0003)
+        except Exception: pass
     st = gpd.read_parquet(fetch(REL + FILES['states'], 'states.parquet'))
     ds = gpd.read_parquet(fetch(REL + FILES['districts'], 'districts.parquet'))
     acs = gpd.read_parquet(fetch(REL + FILES['acs'], 'acs.parquet'))
@@ -199,6 +228,7 @@ def main():
             if code not in NO_SEAT_MAP and live:
                 info['mp'] = [{'pc': m['no'], 'name': m['seat'], 'person': m['person'], 'party': m['party']} for m in live]
             index['states'][sl] = info
+            feats += town_features(s.geometry, towns, ulbs)
             (OUT / f'{sl}.geojson').write_text(json.dumps({'type': 'FeatureCollection', 'features': feats}, separators=(',', ':')))
             report.append(f'{name}: {len(feats)} districts, no seat map, MPs {info["mps"]}')
             continue
@@ -250,6 +280,7 @@ def main():
             feats.append({'type': 'Feature', 'bbox': b, 'properties': props, 'geometry': g})
         info.update(seats=seats, seats_total=len(mlas), mla_matched=matched, mp_matched=mp_matched, mla_list=WIKI + page.replace(' ', '_'))
         index['states'][sl] = info
+        feats += town_features(s.geometry, towns, ulbs)
         (OUT / f'{sl}.geojson').write_text(json.dumps({'type': 'FeatureCollection', 'features': feats}, separators=(',', ':')))
         report.append(f'{name}: {info["districts"]} districts, {seats} seat outlines of {len(mlas)} seats ({dropped} neighbour fragments dropped), MLA matched {matched}, MP matched {mp_matched}/{seats}')
     (ROOT / 'places' / 'in_states.geojson').write_text(json.dumps({'type': 'FeatureCollection', 'features': states}, separators=(',', ':')))
