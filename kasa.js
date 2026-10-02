@@ -1187,7 +1187,7 @@ function boostRoadLabels(map){
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
-    minZoom: 5, maxZoom: 19,
+    minZoom: 3.5, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
   // Safari doesn't always grow the map canvas when its box changes size (late CSS, fonts, toolbar).
@@ -1341,6 +1341,7 @@ async function addDistrictLayers(){
   mainMap.on('click', onAreaTap);
   loadLocalInView();
   addTownLayers();
+  addIndiaLayers();
 }
 
 /* Every municipality and corporation (places/wb_towns.geojson, tools/build-wb-towns.py): its limits where
@@ -1360,6 +1361,130 @@ async function addTownLayers(){
   mainMap.addLayer({ id: 'wb-towns-label', type: 'symbol', source: 'wb-towns', minzoom: 9, maxzoom: 13.5,
     layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-offset': ['case', pt, ['literal', [0, 1.1]], ['literal', [0, 0]]] },
     paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+}
+
+/* All India outside West Bengal (tools/build-in-map.py): state outlines always; each state's districts
+   and assembly seats (places/in/<slug>.geojson, with the seat's MLA and MP) load once it is in view.
+   Boundaries: Local Government Directory (CC0). Names: Wikipedia's current member lists, attached only
+   where the seat's name matches (places/in/index.json counts the rest). */
+const IN_LOCAL_ZOOM = 5.5;
+let inIndex = null, inStates = null;
+let inIndexCache = null;
+const loadInIndex = () => inIndex || (inIndex = getJson('places/in/index.json').then(j => inIndexCache = j));
+const loadInStates = () => inStates || (inStates = getJson('places/in_states.geojson'));
+async function addIndiaLayers(){
+  const [g, idx] = await Promise.all([loadInStates(), loadInIndex()]);
+  if (!mainMap || !g?.features?.length || mainMap.getSource('in-states')) return;
+  mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution });
+  mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
+    paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
+  mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
+    layout: { 'text-field': ['get', 'state'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
+    paint: { 'text-color': '#e8d9b8', 'text-opacity': .65, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  mainMap.on('moveend', loadIndiaInView);
+  loadIndiaInView();
+}
+
+async function loadIndiaInView(){
+  if (!mainMap || mainMap.getZoom() < IN_LOCAL_ZOOM) return;
+  const idx = await loadInIndex();
+  if (!idx?.states) return;
+  const b = mainMap.getBounds();
+  for (const [slug, st] of Object.entries(idx.states)){
+    const [x0, y0, x1, y1] = st.bbox;
+    if (x1 < b.getWest() || x0 > b.getEast() || y1 < b.getSouth() || y0 > b.getNorth()) continue;
+    addStateLocal(slug);
+  }
+}
+
+const inLoading = {}, inGeo = {};
+function addStateLocal(slug){
+  if (inLoading[slug]) return inLoading[slug];
+  return inLoading[slug] = getJson('places/in/' + slug + '.geojson').then(g => {
+    if (!g) { delete inLoading[slug]; return; }
+    inGeo[slug] = g;
+    if (!mainMap || mainMap.getSource('in-' + slug)) return;
+    const src = 'in-' + slug, kind = k => ['==', ['get', 'kind'], k];
+    mainMap.addSource(src, { type: 'geojson', data: g });
+    mainMap.addLayer({ id: src + '-district-line', type: 'line', source: src, minzoom: IN_LOCAL_ZOOM, filter: kind('district'),
+      paint: { 'line-color': '#e8d9b8', 'line-opacity': .25, 'line-width': 1 } }, 'clusters');
+    mainMap.addLayer({ id: src + '-district-label', type: 'symbol', source: src, minzoom: 6.5, maxzoom: 9, filter: kind('district'),
+      layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
+      paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    mainMap.addLayer({ id: src + '-ac-line', type: 'line', source: src, minzoom: 8, filter: kind('ac'),
+      paint: { 'line-color': '#6db88a', 'line-opacity': .3, 'line-width': .8, 'line-dasharray': [3, 2] } }, 'clusters');
+    mainMap.addLayer({ id: src + '-ac-label', type: 'symbol', source: src, minzoom: 9.5, filter: kind('ac'),
+      layout: { 'text-field': ['get', 'name'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
+      paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+  }).catch(() => { delete inLoading[slug]; });
+}
+
+// State, district and assembly seat at a spot outside West Bengal (null inside it, or off India).
+async function indiaAreasAt(lat, lng){
+  const pt = [lng, lat];
+  const s = (await loadInStates())?.features.find(f => inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry));
+  const info = s && (await loadInIndex())?.states[s.properties.slug];
+  if (!info) return null;
+  await addStateLocal(s.properties.slug);
+  const fs = inGeo[s.properties.slug]?.features || [];
+  const find = kind => fs.find(f => f.properties.kind === kind && inBbox(f.bbox, pt) && pointInPolygon(pt, f.geometry)) || null;
+  return { india: info, state: s, district: find('district'), ac: find('ac') };
+}
+
+async function openIndiaArea(lat, lng, level){
+  const areas = await indiaAreasAt(lat, lng);
+  if (!areas) return closeArea();
+  if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
+  const z = mainMap.getZoom();
+  level ||= z >= 8 && areas.ac ? 'ac' : z >= 6 && areas.district ? 'district' : 'state';
+  state.area = { lat, lng, level, areas, india: true };
+  renderAreaCard();
+}
+
+// The MP for a spot with no seat map: the territory's one seat, or the one named like its district.
+function indiaMp(info, district){
+  const mps = info.mp || [];
+  const d = (district?.properties.district || '').toLowerCase();
+  return mps.length === 1 ? mps[0] : mps.find(m => d && m.name.toLowerCase().includes(d)) || null;
+}
+
+function renderIndiaCard(el){
+  const a = state.area, { india: I, state: S, district, ac } = a.areas, f = areaFeature();
+  const sname = S.properties.state, P = ac?.properties || {};
+  const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
+  const row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
+  const none = `<span class="k-area-none">${esc(t('in_unmatched'))}</span>`;
+  const link = (href, text) => `<a href="${esc(href)}" target="_blank" rel="noopener">${esc(text)}</a>`;
+  const sub = a.level === 'ac' ? t('in_ac_sub', { d: district?.properties.district || '', s: sname })
+            : a.level === 'district' ? t('in_district_sub', { s: sname }) : t('in_state_sub');
+  const mp = !I.seats && indiaMp(I, district);
+  let reps = '';
+  if (ac){
+    reps += row(t('ar_mla', { c: P.name }), P.mla ? esc(P.mla) : P.mla_vacant ? esc(t('in_vacant')) : none, P.mla_party);
+    reps += row(t('ar_mp', { c: P.pc }), P.mp ? esc(P.mp) : P.mp_vacant ? esc(t('in_vacant')) : none, P.mp ? t('ar_elected', { p: P.mp_party, y: 2024 }) : '');
+  } else {
+    if (I.note) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_seat_old'))}</span> ${link(I.mla_list, t('in_mla_list', { s: sname }))}`);
+    else if (!I.seats && !I.mla_list) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_no_assembly'))}</span>`);
+    else if (I.seats) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_no_seat_here'))}</span> ${link(I.mla_list, t('in_mla_list', { s: sname }))}`);
+    if (mp) reps += row(t('ar_mp', { c: mp.name }), mp.person ? esc(mp.person) : esc(t('in_vacant')), mp.person ? t('ar_elected', { p: mp.party, y: 2024 }) : '');
+    else if (!I.seats) reps += row(t('in_mps', { n: I.mps }), link(inIndexCache?.sources.mp || '', t('in_mp_list', { s: sname })));
+  }
+  el.innerHTML = `
+    <button type="button" class="k-ward-close" data-area-close aria-label="${esc(t('sheet_close'))}">✕</button>
+    <div class="k-area-crumbs">${[crumb('state', S), crumb('district', district), crumb('ac', ac)].filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
+    <div class="k-ward-title">${esc(areaName(f))}</div>
+    <div class="k-ward-sub">${esc(sub)}</div>
+    <div class="k-area-leaders">
+      ${reps}
+      ${row(t('ar_wards'), `<span class="k-area-none">${esc(t('in_wards'))}</span>`)}
+    </div>
+    <div class="k-ward-actions">
+      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
+    </div>
+    <div class="k-ward-note">${esc(t('in_reports_wb'))}</div>
+    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
+      · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
 }
 
 async function loadLocalInView(){
@@ -1455,7 +1580,7 @@ async function openArea(lat, lng, level){
   if (state.driveOpen) closeDrive();
   const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
   wbOfficials = officials;
-  if (!areas) return closeArea();
+  if (!areas) return openIndiaArea(lat, lng, level);
   areas.added = await addedIn(areas.district.properties.slug);
   if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
   const z = mainMap.getZoom();
@@ -1472,8 +1597,8 @@ function closeArea(){
   mainMap?.getSource('area-sel')?.setData({ type: 'FeatureCollection', features: [] });
 }
 
-function areaFeature(a = state.area){ return a.areas[a.level] || a.areas.district; }
-function areaName(f){ return f.properties.name || f.properties.gp || f.properties.block || f.properties.district; }
+function areaFeature(a = state.area){ return a.areas[a.level] || a.areas.district || a.areas.state; }
+function areaName(f){ return f.properties.name || f.properties.gp || f.properties.block || f.properties.district || f.properties.state; }
 const isDot = f => f.geometry.type === 'Point';
 
 // A town's wards: mapped (it is a place), none (a development authority), or missing (draw them on add-town.html).
@@ -1494,6 +1619,19 @@ function renderAreaCard(){
     el.id = 'k-area-card'; el.className = 'k-ward-card k-area-card';
     document.getElementById('k-ward-card').after(el);
   }
+  if (a.india) renderIndiaCard(el);
+  else renderWbCard(el);
+  el.hidden = false;
+  const f = areaFeature();
+  if (!mainMap.getSource('area-sel')){
+    mainMap.addSource('area-sel', { type: 'geojson', data: f });
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+  } else mainMap.getSource('area-sel').setData(f);
+}
+
+function renderWbCard(el){
+  const a = state.area;
   const f = areaFeature(), { district, block, gp, town } = a.areas, T = a.level === 'town' ? f.properties : null;
   const inside = isDot(f) ? [] : primaries().filter(r => Number.isFinite(r.lat) && inBbox(f.bbox, [r.lng, r.lat]) && pointInPolygon([r.lng, r.lat], f.geometry));
   const open = inside.filter(r => r.status !== 'resolved').length, fixed = inside.length - open;
@@ -1561,13 +1699,7 @@ function renderAreaCard(){
       · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
              : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''} · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
     ${T ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
-  el.hidden = false;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
-  if (!mainMap.getSource('area-sel')){
-    mainMap.addSource('area-sel', { type: 'geojson', data: f });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
-    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
-  } else mainMap.getSource('area-sel').setData(f);
 }
 
 // "Add who's responsible here": goes to the moderators with its source link; shows once approved.
@@ -1597,7 +1729,7 @@ function zoomToArea(){
 }
 
 function shareArea(){
-  const a = state.area, zoom = { town: 12, gp: 12, block: 10, district: 8.5 }[a.level];
+  const a = state.area, zoom = { town: 12, gp: 12, block: 10, district: a.india ? 7 : 8.5, ac: 9.5, state: 5.5 }[a.level];
   const url = `${location.origin}${location.pathname}?at=${a.lat.toFixed(5)},${a.lng.toFixed(5)},${zoom}`;
   const text = t('ar_share_text', { name: areaName(areaFeature()) });
   if (navigator.share) navigator.share({ title: 'Parishkar', text, url }).catch(() => {});
