@@ -364,6 +364,31 @@ test('tapping a gram panchayat opens its card with the MLA and MP for that spot;
   await expect(card).toBeHidden();
 });
 
+test('outside West Bengal a tap names the state, district, assembly seat, MLA and MP; each state loads only when in view', async ({ page, backend }) => {
+  const fetched = [];
+  page.on('request', r => { const m = r.url().match(/places\/in\/([a-z0-9-]+)\.geojson/); if (m) fetched.push(m[1]); });
+  await page.goto('kasa.html');
+  await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('in-states-line'))).toBe(true);
+  // Gorakhpur Urban, Uttar Pradesh
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [83.3858, 26.7738], zoom: 10 }); });
+  await expect.poll(() => page.evaluate(() => !!mainMap.getSource('in-uttar-pradesh'))).toBe(true);
+  expect(fetched).not.toContain('kerala');
+  await page.evaluate(() => openArea(26.7738, 83.3858));
+  const card = page.locator('#k-area-card');
+  await expect(card.locator('.k-ward-title')).toHaveText('Gorakhpur Urban');
+  await expect(card.locator('.k-ward-sub')).toContainText('Assembly seat · Gorakhpur, Uttar Pradesh');
+  await expect(card.locator('.k-area-row', { hasText: 'MLA · Gorakhpur Urban' })).toContainText('Yogi Adityanath');
+  await expect(card.locator('.k-area-row', { hasText: 'MP · Gorakhpur' })).toContainText('Ravi Kishan');
+  await expect(card).toContainText('Reports can be filed in West Bengal for now.');
+  await card.locator('[data-area-level="state"]').click();
+  await expect(card.locator('.k-ward-title')).toHaveText('Uttar Pradesh');
+  // A union territory with no assembly: its one MP.
+  await page.evaluate(() => { mainMap.jumpTo({ center: [76.78, 30.73], zoom: 10 }); return openArea(30.73, 76.78); });
+  await expect(card.locator('.k-ward-sub')).toContainText('Chandigarh');
+  await expect(card).toContainText('No legislative assembly');
+  await expect(card.locator('.k-area-row', { hasText: 'MP · Chandigarh' })).toContainText('Manish Tewari');
+});
+
 test('a gram panchayat card names its BDO with the office phone from the district website', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('wb-districts-line'))).toBe(true);

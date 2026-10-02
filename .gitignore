@@ -16,3 +16,4 @@ node_modules/
 
 # Script caches
 tools/data/.wbme-cache/
+tools/data/.in-cache/

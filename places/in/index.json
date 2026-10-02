@@ -1,0 +1,590 @@
+{
+ "updated": "2026-10-02",
+ "attribution": "State, district and assembly seat outlines: Local Government Directory, via india-geodata (CC0). Simplified to about 200 m.",
+ "sources": {
+  "boundaries": "https://github.com/yashveeeeeeer/india-geodata",
+  "mp": "https://en.wikipedia.org/wiki/List_of_members_of_the_18th_Lok_Sabha"
+ },
+ "states": {
+  "jammu-and-kashmir": {
+   "name": "Jammu and Kashmir",
+   "bbox": [
+    73.3961,
+    32.2778,
+    76.7794,
+    35.1301
+   ],
+   "districts": 22,
+   "mps": 5,
+   "note": "The boundary file has the seats from before the 2022 delimitation.",
+   "mla_list": "https://en.wikipedia.org/wiki/Jammu_and_Kashmir_Legislative_Assembly"
+  },
+  "himachal-pradesh": {
+   "name": "Himachal Pradesh",
+   "bbox": [
+    75.5948,
+    30.3773,
+    79.0089,
+    33.2529
+   ],
+   "districts": 12,
+   "mps": 4,
+   "seats": 68,
+   "seats_total": 68,
+   "mla_matched": 68,
+   "mp_matched": 68,
+   "mla_list": "https://en.wikipedia.org/wiki/Himachal_Pradesh_Legislative_Assembly"
+  },
+  "punjab": {
+   "name": "Punjab",
+   "bbox": [
+    73.8798,
+    29.5421,
+    76.9387,
+    32.5107
+   ],
+   "districts": 23,
+   "mps": 13,
+   "seats": 117,
+   "seats_total": 116,
+   "mla_matched": 116,
+   "mp_matched": 117,
+   "mla_list": "https://en.wikipedia.org/wiki/Punjab_Legislative_Assembly"
+  },
+  "chandigarh": {
+   "name": "Chandigarh",
+   "bbox": [
+    76.7052,
+    30.667,
+    76.8482,
+    30.7941
+   ],
+   "districts": 1,
+   "mps": 1,
+   "note": null,
+   "mp": [
+    {
+     "pc": 1,
+     "name": "Chandigarh",
+     "person": "Manish Tewari",
+     "party": "INC"
+    }
+   ]
+  },
+  "uttarakhand": {
+   "name": "Uttarakhand",
+   "bbox": [
+    77.5724,
+    28.7229,
+    81.0466,
+    31.4589
+   ],
+   "districts": 13,
+   "mps": 5,
+   "seats": 70,
+   "seats_total": 70,
+   "mla_matched": 70,
+   "mp_matched": 70,
+   "mla_list": "https://en.wikipedia.org/wiki/Uttarakhand_Legislative_Assembly"
+  },
+  "haryana": {
+   "name": "Haryana",
+   "bbox": [
+    74.4733,
+    27.6536,
+    77.6046,
+    30.9285
+   ],
+   "districts": 22,
+   "mps": 10,
+   "seats": 90,
+   "seats_total": 90,
+   "mla_matched": 90,
+   "mp_matched": 90,
+   "mla_list": "https://en.wikipedia.org/wiki/Haryana_Legislative_Assembly"
+  },
+  "delhi": {
+   "name": "Delhi",
+   "bbox": [
+    76.8395,
+    28.4047,
+    77.3474,
+    28.8835
+   ],
+   "districts": 11,
+   "mps": 7,
+   "seats": 70,
+   "seats_total": 70,
+   "mla_matched": 70,
+   "mp_matched": 70,
+   "mla_list": "https://en.wikipedia.org/wiki/Delhi_Legislative_Assembly"
+  },
+  "rajasthan": {
+   "name": "Rajasthan",
+   "bbox": [
+    69.4844,
+    23.0587,
+    78.2716,
+    30.1981
+   ],
+   "districts": 50,
+   "mps": 25,
+   "seats": 197,
+   "seats_total": 200,
+   "mla_matched": 197,
+   "mp_matched": 197,
+   "mla_list": "https://en.wikipedia.org/wiki/Rajasthan_Legislative_Assembly"
+  },
+  "uttar-pradesh": {
+   "name": "Uttar Pradesh",
+   "bbox": [
+    77.0839,
+    23.8714,
+    84.6347,
+    30.4009
+   ],
+   "districts": 75,
+   "mps": 80,
+   "seats": 402,
+   "seats_total": 403,
+   "mla_matched": 402,
+   "mp_matched": 402,
+   "mla_list": "https://en.wikipedia.org/wiki/Uttar_Pradesh_Legislative_Assembly"
+  },
+  "bihar": {
+   "name": "Bihar",
+   "bbox": [
+    83.3202,
+    24.2861,
+    88.2935,
+    27.5208
+   ],
+   "districts": 38,
+   "mps": 40,
+   "seats": 243,
+   "seats_total": 243,
+   "mla_matched": 243,
+   "mp_matched": 243,
+   "mla_list": "https://en.wikipedia.org/wiki/Bihar_Legislative_Assembly"
+  },
+  "sikkim": {
+   "name": "Sikkim",
+   "bbox": [
+    88.0123,
+    27.0793,
+    88.9192,
+    28.1287
+   ],
+   "districts": 6,
+   "mps": 1,
+   "seats": 31,
+   "seats_total": 32,
+   "mla_matched": 31,
+   "mp_matched": 31,
+   "mla_list": "https://en.wikipedia.org/wiki/Sikkim_Legislative_Assembly"
+  },
+  "arunachal-pradesh": {
+   "name": "Arunachal Pradesh",
+   "bbox": [
+    91.5536,
+    26.651,
+    97.4129,
+    29.4659
+   ],
+   "districts": 26,
+   "mps": 2,
+   "seats": 60,
+   "seats_total": 60,
+   "mla_matched": 60,
+   "mp_matched": 60,
+   "mla_list": "https://en.wikipedia.org/wiki/Arunachal_Pradesh_Legislative_Assembly"
+  },
+  "nagaland": {
+   "name": "Nagaland",
+   "bbox": [
+    93.3267,
+    25.2002,
+    95.2414,
+    27.0352
+   ],
+   "districts": 16,
+   "mps": 1,
+   "seats": 60,
+   "seats_total": 60,
+   "mla_matched": 60,
+   "mp_matched": 60,
+   "mla_list": "https://en.wikipedia.org/wiki/Nagaland_Legislative_Assembly"
+  },
+  "manipur": {
+   "name": "Manipur",
+   "bbox": [
+    92.9722,
+    23.8328,
+    94.7442,
+    25.6921
+   ],
+   "districts": 16,
+   "mps": 2,
+   "seats": 60,
+   "seats_total": 60,
+   "mla_matched": 60,
+   "mp_matched": 60,
+   "mla_list": "https://en.wikipedia.org/wiki/Manipur_Legislative_Assembly"
+  },
+  "mizoram": {
+   "name": "Mizoram",
+   "bbox": [
+    92.2571,
+    21.94,
+    93.4369,
+    24.513
+   ],
+   "districts": 11,
+   "mps": 1,
+   "seats": 40,
+   "seats_total": 40,
+   "mla_matched": 40,
+   "mp_matched": 40,
+   "mla_list": "https://en.wikipedia.org/wiki/Mizoram_Legislative_Assembly"
+  },
+  "tripura": {
+   "name": "Tripura",
+   "bbox": [
+    91.1542,
+    22.9385,
+    92.3321,
+    24.5308
+   ],
+   "districts": 8,
+   "mps": 2,
+   "seats": 60,
+   "seats_total": 60,
+   "mla_matched": 60,
+   "mp_matched": 60,
+   "mla_list": "https://en.wikipedia.org/wiki/Tripura_Legislative_Assembly"
+  },
+  "meghalaya": {
+   "name": "Meghalaya",
+   "bbox": [
+    89.8214,
+    25.0278,
+    92.8021,
+    26.1157
+   ],
+   "districts": 12,
+   "mps": 1,
+   "seats": 59,
+   "seats_total": 60,
+   "mla_matched": 59,
+   "mp_matched": 59,
+   "mla_list": "https://en.wikipedia.org/wiki/Meghalaya_Legislative_Assembly"
+  },
+  "assam": {
+   "name": "Assam",
+   "bbox": [
+    89.6986,
+    24.1363,
+    96.0178,
+    27.9622
+   ],
+   "districts": 35,
+   "mps": 13,
+   "note": "The boundary file has the seats from before the 2023 delimitation.",
+   "mla_list": "https://en.wikipedia.org/wiki/Assam_Legislative_Assembly"
+  },
+  "jharkhand": {
+   "name": "Jharkhand",
+   "bbox": [
+    83.3294,
+    21.9707,
+    87.9628,
+    25.3492
+   ],
+   "districts": 24,
+   "mps": 14,
+   "seats": 81,
+   "seats_total": 81,
+   "mla_matched": 81,
+   "mp_matched": 81,
+   "mla_list": "https://en.wikipedia.org/wiki/Jharkhand_Legislative_Assembly"
+  },
+  "odisha": {
+   "name": "Odisha",
+   "bbox": [
+    81.3918,
+    17.8127,
+    87.486,
+    22.5625
+   ],
+   "districts": 30,
+   "mps": 21,
+   "seats": 147,
+   "seats_total": 147,
+   "mla_matched": 147,
+   "mp_matched": 147,
+   "mla_list": "https://en.wikipedia.org/wiki/Odisha_Legislative_Assembly"
+  },
+  "chhattisgarh": {
+   "name": "Chhattisgarh",
+   "bbox": [
+    80.2444,
+    17.7865,
+    84.3956,
+    24.106
+   ],
+   "districts": 33,
+   "mps": 11,
+   "seats": 90,
+   "seats_total": 90,
+   "mla_matched": 90,
+   "mp_matched": 90,
+   "mla_list": "https://en.wikipedia.org/wiki/Chhattisgarh_Legislative_Assembly"
+  },
+  "madhya-pradesh": {
+   "name": "Madhya Pradesh",
+   "bbox": [
+    74.0294,
+    21.0707,
+    82.8126,
+    26.8692
+   ],
+   "districts": 52,
+   "mps": 29,
+   "seats": 223,
+   "seats_total": 230,
+   "mla_matched": 223,
+   "mp_matched": 223,
+   "mla_list": "https://en.wikipedia.org/wiki/Madhya_Pradesh_Legislative_Assembly"
+  },
+  "gujarat": {
+   "name": "Gujarat",
+   "bbox": [
+    68.1777,
+    20.1205,
+    74.4764,
+    24.71
+   ],
+   "districts": 33,
+   "mps": 26,
+   "seats": 160,
+   "seats_total": 182,
+   "mla_matched": 160,
+   "mp_matched": 160,
+   "mla_list": "https://en.wikipedia.org/wiki/Gujarat_Legislative_Assembly"
+  },
+  "maharashtra": {
+   "name": "Maharashtra",
+   "bbox": [
+    72.642,
+    15.6061,
+    80.895,
+    22.022
+   ],
+   "districts": 36,
+   "mps": 48,
+   "seats": 287,
+   "seats_total": 288,
+   "mla_matched": 287,
+   "mp_matched": 287,
+   "mla_list": "https://en.wikipedia.org/wiki/Maharashtra_Legislative_Assembly"
+  },
+  "andhra-pradesh": {
+   "name": "Andhra Pradesh",
+   "bbox": [
+    76.7606,
+    12.624,
+    84.7615,
+    19.1665
+   ],
+   "districts": 26,
+   "mps": 25,
+   "seats": 175,
+   "seats_total": 175,
+   "mla_matched": 170,
+   "mp_matched": 175,
+   "mla_list": "https://en.wikipedia.org/wiki/Andhra_Pradesh_Legislative_Assembly"
+  },
+  "karnataka": {
+   "name": "Karnataka",
+   "bbox": [
+    74.0858,
+    11.597,
+    78.5874,
+    18.458
+   ],
+   "districts": 31,
+   "mps": 28,
+   "seats": 224,
+   "seats_total": 224,
+   "mla_matched": 224,
+   "mp_matched": 224,
+   "mla_list": "https://en.wikipedia.org/wiki/Karnataka_Legislative_Assembly"
+  },
+  "goa": {
+   "name": "Goa",
+   "bbox": [
+    73.677,
+    14.9003,
+    74.3364,
+    15.801
+   ],
+   "districts": 2,
+   "mps": 2,
+   "seats": 40,
+   "seats_total": 40,
+   "mla_matched": 40,
+   "mp_matched": 40,
+   "mla_list": "https://en.wikipedia.org/wiki/Goa_Legislative_Assembly"
+  },
+  "lakshadweep": {
+   "name": "Lakshadweep",
+   "bbox": [
+    72.164,
+    8.2664,
+    73.7009,
+    11.705
+   ],
+   "districts": 1,
+   "mps": 1,
+   "note": null,
+   "mp": [
+    {
+     "pc": 1,
+     "name": "Lakshadweep",
+     "person": "Muhammed Hamdulla Sayeed",
+     "party": "INC"
+    }
+   ]
+  },
+  "kerala": {
+   "name": "Kerala",
+   "bbox": [
+    74.8645,
+    8.293,
+    77.4124,
+    12.7891
+   ],
+   "districts": 14,
+   "mps": 20,
+   "seats": 140,
+   "seats_total": 140,
+   "mla_matched": 140,
+   "mp_matched": 140,
+   "mla_list": "https://en.wikipedia.org/wiki/Kerala_Legislative_Assembly"
+  },
+  "tamil-nadu": {
+   "name": "Tamil Nadu",
+   "bbox": [
+    76.2333,
+    8.078,
+    80.3453,
+    13.5646
+   ],
+   "districts": 38,
+   "mps": 39,
+   "seats": 232,
+   "seats_total": 234,
+   "mla_matched": 232,
+   "mp_matched": 232,
+   "mla_list": "https://en.wikipedia.org/wiki/Tamil_Nadu_Legislative_Assembly"
+  },
+  "puducherry": {
+   "name": "Puducherry",
+   "bbox": [
+    75.5289,
+    10.8274,
+    82.3106,
+    16.7637
+   ],
+   "districts": 4,
+   "mps": 1,
+   "seats": 28,
+   "seats_total": 30,
+   "mla_matched": 28,
+   "mp_matched": 28,
+   "mla_list": "https://en.wikipedia.org/wiki/Puducherry_Legislative_Assembly"
+  },
+  "andaman-and-nicobar-islands": {
+   "name": "Andaman and Nicobar Islands",
+   "bbox": [
+    92.2028,
+    6.7528,
+    94.2673,
+    13.6738
+   ],
+   "districts": 3,
+   "mps": 1,
+   "note": null,
+   "mp": [
+    {
+     "pc": 1,
+     "name": "Andaman and Nicobar Islands",
+     "person": "Bishnu Pada Ray",
+     "party": "BJP"
+    }
+   ]
+  },
+  "telangana": {
+   "name": "Telangana",
+   "bbox": [
+    77.2358,
+    15.8363,
+    81.3226,
+    19.9147
+   ],
+   "districts": 33,
+   "mps": 17,
+   "seats": 118,
+   "seats_total": 119,
+   "mla_matched": 118,
+   "mp_matched": 118,
+   "mla_list": "https://en.wikipedia.org/wiki/Telangana_Legislative_Assembly"
+  },
+  "ladakh": {
+   "name": "Ladakh",
+   "bbox": [
+    72.5131,
+    32.3357,
+    80.3451,
+    37.0881
+   ],
+   "districts": 2,
+   "mps": 1,
+   "note": null,
+   "mp": [
+    {
+     "pc": 1,
+     "name": "Ladakh",
+     "person": "Mohmad Haneefa",
+     "party": "IND"
+    }
+   ]
+  },
+  "dadra-and-nagar-haveli-and-daman-and-diu": {
+   "name": "Dadra and Nagar Haveli and Daman and Diu",
+   "bbox": [
+    70.8709,
+    20.0496,
+    73.2177,
+    20.7713
+   ],
+   "districts": 3,
+   "mps": 2,
+   "note": null,
+   "mp": [
+    {
+     "pc": 1,
+     "name": "Dadra and Nagar Haveli",
+     "person": "Kalaben Delkar",
+     "party": "BJP"
+    },
+    {
+     "pc": 2,
+     "name": "Daman and Diu",
+     "person": "Umeshbhai Patel",
+     "party": "IND"
+    }
+   ]
+  }
+ }
+}
