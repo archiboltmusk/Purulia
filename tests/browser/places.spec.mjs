@@ -370,7 +370,7 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await page.goto('kasa.html');
   await expect.poll(() => page.evaluate(() => !!mainMap?.getLayer('in-states-line'))).toBe(true);
   // Gorakhpur Urban, Uttar Pradesh
-  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [83.3858, 26.7738], zoom: 10 }); });
+  await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [83.3858, 26.7738], zoom: 8.5 }); });
   await expect.poll(() => page.evaluate(() => !!mainMap.getSource('in-uttar-pradesh'))).toBe(true);
   expect(fetched).not.toContain('kerala');
   await page.evaluate(() => openArea(26.7738, 83.3858));
@@ -382,6 +382,16 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await expect(card).toContainText('Reports can be filed in West Bengal for now.');
   await card.locator('[data-area-level="state"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Uttar Pradesh');
+  // Zoomed into the town: its ward map (SBM GIS) loads and a tap names the ward.
+  await page.evaluate(() => mainMap.jumpTo({ center: [83.37456, 26.71469], zoom: 13 }));
+  await expect.poll(() => page.evaluate(() => !!mainMap.getSource('inw-801160'))).toBe(true);
+  await page.evaluate(() => openArea(26.71469, 83.37456));
+  await expect(card.locator('.k-ward-title')).toHaveText('Ward 11 · Badgo');
+  await expect(card.locator('.k-ward-sub')).toContainText('Gorakhpur (M.Corp), Gorakhpur, Uttar Pradesh');
+  await expect(card.locator('.k-area-row', { hasText: 'Councillor · ward 11' })).toContainText('Not on record yet');
+  await card.locator('[data-area-level="town"]').click();
+  await expect(card.locator('.k-ward-title')).toHaveText('Gorakhpur (M.Corp)');
+  await expect(card).toContainText('80 wards on the map');
   // A union territory with no assembly: its one MP.
   await page.evaluate(() => { mainMap.jumpTo({ center: [76.78, 30.73], zoom: 10 }); return openArea(30.73, 76.78); });
   await expect(card.locator('.k-ward-sub')).toContainText('Chandigarh');
