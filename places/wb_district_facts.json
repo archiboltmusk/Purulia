@@ -181,10 +181,10 @@
     "homes": 340994,
     "of_india": 754,
     "of_wb": 22,
-    "pct": 49.68,
+    "pct": 49.69,
     "rank_india": 704,
     "rank_wb": 16,
-    "tap": 169400
+    "tap": 169431
    },
    "lgd": 309,
    "name": "Darjeeling",
@@ -250,7 +250,7 @@
     "pct": 61.66,
     "rank_india": 664,
     "rank_wb": 7,
-    "tap": 417866
+    "tap": 417877
    },
    "lgd": 313,
    "name": "Howrah",
@@ -396,7 +396,7 @@
     "pct": 38.31,
     "rank_india": 732,
     "rank_wb": 21,
-    "tap": 333398
+    "tap": 333415
    },
    "lgd": 316,
    "name": "Malda",
@@ -493,7 +493,7 @@
     "of_india": 754,
     "of_wb": 22,
     "pct": 66.83,
-    "rank_india": 638,
+    "rank_india": 639,
     "rank_wb": 6,
     "tap": 958256
    },
@@ -520,10 +520,10 @@
     "homes": 255243,
     "of_india": 754,
     "of_wb": 22,
-    "pct": 72.13,
+    "pct": 72.24,
     "rank_india": 600,
     "rank_wb": 3,
-    "tap": 184112
+    "tap": 184387
    },
    "lgd": 704,
    "name": "Paschim Bardhaman",
@@ -582,7 +582,7 @@
     "of_india": 754,
     "of_wb": 22,
     "pct": 76.76,
-    "rank_india": 570,
+    "rank_india": 571,
     "rank_wb": 2,
     "tap": 859763
    },
@@ -713,10 +713,10 @@
     "homes": 581492,
     "of_india": 754,
     "of_wb": 22,
-    "pct": 41.27,
+    "pct": 41.3,
     "rank_india": 727,
     "rank_wb": 19,
-    "tap": 239954
+    "tap": 240125
    },
    "lgd": 311,
    "name": "Uttar Dinajpur",
@@ -727,7 +727,7 @@
    "wikipedia": "https://en.wikipedia.org/wiki/Uttar_Dinajpur_district"
   }
  },
- "generated": "2026-09-30",
+ "generated": "2026-10-03",
  "nfhs": {
   "districts": {
    "Bankura": {
@@ -2243,12 +2243,12 @@
  "sources": {
   "jjm": {
    "name": "Jal Jeevan Mission dashboard, Ministry of Jal Shakti",
-   "read": "2026-09-30",
+   "read": "2026-10-03",
    "url": "https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx"
   },
   "nfhs": {
    "name": "NFHS-5 (2019-21) and NFHS-4 (2015-16) district fact sheets, IIPS / MoHFW",
-   "read": "2026-09-30",
+   "read": "2026-10-03",
    "url": "https://rchiips.org/nfhs/districtfactsheet_NFHS-5.shtml"
   },
   "niti": {
@@ -2258,12 +2258,12 @@
   "wikidata": {
    "licence": "CC0",
    "name": "Wikidata (Census of India 2011 figures)",
-   "read": "2026-09-30"
+   "read": "2026-10-03"
   },
   "wikipedia": {
    "licence": "CC BY-SA 4.0",
    "name": "Wikipedia",
-   "read": "2026-09-30"
+   "read": "2026-10-03"
   }
  }
 }
