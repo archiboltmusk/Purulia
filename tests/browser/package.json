@@ -6,9 +6,9 @@
     "test": "playwright test"
   },
   "devDependencies": {
-    "@playwright/test": "1.56.1",
-    "@supabase/supabase-js": "2.45.4",
-    "idb-keyval": "6.2.1",
-    "maplibre-gl": "4.7.1"
+    "@playwright/test": "1.63.0",
+    "@supabase/supabase-js": "2.117.2",
+    "idb-keyval": "6.3.0",
+    "maplibre-gl": "6.11.2"
   }
 }
