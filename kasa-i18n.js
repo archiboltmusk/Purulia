@@ -46,6 +46,7 @@ window.KASA_I18N = {
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
     stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
     drawer_groups: 'Volunteer communities', drawer_groups_sub: 'Find a group near you, or register yours',
+    drawer_ask: 'Ask Parishkar', drawer_ask_sub: 'Help in Bengali, Hindi or English',
     drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
@@ -350,6 +351,7 @@ window.KASA_I18N = {
     stat_reports: 'মোট রিপোর্ট', stat_open: 'সমাধান বাকি', stat_resolved: 'সমাধান নিশ্চিত', stat_fake: 'ভুয়ো সাফাই ধরা পড়েছে',
     stat_total_short: 'মোট', stat_open_short: 'সমাধান বাকি', stat_fixed_short: 'সমাধান হয়েছে',
     drawer_groups: 'স্বেচ্ছাসেবী দল', drawer_groups_sub: 'আপনার এলাকার দল খুঁজুন বা নিজের দল যুক্ত করুন',
+    drawer_ask: 'পরিষ্কার-কে জিজ্ঞাসা করুন', drawer_ask_sub: 'বাংলা, হিন্দি বা ইংরেজিতে সাহায্য',
     drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'অন্যান্য তথ্য ও লিঙ্ক',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
@@ -653,6 +655,7 @@ window.KASA_I18N = {
     stat_reports: 'रिपोर्ट', stat_open: 'अनसुलझी', stat_resolved: 'पुष्टि से सुलझी', stat_fake: 'पकड़ी गई फ़र्ज़ी सफ़ाई',
     stat_total_short: 'कुल', stat_open_short: 'अनसुलझी', stat_fixed_short: 'सुलझी हुई',
     drawer_groups: 'स्वयंसेवी समूह', drawer_groups_sub: 'पास का समूह खोजें, या अपना दर्ज करें',
+    drawer_ask: 'परिष्कार से पूछें', drawer_ask_sub: 'बांग्ला, हिंदी या अंग्रेज़ी में मदद',
     drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
 
     trust_num: '03 · पुष्टि', trust_title: 'यहाँ "सुलझ गई" का मतलब सच में सुलझ गई',
