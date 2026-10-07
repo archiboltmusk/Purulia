@@ -4264,6 +4264,133 @@ async function submitFeed(){
   }
 }
 
+/* Snake seen: a live photo and a good GPS fix at the spot; the reply lists the approved rescuers
+   whose range covers it, with call and WhatsApp buttons. Nothing is sent by the site. */
+let sn = null;
+async function openSnake(){
+  sn = { pos: null, blob: null, meta: null };
+  document.getElementById('k-sn-form').hidden = false;
+  document.getElementById('k-sn-result').hidden = true;
+  document.getElementById('k-sn-preview').innerHTML = '';
+  document.getElementById('k-sn-note').value = '';
+  const ps = document.getElementById('k-sn-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('sn_photo_hint');
+  updateSnakeSubmit();
+  openModal('k-sn-modal');
+  const status = document.getElementById('k-sn-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sn) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { sn.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (sn) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateSnakeSubmit();
+}
+
+async function captureSnakePhoto(){
+  if (!sn) return;
+  const res = await openLiveCamera();
+  if (!sn) return;
+  const status = document.getElementById('k-sn-photo-status');
+  if (res.blob){
+    sn.blob = res.blob;
+    sn.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-sn-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateSnakeSubmit();
+}
+
+function updateSnakeSubmit(){
+  if (sn) document.getElementById('k-sn-submit').disabled = !(sn.blob && sn.pos);
+}
+
+async function submitSnake(){
+  if (!sn?.blob || !sn.pos) return;
+  const btn = document.getElementById('k-sn-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', sn.blob);
+    await sendPhotoMeta(path, sn.meta);
+    await checkPhoto(path, null, sn.pos.lat, sn.pos.lng);
+    const note = document.getElementById('k-sn-note').value.trim();
+    const { data, error } = await sb.rpc('kasa_report_snake', { p_lat: sn.pos.lat, p_lng: sn.pos.lng, p_accuracy: sn.pos.accuracy, p_photo_path: path, p_note: note || null });
+    if (error) throw rpcError(error);
+    renderSnakeRescuers(data?.rescuers || [], sn.pos, note);
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('sn_submit');
+  updateSnakeSubmit();
+}
+
+function renderSnakeRescuers(list, pos, note){
+  const map = `https://maps.google.com/?q=${pos.lat.toFixed(6)},${pos.lng.toFixed(6)}`;
+  const msg = encodeURIComponent(t('sn_wa_msg', { map }) + (note ? ' ' + note : ''));
+  const el = document.getElementById('k-sn-result');
+  el.innerHTML = list.length
+    ? `<p class="k-modal-sub">${esc(t('sn_found', { n: list.length }))}</p>` + list.map(r => `<div class="k-field">
+        <strong>${esc(r.name)}</strong> <small>${esc(r.km)} km</small>${r.note ? `<br><small>${esc(r.note)}</small>` : ''}<br>
+        <a class="k-btn k-btn-primary k-btn-sm" href="tel:+91${esc(r.phone)}">📞 ${esc(t('sn_call'))}</a>
+        ${r.whatsapp ? `<a class="k-btn k-btn-secondary k-btn-sm" href="https://wa.me/91${esc(r.phone)}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      </div>`).join('')
+    : `<p class="k-modal-sub">${esc(t('sn_none'))}</p>`;
+  el.innerHTML += `<p class="k-privacy">${esc(t('sn_after'))} <a href="snakes.html#bite">${esc(t('sn_bite_link'))}</a></p>`;
+  document.getElementById('k-sn-form').hidden = true;
+  el.hidden = false;
+  sn = null;
+}
+
+/* A snake rescuer registers from where they start; a moderator calls the number before it goes public. */
+let sr = null;
+async function openRescuer(){
+  sr = { pos: null };
+  const btn = document.getElementById('k-sr-submit'), status = document.getElementById('k-sr-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-sr-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sr) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    sr.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (sr) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitRescuer(){
+  if (!sr?.pos) return;
+  const btn = document.getElementById('k-sr-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_register_snake_rescuer', {
+      p_name: document.getElementById('k-sr-name').value, p_phone: document.getElementById('k-sr-phone').value,
+      p_whatsapp: document.getElementById('k-sr-wa').checked, p_lat: sr.pos.lat, p_lng: sr.pos.lng, p_accuracy: sr.pos.accuracy,
+      p_range_km: Number(document.getElementById('k-sr-range').value) || null, p_note: document.getElementById('k-sr-note').value || null });
+    if (error) throw rpcError(error);
+    closeModal('k-sr-modal');
+    showToast(t('sr_done'), 8000);
+    sr = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4285,6 +4412,9 @@ function initSchoolCheck(){
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
+  document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
+  document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
+  document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
   document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
   document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
@@ -4311,6 +4441,8 @@ function initSchoolCheck(){
   const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
   else if (q.get('feed') === '1') openFeed();
+  else if (q.get('snake') === '1') openSnake();
+  else if (q.get('rescuer') === '1') openRescuer();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
