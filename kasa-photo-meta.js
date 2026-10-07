@@ -1,4 +1,4 @@
-/* Parishkar Purulia — reads what a photo file says about itself, on the phone.
+/* Parishkar Bengal — reads what a photo file says about itself, on the phone.
  *
  *   KasaPhotoMeta.read(file) → { taken_at, lat, lng, ai_marker }
  *

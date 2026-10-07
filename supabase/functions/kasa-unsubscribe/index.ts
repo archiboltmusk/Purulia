@@ -68,7 +68,7 @@ Deno.serve(async (req) => {
 </style>
 </head>
 <body>
-<h2>Parishkar Purulia</h2>
+<h2>Parishkar Bengal</h2>
 ${
   success
     ? `<div class="success">
@@ -83,7 +83,7 @@ ${
     <p>The token may have expired or you may already be unsubscribed. <a href="${SITE}/digest-subscribe.html">Manage your subscription →</a></p>`
 }
 <div class="footer">
-  <p><strong>Parishkar Purulia</strong> — civic reporting for Purulia.</p>
+  <p><strong>Parishkar Bengal</strong> — civic reporting for West Bengal.</p>
   <p><a href="${SITE}/kasa.html">View map</a> • <a href="${SITE}/privacy.html">Privacy</a></p>
 </div>
 </body>

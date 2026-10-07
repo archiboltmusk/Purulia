@@ -1,4 +1,4 @@
-/* Parishkar Purulia service worker
+/* Parishkar Bengal service worker
    - keeps the page usable offline (reports queue and upload later)
    - shows "new report near you" alerts and opens the report when tapped */
 
@@ -61,7 +61,7 @@ async function networkFirst(req) {
 self.addEventListener('push', (e) => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch (_) { data = { body: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(data.title || 'Parishkar Purulia', {
+  e.waitUntil(self.registration.showNotification(data.title || 'Parishkar Bengal', {
     body: data.body || '',
     icon: 'kasa-icon-192.png',
     badge: 'kasa-icon-192.png',

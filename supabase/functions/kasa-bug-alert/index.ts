@@ -14,7 +14,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '');
 
 interface Bug { id: string; what: string; email: string | null; page_url: string | null; user_agent: string | null; errors: number; at: string }
@@ -30,7 +30,7 @@ function render(bugs: Bug[]): { subject: string; text: string } {
     b.email ? `  Reply to: ${b.email}` : '',
   ].filter(Boolean).join('\n'));
   return {
-    subject: `${bugs.length} new bug report${bugs.length === 1 ? '' : 's'} — Parishkar Purulia`,
+    subject: `${bugs.length} new bug report${bugs.length === 1 ? '' : 's'} — Parishkar Bengal`,
     text: ['New website bug reports:', '', ...lines, '',
       `See the details and close them: ${SITE}/admin.html`, '',
       'You get this because you are on the Parishkar moderation team.'].join('\n'),

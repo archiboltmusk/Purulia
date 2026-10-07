@@ -1,4 +1,4 @@
-// Supabase Edge Function: server-side photo check for Purulia Kasa.
+// Supabase Edge Function: server-side photo check for Parishkar Bengal.
 //
 // The browser uploads a photo, then calls this function with its storage
 // path. We fingerprint it (SHA-256 + perceptual dHash) and, if a Google

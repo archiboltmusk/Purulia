@@ -58,7 +58,7 @@
     const replied = mine.filter(r => firstReply.has(String(r.id)));
     const place = area.kind === 'ward' ? `Ward ${area.id}` : `${area.id} block`;
 
-    document.title = `${place}, on the record — Parishkar Purulia`;
+    document.title = `${place}, on the record — Parishkar Bengal`;
     set('wd-place', place);
     set('an-updated', 'Updated ' + new Date().toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }));
 
@@ -116,7 +116,7 @@
   sel.addEventListener('change', () => { const [k, ...v] = sel.value.split(':'); area = { kind: k, id: k === 'ward' ? Number(v[0]) : v.join(':') }; render(); });
   $('wd-share').addEventListener('click', async () => {
     const url = location.href;
-    if (navigator.share){ navigator.share({ title: 'Parishkar Purulia', text: render.summary, url }).catch(() => {}); return; }
+    if (navigator.share){ navigator.share({ title: 'Parishkar Bengal', text: render.summary, url }).catch(() => {}); return; }
     try { await navigator.clipboard.writeText(`${render.summary} ${url}`); set('wd-share', 'Copied ✓'); setTimeout(() => set('wd-share', 'Share this page'), 2000); }
     catch (e) { prompt('Copy this link:', url); }
   });
