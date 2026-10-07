@@ -1,4 +1,4 @@
-/* Parishkar Purulia — Category Definitions (JavaScript Export)
+/* Parishkar Bengal — Category Definitions (JavaScript Export)
    This is generated from categories.yaml. Do not edit by hand.
    Source of truth: categories.yaml (edit that file, then regenerate this one).
 */
