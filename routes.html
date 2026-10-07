@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Walk, run, cycle — Parishkar Bengal</title>
+<meta name="description" content="Record a walk, run or cycle ride with your phone's GPS, keep it on your phone, download it as GPX or share the route as a link.">
+<meta property="og:title" content="Walk, run, cycle — Parishkar Bengal">
+<meta property="og:description" content="Record your route with GPS and share it as a link.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/routes.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/routes.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="stylesheet" href="kasa.css">
+<script src="bug-report.js"></script>
+<style>
+  .rt-wrap{max-width:960px;margin:0 auto;padding:2rem clamp(1rem,4vw,3rem) 6rem;}
+  .rt-title{font-family:var(--serif);font-size:clamp(2rem,4.5vw,3.2rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .rt-title em{font-style:italic;color:var(--amber);}
+  .rt-sub{margin-top:.7rem;color:var(--text-md);max-width:640px;line-height:1.6;}
+  .rt-modes{display:flex;gap:.4rem;margin-top:1.4rem;}
+  .rt-modes button,.rt-btn{background:none;border:1px solid var(--border2);border-radius:999px;color:var(--text-md);font-family:var(--mono);font-size:12px;padding:.5rem .9rem;cursor:pointer;}
+  .rt-modes button[aria-pressed="true"]{color:var(--ink);background:var(--amber);border-color:var(--amber);}
+  .rt-map{height:min(55vh,460px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;background:var(--ink3);}
+  .rt-stats{display:grid;grid-template-columns:repeat(3,1fr);gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-top:1rem;}
+  .rt-stat{background:var(--ink);padding:1rem .8rem;text-align:center;}
+  .rt-stat-n{font-family:var(--serif);font-size:clamp(1.6rem,6vw,2.4rem);font-weight:700;color:var(--cream);line-height:1;font-variant-numeric:tabular-nums;}
+  .rt-stat-l{margin-top:.4rem;font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);}
+  .rt-controls{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:1rem;align-items:center;}
+  .rt-go{background:var(--amber);color:#0a0805;border:0;border-radius:999px;font-family:var(--mono);font-weight:500;font-size:14px;padding:.8rem 1.6rem;cursor:pointer;}
+  .rt-go.rt-stop{background:var(--red);color:#fff;}
+  .rt-note{margin-top:.6rem;font-size:.84rem;color:var(--text-lo);}
+  .rt-note a{color:var(--amber);}
+  .rt-h2{font-family:var(--serif);font-size:1.4rem;font-weight:700;color:var(--cream);margin-top:2.4rem;}
+  .rt-list{list-style:none;margin:.8rem 0 0;padding:0;border-top:1px solid var(--border);}
+  .rt-item{display:flex;flex-wrap:wrap;gap:.4rem .8rem;align-items:center;justify-content:space-between;padding:.8rem 0;border-bottom:1px solid var(--border);}
+  .rt-item-main{cursor:pointer;color:var(--text-hi);min-width:0;}
+  .rt-item-main small{display:block;color:var(--text-lo);font-family:var(--mono);font-size:11px;margin-top:.2rem;}
+  .rt-item-acts{display:flex;gap:.35rem;}
+  .rt-empty{color:var(--text-lo);font-size:.9rem;padding:.8rem 0;}
+  .rt-shared{margin-top:1rem;padding:.8rem 1rem;border:1px solid var(--border2);border-radius:6px;color:var(--text-md);font-size:.9rem;}
+  .rt-check{display:flex;gap:.4rem;align-items:center;font-size:.84rem;color:var(--text-md);}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+</nav>
+
+<main class="rt-wrap">
+  <h1 class="rt-title">Walk, run, <em>cycle</em></h1>
+  <p class="rt-sub">Record your route with your phone's GPS. It stays on this phone unless you share it. Keep this page open while you move; the screen stays on.</p>
+
+  <div id="rt-shared" class="rt-shared" hidden></div>
+
+  <div class="rt-modes" role="group" aria-label="Activity">
+    <button type="button" data-mode="walk" aria-pressed="true">🚶 Walk</button>
+    <button type="button" data-mode="run" aria-pressed="false">🏃 Run</button>
+    <button type="button" data-mode="cycle" aria-pressed="false">🚲 Cycle</button>
+  </div>
+
+  <div id="rt-map" class="rt-map"></div>
+
+  <div class="rt-stats">
+    <div class="rt-stat"><div class="rt-stat-n" id="rt-dist">0.00</div><div class="rt-stat-l">km</div></div>
+    <div class="rt-stat"><div class="rt-stat-n" id="rt-time">0:00</div><div class="rt-stat-l">time</div></div>
+    <div class="rt-stat"><div class="rt-stat-n" id="rt-pace">—</div><div class="rt-stat-l" id="rt-pace-l">min / km</div></div>
+  </div>
+
+  <div class="rt-controls">
+    <button type="button" class="rt-go" id="rt-go">Start</button>
+    <button type="button" class="rt-btn" id="rt-pause" hidden>Pause</button>
+    <span id="rt-gps" class="rt-note" style="margin:0"></span>
+  </div>
+  <p class="rt-note">Saw rubbish, a broken light or a blocked drain on the way? <a href="kasa.html">Report it on the map</a>.</p>
+
+  <h2 class="rt-h2">Your routes</h2>
+  <label class="rt-check"><input type="checkbox" id="rt-hide" checked> Hide the first and last 200 m when sharing (so your home isn't on the link)</label>
+  <ul class="rt-list" id="rt-list"></ul>
+</main>
+
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="routes.js"></script>
+</body>
+</html>
