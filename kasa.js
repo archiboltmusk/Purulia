@@ -3055,26 +3055,46 @@ function csvCell(v){
   return '"' + s.replace(/"/g, '""') + '"';
 }
 
-function downloadCSV(scope){
-  const rows = (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending);
-  if (!rows.length) return showToast(t('csv_empty'));
-  const lines = rows.map(r => [
+function exportRows(scope){
+  return (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending).map(r => [
     r.id, r.createdAt, r.ward, r.category, r.wasteType, r.severity, r.status, r.resolution, r.resolvedAt,
     r.status === 'resolved' ? null : daysSince(r.createdAt), isOverdue(r), r.lat, r.lng, r.landmark, r.description,
     peopleSaw(r), r.rejectedClaims, r.recurrence, r.duplicate, r.photo, r.resolvedPhoto,
     reportLink(r.id)
-  ].map(csvCell).join(','));
-  // The BOM makes Excel read Bengali and Hindi text as UTF-8.
-  const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  ]);
+}
+
+function saveExport(scope, body, type, ext, n){
   const ward = scope !== 'all' && state.filters.ward ? `${state.filters.place ? state.filters.place + '-' : ''}ward-${state.filters.ward}-` : '';
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.csv`;
+  a.href = URL.createObjectURL(new Blob([body], { type }));
+  a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.${ext}`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  showToast(t('csv_done', { n: rows.length }));
+  showToast(t('csv_done', { n }));
+}
+
+function downloadCSV(scope){
+  const rows = exportRows(scope);
+  if (!rows.length) return showToast(t('csv_empty'));
+  const lines = rows.map(v => v.map(csvCell).join(','));
+  // The BOM makes Excel read Bengali and Hindi text as UTF-8.
+  saveExport(scope, '\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n'), 'text/csv;charset=utf-8', 'csv', rows.length);
+}
+
+/* Same columns as GeoJSON points, for QGIS, uMap or OpenStreetMap tools. */
+function downloadGeoJSON(scope){
+  const rows = exportRows(scope).filter(v => v[11] != null && v[12] != null);
+  if (!rows.length) return showToast(t('csv_empty'));
+  const features = rows.map(v => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [Number(v[12]), Number(v[11])] },
+    properties: Object.fromEntries(CSV_COLUMNS.map((c, i) => [c, v[i] ?? null]).filter(([c]) => c !== 'lat' && c !== 'lng'))
+  }));
+  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar Purulia (photos not covered)', features };
+  saveExport(scope, JSON.stringify(fc), 'application/geo+json', 'geojson', rows.length);
 }
 
 function copyText(s, done = 'ct_copied'){
@@ -5563,7 +5583,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -5618,6 +5638,7 @@ function wireUI(){
     if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
+    if (d.geojson) return downloadGeoJSON(d.geojson);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
     if (d.profile) return openRepProfile(d.profile);
