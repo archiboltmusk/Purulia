@@ -163,7 +163,8 @@ function placeLabel(r, tr = t){
 /* "Kolkata · Ward 93" for a report in another West Bengal place (places.js). */
 function placeOther(r, tr){
   const p = window.KasaPlaces?.bySlug(r.place);
-  const name = p?.isDistrict ? tr('pl_district', { d: p.name }) : p ? p.name : r.place;
+  const name = p?.isDistrict ? tr('pl_district', { d: p.name }) : p ? p.name
+    : r.district ? tr('pl_district', { d: r.district }) + (r.state ? ', ' + r.state : '') : r.place;
   return [name, r.placeWard ? tr('acc_ward', { n: r.placeWard }) : ''].filter(Boolean).join(' · ');
 }
 
@@ -456,9 +457,10 @@ async function fetchRows(){
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
-    // Reports from the other West Bengal places (places.js) live in their own view.
-    const other = window.KasaPlaces ? await sb.from('kasa_public_place_reports').select(PUBLIC_REPORT_COLUMNS + ',place,place_ward')
-      .order('created_at', { ascending: false }).limit(500).then(r => r.data || [], () => []) : [];
+    // Reports from the other places (places.js, and India outside West Bengal) live in their own view.
+    const placeRows = cols => sb.from('kasa_public_place_reports').select(PUBLIC_REPORT_COLUMNS + cols)
+      .order('created_at', { ascending: false }).limit(500).then(r => r.error ? null : r.data || [], () => null);
+    const other = window.KasaPlaces ? (await placeRows(',place,place_ward,district,state')) || (await placeRows(',place,place_ward')) || [] : [];
     return [...(v2.data || []), ...other];
   }
   const legacy = await sb.from('reports').select('*').order('created_at', { ascending: false }).limit(500);
@@ -528,10 +530,11 @@ function normalize(r){
     createdAt: r.created_at,
     lat: Number(r.lat), lng: Number(r.lng),
     ward: r.ward_no ? Number(r.ward_no) : null,
-    area: r.area_kind === 'wb' ? 'place' : r.area_kind || (r.ward_no ? 'town' : null),
+    area: r.area_kind === 'wb' || r.area_kind === 'india' ? 'place' : r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
     place: r.place || null,
     placeWard: r.place_ward ? Number(r.place_ward) : null,
+    district: r.district || null, state: r.state || null,
     body: r.local_body || null,
     bodyType: r.boundary_type || null,
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
@@ -685,8 +688,10 @@ function placeOf(lat, lng){
   const gp = featureAt(state.gpGeo, lat, lng);
   if (gp) return { kind: 'rural', block: block || gp.properties.block, body: gp.properties.gp, bodyType: 'gram_panchayat' };
   if (block) return { kind: 'rural', block, bodyType: 'gram_panchayat' };
-  return window.KasaPlaces?.at(lat, lng) || { kind: 'outside' };
+  return window.KasaPlaces?.at(lat, lng) || (inIndiaBox(lat, lng) ? { kind: 'india' } : { kind: 'outside' });
 }
+// Roughly India (the server checks the district outline); outside West Bengal, reports file under the district.
+const inIndiaBox = (lat, lng) => lat >= 6.5 && lat <= 37.5 && lng >= 68 && lng <= 97.5;
 
 function detectWard(lat, lng){
   const f = (state.wardGeo?.features || []).find(f => pointInPolygon([lng, lat], f.geometry));
@@ -1498,6 +1503,7 @@ function indiaMp(info, district){
 
 function renderIndiaCard(el){
   const a = state.area, { india: I, state: S, district, ac, town, ward } = a.areas, f = areaFeature();
+  const atTown = town && ['town', 'ward'].includes(a.level);
   const sname = S.properties.state, P = ac?.properties || {};
   const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
   const row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
@@ -1534,7 +1540,7 @@ function renderIndiaCard(el){
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    <div class="k-ward-note">${esc(t('in_reports_wb'))}</div>
+    ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
     <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(inTownsSrc, t('in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
       · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
 }
@@ -3629,9 +3635,9 @@ function setLocation(lat, lng, accuracy){
   if (place.kind === 'town'){ draft.ward = place.ward; wardSel.value = String(place.ward); }
   if (place.kind !== 'town' && place.kind !== 'unknown'){ draft.ward = null; wardSel.value = ''; }
   wardSel.options[0].textContent = place.kind === 'edge' ? t('step3_not_town') : '—';
-  document.getElementById('k-ward-field').hidden = ['rural', 'outside', 'place'].includes(place.kind);
+  document.getElementById('k-ward-field').hidden = ['rural', 'outside', 'place', 'india'].includes(place.kind);
   const note = document.getElementById('k-place');
-  note.hidden = !['rural', 'edge', 'outside', 'place'].includes(place.kind);
+  note.hidden = !['rural', 'edge', 'outside', 'place', 'india'].includes(place.kind);
   note.className = 'k-field-note' + (place.kind === 'outside' ? ' k-field-bad' : '');
   note.textContent = place.kind === 'rural'
       ? (place.bodyType === 'municipality' ? t('step3_town', { t: place.body })
@@ -3639,7 +3645,17 @@ function setLocation(lat, lng, accuracy){
     : place.kind === 'place' ? (place.isDistrict ? t('pl_step3_wb', { d: place.name })
         : t('pl_step3', { place: place.name, n: place.ward, body: place.body }) + (place.provisional ? ' ' + t('pl_provisional') : ''))
     : place.kind === 'edge' ? t('step3_edge')
+    : place.kind === 'india' ? t('in_step3_any')
     : place.kind === 'outside' ? t('step3_outside') : '';
+  if (place.kind === 'india') indiaAreasAt(lat, lng).then(a => {
+    if (!a?.district || draft?.place !== place) return;
+    const d = a.district.properties.district, s = a.india.name;
+    note.textContent = t('in_step3', { d, s }) + ' ';
+    const add = document.createElement('a');
+    add.href = 'add-town.html?district=' + encodeURIComponent(d + ', ' + s) + (a.town ? '&town=' + encodeURIComponent(a.town.properties.name) : '');
+    add.textContent = t('pl_add_town');
+    if (!a.town) note.append(add);
+  }, () => {});
   if (place.kind === 'place' && place.isDistrict){
     const add = document.createElement('a');
     add.href = 'add-town.html?district=' + encodeURIComponent(place.name);
@@ -3648,7 +3664,7 @@ function setLocation(lat, lng, accuracy){
   }
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
-    (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
+    (['town', 'rural', 'outside', 'place', 'india'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   placeMiniMarker();
   if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
   if (draft.wasteType) renderIssues();
@@ -5783,7 +5799,7 @@ async function locateOnOpen(){
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
-      const other = window.KasaPlaces?.inWB(lat, lng);
+      const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
       if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();

@@ -17,7 +17,7 @@
 -- ════════════════════════════════════════════════════════════════════════
 
 alter table kasa_private.areas drop constraint if exists areas_kind_check;
-alter table kasa_private.areas add constraint areas_kind_check check (kind in ('block', 'ward', 'town', 'gp', 'place_ward', 'district'));  -- place_ward, district: 20260928090000_kasa_places.sql, 20260928120000_kasa_wb_districts.sql (kept here so a re-run doesn't reject its rows)
+alter table kasa_private.areas add constraint areas_kind_check check (kind in ('block', 'ward', 'town', 'gp', 'place_ward', 'district', 'in_district'));  -- place_ward, district, in_district: 20260928090000_kasa_places.sql, 20260928120000_kasa_wb_districts.sql, 20261002090000_kasa_india.sql (kept here so a re-run doesn't reject its rows)
 alter table kasa_private.areas add column if not exists parent text;   -- a gram panchayat's CD block
 
 alter table public.reports add column if not exists local_body text;

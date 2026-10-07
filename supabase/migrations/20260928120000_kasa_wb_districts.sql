@@ -24,7 +24,7 @@ begin;
 
 alter table kasa_private.areas drop constraint if exists areas_kind_check;
 alter table kasa_private.areas add constraint areas_kind_check
-  check (kind in ('block', 'ward', 'town', 'gp', 'place_ward', 'district'));
+  check (kind in ('block', 'ward', 'town', 'gp', 'place_ward', 'district', 'in_district'));  -- in_district: 20261002090000_kasa_india.sql (kept so a re-run doesn't reject its rows)
 
 alter table public.reports add column if not exists district text;
 

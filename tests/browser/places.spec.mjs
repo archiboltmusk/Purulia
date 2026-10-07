@@ -117,6 +117,22 @@ test('Put your town on the map: upload a ward GeoJSON and send it for review', a
   expect(sent.p_geojson.features.map(f => f.properties.ward).sort()).toEqual([1, 2]);
 });
 
+test('a town anywhere in India can send its ward map, its district named with the state', async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?district=' + encodeURIComponent('Deoria, Uttar Pradesh') + '&town=Deoria');
+  await expect(page.locator('#at-district')).toHaveValue('Deoria, Uttar Pradesh');
+  await expect(page.locator('#at-town')).toHaveValue('Deoria');
+  await page.fill('#at-body', 'Deoria Nagar Palika Parishad');
+  const fc = { type: 'FeatureCollection', features: [
+    { type: 'Feature', properties: { ward: 1 }, geometry: { type: 'Polygon', coordinates: [[[83.77, 26.49], [83.79, 26.49], [83.79, 26.51], [83.77, 26.49]]] } }] };
+  await page.setInputFiles('#at-file', { name: 'wards.geojson', mimeType: 'application/geo+json', buffer: Buffer.from(JSON.stringify(fc)) });
+  await expect(page.locator('#at-wards button')).toHaveCount(1);
+  await page.fill('#at-source', 'https://example.org/deoria-wards');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  expect(calls.find(c => c.name === 'kasa_submit_place').body).toMatchObject({ p_town: 'Deoria', p_district: 'Deoria, Uttar Pradesh' });
+});
+
 test('Put your town on the map: draw a ward on the map', async ({ page }) => {
   const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
   await page.goto('add-town.html');
@@ -379,7 +395,7 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await expect(card.locator('.k-ward-sub')).toContainText('Assembly seat · Gorakhpur, Uttar Pradesh');
   await expect(card.locator('.k-area-row', { hasText: 'MLA · Gorakhpur Urban' })).toContainText('Yogi Adityanath');
   await expect(card.locator('.k-area-row', { hasText: 'MP · Gorakhpur' })).toContainText('Ravi Kishan');
-  await expect(card).toContainText('Reports can be filed in West Bengal for now.');
+  await expect(card.locator('a', { hasText: 'Add or draw it' })).toHaveAttribute('href', /district=Gorakhpur%2C\+Uttar\+Pradesh/);
   await card.locator('[data-area-level="state"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Uttar Pradesh');
   // Zoomed into the town: its ward map (SBM GIS) loads and a tap names the ward.
@@ -392,11 +408,28 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await card.locator('[data-area-level="town"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Gorakhpur (M.Corp)');
   await expect(card).toContainText('80 wards on the map');
+  await expect(card.locator('a', { hasText: 'Wrong ward border' })).toHaveAttribute('href', /town=Gorakhpur/);
   // A union territory with no assembly: its one MP.
   await page.evaluate(() => { mainMap.jumpTo({ center: [76.78, 30.73], zoom: 10 }); return openArea(30.73, 76.78); });
   await expect(card.locator('.k-ward-sub')).toContainText('Chandigarh');
   await expect(card).toContainText('No legislative assembly');
   await expect(card.locator('.k-area-row', { hasText: 'MP · Chandigarh' })).toContainText('Manish Tewari');
+});
+
+test.describe('standing in Gorakhpur, Uttar Pradesh', () => {
+  test.use({ geolocation: { latitude: 26.7738, longitude: 83.3858, accuracy: 10 } });
+
+  test('a report anywhere in India files under its district and state', async ({ page, backend }) => {
+    await page.goto('kasa.html');
+    await page.locator('.k-map-report-btn').click();
+    await page.locator('#k-cam-shutter').click();
+    await page.locator('#k-cam-use').click();
+    await expect(page.locator('#k-place')).toContainText('Filed under Gorakhpur district, Uttar Pradesh.');
+    await expect(page.locator('#k-ward-field')).toBeHidden();
+    await expect(page.locator('#k-submit')).toBeEnabled();
+    await page.locator('#k-submit').click();
+    await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body?.p_lat).toBeCloseTo(26.7738, 3);
+  });
 });
 
 test('a gram panchayat card names its BDO with the office phone from the district website', async ({ page, backend }) => {
