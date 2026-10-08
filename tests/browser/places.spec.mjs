@@ -461,6 +461,10 @@ test('the MP named on an area card opens their profile with the MP fund works, a
   await expect(sheet).toHaveClass(/open/);
   await expect(sheet).toContainText('Assembly seats in this constituency');
   await expect(sheet.locator('#k-rep-works')).toContainText('Works finished');
+  const aff = sheet.locator('#k-rep-aff');
+  await expect(aff).toContainText('Sworn affidavit (ADR/MyNeta)');
+  await expect(aff).toContainText('Cases are pending, not convictions.');
+  await expect(aff.locator('a', { hasText: 'MyNeta' })).toHaveAttribute('href', /myneta\.info\/LokSabha2024\/candidate\.php\?candidate_id=\d+/);
   await sheet.locator('[data-rep-map]').click();
   await expect(sheet).not.toHaveClass(/open/);
   expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
