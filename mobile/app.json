@@ -1,0 +1,43 @@
+{
+  "expo": {
+    "name": "Parishkar",
+    "slug": "parishkar",
+    "scheme": "parishkar",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "backgroundColor": "#0A0B0F",
+    "ios": {
+      "bundleIdentifier": "io.github.archiboltmusk.parishkar",
+      "supportsTablet": false,
+      "infoPlist": {
+        "ITSAppUsesNonExemptEncryption": false,
+        "UIBackgroundModes": ["fetch", "processing"]
+      }
+    },
+    "android": {
+      "package": "io.github.archiboltmusk.parishkar",
+      "adaptiveIcon": {
+        "backgroundColor": "#0A0B0F",
+        "foregroundImage": "./assets/android-icon-foreground.png",
+        "backgroundImage": "./assets/android-icon-background.png",
+        "monochromeImage": "./assets/android-icon-monochrome.png"
+      },
+      "blockedPermissions": ["android.permission.RECORD_AUDIO", "android.permission.ACCESS_BACKGROUND_LOCATION"],
+      "predictiveBackGestureEnabled": false
+    },
+    "plugins": [
+      ["expo-camera", {
+        "cameraPermission": "Parishkar uses the camera to photograph the problem you are reporting, at the moment you report it.",
+        "recordAudioAndroid": false
+      }],
+      ["expo-location", {
+        "locationWhenInUsePermission": "Parishkar attaches your location to a report so the right office knows where the problem is."
+      }],
+      "expo-sqlite",
+      "expo-localization",
+      "expo-background-task"
+    ]
+  }
+}
