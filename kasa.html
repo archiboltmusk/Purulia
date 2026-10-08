@@ -249,6 +249,7 @@
       <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
       <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
+      <a href="pandals.html" class="k-drawer-link" data-i18n="nav_pandal">Swachh Pandal</a>
       <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
       <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
@@ -632,6 +633,28 @@
     <div class="k-ev-status" id="k-sr-loc"></div>
     <button type="button" class="k-btn k-btn-primary" id="k-sr-submit" disabled data-i18n="sr_submit">🐍 Register me</button>
     <div class="k-privacy" data-i18n="sr_privacy">Your name, number and about 1 km of where you start are public; your account is not. You can stop any time from the Snakes page.</div>
+  </div>
+</div>
+
+<!-- Add a puja pandal -->
+<div class="k-modal" id="k-pd-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-pd-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-pd-title" data-i18n="pd_title">Add a puja pandal</h3>
+    <p class="k-modal-sub" data-i18n="pd_sub">Stand at the pandal. A moderator checks it, then it goes on the Swachh Pandal list, which counts the waste reports filed near each pandal during the puja.</p>
+    <div class="k-field">
+      <label for="k-pd-name" data-i18n="pd_name">Pandal name</label>
+      <input type="text" id="k-pd-name" class="k-input" maxlength="80" data-i18n-placeholder="pd_name_ph" placeholder="e.g. Nilkuthidanga Sarbojanin">
+    </div>
+    <div class="k-field">
+      <label for="k-pd-club" data-i18n="pd_club">Club or committee (optional)</label>
+      <input type="text" id="k-pd-club" class="k-input" maxlength="80" data-i18n-placeholder="pd_club_ph" placeholder="e.g. Nilkuthidanga Club">
+    </div>
+    <div class="k-ev-status" id="k-pd-loc"></div>
+    <button type="button" class="k-btn k-btn-primary" id="k-pd-submit" disabled data-i18n="pd_submit">🪔 Add this pandal</button>
+    <div class="k-privacy" data-i18n="pd_note">Only the names you type are public, never your account.</div>
   </div>
 </div>
 
