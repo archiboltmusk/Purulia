@@ -420,7 +420,6 @@ async function init(){
   }
   await Promise.all([loadReports(), loadWards(), loadWardGeo(), loadCommunities()]);
   renderAll();
-  loadDrives();
   renderTrust();
   mapReady.then(() => { addWardLayers(); updateMap(); });
   // Block outlines for village reports; not needed for the first paint.
@@ -1121,7 +1120,6 @@ function renderAll(){
   renderTicker();
   renderWardCard();
   renderFilterCount();
-  if (state.drives){ renderDriveBanner(); if (state.driveOpen) renderDriveCard(); }
 }
 
 /* Filters sit behind one button so the map stays clear; the badge shows how many are on. */
@@ -1661,7 +1659,6 @@ function districtSeats(slug){
 }
 
 async function openArea(lat, lng, level){
-  if (state.driveOpen) closeDrive();
   const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
   wbOfficials = officials;
   if (!areas) return openIndiaArea(lat, lng, level);
@@ -1857,7 +1854,7 @@ function selectWard(n, place = null){
   const same = state.selectedWard === n && (state.selectedPlace || null) === place;
   state.selectedWard = same ? null : n;
   state.selectedPlace = same ? null : place;
-  if (state.selectedWard != null){ closeArea(); if (state.driveOpen) closeDrive(); }
+  if (state.selectedWard != null){ closeArea(); }
   renderWardCard();
   updateMap();
 }
@@ -5558,204 +5555,6 @@ function openDeepLink(){
 }
 
 /* ══════════════════════════════════════════════════════════
-   CLEANUP DRIVES — a moderator posts one (admin.html); the map shows one
-   banner for it, and the drive card has the route, when and where to meet,
-   who organises it, the unresolved reports along the route and, once it has
-   started, the ones fixed since (before/after photos).
-   ══════════════════════════════════════════════════════════ */
-const DRIVE_NEAR_M = 80;  // a report this close to the route is "on the route"
-
-async function loadDrives(){
-  if (!sb) return;
-  const { data, error } = await sb.rpc('kasa_drives');
-  if (error || !Array.isArray(data)) return;
-  state.drives = data;
-  renderDriveBanner();
-  const id = new URLSearchParams(location.search).get('drive');
-  if (id && data.some(d => d.id === id)) openDrive(id);
-}
-
-// The next drive (or the one under way), else the latest one in the last week.
-function currentDrive(){
-  const ds = state.drives || [];
-  return ds.find(d => new Date(d.starts_at) > Date.now() - 12 * 3600e3) || ds[ds.length - 1] || null;
-}
-
-function driveWhen(d){
-  const loc = state.lang === 'en' ? 'en-IN' : state.lang + '-IN';
-  const s = new Date(d.starts_at);
-  return s.toLocaleDateString(loc, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' }) + ', '
-    + s.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
-}
-
-// Metres from a point to the route (flat-earth; fine over a few km).
-function distToRoute(lng, lat, route){
-  const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540;
-  let best = Infinity;
-  for (let i = 1; i < route.length; i++){
-    const ax = (route[i - 1][0] - lng) * kx, ay = (route[i - 1][1] - lat) * ky;
-    const bx = (route[i][0] - lng) * kx, by = (route[i][1] - lat) * ky;
-    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
-    const u = L ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L)) : 0;
-    best = Math.min(best, Math.hypot(ax + u * dx, ay + u * dy));
-  }
-  return best;
-}
-
-// Reports on the route that were still there when the drive started; `fixed` = resolved since.
-function driveSpots(d){
-  if (!Array.isArray(d.route) || d.route.length < 2) return null;
-  const start = new Date(d.starts_at);
-  const on = primaries().filter(r => !r.pending && Number.isFinite(r.lat) && distToRoute(r.lng, r.lat, d.route) <= DRIVE_NEAR_M
-    && !(r.status === 'resolved' && r.resolvedAt && new Date(r.resolvedAt) < start));
-  const fixed = on.filter(r => r.status === 'resolved');
-  return { open: on.filter(r => r.status !== 'resolved'), fixed, total: on.length };
-}
-
-function renderDriveBanner(){
-  const el = document.getElementById('k-drive-banner'), d = currentDrive();
-  if (!el) return;
-  el.hidden = !d;
-  if (!d) return;
-  document.getElementById('k-join').hidden = true;  // one banner on the map
-  el.querySelector('button').onclick = () => openDrive(d.id);
-  const s = driveSpots(d), started = new Date(d.starts_at) <= Date.now();
-  el.querySelector('span').textContent = started && s?.total
-    ? t('dr_banner_progress', { n: s.fixed.length, m: s.total })
-    : t('dr_banner', { when: driveWhen(d), where: d.meet_point });
-}
-
-function openDrive(id){
-  const d = (state.drives || []).find(x => x.id === id) || currentDrive();
-  if (!d) return;
-  state.driveOpen = d.id;
-  closeArea();
-  if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
-  renderDriveCard();
-  if (Array.isArray(d.route) && d.route.length > 1) mapReady.then(() => {
-    const lngs = d.route.map(p => p[0]), lats = d.route.map(p => p[1]);
-    mainMap.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: { top: 90, bottom: 90, left: 40, right: 40 }, maxZoom: 17, duration: 900 });
-  });
-}
-
-function closeDrive(){
-  state.driveOpen = null;
-  const el = document.getElementById('k-drive-card');
-  if (el) el.hidden = true;
-  drawDrive(null, null);
-}
-
-function drawDrive(d, s){
-  if (!mainMap || !mainMap.getSource('reports')) return;
-  const empty = { type: 'FeatureCollection', features: [] };
-  const line = d && Array.isArray(d.route) && d.route.length > 1
-    ? { type: 'Feature', geometry: { type: 'LineString', coordinates: d.route }, properties: {} } : null;
-  const ends = line ? [
-    { type: 'Feature', geometry: { type: 'Point', coordinates: d.route[0] }, properties: { label: t('dr_start') } },
-    { type: 'Feature', geometry: { type: 'Point', coordinates: d.route[d.route.length - 1] }, properties: { label: t('dr_end') } }] : [];
-  const pins = s ? [...s.open, ...s.fixed].map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [r.lng, r.lat] },
-    properties: { id: r.id, color: r.status === 'resolved' ? COLORS.resolved : COLORS.critical } })) : [];
-  if (!mainMap.getSource('drive-route')){
-    mainMap.addSource('drive-route', { type: 'geojson', data: empty });
-    mainMap.addSource('drive-pins', { type: 'geojson', data: empty });
-    mainMap.addLayer({ id: 'drive-route-casing', type: 'line', source: 'drive-route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#0a0805', 'line-width': 9, 'line-opacity': .7 } });
-    mainMap.addLayer({ id: 'drive-route-line', type: 'line', source: 'drive-route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#4fb3e8', 'line-width': 5 } });
-    mainMap.addLayer({ id: 'drive-ends', type: 'symbol', source: 'drive-route', filter: ['==', ['geometry-type'], 'Point'],
-      layout: { 'text-field': ['get', 'label'], 'text-font': ['Noto Sans Bold'], 'text-size': 13, 'text-offset': [0, -1.2], 'text-allow-overlap': true },
-      paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1.6 } });
-    mainMap.addLayer({ id: 'drive-ends-dot', type: 'circle', source: 'drive-route', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 7, 'circle-color': '#4fb3e8', 'circle-stroke-color': '#f0e6d0', 'circle-stroke-width': 2 } });
-    mainMap.addLayer({ id: 'drive-pins', type: 'circle', source: 'drive-pins', paint: {
-      'circle-radius': 11, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 3 } });
-    mainMap.on('click', 'drive-pins', e => { e.preventDefault(); openSheet(e.features[0].properties.id); });
-  }
-  mainMap.getSource('drive-route').setData(line ? { type: 'FeatureCollection', features: [line, ...ends] } : empty);
-  mainMap.getSource('drive-pins').setData({ type: 'FeatureCollection', features: pins });
-}
-
-function renderDriveCard(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  let el = document.getElementById('k-drive-card');
-  if (!el){
-    el = document.createElement('div');
-    el.id = 'k-drive-card'; el.className = 'k-ward-card k-area-card k-drive-card';
-    el.setAttribute('role', 'dialog');
-    document.getElementById('k-ward-card').after(el);
-    el.addEventListener('click', e => {
-      if (e.target.closest('[data-drive-close]')) return closeDrive();
-      if (e.target.closest('[data-drive-going]')) return driveGoing();
-      if (e.target.closest('[data-drive-share]')) return shareDrive();
-    });
-  }
-  const s = driveSpots(d), started = new Date(d.starts_at) <= Date.now();
-  let going = false;
-  try { going = JSON.parse(localStorage.getItem('kasa_drive_going') || '[]').includes(d.id); } catch (e) {}
-  const row = (role, who) => who ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span></div>` : '';
-  const orgs = (d.organisers || []).map(o => /^https:\/\//.test(o.url || '')
-    ? `<a href="${esc(o.url)}" target="_blank" rel="noopener nofollow">${esc(o.name)}</a>` : esc(o.name)).join(', ');
-  const pinBtn = r => `<button type="button" class="k-drive-spot" data-open="${esc(r.id)}"><span class="k-ticker-dot" style="background:${markerColor(r)}"></span>${CATEGORIES[r.category]?.icon || ''} ${esc(t('cat_' + r.category))} · ${esc(t('days_open', { n: daysSince(r.createdAt) }))}</button>`;
-  const fixedCard = r => `<button type="button" class="k-fixed-card" data-open="${esc(r.id)}"><span class="k-fixed-photos">
-      ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy">` : '<span></span>'}
-      ${r.resolvedPhoto ? `<img src="${esc(r.resolvedPhoto)}" alt="" loading="lazy">` : '<span></span>'}
-      <span class="k-fixed-tag k-fixed-before">${esc(t('fixed_before'))}</span><span class="k-fixed-tag k-fixed-after">${esc(t('fixed_after'))}</span></span></button>`;
-  let spots = '';
-  if (!s) spots = `<p class="k-ward-note">${esc(t('dr_no_route'))}</p>`;
-  else if (started && s.total) spots = `
-      <div class="k-drive-progress" role="img" aria-label="${esc(t('dr_progress', { n: s.fixed.length, m: s.total }))}"><span style="width:${Math.round(100 * s.fixed.length / s.total)}%"></span></div>
-      <div class="k-ward-sub">${esc(t('dr_progress', { n: s.fixed.length, m: s.total }))}</div>
-      ${s.fixed.length ? `<div class="k-drive-fixed">${s.fixed.map(fixedCard).join('')}</div>` : ''}
-      ${s.open.length ? `<div class="k-area-role" style="margin-top:.6rem">${esc(t('dr_still_open'))}</div>${s.open.map(pinBtn).join('')}` : ''}`;
-  else spots = s.open.length
-      ? `<div class="k-area-role" style="margin-top:.6rem">${esc(t('dr_spots', { n: s.open.length }))}</div>${s.open.map(pinBtn).join('')}`
-      : `<p class="k-ward-note">${esc(t('dr_spots_none'))}</p>`;
-  el.innerHTML = `
-    <button type="button" class="k-ward-close" data-drive-close aria-label="${esc(t('sheet_close'))}">✕</button>
-    <div class="k-area-role">🧹 ${esc(t('dr_kicker'))}</div>
-    <div class="k-ward-title">${esc(d.title)}</div>
-    <div class="k-ward-sub">${esc(driveWhen(d))}</div>
-    <div class="k-area-rows" style="margin-top:.6rem;display:grid;gap:.45rem">
-      ${row(t('dr_meet'), esc(d.meet_point))}
-      ${row(t('dr_end_at'), esc(d.end_point || ''))}
-      ${row(t('dr_organisers'), orgs)}
-      ${row(t('dr_provided'), esc(d.provided || ''))}
-      ${d.notes ? `<p class="k-ward-note" style="white-space:pre-line">${esc(d.notes)}</p>` : ''}
-    </div>
-    <div class="k-drive-actions">
-      ${started ? `<button type="button" class="k-ward-filter" data-action="report">${esc(t('dr_report'))}</button>`
-        : `<button type="button" class="k-ward-filter${going ? ' on' : ''}" data-drive-going ${going ? 'disabled' : ''}>${esc(t(going ? 'dr_going_on' : 'dr_going'))}</button>`}
-      <button type="button" class="k-ward-filter" data-drive-share>${esc(t('dr_share'))}</button>
-    </div>
-    ${d.going ? `<div class="k-ward-sub">${esc(t('dr_going_n', { n: d.going }))}</div>` : ''}
-    ${spots}`;
-  el.hidden = false;
-  mapReady.then(() => drawDrive(d, s));
-}
-
-async function driveGoing(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  const { data, error } = await sb.rpc('kasa_drive_going', { p_id: d.id });
-  if (error){ showToast(t('err_generic')); return; }
-  d.going = data.going;
-  try { const k = JSON.parse(localStorage.getItem('kasa_drive_going') || '[]'); k.push(d.id); localStorage.setItem('kasa_drive_going', JSON.stringify(k)); } catch (e) {}
-  renderDriveCard();
-  showToast(t('dr_going_thanks'));
-}
-
-function shareDrive(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  const url = `${PAGE_URL}?drive=${encodeURIComponent(d.id)}`;
-  const text = t('dr_share_text', { title: d.title, when: driveWhen(d), where: d.meet_point });
-  if (navigator.share) navigator.share({ title: d.title, text, url }).catch(() => {});
-  else copyText(`${text} ${url}`);
-}
-
-/* ══════════════════════════════════════════════════════════
    NEARBY ALERTS (web push) + OFFLINE SHELL
    ══════════════════════════════════════════════════════════ */
 function alertsSupported(){
@@ -6319,7 +6118,6 @@ async function showJoin(){
   state.peopleCount = n;
   const el = document.getElementById('k-join');
   renderJoin();
-  if (currentDrive()) return;  // the drive banner takes its place
   el.hidden = false;
   document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }
