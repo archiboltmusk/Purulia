@@ -1535,6 +1535,7 @@ function renderIndiaCard(el){
             : a.level === 'ac' ? t('in_ac_sub', { d: dname, s: sname })
             : a.level === 'district' ? t('in_district_sub', { s: sname }) : t('in_state_sub');
   const mp = !I.seats && indiaMp(I, district);
+  const wg = town && inWardGeo[town.properties.ulb];   // a city file swapped in for the SBM upload names its own source
   let reps = '';
   if (ac){
     reps += row(t('ar_mla', { c: P.name }), P.mla ? esc(P.mla) : P.mla_vacant ? esc(t('in_vacant')) : none, P.mla_party);
@@ -1554,14 +1555,14 @@ function renderIndiaCard(el){
     <div class="k-area-leaders">
       ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
       ${reps}
-      ${town ? row(t('ar_wards'), esc(t('in_town_wards', { n: town.properties.wards }))) : ''}
+      ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
     ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
-    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(inTownsSrc, t('in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
+    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
       · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
 }
 
