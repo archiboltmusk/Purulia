@@ -167,7 +167,7 @@ test.describe('inside the Instagram app on an iPhone', () => {
     await expect(page.locator('#k-iab-report-copy')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report-note')).not.toHaveAttribute('hidden', '');
-    await expect(page.locator('#k-mini-map')).toHaveAttribute('hidden', '');
+    await expect(page.locator('#k-mini-map')).toHaveCount(0);
   });
 });
 

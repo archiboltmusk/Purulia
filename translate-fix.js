@@ -33,7 +33,8 @@
   let approved = {}, index = null;
   try { approved = JSON.parse(localStorage.getItem(CACHE) || '{}') || {}; } catch (_) {}
   function patch() {
-    dicts().forEach(([ns, d]) => { const m = approved[ns]; if (m) Object.keys(m).forEach((k) => { d[k] = m[k]; }); });
+    // Pages render some lines as HTML, so wording with tags is never applied.
+    dicts().forEach(([ns, d]) => { const m = approved[ns]; if (m) Object.keys(m).forEach((k) => { if (typeof m[k] === 'string' && !/[<>]/.test(m[k])) d[k] = m[k]; }); });
     index = null;
   }
   function config() {

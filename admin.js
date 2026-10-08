@@ -654,7 +654,7 @@ async function loadTownRequests(){
             ${(s.wards || []).filter(w => w.note).map(w => `<br><small>Ward ${esc(w.ward)}: ${esc(w.note)}</small>`).join('')}
             <br><small>${esc(new Date(s.created_at).toLocaleDateString('en-IN'))}${s.contact ? ' · ' + esc(s.contact) : ''}</small></td>
           <td>${esc(s.incharge || '—')}${s.incharge_source ? `<br><small>Found at: ${/^https:\/\//i.test(s.incharge_source) ? `<a href="${esc(s.incharge_source)}" target="_blank" rel="noopener nofollow">${esc(s.incharge_source)}</a>` : esc(s.incharge_source)}</small>` : ''}
-            ${s.complaint_url ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
+            ${/^https:\/\//i.test(s.complaint_url || '') ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
           <td>${s.drawn ? '<strong>Drawn</strong> (goes live as provisional)<br>' : ''}${/^https:\/\//i.test(s.map_source) ? `<a href="${esc(s.map_source)}" target="_blank" rel="noopener nofollow">${esc(s.map_source)}</a>` : esc(s.map_source)}</td>
           <td style="white-space:nowrap;">${s.status === 'pending' ? `
             <button class="ad-ok" data-town="${i}" data-town-act="approve">✓ Approve</button>
@@ -1609,7 +1609,7 @@ async function loadTranslations(){
       <thead><tr><th>Line</th><th>On the site now</th><th>Suggested (edit before approving)</th><th></th></tr></thead>
       <tbody>
         ${data.map(s => `<tr>
-          <td><small>${esc(s.ns)} · ${esc(s.key)}${s.page ? ` · <a href="${esc(s.page)}" target="_blank" rel="noopener">page</a>` : ''}<br>sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small>${en(s) ? `<br><small lang="en">EN: ${esc(en(s))}</small>` : ''}</td>
+          <td><small>${esc(s.ns)} · ${esc(s.key)}${/^\/[\w\/.-]*$/.test(s.page || '') ? ` · <a href="${esc(s.page)}" target="_blank" rel="noopener">page</a>` : ''}<br>sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small>${en(s) ? `<br><small lang="en">EN: ${esc(en(s))}</small>` : ''}</td>
           <td lang="bn">${esc(s.current)}</td>
           <td><textarea class="ad-input" data-tr-text="${esc(s.id)}" lang="bn" rows="3" style="width:100%;">${esc(s.suggested)}</textarea>${s.note ? `<br><small>Why: ${esc(s.note)}</small>` : ''}${toks(s.suggested) !== toks(s.current) ? '<br><small style="color:#b3261e">{…} or [[n|…]] parts differ from the current line</small>' : ''}</td>
           <td style="white-space:nowrap;">
