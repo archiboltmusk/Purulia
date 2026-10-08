@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_submit_rep_reply', 'kasa_rep_replies'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -537,7 +537,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_submit_rep_reply', 'kasa_rep_replies'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2600,6 +2600,33 @@ check('browsers cannot call the assistant limit', 'permission denied' in (err(rp
 takes = [rpc('kasa_assistant_take', role='service_role', p_user=as_u, p_limit=2) for _ in range(3)]
 check('assistant allows the daily limit, then stops', takes == [True, True, False], takes)
 check('another visitor has their own count', rpc('kasa_assistant_take', role='service_role', p_user=user(), p_limit=2) is True)
+
+# ── "Reply from this leader" on MLA and MP profiles ─────────────────────────
+def send_rr(ip='10.95.0.1', **kw):
+    args = dict(p_rep_key='ac:240', p_rep_name='A. Leader', p_reply='We have asked PHED for the Raghunathpur pipeline.',
+                p_said_on='2026-10-01', p_source_url='https://example.org/statement')
+    args.update(kw)
+    return rpc('kasa_submit_rep_reply', ip=ip, **args)
+check('a reply needs the link where it was said', err(send_rr, p_source_url='not a link') == 'KASA_BAD_FORM')
+check('a reply cannot be dated in the future', err(send_rr, p_said_on='2099-01-01') == 'KASA_BAD_FORM')
+check('a reply must name a profile', err(send_rr, p_rep_key='drop table') == 'KASA_BAD_FORM')
+check('anyone can send a leader reply; it waits for a moderator', send_rr() == {'ok': True, 'status': 'pending'})
+send_rr(ip='10.95.0.2', p_reply='This one is not on the linked page at all.')
+check('nothing shows before a moderator approves', rpc('kasa_rep_replies', p_rep_key='ac:240') == [])
+check('the public cannot read waiting replies', refused(err(q, 'select * from kasa_private.rep_replies')))
+check('non-admins cannot see the reply queue', err(rpc, 'kasa_admin_rep_reply_queue', uid=user()) == 'KASA_NOT_ADMIN')
+rq = [x for x in rpc('kasa_admin_rep_reply_queue', uid=mod) if x['rep_key'] == 'ac:240']
+check('moderators see the source, not the network', len(rq) == 2 and all(x['source_url'] and 'ip_hash' not in x for x in rq), rq)
+check('non-admins cannot approve a reply', err(rpc, 'kasa_admin_review_rep_reply', uid=user(), p_id=rq[0]['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_rep_reply', uid=mod, p_id=rq[0]['id'], p_action='approve')
+rpc('kasa_admin_review_rep_reply', uid=mod, p_id=rq[1]['id'], p_action='reject', p_note='not at the link')
+rr = rpc('kasa_rep_replies', p_rep_key='ac:240')
+check('an approved reply shows unchanged with its date and link; a rejected one does not',
+      len(rr) == 1 and rr[0]['reply'] == rq[0]['reply'] and rr[0]['said_on'] == '2026-10-01' and rr[0]['source_url'], rr)
+check('a reply cannot be reviewed twice', err(rpc, 'kasa_admin_review_rep_reply', uid=mod, p_id=rq[0]['id'], p_action='reject') == 'KASA_NOT_FOUND')
+for i in range(5):
+    send_rr(ip='10.96.0.9')
+check('one network can send at most five replies an hour', err(send_rr, ip='10.96.0.9') == 'KASA_RATE_LIMIT')
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

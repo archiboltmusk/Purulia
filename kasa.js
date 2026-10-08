@@ -4925,13 +4925,14 @@ function allReps(){
 /* Every MLA, MP and minister in West Bengal, for the leader profile and the statewide list.
    Seats and names: places/wb_leaders.json; ministers and departments: places/wb_ministers.json;
    MP fund (MPLADS) summary and works: places/wb_mplads.json + places/mplads/<id>.json
-   (tools/build-wb-reps.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
+   (tools/build-wb-reps.py); Lok Sabha work (PRS) and affidavit links: places/wb_record.json
+   (tools/build-wb-record.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
    so every link to a Purulia leader opens the same profile. */
-let wbMplads = null, wbMinisters = null, wbRepsLoading = null;
+let wbMplads = null, wbMinisters = null, wbRecord = null, wbRepsLoading = null;
 function loadWbReps(){
   wbRepsLoading ||= Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson'),
-    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json')]).then(([l, a, m, mi]) => {
-    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi;
+    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json'), getJson('places/wb_record.json')]).then(([l, a, m, mi, rc]) => {
+    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi; wbRecord = rc;
     if (!l || !a) wbRepsLoading = null;
   });
   return wbRepsLoading;
@@ -4981,6 +4982,7 @@ function findRep(key){
   if (rep.ac) rep.minister ||= ministerOf(rep.ac);
   if (rep.group === 'mp' && wbMplads?.pc[rep.pc]) rep.mplads = { ...wbMplads.pc[rep.pc], asOf: wbMplads.checked };
   if (rep.group === 'rs' && rep.mplads) rep.mplads = { ...rep.mplads, asOf: wbMplads.checked };
+  rep.record = rep.group === 'mp' ? wbRecord?.pc[rep.pc] : rep.group === 'mla' ? wbRecord?.ac[rep.ac] : null;
   return rep;
 }
 
@@ -5153,6 +5155,68 @@ function renderRepUpdates(rep, u){
       ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
 }
 
+/* The record beside each MLA and MP: Lok Sabha work from PRS (MPs) and the sworn election
+   affidavit on MyNeta (both). Raw figures with the averages, no grade; see methodology.html#leaders. */
+function renderRepRecordHTML(rep){
+  const r = rep.record, p = r?.prs, avg = wbRecord?.avg;
+  if (!r) return '';
+  const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
+  const stat = (n, l) => `<div class="k-rep-stat"><div class="k-rep-stat-n">${esc(n ?? '—')}</div><div class="k-rep-stat-l">${esc(t(l))}</div></div>`;
+  return `${p ? `<div class="k-rep-worst-title">${esc(t('rep_ls_work'))}</div>
+    <div class="k-rep-stats k-rep-stats-4">
+      ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
+    </div>
+    <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}
+    ${r.affidavit ? `<div class="k-rep-links"><a href="${esc(safeUrl(r.affidavit) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_affidavit'))} ↗</a></div>
+    <p class="k-rep-src">${esc(t('rep_affidavit_src'))}</p>` : ''}`;
+}
+
+/* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
+   where they said it; nothing shows until a moderator opens the link (kasa_submit_rep_reply). */
+function renderRepRepliesHTML(rep){
+  return `<div class="k-rep-worst-title">${esc(t('rep_reply_h'))}</div>
+    <div id="k-rep-replies" data-key="${esc(rep.key)}"></div>
+    <details class="k-rep-reply-add"><summary>${esc(t('rep_reply_add'))}</summary>
+      <form id="k-rep-reply-form" data-key="${esc(rep.key)}" data-name="${esc(rep.name)}">
+        <textarea id="k-rr-text" maxlength="1500" rows="3" placeholder="${esc(t('rep_reply_text'))}" aria-label="${esc(t('rep_reply_text'))}"></textarea>
+        <label class="k-field-l">${esc(t('rep_reply_date'))}<input id="k-rr-date" type="date"></label>
+        <input id="k-rr-url" type="url" maxlength="300" placeholder="${esc(t('rep_reply_url'))}" aria-label="${esc(t('rep_reply_url'))}">
+        <button type="submit" class="k-btn k-btn-ghost">${esc(t('rep_reply_send'))}</button>
+      </form>
+    </details>`;
+}
+
+async function loadRepReplies(rep){
+  const el = document.getElementById('k-rep-replies');
+  if (!el || !sb) return;
+  const { data, error } = await sb.rpc('kasa_rep_replies', { p_rep_key: rep.key });
+  if (el.dataset.key !== rep.key) return;
+  const list = error ? [] : (data || []);
+  el.innerHTML = list.length ? list.map(x => `<div class="k-rep-worst-item k-rep-reply"><div>${esc(x.reply)}</div>
+      <div class="k-rep-src">${esc(t('rep_reply_said', { d: new Date(x.said_on).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
+      · <a href="${esc(safeUrl(x.source_url) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_source'))} ↗</a></div></div>`).join('')
+    : `<div class="k-rep-worst-item">${esc(t('rep_reply_none'))}</div>`;
+}
+
+document.addEventListener('submit', async e => {
+  const form = e.target.closest?.('#k-rep-reply-form');
+  if (!form) return;
+  e.preventDefault();
+  const reply = document.getElementById('k-rr-text').value.trim(), said = document.getElementById('k-rr-date').value,
+    url = document.getElementById('k-rr-url').value.trim();
+  if (reply.length < 10) return showToast(t('rep_reply_e_text'));
+  if (!said) return showToast(t('rep_reply_e_date'));
+  if (!/^https?:\/\/\S+\.\S+$/i.test(url)) return showToast(t('rep_reply_e_url'));
+  try {
+    const { error } = await sb.rpc('kasa_submit_rep_reply', { p_rep_key: form.dataset.key, p_rep_name: form.dataset.name,
+      p_reply: reply, p_said_on: said, p_source_url: url });
+    if (error) throw rpcError(error);
+    form.reset(); form.closest('details').open = false;
+    showToast(t('rep_reply_sent'), 5000);
+  } catch (err){ showToast(errorText(err), 6000); }
+});
+
 async function openRepProfile(key){
   await loadWbReps();
   const rep = findRep(key);
@@ -5217,14 +5281,17 @@ async function openRepProfile(key){
     <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
       <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
     ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
+    ${renderRepRecordHTML(rep)}
     <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
     <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
     <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
+    ${rep.group !== 'chair' && rep.group !== 'zp' ? renderRepRepliesHTML(rep) : ''}
     ${rep.minister ? `<p class="k-rep-src">${esc(t('rep_src_min'))} <a href="${esc(wbMinisters.source)}" target="_blank" rel="noopener nofollow">Wikipedia ↗</a></p>` : ''}
     ${rep.source?.url ? `<p class="k-rep-src">${esc(t('rep_source'))} <a href="${esc(safeUrl(rep.source.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(rep.source.name || rep.source.url)} ↗</a></p>` : ''}`;
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
+  loadRepReplies(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
     const el = document.getElementById('k-rep-updates');
     if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}

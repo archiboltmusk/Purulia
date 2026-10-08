@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1564,6 +1564,34 @@ async function loadOfficials(){
       p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadOfficials();
+  }));
+}
+
+async function loadRepReplies(){
+  const el = document.getElementById('adRepReplies');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_rep_reply_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Leader</th><th>What they said</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(r => `<tr>
+          <td><a href="kasa.html?rep=${encodeURIComponent(r.rep_key)}" target="_blank" rel="noopener">${esc(r.rep_name)}</a><br><small>said ${esc(r.said_on)} · sent ${esc(new Date(r.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(r.reply)}</td>
+          <td><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">${esc(r.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-rr="${esc(r.id)}" data-rr-act="approve">✓ They said this there</button>
+            <button class="ad-bad" data-rr="${esc(r.id)}" data-rr-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-rr]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_rep_reply', { p_id: Number(b.dataset.rr), p_action: b.dataset.rrAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadRepReplies();
   }));
 }
 

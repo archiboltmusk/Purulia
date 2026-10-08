@@ -133,10 +133,20 @@
     <h2>7. Checking that the record wasn't changed</h2>
     <p>Every day, a fingerprint (SHA-256) of every public report, event and reply is published in the project's public code repository, and each day's entry is chained to the one before, so no past day can be altered without it showing. Each day's file is also saved to the Internet Archive. The fingerprints contain none of the content, so a report can still be removed for a legal reason, but not quietly rewritten. The <code>record/README.md</code> file in the repository explains how to check a report yourself.</p>
 
-    <h2>8. Corrections</h2>
+    <h2 id="leaders">8. What leader profiles show</h2>
+    <p>Each MLA's and MP's profile on the map shows public records about their work, side by side, with no grade, score or ranking.</p>
+    <ul>
+      <li><strong>Work in the Lok Sabha</strong> (MPs): attendance, debates, questions and private member's bills in the 18th Lok Sabha, copied from each MP's page on <a href="https://prsindia.org/mptrack" rel="noopener" target="_blank">PRS Legislative Research MP Track</a>, with the West Bengal and all-India averages PRS gives. Ministers and the Speaker do not ask questions or sign the attendance register, so low figures for them mean nothing. There is no comparable public record for the West Bengal Assembly yet, so MLAs have no attendance figures.</li>
+      <li><strong>MP's local area fund</strong>: the official MPLADS figures and works list, via Empowered Indian.</li>
+      <li><strong>Election affidavit</strong>: a link to the affidavit (Form 26) each winner swore to the Election Commission, as copied on <a href="https://www.myneta.info" rel="noopener" target="_blank">MyNeta</a> by the Association for Democratic Reforms. Parishkar shows only the link, not the figures. A link is added only when both the seat and the winner's name match, so a by-election winner never gets someone else's affidavit; a few leaders have none yet for that reason.</li>
+      <li><strong>Reply from this leader</strong>: anything the leader has said in answer, sent with the date and a link to where they said it. A moderator opens the link before it is shown, and publishes it word for word or not at all.</li>
+    </ul>
+    <p>The figures are refreshed by a script in the code repository (<code>tools/build-wb-record.py</code>), and each one links to its source. If a figure is wrong, use "Suggest a correction" at the foot of the page.</p>
+
+    <h2>9. Corrections</h2>
     <p>If you think a number or a rule here is wrong, write to the <a href="grievance.html">Grievance Officer</a>. Corrections are recorded in the affected report's history.</p>
 
-    <h2>9. Open data and tools we build on</h2>
+    <h2>10. Open data and tools we build on</h2>
     <p>Parishkar is one small piece of India's civic tech. These are the open projects it uses or learns from; the right column says which.</p>
     <table class="legal-table">
       <thead><tr><th>Project</th><th>What it is</th><th>How Parishkar relates</th></tr></thead>
