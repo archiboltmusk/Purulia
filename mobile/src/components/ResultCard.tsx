@@ -1,19 +1,17 @@
-import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
 import type { Filed, PublicReport, Warranty } from '../api';
-import { SITE_URL } from '../config';
 import { type Key, t } from '../i18n';
 import { C } from './theme';
 
 /* Everything here comes from the server's answer, the public report row and
    kasa_report_warranty (moderator-approved site boards only). No record, no claim. */
-export function ResultCard({ filed, row, warranty, onDone }: { filed: Filed; row: PublicReport | null; warranty: Warranty | null; onDone: () => void }) {
+export function ResultCard({ filed, row, warranty, onDone, onOpen }: { filed: Filed; row: PublicReport | null; warranty: Warranty | null; onDone: () => void; onOpen: () => void }) {
   const lines: string[] = [];
   if (filed.duplicateOf) lines.push(t('res_dup'));
   else if (filed.recurrenceOf) lines.push(t('res_recur'));
   lines.push(filed.moderation === 'approved' ? t('res_live') : t('res_review'));
   const place = [row?.ward_no ? t('res_ward', { n: row.ward_no }) : null, row?.local_body, row?.block_name].filter(Boolean).join(' · ');
-  const link = `${SITE_URL}kasa.html?report=${encodeURIComponent(filed.duplicateOf ?? filed.id)}`;
 
   return (
     <Animated.View entering={ZoomIn.springify().damping(16)} style={s.card}>
@@ -33,7 +31,7 @@ export function ResultCard({ filed, row, warranty, onDone }: { filed: Filed; row
       </View>
       <View style={s.actions}>
         {filed.moderation === 'approved' ? (
-          <Pressable onPress={() => Linking.openURL(link)} hitSlop={8}><Text style={s.link}>{t('open_site')}</Text></Pressable>
+          <Pressable onPress={onOpen} hitSlop={8}><Text style={s.link}>{t('open_report')}</Text></Pressable>
         ) : <View />}
         <Pressable onPress={onDone} style={s.done}><Text style={s.doneText}>{t('done')}</Text></Pressable>
       </View>

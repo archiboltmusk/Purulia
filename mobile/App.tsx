@@ -1,6 +1,5 @@
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
-import { ImageManipulator, SaveFormat } from 'expo-image-manipulator';
 import * as Location from 'expo-location';
 import AsyncStorage from 'expo-sqlite/kv-store';
 import { StatusBar } from 'expo-status-bar';
@@ -8,20 +7,23 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { type Draft, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport, reportWarranty, type Warranty } from './src/api';
+import { type Draft, type EvidenceMode, type Extra, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport, type Report, reportWarranty, type Rules, type Warranty } from './src/api';
+import { EvidenceCamera } from './src/components/EvidenceCamera';
 import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
+import { ReportSheet } from './src/components/ReportSheet';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
 import { TermsGate } from './src/components/TermsGate';
 import { C } from './src/components/theme';
 import { CAPTURE_TOKEN_TTL_MS, MAX_GPS_ACCURACY_M } from './src/config';
-import { errorText, loadLang, onLang, t } from './src/i18n';
+import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
 import { drain, enqueue, onQueue, onRefused, pendingCount, startQueue } from './src/queue';
+import { snap } from './src/shot';
 import { AppError } from './src/supabase';
 
-type Shot = { uri: string; takenAt: string; token: string | null; fix: Fix | null };
+type Shot = { uri: string; takenAt: string; token: string | null; fix: Fix | null; extras: Extra[] };
 
 export default function App() {
   return (
@@ -83,12 +85,17 @@ function Reporter() {
   const [fix, setFix] = useState<Fix | null>(null);
   const [shot, setShot] = useState<Shot | null>(null);
   const [category, setCategory] = useState<string | null>(null);
+  const [wasteType, setWasteType] = useState<string | null>(null);
+  const [adding, setAdding] = useState(false);
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
   const [result, setResult] = useState<{ filed: Filed; row: PublicReport | null; warranty: Warranty | null } | null>(null);
   const [queued, setQueued] = useState(0);
   const [nearby, setNearby] = useState(false);
   const [more, setMore] = useState(false);
+  const [sheetId, setSheetId] = useState<string | null>(null);
+  const [sheetRefresh, setSheetRefresh] = useState(0);
+  const [evidence, setEvidence] = useState<{ mode: EvidenceMode; report: Report; rules: Rules } | null>(null);
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
@@ -117,18 +124,17 @@ function Reporter() {
 
   const capture = async () => {
     if (!camera.current) return;
-    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Heavy).catch(() => {});
     const fixAtShot = fix;
     const capturedToken = token.current.value;
     token.current = { value: null, at: 0 }; // one token per photo
     try {
-      const pic = await camera.current.takePictureAsync({ quality: 0.8 });
-      const takenAt = new Date().toISOString();
-      const img = await ImageManipulator.manipulate(pic.uri)
-        .resize(pic.width >= pic.height ? { width: 1600 } : { height: 1600 })
-        .renderAsync();
-      const out = await img.saveAsync({ format: SaveFormat.JPEG, compress: 0.8 });
-      setShot({ uri: out.uri, takenAt, token: capturedToken, fix: fixAtShot });
+      const pic = await snap(camera.current);
+      if (adding && shot) {
+        setShot({ ...shot, extras: [...shot.extras, { ...pic, token: capturedToken }] });
+        setAdding(false);
+      } else {
+        setShot({ ...pic, token: capturedToken, fix: fixAtShot, extras: [] });
+      }
     } catch {
       Alert.alert(errorText('generic'));
     } finally {
@@ -136,8 +142,15 @@ function Reporter() {
     }
   };
 
+  // iOS can't present a sheet while another one is still sliding away.
+  const openReport = (id: string) => {
+    setNearby(false);
+    setResult(null);
+    setTimeout(() => setSheetId(id), Platform.OS === 'ios' ? 450 : 0);
+  };
+
   const reset = () => {
-    setShot(null); setCategory(null); setNote(''); setResult(null);
+    setShot(null); setCategory(null); setWasteType(null); setAdding(false); setNote(''); setResult(null);
     refreshToken();
   };
 
@@ -145,7 +158,7 @@ function Reporter() {
     if (!shot || !reportFix || !fixOk) return;
     const draft: Draft = {
       clientId: newClientId(), photoUri: shot.uri, captureToken: shot.token, takenAt: shot.takenAt,
-      fix: reportFix, category, note,
+      fix: reportFix, category, note, wasteType, extras: shot.extras,
     };
     setSending(true);
     try {
@@ -156,6 +169,7 @@ function Reporter() {
         : [null, null];
       setShot(null);
       setResult({ filed, row, warranty });
+      if (filed.extraFailed) Alert.alert(st('photo_extra_failed', { n: filed.extraFailed }));
     } catch (e) {
       if (e instanceof OfflineError || !(e instanceof AppError)) {
         await enqueue(draft);
@@ -175,7 +189,8 @@ function Reporter() {
 
   return (
     <View style={s.fill}>
-      <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />
+      {/* One camera at a time: the evidence camera takes over while it is open. */}
+      {!evidence && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
       <SafeAreaView style={s.top} edges={['top']}>
         <View style={{ flexDirection: 'row', gap: 8, marginLeft: 'auto' }}>
           <Pressable onPress={() => setNearby(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('nearby')}</Text></Pressable>
@@ -183,7 +198,7 @@ function Reporter() {
         </View>
       </SafeAreaView>
 
-      {!shot && !result && (
+      {(!shot || adding) && !result && (
         <SafeAreaView style={s.bottom} edges={['bottom']}>
           <Text style={[s.gps, { color: fixOk ? C.accent : fix?.mocked ? C.bad : C.warn }]}>{fixMessage}</Text>
           {queued > 0 && (
@@ -192,21 +207,30 @@ function Reporter() {
           <Pressable onPress={capture} style={s.shutterOuter} accessibilityRole="button" accessibilityLabel={t('shutter_hint')}>
             <View style={s.shutterInner} />
           </Pressable>
-          <Text style={s.hint}>{t('shutter_hint')}</Text>
+          <Text style={s.hint}>{adding ? t('adding_hint') : t('shutter_hint')}</Text>
+          {adding && <Pressable onPress={() => setAdding(false)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('adding_done')}</Text></Pressable>}
         </SafeAreaView>
       )}
 
-      {shot && (
+      {shot && !adding && (
         <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={StyleSheet.absoluteFill} pointerEvents="box-none">
           <ReviewSheet photoUri={shot.uri} fix={reportFix} fixOk={fixOk} fixMessage={fixMessage}
-            category={category} note={note} sending={sending}
-            onCategory={(c) => setCategory((p) => (p === c ? null : c))} onNote={setNote}
+            category={category} wasteType={wasteType} extras={shot.extras.map((x) => x.uri)} note={note} sending={sending}
+            onCategory={(c) => setCategory((p) => (p === c ? null : c))} onWasteType={(w) => setWasteType((p) => (p === w ? null : w))}
+            onAddPhoto={() => setAdding(true)} onNote={setNote}
             onRetake={reset} onSend={send} />
         </KeyboardAvoidingView>
       )}
 
-      {result && <ResultCard filed={result.filed} row={result.row} warranty={result.warranty} onDone={reset} />}
-      <NearbySheet visible={nearby} onClose={() => setNearby(false)} />
+      {result && <ResultCard filed={result.filed} row={result.row} warranty={result.warranty} onDone={reset}
+        onOpen={() => openReport(result.filed.duplicateOf ?? result.filed.id)} />}
+      <NearbySheet visible={nearby} onClose={() => setNearby(false)} onOpen={openReport} />
+      <ReportSheet id={evidence ? null : sheetId} refresh={sheetRefresh} onClose={() => setSheetId(null)}
+        onEvidence={(mode, report, rules) => setEvidence({ mode, report, rules })} />
+      {evidence && <EvidenceCamera {...evidence} onClose={(changed) => {
+        setEvidence(null);
+        if (changed) setSheetRefresh((n) => n + 1);
+      }} />}
       <MoreSheet visible={more} onClose={() => setMore(false)} />
     </View>
   );

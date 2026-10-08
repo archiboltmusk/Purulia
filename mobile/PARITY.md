@@ -2,6 +2,8 @@
 
 What the website does, and where the app stands. **Native** = built in the app. **In-app web** = the app's More menu opens the site page in the in-app browser (the site's own code and server rules). **Planned** = the batch that turns it native.
 
+Report sheet wording comes from `kasa-i18n.js` through `src/siteText.ts` (regenerate with `node scripts/site-text.mjs`).
+
 Rules that hold for every batch: reports and evidence need a live camera photo and real GPS (no gallery, no map pin); only cited, server-held data is shown; no server limit is loosened for the app.
 
 ## Report app (`kasa.html`)
@@ -13,14 +15,14 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Server error wording en/bn/hi | ✓ | Native | — |
 | Result: duplicate / recurrence / moderation | ✓ | Native | — |
 | Public works warranty near the spot (`kasa_report_warranty`) | ✓ | Native (result card) | — |
-| Sub-type picker ("What's the problem?", `ISSUE_GROUPS`) | ✓ | 7 top categories | Batch 2 |
-| Extra photos on a report (`kasa_add_report_photo`) | ✓ | — | Batch 2 |
+| Sub-type picker ("What's the problem?", `ISSUE_GROUPS`) | ✓ | Native (`src/issues.ts`) | — |
+| Extra photos on a report (`kasa_add_report_photo`) | ✓ | Native (2 more live photos, queued offline too) | — |
 | Recent reports list, flag, hide | ✓ | Native | — |
-| Report sheet: photos, timeline, replies, dockets, warranty | ✓ | In-app web | Batch 2 |
-| "I saw it too" (`kasa_mark_seen`), rate (`kasa_rate_report`) | ✓ | In-app web | Batch 2 |
-| Cleanup claim / verify / dispute with live photo | ✓ | In-app web | Batch 2 |
-| Filed officially: add docket number | ✓ | In-app web | Batch 2 |
-| Share report link | ✓ | In-app web | Batch 2 |
+| Report sheet: photos, timeline, replies, dockets, warranty | ✓ | Native (`ReportSheet`); who's responsible opens the web sheet | Batch 4 for the tree |
+| "I saw it too" (`kasa_mark_seen`), rate (`kasa_rate_report`) | ✓ | Native | — |
+| Cleanup claim / verify / dispute with live photo | ✓ | Native (`EvidenceCamera`, radius + GPS checked before send) | — |
+| Filed officially: add docket number | ✓ | Native | — |
+| Share report link | ✓ | Native (share sheet, worker `/r/<id>` link) | — |
 | Map with wards, blocks, GPs, districts, India layers | ✓ | In-app web | Batch 4 (MapLibre native) |
 | Area card: leaders, officials, duties, "add who's responsible" | ✓ | In-app web | Batch 4 |
 | Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Batch 4 |
