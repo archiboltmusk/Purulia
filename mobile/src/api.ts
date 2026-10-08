@@ -304,3 +304,22 @@ export function distanceM(lat1: number, lng1: number, lat2: number, lng2: number
   const a = Math.sin(rad(lat2 - lat1) / 2) ** 2 + Math.cos(rad(lat1)) * Math.cos(rad(lat2)) * Math.sin(rad(lng2 - lng1) / 2) ** 2;
   return 2 * 6371000 * Math.asin(Math.sqrt(a));
 }
+
+/* ── Spot forms (kasa.js openAdopt/openFeed/openSnake/openRescuer/openPandal/openWork) ── */
+
+/* A live photo for a spot form: same upload, metadata and awaited check as evidence. */
+export async function spotPhoto(shot: Extra, fix: Fix) {
+  await ensureSession();
+  const path = await uploadPhoto('reports', shot.uri);
+  await sendMeta(path, shot.token, shot.takenAt, fix);
+  await checkPhoto(path, fix);
+  return path;
+}
+
+/* Calls one of the public kasa_* RPCs; every limit and check stays on the server. */
+export async function spotRpc<T = any>(name: string, args: Record<string, unknown>): Promise<T> {
+  await ensureSession();
+  const { data, error } = await sb.rpc(name, args);
+  if (error) throw rpcError(error);
+  return data as T;
+}

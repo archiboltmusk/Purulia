@@ -1,12 +1,23 @@
 import * as WebBrowser from 'expo-web-browser';
 import { Modal, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SITE_URL } from '../config';
-import { type Key, t } from '../i18n';
+import { type Key, st, t } from '../i18n';
+import type { SpotFormId } from './SpotForm';
 import { LangSwitch } from './TermsGate';
 import { C, T } from './theme';
 
 /* Every website section, opened in the in-app browser so it runs the site's own code
    and server rules. Native screens replace these one by one (see mobile/PARITY.md). */
+type Item = [label: string, page: string, form?: SpotFormId];
+const site = (items: [Key, string][]): Item[] => items.map(([k, p]) => [t(k), p]);
+
+/* Things you file from where you stand open native forms (SpotForm); the school check
+   is still the website's (UDISE search, six answers). */
+const here = (): Item[] => [
+  [st('ad_title'), '', 'adopt'], [st('fd_title'), '', 'feed'], [st('sn_title'), '', 'snake'], [st('sr_title'), '', 'rescuer'],
+  [st('pd_title'), '', 'pandal'], [st('wk_title'), '', 'work'], [t('school_check'), 'kasa.html?check=school'],
+];
+
 const SECTIONS: { title: Key; items: [Key, string][] }[] = [
   { title: 'grp_places', items: [['sec_kasa', 'kasa.html'], ['sec_ward', 'ward.html'], ['sec_districts', 'districts.html'], ['sec_data', 'data.html']] },
   { title: 'grp_account', items: [['sec_works', 'works.html'], ['sec_promises', 'promises.html'], ['sec_noticeboard', 'noticeboard.html'], ['sec_municipality', 'municipality.html'], ['sec_analytics', 'analytics.html'], ['sec_digest', 'digest.html']] },
@@ -23,8 +34,8 @@ export function openSite(page: string) {
   }).catch(() => {});
 }
 
-export function MoreSheet({ visible, onClose }: { visible: boolean; onClose: () => void }) {
-  const data = SECTIONS.map((g) => ({ title: g.title, data: g.items }));
+export function MoreSheet({ visible, onClose, onForm }: { visible: boolean; onClose: () => void; onForm: (id: SpotFormId) => void }) {
+  const data = [{ title: 'grp_here' as Key, data: here() }, ...SECTIONS.map((g) => ({ title: g.title, data: site(g.items) }))];
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View style={s.wrap}>
@@ -36,9 +47,9 @@ export function MoreSheet({ visible, onClose }: { visible: boolean; onClose: () 
           contentContainerStyle={{ paddingHorizontal: 16, paddingBottom: 40 }}
           ListHeaderComponent={<View style={{ marginTop: 4 }}><Text style={s.group}>{t('lang')}</Text><LangSwitch /></View>}
           renderSectionHeader={({ section }) => <Text style={s.group}>{t(section.title)}</Text>}
-          renderItem={({ item: [label, page] }) => (
-            <Pressable onPress={() => openSite(page)} style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]} accessibilityRole="link">
-              <Text style={s.rowText}>{t(label)}</Text>
+          renderItem={({ item: [label, page, form] }) => (
+            <Pressable onPress={() => (form ? onForm(form) : openSite(page))} style={({ pressed }) => [s.row, pressed && { opacity: 0.6 }]} accessibilityRole="link">
+              <Text style={s.rowText}>{label}</Text>
               <Text style={s.chev}>›</Text>
             </Pressable>
           )} />

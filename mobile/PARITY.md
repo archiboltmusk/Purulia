@@ -26,12 +26,13 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Map with wards, blocks, GPs, districts, India layers | ✓ | In-app web | Batch 4 (MapLibre native) |
 | Area card: leaders, officials, duties, "add who's responsible" | ✓ | In-app web | Batch 4 |
 | Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Batch 4 |
-| Cleanup drives banner, "I'm coming" | ✓ | In-app web | Batch 3 |
-| School check (UDISE, six answers, live photo) | ✓ | In-app web | Batch 3 |
-| Snake sighting / rescuer sign-up | ✓ | In-app web | Batch 3 |
-| Dog feeding spot | ✓ | In-app web | Batch 3 |
-| Swachh Pandal | ✓ | In-app web | Batch 3 |
-| Public works board (live board photo) | ✓ | In-app web | Batch 3 |
+| Cleanup drives banner, "I'm coming" | Server only (`kasa_drives`, no page shows them yet) | — | When the site gets its drive UI |
+| School check (UDISE, six answers, live photo) | ✓ | In-app web (More → At this spot) | Later (block/school search + fix flows) |
+| Snake sighting / rescuer sign-up | ✓ | Native (`SpotForm`: live photo, rescuers with call/WhatsApp) | — |
+| Dog feeding spot | ✓ | Native (`SpotForm`) | — |
+| Swachh Pandal | ✓ | Native (`SpotForm`) | — |
+| Public works board (live board photo) | ✓ | Native (`SpotForm`) | — |
+| Adopt a spot | ✓ | Native (`SpotForm`) | — |
 | Nearby alerts / watch a report (web push) | ✓ | — | Batch 5 (native push) |
 | Translation fix, source correction, bug report | ✓ | In-app web | Batch 5 |
 
