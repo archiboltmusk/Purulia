@@ -16,7 +16,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '') + '/';
 
 interface Report { id: string; created_at: string; ward_no: number | null; category: string; landmark: string | null; sla_days: number | null; councillor: string | null; via?: string | null; kind?: string | null; block?: string | null }
@@ -51,13 +51,13 @@ function render(o: Office): { subject: string; text: string } {
   const n = o.reports.length, late = o.reports.filter(overdue).length;
   if (o.office === 'dm') return {
     subject: `${n} civic report${n === 1 ? '' : 's'} still open more than 14 days past deadline`,
-    text: `To ${o.addressee},\n\nThe reports below were sent every week to the office responsible and are still open more than 14 days after their deadline. Each has a live-camera photo taken at the spot with GPS. We bring them to your notice for follow-up.\n\n${o.reports.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nThis is a weekly summary, sent only in weeks when a report has gone this far past its deadline.\n\nParishkar Purulia\n${SITE}`,
+    text: `To ${o.addressee},\n\nThe reports below were sent every week to the office responsible and are still open more than 14 days after their deadline. Each has a live-camera photo taken at the spot with GPS. We bring them to your notice for follow-up.\n\n${o.reports.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nThis is a weekly summary, sent only in weeks when a report has gone this far past its deadline.\n\nParishkar Bengal\n${SITE}`,
   };
   const page = o.office === 'phed' ? SITE + 'kasa.html' : o.office === 'municipality' ? SITE + 'municipality.html' : SITE + 'ward.html?block=' + encodeURIComponent(o.office);
   const wards = o.office === 'municipality' ? '\n\nFor town wards, please pass each item to the attention of the Councillor of that ward.' : '';
   return {
     subject: `${n} open civic report${n === 1 ? '' : 's'} in your area${late ? `, ${late} overdue` : ''}`,
-    text: `To ${o.addressee},\n\nResidents have reported the problems below on Parishkar Purulia. Each has a live-camera photo taken at the spot with GPS. They are still open.${wards}\n\n${o.reports.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${page}\n\nThis is a weekly summary, sent only in weeks when something in your area is open.\n\nParishkar Purulia\n${SITE}`,
+    text: `To ${o.addressee},\n\nResidents have reported the problems below on Parishkar Bengal. Each has a live-camera photo taken at the spot with GPS. They are still open.${wards}\n\n${o.reports.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${page}\n\nThis is a weekly summary, sent only in weeks when something in your area is open.\n\nParishkar Bengal\n${SITE}`,
   };
 }
 

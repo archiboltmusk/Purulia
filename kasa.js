@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — civic problem map
+   PARISHKAR BENGAL — civic problem map
    Report garbage, drains, roads, streetlights, illegal activity.
    Nothing is marked fixed until people on the spot confirm it.
 
@@ -2729,7 +2729,7 @@ Phone / e-mail (optional): <span class="blank">&nbsp;</span></p>
 
 <div class="block">
 <strong>Reference</strong><br>
-A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Purulia on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
+A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Bengal on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
 <span class="blank">${esc(link)}</span>
 </div>
 
@@ -2751,7 +2751,7 @@ A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> 
 <p style="margin-top:24px;">Signature: <span class="blank">&nbsp;</span></p>
 
 <p class="foot">
-Generated from a public report on Parishkar Purulia. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
+Generated from a public report on Parishkar Bengal. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
 </p>
 
 </body></html>`;
@@ -2767,7 +2767,7 @@ function openRTI(reportId){
 }
 
 function replyMailto(r){
-  const subject = `Right of reply — Parishkar Purulia report ${r.id}`;
+  const subject = `Right of reply — Parishkar Bengal report ${r.id}`;
   const body = [
     'Report: ' + reportLink(r.id),
     'Your name:', 'Your position (e.g. Ward Councillor, Ward ' + (r.ward ?? '?') + '):',
@@ -3104,7 +3104,7 @@ function openContact(spec){
   // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
   const town = r.area !== 'rural' && r.area !== 'place';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
+  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Bengal — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + reportLink(r.id))}`;
 
   let title, sub, opts = [];
@@ -4235,6 +4235,174 @@ async function submitFeed(){
   }
 }
 
+/* Snake seen: a live photo and a good GPS fix at the spot; the reply lists the approved rescuers
+   whose range covers it, with call and WhatsApp buttons. Nothing is sent by the site. */
+let sn = null;
+async function openSnake(){
+  sn = { pos: null, blob: null, meta: null };
+  document.getElementById('k-sn-form').hidden = false;
+  document.getElementById('k-sn-result').hidden = true;
+  document.getElementById('k-sn-preview').innerHTML = '';
+  document.getElementById('k-sn-note').value = '';
+  const ps = document.getElementById('k-sn-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('sn_photo_hint');
+  updateSnakeSubmit();
+  openModal('k-sn-modal');
+  const status = document.getElementById('k-sn-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sn) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { sn.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (sn) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateSnakeSubmit();
+}
+
+async function captureSnakePhoto(){
+  if (!sn) return;
+  const res = await openLiveCamera();
+  if (!sn) return;
+  const status = document.getElementById('k-sn-photo-status');
+  if (res.blob){
+    sn.blob = res.blob;
+    sn.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-sn-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateSnakeSubmit();
+}
+
+function updateSnakeSubmit(){
+  if (sn) document.getElementById('k-sn-submit').disabled = !(sn.blob && sn.pos);
+}
+
+async function submitSnake(){
+  if (!sn?.blob || !sn.pos) return;
+  const btn = document.getElementById('k-sn-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', sn.blob);
+    await sendPhotoMeta(path, sn.meta);
+    await checkPhoto(path, null, sn.pos.lat, sn.pos.lng);
+    const note = document.getElementById('k-sn-note').value.trim();
+    const { data, error } = await sb.rpc('kasa_report_snake', { p_lat: sn.pos.lat, p_lng: sn.pos.lng, p_accuracy: sn.pos.accuracy, p_photo_path: path, p_note: note || null });
+    if (error) throw rpcError(error);
+    renderSnakeRescuers(data?.rescuers || [], sn.pos, note);
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('sn_submit');
+  updateSnakeSubmit();
+}
+
+function renderSnakeRescuers(list, pos, note){
+  const map = `https://maps.google.com/?q=${pos.lat.toFixed(6)},${pos.lng.toFixed(6)}`;
+  const msg = encodeURIComponent(t('sn_wa_msg', { map }) + (note ? ' ' + note : ''));
+  const el = document.getElementById('k-sn-result');
+  el.innerHTML = list.length
+    ? `<p class="k-modal-sub">${esc(t('sn_found', { n: list.length }))}</p>` + list.map(r => `<div class="k-field">
+        <strong>${esc(r.name)}</strong> <small>${esc(r.km)} km</small>${r.note ? `<br><small>${esc(r.note)}</small>` : ''}<br>
+        <a class="k-btn k-btn-primary k-btn-sm" href="tel:+91${esc(r.phone)}">📞 ${esc(t('sn_call'))}</a>
+        ${r.whatsapp ? `<a class="k-btn k-btn-secondary k-btn-sm" href="https://wa.me/91${esc(r.phone)}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      </div>`).join('')
+    : `<p class="k-modal-sub">${esc(t('sn_none'))}</p>`;
+  el.innerHTML += `<p class="k-privacy">${esc(t('sn_after'))} <a href="snakes.html#bite">${esc(t('sn_bite_link'))}</a></p>`;
+  document.getElementById('k-sn-form').hidden = true;
+  el.hidden = false;
+  sn = null;
+}
+
+/* A snake rescuer registers from where they start; a moderator calls the number before it goes public. */
+let sr = null;
+async function openRescuer(){
+  sr = { pos: null };
+  const btn = document.getElementById('k-sr-submit'), status = document.getElementById('k-sr-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-sr-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sr) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    sr.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (sr) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitRescuer(){
+  if (!sr?.pos) return;
+  const btn = document.getElementById('k-sr-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_register_snake_rescuer', {
+      p_name: document.getElementById('k-sr-name').value, p_phone: document.getElementById('k-sr-phone').value,
+      p_whatsapp: document.getElementById('k-sr-wa').checked, p_lat: sr.pos.lat, p_lng: sr.pos.lng, p_accuracy: sr.pos.accuracy,
+      p_range_km: Number(document.getElementById('k-sr-range').value) || null, p_note: document.getElementById('k-sr-note').value || null });
+    if (error) throw rpcError(error);
+    closeModal('k-sr-modal');
+    showToast(t('sr_done'), 8000);
+    sr = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
+/* Someone standing at a puja pandal adds it; after a moderator approves it, pandals.html
+   counts the reports filed near it during the puja window. */
+let pd = null;
+async function openPandal(){
+  pd = { pos: null };
+  const btn = document.getElementById('k-pd-submit'), status = document.getElementById('k-pd-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-pd-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!pd) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    pd.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (pd) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitPandal(){
+  if (!pd?.pos) return;
+  const btn = document.getElementById('k-pd-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_add_pandal', {
+      p_name: document.getElementById('k-pd-name').value, p_club: document.getElementById('k-pd-club').value,
+      p_lat: pd.pos.lat, p_lng: pd.pos.lng, p_accuracy: pd.pos.accuracy });
+    if (error) throw rpcError(error);
+    closeModal('k-pd-modal');
+    showToast(t('pd_done'), 7000);
+    pd = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4256,6 +4424,10 @@ function initSchoolCheck(){
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
+  document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
+  document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
+  document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
+  document.getElementById('k-pd-submit').addEventListener('click', submitPandal);
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
   document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
   document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
@@ -4282,6 +4454,9 @@ function initSchoolCheck(){
   const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
   else if (q.get('feed') === '1') openFeed();
+  else if (q.get('snake') === '1') openSnake();
+  else if (q.get('rescuer') === '1') openRescuer();
+  else if (q.get('pandal') === '1') openPandal();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
