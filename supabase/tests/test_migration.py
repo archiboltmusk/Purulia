@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -543,7 +543,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2612,6 +2612,57 @@ admin_sql("insert into storage.objects (bucket_id, name, metadata) values ('kasa
 sa = admin_sql("select kasa_private.storage_alert()")[0][0]
 check('photos past the R2 mark raise the storage alert', float(sa['photos_mb']) > 700 and sa['threshold_mb'] == 700, sa)
 admin_sql("update storage.objects set metadata = '{}' where name = 'big/one.jpg'")
+
+# ── Public works warranty (defect liability period) ─────────────────────────
+wk_spot = offset(-6200, -2400)
+def add_work(uid, where=wk_spot, acc=10.0, path=None, **kw):
+    args = dict(p_work_name='Construction of drain from Station Road to Hatia', p_agency='Purulia Municipality',
+                p_contractor='M/s Example Builders', p_work_order='WO 12/2025', p_cost='Rs 4,50,000',
+                p_completed_on='2025-03-31', p_dlp_years=3, p_lat=where[0], p_lng=where[1], p_accuracy=acc,
+                p_photo_path=path or upload(uid, 'reports'))
+    args.update(kw)
+    return rpc('kasa_add_public_work', uid=uid, **args)
+wk_u = user()
+check('the public cannot record a works board without signing in',
+      refused(err(rpc, 'kasa_add_public_work', p_work_name='Drain work here', p_agency='PWD', p_contractor=None, p_work_order=None,
+                  p_cost=None, p_completed_on=None, p_dlp_years=None, p_lat=wk_spot[0], p_lng=wk_spot[1], p_accuracy=10.0, p_photo_path='reports/x.jpg')))
+check('a weak GPS fix cannot record a works board', err(add_work, wk_u, acc=500.0) == 'KASA_GPS_WEAK')
+check('a works board needs the name of the work', err(add_work, wk_u, p_work_name='  ') == 'KASA_BAD_FORM')
+check('a works board needs the agency', err(add_work, wk_u, p_agency='') == 'KASA_BAD_FORM')
+check('a completion date in the future is refused', err(add_work, wk_u, p_completed_on='2099-01-01') == 'KASA_BAD_DATE')
+check('a defect liability period over ten years is refused', err(add_work, wk_u, p_dlp_years=40) == 'KASA_BAD_FORM')
+check("a works board needs the sender's own photo", err(add_work, wk_u, path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+w1 = add_work(wk_u, p_completed_on=str((datetime.now() - timedelta(days=200)).date()))
+check('someone at the board can record it; it waits for a moderator', w1['status'] == 'pending', w1)
+check('a waiting work is not public', not any(x['id'] == w1['id'] for x in rpc('kasa_public_works')))
+used_wk = admin_sql('select photo_path from kasa_private.public_works where id = %s', (w1['id'],))[0][0]
+check("a board photo cannot be reused", err(add_work, wk_u, path=used_wk) == 'KASA_PHOTO_REUSED')
+w2 = add_work(user(), where=offset(-6800, -2400), p_completed_on=None, p_dlp_years=None, p_contractor=None)
+w3 = add_work(user(), where=offset(-7400, -2400), p_completed_on='2015-01-15', p_dlp_years=1)
+check('non-admins cannot see the works queue', err(rpc, 'kasa_admin_works_queue', uid=user()) == 'KASA_NOT_ADMIN')
+wq = [x for x in rpc('kasa_admin_works_queue', uid=mod) if x['id'] == w1['id']]
+check('moderators see the board photo without the account', wq and wq[0]['photo_url'] and 'user_id' not in wq[0], wq)
+check('non-admins cannot approve a work', err(rpc, 'kasa_admin_review_work', uid=user(), p_id=w1['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+for w in (w1, w2, w3):
+    rpc('kasa_admin_review_work', uid=mod, p_id=w['id'], p_action='approve')
+pub = {x['id']: x for x in rpc('kasa_public_works')}
+check('an approved work is public with its board photo and fields',
+      w1['id'] in pub and pub[w1['id']]['photo_url'] and pub[w1['id']]['contractor'] == 'M/s Example Builders'
+      and pub[w1['id']]['under_warranty'] is True and pub[w1['id']]['warranty_until'], pub.get(w1['id']))
+check('no warranty date without both completion date and period',
+      pub[w2['id']]['warranty_until'] is None and pub[w2['id']]['under_warranty'] is False, pub.get(w2['id']))
+check('a warranty that ran out is shown as over', pub[w3['id']]['warranty_until'] == '2016-01-15' and pub[w3['id']]['under_warranty'] is False, pub.get(w3['id']))
+wr, _ = report(user(), where=offset(20, 0, base=wk_spot))
+ww = rpc('kasa_report_warranty', p_report_id=str(wr['id']))
+check('a report next to a work under warranty shows it', ww and ww['id'] == w1['id'] and ww['distance_m'] <= 50, ww)
+far, _ = report(user(), where=offset(300, 0, base=wk_spot))
+check('a report far from any work shows no warranty', rpc('kasa_report_warranty', p_report_id=str(far['id'])) is None)
+old, _ = report(user(), where=offset(10, 0, base=offset(-7400, -2400)))
+check('a report next to a work whose warranty ran out shows none', rpc('kasa_report_warranty', p_report_id=str(old['id'])) is None)
+check('removing a work needs a reason', err(rpc, 'kasa_admin_review_work', uid=mod, p_id=w1['id'], p_action='remove') == 'KASA_REASON_NEEDED')
+rpc('kasa_admin_review_work', uid=mod, p_id=w1['id'], p_action='remove', p_note='Photo shows a different board')
+check('a removed work leaves the list and the report', not any(x['id'] == w1['id'] for x in rpc('kasa_public_works'))
+      and rpc('kasa_report_warranty', p_report_id=str(wr['id'])) is None)
 
 # Help assistant daily limit (kasa-assistant edge function, service key only).
 as_u = user()

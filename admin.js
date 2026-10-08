@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -886,6 +886,55 @@ async function loadPandals(){
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadPandals();
   });
+}
+
+/* Public works boards: waiting ones to check against the photo, approved ones to remove. */
+async function loadWorks(){
+  const el = document.getElementById('adWorks');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_works_queue'), sb.rpc('kasa_public_works')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [];
+  const where = w => esc([w.ward_no ? 'Ward ' + w.ward_no : w.block_name, w.district].filter(Boolean).join(', ') || 'map');
+  const dlp = y => y == null ? 'not on board' : y < 1 ? Math.round(y * 12) + ' months' : y + (Number(y) === 1 ? ' year' : ' years');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Board photo</th><th>What they copied</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(w => `<tr>
+          <td><a href="${esc(w.photo_url)}" target="_blank" rel="noopener"><img src="${esc(w.photo_url)}" alt="" style="width:160px;height:120px;object-fit:cover;border-radius:4px;"></a></td>
+          <td><strong>${esc(w.work_name)}</strong><br>Agency: ${esc(w.agency)}${w.contractor ? `<br>Contractor: ${esc(w.contractor)}` : ''}${w.work_order ? `<br>Work order: ${esc(w.work_order)}` : ''}${w.cost ? `<br>Cost: ${esc(w.cost)}` : ''}
+            <br>Completed: ${esc(w.completed_on || 'not given')} · DLP: ${esc(dlp(w.dlp_years))}${w.warranty_until ? ` · warranty until ${esc(w.warranty_until)}` : ''}
+            <br><small><a href="https://www.openstreetmap.org/?mlat=${esc(w.lat)}&mlon=${esc(w.lng)}#map=18/${esc(w.lat)}/${esc(w.lng)}" target="_blank" rel="noopener">${where(w)}</a> · GPS ±${esc(w.accuracy_m)} m · sent ${esc(new Date(w.created_at).toLocaleString('en-IN'))}</small></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-wk="${esc(w.id)}" data-wk-act="approve">✓ Matches the board</button>
+            <button class="ad-bad" data-wk="${esc(w.id)}" data-wk-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((w, i) => `<tr>
+        <td><a href="${esc(w.photo_url)}" target="_blank" rel="noopener"><strong>${esc(w.work_name)}</strong></a><br><small>${esc(w.agency)}${w.warranty_until ? ' · warranty until ' + esc(w.warranty_until) : ''}</small></td>
+        <td><a href="kasa.html?at=${esc(w.lat)},${esc(w.lng)}" target="_blank" rel="noopener">${where(w)}</a></td>
+        <td><button class="ad-bad" data-wk-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-wk]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const note = b.dataset.wkAct === 'reject' ? prompt('Reason (optional, e.g. "photo does not show the board"):') : null;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_work', { p_id: Number(b.dataset.wk), p_action: b.dataset.wkAct, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadWorks();
+  }));
+  el.querySelectorAll('[data-wk-rm]').forEach(b => b.addEventListener('click', async () => {
+    const w = live[+b.dataset.wkRm];
+    const reason = prompt(`Reason for removing "${w.work_name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_work', { p_id: w.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadWorks();
+  }));
 }
 
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */

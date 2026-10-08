@@ -266,6 +266,7 @@ const state = {
   ratings: {},
   replies: new Map(),
   dockets: new Map(),  // report id → official grievance numbers (kasa_report_dockets)
+  warranty: new Map(), // report id → a public work under warranty within 50 m (kasa_report_warranty), or null
   selectedWard: null,
   selectedPlace: null,
   chainTab: 'sanitation'
@@ -966,6 +967,11 @@ const api = {
   async dockets(id){
     const { data, error } = await sb.rpc('kasa_report_dockets', { p_report_id: String(id) });
     return error ? [] : (data || []);
+  },
+
+  async warranty(id){
+    const { data, error } = await sb.rpc('kasa_report_warranty', { p_report_id: String(id) });
+    return error ? null : (data || null);
   },
 
   async addDocket(id, portal, number){
@@ -2299,6 +2305,10 @@ function openSheet(id){
       state.dockets.set(r.id, list);
       if (state.sheetId === r.id){ const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
     });
+    if (!state.warranty.has(r.id)) api.warranty(r.id).then(w => {
+      state.warranty.set(r.id, w);
+      if (w && state.sheetId === r.id){ const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    });
     if (r.replyCount){
       api.replies(r.id).then(list => {
         state.replies.set(r.id, list);
@@ -2668,7 +2678,8 @@ const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
 function renderDocketsHTML(r){
   const list = state.dockets.get(r.id) || [];
   const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
-  return `${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
+  const w = state.warranty.get(r.id);
+  return `${w ? `<p class="k-warranty">🛠 ${esc(t('wk_under', { d: fmt(w.warranty_until) }))} <a href="works.html#work-${esc(w.id)}">${esc(t('wk_see'))}</a></p>` : ''}${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
       `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
     <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
       <form id="k-docket-form" data-report="${esc(r.id)}">
@@ -4462,6 +4473,81 @@ async function submitPandal(){
   }
 }
 
+/* A public work's site board, photographed live where it stands, with what it says copied out:
+   the defect liability period tells how long the contractor must repair it at no cost (works.html). */
+let wk = null;
+async function openWork(){
+  wk = { pos: null, blob: null, meta: null };
+  for (const id of ['k-wk-name', 'k-wk-agency', 'k-wk-contractor', 'k-wk-order', 'k-wk-cost', 'k-wk-done', 'k-wk-dlp']) document.getElementById(id).value = '';
+  document.getElementById('k-wk-done').max = new Date().toISOString().slice(0, 10);
+  document.getElementById('k-wk-preview').innerHTML = '';
+  const ps = document.getElementById('k-wk-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('wk_photo_hint');
+  updateWorkSubmit();
+  openModal('k-wk-modal');
+  const status = document.getElementById('k-wk-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!wk) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { wk.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (wk) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateWorkSubmit();
+}
+
+async function captureWorkPhoto(){
+  if (!wk) return;
+  const res = await openLiveCamera();
+  if (!wk) return;
+  const status = document.getElementById('k-wk-photo-status');
+  if (res.blob){
+    wk.blob = res.blob;
+    wk.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-wk-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateWorkSubmit();
+}
+
+function updateWorkSubmit(){
+  if (!wk) return;
+  document.getElementById('k-wk-submit').disabled = !(wk.blob && wk.pos
+    && document.getElementById('k-wk-name').value.trim().length >= 5
+    && document.getElementById('k-wk-agency').value.trim().length >= 2);
+}
+
+async function submitWork(){
+  if (!wk) return;
+  const btn = document.getElementById('k-wk-submit'), v = id => document.getElementById(id).value.trim() || null;
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', wk.blob);
+    await sendPhotoMeta(path, wk.meta);
+    await checkPhoto(path, null, wk.pos.lat, wk.pos.lng);
+    const { error } = await sb.rpc('kasa_add_public_work', {
+      p_work_name: v('k-wk-name'), p_agency: v('k-wk-agency'), p_contractor: v('k-wk-contractor'), p_work_order: v('k-wk-order'),
+      p_cost: v('k-wk-cost'), p_completed_on: v('k-wk-done'), p_dlp_years: v('k-wk-dlp') ? Number(v('k-wk-dlp')) : null,
+      p_lat: wk.pos.lat, p_lng: wk.pos.lng, p_accuracy: wk.pos.accuracy, p_photo_path: path });
+    if (error) throw rpcError(error);
+    closeModal('k-wk-modal');
+    showToast(t('wk_sent'), 8000);
+    wk = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('wk_submit');
+  updateWorkSubmit();
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4483,6 +4569,9 @@ function initSchoolCheck(){
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
+  document.getElementById('k-wk-cam-btn').addEventListener('click', captureWorkPhoto);
+  document.getElementById('k-wk-submit').addEventListener('click', submitWork);
+  for (const id of ['k-wk-name', 'k-wk-agency']) document.getElementById(id).addEventListener('input', updateWorkSubmit);
   document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
   document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
   document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
@@ -4516,6 +4605,7 @@ function initSchoolCheck(){
   else if (q.get('snake') === '1') openSnake();
   else if (q.get('rescuer') === '1') openRescuer();
   else if (q.get('pandal') === '1') openPandal();
+  else if (q.get('work') === '1') openWork();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
