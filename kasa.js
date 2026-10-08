@@ -270,7 +270,7 @@ const state = {
   chainTab: 'sanitation'
 };
 let sb = null;
-let mainMap = null, miniMap = null, miniMarker = null, userMovedMap = false;
+let mainMap = null, userMovedMap = false;
 let mapReady = null;
 let draft = null;
 let ev = null;
@@ -3488,14 +3488,11 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', wasteType: null, landmark: '', description: '', locked: false };
+  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', wasteType: null, landmark: '', description: '' };
 }
 
 function openReport(prefill){
   draft = newDraft();
-  // "Report again" reuses the original problem's exact spot on purpose (the citizen may not
-  // be standing there right now) — GPS must never overwrite that pin at photo-capture time.
-  draft.locked = !!prefill;
   // Village reports need the block map; if it arrives after the location, place the pin again.
   if (!state.blockGeo || !state.gpGeo) Promise.all([loadBlockGeo(), loadLocalGeo()]).then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
   document.getElementById('k-ward-field').hidden = false;
@@ -3512,7 +3509,6 @@ function openReport(prefill){
   gpsBtn.textContent = t('step3_gps');
   // Automatic GPS is the norm; the button/map only reappear if it fails (see useGPS()).
   gpsBtn.hidden = true;
-  document.getElementById('k-mini-map').hidden = true;
   document.getElementById('k-iab-report').hidden = true;
   document.getElementById('k-iab-report-note').hidden = true;
   document.getElementById('k-iab-report-copy').hidden = true;
@@ -3521,15 +3517,14 @@ function openReport(prefill){
   if (issueSearch) issueSearch.value = '';
   document.querySelectorAll('#k-issues details[open]').forEach(d => d.removeAttribute('open'));
   setWasteType(null);
-  if (miniMarker){ miniMarker.remove(); miniMarker = null; }
   renderCategoryGrid();
   if (prefill){
+    // "Report again" keeps the problem type and landmark; the place still comes from live GPS,
+    // so nobody can re-file a spot without standing there.
     selectCategory(prefill.category, false);
-    setLocation(prefill.lat, prefill.lng, null);
     document.getElementById('k-landmark').value = prefill.landmark || '';
-  } else {
-    useGPS();
   }
+  useGPS();
   goToStep(1);
   openModal('k-modal');
   // One screen, camera first: open it right away so "Report" really does mean
@@ -3598,13 +3593,10 @@ async function captureReportPhoto(){
   // photo is taken somewhere else (opened the app, walked to the actual spot, shot it),
   // that first fix is stale. Use the fix requested at the exact shutter click instead
   // (takeCameraShot), so the report lands where the photo was actually taken.
-  // "Report again" pins deliberately reuse the original spot and must stay untouched.
-  if (!draft.locked){
-    const pos = camera.posPromise ? await camera.posPromise : null;
-    if (!draft) return;
-    if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
-    else useGPS();
-  }
+  const pos = camera.posPromise ? await camera.posPromise : null;
+  if (!draft) return;
+  if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
+  else useGPS();
 }
 
 /* Up to 2 more photos, from the same in-page camera. They're attached right after the
@@ -3625,25 +3617,6 @@ function renderExtraPhotos(){
   const more = document.getElementById('k-photo-more');
   more.hidden = !draft?.photoBlob || extras.length >= MAX_EXTRA_PHOTOS;
   more.textContent = t('photo_more', { n: extras.length + 2 });
-}
-
-function initMiniMap(){
-  if (miniMap) return;
-  if (!window.maplibregl){ mapLibrary().then(initMiniMap); return; }
-  miniMap = new maplibregl.Map({
-    container: 'k-mini-map', style: MAP_STYLE,
-    center: draft.lng != null ? [draft.lng, draft.lat] : MAP_CENTER, zoom: draft.lng != null ? 16 : MAP_ZOOM, attributionControl: false
-  });
-  miniMap.on('click', e => setLocation(e.lngLat.lat, e.lngLat.lng, null));
-  miniMap.on('load', () => boostRoadLabels(miniMap));
-  watchMapStyleLoad(miniMap);
-  if (draft.lng != null) placeMiniMarker();
-}
-
-function placeMiniMarker(){
-  if (!miniMap) return;
-  if (miniMarker) miniMarker.setLngLat([draft.lng, draft.lat]);
-  else miniMarker = new maplibregl.Marker({ color: '#d4882a' }).setLngLat([draft.lng, draft.lat]).addTo(miniMap);
 }
 
 function setLocation(lat, lng, accuracy){
@@ -3671,10 +3644,8 @@ function setLocation(lat, lng, accuracy){
     note.append(add);
   }
   document.getElementById('k-coords').textContent =
-    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
+    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` +
     (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
-  placeMiniMarker();
-  if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
   if (draft.wasteType) renderIssues();
   updateSubmitState();
 }
@@ -4564,13 +4535,6 @@ async function copyPageLink(){
   showToast(ok ? t('iab_copied') : u, 6000);
 }
 
-function showPinMap(){
-  document.getElementById('k-gps-btn').hidden = false;
-  document.getElementById('k-mini-map').hidden = false;
-  initMiniMap();
-  setTimeout(() => miniMap && miniMap.resize(), 60);
-}
-
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -4586,7 +4550,7 @@ async function useGPS(){
   const run = ++gpsRun;
   const d = draft;
   // A manual map pin (accuracy null) or a newer request wins over a late fix.
-  const stillMine = () => run === gpsRun && draft === d && !(d.lat != null && d.accuracy == null);
+  const stillMine = () => run === gpsRun && draft === d;
   const label = p => `✓ Location found (±${Math.round(p.accuracy)}m)`;
   btn.textContent = t('step3_gps_wait');
 
@@ -4609,7 +4573,7 @@ async function useGPS(){
   const err = await Promise.all([quick, precise]).then(([, e]) => e);
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
-    // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
+    // Automatic GPS failed — reveal the retry button (hidden by default in the quick-report flow).
     // Inside Instagram and similar apps a live GPS fix is the only proof of place we get, so
     // send people to their real browser instead of offering a hand-placed pin.
     if (IN_APP){
@@ -4619,8 +4583,9 @@ async function useGPS(){
       document.getElementById('k-iab-report-copy').hidden = false;
       return;
     }
-    showPinMap();
-    showToast(t(err?.code === 1 ? 'loc_denied_pin' : 'loc_fail_pin'));
+    // Reports need a live GPS fix: no hand-placed pin. Offer a retry instead.
+    btn.hidden = false;
+    showToast(t(err?.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
   }
 }
 
@@ -4694,7 +4659,7 @@ function issueRoute(cat){
 /* No category to pick any more — the server assigns it. A ward is needed only inside the
    town's ward map (auto-detected from GPS); villages go by block, which the server works out. */
 function draftReady(){
-  if (!draft?.photoBlob || draft?.lat == null) return false;
+  if (!draft?.photoBlob || draft?.lat == null || draft?.accuracy == null) return false;
   const kind = draft.place?.kind || 'unknown';
   if (kind === 'outside') return false;
   return kind !== 'town' || !!draft.ward;
