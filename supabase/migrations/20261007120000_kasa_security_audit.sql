@@ -74,9 +74,6 @@ begin
     end if;
   end if;
 
-  -- The quick report has no category step: the optional "What's the problem?" pick (kept in
-  -- the old waste_type column) says which category it is. The five garbage kinds only file an
-  -- uncategorised report as garbage; every other pick sets the category outright.
   -- Live GPS is the only proof of place: no hand-placed pins, no missing or absurd accuracy.
   if p_lat is null or p_lng is null or p_accuracy is null or p_accuracy <= 0
      or p_accuracy > kasa_private.cfg_num('report_max_accuracy_m') then
@@ -87,6 +84,9 @@ begin
     kasa_private.cfg_num('reports_per_day_network')::integer,
     'Many reports have come from this network. Try again later.');
 
+  -- The quick report has no category step: the optional "What's the problem?" pick (kept in
+  -- the old waste_type column) says which category it is. The five garbage kinds only file an
+  -- uncategorised report as garbage; every other pick sets the category outright.
   if p_waste_type is not null and kasa_private.subtype_category(p_waste_type) is null then
     perform kasa_private.fail('KASA_BAD_WASTE_TYPE', 'Choose a problem from the list.');
   end if;
