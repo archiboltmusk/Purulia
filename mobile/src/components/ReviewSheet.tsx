@@ -6,7 +6,8 @@ import { MAX_EXTRA_PHOTOS } from '../config';
 import { type Key, st, t } from '../i18n';
 import { ISSUE_GROUPS, ISSUE_NOTES } from '../issues';
 import { SlideToSubmit } from './SlideToSubmit';
-import { C } from './theme';
+import { Caps, PopChip } from './Pop';
+import { C, T } from './theme';
 
 // Server categories (kasa_create_report) that need no sub-type pick.
 export const CATEGORIES = ['garbage', 'drain', 'road', 'streetlight', 'water', 'toilet', 'other'] as const;
@@ -47,16 +48,13 @@ export function ReviewSheet(p: Props) {
             ) : null}
           </View>
         </View>
-        <Text style={s.h}>{t('what')}</Text>
+        <Caps color={C.text}>{t('what')}</Caps>
         <View style={s.chips}>
           {CATEGORIES.map((c) => (
-            <Pressable key={c} onPress={() => p.onCategory(c)}
-              style={[s.chip, p.category === c && s.chipOn]} accessibilityState={{ selected: p.category === c }}>
-              <Text style={[s.chipText, p.category === c && { color: '#06281A' }]} numberOfLines={1}>{t(('cat_' + c) as Key)}</Text>
-            </Pressable>
+            <PopChip key={c} label={t(('cat_' + c) as Key)} on={p.category === c} onPress={() => p.onCategory(c)} />
           ))}
         </View>
-        <Text style={s.sub}>{t('issue_more')}</Text>
+        <Caps>{t('issue_more')}</Caps>
         {ISSUE_GROUPS.map(([g, icon, list]) => {
           const picked = list.find(([k]) => k === p.wasteType);
           const open = group === g || !!picked;
@@ -68,10 +66,7 @@ export function ReviewSheet(p: Props) {
               {open ? (
                 <View style={s.chips}>
                   {list.map(([k, i]) => (
-                    <Pressable key={k} onPress={() => p.onWasteType(k)} style={[s.chip, p.wasteType === k && s.chipOn]}
-                      accessibilityState={{ selected: p.wasteType === k }}>
-                      <Text style={[s.chipText, p.wasteType === k && { color: '#06281A' }]}>{i} {st('waste_' + k)}</Text>
-                    </Pressable>
+                    <PopChip key={k} label={`${i} ${st('waste_' + k)}`} on={p.wasteType === k} onPress={() => p.onWasteType(k)} />
                   ))}
                 </View>
               ) : null}
@@ -88,18 +83,14 @@ export function ReviewSheet(p: Props) {
 }
 
 const s = StyleSheet.create({
-  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '78%', backgroundColor: C.card, borderTopLeftRadius: 26, borderTopRightRadius: 26, borderWidth: StyleSheet.hairlineWidth, borderColor: C.line },
+  sheet: { position: 'absolute', left: 0, right: 0, bottom: 0, maxHeight: '78%', backgroundColor: C.card, borderTopWidth: 3, borderColor: C.accent },
   row: { flexDirection: 'row', gap: 14, alignItems: 'center' },
-  thumb: { width: 84, height: 112, borderRadius: 12, backgroundColor: '#222' },
-  thumbSmall: { width: 42, height: 56, borderRadius: 8, backgroundColor: '#222' },
-  sub: { color: C.dim, fontSize: 14 },
-  group: { color: C.text, fontSize: 15, fontWeight: '600' },
-  gps: { fontSize: 14, fontWeight: '600' },
+  thumb: { width: 84, height: 112, backgroundColor: '#222' },
+  thumbSmall: { width: 42, height: 56, backgroundColor: '#222' },
+  sub: { ...T.small, color: C.dim },
+  group: { ...T.bodyM, color: C.text },
+  gps: { ...T.capsS },
   link: { color: C.dim, fontSize: 14, textDecorationLine: 'underline' },
-  h: { color: C.text, fontSize: 17, fontWeight: '700' },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, borderWidth: 1, borderColor: C.line, maxWidth: '100%' },
-  chipOn: { backgroundColor: C.accent, borderColor: C.accent },
-  chipText: { color: C.text, fontSize: 14 },
-  input: { minHeight: 48, color: C.text, borderWidth: 1, borderColor: C.line, borderRadius: 12, padding: 12, fontSize: 15 },
+  input: { minHeight: 48, color: C.text, borderWidth: 1, borderColor: C.line, padding: 12, fontSize: 15 },
 });

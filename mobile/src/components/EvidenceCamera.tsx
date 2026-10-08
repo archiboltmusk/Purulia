@@ -1,14 +1,15 @@
 import { CameraView } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import { useEffect, useRef, useState } from 'react';
-import { ActivityIndicator, Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Alert, Image, KeyboardAvoidingView, Platform, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { distanceM, type EvidenceMode, type Extra, type Fix, issueCaptureToken, OfflineError, type Report, type Rules, submitEvidence } from '../api';
 import { errorText, st, t } from '../i18n';
 import { FIX_MAX_AGE_MS, watchFix } from '../location';
 import { snap } from '../shot';
 import { AppError } from '../supabase';
-import { C } from './theme';
+import { PopButton } from './Pop';
+import { C, T } from './theme';
 
 type Props = { mode: EvidenceMode; report: Report; rules: Rules; onClose: (changed: boolean) => void };
 
@@ -82,7 +83,7 @@ export function EvidenceCamera({ mode, report, rules, onClose }: Props) {
           <Text style={s.body}>{st('ev_sub_' + mode, { q, r: radius, dq: rules.dispute_quorum })}</Text>
           <Text style={[s.body, { color: loc[0] ? C.accent : C.warn, fontWeight: '700' }]}>{loc[1]}</Text>
         </View>
-        <Pressable onPress={() => onClose(false)} hitSlop={10} style={s.pill}><Text style={s.pillText}>{t('cancel')}</Text></Pressable>
+        <PopButton kind="secondary" size="small" label={t('cancel')} onPress={() => onClose(false)} />
       </SafeAreaView>
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined} style={s.bottomWrap} pointerEvents="box-none">
         <SafeAreaView edges={['bottom']} style={s.bottom}>
@@ -101,10 +102,8 @@ export function EvidenceCamera({ mode, report, rules, onClose }: Props) {
               ) : null}
               <Text style={s.small}>{st('ev_privacy')}</Text>
               <View style={{ flexDirection: 'row', gap: 10 }}>
-                <Pressable onPress={() => setShot(null)} disabled={sending} style={s.ghost}><Text style={s.pillText}>{t('retake')}</Text></Pressable>
-                <Pressable onPress={send} disabled={!loc[0] || sending} style={[s.btn, (!loc[0] || sending) && { opacity: 0.5 }]}>
-                  {sending ? <ActivityIndicator color="#06281A" /> : <Text style={s.btnText}>{st('ev_submit_' + mode)}</Text>}
-                </Pressable>
+                <PopButton kind="ghost" label={t('retake')} onPress={() => setShot(null)} disabled={sending} style={{ flex: 1 }} />
+                <PopButton kind="accent" label={st('ev_submit_' + mode)} onPress={send} disabled={!loc[0]} busy={sending} style={{ flex: 2 }} />
               </View>
             </View>
           )}
@@ -117,19 +116,14 @@ export function EvidenceCamera({ mode, report, rules, onClose }: Props) {
 const s = StyleSheet.create({
   fill: { position: 'absolute', top: 0, left: 0, right: 0, bottom: 0, backgroundColor: C.bg },
   top: { position: 'absolute', top: 0, left: 0, right: 0, padding: 12, gap: 8, alignItems: 'flex-end' },
-  panel: { alignSelf: 'stretch', padding: 14, gap: 8, borderRadius: 18, backgroundColor: C.card },
-  title: { color: C.text, fontSize: 18, fontWeight: '800' },
-  body: { color: C.text, fontSize: 14, lineHeight: 20 },
-  small: { color: C.dim, fontSize: 12, lineHeight: 17 },
-  pill: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.55)' },
-  pillText: { color: C.text, fontSize: 15, fontWeight: '600' },
+  panel: { alignSelf: 'stretch', padding: 14, gap: 8, backgroundColor: C.card },
+  title: { ...T.h3, color: C.text },
+  body: { ...T.small, color: C.text },
+  small: { ...T.small, fontSize: 12, color: C.dim },
   bottomWrap: { position: 'absolute', left: 0, right: 0, bottom: 0 },
   bottom: { alignItems: 'center', gap: 12, padding: 12, paddingBottom: 28 },
-  hint: { color: C.text, fontSize: 14, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, overflow: 'hidden' },
+  hint: { ...T.small, color: C.text, backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 12, paddingVertical: 6, overflow: 'hidden' },
   shutterOuter: { width: 82, height: 82, borderRadius: 41, borderWidth: 4, borderColor: 'rgba(255,255,255,0.5)', alignItems: 'center', justifyContent: 'center' },
   shutterInner: { width: 64, height: 64, borderRadius: 32, backgroundColor: C.accent },
-  input: { minHeight: 48, color: C.text, borderWidth: 1, borderColor: C.line, borderRadius: 12, padding: 12, fontSize: 15 },
-  ghost: { flex: 1, paddingVertical: 14, borderRadius: 24, borderWidth: 1, borderColor: C.line, alignItems: 'center' },
-  btn: { flex: 2, paddingVertical: 14, borderRadius: 24, backgroundColor: C.accent, alignItems: 'center' },
-  btnText: { color: '#06281A', fontWeight: '800', fontSize: 15 },
+  input: { minHeight: 48, color: C.text, borderWidth: 1, borderColor: C.line, padding: 12, fontSize: 15 },
 });

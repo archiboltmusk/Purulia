@@ -11,7 +11,8 @@ import { fixUsable, watchFix } from '../location';
 import { AppError } from '../supabase';
 import { FlagDialog } from './FlagDialog';
 import { openSite } from './MoreSheet';
-import { C } from './theme';
+import { Caps, EDGES, PopButton, PopCard, PopChip } from './Pop';
+import { C, T } from './theme';
 
 const SEEN_KEY = 'seen_reports';
 const RATED_KEY = 'my_ratings';
@@ -171,14 +172,13 @@ function Body(p: BodyProps) {
         </View>
       </View>
       <ScrollView contentContainerStyle={{ padding: 16, gap: 14, paddingBottom: 40 }}>
-        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} style={{ borderRadius: 16 }}>
+        <ScrollView horizontal pagingEnabled showsHorizontalScrollIndicator={false} >
           {gallery.map((u) => <Image key={u} source={{ uri: u }} style={{ width: p.width - 32, height: (p.width - 32) * 0.75, backgroundColor: '#222' }} />)}
         </ScrollView>
         {gallery.length > 1 ? <Text style={s.dim}>{`1 / ${gallery.length} →`}</Text> : null}
         {!resolved ? (
-          <Pressable onPress={p.onSeen} disabled={p.seen || p.busy} style={[s.btn, p.seen && s.btnDone]}>
-            <Text style={s.btnText}>{st(p.seen ? 'sheet_seen_done' : 'sheet_seen_btn')}</Text>
-          </Pressable>
+          <PopButton kind={p.seen ? 'ghost' : 'primary'} label={st(p.seen ? 'sheet_seen_done' : 'sheet_seen_btn')}
+            onPress={p.onSeen} disabled={p.seen} busy={p.busy && !p.seen} />
         ) : null}
 
         <View style={{ gap: 4 }}>
@@ -207,7 +207,7 @@ function Body(p: BodyProps) {
         {p.replies.length ? (
           <Section title={st('reply_title')}>
             {p.replies.map((x) => (
-              <View key={x.id} style={s.box}>
+              <View key={x.id} style={[s.box, s.reply]}>
                 <Text style={s.bold}>{x.responder_name} <Text style={s.dim}>{x.responder_role} · {fmtDate(x.created_at)}</Text></Text>
                 <Text style={s.body}>{x.body}</Text>
                 {x.verified_note ? <Text style={s.ok}>✓ {x.verified_note}</Text> : null}
@@ -242,23 +242,21 @@ function Body(p: BodyProps) {
 
 function Card({ n, label, warn }: { n: number; label: string; warn?: boolean }) {
   return (
-    <View style={[s.card, warn && { borderColor: C.bad }]}>
-      <Text style={[s.cardN, warn && { color: C.bad }]}>{n}</Text>
-      <Text style={s.small}>{label}</Text>
+    <View style={{ flex: 1 }}>
+      <PopCard edges={warn ? { right: C.bad, bottom: '#802138' } : EDGES.dark} style={{ padding: 12, gap: 2 }}>
+        <Text style={[s.cardN, warn && { color: C.bad }]}>{n}</Text>
+        <Text style={[T.capsS, { color: C.dim }]}>{label}</Text>
+      </PopCard>
     </View>
   );
 }
 
 function Act({ label, onPress, primary }: { label: string; onPress: () => void; primary?: boolean }) {
-  return (
-    <Pressable onPress={onPress} style={[s.act, primary && s.actPrimary]}>
-      <Text style={[s.actText, primary && { color: '#06281A' }]} numberOfLines={1}>{label}</Text>
-    </Pressable>
-  );
+  return <PopButton kind={primary ? 'accent' : 'secondary'} size="medium" label={label} onPress={onPress} />;
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {
-  return <View style={{ gap: 8 }}><Text style={s.label}>{title}</Text>{children}</View>;
+  return <View style={{ gap: 8 }}><Caps>{title}</Caps>{children}</View>;
 }
 
 function BeforeAfter({ before, after }: { before: string | null; after: string | null }) {
@@ -290,7 +288,7 @@ function StatusPanel({ r, rules, status, fixDays }: { r: Report; rules: Rules | 
       : st('pn_needs_more', { n: Math.max(0, q - v) }) + ' ' +
         st('pn_expires', { date: fmtDate(new Date(r.claim_created_at ?? r.created_at).getTime() + (rules?.claim_expiry_days ?? 14) * DAY) });
     panel = (
-      <View style={s.box}>
+      <PopCard edges={EDGES.white} style={s.box}>
         <Text style={s.bold}>{st('pn_claim_title')}</Text>
         <BeforeAfter before={r.photo_url} after={r.claim_photo_url} />
         {r.claim_created_at ? <Text style={s.dim}>{r.claim_distance_m != null
@@ -298,23 +296,23 @@ function StatusPanel({ r, rules, status, fixDays }: { r: Report; rules: Rules | 
         <Text style={s.body}>{st('pn_progress', { v, q, d: r.claim_dispute_count ?? 0, dq })}</Text>
         <Text style={s.dim}>{timing}</Text>
         {r.claim_needs_review ? <Text style={{ color: C.warn }}>⏸ {st('pn_claim_held')}</Text> : null}
-      </View>
+      </PopCard>
     );
   } else if (status === 'resolved' && r.resolution_method === 'legacy_unverified') {
     panel = (
-      <View style={s.box}>
+      <PopCard style={s.box}>
         <Text style={s.bold}>{st('pn_legacy_title')}</Text>
         <BeforeAfter before={r.photo_url} after={r.resolved_photo_url} />
         <Text style={s.dim}>{st('pn_legacy_body')}</Text>
-      </View>
+      </PopCard>
     );
   } else if (status === 'resolved') {
     panel = (
-      <View style={s.box}>
+      <PopCard edges={EDGES.accent} style={s.box}>
         <Text style={[s.bold, { color: C.accent }]}>✓ {st(r.resolution_method === 'photo_check' ? 'pn_resolved_photo_title' : r.resolution_method === 'moderator' ? 'pn_resolved_mod_title' : 'pn_resolved_title')}</Text>
         <BeforeAfter before={r.photo_url} after={r.resolved_photo_url} />
         {r.resolved_at ? <Text style={s.dim}>{st('pn_resolved_meta', { date: fmtDate(r.resolved_at), days: fixDays ?? 0 })}</Text> : null}
-      </View>
+      </PopCard>
     );
   }
   return (
@@ -375,20 +373,16 @@ function Dockets({ dockets, warranty, onAdd }: { dockets: Docket[]; warranty: Wa
         <View style={{ gap: 8 }}>
           <View style={s.chips}>
             {DOCKET_PORTALS.map((x) => (
-              <Pressable key={x} onPress={() => setPortal(x)} style={[s.chip, portal === x && s.chipOn]}>
-                <Text style={[s.chipText, portal === x && { color: '#06281A' }]}>{st('dk_' + x)}</Text>
-              </Pressable>
+              <PopChip key={x} label={st('dk_' + x)} on={portal === x} onPress={() => setPortal(x)} />
             ))}
           </View>
           <TextInput value={number} onChangeText={setNumber} maxLength={40} autoCapitalize="characters" autoCorrect={false}
             placeholder={st('dk_number')} placeholderTextColor={C.dim} style={s.input} />
-          <Pressable disabled={!number.trim() || saving} style={[s.btn, (!number.trim() || saving) && { opacity: 0.5 }]} onPress={async () => {
+          <PopButton kind="primary" size="medium" label={st('dk_save')} disabled={!number.trim()} busy={saving} onPress={async () => {
             setSaving(true);
             if (await onAdd(portal, number.trim())) { setNumber(''); setOpen(false); }
             setSaving(false);
-          }}>
-            <Text style={s.btnText}>{st('dk_save')}</Text>
-          </Pressable>
+          }} />
         </View>
       ) : null}
     </View>
@@ -449,37 +443,27 @@ function Timeline({ events }: { events: ReportEvent[] | null }) {
 const s = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: C.bg },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 20, paddingBottom: 8 },
-  headText: { color: C.text, fontSize: 15, fontWeight: '700', flexShrink: 1 },
-  cat: { color: C.accent, fontSize: 15, fontWeight: '700' },
-  title: { color: C.text, fontSize: 20, fontWeight: '800' },
-  body: { color: C.text, fontSize: 15, lineHeight: 21 },
-  bold: { color: C.text, fontSize: 15, fontWeight: '700' },
-  dim: { color: C.dim, fontSize: 14 },
-  small: { color: C.dim, fontSize: 12, lineHeight: 17 },
+  headText: { ...T.caps, color: C.text, flexShrink: 1 },
+  cat: { ...T.caps, color: C.accent },
+  title: { ...T.h2, color: C.text },
+  body: { ...T.body, color: C.text },
+  bold: { ...T.h3, fontSize: 16, color: C.text },
+  dim: { ...T.small, color: C.dim },
+  small: { ...T.small, fontSize: 12, color: C.dim },
   ok: { color: C.accent, fontSize: 13 },
-  label: { color: C.dim, fontSize: 12, fontWeight: '700', letterSpacing: 1, textTransform: 'uppercase' },
   link: { color: C.text, textDecorationLine: 'underline', fontSize: 15 },
-  btn: { paddingVertical: 12, borderRadius: 22, backgroundColor: C.accent, alignItems: 'center' },
-  btnDone: { backgroundColor: 'rgba(255,255,255,0.1)' },
-  btnText: { color: '#06281A', fontWeight: '800', fontSize: 15 },
   cards: { flexDirection: 'row', gap: 10 },
-  card: { flex: 1, padding: 12, borderRadius: 14, borderWidth: 1, borderColor: C.line, gap: 2 },
-  cardN: { color: C.text, fontSize: 24, fontWeight: '800' },
-  box: { padding: 12, gap: 8, borderRadius: 14, backgroundColor: 'rgba(255,255,255,0.05)' },
-  ba: { width: '100%', aspectRatio: 0.75, borderRadius: 10, backgroundColor: '#222' },
+  cardN: { ...T.h1, color: C.text },
+  box: { padding: 14, gap: 8 },
+  reply: { borderLeftWidth: 3, borderLeftColor: C.accent, backgroundColor: C.raised },
+  ba: { width: '100%', aspectRatio: 0.75, backgroundColor: '#222' },
   rateRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
-  star: { color: 'rgba(255,255,255,0.25)', fontSize: 26 },
+  star: { color: '#3D3D3D', fontSize: 28 },
   chips: { flexDirection: 'row', flexWrap: 'wrap', gap: 8 },
-  chip: { paddingHorizontal: 12, paddingVertical: 8, borderRadius: 18, borderWidth: 1, borderColor: C.line },
-  chipOn: { backgroundColor: C.accent, borderColor: C.accent },
-  chipText: { color: C.text, fontSize: 14 },
-  input: { minHeight: 44, color: C.text, borderWidth: 1, borderColor: C.line, borderRadius: 12, padding: 12, fontSize: 15 },
+  input: { minHeight: 44, color: C.text, borderWidth: 1, borderColor: C.line, padding: 12, fontSize: 15 },
   tl: { flexDirection: 'row', gap: 10, alignItems: 'flex-start' },
-  tlDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: C.accent, marginTop: 7 },
-  tlPhoto: { width: 48, height: 64, borderRadius: 6, backgroundColor: '#222' },
+  tlDot: { width: 8, height: 8, backgroundColor: C.accent, marginTop: 7 },
+  tlPhoto: { width: 48, height: 64, backgroundColor: '#222' },
   foot: { padding: 16, paddingBottom: 28, gap: 10, borderTopWidth: StyleSheet.hairlineWidth, borderColor: C.line },
   actions: { flexDirection: 'row', gap: 10, flexWrap: 'wrap' },
-  act: { paddingHorizontal: 16, paddingVertical: 12, borderRadius: 22, borderWidth: 1, borderColor: C.line },
-  actPrimary: { backgroundColor: C.accent, borderColor: C.accent },
-  actText: { color: C.text, fontWeight: '700', fontSize: 15 },
 });

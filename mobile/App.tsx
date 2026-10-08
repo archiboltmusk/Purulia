@@ -1,3 +1,4 @@
+import { PopButton } from './src/components/Pop';
 import { CameraView, useCameraPermissions } from 'expo-camera';
 import * as Haptics from 'expo-haptics';
 import * as Location from 'expo-location';
@@ -15,7 +16,7 @@ import { ReportSheet } from './src/components/ReportSheet';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
 import { TermsGate } from './src/components/TermsGate';
-import { C } from './src/components/theme';
+import { C, T } from './src/components/theme';
 import { CAPTURE_TOKEN_TTL_MS, MAX_GPS_ACCURACY_M } from './src/config';
 import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
@@ -68,13 +69,11 @@ function Permissions() {
     <SafeAreaView style={[s.fill, s.center]}>
       <Text style={s.permTitle}>{t('perm_title')}</Text>
       <Text style={s.permBody}>{t('perm_body')}</Text>
-      <Pressable style={s.btn} onPress={async () => {
+      <PopButton kind="accent" label={blocked ? t('perm_settings') : t('perm_allow')} onPress={async () => {
         if (blocked) return Linking.openSettings();
         if (!cam.granted) await requestCam();
         if (!loc.granted) await requestLoc();
-      }}>
-        <Text style={s.btnText}>{blocked ? t('perm_settings') : t('perm_allow')}</Text>
-      </Pressable>
+      }} />
     </SafeAreaView>
   );
 }
@@ -193,8 +192,8 @@ function Reporter() {
       {!evidence && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
       <SafeAreaView style={s.top} edges={['top']}>
         <View style={{ flexDirection: 'row', gap: 8, marginLeft: 'auto' }}>
-          <Pressable onPress={() => setNearby(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('nearby')}</Text></Pressable>
-          <Pressable onPress={() => setMore(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('more')}</Text></Pressable>
+          <PopButton kind="secondary" size="small" label={t('nearby')} onPress={() => setNearby(true)} />
+          <PopButton kind="secondary" size="small" label={t('more')} onPress={() => setMore(true)} />
         </View>
       </SafeAreaView>
 
@@ -208,7 +207,7 @@ function Reporter() {
             <View style={s.shutterInner} />
           </Pressable>
           <Text style={s.hint}>{adding ? t('adding_hint') : t('shutter_hint')}</Text>
-          {adding && <Pressable onPress={() => setAdding(false)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('adding_done')}</Text></Pressable>}
+          {adding && <PopButton kind="secondary" size="small" label={t('adding_done')} onPress={() => setAdding(false)} />}
         </SafeAreaView>
       )}
 
@@ -239,17 +238,13 @@ function Reporter() {
 const s = StyleSheet.create({
   fill: { flex: 1, backgroundColor: C.bg },
   center: { justifyContent: 'center', padding: 28, gap: 16 },
-  permTitle: { color: C.text, fontSize: 24, fontWeight: '800' },
-  permBody: { color: C.text, fontSize: 16, lineHeight: 24 },
-  btn: { paddingVertical: 16, borderRadius: 28, backgroundColor: C.accent, alignItems: 'center' },
-  btnText: { color: '#06281A', fontSize: 17, fontWeight: '800' },
+  permTitle: { ...T.h1, color: C.text },
+  permBody: { ...T.body, color: C.text },
   top: { position: 'absolute', top: 0, left: 0, right: 0, flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingHorizontal: 16, paddingTop: 8 },
-  pill: { paddingHorizontal: 14, paddingVertical: 8, borderRadius: 16, backgroundColor: 'rgba(0,0,0,0.45)' },
-  pillText: { color: C.text, fontSize: 14, fontWeight: '600' },
   bottom: { position: 'absolute', left: 0, right: 0, bottom: 0, alignItems: 'center', gap: 12, paddingBottom: 28 },
-  gps: { fontSize: 14, fontWeight: '700', backgroundColor: 'rgba(0,0,0,0.5)', paddingHorizontal: 12, paddingVertical: 6, borderRadius: 12, overflow: 'hidden' },
+  gps: { ...T.capsS, backgroundColor: 'rgba(13,13,13,0.85)', paddingHorizontal: 12, paddingVertical: 7, overflow: 'hidden' },
   queue: { color: C.text, fontSize: 13, textDecorationLine: 'underline' },
   shutterOuter: { width: 82, height: 82, borderRadius: 41, borderWidth: 4, borderColor: 'rgba(255,255,255,0.5)', alignItems: 'center', justifyContent: 'center' },
   shutterInner: { width: 64, height: 64, borderRadius: 32, backgroundColor: C.accent },
-  hint: { color: 'rgba(255,255,255,0.8)', fontSize: 13 },
+  hint: { ...T.small, color: 'rgba(255,255,255,0.85)' },
 });

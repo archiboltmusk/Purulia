@@ -13,6 +13,7 @@ Expo (SDK 57) + React Native + TypeScript. Opens straight to the camera; files r
 - **User content controls** (App Store 1.2 / Play UGC policy): "Recent reports" list with **Report** (`kasa_flag_report`, same reasons as the site) and **Hide** (this phone). First-run terms state the content rules and link `terms.html`.
 - **Report sheet** (tap any recent report, or "Open the report" after filing): photos, cleanup progress, "I saw it too", rating, official replies, filed-officially numbers, works warranty, timeline, share. Claim / confirm / dispute opens a live camera that checks you are within the site's radius with a good fix (`kasa_claim_cleanup`, `kasa_vote_claim`).
 - **What exactly** (`ISSUE_GROUPS` sub-types, sent as `p_waste_type`) and up to two more live photos per report.
+- **Look:** CRED's NeoPOP design language (near-black, sharp corners, 3 px 45° raised edges, caps labels). Tokens in `src/components/theme.ts`, our own components in `src/components/Pop.tsx` (no NeoPOP code copied; its palette values are credited).
 - **EN / বাংলা / हिन्दी.** Device language by default, switch on the camera screen. Category, flag and server-error wording copied from `kasa-i18n.js`.
 
 ## Run it
