@@ -13,7 +13,10 @@
       "supportsTablet": false,
       "infoPlist": {
         "ITSAppUsesNonExemptEncryption": false,
-        "UIBackgroundModes": ["fetch", "processing"]
+        "UIBackgroundModes": [
+          "fetch",
+          "processing"
+        ]
       }
     },
     "android": {
@@ -24,20 +27,30 @@
         "backgroundImage": "./assets/android-icon-background.png",
         "monochromeImage": "./assets/android-icon-monochrome.png"
       },
-      "blockedPermissions": ["android.permission.RECORD_AUDIO", "android.permission.ACCESS_BACKGROUND_LOCATION"],
+      "blockedPermissions": [
+        "android.permission.RECORD_AUDIO",
+        "android.permission.ACCESS_BACKGROUND_LOCATION"
+      ],
       "predictiveBackGestureEnabled": false
     },
     "plugins": [
-      ["expo-camera", {
-        "cameraPermission": "Parishkar uses the camera to photograph the problem you are reporting, at the moment you report it.",
-        "recordAudioAndroid": false
-      }],
-      ["expo-location", {
-        "locationWhenInUsePermission": "Parishkar attaches your location to a report so the right office knows where the problem is."
-      }],
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "Parishkar uses the camera to photograph the problem you are reporting, at the moment you report it.",
+          "recordAudioAndroid": false
+        }
+      ],
+      [
+        "expo-location",
+        {
+          "locationWhenInUsePermission": "Parishkar attaches your location to a report so the right office knows where the problem is."
+        }
+      ],
       "expo-sqlite",
       "expo-localization",
-      "expo-background-task"
+      "expo-background-task",
+      "expo-web-browser"
     ]
   }
 }

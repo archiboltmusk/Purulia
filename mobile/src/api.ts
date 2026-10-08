@@ -132,6 +132,15 @@ export async function recentReports(): Promise<PublicReport[]> {
   return error ? [] : ((data as PublicReport[]) ?? []);
 }
 
+export type Warranty = { id: number; work_name: string; agency: string | null; contractor: string | null; warranty_until: string; distance_m: number };
+
+/* A moderator-approved public work still under its defect liability period near this
+   report (works.html). Null when there is none: nothing is guessed. */
+export async function reportWarranty(id: string): Promise<Warranty | null> {
+  const { data, error } = await sb.rpc('kasa_report_warranty', { p_report_id: id });
+  return error || !data ? null : (data as Warranty);
+}
+
 export const FLAG_REASONS = ['not_an_issue', 'wrong_location', 'duplicate', 'inappropriate', 'fake_or_old_photo', 'other'] as const;
 export type FlagReason = (typeof FLAG_REASONS)[number];
 

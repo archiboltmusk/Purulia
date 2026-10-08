@@ -1,14 +1,13 @@
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import Animated, { ZoomIn } from 'react-native-reanimated';
-import type { Filed, PublicReport } from '../api';
+import type { Filed, PublicReport, Warranty } from '../api';
 import { SITE_URL } from '../config';
 import { type Key, t } from '../i18n';
 import { C } from './theme';
 
-/* Everything here comes from the server's answer or the public report row. Works,
-   contractors and warranty periods appear only once a moderator-confirmed works
-   record exists; there is no such table yet, so the card says so plainly. */
-export function ResultCard({ filed, row, onDone }: { filed: Filed; row: PublicReport | null; onDone: () => void }) {
+/* Everything here comes from the server's answer, the public report row and
+   kasa_report_warranty (moderator-approved site boards only). No record, no claim. */
+export function ResultCard({ filed, row, warranty, onDone }: { filed: Filed; row: PublicReport | null; warranty: Warranty | null; onDone: () => void }) {
   const lines: string[] = [];
   if (filed.duplicateOf) lines.push(t('res_dup'));
   else if (filed.recurrenceOf) lines.push(t('res_recur'));
@@ -22,7 +21,16 @@ export function ResultCard({ filed, row, onDone }: { filed: Filed; row: PublicRe
       {place ? <Text style={s.place}>{place}</Text> : null}
       {row ? <Text style={s.meta}>{t('res_status', { s: t(('status_' + row.status) as Key) })}</Text> : null}
       {lines.map((l) => <Text key={l} style={s.body}>{l}</Text>)}
-      <View style={s.works}><Text style={s.worksText}>{t('works_none')}</Text></View>
+      <View style={s.works}>
+        {warranty ? (
+          <>
+            <Text style={s.worksName}>{[warranty.work_name, warranty.agency].filter(Boolean).join(' · ')}</Text>
+            <Text style={s.body}>{t('works_until', { d: new Date(warranty.warranty_until).toLocaleDateString() })}</Text>
+            {warranty.contractor ? <Text style={s.worksText}>{t('works_contractor', { c: warranty.contractor })}</Text> : null}
+            <Text style={s.worksText}>{t('works_checked')}</Text>
+          </>
+        ) : <Text style={s.worksText}>{t('works_none')}</Text>}
+      </View>
       <View style={s.actions}>
         {filed.moderation === 'approved' ? (
           <Pressable onPress={() => Linking.openURL(link)} hitSlop={8}><Text style={s.link}>{t('open_site')}</Text></Pressable>
@@ -39,8 +47,9 @@ const s = StyleSheet.create({
   place: { color: C.text, fontSize: 16, fontWeight: '600' },
   meta: { color: C.dim, fontSize: 14 },
   body: { color: C.text, fontSize: 15, lineHeight: 21 },
-  works: { marginTop: 4, padding: 12, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)' },
+  works: { marginTop: 4, padding: 12, gap: 4, borderRadius: 12, backgroundColor: 'rgba(255,255,255,0.05)' },
   worksText: { color: C.dim, fontSize: 14 },
+  worksName: { color: C.text, fontSize: 15, fontWeight: '700' },
   actions: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginTop: 8 },
   link: { color: C.text, textDecorationLine: 'underline', fontSize: 15 },
   done: { paddingHorizontal: 22, paddingVertical: 12, borderRadius: 22, backgroundColor: C.accent },
