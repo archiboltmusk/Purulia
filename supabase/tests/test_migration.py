@@ -171,7 +171,7 @@ check('anon cannot write through the public view',
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
 PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review', 'claim_reviewed_at',
-                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type', 'local_body', 'place', 'place_ward'}
+                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type', 'local_body', 'place', 'place_ward', 'district', 'state'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
 open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
@@ -241,8 +241,14 @@ check('report stores GPS-verified flag', row and row['gps_verified'] is True, ro
 ev = q("select kind, actor_tag from public.kasa_public_events where report_id::text = %s", (str(rid),))
 check('filing is recorded in the public evidence trail', ev and ev[0][0] == 'reported' and len(ev[0][1]) == 6, ev)
 
-check('reports outside West Bengal are refused',
-      err(report, alice, where=(28.61, 77.21)) == 'KASA_OUTSIDE_AREA')
+check('reports outside India are refused',
+      err(report, alice, where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')  # Kathmandu
+dres, _ = report(user(), where=(28.61, 77.21))  # New Delhi
+drow = admin_sql("select place, place_ward, district, state, area_kind, local_body from public.reports where id::text = %s", (str(dres['id']),))
+check('a report elsewhere in India is filed under its district and state',
+      drow and tuple(drow[0]) == ('in:delhi:new-delhi', None, 'New Delhi', 'Delhi', 'india', None), drow)
+check('...in the places view, with its district and state', view_row(dres['id']) is None
+      and q('select district, state from public.kasa_public_place_reports where id::text = %s', (str(dres['id']),)) == [('New Delhi', 'Delhi')])
 kol = user()
 kres, _ = report(kol, where=(22.5646, 88.3510))  # Esplanade
 krow = admin_sql("select place, place_ward, ward_no, area_kind, local_body from public.reports where id::text = %s", (str(kres['id']),))
@@ -453,7 +459,7 @@ check('byte-identical photo used anywhere else is refused', err(claim, official,
 retry_user = user()
 first_try = upload(retry_user, 'reports'); photo_check(first_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 check('a refused attempt (outside town) leaves the photo unused...',
-      err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=28.61, p_lng=77.21,
+      err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=27.70, p_lng=85.32,
           p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=first_try) == 'KASA_OUTSIDE_AREA')
 second_try = upload(retry_user, 'reports'); photo_check(second_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 retried = rpc('kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=offset(7800)[0], p_lng=offset(7800)[1],
@@ -1095,7 +1101,7 @@ set_rules(BASELINE)
 
 # ─────────────────────────────── The whole district ───────────────────────────────
 set_rules({'rural_verify_quorum': '2', 'rural_min_distinct_networks': '1', 'rural_claim_expiry_days': '30'})
-check('a report outside Purulia district is refused', err(report, user(), where=(24.0, 86.0)) == 'KASA_OUTSIDE_AREA')
+check('a report outside India is refused', err(report, user(), where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')
 town_user = user()
 town_spot = offset(-150, 150)
 town_r = rpc('kasa_create_report', uid=town_user, p_category='streetlight', p_severity='minor', p_lat=town_spot[0],
@@ -1443,7 +1449,7 @@ check('every checklist question is required',
           p_boundary_ok=True, p_building_condition='good', p_photo_path=upload(user(), 'reports')) == 'KASA_INCOMPLETE_AUDIT')
 check('building condition must be one of the three options',
       err(school_audit, user(), where=offset(14200, 15000), condition='great') == 'KASA_BAD_CONDITION')
-check('a school audit outside West Bengal is refused', err(school_audit, user(), where=(22.0, 85.0)) == 'KASA_OUTSIDE_AREA')
+check('a school audit outside India is refused', err(school_audit, user(), where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')
 
 rl_uid = user()
 for i in range(5):
@@ -2285,9 +2291,12 @@ check('a town map must be a FeatureCollection', err(send_town, p_geojson={'type'
 check('every ward needs a number',
       err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*SONAMUKHI)['features'][0], properties={})]}) == 'KASA_BAD_MAP')
 check('a ward number can appear only once', err(send_town, p_geojson=ward_fc(SONAMUKHI[0], SONAMUKHI[0])) == 'KASA_BAD_MAP')
-check('points outside West Bengal are refused', err(send_town, p_geojson=ward_fc((1, (77.1, 28.5, 77.2, 28.6)))) == 'KASA_BAD_MAP')
+check('points outside India are refused', err(send_town, p_geojson=ward_fc((1, (100.5, 13.7, 100.6, 13.8)))) == 'KASA_BAD_MAP')
 check('who is in charge needs a source', err(send_town, p_incharge_source=None) == 'KASA_BAD_FORM')
-check('the district must be a West Bengal district', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
+check('the district must be one on the map', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
+check('a town anywhere in India can be sent, its district named with the state',
+      send_town(ip='10.71.0.2', p_town='Deoria', p_district='Deoria, Uttar Pradesh', p_body='Deoria Nagar Palika Parishad',
+                p_incharge=None, p_incharge_source=None, p_geojson=ward_fc((1, (83.77, 26.49, 83.79, 26.51)))) == {'ok': True, 'status': 'pending'})
 sub1 = send_town()
 check('anyone can send a town map; it waits for a moderator', sub1 == {'ok': True, 'status': 'pending'}, sub1)
 check('the public cannot read the waiting maps', refused(err(q, 'select * from kasa_private.place_submissions')))
