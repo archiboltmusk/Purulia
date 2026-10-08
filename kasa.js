@@ -3394,6 +3394,7 @@ function closeCamera(result){
 async function takeCameraShot(){
   const video = document.getElementById('k-cam-video');
   if (!video.videoWidth) return;
+  haptic(25);
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
