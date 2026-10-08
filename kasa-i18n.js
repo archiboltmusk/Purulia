@@ -1220,7 +1220,14 @@ Object.assign(window.KASA_I18N.en, {
   waste_open_manhole: 'Open manhole or drain', waste_manhole_entry: 'Worker sent into a sewer without safety gear',
   waste_water_leak: 'Water pipe leaking', waste_pothole: 'Pothole / broken road', waste_light_out: 'Streetlight not working',
   issue_note_manhole_entry: 'Making anyone clean a sewer or septic tank by hand without protective gear is banned (Prohibition of Employment as Manual Scavengers Act 2013, section 7). If someone is inside now, call 112.',
-  issue_note_open_manhole: 'If you can, put a branch or stones around it so no one falls in.'
+  issue_note_open_manhole: 'If you can, put a branch or stones around it so no one falls in.',
+  igrp_land: 'Ponds and building work',
+  waste_no_drinking_water: 'No drinking water at a railway station or bus stand',
+  waste_water_body_filling: 'Pond or water body being filled',
+  waste_illegal_construction: 'Building work, no sanctioned plan on display',
+  issue_note_no_drinking_water: 'At a railway station, also complain to the Railways on Rail Madad: call 139 or use railmadad.indianrailways.gov.in.',
+  issue_note_water_body_filling: 'Filling up a pond or water area of 5 cottahs (0.035 hectare) or more is barred by section 17A of the West Bengal Inland Fisheries Act 1984: up to 2 years in jail or a ₹2 lakh fine, and the police can act without a warrant.',
+  issue_school_hint: "A school's toilet, girls' toilet or drinking water? Use the school check →"
 });
 Object.assign(window.KASA_I18N.bn, {
   issue_label: 'সমস্যাটা কী? (ঐচ্ছিক)',
@@ -1239,7 +1246,14 @@ Object.assign(window.KASA_I18N.bn, {
   waste_open_manhole: 'খোলা ম্যানহোল বা নর্দমা', waste_manhole_entry: 'সুরক্ষা সরঞ্জাম ছাড়া শ্রমিককে নর্দমায় নামানো হয়েছে',
   waste_water_leak: 'জলের পাইপ ফুটো', waste_pothole: 'গর্ত / ভাঙা রাস্তা', waste_light_out: 'রাস্তার আলো জ্বলছে না',
   issue_note_manhole_entry: 'সুরক্ষা সরঞ্জাম ছাড়া কাউকে দিয়ে হাতে নর্দমা বা সেপটিক ট্যাংক পরিষ্কার করানো নিষিদ্ধ (হাতে মলমূত্র সাফাই নিষেধ আইন ২০১৩, ধারা ৭)। কেউ এখন ভেতরে থাকলে ১১২-তে ফোন করুন।',
-  issue_note_open_manhole: 'পারলে চারপাশে ডাল বা পাথর রাখুন যাতে কেউ পড়ে না যায়।'
+  issue_note_open_manhole: 'পারলে চারপাশে ডাল বা পাথর রাখুন যাতে কেউ পড়ে না যায়।',
+  igrp_land: 'পুকুর ও নির্মাণ কাজ',
+  waste_no_drinking_water: 'রেল স্টেশন বা বাস স্ট্যান্ডে খাবার জল নেই',
+  waste_water_body_filling: 'পুকুর বা জলাশয় বোজানো হচ্ছে',
+  waste_illegal_construction: 'নির্মাণ চলছে, অনুমোদিত নকশার বোর্ড নেই',
+  issue_note_no_drinking_water: 'রেল স্টেশনে হলে রেলের রেল মদদেও অভিযোগ করুন: ১৩৯-এ ফোন করুন বা railmadad.indianrailways.gov.in।',
+  issue_note_water_body_filling: '৫ কাঠা (০.০৩৫ হেক্টর) বা তার বেশি পুকুর বা জলাশয় বোজানো পশ্চিমবঙ্গ অভ্যন্তরীণ মৎস্য আইন ১৯৮৪-র ধারা ১৭এ অনুযায়ী নিষিদ্ধ: ২ বছর পর্যন্ত জেল বা ২ লক্ষ টাকা পর্যন্ত জরিমানা, আর পুলিশ পরোয়ানা ছাড়াই ব্যবস্থা নিতে পারে।',
+  issue_school_hint: 'স্কুলের শৌচাগার, মেয়েদের শৌচাগার বা খাবার জল? স্কুল যাচাই ব্যবহার করুন →'
 });
 Object.assign(window.KASA_I18N.hi, {
   issue_label: 'समस्या क्या है? (वैकल्पिक)',
@@ -1258,7 +1272,14 @@ Object.assign(window.KASA_I18N.hi, {
   waste_open_manhole: 'खुला मैनहोल या नाली', waste_manhole_entry: 'बिना सुरक्षा उपकरण के मज़दूर को सीवर में उतारा गया',
   waste_water_leak: 'पानी का पाइप रिस रहा है', waste_pothole: 'गड्ढा / टूटी सड़क', waste_light_out: 'स्ट्रीटलाइट बंद',
   issue_note_manhole_entry: 'बिना सुरक्षा उपकरण किसी से सीवर या सेप्टिक टैंक हाथ से साफ़ कराना प्रतिबंधित है (हाथ से मैला उठाने वाले कर्मियों के नियोजन का प्रतिषेध अधिनियम 2013, धारा 7)। अगर कोई अभी अंदर है तो 112 पर कॉल करें।',
-  issue_note_open_manhole: 'हो सके तो चारों ओर डाली या पत्थर रख दें ताकि कोई गिरे नहीं।'
+  issue_note_open_manhole: 'हो सके तो चारों ओर डाली या पत्थर रख दें ताकि कोई गिरे नहीं।',
+  igrp_land: 'तालाब और निर्माण कार्य',
+  waste_no_drinking_water: 'रेलवे स्टेशन या बस स्टैंड पर पीने का पानी नहीं',
+  waste_water_body_filling: 'तालाब या जलाशय भरा जा रहा है',
+  waste_illegal_construction: 'निर्माण चल रहा है, स्वीकृत नक्शे का बोर्ड नहीं',
+  issue_note_no_drinking_water: 'रेलवे स्टेशन पर हो तो रेलवे की रेल मदद पर भी शिकायत करें: 139 पर कॉल करें या railmadad.indianrailways.gov.in।',
+  issue_note_water_body_filling: '5 कट्ठा (0.035 हेक्टेयर) या उससे बड़ा तालाब या जलाशय भरना पश्चिम बंगाल अंतर्देशीय मत्स्य अधिनियम 1984 की धारा 17A के तहत प्रतिबंधित है: 2 साल तक की जेल या 2 लाख रुपये तक का जुर्माना, और पुलिस बिना वारंट कार्रवाई कर सकती है।',
+  issue_school_hint: 'स्कूल का शौचालय, लड़कियों का शौचालय या पीने का पानी? स्कूल जाँच इस्तेमाल करें →'
 });
 
 /* Santali (Ol Chiki script). Covers the report flow, map and statuses; everything else
