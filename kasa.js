@@ -88,7 +88,11 @@ const ISSUE_GROUPS = [
     ['pothole', '🚧', 'road', 'road broken pothole'],
     ['light_out', '💡', 'streetlight', 'streetlight lamp dark'],
     ['work_missing', '⛏', 'rural_jobs', 'mgnrega nrega 100 days job card work rural jobs'],
-    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs']]]
+    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs'],
+    ['no_drinking_water', '🚰', 'water', 'drinking water railway station bus stand stop terminus platform']]],
+  ['land', '🏗️', [
+    ['water_body_filling', '🪣', 'illegal_other', 'pond pukur talab lake wetland water body filling filled earth soil'],
+    ['illegal_construction', '🏗️', 'illegal_construction', 'building construction plan sanction board permission unauthorised']]]
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
@@ -4635,12 +4639,15 @@ function renderIssues(){
   let any = false;
   box.innerHTML = ISSUE_GROUPS.map(([g, icon, list]) => {
     const keys = list.map(([k]) => k).filter(k => issueMatches(k, q));
-    if (!keys.length) return '';
+    // A school's toilets or water belong to the school check, not a report: point there.
+    const school = g === 'toilet' && (!q || keys.length || /school|girl|স্কুল|বিদ্যালয়|মেয়ে|स्कूल|विद्यालय|लड़कि/i.test(q));
+    if (!keys.length && !school) return '';
     any = true;
     const has = sel && keys.includes(sel);
     return `<details class="k-issue-group" data-group="${g}"${q || has || open.has(g) ? ' open' : ''}>
       <summary><span aria-hidden="true">${icon}</span> ${esc(t('igrp_' + g))}${has ? ` · <b>${esc(t('waste_' + sel))}</b>` : ''}</summary>
-      <div class="k-waste-chips">${keys.map(chip).join('')}</div></details>`;
+      <div class="k-waste-chips">${keys.map(chip).join('')}</div>${school
+        ? `<a class="k-field-note k-issue-school" href="kasa.html?check=school">${esc(t('issue_school_hint'))}</a>` : ''}</details>`;
   }).join('') || `<div class="k-field-note">${esc(t('issue_none'))}</div>`;
   const route = document.getElementById('k-issue-route');
   if (route){
@@ -4650,7 +4657,8 @@ function renderIssues(){
 }
 
 // One-line legal or safety reminders, only where they change what the reporter should do.
-const ISSUE_NOTES = { manhole_entry: 'issue_note_manhole_entry', open_manhole: 'issue_note_open_manhole' };
+const ISSUE_NOTES = { manhole_entry: 'issue_note_manhole_entry', open_manhole: 'issue_note_open_manhole',
+  no_drinking_water: 'issue_note_no_drinking_water', water_body_filling: 'issue_note_water_body_filling' };
 
 /* "Goes to: Conservancy Supervisor, Purulia Municipality" — the first office on the report's
    accountability tree for this spot. Other West Bengal places name only the body. */
