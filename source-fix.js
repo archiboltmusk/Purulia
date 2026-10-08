@@ -15,7 +15,7 @@
   const EMAIL = 'thelosthillproject@gmail.com';
   const PAGE = (location.pathname.split('/').pop() || 'index').replace(/\.html$/, '') || 'index';
   const SKIP = new Set(['kasa', 'admin', 'og-card', 'privacy', 'terms', 'rules', 'poster', 'changelog', 'suggest-feature',
-    'grievance', 'add-town', 'map', 'audience', 'digest-subscribe', 'suggestions']);
+    'grievance', 'add-town', 'map', 'audience', 'digest-subscribe', 'suggestions', 'routes']);
 
   const T = {
     en: { note1: 'Every figure here links to where it was published online. If one looks wrong, out of date or has no link,',
