@@ -7,7 +7,7 @@
 //
 // Secrets (Supabase → Edge Functions → Secrets; never in the repo):
 //   SARVAM_API_KEY   from https://dashboard.sarvam.ai (required; unset = assistant off)
-//   SARVAM_MODEL     optional, default sarvam-m
+//   SARVAM_MODEL     optional, default sarvam-105b
 // Deploy:  supabase functions deploy kasa-assistant
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
@@ -16,7 +16,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const ANON_KEY = Deno.env.get('SUPABASE_ANON_KEY')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const SARVAM_KEY = Deno.env.get('SARVAM_API_KEY');
-const MODEL = Deno.env.get('SARVAM_MODEL') || 'sarvam-m';
+const MODEL = Deno.env.get('SARVAM_MODEL') || 'sarvam-105b';
 const SARVAM_URL = 'https://api.sarvam.ai/v1/chat/completions';
 const MAX_TURNS = 8, MAX_CHARS = 1200;
 
@@ -84,7 +84,7 @@ Deno.serve(async (req) => {
     });
     if (!res.ok) { console.error('sarvam', res.status, (await res.text()).slice(0, 300)); return reply(502, { error: 'upstream' }); }
     const out = await res.json();
-    // sarvam-m can think aloud inside <think>…</think>; only the answer is shown.
+    // The model can think aloud inside <think>…</think>; only the answer is shown.
     const text = String(out?.choices?.[0]?.message?.content ?? '').replace(/<think>[\s\S]*?(<\/think>|$)/g, '').trim();
     if (!text) return reply(502, { error: 'empty' });
     return reply(200, { ok: true, answer: text.slice(0, 4000) });
