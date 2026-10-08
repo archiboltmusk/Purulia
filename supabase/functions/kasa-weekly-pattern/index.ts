@@ -216,6 +216,12 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Anyone can call this function with the public key, so each week is claimed once in the
+  // database before any email goes out.
+  const { data: claim, error: claimErr } = await admin.rpc('kasa_weekly_pattern_claim');
+  if (claimErr) return reply(500, { error: claimErr.message });
+  if (!claim?.claimed) return reply(200, { sent: false, reason: 'already sent this week', week: claim?.week });
+
   // Send to all recipients
   let sentCount = 0;
   let failCount = 0;
@@ -269,6 +275,10 @@ Deno.serve(async (req) => {
       failCount++;
     }
   }
+
+  await admin.rpc('kasa_weekly_pattern_done', {
+    p_week: claim.week, p_error: sentCount === 0 && failCount > 0 ? `all ${failCount} emails failed` : null,
+  });
 
   return reply(200, {
     sent: sentCount > 0,
