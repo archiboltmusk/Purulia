@@ -94,7 +94,7 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   await page.addInitScript(() => localStorage.setItem('kasa_lang', 'sat'));
   await page.goto('kasa.html');
   await expect(page.locator('html')).toHaveAttribute('lang', 'sat');
-  await expect(page.locator('[data-i18n="step3_submit"]').first()).toHaveText(/[᱐-᱿]/);
+  await expect(page.locator('[data-i18n="step3_slide"]').first()).toHaveText(/[᱐-᱿]/);
   // Strings not yet translated fall back to English rather than showing the raw key.
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
@@ -125,7 +125,20 @@ test('report form sends the picked severity and problem type', async ({ page, ba
   await expect(page.locator('#k-issue-route')).toContainText('Goes to');
   const submit = page.locator('#k-submit');
   await expect(submit).toBeEnabled();
+  // One tap only arms it; a stray tap never files a report.
   await submit.click();
+  await expect(page.locator('#k-submit-label')).toHaveText('Tap again to send');
+  await page.waitForTimeout(300);
+  expect(backend.calls.some(c => c.kind === 'rpc' && c.name === 'kasa_create_report')).toBe(false);
+  // Slide it all the way across.
+  const box = await submit.boundingBox();
+  await page.mouse.move(box.x + 20, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.move(box.x + box.width - 4, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.up();
+  // Each real stage is listed as it happens, ending with the outcome.
+  await expect(page.locator('#k-submit-steps li').first()).toContainText('Location fixed');
   await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body)
     .toMatchObject({ p_severity: 'severe', p_waste_type: 'construction' });
 });
