@@ -470,6 +470,30 @@ test('the MP named on an area card opens their profile with the MP fund works, a
   expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
 });
 
+test("an MP's profile shows their Lok Sabha work, and takes a reply only with a link", async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: {
+    kasa_submit_rep_reply: { ok: true, status: 'pending' },
+    kasa_rep_replies: [{ reply: 'Work on the Bishnupur road starts after the monsoon.', said_on: '2026-09-20',
+                         source_url: 'https://example.org/press-note', checked: '2026-09-21' }] } });
+  await page.goto('kasa.html');
+  await page.evaluate(() => openRepProfile('pc:37'));
+  const sheet = page.locator('#k-rep-modal');
+  await expect(sheet).toHaveClass(/open/);
+  await expect(sheet).toContainText('Work in the Lok Sabha');
+  await expect(sheet.locator('a', { hasText: 'PRS Legislative Research' })).toHaveAttribute('href', /prsindia\.org\/mptrack\/18th-lok-sabha\//);
+  await expect(sheet.locator('#k-rep-replies')).toContainText('Work on the Bishnupur road starts after the monsoon.');
+  await sheet.locator('.k-rep-reply-add summary').click();
+  await sheet.locator('#k-rr-text').fill('We have written to the PWD about the road.');
+  await sheet.locator('#k-rr-date').fill('2026-10-01');
+  await sheet.locator('#k-rr-url').fill('not a link');
+  await sheet.locator('#k-rep-reply-form button[type=submit]').click();
+  expect(calls.some(c => c.name === 'kasa_submit_rep_reply')).toBe(false);
+  await sheet.locator('#k-rr-url').fill('https://example.org/letter');
+  await sheet.locator('#k-rep-reply-form button[type=submit]').click();
+  await expect.poll(() => calls.find(c => c.name === 'kasa_submit_rep_reply')?.body).toMatchObject({
+    p_rep_key: 'pc:37', p_reply: 'We have written to the PWD about the road.', p_said_on: '2026-10-01', p_source_url: 'https://example.org/letter' });
+});
+
 test('any minister in West Bengal can be found by department and opens with their seat', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await page.locator('#k-more-btn').click();
