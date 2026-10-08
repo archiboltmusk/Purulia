@@ -4819,7 +4819,9 @@ function submitSteps(d){
 function resetSlideSubmit(){
   const btn = document.getElementById('k-submit');
   btn.style.setProperty('--slide', '0px');
-  btn.classList.remove('k-slide-armed', 'k-sliding', 'k-slide-confirm');
+  btn.style.setProperty('--label-o', '1');
+  btn.classList.remove('k-slide-armed', 'k-sliding', 'k-slide-confirm', 'k-slide-sent');
+  btn.querySelector('.k-slide-knob').textContent = '»';
   clearTimeout(resetSlideSubmit._t);
   document.getElementById('k-submit-label').textContent = t('step3_slide');
   document.getElementById('k-submit-steps').hidden = true;
@@ -4832,7 +4834,10 @@ function initSlideSubmit(){
   let drag = null, armed = false;
   const send = () => {
     btn.style.setProperty('--slide', max() + 'px');
+    btn.style.setProperty('--label-o', '1');
     btn.classList.remove('k-slide-confirm');
+    btn.classList.add('k-slide-sent');
+    knob.textContent = '✓';
     haptic(35);
     submitReport();
   };
@@ -4848,6 +4853,7 @@ function initSlideSubmit(){
     const dx = Math.min(max(), Math.max(0, e.clientX - drag.x0));
     if (dx > 8) drag.moved = true;
     btn.style.setProperty('--slide', dx + 'px');
+    btn.style.setProperty('--label-o', String(Math.max(0, 1 - dx / (max() * 0.65 || 1))));
     const now = dx >= max() * 0.85;
     if (now !== armed){ armed = now; if (armed) haptic(15); }
     btn.classList.toggle('k-slide-armed', armed);
@@ -4861,6 +4867,7 @@ function initSlideSubmit(){
     armed = false;
     if (moved) btn.dataset.slid = '1';
     btn.style.setProperty('--slide', '0px');
+    btn.style.setProperty('--label-o', '1');
   };
   btn.addEventListener('pointerup', () => end(false));
   btn.addEventListener('pointercancel', () => end(true));
