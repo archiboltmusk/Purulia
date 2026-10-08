@@ -81,6 +81,13 @@
       <li><strong>Everywhere.</strong> Some problems belong to the same office in town and village: illegal mining to the land-reforms officers and the District Magistrate, crime to the local police station and up to the SP, anganwadi problems to ICDS, health centres to the block and district health officers, and schools to the school inspectors.</li>
     </ul>
 
+    <h3 id="laws">Laws and helplines quoted in the problem list</h3>
+    <ul>
+      <li><strong>Pond or water body being filled:</strong> section 17A of the West Bengal Inland Fisheries Act 1984 (added in 1993) bars filling up any water area, or depressed land holding water for at least six months a year, of 5 cottahs (0.035 hectare) or more; sub-section (11) sets up to 2 years in jail or a ₹2 lakh fine, and sub-section (12, added in 1997) makes it cognizable and non-bailable. Text as printed in the Calcutta Gazette: <a href="https://prsindia.org/files/bills_acts/acts_states/west-bengal/1984/1984WB25.pdf" rel="noopener">PRS Legislative Research copy</a>. These reports go to the police chain, like other offences.</li>
+      <li><strong>No drinking water at a railway station:</strong> the Railways take complaints on <a href="https://railmadad.indianrailways.gov.in/" rel="noopener">Rail Madad</a> or helpline 139.</li>
+      <li><strong>Building work with no sanctioned plan on display</strong> goes to the municipality's building section (the block land office in a village). Parishkar quotes no rule for this one: we could not check the text of a display requirement in the West Bengal Municipal Act 1993 or its building rules.</li>
+    </ul>
+
     <h2>3. How fast it should be fixed</h2>
     <ul>
       <li>Every report gets a fix target when it is filed, set by how bad the reporter says it is: <strong>1 day</strong> for critical, <strong>3 days</strong> for severe, <strong>7 days</strong> for minor. The report shows a live clock ("Due in 5h", "2h overdue").</li>
@@ -138,10 +145,10 @@
     <ul>
       <li><strong>Work in the Lok Sabha</strong> (MPs): attendance, debates, questions and private member's bills in the 18th Lok Sabha, copied from each MP's page on <a href="https://prsindia.org/mptrack" rel="noopener" target="_blank">PRS Legislative Research MP Track</a>, with the West Bengal and all-India averages PRS gives. Ministers and the Speaker do not ask questions or sign the attendance register, so low figures for them mean nothing. There is no comparable public record for the West Bengal Assembly yet, so MLAs have no attendance figures.</li>
       <li><strong>MP's local area fund</strong>: the official MPLADS figures and works list, via Empowered Indian.</li>
-      <li><strong>Election affidavit</strong>: a link to the affidavit (Form 26) each winner swore to the Election Commission, as copied on <a href="https://www.myneta.info" rel="noopener" target="_blank">MyNeta</a> by the Association for Democratic Reforms. Parishkar shows only the link, not the figures. A link is added only when both the seat and the winner's name match, so a by-election winner never gets someone else's affidavit; a few leaders have none yet for that reason.</li>
+      <li><strong>Sworn affidavit</strong>: declared assets, liabilities, pending criminal cases and education from the affidavit each winner swore to the Election Commission, as published by the Association for Democratic Reforms on <a href="https://www.myneta.info" rel="noopener" target="_blank">MyNeta</a>, with a link to the full record. Cases are pending, not convictions.</li>
       <li><strong>Reply from this leader</strong>: anything the leader has said in answer, sent with the date and a link to where they said it. A moderator opens the link before it is shown, and publishes it word for word or not at all.</li>
     </ul>
-    <p>The figures are refreshed by a script in the code repository (<code>tools/build-wb-record.py</code>), and each one links to its source. If a figure is wrong, use "Suggest a correction" at the foot of the page.</p>
+    <p>The figures are refreshed by a script in the code repository (<code>tools/build-wb-record.py</code>, <code>tools/build-wb-affidavits.py</code>), and each one links to its source. If a figure is wrong, use "Suggest a correction" at the foot of the page.</p>
 
     <h2>9. Corrections</h2>
     <p>If you think a number or a rule here is wrong, write to the <a href="grievance.html">Grievance Officer</a>. Corrections are recorded in the affected report's history.</p>
@@ -151,7 +158,7 @@
     <table class="legal-table">
       <thead><tr><th>Project</th><th>What it is</th><th>How Parishkar relates</th></tr></thead>
       <tbody>
-        <tr><td><a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap</a> (<a href="https://www.openstreetmap.in" rel="noopener" target="_blank">OSM India</a>)</td><td>The free world map anyone can edit, under the ODbL licence.</td><td><strong>Used:</strong> block outlines, the nearest named road on each report, and the walking routes for cleanup drives. Map tiles are drawn from OSM data. A wrong road or name is fixed on OpenStreetMap itself.</td></tr>
+        <tr><td><a href="https://www.openstreetmap.org/copyright" rel="noopener" target="_blank">OpenStreetMap</a> (<a href="https://www.openstreetmap.in" rel="noopener" target="_blank">OSM India</a>)</td><td>The free world map anyone can edit, under the ODbL licence.</td><td><strong>Used:</strong> block outlines and the nearest named road on each report. Map tiles are drawn from OSM data. A wrong road or name is fixed on OpenStreetMap itself.</td></tr>
         <tr><td><a href="https://datameet.org" rel="noopener" target="_blank">DataMeet</a></td><td>A community of open data volunteers that publishes India's ward, constituency and other boundary maps (<a href="https://datameet.org/2017/03/15/home-for-all-our-maps/" rel="noopener" target="_blank">their maps</a>).</td><td><strong>Used:</strong> Kolkata's ward outlines.</td></tr>
         <tr><td><a href="https://www.fixmystreet.com" rel="noopener" target="_blank">FixMyStreet</a> (mySociety, UK)</td><td>The long-running open-source street problem reporter. It can send reports to councils through the <a href="https://www.open311.org" rel="noopener" target="_blank">Open311</a> standard for civic issue tracking.</td><td><strong>Learned from:</strong> the public map of reports and what happened next. Report data is downloadable as CSV and GeoJSON so other tools can read it.</td></tr>
         <tr><td><a href="https://digit.org" rel="noopener" target="_blank">DIGIT</a> (eGov Foundation)</td><td>An open-source platform governments use for public services. Its <a href="https://urban.digit.org/products/modules/public-grievances-and-redressal" rel="noopener" target="_blank">grievance module</a> routes complaints to the right department with time limits and escalation.</td><td><strong>Learned from:</strong> fix targets by severity and naming the office responsible (sections 2 and 3). Parishkar is not connected to any government DIGIT system.</td></tr>

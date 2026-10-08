@@ -3,6 +3,7 @@
 .github
 .wrangler
 node_modules
+mobile
 supabase
 tests
 tools

@@ -88,7 +88,11 @@ const ISSUE_GROUPS = [
     ['pothole', '🚧', 'road', 'road broken pothole'],
     ['light_out', '💡', 'streetlight', 'streetlight lamp dark'],
     ['work_missing', '⛏', 'rural_jobs', 'mgnrega nrega 100 days job card work rural jobs'],
-    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs']]]
+    ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs'],
+    ['no_drinking_water', '🚰', 'water', 'drinking water railway station bus stand stop terminus platform']]],
+  ['land', '🏗️', [
+    ['water_body_filling', '🪣', 'illegal_other', 'pond pukur talab lake wetland water body filling filled earth soil'],
+    ['illegal_construction', '🏗️', 'illegal_construction', 'building construction plan sanction board permission unauthorised']]]
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
@@ -163,7 +167,8 @@ function placeLabel(r, tr = t){
 /* "Kolkata · Ward 93" for a report in another West Bengal place (places.js). */
 function placeOther(r, tr){
   const p = window.KasaPlaces?.bySlug(r.place);
-  const name = p?.isDistrict ? tr('pl_district', { d: p.name }) : p ? p.name : r.place;
+  const name = p?.isDistrict ? tr('pl_district', { d: p.name }) : p ? p.name
+    : r.district ? tr('pl_district', { d: r.district }) + (r.state ? ', ' + r.state : '') : r.place;
   return [name, r.placeWard ? tr('acc_ward', { n: r.placeWard }) : ''].filter(Boolean).join(' · ');
 }
 
@@ -261,6 +266,7 @@ const state = {
   ratings: {},
   replies: new Map(),
   dockets: new Map(),  // report id → official grievance numbers (kasa_report_dockets)
+  warranty: new Map(), // report id → a public work under warranty within 50 m (kasa_report_warranty), or null
   selectedWard: null,
   selectedPlace: null,
   chainTab: 'sanitation'
@@ -414,7 +420,6 @@ async function init(){
   }
   await Promise.all([loadReports(), loadWards(), loadWardGeo(), loadCommunities()]);
   renderAll();
-  loadDrives();
   renderTrust();
   mapReady.then(() => { addWardLayers(); updateMap(); });
   // Block outlines for village reports; not needed for the first paint.
@@ -456,9 +461,10 @@ async function fetchRows(){
   if (!v2.error){
     if (state.mode !== 'v2') loadRules();
     state.mode = 'v2';
-    // Reports from the other West Bengal places (places.js) live in their own view.
-    const other = window.KasaPlaces ? await sb.from('kasa_public_place_reports').select(PUBLIC_REPORT_COLUMNS + ',place,place_ward')
-      .order('created_at', { ascending: false }).limit(500).then(r => r.data || [], () => []) : [];
+    // Reports from the other places (places.js, and India outside West Bengal) live in their own view.
+    const placeRows = cols => sb.from('kasa_public_place_reports').select(PUBLIC_REPORT_COLUMNS + cols)
+      .order('created_at', { ascending: false }).limit(500).then(r => r.error ? null : r.data || [], () => null);
+    const other = window.KasaPlaces ? (await placeRows(',place,place_ward,district,state')) || (await placeRows(',place,place_ward')) || [] : [];
     return [...(v2.data || []), ...other];
   }
   const legacy = await sb.from('reports').select('*').order('created_at', { ascending: false }).limit(500);
@@ -528,10 +534,11 @@ function normalize(r){
     createdAt: r.created_at,
     lat: Number(r.lat), lng: Number(r.lng),
     ward: r.ward_no ? Number(r.ward_no) : null,
-    area: r.area_kind === 'wb' ? 'place' : r.area_kind || (r.ward_no ? 'town' : null),
+    area: r.area_kind === 'wb' || r.area_kind === 'india' ? 'place' : r.area_kind || (r.ward_no ? 'town' : null),
     block: r.block_name || null,
     place: r.place || null,
     placeWard: r.place_ward ? Number(r.place_ward) : null,
+    district: r.district || null, state: r.state || null,
     body: r.local_body || null,
     bodyType: r.boundary_type || null,
     verifyNeeded: fast?.need ? Number(fast.need) : r.verify_needed ? Number(r.verify_needed) : null,
@@ -685,8 +692,10 @@ function placeOf(lat, lng){
   const gp = featureAt(state.gpGeo, lat, lng);
   if (gp) return { kind: 'rural', block: block || gp.properties.block, body: gp.properties.gp, bodyType: 'gram_panchayat' };
   if (block) return { kind: 'rural', block, bodyType: 'gram_panchayat' };
-  return window.KasaPlaces?.at(lat, lng) || { kind: 'outside' };
+  return window.KasaPlaces?.at(lat, lng) || (inIndiaBox(lat, lng) ? { kind: 'india' } : { kind: 'outside' });
 }
+// Roughly India (the server checks the district outline); outside West Bengal, reports file under the district.
+const inIndiaBox = (lat, lng) => lat >= 6.5 && lat <= 37.5 && lng >= 68 && lng <= 97.5;
 
 function detectWard(lat, lng){
   const f = (state.wardGeo?.features || []).find(f => pointInPolygon([lng, lat], f.geometry));
@@ -959,6 +968,11 @@ const api = {
     return error ? [] : (data || []);
   },
 
+  async warranty(id){
+    const { data, error } = await sb.rpc('kasa_report_warranty', { p_report_id: String(id) });
+    return error ? null : (data || null);
+  },
+
   async addDocket(id, portal, number){
     const { error } = await sb.rpc('kasa_add_docket', { p_report_id: String(id), p_portal: portal, p_number: number });
     if (error) throw rpcError(error);
@@ -1106,7 +1120,6 @@ function renderAll(){
   renderTicker();
   renderWardCard();
   renderFilterCount();
-  if (state.drives){ renderDriveBanner(); if (state.driveOpen) renderDriveCard(); }
 }
 
 /* Filters sit behind one button so the map stays clear; the badge shows how many are on. */
@@ -1514,6 +1527,7 @@ function indiaMp(info, district){
 
 function renderIndiaCard(el){
   const a = state.area, { india: I, state: S, district, ac, town, ward } = a.areas, f = areaFeature();
+  const atTown = town && ['town', 'ward'].includes(a.level);
   const sname = S.properties.state, P = ac?.properties || {};
   const crumb = (lvl, g) => g ? `<button type="button" class="k-area-crumb${lvl === a.level ? ' on' : ''}" data-area-level="${lvl}">${esc(areaName(g))}</button>` : '';
   const row = (role, who, extra) => `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span>${extra ? `<span class="k-area-extra">${esc(extra)}</span>` : ''}</div>`;
@@ -1550,7 +1564,7 @@ function renderIndiaCard(el){
       <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    <div class="k-ward-note">${esc(t('in_reports_wb'))}</div>
+    ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
     <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(inTownsSrc, t('in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
       · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
 }
@@ -1645,7 +1659,6 @@ function districtSeats(slug){
 }
 
 async function openArea(lat, lng, level){
-  if (state.driveOpen) closeDrive();
   const [areas, leaders, officials] = await Promise.all([areasAt(lat, lng), leadersAt(lat, lng), wbOfficials || getJson('places/wb_officials.json')]);
   wbOfficials = officials;
   if (!areas) return openIndiaArea(lat, lng, level);
@@ -1841,7 +1854,7 @@ function selectWard(n, place = null){
   const same = state.selectedWard === n && (state.selectedPlace || null) === place;
   state.selectedWard = same ? null : n;
   state.selectedPlace = same ? null : place;
-  if (state.selectedWard != null){ closeArea(); if (state.driveOpen) closeDrive(); }
+  if (state.selectedWard != null){ closeArea(); }
   renderWardCard();
   updateMap();
 }
@@ -2289,6 +2302,10 @@ function openSheet(id){
       state.dockets.set(r.id, list);
       if (state.sheetId === r.id){ const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
     });
+    if (!state.warranty.has(r.id)) api.warranty(r.id).then(w => {
+      state.warranty.set(r.id, w);
+      if (w && state.sheetId === r.id){ const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    });
     if (r.replyCount){
       api.replies(r.id).then(list => {
         state.replies.set(r.id, list);
@@ -2658,7 +2675,8 @@ const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
 function renderDocketsHTML(r){
   const list = state.dockets.get(r.id) || [];
   const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
-  return `${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
+  const w = state.warranty.get(r.id);
+  return `${w ? `<p class="k-warranty">🛠 ${esc(t('wk_under', { d: fmt(w.warranty_until) }))} <a href="works.html#work-${esc(w.id)}">${esc(t('wk_see'))}</a></p>` : ''}${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
       `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
     <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
       <form id="k-docket-form" data-report="${esc(r.id)}">
@@ -3641,9 +3659,9 @@ function setLocation(lat, lng, accuracy){
   if (place.kind === 'town'){ draft.ward = place.ward; wardSel.value = String(place.ward); }
   if (place.kind !== 'town' && place.kind !== 'unknown'){ draft.ward = null; wardSel.value = ''; }
   wardSel.options[0].textContent = place.kind === 'edge' ? t('step3_not_town') : '—';
-  document.getElementById('k-ward-field').hidden = ['rural', 'outside', 'place'].includes(place.kind);
+  document.getElementById('k-ward-field').hidden = ['rural', 'outside', 'place', 'india'].includes(place.kind);
   const note = document.getElementById('k-place');
-  note.hidden = !['rural', 'edge', 'outside', 'place'].includes(place.kind);
+  note.hidden = !['rural', 'edge', 'outside', 'place', 'india'].includes(place.kind);
   note.className = 'k-field-note' + (place.kind === 'outside' ? ' k-field-bad' : '');
   note.textContent = place.kind === 'rural'
       ? (place.bodyType === 'municipality' ? t('step3_town', { t: place.body })
@@ -3651,7 +3669,17 @@ function setLocation(lat, lng, accuracy){
     : place.kind === 'place' ? (place.isDistrict ? t('pl_step3_wb', { d: place.name })
         : t('pl_step3', { place: place.name, n: place.ward, body: place.body }) + (place.provisional ? ' ' + t('pl_provisional') : ''))
     : place.kind === 'edge' ? t('step3_edge')
+    : place.kind === 'india' ? t('in_step3_any')
     : place.kind === 'outside' ? t('step3_outside') : '';
+  if (place.kind === 'india') indiaAreasAt(lat, lng).then(a => {
+    if (!a?.district || draft?.place !== place) return;
+    const d = a.district.properties.district, s = a.india.name;
+    note.textContent = t('in_step3', { d, s }) + ' ';
+    const add = document.createElement('a');
+    add.href = 'add-town.html?district=' + encodeURIComponent(d + ', ' + s) + (a.town ? '&town=' + encodeURIComponent(a.town.properties.name) : '');
+    add.textContent = t('pl_add_town');
+    if (!a.town) note.append(add);
+  }, () => {});
   if (place.kind === 'place' && place.isDistrict){
     const add = document.createElement('a');
     add.href = 'add-town.html?district=' + encodeURIComponent(place.name);
@@ -3660,7 +3688,7 @@ function setLocation(lat, lng, accuracy){
   }
   document.getElementById('k-coords').textContent =
     `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` +
-    (['town', 'rural', 'outside', 'place'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
+    (['town', 'rural', 'outside', 'place', 'india'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   if (draft.wasteType) renderIssues();
   updateSubmitState();
 }
@@ -4442,6 +4470,81 @@ async function submitPandal(){
   }
 }
 
+/* A public work's site board, photographed live where it stands, with what it says copied out:
+   the defect liability period tells how long the contractor must repair it at no cost (works.html). */
+let wk = null;
+async function openWork(){
+  wk = { pos: null, blob: null, meta: null };
+  for (const id of ['k-wk-name', 'k-wk-agency', 'k-wk-contractor', 'k-wk-order', 'k-wk-cost', 'k-wk-done', 'k-wk-dlp']) document.getElementById(id).value = '';
+  document.getElementById('k-wk-done').max = new Date().toISOString().slice(0, 10);
+  document.getElementById('k-wk-preview').innerHTML = '';
+  const ps = document.getElementById('k-wk-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('wk_photo_hint');
+  updateWorkSubmit();
+  openModal('k-wk-modal');
+  const status = document.getElementById('k-wk-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!wk) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { wk.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (wk) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateWorkSubmit();
+}
+
+async function captureWorkPhoto(){
+  if (!wk) return;
+  const res = await openLiveCamera();
+  if (!wk) return;
+  const status = document.getElementById('k-wk-photo-status');
+  if (res.blob){
+    wk.blob = res.blob;
+    wk.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-wk-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateWorkSubmit();
+}
+
+function updateWorkSubmit(){
+  if (!wk) return;
+  document.getElementById('k-wk-submit').disabled = !(wk.blob && wk.pos
+    && document.getElementById('k-wk-name').value.trim().length >= 5
+    && document.getElementById('k-wk-agency').value.trim().length >= 2);
+}
+
+async function submitWork(){
+  if (!wk) return;
+  const btn = document.getElementById('k-wk-submit'), v = id => document.getElementById(id).value.trim() || null;
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', wk.blob);
+    await sendPhotoMeta(path, wk.meta);
+    await checkPhoto(path, null, wk.pos.lat, wk.pos.lng);
+    const { error } = await sb.rpc('kasa_add_public_work', {
+      p_work_name: v('k-wk-name'), p_agency: v('k-wk-agency'), p_contractor: v('k-wk-contractor'), p_work_order: v('k-wk-order'),
+      p_cost: v('k-wk-cost'), p_completed_on: v('k-wk-done'), p_dlp_years: v('k-wk-dlp') ? Number(v('k-wk-dlp')) : null,
+      p_lat: wk.pos.lat, p_lng: wk.pos.lng, p_accuracy: wk.pos.accuracy, p_photo_path: path });
+    if (error) throw rpcError(error);
+    closeModal('k-wk-modal');
+    showToast(t('wk_sent'), 8000);
+    wk = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('wk_submit');
+  updateWorkSubmit();
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4463,6 +4566,9 @@ function initSchoolCheck(){
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
+  document.getElementById('k-wk-cam-btn').addEventListener('click', captureWorkPhoto);
+  document.getElementById('k-wk-submit').addEventListener('click', submitWork);
+  for (const id of ['k-wk-name', 'k-wk-agency']) document.getElementById(id).addEventListener('input', updateWorkSubmit);
   document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
   document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
   document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
@@ -4496,6 +4602,7 @@ function initSchoolCheck(){
   else if (q.get('snake') === '1') openSnake();
   else if (q.get('rescuer') === '1') openRescuer();
   else if (q.get('pandal') === '1') openPandal();
+  else if (q.get('work') === '1') openWork();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
@@ -4635,12 +4742,15 @@ function renderIssues(){
   let any = false;
   box.innerHTML = ISSUE_GROUPS.map(([g, icon, list]) => {
     const keys = list.map(([k]) => k).filter(k => issueMatches(k, q));
-    if (!keys.length) return '';
+    // A school's toilets or water belong to the school check, not a report: point there.
+    const school = g === 'toilet' && (!q || keys.length || /school|girl|স্কুল|বিদ্যালয়|মেয়ে|स्कूल|विद्यालय|लड़कि/i.test(q));
+    if (!keys.length && !school) return '';
     any = true;
     const has = sel && keys.includes(sel);
     return `<details class="k-issue-group" data-group="${g}"${q || has || open.has(g) ? ' open' : ''}>
       <summary><span aria-hidden="true">${icon}</span> ${esc(t('igrp_' + g))}${has ? ` · <b>${esc(t('waste_' + sel))}</b>` : ''}</summary>
-      <div class="k-waste-chips">${keys.map(chip).join('')}</div></details>`;
+      <div class="k-waste-chips">${keys.map(chip).join('')}</div>${school
+        ? `<a class="k-field-note k-issue-school" href="kasa.html?check=school">${esc(t('issue_school_hint'))}</a>` : ''}</details>`;
   }).join('') || `<div class="k-field-note">${esc(t('issue_none'))}</div>`;
   const route = document.getElementById('k-issue-route');
   if (route){
@@ -4650,7 +4760,8 @@ function renderIssues(){
 }
 
 // One-line legal or safety reminders, only where they change what the reporter should do.
-const ISSUE_NOTES = { manhole_entry: 'issue_note_manhole_entry', open_manhole: 'issue_note_open_manhole' };
+const ISSUE_NOTES = { manhole_entry: 'issue_note_manhole_entry', open_manhole: 'issue_note_open_manhole',
+  no_drinking_water: 'issue_note_no_drinking_water', water_body_filling: 'issue_note_water_body_filling' };
 
 /* "Goes to: Conservancy Supervisor, Purulia Municipality" — the first office on the report's
    accountability tree for this spot. Other West Bengal places name only the body. */
@@ -5050,7 +5161,7 @@ function allReps(){
 /* Every MLA, MP and minister in West Bengal, for the leader profile and the statewide list.
    Seats and names: places/wb_leaders.json; ministers and departments: places/wb_ministers.json;
    MP fund (MPLADS) summary and works: places/wb_mplads.json + places/mplads/<id>.json
-   (tools/build-wb-reps.py); Lok Sabha work (PRS) and affidavit links: places/wb_record.json
+   (tools/build-wb-reps.py); Lok Sabha work (PRS): places/wb_record.json
    (tools/build-wb-record.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
    so every link to a Purulia leader opens the same profile. */
 let wbMplads = null, wbMinisters = null, wbRecord = null, wbRepsLoading = null;
@@ -5107,7 +5218,7 @@ function findRep(key){
   if (rep.ac) rep.minister ||= ministerOf(rep.ac);
   if (rep.group === 'mp' && wbMplads?.pc[rep.pc]) rep.mplads = { ...wbMplads.pc[rep.pc], asOf: wbMplads.checked };
   if (rep.group === 'rs' && rep.mplads) rep.mplads = { ...rep.mplads, asOf: wbMplads.checked };
-  rep.record = rep.group === 'mp' ? wbRecord?.pc[rep.pc] : rep.group === 'mla' ? wbRecord?.ac[rep.ac] : null;
+  rep.record = rep.group === 'mp' ? wbRecord?.pc[rep.pc] : null;
   return rep;
 }
 
@@ -5143,6 +5254,37 @@ function renderRepWorks(rep){
       ${xs.length ? xs.slice(0, 4).map(x => item(x, done)).join('') : `<div class="k-rep-worst-item">${esc(t('rep_works_none'))}</div>`}
       ${xs.length > 4 ? `<details class="k-rep-works-more"><summary>${esc(t('rep_works_all', { n: xs.length }))}</summary>${xs.slice(4).map(x => item(x, done)).join('')}</details>` : ''}`;
     el.innerHTML = list(t('rep_works_done'), w.completed, true) + list(t('rep_works_rec'), w.recommended, false);
+  });
+}
+
+/* Sworn election affidavit of an MLA or MP, from ADR's MyNeta (places/wb_affidavits.json,
+   tools/build-wb-affidavits.py): assets, liabilities, pending criminal cases, education, and the
+   change in assets since the previous affidavit where ADR compares the two. Loaded on first profile. */
+let wbAffidavits = null;
+function renderRepAffidavit(rep){
+  const el = document.getElementById('k-rep-aff'), kind = rep.group === 'mla' ? 'ac' : 'pc';
+  if (!el) return;
+  (wbAffidavits ||= getJson('places/wb_affidavits.json')).then(d => {
+    if (!d) wbAffidavits = null;
+    const a = d?.[kind]?.[kind === 'ac' ? rep.ac : rep.pc];
+    if (!a || el.dataset.key !== rep.key) return;
+    const inr = n => n == null ? '—' : n < 1e5 ? '₹' + n.toLocaleString('en-IN')
+      : '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
+    const ek = 'rep_edu_' + String(a.edu || '').toLowerCase().replace(/\W+/g, '_');
+    const diff = a.assets != null && a.prevAssets > 0 ? a.assets - a.prevAssets : null;
+    const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+    const lines = [a.serious && esc(t('rep_aff_serious')), a.edu && esc(t('rep_aff_edu', { e: I18N.en[ek] ? t(ek) : a.edu })),
+      diff != null && esc(t('rep_aff_change', { e: a.prevElection, d: sign + inr(Math.abs(diff)), p: sign + Math.round(Math.abs(diff) / a.prevAssets * 100) + '%' }))
+        + (a.cmp ? ` <a href="${esc(safeUrl(a.cmp) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_aff_cmp'))} ↗</a>` : '')].filter(Boolean);
+    el.innerHTML = `<div class="k-rep-worst-title">${esc(t('rep_aff'))}</div>
+    <div class="k-rep-stats">
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(a.assets))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_assets'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(a.liab))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_liab'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(String(a.cases ?? '—'))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_cases'))}</div></div>
+    </div>
+    ${lines.length ? `<p class="k-rep-src">${lines.join('<br>')}</p>` : ''}
+    <p class="k-rep-src">${esc(t('rep_aff_note', { e: d.elections?.[kind] || '' }))}
+      <a href="${esc(safeUrl(a.url) || '#')}" target="_blank" rel="noopener nofollow">MyNeta ↗</a></p>`;
   });
 }
 
@@ -5283,8 +5425,8 @@ function renderRepUpdates(rep, u){
 /* The record beside each MLA and MP: Lok Sabha work from PRS (MPs) and the sworn election
    affidavit on MyNeta (both). Raw figures with the averages, no grade; see methodology.html#leaders. */
 function renderRepRecordHTML(rep){
-  const r = rep.record, p = r?.prs, avg = wbRecord?.avg;
-  if (!r) return '';
+  const p = rep.record?.prs, avg = wbRecord?.avg;
+  if (!p) return '';
   const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const stat = (n, l) => `<div class="k-rep-stat"><div class="k-rep-stat-n">${esc(n ?? '—')}</div><div class="k-rep-stat-l">${esc(t(l))}</div></div>`;
   return `${p ? `<div class="k-rep-worst-title">${esc(t('rep_ls_work'))}</div>
@@ -5292,9 +5434,7 @@ function renderRepRecordHTML(rep){
       ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
     </div>
     <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
-      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}
-    ${r.affidavit ? `<div class="k-rep-links"><a href="${esc(safeUrl(r.affidavit) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_affidavit'))} ↗</a></div>
-    <p class="k-rep-src">${esc(t('rep_affidavit_src'))}</p>` : ''}`;
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}`;
 }
 
 /* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
@@ -5407,6 +5547,7 @@ async function openRepProfile(key){
       <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
     ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
     ${renderRepRecordHTML(rep)}
+    ${(rep.group === 'mla' && rep.ac) || (rep.group === 'mp' && rep.pc) ? `<div id="k-rep-aff" data-key="${esc(rep.key)}"></div>` : ''}
     <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
     <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
     <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
@@ -5417,6 +5558,7 @@ async function openRepProfile(key){
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
   loadRepReplies(rep);
+  renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
     const el = document.getElementById('k-rep-updates');
     if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}
@@ -5475,204 +5617,6 @@ function openDeepLink(){
     document.getElementById('k-search-ward').value = ward;
     renderAll();
   }
-}
-
-/* ══════════════════════════════════════════════════════════
-   CLEANUP DRIVES — a moderator posts one (admin.html); the map shows one
-   banner for it, and the drive card has the route, when and where to meet,
-   who organises it, the unresolved reports along the route and, once it has
-   started, the ones fixed since (before/after photos).
-   ══════════════════════════════════════════════════════════ */
-const DRIVE_NEAR_M = 80;  // a report this close to the route is "on the route"
-
-async function loadDrives(){
-  if (!sb) return;
-  const { data, error } = await sb.rpc('kasa_drives');
-  if (error || !Array.isArray(data)) return;
-  state.drives = data;
-  renderDriveBanner();
-  const id = new URLSearchParams(location.search).get('drive');
-  if (id && data.some(d => d.id === id)) openDrive(id);
-}
-
-// The next drive (or the one under way), else the latest one in the last week.
-function currentDrive(){
-  const ds = state.drives || [];
-  return ds.find(d => new Date(d.starts_at) > Date.now() - 12 * 3600e3) || ds[ds.length - 1] || null;
-}
-
-function driveWhen(d){
-  const loc = state.lang === 'en' ? 'en-IN' : state.lang + '-IN';
-  const s = new Date(d.starts_at);
-  return s.toLocaleDateString(loc, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'Asia/Kolkata' }) + ', '
-    + s.toLocaleTimeString(loc, { hour: 'numeric', minute: '2-digit', timeZone: 'Asia/Kolkata' });
-}
-
-// Metres from a point to the route (flat-earth; fine over a few km).
-function distToRoute(lng, lat, route){
-  const kx = 111320 * Math.cos(lat * Math.PI / 180), ky = 110540;
-  let best = Infinity;
-  for (let i = 1; i < route.length; i++){
-    const ax = (route[i - 1][0] - lng) * kx, ay = (route[i - 1][1] - lat) * ky;
-    const bx = (route[i][0] - lng) * kx, by = (route[i][1] - lat) * ky;
-    const dx = bx - ax, dy = by - ay, L = dx * dx + dy * dy;
-    const u = L ? Math.max(0, Math.min(1, -(ax * dx + ay * dy) / L)) : 0;
-    best = Math.min(best, Math.hypot(ax + u * dx, ay + u * dy));
-  }
-  return best;
-}
-
-// Reports on the route that were still there when the drive started; `fixed` = resolved since.
-function driveSpots(d){
-  if (!Array.isArray(d.route) || d.route.length < 2) return null;
-  const start = new Date(d.starts_at);
-  const on = primaries().filter(r => !r.pending && Number.isFinite(r.lat) && distToRoute(r.lng, r.lat, d.route) <= DRIVE_NEAR_M
-    && !(r.status === 'resolved' && r.resolvedAt && new Date(r.resolvedAt) < start));
-  const fixed = on.filter(r => r.status === 'resolved');
-  return { open: on.filter(r => r.status !== 'resolved'), fixed, total: on.length };
-}
-
-function renderDriveBanner(){
-  const el = document.getElementById('k-drive-banner'), d = currentDrive();
-  if (!el) return;
-  el.hidden = !d;
-  if (!d) return;
-  document.getElementById('k-join').hidden = true;  // one banner on the map
-  el.querySelector('button').onclick = () => openDrive(d.id);
-  const s = driveSpots(d), started = new Date(d.starts_at) <= Date.now();
-  el.querySelector('span').textContent = started && s?.total
-    ? t('dr_banner_progress', { n: s.fixed.length, m: s.total })
-    : t('dr_banner', { when: driveWhen(d), where: d.meet_point });
-}
-
-function openDrive(id){
-  const d = (state.drives || []).find(x => x.id === id) || currentDrive();
-  if (!d) return;
-  state.driveOpen = d.id;
-  closeArea();
-  if (state.selectedWard != null){ state.selectedWard = null; renderWardCard(); updateMap(); }
-  renderDriveCard();
-  if (Array.isArray(d.route) && d.route.length > 1) mapReady.then(() => {
-    const lngs = d.route.map(p => p[0]), lats = d.route.map(p => p[1]);
-    mainMap.fitBounds([[Math.min(...lngs), Math.min(...lats)], [Math.max(...lngs), Math.max(...lats)]],
-      { padding: { top: 90, bottom: 90, left: 40, right: 40 }, maxZoom: 17, duration: 900 });
-  });
-}
-
-function closeDrive(){
-  state.driveOpen = null;
-  const el = document.getElementById('k-drive-card');
-  if (el) el.hidden = true;
-  drawDrive(null, null);
-}
-
-function drawDrive(d, s){
-  if (!mainMap || !mainMap.getSource('reports')) return;
-  const empty = { type: 'FeatureCollection', features: [] };
-  const line = d && Array.isArray(d.route) && d.route.length > 1
-    ? { type: 'Feature', geometry: { type: 'LineString', coordinates: d.route }, properties: {} } : null;
-  const ends = line ? [
-    { type: 'Feature', geometry: { type: 'Point', coordinates: d.route[0] }, properties: { label: t('dr_start') } },
-    { type: 'Feature', geometry: { type: 'Point', coordinates: d.route[d.route.length - 1] }, properties: { label: t('dr_end') } }] : [];
-  const pins = s ? [...s.open, ...s.fixed].map(r => ({ type: 'Feature', geometry: { type: 'Point', coordinates: [r.lng, r.lat] },
-    properties: { id: r.id, color: r.status === 'resolved' ? COLORS.resolved : COLORS.critical } })) : [];
-  if (!mainMap.getSource('drive-route')){
-    mainMap.addSource('drive-route', { type: 'geojson', data: empty });
-    mainMap.addSource('drive-pins', { type: 'geojson', data: empty });
-    mainMap.addLayer({ id: 'drive-route-casing', type: 'line', source: 'drive-route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#0a0805', 'line-width': 9, 'line-opacity': .7 } });
-    mainMap.addLayer({ id: 'drive-route-line', type: 'line', source: 'drive-route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#4fb3e8', 'line-width': 5 } });
-    mainMap.addLayer({ id: 'drive-ends', type: 'symbol', source: 'drive-route', filter: ['==', ['geometry-type'], 'Point'],
-      layout: { 'text-field': ['get', 'label'], 'text-font': ['Noto Sans Bold'], 'text-size': 13, 'text-offset': [0, -1.2], 'text-allow-overlap': true },
-      paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1.6 } });
-    mainMap.addLayer({ id: 'drive-ends-dot', type: 'circle', source: 'drive-route', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 7, 'circle-color': '#4fb3e8', 'circle-stroke-color': '#f0e6d0', 'circle-stroke-width': 2 } });
-    mainMap.addLayer({ id: 'drive-pins', type: 'circle', source: 'drive-pins', paint: {
-      'circle-radius': 11, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': ['get', 'color'], 'circle-stroke-width': 3 } });
-    mainMap.on('click', 'drive-pins', e => { e.preventDefault(); openSheet(e.features[0].properties.id); });
-  }
-  mainMap.getSource('drive-route').setData(line ? { type: 'FeatureCollection', features: [line, ...ends] } : empty);
-  mainMap.getSource('drive-pins').setData({ type: 'FeatureCollection', features: pins });
-}
-
-function renderDriveCard(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  let el = document.getElementById('k-drive-card');
-  if (!el){
-    el = document.createElement('div');
-    el.id = 'k-drive-card'; el.className = 'k-ward-card k-area-card k-drive-card';
-    el.setAttribute('role', 'dialog');
-    document.getElementById('k-ward-card').after(el);
-    el.addEventListener('click', e => {
-      if (e.target.closest('[data-drive-close]')) return closeDrive();
-      if (e.target.closest('[data-drive-going]')) return driveGoing();
-      if (e.target.closest('[data-drive-share]')) return shareDrive();
-    });
-  }
-  const s = driveSpots(d), started = new Date(d.starts_at) <= Date.now();
-  let going = false;
-  try { going = JSON.parse(localStorage.getItem('kasa_drive_going') || '[]').includes(d.id); } catch (e) {}
-  const row = (role, who) => who ? `<div class="k-area-row"><span class="k-area-role">${esc(role)}</span><span class="k-area-who">${who}</span></div>` : '';
-  const orgs = (d.organisers || []).map(o => /^https:\/\//.test(o.url || '')
-    ? `<a href="${esc(o.url)}" target="_blank" rel="noopener nofollow">${esc(o.name)}</a>` : esc(o.name)).join(', ');
-  const pinBtn = r => `<button type="button" class="k-drive-spot" data-open="${esc(r.id)}"><span class="k-ticker-dot" style="background:${markerColor(r)}"></span>${CATEGORIES[r.category]?.icon || ''} ${esc(t('cat_' + r.category))} · ${esc(t('days_open', { n: daysSince(r.createdAt) }))}</button>`;
-  const fixedCard = r => `<button type="button" class="k-fixed-card" data-open="${esc(r.id)}"><span class="k-fixed-photos">
-      ${r.photo ? `<img src="${esc(r.photo)}" alt="" loading="lazy">` : '<span></span>'}
-      ${r.resolvedPhoto ? `<img src="${esc(r.resolvedPhoto)}" alt="" loading="lazy">` : '<span></span>'}
-      <span class="k-fixed-tag k-fixed-before">${esc(t('fixed_before'))}</span><span class="k-fixed-tag k-fixed-after">${esc(t('fixed_after'))}</span></span></button>`;
-  let spots = '';
-  if (!s) spots = `<p class="k-ward-note">${esc(t('dr_no_route'))}</p>`;
-  else if (started && s.total) spots = `
-      <div class="k-drive-progress" role="img" aria-label="${esc(t('dr_progress', { n: s.fixed.length, m: s.total }))}"><span style="width:${Math.round(100 * s.fixed.length / s.total)}%"></span></div>
-      <div class="k-ward-sub">${esc(t('dr_progress', { n: s.fixed.length, m: s.total }))}</div>
-      ${s.fixed.length ? `<div class="k-drive-fixed">${s.fixed.map(fixedCard).join('')}</div>` : ''}
-      ${s.open.length ? `<div class="k-area-role" style="margin-top:.6rem">${esc(t('dr_still_open'))}</div>${s.open.map(pinBtn).join('')}` : ''}`;
-  else spots = s.open.length
-      ? `<div class="k-area-role" style="margin-top:.6rem">${esc(t('dr_spots', { n: s.open.length }))}</div>${s.open.map(pinBtn).join('')}`
-      : `<p class="k-ward-note">${esc(t('dr_spots_none'))}</p>`;
-  el.innerHTML = `
-    <button type="button" class="k-ward-close" data-drive-close aria-label="${esc(t('sheet_close'))}">✕</button>
-    <div class="k-area-role">🧹 ${esc(t('dr_kicker'))}</div>
-    <div class="k-ward-title">${esc(d.title)}</div>
-    <div class="k-ward-sub">${esc(driveWhen(d))}</div>
-    <div class="k-area-rows" style="margin-top:.6rem;display:grid;gap:.45rem">
-      ${row(t('dr_meet'), esc(d.meet_point))}
-      ${row(t('dr_end_at'), esc(d.end_point || ''))}
-      ${row(t('dr_organisers'), orgs)}
-      ${row(t('dr_provided'), esc(d.provided || ''))}
-      ${d.notes ? `<p class="k-ward-note" style="white-space:pre-line">${esc(d.notes)}</p>` : ''}
-    </div>
-    <div class="k-drive-actions">
-      ${started ? `<button type="button" class="k-ward-filter" data-action="report">${esc(t('dr_report'))}</button>`
-        : `<button type="button" class="k-ward-filter${going ? ' on' : ''}" data-drive-going ${going ? 'disabled' : ''}>${esc(t(going ? 'dr_going_on' : 'dr_going'))}</button>`}
-      <button type="button" class="k-ward-filter" data-drive-share>${esc(t('dr_share'))}</button>
-    </div>
-    ${d.going ? `<div class="k-ward-sub">${esc(t('dr_going_n', { n: d.going }))}</div>` : ''}
-    ${spots}`;
-  el.hidden = false;
-  mapReady.then(() => drawDrive(d, s));
-}
-
-async function driveGoing(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  const { data, error } = await sb.rpc('kasa_drive_going', { p_id: d.id });
-  if (error){ showToast(t('err_generic')); return; }
-  d.going = data.going;
-  try { const k = JSON.parse(localStorage.getItem('kasa_drive_going') || '[]'); k.push(d.id); localStorage.setItem('kasa_drive_going', JSON.stringify(k)); } catch (e) {}
-  renderDriveCard();
-  showToast(t('dr_going_thanks'));
-}
-
-function shareDrive(){
-  const d = (state.drives || []).find(x => x.id === state.driveOpen);
-  if (!d) return;
-  const url = `${PAGE_URL}?drive=${encodeURIComponent(d.id)}`;
-  const text = t('dr_share_text', { title: d.title, when: driveWhen(d), where: d.meet_point });
-  if (navigator.share) navigator.share({ title: d.title, text, url }).catch(() => {});
-  else copyText(`${text} ${url}`);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -6137,7 +6081,7 @@ async function locateOnOpen(){
     navigator.geolocation.getCurrentPosition(p => {
       const { latitude: lat, longitude: lng } = p.coords;
       const b = state.rules.bbox;
-      const other = window.KasaPlaces?.inWB(lat, lng);
+      const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
       if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
       askStillThere(lat, lng, p.coords.accuracy);
       startTips();
@@ -6239,7 +6183,6 @@ async function showJoin(){
   state.peopleCount = n;
   const el = document.getElementById('k-join');
   renderJoin();
-  if (currentDrive()) return;  // the drive banner takes its place
   el.hidden = false;
   document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }

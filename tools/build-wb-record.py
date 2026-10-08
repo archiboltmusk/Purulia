@@ -1,15 +1,11 @@
 #!/usr/bin/env python3
-"""Each West Bengal MP's work in Parliament and every MLA's and MP's election affidavit link, for the
-report map's leader profiles (kasa.js openRepProfile). Needs places/wb_leaders.json (tools/build-wb-leaders.py).
+"""Each West Bengal MP's work in Parliament, for the report map's leader profiles (kasa.js openRepProfile). Needs places/wb_leaders.json (tools/build-wb-leaders.py).
 
     python3 tools/build-wb-record.py
 
 - Lok Sabha work: PRS Legislative Research MP Track, 18th Lok Sabha (prsindia.org/mptrack). Each MP's page gives
   attendance, debates, questions and private member's bills, with the national and state averages and the period.
   Matched to seats by constituency name.
-- Affidavits: MyNeta (Association for Democratic Reforms), which copies each winner's sworn Election Commission
-  affidavit (Form 26). Only the link is kept; the figures stay on MyNeta. A link is kept only when both the seat
-  and the winner's name match wb_leaders.json, so a by-election winner never gets the old member's affidavit.
 Writes places/wb_record.json.
 """
 import difflib, html, json, re, subprocess, sys, time, unicodedata, urllib.parse
@@ -19,8 +15,6 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 PRS = 'https://prsindia.org'
 PRS_LIST = PRS + '/mptrack/18th-lok-sabha'
-MYNETA = 'https://www.myneta.info'
-ELECTIONS = {'ac': 'WestBengal2026', 'pc': 'LokSabha2024'}
 UA = 'Mozilla/5.0 (compatible; ParishkarBengal/1.0; +https://github.com/archiboltmusk/Purulia)'
 
 def get(url, tries=4):
@@ -92,26 +86,10 @@ def prs_record(path):
             'avg': {'national': {'attendance': att[1], 'debates': deb[1], 'questions': que[1], 'bills': pmb[1]},
                     'state': {'attendance': att[2], 'debates': deb[2], 'questions': que[2], 'bills': pmb[2]}}}
 
-def myneta_winners(election, wanted):
-    # The "winners analyzed" list, a page at a time; the plain winners page leaves some out.
-    # Lok Sabha lists all of India, so stop once every West Bengal seat in `wanted` is found.
-    out, page = {}, 0
-    while True:
-        # Page 0 = the plain winners page; then the analyzed list. Each leaves out some winners the other has.
-        h = get(f'{MYNETA}/{election}/index.php?action=show_winners&sort=default' if page == 0 else
-                f'{MYNETA}/{election}/index.php?action=summary&subAction=winner_analyzed&sort=candidate&page={page}')
-        rows = re.findall(r'candidate\.php\?candidate_id=(\d+)>([^<]+)</a>.*?<td>([^<]+)</td>', h, re.S)
-        new = [r for r in rows if r[0] not in {w['id'] for ws in out.values() for w in ws}]
-        if not new and page: return out
-        for cid, name, seat in new: out.setdefault(norm(seat), []).append({'id': cid, 'name': html.unescape(name).strip()})
-        if wanted <= set(out): return out
-        page += 1
-
 def main():
     leaders = json.loads((ROOT / 'places/wb_leaders.json').read_text())
     out = {'checked': date.today().isoformat(),
-           'sources': {'prs': PRS_LIST, 'myneta_ac': f'{MYNETA}/{ELECTIONS["ac"]}/', 'myneta_pc': f'{MYNETA}/{ELECTIONS["pc"]}/'},
-           'pc': {}, 'ac': {}, 'avg': None, 'missing': {'prs': [], 'myneta_ac': [], 'myneta_pc': []}}
+           'sources': {'prs': PRS_LIST}, 'pc': {}, 'avg': None, 'missing': {'prs': []}}
     by_seat = {norm(v['name']): n for n, v in leaders['pc'].items()}
     for path in prs_mps():
         r = prs_record(path)
@@ -120,18 +98,9 @@ def main():
         if r['avg']['national']['attendance'] is not None and not out['avg']:
             out['avg'] = {'national': r['avg']['national'], 'state': r['avg']['state'], 'from': r['from'], 'to': r['to']}
         out['pc'].setdefault(n, {})['prs'] = {k: r[k] for k in ('url', 'attendance', 'debates', 'questions', 'bills')}
-    for kind in ('ac', 'pc'):
-        election = ELECTIONS[kind]
-        winners = myneta_winners(election, {norm(v['name']) for v in leaders[kind].values() if not v.get('vacant')})
-        for n, v in leaders[kind].items():
-            if v.get('vacant'): continue
-            w = next((w for w in winners.get(seat_of(v['name'], {k: k for k in winners}), []) if same_person(w['name'], v.get('person', ''))), None)
-            if w: out[kind].setdefault(n, {})['affidavit'] = f'{MYNETA}/{election}/candidate.php?candidate_id={w["id"]}'
-            else: out['missing']['myneta_' + kind].append(v['name'])
     out['missing']['prs'] = [v['name'] for n, v in leaders['pc'].items() if not v.get('vacant') and 'prs' not in out['pc'].get(n, {})]
     (ROOT / 'places/wb_record.json').write_text(json.dumps(out, ensure_ascii=False, indent=1, sort_keys=True) + '\n')
-    print(f"PRS {len(leaders['pc']) - len(out['missing']['prs'])} MPs; affidavits {sum('affidavit' in v for v in out['ac'].values())} MLAs, "
-          f"{sum('affidavit' in v for v in out['pc'].values())} MPs; missing {json.dumps(out['missing'])}")
+    print(f"PRS {len(out['pc'])} MPs; missing {json.dumps(out['missing'])}")
 
 if __name__ == '__main__':
     main()

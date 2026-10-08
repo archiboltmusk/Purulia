@@ -163,9 +163,6 @@
   <div class="k-ward-card" id="k-ward-card" hidden></div>
   <div class="k-still" id="k-still" hidden role="dialog" aria-live="polite"></div>
 
-  <div class="k-join k-drive-banner" id="k-drive-banner" hidden>
-    <button type="button" class="k-join-text" id="k-drive-open">🧹 <span></span> →</button>
-  </div>
   <div class="k-join" id="k-join" hidden>
     <button type="button" class="k-join-text" id="k-join-text" data-action="report"></button>
     <button type="button" class="k-join-x" id="k-join-x" aria-label="Close">✕</button>
@@ -248,6 +245,7 @@
       <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
       <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
+      <a href="works.html" class="k-drawer-link" data-i18n="nav_works">Public works warranty</a>
       <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
       <a href="pandals.html" class="k-drawer-link" data-i18n="nav_pandal">Swachh Pandal</a>
       <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
@@ -660,6 +658,52 @@
     <div class="k-ev-status" id="k-pd-loc"></div>
     <button type="button" class="k-btn k-btn-primary" id="k-pd-submit" disabled data-i18n="pd_submit">🪔 Add this pandal</button>
     <div class="k-privacy" data-i18n="pd_note">Only the names you type are public, never your account.</div>
+  </div>
+</div>
+
+<!-- Record a public work's site board (defect liability period) -->
+<div class="k-modal" id="k-wk-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-wk-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-wk-title" data-i18n="wk_title">Record a public work's board</h3>
+    <p class="k-modal-sub" data-i18n="wk_sub">Stand at the board put up at a road, drain or building site. Take a photo of it and copy what it says. A moderator checks the photo before it goes on the public works page.</p>
+    <div class="k-ev-step">
+      <div class="k-ev-num">1</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="wk_photo">Photo of the board</div>
+        <div class="k-ev-status" id="k-wk-photo-status" data-i18n="wk_photo_hint">Every line on the board must be readable. No faces, please.</div>
+        <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-wk-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
+        <div class="k-photo-preview" id="k-wk-preview"></div>
+        <div class="k-ev-status" id="k-wk-loc"></div>
+      </div>
+    </div>
+    <div class="k-ev-step">
+      <div class="k-ev-num">2</div>
+      <div class="k-ev-body">
+        <div class="k-ev-label" data-i18n="wk_copy">Copy what the board says</div>
+        <input type="text" id="k-wk-name" class="k-input" maxlength="200" autocomplete="off" data-i18n-placeholder="wk_name_ph" placeholder="Name of the work, e.g. Construction of drain from … to …">
+        <input type="text" id="k-wk-agency" class="k-input" maxlength="120" autocomplete="off" data-i18n-placeholder="wk_agency_ph" placeholder="Office or body, e.g. Municipality, PWD, Gram Panchayat">
+        <input type="text" id="k-wk-contractor" class="k-input" maxlength="120" autocomplete="off" data-i18n-placeholder="wk_contractor_ph" placeholder="Contractor, as written (optional)">
+        <input type="text" id="k-wk-order" class="k-input" maxlength="80" autocomplete="off" data-i18n-placeholder="wk_order_ph" placeholder="Work order or tender number (optional)">
+        <input type="text" id="k-wk-cost" class="k-input" maxlength="60" autocomplete="off" data-i18n-placeholder="wk_cost_ph" placeholder="Cost, as written (optional)">
+        <label for="k-wk-done" data-i18n="wk_done_on">Date of completion (if the work is finished)</label>
+        <input type="date" id="k-wk-done" class="k-input">
+        <label for="k-wk-dlp" data-i18n="wk_dlp">Defect liability period</label>
+        <select id="k-wk-dlp" class="k-input">
+          <option value="" data-i18n="wk_dlp_none">Not on the board</option>
+          <option value="0.25" data-i18n="wk_dlp_3m">3 months</option>
+          <option value="0.5" data-i18n="wk_dlp_6m">6 months</option>
+          <option value="1" data-i18n="wk_dlp_1">1 year</option>
+          <option value="2" data-i18n="wk_dlp_2">2 years</option>
+          <option value="3" data-i18n="wk_dlp_3">3 years</option>
+          <option value="5" data-i18n="wk_dlp_5">5 years</option>
+        </select>
+      </div>
+    </div>
+    <button type="button" class="k-btn k-btn-primary" id="k-wk-submit" disabled data-i18n="wk_submit">Send for checking</button>
+    <div class="k-privacy" data-i18n="wk_note">Copy only what is written. Your account is never shown.</div>
   </div>
 </div>
 

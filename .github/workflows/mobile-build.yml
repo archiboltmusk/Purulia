@@ -1,0 +1,127 @@
+name: Mobile app builds
+
+# Builds an installable Android APK and an unsigned iOS IPA from mobile/.
+# Pull requests: files are kept as workflow artifacts. main / manual run: also
+# published on a GitHub Release (tag app-build-<run number>).
+on:
+  push:
+    branches: [main]
+    paths: ['mobile/**', '.github/workflows/mobile-build.yml']
+  pull_request:
+    paths: ['mobile/**', '.github/workflows/mobile-build.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: mobile-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: gradle/actions/setup-gradle@v4
+      - run: npm ci
+      - name: Generate native project
+        run: npx expo prebuild --platform android --no-install --clean
+      # The release build is signed with the generated debug key: installable by
+      # sideloading, not accepted by Play (store builds go through EAS, see README).
+      - name: Build release APK
+        working-directory: mobile/android
+        env:
+          GRADLE_OPTS: -Xmx4g -Dorg.gradle.jvmargs=-Xmx4g
+        run: ./gradlew assembleRelease --no-daemon -PreactNativeArchitectures=arm64-v8a,armeabi-v7a
+      - run: cp android/app/build/outputs/apk/release/app-release.apk parishkar.apk
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parishkar-apk
+          path: mobile/parishkar.apk
+          if-no-files-found: error
+
+  ios:
+    runs-on: macos-26
+    timeout-minutes: 90
+    defaults:
+      run:
+        working-directory: mobile
+    steps:
+      - uses: actions/checkout@v4
+      - uses: maxim-lobanov/setup-xcode@v1
+        with:
+          xcode-version: latest-stable
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: mobile/package-lock.json
+      - run: npm ci
+      # expo-modules-jsi 57.0.5+ marks RuntimeScheduler's constructors for Xcode 27,
+      # which hosted runners don't have yet; Xcode 26 rejects that annotation.
+      # Dropping it restores the 57.0.4 header. Remove once runners ship Xcode 27.
+      - name: Make ExpoModulesJSI build on Xcode 26
+        run: |
+          f=node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
+          sed -i '' 's/SWIFT_RETURNS_RETAINED RuntimeScheduler(/RuntimeScheduler(/' "$f"
+          ! grep -n 'SWIFT_RETURNS_RETAINED RuntimeScheduler(' "$f"
+      - name: Generate native project
+        run: npx expo prebuild --platform ios --clean
+      # No Apple signing: the .ipa only installs after re-signing (an Apple
+      # developer account via EAS, or a sideloading tool with your Apple ID).
+      - name: Build unsigned IPA
+        run: |
+          if ! xcodebuild -workspace ios/Parishkar.xcworkspace -scheme Parishkar -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build > xcodebuild.log 2>&1; then
+            grep -nE 'error:|error |fatal|\*\* BUILD' xcodebuild.log | grep -v Werror | head -80
+            exit 1
+          fi
+          mkdir -p Payload
+          cp -R build/Build/Products/Release-iphoneos/Parishkar.app Payload/
+          zip -qr parishkar-unsigned.ipa Payload
+      - uses: actions/upload-artifact@v4
+        if: failure()
+        with:
+          name: xcodebuild-log
+          path: mobile/xcodebuild.log
+      - uses: actions/upload-artifact@v4
+        with:
+          name: parishkar-ipa
+          path: mobile/parishkar-unsigned.ipa
+          if-no-files-found: error
+
+  release:
+    if: github.event_name != 'pull_request'
+    needs: [android, ios]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: app-build-${{ github.run_number }}
+        run: |
+          gh release create "$TAG" out/parishkar.apk out/parishkar-unsigned.ipa \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Parishkar app build ${{ github.run_number }}" \
+            --notes "Android: download parishkar.apk on the phone and open it (allow installs from this source). iOS: parishkar-unsigned.ipa is not signed and will not install as-is; it needs re-signing with an Apple ID (see mobile/README.md). Built from ${GITHUB_SHA::7}."

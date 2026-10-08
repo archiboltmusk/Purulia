@@ -171,7 +171,7 @@ check('anon cannot write through the public view',
 cols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_reports'")]
 check('public view exposes no user ids / hashes / IPs', not {'user_id', 'reporter_hash', 'client_id', 'ip_hash'} & set(cols), cols)
 PUBLIC_REPORT_COLUMNS = {'id', 'created_at', 'lat', 'lng', 'ward_no', 'category', 'severity', 'status', 'description', 'landmark', 'photo_url', 'upvotes', 'seen_on_site', 'flags', 'moderation_status', 'is_duplicate', 'parent_report_id', 'recurrence_count', 'rejected_claims', 'resolved_at', 'resolved_photo_url', 'resolution_method', 'sla_days', 'gps_verified', 'claim_id', 'claim_photo_url', 'claim_created_at', 'claim_verify_count', 'claim_dispute_count', 'claim_quorum_reached_at', 'claim_finalize_after', 'claim_distance_m', 'rating_count', 'onsite_rating_count', 'authenticity_avg', 'severity_avg', 'neighbour_status', 'reply_count', 'claim_needs_review', 'claim_reviewed_at',
-                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type', 'local_body', 'place', 'place_ward'}
+                         'area_kind', 'block_name', 'verify_needed', 'boundary_type', 'waste_type', 'local_body', 'place', 'place_ward', 'district', 'state'}
 check('public view has exactly the reviewed columns (update kasa.js PUBLIC_REPORT_COLUMNS too)', set(cols) == PUBLIC_REPORT_COLUMNS,
       sorted(set(cols) ^ PUBLIC_REPORT_COLUMNS))
 open_grants = admin_sql("select table_name, grantee, privilege_type from information_schema.role_table_grants "
@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_submit_rep_reply', 'kasa_rep_replies'}, anon_fns)
+      set(anon_fns) <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -241,8 +241,14 @@ check('report stores GPS-verified flag', row and row['gps_verified'] is True, ro
 ev = q("select kind, actor_tag from public.kasa_public_events where report_id::text = %s", (str(rid),))
 check('filing is recorded in the public evidence trail', ev and ev[0][0] == 'reported' and len(ev[0][1]) == 6, ev)
 
-check('reports outside West Bengal are refused',
-      err(report, alice, where=(28.61, 77.21)) == 'KASA_OUTSIDE_AREA')
+check('reports outside India are refused',
+      err(report, alice, where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')  # Kathmandu
+dres, _ = report(user(), where=(28.61, 77.21))  # New Delhi
+drow = admin_sql("select place, place_ward, district, state, area_kind, local_body from public.reports where id::text = %s", (str(dres['id']),))
+check('a report elsewhere in India is filed under its district and state',
+      drow and tuple(drow[0]) == ('in:delhi:new-delhi', None, 'New Delhi', 'Delhi', 'india', None), drow)
+check('...in the places view, with its district and state', view_row(dres['id']) is None
+      and q('select district, state from public.kasa_public_place_reports where id::text = %s', (str(dres['id']),)) == [('New Delhi', 'Delhi')])
 kol = user()
 kres, _ = report(kol, where=(22.5646, 88.3510))  # Esplanade
 krow = admin_sql("select place, place_ward, ward_no, area_kind, local_body from public.reports where id::text = %s", (str(kres['id']),))
@@ -453,7 +459,7 @@ check('byte-identical photo used anywhere else is refused', err(claim, official,
 retry_user = user()
 first_try = upload(retry_user, 'reports'); photo_check(first_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 check('a refused attempt (outside town) leaves the photo unused...',
-      err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=28.61, p_lng=77.21,
+      err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=27.70, p_lng=85.32,
           p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=first_try) == 'KASA_OUTSIDE_AREA')
 second_try = upload(retry_user, 'reports'); photo_check(second_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 retried = rpc('kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=offset(7800)[0], p_lng=offset(7800)[1],
@@ -537,7 +543,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_submit_rep_reply', 'kasa_rep_replies'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1095,7 +1101,7 @@ set_rules(BASELINE)
 
 # ─────────────────────────────── The whole district ───────────────────────────────
 set_rules({'rural_verify_quorum': '2', 'rural_min_distinct_networks': '1', 'rural_claim_expiry_days': '30'})
-check('a report outside Purulia district is refused', err(report, user(), where=(24.0, 86.0)) == 'KASA_OUTSIDE_AREA')
+check('a report outside India is refused', err(report, user(), where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')
 town_user = user()
 town_spot = offset(-150, 150)
 town_r = rpc('kasa_create_report', uid=town_user, p_category='streetlight', p_severity='minor', p_lat=town_spot[0],
@@ -1443,7 +1449,7 @@ check('every checklist question is required',
           p_boundary_ok=True, p_building_condition='good', p_photo_path=upload(user(), 'reports')) == 'KASA_INCOMPLETE_AUDIT')
 check('building condition must be one of the three options',
       err(school_audit, user(), where=offset(14200, 15000), condition='great') == 'KASA_BAD_CONDITION')
-check('a school audit outside West Bengal is refused', err(school_audit, user(), where=(22.0, 85.0)) == 'KASA_OUTSIDE_AREA')
+check('a school audit outside India is refused', err(school_audit, user(), where=(27.70, 85.32)) == 'KASA_OUTSIDE_AREA')
 
 rl_uid = user()
 for i in range(5):
@@ -2068,6 +2074,16 @@ for i, (kind, cat) in enumerate([('open_defecation', 'toilet'), ('septic_overflo
 check('each Swachhata-app problem type sets its category and is kept',
       all(admin_sql('select category, waste_type from public.reports where id = %s', (rid,))[0] == (cat, kind)
           for kind, (cat, rid) in pt.items()))
+mt, mt_user = {}, user()
+for i, (kind, cat) in enumerate([('no_drinking_water', 'water'), ('water_body_filling', 'illegal_other'),
+                                 ('illegal_construction', 'illegal_construction')]):
+    mt[kind] = (cat, rpc('kasa_create_report', uid=mt_user, p_category='garbage' if i % 2 else None, p_severity='minor',
+         p_lat=offset(-3300 - i * 100, 3700)[0], p_lng=offset(-3300 - i * 100, 3700)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(mt_user, 'reports'), p_client_id=None,
+         p_waste_type=kind)['id'])
+check('station drinking water, pond filling and building work with no plan board each set their category and are kept',
+      all(admin_sql('select category, waste_type from public.reports where id = %s', (rid,))[0] == (cat, kind)
+          for kind, (cat, rid) in mt.items()))
 admin_sql("insert into kasa_private.office_letter_log (office, week, sent_at, report_count) values ('dm', '2026-09-28', now(), 2) on conflict do nothing")
 ol = rpc('kasa_office_letters_public')
 check('anyone can see how many letters each office got, with no email addresses',
@@ -2077,6 +2093,9 @@ backlog = admin_sql('select kasa_private.queue_backlog()')[0][0]
 check('a report held for review over 72 hours shows in the moderators\' daily nudge, and nobody else can ask for it',
       backlog.get('Reports held for review', 0) >= 1 and err(rpc, 'kasa_queue_alert_claim') is not None)
 admin_sql("update public.reports set moderation_status = 'approved' where id = %s", (hc['id'],))
+fdefs = admin_sql("select string_agg(pg_get_functiondef(p.oid), ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'kasa_private' and p.proname in ('queue_backlog', 'photo_in_use')")[0][0]
+check('later queues keep every earlier one: snake photos stay kept and snake rescuers stay in the daily nudge',
+      all(t in fdefs for t in ('snake_sightings', 'snake_rescuers', 'feeding_spots', 'public_works')))
 rj = rpc('kasa_create_report', uid=wt_user, p_category=None, p_severity='minor',
          p_lat=offset(-3300, 3400)[0], p_lng=offset(-3300, 3400)[1], p_accuracy=10.0, p_ward_no=5,
          p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
@@ -2275,9 +2294,12 @@ check('a town map must be a FeatureCollection', err(send_town, p_geojson={'type'
 check('every ward needs a number',
       err(send_town, p_geojson={'type': 'FeatureCollection', 'features': [dict(ward_fc(*SONAMUKHI)['features'][0], properties={})]}) == 'KASA_BAD_MAP')
 check('a ward number can appear only once', err(send_town, p_geojson=ward_fc(SONAMUKHI[0], SONAMUKHI[0])) == 'KASA_BAD_MAP')
-check('points outside West Bengal are refused', err(send_town, p_geojson=ward_fc((1, (77.1, 28.5, 77.2, 28.6)))) == 'KASA_BAD_MAP')
+check('points outside India are refused', err(send_town, p_geojson=ward_fc((1, (100.5, 13.7, 100.6, 13.8)))) == 'KASA_BAD_MAP')
 check('who is in charge needs a source', err(send_town, p_incharge_source=None) == 'KASA_BAD_FORM')
-check('the district must be a West Bengal district', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
+check('the district must be one on the map', err(send_town, p_district='Delhi') == 'KASA_BAD_FORM')
+check('a town anywhere in India can be sent, its district named with the state',
+      send_town(ip='10.71.0.2', p_town='Deoria', p_district='Deoria, Uttar Pradesh', p_body='Deoria Nagar Palika Parishad',
+                p_incharge=None, p_incharge_source=None, p_geojson=ward_fc((1, (83.77, 26.49, 83.79, 26.51)))) == {'ok': True, 'status': 'pending'})
 sub1 = send_town()
 check('anyone can send a town map; it waits for a moderator', sub1 == {'ok': True, 'status': 'pending'}, sub1)
 check('the public cannot read the waiting maps', refused(err(q, 'select * from kasa_private.place_submissions')))
@@ -2593,6 +2615,57 @@ admin_sql("insert into storage.objects (bucket_id, name, metadata) values ('kasa
 sa = admin_sql("select kasa_private.storage_alert()")[0][0]
 check('photos past the R2 mark raise the storage alert', float(sa['photos_mb']) > 700 and sa['threshold_mb'] == 700, sa)
 admin_sql("update storage.objects set metadata = '{}' where name = 'big/one.jpg'")
+
+# ── Public works warranty (defect liability period) ─────────────────────────
+wk_spot = offset(-6200, -2400)
+def add_work(uid, where=wk_spot, acc=10.0, path=None, **kw):
+    args = dict(p_work_name='Construction of drain from Station Road to Hatia', p_agency='Purulia Municipality',
+                p_contractor='M/s Example Builders', p_work_order='WO 12/2025', p_cost='Rs 4,50,000',
+                p_completed_on='2025-03-31', p_dlp_years=3, p_lat=where[0], p_lng=where[1], p_accuracy=acc,
+                p_photo_path=path or upload(uid, 'reports'))
+    args.update(kw)
+    return rpc('kasa_add_public_work', uid=uid, **args)
+wk_u = user()
+check('the public cannot record a works board without signing in',
+      refused(err(rpc, 'kasa_add_public_work', p_work_name='Drain work here', p_agency='PWD', p_contractor=None, p_work_order=None,
+                  p_cost=None, p_completed_on=None, p_dlp_years=None, p_lat=wk_spot[0], p_lng=wk_spot[1], p_accuracy=10.0, p_photo_path='reports/x.jpg')))
+check('a weak GPS fix cannot record a works board', err(add_work, wk_u, acc=500.0) == 'KASA_GPS_WEAK')
+check('a works board needs the name of the work', err(add_work, wk_u, p_work_name='  ') == 'KASA_BAD_FORM')
+check('a works board needs the agency', err(add_work, wk_u, p_agency='') == 'KASA_BAD_FORM')
+check('a completion date in the future is refused', err(add_work, wk_u, p_completed_on='2099-01-01') == 'KASA_BAD_DATE')
+check('a defect liability period over ten years is refused', err(add_work, wk_u, p_dlp_years=40) == 'KASA_BAD_FORM')
+check("a works board needs the sender's own photo", err(add_work, wk_u, path=upload(user(), 'reports')) == 'KASA_PHOTO_NOT_YOURS')
+w1 = add_work(wk_u, p_completed_on=str((datetime.now() - timedelta(days=200)).date()))
+check('someone at the board can record it; it waits for a moderator', w1['status'] == 'pending', w1)
+check('a waiting work is not public', not any(x['id'] == w1['id'] for x in rpc('kasa_public_works')))
+used_wk = admin_sql('select photo_path from kasa_private.public_works where id = %s', (w1['id'],))[0][0]
+check("a board photo cannot be reused", err(add_work, wk_u, path=used_wk) == 'KASA_PHOTO_REUSED')
+w2 = add_work(user(), where=offset(-6800, -2400), p_completed_on=None, p_dlp_years=None, p_contractor=None)
+w3 = add_work(user(), where=offset(-7400, -2400), p_completed_on='2015-01-15', p_dlp_years=1)
+check('non-admins cannot see the works queue', err(rpc, 'kasa_admin_works_queue', uid=user()) == 'KASA_NOT_ADMIN')
+wq = [x for x in rpc('kasa_admin_works_queue', uid=mod) if x['id'] == w1['id']]
+check('moderators see the board photo without the account', wq and wq[0]['photo_url'] and 'user_id' not in wq[0], wq)
+check('non-admins cannot approve a work', err(rpc, 'kasa_admin_review_work', uid=user(), p_id=w1['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+for w in (w1, w2, w3):
+    rpc('kasa_admin_review_work', uid=mod, p_id=w['id'], p_action='approve')
+pub = {x['id']: x for x in rpc('kasa_public_works')}
+check('an approved work is public with its board photo and fields',
+      w1['id'] in pub and pub[w1['id']]['photo_url'] and pub[w1['id']]['contractor'] == 'M/s Example Builders'
+      and pub[w1['id']]['under_warranty'] is True and pub[w1['id']]['warranty_until'], pub.get(w1['id']))
+check('no warranty date without both completion date and period',
+      pub[w2['id']]['warranty_until'] is None and pub[w2['id']]['under_warranty'] is False, pub.get(w2['id']))
+check('a warranty that ran out is shown as over', pub[w3['id']]['warranty_until'] == '2016-01-15' and pub[w3['id']]['under_warranty'] is False, pub.get(w3['id']))
+wr, _ = report(user(), where=offset(20, 0, base=wk_spot))
+ww = rpc('kasa_report_warranty', p_report_id=str(wr['id']))
+check('a report next to a work under warranty shows it', ww and ww['id'] == w1['id'] and ww['distance_m'] <= 50, ww)
+far, _ = report(user(), where=offset(300, 0, base=wk_spot))
+check('a report far from any work shows no warranty', rpc('kasa_report_warranty', p_report_id=str(far['id'])) is None)
+old, _ = report(user(), where=offset(10, 0, base=offset(-7400, -2400)))
+check('a report next to a work whose warranty ran out shows none', rpc('kasa_report_warranty', p_report_id=str(old['id'])) is None)
+check('removing a work needs a reason', err(rpc, 'kasa_admin_review_work', uid=mod, p_id=w1['id'], p_action='remove') == 'KASA_REASON_NEEDED')
+rpc('kasa_admin_review_work', uid=mod, p_id=w1['id'], p_action='remove', p_note='Photo shows a different board')
+check('a removed work leaves the list and the report', not any(x['id'] == w1['id'] for x in rpc('kasa_public_works'))
+      and rpc('kasa_report_warranty', p_report_id=str(wr['id'])) is None)
 
 # Help assistant daily limit (kasa-assistant edge function, service key only).
 as_u = user()

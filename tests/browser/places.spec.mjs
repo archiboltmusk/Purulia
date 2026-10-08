@@ -117,6 +117,22 @@ test('Put your town on the map: upload a ward GeoJSON and send it for review', a
   expect(sent.p_geojson.features.map(f => f.properties.ward).sort()).toEqual([1, 2]);
 });
 
+test('a town anywhere in India can send its ward map, its district named with the state', async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
+  await page.goto('add-town.html?district=' + encodeURIComponent('Deoria, Uttar Pradesh') + '&town=Deoria');
+  await expect(page.locator('#at-district')).toHaveValue('Deoria, Uttar Pradesh');
+  await expect(page.locator('#at-town')).toHaveValue('Deoria');
+  await page.fill('#at-body', 'Deoria Nagar Palika Parishad');
+  const fc = { type: 'FeatureCollection', features: [
+    { type: 'Feature', properties: { ward: 1 }, geometry: { type: 'Polygon', coordinates: [[[83.77, 26.49], [83.79, 26.49], [83.79, 26.51], [83.77, 26.49]]] } }] };
+  await page.setInputFiles('#at-file', { name: 'wards.geojson', mimeType: 'application/geo+json', buffer: Buffer.from(JSON.stringify(fc)) });
+  await expect(page.locator('#at-wards button')).toHaveCount(1);
+  await page.fill('#at-source', 'https://example.org/deoria-wards');
+  await page.click('#at-send');
+  await expect(page.locator('#at-msg')).toHaveClass(/ok/);
+  expect(calls.find(c => c.name === 'kasa_submit_place').body).toMatchObject({ p_town: 'Deoria', p_district: 'Deoria, Uttar Pradesh' });
+});
+
 test('Put your town on the map: draw a ward on the map', async ({ page }) => {
   const calls = await stubBackend(page, { rpc: { kasa_submit_place: { ok: true, status: 'pending' } } });
   await page.goto('add-town.html');
@@ -379,7 +395,7 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await expect(card.locator('.k-ward-sub')).toContainText('Assembly seat · Gorakhpur, Uttar Pradesh');
   await expect(card.locator('.k-area-row', { hasText: 'MLA · Gorakhpur Urban' })).toContainText('Yogi Adityanath');
   await expect(card.locator('.k-area-row', { hasText: 'MP · Gorakhpur' })).toContainText('Ravi Kishan');
-  await expect(card).toContainText('Reports can be filed in West Bengal for now.');
+  await expect(card.locator('a', { hasText: 'Add or draw it' })).toHaveAttribute('href', /district=Gorakhpur%2C\+Uttar\+Pradesh/);
   await card.locator('[data-area-level="state"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Uttar Pradesh');
   // Zoomed into the town: its ward map (SBM GIS) loads and a tap names the ward.
@@ -392,11 +408,34 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
   await card.locator('[data-area-level="town"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Gorakhpur (M.Corp)');
   await expect(card).toContainText('80 wards on the map');
+  await expect(card.locator('a', { hasText: 'Wrong ward border' })).toHaveAttribute('href', /town=Gorakhpur/);
   // A union territory with no assembly: its one MP.
   await page.evaluate(() => { mainMap.jumpTo({ center: [76.78, 30.73], zoom: 10 }); return openArea(30.73, 76.78); });
   await expect(card.locator('.k-ward-sub')).toContainText('Chandigarh');
   await expect(card).toContainText('No legislative assembly');
   await expect(card.locator('.k-area-row', { hasText: 'MP · Chandigarh' })).toContainText('Manish Tewari');
+});
+
+test.describe('standing in Gorakhpur, Uttar Pradesh', () => {
+  test.use({ geolocation: { latitude: 26.7738, longitude: 83.3858, accuracy: 10 } });
+
+  test('a report anywhere in India files under its district and state', async ({ page, backend }) => {
+    await page.goto('kasa.html');
+    await page.locator('.k-map-report-btn').click();
+    await page.locator('#k-cam-shutter').click();
+    await page.locator('#k-cam-use').click();
+    await expect(page.locator('#k-place')).toContainText('Filed under Gorakhpur district, Uttar Pradesh.');
+    await expect(page.locator('#k-ward-field')).toBeHidden();
+    await expect(page.locator('#k-submit')).toBeEnabled();
+    await page.locator('#k-submit').click();   // the first tap only arms the slider
+    const box = await page.locator('#k-submit').boundingBox();
+    await page.mouse.move(box.x + 20, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+    await page.mouse.move(box.x + box.width - 4, box.y + box.height / 2, { steps: 5 });
+    await page.mouse.up();
+    await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body?.p_lat).toBeCloseTo(26.7738, 3);
+  });
 });
 
 test('a gram panchayat card names its BDO with the office phone from the district website', async ({ page, backend }) => {
@@ -422,12 +461,16 @@ test('the MP named on an area card opens their profile with the MP fund works, a
   await expect(sheet).toHaveClass(/open/);
   await expect(sheet).toContainText('Assembly seats in this constituency');
   await expect(sheet.locator('#k-rep-works')).toContainText('Works finished');
+  const aff = sheet.locator('#k-rep-aff');
+  await expect(aff).toContainText('Sworn affidavit (ADR/MyNeta)');
+  await expect(aff).toContainText('Cases are pending, not convictions.');
+  await expect(aff.locator('a', { hasText: 'MyNeta' })).toHaveAttribute('href', /myneta\.info\/LokSabha2024\/candidate\.php\?candidate_id=\d+/);
   await sheet.locator('[data-rep-map]').click();
   await expect(sheet).not.toHaveClass(/open/);
   expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
 });
 
-test("an MP's profile shows their Lok Sabha work and affidavit, and takes a reply only with a link", async ({ page }) => {
+test("an MP's profile shows their Lok Sabha work, and takes a reply only with a link", async ({ page }) => {
   const calls = await stubBackend(page, { rpc: {
     kasa_submit_rep_reply: { ok: true, status: 'pending' },
     kasa_rep_replies: [{ reply: 'Work on the Bishnupur road starts after the monsoon.', said_on: '2026-09-20',
@@ -438,7 +481,6 @@ test("an MP's profile shows their Lok Sabha work and affidavit, and takes a repl
   await expect(sheet).toHaveClass(/open/);
   await expect(sheet).toContainText('Work in the Lok Sabha');
   await expect(sheet.locator('a', { hasText: 'PRS Legislative Research' })).toHaveAttribute('href', /prsindia\.org\/mptrack\/18th-lok-sabha\//);
-  await expect(sheet.locator('a', { hasText: 'Election affidavit' })).toHaveAttribute('href', /myneta\.info\/LokSabha2024\/candidate\.php/);
   await expect(sheet.locator('#k-rep-replies')).toContainText('Work on the Bishnupur road starts after the monsoon.');
   await sheet.locator('.k-rep-reply-add summary').click();
   await sheet.locator('#k-rr-text').fill('We have written to the PWD about the road.');
@@ -700,6 +742,24 @@ test('snake rescuers and sightings follow the chosen district, with call and Wha
   await expect(page.locator('#sn-res a[href="https://wa.me/919830012345"]')).toBeVisible();
   await expect(page.locator('#sn-seen')).toContainText('in the cowshed');
   await expect(page.locator('#sn-t-seen')).toHaveText('1');
+});
+
+test('public works follow the chosen district and fill the RTI request', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_public_works*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { id: 7, work_name: 'Construction of drain at Ward 4', agency: 'Bishnupur Municipality', contractor: 'M/s Example', work_order: 'WO 12/2025',
+        cost: null, completed_on: '2025-03-31', dlp_years: 3, warranty_until: '2028-03-31', under_warranty: true, lat: 23.07, lng: 87.32,
+        photo_url: 'https://example.org/b.jpg', place: 'bishnupur', ward_no: 4, district: 'bankura' },
+      { id: 8, work_name: 'Purulia road work', agency: 'PWD', place: null, lat: 23.33, lng: 86.36, photo_url: 'https://example.org/c.jpg',
+        dlp_years: null, warranty_until: null, under_warranty: false }]) }));
+  await page.goto('works.html?d=bankura');
+  await expect(page.locator('#wk-list')).toContainText('Construction of drain at Ward 4');
+  await expect(page.locator('#wk-list')).toContainText('Contractor (as on the board): M/s Example');
+  await expect(page.locator('#wk-list')).not.toContainText('Purulia road work');
+  await expect(page.locator('#wk-t-live')).toHaveText('1');
+  await page.locator('[data-rti="7"]').click();
+  await page.locator('#wk-f-me').fill('Asha');
+  await expect(page.locator('#wk-rti')).toHaveValue(/Bishnupur Municipality[\s\S]*section 6\(1\)[\s\S]*WO 12\/2025[\s\S]*completion certificate[\s\S]*Asha/);
 });
 
 test('municipality, promises and public demands follow the chosen district', async ({ page }) => {

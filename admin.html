@@ -227,6 +227,12 @@ if ('serviceWorker' in navigator) {
   </section>
 
   <section class="ad-section">
+    <h2 class="ad-section-title">Public works boards</h2>
+    <p class="ad-note">Site boards residents photographed standing at a public work (works.html). Open the photo and approve only if it shows a works board and every field matches what is written on it; reject anything else. The contractor's name must be exactly as on the board.</p>
+    <div id="adWorks"><div class="ad-loading">Loading…</div></div>
+  </section>
+
+  <section class="ad-section">
     <h2 class="ad-section-title">School report cards waiting</h2>
     <p class="ad-note">Residents' pictures of a school's UDISE+ report card with the figures they copied. Open the picture and approve only if every figure matches it; approving makes them the school's official record on the schools page.</p>
     <div id="adReportCards"><div class="ad-loading">Loading…</div></div>
@@ -284,32 +290,6 @@ if ('serviceWorker' in navigator) {
     <h2 class="ad-section-title">Website bugs</h2>
     <p class="ad-note">Sent with the "Report a bug" button on every page. These are problems with the website itself, not civic reports. Each one carries the page, browser and device, and the page's recent error messages. Mark it fixed once the fix is live, or dismiss it.</p>
     <div id="adBugs"><div class="ad-loading">Loading…</div></div>
-  </section>
-
-  <section class="ad-section">
-    <h2 class="ad-section-title">Cleanup drives</h2>
-    <p class="ad-note">A drive shows as one banner on the report map from when you save it until a week after it starts. Its card lists the unresolved reports within 80 m of the route, then the ones fixed since the start, with before/after photos. Use only details the organisers published. Draw the route: tap the start, then each turn, then the end; "Follow roads" snaps each leg to walkable roads.</p>
-    <form class="ad-form" id="adDriveForm">
-      <input class="ad-input" id="adDriveTitle" placeholder="Title (e.g. Gandhi Jayanti cleanup drive)" required maxlength="140">
-      <label class="ad-note" style="margin:0">Start (India time) <input class="ad-input" type="datetime-local" id="adDriveStart" required></label>
-      <input class="ad-input" id="adDriveMeet" placeholder="Meeting point (e.g. SBSTC Bus Stand gate, Purulia)" required maxlength="200">
-      <input class="ad-input" id="adDriveEnd" placeholder="End point" maxlength="200">
-      <textarea class="ad-input" id="adDriveOrgs" placeholder="Organisers, one per line: Name | https://link (link optional)" style="min-height:70px"></textarea>
-      <input class="ad-input" id="adDriveProvided" placeholder="Provided / what to bring (e.g. Gloves and masks provided)" maxlength="300">
-      <textarea class="ad-input" id="adDriveNotes" placeholder="Notes (optional)" maxlength="1000" style="min-height:70px"></textarea>
-      <div id="adDriveMap" style="height:340px;border-radius:6px;border:1px solid var(--border);"></div>
-      <div style="display:flex;gap:.5rem;flex-wrap:wrap;align-items:center;">
-        <label class="ad-note" style="margin:0"><input type="checkbox" id="adDriveSnap" checked> Follow roads</label>
-        <button class="ad-ok" type="button" id="adDriveUndo">Undo point</button>
-        <button class="ad-bad" type="button" id="adDriveClear">Clear route</button>
-        <span class="ad-note" style="margin:0" id="adDriveLen"></span>
-      </div>
-      <label class="ad-note" style="margin:0"><input type="checkbox" id="adDriveHidden"> Hidden (not on the map)</label>
-      <button class="ad-btn" type="submit" id="adDriveSave">Save drive</button>
-      <button class="ad-ok" type="button" id="adDriveNew" hidden>Cancel editing (new drive)</button>
-      <div class="ad-error" id="adDriveMsg"></div>
-    </form>
-    <div id="adDrives" style="margin-top:1rem"><div class="ad-loading">Loading…</div></div>
   </section>
 
   <section class="ad-section">

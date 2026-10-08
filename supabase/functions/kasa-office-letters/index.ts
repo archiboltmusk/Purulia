@@ -32,7 +32,9 @@ const KIND: Record<string, string> = { dry_tap: 'tap fitted but no water', pump_
   stagnant_water: 'stagnant water', septic_overflow: 'septic tank overflowing', sludge_dumped: 'faecal sludge dumped in the open',
   open_manhole: 'open manhole or drain', manhole_entry: 'worker sent into a sewer without safety gear',
   water_leak: 'water pipe leaking', pothole: 'pothole', light_out: 'streetlight not working',
-  work_missing: 'MGNREGA work not found at the site', no_signboard: 'no citizen information board at the MGNREGA site' };
+  work_missing: 'MGNREGA work not found at the site', no_signboard: 'no citizen information board at the MGNREGA site',
+  no_drinking_water: 'no drinking water at a railway station or bus stand', water_body_filling: 'pond or water body being filled',
+  illegal_construction: 'building work with no sanctioned plan on display' };
 
 const reply = (status: number, body: unknown) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } });

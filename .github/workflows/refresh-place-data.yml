@@ -3,7 +3,7 @@ name: Refresh place data
 # Monthly: re-read every district's sourced facts (Wikidata/Census 2011, Wikipedia,
 # NFHS-5, Jal Jeevan Mission) into places/wb_district_facts.json, plus district
 # officials (Who's Who pages), town councillors (SEC results portal), ministers and
-# MPLADS, and publish them. Only data files are committed; a source that fails keeps
+# MPLADS, MLA/MP affidavits (ADR/MyNeta), and publish them. Only data files are committed; a source that fails keeps
 # its last good values, and tools/keep-if-changed.py drops files where only the date
 # moved or that shrank.
 on:
@@ -49,6 +49,10 @@ jobs:
       - name: Rebuild ministers and MPLADS
         continue-on-error: true
         run: timeout 30m python3 tools/build-wb-reps.py || git checkout -- places/wb_ministers.json places/wb_mplads.json places/mplads
+
+      - name: Rebuild MLA and MP affidavits
+        continue-on-error: true
+        run: timeout 20m python3 tools/build-wb-affidavits.py || git checkout -- places/wb_affidavits.json
 
       - name: Keep only real changes
         run: python3 tools/keep-if-changed.py $(git diff --name-only -- places)

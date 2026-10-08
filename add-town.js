@@ -1,6 +1,6 @@
 /* Put your town on the map (add-town.html).
  *
- * Anyone can send a West Bengal town's ward map, uploaded as GeoJSON or drawn
+ * Anyone can send an Indian town's ward map, uploaded as GeoJSON or drawn
  * on the map, with who is in charge of cleaning there and where that was found.
  * It goes to kasa_submit_place and waits for a moderator (admin.html).
  * ?fix=<slug> sends corrected wards for a town already on the map (tap a dashed ward to copy
@@ -13,7 +13,7 @@
   const cfg = window.KASA_CONFIG || {};
   const API = cfg.SUPABASE_URL + '/rest/v1/';
   const HEAD = { apikey: cfg.SUPABASE_ANON_KEY, Authorization: 'Bearer ' + cfg.SUPABASE_ANON_KEY, 'Content-Type': 'application/json' };
-  const WB = { min_lat: 21.4, max_lat: 27.4, min_lng: 85.7, max_lng: 90.0 };
+  const WB = { min_lat: 6.5, max_lat: 37.5, min_lng: 68.0, max_lng: 97.5 };   // all of India (the server checks the same box)
   const DRAWN_SOURCE = 'Drawn on Parishkar by a resident';
   const $ = id => document.getElementById(id);
 
@@ -23,7 +23,7 @@
       title_fix: 'Fix <em>{town}</em>’s ward borders',
       title_fix_area: 'Fix the border of <em>{town}</em>',
       sub_fix_area: 'Drag its corners to where the border really runs, or just say what is wrong and pin the spot. A moderator checks the fix first.',
-      sub: 'Any town or panchayat in West Bengal can have its own Parishkar map, like Parishkar Kolkata. Reports there then go to the right ward and the right office.',
+      sub: 'Any town or panchayat in India can have its own Parishkar map, like Parishkar Kolkata. Reports there then go to the right ward and the right office.',
       sub_fix: 'Upload or draw only the wards whose borders are wrong. The rest of {town} stays as it is. A moderator checks the fix first.',
       step1: 'Say which town it is and who is in charge of cleaning there first, and where you found that.',
       step2: 'Upload its ward map (a GeoJSON file), or draw the wards on the map below. A rough drawing is fine; borders can be fixed later.',
@@ -61,7 +61,7 @@
       s_pin_tap: 'Tap the map where the problem is.', s_pinned: 'Pinned at {lat}, {lng}.',
       e_nofix: 'Draw or copy at least one ward, or say what needs fixing.',
       e_file: 'That file could not be read as GeoJSON.', e_noward: '{n} outlines have no ward number. Add a "ward" property to each.',
-      e_nopoly: 'The file has no ward outlines (polygons).', e_outside: 'Some points are outside West Bengal. Check the file.',
+      e_nopoly: 'The file has no ward outlines (polygons).', e_outside: 'Some points are outside India. Check the file.',
       e_dup: 'Ward {n} is there twice.', simplified: 'The map was very detailed, so it was simplified from {a} to {b} points. Check the outlines, then send.', e_wardno: 'Type a ward number first (1 to 500).', e_points: 'A ward needs at least 3 points.',
       e_town: 'Give the town’s name.', e_district: 'Choose the district.', e_body: 'Name the municipality or panchayat.',
       e_src_incharge: 'Say where you found who is in charge of cleaning.', e_https: 'The complaint link must start with https://',
@@ -73,7 +73,7 @@
       title_fix: '<em>{town}</em>-এর ওয়ার্ড সীমানা ঠিক করুন',
       title_fix_area: '<em>{town}</em>-এর সীমানা ঠিক করুন',
       sub_fix_area: 'কোণগুলো টেনে আসল সীমানায় আনুন, বা শুধু কী ভুল লিখে জায়গাটা পিন করুন। আগে একজন মডারেটর দেখে নেবেন।',
-      sub: 'পশ্চিমবঙ্গের যে কোনো শহর বা পঞ্চায়েতের নিজের পরিষ্কার মানচিত্র হতে পারে, যেমন পরিষ্কার কলকাতা। তখন সেখানকার রিপোর্ট ঠিক ওয়ার্ড আর ঠিক অফিসে যায়।',
+      sub: 'ভারতের যে কোনো শহর বা পঞ্চায়েতের নিজের পরিষ্কার মানচিত্র হতে পারে, যেমন পরিষ্কার কলকাতা। তখন সেখানকার রিপোর্ট ঠিক ওয়ার্ড আর ঠিক অফিসে যায়।',
       sub_fix: 'শুধু যে ওয়ার্ডগুলোর সীমানা ভুল সেগুলো আপলোড করুন বা আঁকুন। {town}-এর বাকিটা যেমন আছে থাকবে। আগে একজন মডারেটর দেখে নেবেন।',
       step1: 'শহরের নাম, সেখানে পরিষ্কারের প্রথম দায়িত্বে কে, আর সেটা কোথায় পেলেন তা লিখুন।',
       step2: 'ওয়ার্ড মানচিত্র (GeoJSON ফাইল) আপলোড করুন, বা নিচের মানচিত্রে ওয়ার্ড আঁকুন। মোটামুটি আঁকলেই হবে; সীমানা পরে ঠিক করা যায়।',
@@ -109,7 +109,7 @@
       s_pin_tap: 'যেখানে সমস্যা, মানচিত্রে সেখানে ট্যাপ করুন।', s_pinned: '{lat}, {lng}-এ পিন করা হয়েছে।',
       e_nofix: 'অন্তত একটি ওয়ার্ড আঁকুন বা কপি করুন, অথবা কী ঠিক করতে হবে লিখুন।',
       e_file: 'ফাইলটি GeoJSON হিসেবে পড়া গেল না।', e_noward: '{n}টি সীমারেখায় ওয়ার্ড নম্বর নেই। প্রতিটিতে "ward" প্রপার্টি দিন।',
-      e_nopoly: 'ফাইলে কোনো ওয়ার্ডের সীমারেখা (পলিগন) নেই।', e_outside: 'কিছু বিন্দু পশ্চিমবঙ্গের বাইরে। ফাইলটি দেখুন।',
+      e_nopoly: 'ফাইলে কোনো ওয়ার্ডের সীমারেখা (পলিগন) নেই।', e_outside: 'কিছু বিন্দু ভারতের বাইরে। ফাইলটি দেখুন।',
       e_dup: 'ওয়ার্ড {n} দুবার আছে।', simplified: 'মানচিত্রটি খুব বিস্তারিত ছিল, তাই {a} থেকে {b} বিন্দুতে সরল করা হয়েছে। সীমারেখা দেখে পাঠান।', e_wardno: 'আগে ওয়ার্ড নম্বর লিখুন (১ থেকে ৫০০)।', e_points: 'একটি ওয়ার্ডে অন্তত ৩টি বিন্দু লাগে।',
       e_town: 'শহরের নাম দিন।', e_district: 'জেলা বেছে নিন।', e_body: 'পৌরসভা বা পঞ্চায়েতের নাম দিন।',
       e_src_incharge: 'পরিষ্কারের দায়িত্বে কে, তা কোথায় পেলেন লিখুন।', e_https: 'অভিযোগের লিংক https:// দিয়ে শুরু হতে হবে',
@@ -121,7 +121,7 @@
       title_fix: '<em>{town}</em> की वार्ड सीमाएँ ठीक करें',
       title_fix_area: '<em>{town}</em> की सीमा ठीक करें',
       sub_fix_area: 'कोनों को खींचकर असली सीमा पर लाएँ, या बस लिखें कि क्या ग़लत है और जगह पिन करें। पहले एक मॉडरेटर जाँचेगा।',
-      sub: 'पश्चिम बंगाल का कोई भी शहर या पंचायत अपना परिष्कार नक्शा पा सकता है, जैसे परिष्कार कोलकाता। तब वहाँ की रिपोर्ट सही वार्ड और सही दफ़्तर तक जाती है।',
+      sub: 'भारत का कोई भी शहर या पंचायत अपना परिष्कार नक्शा पा सकता है, जैसे परिष्कार कोलकाता। तब वहाँ की रिपोर्ट सही वार्ड और सही दफ़्तर तक जाती है।',
       sub_fix: 'सिर्फ़ वे वार्ड अपलोड करें या बनाएँ जिनकी सीमा ग़लत है। {town} का बाक़ी हिस्सा वैसा ही रहेगा। पहले एक मॉडरेटर जाँचेगा।',
       step1: 'शहर का नाम, वहाँ सफ़ाई का पहला ज़िम्मा किसके पास है, और यह आपको कहाँ मिला, लिखें।',
       step2: 'वार्ड नक्शा (GeoJSON फ़ाइल) अपलोड करें, या नीचे नक्शे पर वार्ड बनाएँ। मोटा-मोटा बनाना भी ठीक है; सीमाएँ बाद में सुधारी जा सकती हैं।',
@@ -157,7 +157,7 @@
       s_pin_tap: 'जहाँ समस्या है, नक्शे पर वहाँ टैप करें।', s_pinned: '{lat}, {lng} पर पिन किया।',
       e_nofix: 'कम से कम एक वार्ड बनाएँ या कॉपी करें, या लिखें कि क्या ठीक करना है।',
       e_file: 'यह फ़ाइल GeoJSON के रूप में पढ़ी नहीं जा सकी।', e_noward: '{n} रूपरेखाओं में वार्ड नंबर नहीं है। हर एक में "ward" प्रॉपर्टी जोड़ें।',
-      e_nopoly: 'फ़ाइल में कोई वार्ड रूपरेखा (पॉलीगॉन) नहीं है।', e_outside: 'कुछ बिंदु पश्चिम बंगाल से बाहर हैं। फ़ाइल जाँचें।',
+      e_nopoly: 'फ़ाइल में कोई वार्ड रूपरेखा (पॉलीगॉन) नहीं है।', e_outside: 'कुछ बिंदु भारत से बाहर हैं। फ़ाइल जाँचें।',
       e_dup: 'वार्ड {n} दो बार है।', simplified: 'नक्शा बहुत विस्तृत था, इसलिए इसे {a} से {b} बिंदुओं में सरल किया गया। रूपरेखा जाँचें, फिर भेजें।', e_wardno: 'पहले वार्ड नंबर लिखें (1 से 500)।', e_points: 'एक वार्ड में कम से कम 3 बिंदु चाहिए।',
       e_town: 'शहर का नाम लिखें।', e_district: 'ज़िला चुनें।', e_body: 'नगरपालिका या पंचायत का नाम लिखें।',
       e_src_incharge: 'सफ़ाई का ज़िम्मा किसके पास है, यह कहाँ मिला, लिखें।', e_https: 'शिकायत लिंक https:// से शुरू होना चाहिए',
@@ -214,8 +214,22 @@
 
   // ── District list ──
   const districtSel = $('at-district');
+  // West Bengal's districts, then every other state's ('<District>, <State>', places/in/index.json).
   Object.values(window.KASA_DISTRICTS || {}).sort().forEach(name => districtSel.add(new Option(name, name)));
-  if (params.get('district') && [...districtSel.options].some(o => o.value === params.get('district'))) districtSel.value = params.get('district');
+  const pickDistrict = () => {
+    if (params.get('district') && [...districtSel.options].some(o => o.value === params.get('district'))) districtSel.value = params.get('district');
+  };
+  pickDistrict();
+  const india = fetch('places/in/index.json').then(r => r.json()).then(idx => {
+    Object.values(idx.states || {}).sort((a, b) => a.name.localeCompare(b.name)).forEach(st => {
+      const g = document.createElement('optgroup');
+      g.label = st.name;
+      Object.keys(st.district_boxes || {}).sort().forEach(d => g.append(new Option(d, d + ', ' + st.name)));
+      districtSel.append(g);
+    });
+    if (!districtSel.value){ pickDistrict(); if (districtSel.value) mapReady.then(zoomToDistrict); }
+    return idx;
+  }).catch(() => null);
   // From a town's card on the report map: its name and council already known.
   if (!params.get('fix')){
     if (params.get('town')) $('at-town').value = params.get('town').slice(0, 80);
@@ -319,7 +333,10 @@
       try { state.districts = await (await fetch('places/wb_districts.geojson')).json(); } catch (e) { return; }
     }
     const f = state.districts.features.find(f => f.properties.district === name);
-    if (f) fitTo(allPoints(f.geometry));
+    if (f) return fitTo(allPoints(f.geometry));
+    const [d, ...rest] = name.split(', '), st = Object.values((await india)?.states || {}).find(s => s.name === rest.join(', '));
+    const b = st?.district_boxes?.[d];
+    if (b) fitTo([[b[0], b[1]], [b[2], b[3]]]);
   }
   districtSel.addEventListener('change', () => mapReady.then(zoomToDistrict));
 
