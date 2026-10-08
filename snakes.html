@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Snakes — Parishkar Bengal</title>
+<meta name="description" content="Report a snake with a photo and find the registered snake rescuers who cover the spot; first aid for snakebite from the Health Ministry's guidelines.">
+<meta property="og:title" content="Snakes — Parishkar Bengal">
+<meta property="og:description" content="Saw a snake? Find the snake rescuer near you.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/snakes.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/snakes.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);}
+  .an-meta a{color:var(--amber);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.6rem 1.4rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  @media(min-width:1100px){.an-grid{grid-template-columns:1fr 1fr;}.an-span{grid-column:1 / -1;}}
+  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-chart{position:relative;margin-top:1.2rem;height:220px;}
+  .an-chart svg{display:block;width:100%;height:100%;overflow:visible;}
+  .an-tip{position:absolute;pointer-events:none;background:var(--ink3);border:1px solid var(--border2);border-radius:4px;padding:.4rem .6rem;font-family:var(--mono);font-size:11px;color:var(--text-hi);white-space:nowrap;transform:translate(-50%,-110%);opacity:0;transition:opacity .1s;}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-table td.n,.an-table th.n{text-align:right;font-variant-numeric:tabular-nums;}
+  .an-table a{color:var(--amber);}
+  .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-details{margin-top:.8rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
+  .an-details summary{cursor:pointer;color:var(--amber);}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  .an-table td.n{white-space:nowrap;}
+  .ad-role{font-family:var(--mono);font-size:10px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-lo);}
+  .ad-office{display:inline-block;margin-top:.3rem;font-size:.84rem;color:var(--text-md);}
+  .ad-plan{color:var(--text-md);line-height:1.6;font-size:.92rem;}
+  .ad-plan h3{margin-top:1.2rem;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+  .ad-plan ul,.ad-plan ol{margin:.5rem 0 0 1.2rem;}
+  .ad-plan li{margin:.3rem 0;}
+  @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+  .ad-steps{margin-top:1rem;display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .ad-steps div{border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;color:var(--text-md);font-size:.9rem;line-height:1.55;}
+  .ad-steps b{display:block;color:var(--cream);font-family:var(--serif);font-size:1.05rem;margin-bottom:.25rem;}
+  .ad-ok{color:#7fbf7f;} .ad-bad{color:#e07a6a;}
+  .ad-leave{color:var(--amber);background:none;border:0;padding:0;font:inherit;cursor:pointer;text-decoration:underline;}
+  .dg-law{color:var(--text-md);line-height:1.6;font-size:.92rem;}
+  .dg-law h3{margin-top:1.2rem;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+  .dg-law ol,.dg-law ul{margin:.5rem 0 0 1.2rem;} .dg-law li{margin:.3rem 0;}
+  .dg-law blockquote{margin:.6rem 0;padding:.4rem .9rem;border-left:2px solid var(--amber);color:var(--text-hi);font-style:italic;}
+  .dg-law a,.ad-plan a{color:var(--amber);}
+  .dg-form{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:1rem;}
+  .dg-form label{display:flex;flex-direction:column;gap:.3rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
+  .dg-form input{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.55rem .6rem;color:var(--text-hi);font:inherit;font-family:var(--sans,inherit);font-size:.92rem;text-transform:none;letter-spacing:0;}
+  #dg-letter{width:100%;min-height:420px;margin-top:1rem;background:var(--ink);border:1px solid var(--border2);border-radius:6px;padding:1rem;color:var(--text-hi);font:inherit;font-size:.9rem;line-height:1.55;}
+  .dg-btn{margin-top:.8rem;display:inline-block;background:var(--amber);color:var(--ink);border:0;border-radius:4px;padding:.6rem 1rem;font-family:var(--mono);font-size:12px;letter-spacing:.06em;cursor:pointer;text-decoration:none;}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html?snake=1" class="k-nav-cta">🐍 Snake seen here →</a>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">Snakes: <em>call a rescuer, not a stick</em></h1>
+      <p class="an-sub">Saw a snake at home, in a school or on the road? Stand back, take one photo from a safe distance with <a href="kasa.html?snake=1">Snake seen here</a>, and you get the snake rescuers who cover that spot, with call and WhatsApp buttons. Rescuers register themselves and a moderator calls each one before they go on the list.</p>
+    </div>
+    <div class="an-meta"><span id="sn-updated">Loading…</span></div>
+  </div>
+
+  <div class="an-tiles">
+    <div class="an-tile"><div class="an-tile-n" id="sn-t-res">—</div><div class="an-tile-l">Snake rescuers</div><div class="an-tile-s">registered, called by a moderator</div></div>
+    <div class="an-tile"><div class="an-tile-n" id="sn-t-seen">—</div><div class="an-tile-l">Sightings, last 48 h</div><div class="an-tile-s">sent with a live photo at the spot</div></div>
+  </div>
+
+  <div class="an-grid">
+    <section class="an-card an-span">
+      <h2>Snake rescuers</h2>
+      <p class="an-card-sub">Rescue snakes for your area? <a href="kasa.html?rescuer=1">Register as a snake rescuer</a> standing where you usually start from.</p>
+      <div class="an-table-wrap" id="sn-res"></div>
+    </section>
+
+    <section class="an-card an-span">
+      <h2>Snakes seen in the last 48 hours</h2>
+      <p class="an-card-sub">Who sent them is never shown.</p>
+      <div class="an-table-wrap" id="sn-seen"></div>
+    </section>
+
+    <section class="an-card an-span" id="bite">
+      <h2>If someone is bitten</h2>
+      <div class="dg-law">
+        <p>From the Health Ministry's <a href="https://clinicalestablishments.mohfw.gov.in/sites/default/files/standard-treatment-guidelines/3941.pdf" target="_blank" rel="noopener">Standard Treatment Guidelines: Snakebite</a> (Directorate General of Health Services, June 2016), section 10, first aid by bystanders:</p>
+        <ol>
+          <li>Reassure the person: about 70% of snakebites are from non-venomous snakes, and panic speeds up the heart.</li>
+          <li>Keep the bitten arm or leg still, like a broken limb, with a splint along its whole length. Do not block the blood supply or apply pressure.</li>
+          <li>Nothing to eat or drink until they reach a health centre.</li>
+          <li>Traditional remedies have no proven benefit.</li>
+          <li>Take them to the nearest PHC or hospital at once. They must not run or drive themselves; on a motorbike, a third person sits behind to hold them.</li>
+          <li>Don't waste time trying to kill or catch the snake. If it is already dead, take it along without touching it bare-handed.</li>
+        </ol>
+        <p>The same section says tight tourniquets, cutting and sucking the wound, electric shocks, ice, snake stones and scarification are not to be used. A krait bite may leave no mark.</p>
+        <p class="an-card-sub">Something here wrong or out of date? Use "Suggest a correction" at the foot of the page.</p>
+      </div>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="dogs.html">Community dogs</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="changelog.html">What's new</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+    <a href="methodology.html">How it works</a>
+    <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener">Buy me a coffee</a>
+  </div>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="place-facts.js"></script>
+<script defer src="snakes.js"></script>
+</body>
+</html>

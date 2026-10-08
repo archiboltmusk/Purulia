@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2471,6 +2471,50 @@ for i in range(3):
     feed(fl, f'Feeder {i}', offset(-4600 - i * 200, -2400))
 check('one caregiver can register at most three spots', err(feed, fl, 'Feeder 4', offset(-5400, -2400)) == 'KASA_FEED_LIMIT')
 
+# ── Snake sightings and snake rescuers ──────────────────────────────────────
+sn_base = offset(-6000, 3000)
+def rescuer(uid, name='Bablu Mahato', where=sn_base, acc=10.0, **kw):
+    args = dict(p_name=name, p_phone='+91 98300 12345', p_whatsapp=True, p_lat=where[0], p_lng=where[1], p_accuracy=acc, p_range_km=5)
+    args.update(kw)
+    return rpc('kasa_register_snake_rescuer', uid=uid, **args)
+sr_u = user()
+check('the public cannot register as a snake rescuer without signing in',
+      refused(err(rpc, 'kasa_register_snake_rescuer', p_name='X', p_phone='9830012345', p_whatsapp=True, p_lat=sn_base[0], p_lng=sn_base[1], p_accuracy=10.0, p_range_km=5)))
+check('a snake rescuer needs a real mobile number', err(rescuer, sr_u, p_phone='12345') == 'KASA_BAD_PHONE')
+check('a snake rescuer needs a sensible range', err(rescuer, sr_u, p_range_km=500) == 'KASA_BAD_FORM')
+check('a weak GPS fix cannot register a snake rescuer', err(rescuer, sr_u, acc=500.0) == 'KASA_GPS_WEAK')
+r1 = rescuer(sr_u)
+check('a snake rescuer registration waits for a moderator', r1['status'] == 'pending', r1)
+check('one account registers one rescuer', err(rescuer, sr_u) == 'KASA_RESCUER_EXISTS')
+check('a waiting rescuer is not public', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
+check('non-admins cannot see the rescuer queue', err(rpc, 'kasa_admin_snake_queue', uid=user()) == 'KASA_NOT_ADMIN')
+sq = [x for x in rpc('kasa_admin_snake_queue', uid=mod) if x['id'] == r1['id']]
+check('moderators see the number to call, stored as 10 digits', sq and sq[0]['phone'] == '9830012345' and 'user_id' not in sq[0], sq)
+rpc('kasa_admin_review_snake', uid=mod, p_id=r1['id'], p_action='approve')
+far_u = user()
+r2 = rescuer(far_u, 'Far Rescuer', offset(-6000, -9000), p_range_km=3)
+rpc('kasa_admin_review_snake', uid=mod, p_id=r2['id'], p_action='approve')
+
+def snake(uid, where, live=True, **kw):
+    path = upload(uid, 'reports')
+    photo_check(path)
+    if live:
+        meta(uid, path, capture='live', capture_token=cam_token(uid))
+    return rpc('kasa_report_snake', uid=uid, p_lat=where[0], p_lng=where[1], p_accuracy=10.0, p_photo_path=path, **kw)
+sn_u = user()
+admin_sql("update kasa_private.settings set value = 'true' where key = 'require_live_capture'")
+check('a snake sighting needs a live camera photo when the site requires one', err(snake, sn_u, offset(1000, 0, base=sn_base), live=False) == 'KASA_LIVE_CAMERA_REQUIRED')
+admin_sql("update kasa_private.settings set value = 'false' where key = 'require_live_capture'")
+s1 = snake(sn_u, offset(1000, 0, base=sn_base), p_note='inside the cowshed')
+names = [x['name'] for x in s1['rescuers']]
+check('a sighting lists the rescuers whose range covers it, not the far ones', names == ['Bablu Mahato'] and s1['rescuers'][0]['phone'] == '9830012345', s1)
+pub = [x for x in rpc('kasa_snake_sightings') if x['id'] == s1['id']]
+check('a sighting is public without the sender', pub and pub[0]['note'] == 'inside the cowshed' and 'user_id' not in pub[0], pub)
+admin_sql("update kasa_private.snake_sightings set created_at = now() - interval '3 days' where id = %s", (s1['id'],))
+check('old sightings leave the public list', not any(x['id'] == s1['id'] for x in rpc('kasa_snake_sightings')))
+rpc('kasa_leave_snake_rescuer', uid=sr_u)
+check('a rescuer who stops leaves the list', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
+check('a stopped rescuer is not offered for new sightings', snake(sn_u, offset(1200, 0, base=sn_base))['rescuers'] == [])
 # Help assistant daily limit (kasa-assistant edge function, service key only).
 as_u = user()
 check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))
