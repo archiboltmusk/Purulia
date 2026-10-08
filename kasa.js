@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — civic problem map
+   PARISHKAR BENGAL — civic problem map
    Report garbage, drains, roads, streetlights, illegal activity.
    Nothing is marked fixed until people on the spot confirm it.
 
@@ -267,7 +267,7 @@ const state = {
   chainTab: 'sanitation'
 };
 let sb = null;
-let mainMap = null, miniMap = null, miniMarker = null, userMovedMap = false;
+let mainMap = null, userMovedMap = false;
 let mapReady = null;
 let draft = null;
 let ev = null;
@@ -860,15 +860,18 @@ async function checkPhoto(path, token, lat, lng){
 }
 
 const api = {
-  async createReport(d){
+  // onStep (optional) hears each real stage as it starts: 'photo', then 'save'.
+  async createReport(d, onStep){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
+    onStep?.('photo');
     const path = await uploadPhoto('reports', d.photoBlob);
     // Metadata (with the camera token) must be recorded before the report is created.
     await sendPhotoMeta(path, d.photoMeta);
     // The photo check runs in the background so the report isn't held up.
     checkPhoto(path, null, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
     // Create report in database immediately.
+    onStep?.('save');
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -1058,8 +1061,21 @@ function slaCountdown(r){
   const ms = dueAt - Date.now();
   const over = ms < 0;
   const h = Math.abs(ms) / 3600000;
-  const value = h < 48 ? t('sla_hours', { n: Math.max(0, Math.round(h)) }) : t('sla_days', { n: Math.round(h / 24) });
+  // Past the deadline the clock runs to the minute ("18d 14h 22m"), so inaction keeps showing.
+  const mins = Math.floor(Math.abs(ms) / 60000);
+  const value = over
+    ? [mins >= 1440 ? t('sla_days', { n: Math.floor(mins / 1440) }) : '', mins >= 60 ? t('sla_hours', { n: Math.floor(mins / 60) % 24 }) : '',
+       t('sla_mins', { n: mins % 60 })].filter(Boolean).join(' ')
+    : h < 48 ? t('sla_hours', { n: Math.max(0, Math.round(h)) }) : t('sla_days', { n: Math.round(h / 24) });
   return { over, text: t(over ? 'sla_overdue_by' : 'sla_due_in', { t: value }) };
+}
+
+/* List chips of overdue reports carry data-sla-id; one minute tick refreshes just those. */
+function tickOverdueChips(){
+  document.querySelectorAll('[data-sla-id]').forEach(el => {
+    const r = state.byId.get(el.dataset.slaId);
+    if (r) el.textContent = t('sev_' + r.severity) + ' · ' + slaCountdown(r).text;
+  });
 }
 
 /* Per-ward counts: Purulia's wards, or with a slug that town's wards (places.js). */
@@ -1999,6 +2015,7 @@ function statusChip(r){
   if (r.pending) return `<span class="k-chip k-chip-pending">${esc(t('chip_pending'))}</span>`;
   if (r.status === 'resolved') return `<span class="k-chip k-chip-resolved">${esc(t(r.resolution === 'legacy_unverified' ? 'head_resolved_legacy' : 'status_resolved'))}</span>`;
   if (r.status === 'claimed') return `<span class="k-chip k-chip-claimed">${esc(t('status_claimed'))}</span>`;
+  if (isOverdue(r)) return `<span class="k-chip k-chip-${r.severity} k-chip-overdue" data-sla-id="${esc(r.id)}">${esc(t('sev_' + r.severity))} · ${esc(slaCountdown(r).text)}</span>`;
   return `<span class="k-chip k-chip-${r.severity}">${esc(t('sev_' + r.severity))} · ${esc(t('days_open', { n: daysSince(r.createdAt) }))}</span>`;
 }
 
@@ -2735,7 +2752,7 @@ Phone / e-mail (optional): <span class="blank">&nbsp;</span></p>
 
 <div class="block">
 <strong>Reference</strong><br>
-A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Purulia on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
+A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Bengal on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
 <span class="blank">${esc(link)}</span>
 </div>
 
@@ -2757,7 +2774,7 @@ A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> 
 <p style="margin-top:24px;">Signature: <span class="blank">&nbsp;</span></p>
 
 <p class="foot">
-Generated from a public report on Parishkar Purulia. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
+Generated from a public report on Parishkar Bengal. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
 </p>
 
 </body></html>`;
@@ -2773,7 +2790,7 @@ function openRTI(reportId){
 }
 
 function replyMailto(r){
-  const subject = `Right of reply — Parishkar Purulia report ${r.id}`;
+  const subject = `Right of reply — Parishkar Bengal report ${r.id}`;
   const body = [
     'Report: ' + reportLink(r.id),
     'Your name:', 'Your position (e.g. Ward Councillor, Ward ' + (r.ward ?? '?') + '):',
@@ -3061,26 +3078,46 @@ function csvCell(v){
   return '"' + s.replace(/"/g, '""') + '"';
 }
 
-function downloadCSV(scope){
-  const rows = (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending);
-  if (!rows.length) return showToast(t('csv_empty'));
-  const lines = rows.map(r => [
+function exportRows(scope){
+  return (scope === 'all' ? state.reports : filtered()).filter(r => !r.pending).map(r => [
     r.id, r.createdAt, r.ward, r.category, r.wasteType, r.severity, r.status, r.resolution, r.resolvedAt,
     r.status === 'resolved' ? null : daysSince(r.createdAt), isOverdue(r), r.lat, r.lng, r.landmark, r.description,
     peopleSaw(r), r.rejectedClaims, r.recurrence, r.duplicate, r.photo, r.resolvedPhoto,
     reportLink(r.id)
-  ].map(csvCell).join(','));
-  // The BOM makes Excel read Bengali and Hindi text as UTF-8.
-  const blob = new Blob(['\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n')], { type: 'text/csv;charset=utf-8' });
+  ]);
+}
+
+function saveExport(scope, body, type, ext, n){
   const ward = scope !== 'all' && state.filters.ward ? `${state.filters.place ? state.filters.place + '-' : ''}ward-${state.filters.ward}-` : '';
   const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.csv`;
+  a.href = URL.createObjectURL(new Blob([body], { type }));
+  a.download = `purulia-kasa-${ward}${new Date().toISOString().slice(0, 10)}.${ext}`;
   document.body.appendChild(a);
   a.click();
   a.remove();
   setTimeout(() => URL.revokeObjectURL(a.href), 10000);
-  showToast(t('csv_done', { n: rows.length }));
+  showToast(t('csv_done', { n }));
+}
+
+function downloadCSV(scope){
+  const rows = exportRows(scope);
+  if (!rows.length) return showToast(t('csv_empty'));
+  const lines = rows.map(v => v.map(csvCell).join(','));
+  // The BOM makes Excel read Bengali and Hindi text as UTF-8.
+  saveExport(scope, '\uFEFF' + [CSV_COLUMNS.join(','), ...lines].join('\r\n'), 'text/csv;charset=utf-8', 'csv', rows.length);
+}
+
+/* Same columns as GeoJSON points, for QGIS, uMap or OpenStreetMap tools. */
+function downloadGeoJSON(scope){
+  const rows = exportRows(scope).filter(v => v[11] != null && v[12] != null);
+  if (!rows.length) return showToast(t('csv_empty'));
+  const features = rows.map(v => ({
+    type: 'Feature',
+    geometry: { type: 'Point', coordinates: [Number(v[12]), Number(v[11])] },
+    properties: Object.fromEntries(CSV_COLUMNS.map((c, i) => [c, v[i] ?? null]).filter(([c]) => c !== 'lat' && c !== 'lng'))
+  }));
+  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar Purulia (photos not covered)', features };
+  saveExport(scope, JSON.stringify(fc), 'application/geo+json', 'geojson', rows.length);
 }
 
 function copyText(s, done = 'ct_copied'){
@@ -3110,7 +3147,7 @@ function openContact(spec){
   // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
   const town = r.area !== 'rural' && r.area !== 'place';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
+  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Bengal — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + reportLink(r.id))}`;
 
   let title, sub, opts = [];
@@ -3363,6 +3400,7 @@ function closeCamera(result){
 async function takeCameraShot(){
   const video = document.getElementById('k-cam-video');
   if (!video.videoWidth) return;
+  haptic(25);
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
@@ -3470,14 +3508,11 @@ async function submitEvidence(){
    NEW REPORT FLOW
    ══════════════════════════════════════════════════════════ */
 function newDraft(){
-  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', wasteType: null, landmark: '', description: '', locked: false };
+  return { category: null, photoBlob: null, photoMeta: null, extraPhotos: [], lat: null, lng: null, accuracy: null, ward: null, severity: 'minor', wasteType: null, landmark: '', description: '' };
 }
 
 function openReport(prefill){
   draft = newDraft();
-  // "Report again" reuses the original problem's exact spot on purpose (the citizen may not
-  // be standing there right now) — GPS must never overwrite that pin at photo-capture time.
-  draft.locked = !!prefill;
   // Village reports need the block map; if it arrives after the location, place the pin again.
   if (!state.blockGeo || !state.gpGeo) Promise.all([loadBlockGeo(), loadLocalGeo()]).then(() => { if (draft?.lat != null) setLocation(draft.lat, draft.lng, draft.accuracy); });
   document.getElementById('k-ward-field').hidden = false;
@@ -3494,24 +3529,23 @@ function openReport(prefill){
   gpsBtn.textContent = t('step3_gps');
   // Automatic GPS is the norm; the button/map only reappear if it fails (see useGPS()).
   gpsBtn.hidden = true;
-  document.getElementById('k-mini-map').hidden = true;
   document.getElementById('k-iab-report').hidden = true;
   document.getElementById('k-iab-report-note').hidden = true;
   document.getElementById('k-iab-report-copy').hidden = true;
   setSeverity('minor');
+  resetSlideSubmit();
   const issueSearch = document.getElementById('k-issue-search');
   if (issueSearch) issueSearch.value = '';
   document.querySelectorAll('#k-issues details[open]').forEach(d => d.removeAttribute('open'));
   setWasteType(null);
-  if (miniMarker){ miniMarker.remove(); miniMarker = null; }
   renderCategoryGrid();
   if (prefill){
+    // "Report again" keeps the problem type and landmark; the place still comes from live GPS,
+    // so nobody can re-file a spot without standing there.
     selectCategory(prefill.category, false);
-    setLocation(prefill.lat, prefill.lng, null);
     document.getElementById('k-landmark').value = prefill.landmark || '';
-  } else {
-    useGPS();
   }
+  useGPS();
   goToStep(1);
   openModal('k-modal');
   // One screen, camera first: open it right away so "Report" really does mean
@@ -3580,13 +3614,10 @@ async function captureReportPhoto(){
   // photo is taken somewhere else (opened the app, walked to the actual spot, shot it),
   // that first fix is stale. Use the fix requested at the exact shutter click instead
   // (takeCameraShot), so the report lands where the photo was actually taken.
-  // "Report again" pins deliberately reuse the original spot and must stay untouched.
-  if (!draft.locked){
-    const pos = camera.posPromise ? await camera.posPromise : null;
-    if (!draft) return;
-    if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
-    else useGPS();
-  }
+  const pos = camera.posPromise ? await camera.posPromise : null;
+  if (!draft) return;
+  if (pos) setLocation(pos.lat, pos.lng, pos.accuracy);
+  else useGPS();
 }
 
 /* Up to 2 more photos, from the same in-page camera. They're attached right after the
@@ -3607,25 +3638,6 @@ function renderExtraPhotos(){
   const more = document.getElementById('k-photo-more');
   more.hidden = !draft?.photoBlob || extras.length >= MAX_EXTRA_PHOTOS;
   more.textContent = t('photo_more', { n: extras.length + 2 });
-}
-
-function initMiniMap(){
-  if (miniMap) return;
-  if (!window.maplibregl){ mapLibrary().then(initMiniMap); return; }
-  miniMap = new maplibregl.Map({
-    container: 'k-mini-map', style: MAP_STYLE,
-    center: draft.lng != null ? [draft.lng, draft.lat] : MAP_CENTER, zoom: draft.lng != null ? 16 : MAP_ZOOM, attributionControl: false
-  });
-  miniMap.on('click', e => setLocation(e.lngLat.lat, e.lngLat.lng, null));
-  miniMap.on('load', () => boostRoadLabels(miniMap));
-  watchMapStyleLoad(miniMap);
-  if (draft.lng != null) placeMiniMarker();
-}
-
-function placeMiniMarker(){
-  if (!miniMap) return;
-  if (miniMarker) miniMarker.setLngLat([draft.lng, draft.lat]);
-  else miniMarker = new maplibregl.Marker({ color: '#d4882a' }).setLngLat([draft.lng, draft.lat]).addTo(miniMap);
 }
 
 function setLocation(lat, lng, accuracy){
@@ -3663,10 +3675,8 @@ function setLocation(lat, lng, accuracy){
     note.append(add);
   }
   document.getElementById('k-coords').textContent =
-    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${accuracy != null ? t('step3_loc_gps', { acc: Math.round(accuracy) }) : t('step3_loc_pin')}` +
+    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` +
     (['town', 'rural', 'outside', 'place', 'india'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
-  placeMiniMarker();
-  if (miniMap) miniMap.easeTo({ center: [lng, lat], zoom: Math.max(miniMap.getZoom(), 16) });
   if (draft.wasteType) renderIssues();
   updateSubmitState();
 }
@@ -4280,6 +4290,174 @@ async function submitFeed(){
   }
 }
 
+/* Snake seen: a live photo and a good GPS fix at the spot; the reply lists the approved rescuers
+   whose range covers it, with call and WhatsApp buttons. Nothing is sent by the site. */
+let sn = null;
+async function openSnake(){
+  sn = { pos: null, blob: null, meta: null };
+  document.getElementById('k-sn-form').hidden = false;
+  document.getElementById('k-sn-result').hidden = true;
+  document.getElementById('k-sn-preview').innerHTML = '';
+  document.getElementById('k-sn-note').value = '';
+  const ps = document.getElementById('k-sn-photo-status');
+  ps.className = 'k-ev-status';
+  ps.textContent = t('sn_photo_hint');
+  updateSnakeSubmit();
+  openModal('k-sn-modal');
+  const status = document.getElementById('k-sn-loc'), want = state.rules.max_gps_accuracy_m;
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sn) return;
+    if (pos.accuracy > want) setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    else { sn.pos = pos; setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) })); }
+  } catch (e){
+    if (sn) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+  updateSnakeSubmit();
+}
+
+async function captureSnakePhoto(){
+  if (!sn) return;
+  const res = await openLiveCamera();
+  if (!sn) return;
+  const status = document.getElementById('k-sn-photo-status');
+  if (res.blob){
+    sn.blob = res.blob;
+    sn.meta = { capture: 'live', capture_token: res.token || undefined };
+    document.getElementById('k-sn-preview').innerHTML = `<img src="${URL.createObjectURL(res.blob)}" alt="">`;
+    setEvStatus(status, 'ok', t('ev_photo_live'));
+  } else if (res.error !== 'cancelled'){
+    setEvStatus(status, 'bad', t(res.error === 'denied' ? 'cam_ev_denied' : 'cam_ev_unavailable'));
+  }
+  updateSnakeSubmit();
+}
+
+function updateSnakeSubmit(){
+  if (sn) document.getElementById('k-sn-submit').disabled = !(sn.blob && sn.pos);
+}
+
+async function submitSnake(){
+  if (!sn?.blob || !sn.pos) return;
+  const btn = document.getElementById('k-sn-submit');
+  btn.disabled = true;
+  btn.textContent = t('ev_sending');
+  try {
+    await ensureSession();
+    const path = await uploadPhoto('reports', sn.blob);
+    await sendPhotoMeta(path, sn.meta);
+    await checkPhoto(path, null, sn.pos.lat, sn.pos.lng);
+    const note = document.getElementById('k-sn-note').value.trim();
+    const { data, error } = await sb.rpc('kasa_report_snake', { p_lat: sn.pos.lat, p_lng: sn.pos.lng, p_accuracy: sn.pos.accuracy, p_photo_path: path, p_note: note || null });
+    if (error) throw rpcError(error);
+    renderSnakeRescuers(data?.rescuers || [], sn.pos, note);
+  } catch (e){
+    showToast(errorText(e), 7000);
+  }
+  btn.textContent = t('sn_submit');
+  updateSnakeSubmit();
+}
+
+function renderSnakeRescuers(list, pos, note){
+  const map = `https://maps.google.com/?q=${pos.lat.toFixed(6)},${pos.lng.toFixed(6)}`;
+  const msg = encodeURIComponent(t('sn_wa_msg', { map }) + (note ? ' ' + note : ''));
+  const el = document.getElementById('k-sn-result');
+  el.innerHTML = list.length
+    ? `<p class="k-modal-sub">${esc(t('sn_found', { n: list.length }))}</p>` + list.map(r => `<div class="k-field">
+        <strong>${esc(r.name)}</strong> <small>${esc(r.km)} km</small>${r.note ? `<br><small>${esc(r.note)}</small>` : ''}<br>
+        <a class="k-btn k-btn-primary k-btn-sm" href="tel:+91${esc(r.phone)}">📞 ${esc(t('sn_call'))}</a>
+        ${r.whatsapp ? `<a class="k-btn k-btn-secondary k-btn-sm" href="https://wa.me/91${esc(r.phone)}?text=${msg}" target="_blank" rel="noopener">WhatsApp</a>` : ''}
+      </div>`).join('')
+    : `<p class="k-modal-sub">${esc(t('sn_none'))}</p>`;
+  el.innerHTML += `<p class="k-privacy">${esc(t('sn_after'))} <a href="snakes.html#bite">${esc(t('sn_bite_link'))}</a></p>`;
+  document.getElementById('k-sn-form').hidden = true;
+  el.hidden = false;
+  sn = null;
+}
+
+/* A snake rescuer registers from where they start; a moderator calls the number before it goes public. */
+let sr = null;
+async function openRescuer(){
+  sr = { pos: null };
+  const btn = document.getElementById('k-sr-submit'), status = document.getElementById('k-sr-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-sr-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!sr) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    sr.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (sr) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitRescuer(){
+  if (!sr?.pos) return;
+  const btn = document.getElementById('k-sr-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_register_snake_rescuer', {
+      p_name: document.getElementById('k-sr-name').value, p_phone: document.getElementById('k-sr-phone').value,
+      p_whatsapp: document.getElementById('k-sr-wa').checked, p_lat: sr.pos.lat, p_lng: sr.pos.lng, p_accuracy: sr.pos.accuracy,
+      p_range_km: Number(document.getElementById('k-sr-range').value) || null, p_note: document.getElementById('k-sr-note').value || null });
+    if (error) throw rpcError(error);
+    closeModal('k-sr-modal');
+    showToast(t('sr_done'), 8000);
+    sr = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
+/* Someone standing at a puja pandal adds it; after a moderator approves it, pandals.html
+   counts the reports filed near it during the puja window. */
+let pd = null;
+async function openPandal(){
+  pd = { pos: null };
+  const btn = document.getElementById('k-pd-submit'), status = document.getElementById('k-pd-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-pd-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!pd) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    pd.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (pd) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitPandal(){
+  if (!pd?.pos) return;
+  const btn = document.getElementById('k-pd-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_add_pandal', {
+      p_name: document.getElementById('k-pd-name').value, p_club: document.getElementById('k-pd-club').value,
+      p_lat: pd.pos.lat, p_lng: pd.pos.lng, p_accuracy: pd.pos.accuracy });
+    if (error) throw rpcError(error);
+    closeModal('k-pd-modal');
+    showToast(t('pd_done'), 7000);
+    pd = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4301,6 +4479,10 @@ function initSchoolCheck(){
   document.getElementById('k-ad-submit').addEventListener('click', submitAdopt);
   document.querySelectorAll('[data-adopt]').forEach(b => b.addEventListener('click', () => openAdopt()));
   document.getElementById('k-fd-submit').addEventListener('click', submitFeed);
+  document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
+  document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
+  document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
+  document.getElementById('k-pd-submit').addEventListener('click', submitPandal);
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
   document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
   document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
@@ -4327,6 +4509,9 @@ function initSchoolCheck(){
   const fix = q.get('fix'), card = q.get('card');
   if (q.get('adopt') === '1') openAdopt();
   else if (q.get('feed') === '1') openFeed();
+  else if (q.get('snake') === '1') openSnake();
+  else if (q.get('rescuer') === '1') openRescuer();
+  else if (q.get('pandal') === '1') openPandal();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
@@ -4381,13 +4566,6 @@ async function copyPageLink(){
   showToast(ok ? t('iab_copied') : u, 6000);
 }
 
-function showPinMap(){
-  document.getElementById('k-gps-btn').hidden = false;
-  document.getElementById('k-mini-map').hidden = false;
-  initMiniMap();
-  setTimeout(() => miniMap && miniMap.resize(), 60);
-}
-
 function quickPosition(){
   return new Promise((resolve, reject) => {
     if (!navigator.geolocation) return reject(new Error('no geolocation'));
@@ -4403,7 +4581,7 @@ async function useGPS(){
   const run = ++gpsRun;
   const d = draft;
   // A manual map pin (accuracy null) or a newer request wins over a late fix.
-  const stillMine = () => run === gpsRun && draft === d && !(d.lat != null && d.accuracy == null);
+  const stillMine = () => run === gpsRun && draft === d;
   const label = p => `✓ Location found (±${Math.round(p.accuracy)}m)`;
   btn.textContent = t('step3_gps_wait');
 
@@ -4426,7 +4604,7 @@ async function useGPS(){
   const err = await Promise.all([quick, precise]).then(([, e]) => e);
   if (!got && stillMine()){
     btn.textContent = t('step3_gps');
-    // Automatic GPS failed — reveal the manual fallback (hidden by default in the quick-report flow).
+    // Automatic GPS failed — reveal the retry button (hidden by default in the quick-report flow).
     // Inside Instagram and similar apps a live GPS fix is the only proof of place we get, so
     // send people to their real browser instead of offering a hand-placed pin.
     if (IN_APP){
@@ -4436,8 +4614,9 @@ async function useGPS(){
       document.getElementById('k-iab-report-copy').hidden = false;
       return;
     }
-    showPinMap();
-    showToast(t(err?.code === 1 ? 'loc_denied_pin' : 'loc_fail_pin'));
+    // Reports need a live GPS fix: no hand-placed pin. Offer a retry instead.
+    btn.hidden = false;
+    showToast(t(err?.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
   }
 }
 
@@ -4507,7 +4686,7 @@ function issueRoute(cat){
 /* No category to pick any more — the server assigns it. A ward is needed only inside the
    town's ward map (auto-detected from GPS); villages go by block, which the server works out. */
 function draftReady(){
-  if (!draft?.photoBlob || draft?.lat == null) return false;
+  if (!draft?.photoBlob || draft?.lat == null || draft?.accuracy == null) return false;
   const kind = draft.place?.kind || 'unknown';
   if (kind === 'outside') return false;
   return kind !== 'town' || !!draft.ward;
@@ -4551,34 +4730,140 @@ async function submitReport(){
   draft.boundary_type = detectBoundary(draft.lat, draft.lng);
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
-  btn.textContent = t('step3_uploading');
+  const label = document.getElementById('k-submit-label');
+  label.textContent = t('step3_uploading');
+  const steps = submitSteps(draft);
+  const d = draft;
+  const finish = async (res, key) => { steps.end(key); await steps.settle(); afterSubmit(res, d); };
 
   if (!navigator.onLine){
-    await queuePendingReport(draft);
-    btn.textContent = t('step3_submit');
-    return afterSubmit({ offline: true }, draft);
+    await queuePendingReport(d);
+    return finish({ offline: true }, 'ss_offline');
   }
   try {
-    const res = await api.createReport(draft);
-    btn.textContent = t('step3_submit');
-    afterSubmit(res, draft);
+    const res = await api.createReport(d, steps.run);
+    finish(res, res.moderation === 'review' ? 'ss_review' : res.duplicateOf ? 'ss_dup' : res.recurrenceOf ? 'ss_recur' : 'ss_saved');
   } catch (e){
-    btn.textContent = t('step3_submit');
     // The report service can't start a session (e.g. sign-in switched off):
     // keep the report on the phone and upload it on a later visit.
     if (e instanceof KasaError && e.key === 'err_session'){
-      await queuePendingReport(draft);
-      return afterSubmit({ saved: true }, draft);
+      await queuePendingReport(d);
+      return finish({ saved: true }, 'ss_phone');
     }
     if (e instanceof KasaError || /^KASA_/.test(e?.message || '')){
+      steps.fail();
+      resetSlideSubmit();
       btn.disabled = false;
       showToast(errorText(e), 7000);
       return;
     }
     console.warn('Parishkar: submit failed, saving offline', e);
-    await queuePendingReport(draft);
-    afterSubmit({ offline: true }, draft);
+    await queuePendingReport(d);
+    finish({ offline: true }, 'ss_offline');
   }
+}
+
+/* What sending a report is actually doing, one line per real stage: the GPS fix and
+   ward match already done on the phone, then the photo upload and the save (where the
+   server also looks for the same problem nearby). Nothing here is shown that didn't happen. */
+const haptic = (p) => { try { navigator.vibrate?.(p); } catch (e) {} };
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function submitSteps(d){
+  const list = document.getElementById('k-submit-steps');
+  list.innerHTML = '';
+  list.hidden = false;
+  let cur = null;
+  const add = (text, done) => {
+    if (cur){ cur.className = 'k-step-done'; cur.textContent = cur.textContent.replace(/…$/, ''); }
+    const li = document.createElement('li');
+    li.className = done ? 'k-step-done' : 'k-step-run';
+    li.textContent = text;
+    list.append(li);
+    li.scrollIntoView?.({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
+    cur = done ? null : li;
+    haptic(10);
+  };
+  add(d.accuracy != null ? t('ss_gps', { acc: Math.round(d.accuracy) }) : t('ss_gps_pin'), true);
+  const where = d.place?.kind === 'town' && d.ward ? t('ss_ward', { n: d.ward })
+    : document.getElementById('k-place').hidden ? '' : document.getElementById('k-place').firstChild?.textContent || '';
+  if (where) add(t('ss_place', { p: where }), true);
+  return {
+    run: (stage) => add(t(stage === 'photo' ? 'ss_photo' : 'ss_save')),
+    end: (key) => { add(t(key), true); haptic([20, 40, 30]); },
+    fail: () => { if (cur){ cur.className = 'k-step-fail'; cur = null; } },
+    settle: () => new Promise(res => setTimeout(res, reducedMotion() ? 0 : 900))
+  };
+}
+
+/* Slide to send: a deliberate swipe, so a stray tap can't file a report. A tap (or Enter,
+   or a screen reader's activate) asks for a second one within 3 s instead, so the slide is
+   never the only way in. */
+function resetSlideSubmit(){
+  const btn = document.getElementById('k-submit');
+  btn.style.setProperty('--slide', '0px');
+  btn.style.setProperty('--label-o', '1');
+  btn.classList.remove('k-slide-armed', 'k-sliding', 'k-slide-confirm', 'k-slide-sent');
+  btn.querySelector('.k-slide-knob').textContent = '»';
+  clearTimeout(resetSlideSubmit._t);
+  document.getElementById('k-submit-label').textContent = t('step3_slide');
+  document.getElementById('k-submit-steps').hidden = true;
+}
+function initSlideSubmit(){
+  const btn = document.getElementById('k-submit');
+  const knob = btn.querySelector('.k-slide-knob');
+  const label = document.getElementById('k-submit-label');
+  const max = () => Math.max(0, btn.clientWidth - knob.offsetWidth - 8);
+  let drag = null, armed = false;
+  const send = () => {
+    btn.style.setProperty('--slide', max() + 'px');
+    btn.style.setProperty('--label-o', '1');
+    btn.classList.remove('k-slide-confirm');
+    btn.classList.add('k-slide-sent');
+    knob.textContent = '✓';
+    haptic(35);
+    submitReport();
+  };
+  btn.addEventListener('pointerdown', e => {
+    if (btn.disabled || e.button > 0) return;
+    drag = { x0: e.clientX, moved: false };
+    armed = false;
+    try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+    btn.classList.add('k-sliding');
+  });
+  btn.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = Math.min(max(), Math.max(0, e.clientX - drag.x0));
+    if (dx > 8) drag.moved = true;
+    btn.style.setProperty('--slide', dx + 'px');
+    btn.style.setProperty('--label-o', String(Math.max(0, 1 - dx / (max() * 0.65 || 1))));
+    const now = dx >= max() * 0.85;
+    if (now !== armed){ armed = now; if (armed) haptic(15); }
+    btn.classList.toggle('k-slide-armed', armed);
+  });
+  const end = (cancel) => {
+    if (!drag) return;
+    const moved = drag.moved;
+    drag = null;
+    btn.classList.remove('k-sliding', 'k-slide-armed');
+    if (armed && !cancel){ armed = false; btn.dataset.slid = '1'; return send(); }
+    armed = false;
+    if (moved) btn.dataset.slid = '1';
+    btn.style.setProperty('--slide', '0px');
+    btn.style.setProperty('--label-o', '1');
+  };
+  btn.addEventListener('pointerup', () => end(false));
+  btn.addEventListener('pointercancel', () => end(true));
+  btn.addEventListener('click', () => {
+    // A finished or abandoned slide also ends in a click; only a plain tap/Enter counts here.
+    if (btn.dataset.slid){ delete btn.dataset.slid; return; }
+    if (btn.disabled) return;
+    if (btn.classList.contains('k-slide-confirm')) return send();
+    btn.classList.add('k-slide-confirm');
+    label.textContent = t('step3_slide_again');
+    haptic(10);
+    clearTimeout(resetSlideSubmit._t);
+    resetSlideSubmit._t = setTimeout(() => { btn.classList.remove('k-slide-confirm'); label.textContent = t('step3_slide'); }, 3000);
+  });
 }
 
 async function afterSubmit(res, d){
@@ -5579,7 +5864,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -5634,6 +5919,7 @@ function wireUI(){
     if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
+    if (d.geojson) return downloadGeoJSON(d.geojson);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
     if (d.profile) return openRepProfile(d.profile);
@@ -5741,7 +6027,8 @@ function wireUI(){
   });
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
-  document.getElementById('k-submit').addEventListener('click', submitReport);
+  initSlideSubmit();
+  setInterval(tickOverdueChips, 60000);
   document.getElementById('k-done-share').addEventListener('click', e => { if (e.target.dataset.id) shareReport(e.target.dataset.id); });
 
   document.getElementById('k-ev-loc-btn').addEventListener('click', checkEvidenceLocation);

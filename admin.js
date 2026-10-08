@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — Admin Analytics
+   PARISHKAR BENGAL — Admin Analytics
    ══════════════════════════════════════════════════════════ */
 
 const SUPABASE_URL = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_URL) || '';
@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -654,7 +654,7 @@ async function loadTownRequests(){
             ${(s.wards || []).filter(w => w.note).map(w => `<br><small>Ward ${esc(w.ward)}: ${esc(w.note)}</small>`).join('')}
             <br><small>${esc(new Date(s.created_at).toLocaleDateString('en-IN'))}${s.contact ? ' · ' + esc(s.contact) : ''}</small></td>
           <td>${esc(s.incharge || '—')}${s.incharge_source ? `<br><small>Found at: ${/^https:\/\//i.test(s.incharge_source) ? `<a href="${esc(s.incharge_source)}" target="_blank" rel="noopener nofollow">${esc(s.incharge_source)}</a>` : esc(s.incharge_source)}</small>` : ''}
-            ${s.complaint_url ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
+            ${/^https:\/\//i.test(s.complaint_url || '') ? `<br><small>Complaints: <a href="${esc(s.complaint_url)}" target="_blank" rel="noopener nofollow">${esc(s.complaint_url)}</a></small>` : ''}</td>
           <td>${s.drawn ? '<strong>Drawn</strong> (goes live as provisional)<br>' : ''}${/^https:\/\//i.test(s.map_source) ? `<a href="${esc(s.map_source)}" target="_blank" rel="noopener nofollow">${esc(s.map_source)}</a>` : esc(s.map_source)}</td>
           <td style="white-space:nowrap;">${s.status === 'pending' ? `
             <button class="ad-ok" data-town="${i}" data-town-act="approve">✓ Approve</button>
@@ -785,6 +785,109 @@ async function loadFeedingSpots(){
   }));
 }
 
+/* Snake rescuers: call the number before approving; approved ones can be removed. Sightings of the last 48 h can be hidden. */
+async function loadSnakes(){
+  const el = document.getElementById('adSnakes');
+  if (!el) return;
+  const [q, pub, seen] = await Promise.all([sb.rpc('kasa_admin_snake_queue'), sb.rpc('kasa_snake_rescuers'), sb.rpc('kasa_snake_sightings')]);
+  const error = q.error || pub.error || seen.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [], sights = seen.data || [];
+  const where = r => esc([r.block_name, r.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Rescuer</th><th>Number</th><th>Base</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(r => `<tr>
+          <td><strong>${esc(r.name)}</strong><br><small>${esc(r.range_km)} km${r.note ? ' · ' + esc(r.note) : ''} · sent ${esc(new Date(r.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="tel:+91${esc(r.phone)}">${esc(r.phone)}</a>${r.whatsapp ? ' · WhatsApp' : ''}</td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(r.lat)}&mlon=${esc(r.lng)}#map=14/${esc(r.lat)}/${esc(r.lng)}" target="_blank" rel="noopener">${where(r)}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-sn="${esc(r.id)}" data-sn-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-sn="${esc(r.id)}" data-sn-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">No rescuer waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((r, i) => `<tr><td><strong>${esc(r.name)}</strong> <small>${esc(r.phone)} · ${esc(r.range_km)} km</small></td><td>${where(r)}</td>
+        <td><button class="ad-bad" data-sn-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '') + (sights.length ? `
+    <p class="ad-note" style="margin-top:1rem;">Sightings, last 48 hours</p>
+    <table class="ad-table"><tbody>
+      ${sights.map(s => `<tr><td><a href="${esc(s.photo_url)}" target="_blank" rel="noopener"><img src="${esc(s.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a></td>
+        <td>${where(s)} ${esc(s.note || '')}<br><small>${esc(new Date(s.at).toLocaleString('en-IN'))}</small></td>
+        <td><button class="ad-bad" data-sn-hide="${esc(s.id)}">Hide</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  const act = async (b, p_id, p_action, p_note = null) => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_snake', { p_id, p_action, p_note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadSnakes();
+  };
+  el.querySelectorAll('[data-sn]').forEach(b => b.addEventListener('click', () => act(b, Number(b.dataset.sn), b.dataset.snAct)));
+  el.querySelectorAll('[data-sn-hide]').forEach(b => b.addEventListener('click', () => act(b, Number(b.dataset.snHide), 'hide_sighting')));
+  el.querySelectorAll('[data-sn-rm]').forEach(b => b.addEventListener('click', () => {
+    const r = live[+b.dataset.snRm];
+    const reason = prompt(`Reason for removing "${r.name}":`);
+    if (reason && reason.trim().length >= 3) act(b, r.id, 'remove', reason);
+  }));
+}
+
+/* Puja pandals: waiting ones to approve or reject, approved ones to remove, and the puja window. */
+async function loadPandals(){
+  const el = document.getElementById('adPandals');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_pandal_queue'), sb.rpc('kasa_pandals')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data?.pandals || [], w = pub.data?.window || {};
+  const where = p => esc([p.ward_no ? 'Ward ' + p.ward_no : p.block_name, p.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = `<p class="ad-note">Puja window: ${esc(w.start)} to ${esc(w.end)} · <button data-pd-window>Change</button></p>` + (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Pandal</th><th>Where</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(p => `<tr>
+          <td><strong>${esc(p.name)}</strong>${p.club ? `<br><small>${esc(p.club)}</small>` : ''}<br><small>sent ${esc(new Date(p.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(p.lat)}&mlon=${esc(p.lng)}#map=18/${esc(p.lat)}/${esc(p.lng)}" target="_blank" rel="noopener">${where(p)}</a><br><small>GPS ±${esc(p.accuracy_m)} m</small></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-pd="${esc(p.id)}" data-pd-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-pd="${esc(p.id)}" data-pd-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((p, i) => `<tr>
+        <td><strong>${esc(p.name)}</strong> <small>${esc(p.open)} open · ${esc(p.fixed)} cleaned</small></td>
+        <td><a href="kasa.html?at=${esc(p.lat)},${esc(p.lng)},17" target="_blank" rel="noopener">${where(p)}</a></td>
+        <td><button class="ad-bad" data-pd-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-pd]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_pandal', { p_id: Number(b.dataset.pd), p_action: b.dataset.pdAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadPandals();
+  }));
+  el.querySelectorAll('[data-pd-rm]').forEach(b => b.addEventListener('click', async () => {
+    const p = live[+b.dataset.pdRm];
+    const reason = prompt(`Reason for removing "${p.name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_pandal', { p_id: p.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadPandals();
+  }));
+  el.querySelector('[data-pd-window]').addEventListener('click', async () => {
+    const start = prompt('First day reports count (YYYY-MM-DD):', w.start || '');
+    if (!start) return;
+    const end = prompt('Last day reports count (YYYY-MM-DD):', w.end || '');
+    if (!end) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_set_puja_window', { p_start: start, p_end: end });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadPandals();
+  });
+}
+
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
 async function loadLatest(){
   const el = document.getElementById('adLatest');
@@ -866,6 +969,23 @@ document.getElementById('adReplyForm').addEventListener('submit', async (e) => {
   msg.textContent = error ? 'Failed: ' + (error.details || error.message) : 'Published on the report.';
   if (!error) e.target.reset();
 });
+
+/* Photos and database size against the plan, and the mark where photos should move to R2. */
+async function loadStorage(){
+  const el = document.getElementById('adStorage');
+  if (!el) return;
+  const { data: u, error } = await sb.rpc('kasa_admin_storage_usage');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const bar = (n, max, mark) => `<div style="position:relative;height:8px;background:var(--border);border-radius:4px;margin:.3rem 0 .8rem;">
+    <div style="width:${Math.min(100, n / max * 100)}%;height:100%;background:${mark && n >= mark ? 'var(--red)' : 'var(--amber)'};border-radius:4px;"></div>
+    ${mark ? `<div title="R2 mark" style="position:absolute;top:-3px;left:${mark / max * 100}%;width:2px;height:14px;background:var(--text-md);"></div>` : ''}</div>`;
+  el.innerHTML = `
+    <div>Report photos: <strong>${esc(u.photos_mb)} MB</strong> of ${esc(u.storage_limit_mb)} MB (${esc(u.photos)} files) · R2 mark ${esc(u.r2_threshold_mb)} MB
+      ${u.photos_mb >= u.r2_threshold_mb ? ' · <strong class="ad-bad">time to move new photos to R2</strong>' : ''}</div>
+    ${bar(u.photos_mb, u.storage_limit_mb, u.r2_threshold_mb)}
+    <div>Database: <strong>${esc(u.db_mb)} MB</strong> of ${esc(u.db_limit_mb)} MB</div>
+    ${bar(u.db_mb, u.db_limit_mb)}`;
+}
 
 async function loadAutomation(){
   const el = document.getElementById('adAutomation');
@@ -1104,7 +1224,7 @@ async function loadLetters(){
     o.list.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
     const late = o.list.filter(r => age(r) > (r.sla_days || 7)).length;
     o.subject = `${o.list.length} open civic report${o.list.length === 1 ? '' : 's'} in your area${late ? `, ${late} overdue` : ''}`;
-    o.body = `To ${o.to},\n\nResidents have reported the problems below on Parishkar Purulia. Each has a live-camera photo taken at the spot with GPS. They are still open.\n\n${o.list.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${o.page}\n\nParishkar Purulia\n${SITE}`;
+    o.body = `To ${o.to},\n\nResidents have reported the problems below on Parishkar Bengal. Each has a live-camera photo taken at the spot with GPS. They are still open.\n\n${o.list.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${o.page}\n\nParishkar Bengal\n${SITE}`;
     return o;
   });
   el.innerHTML = letters.map((o, i) => `
@@ -1489,7 +1609,7 @@ async function loadTranslations(){
       <thead><tr><th>Line</th><th>On the site now</th><th>Suggested (edit before approving)</th><th></th></tr></thead>
       <tbody>
         ${data.map(s => `<tr>
-          <td><small>${esc(s.ns)} · ${esc(s.key)}${s.page ? ` · <a href="${esc(s.page)}" target="_blank" rel="noopener">page</a>` : ''}<br>sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small>${en(s) ? `<br><small lang="en">EN: ${esc(en(s))}</small>` : ''}</td>
+          <td><small>${esc(s.ns)} · ${esc(s.key)}${/^\/[\w\/.-]*$/.test(s.page || '') ? ` · <a href="${esc(s.page)}" target="_blank" rel="noopener">page</a>` : ''}<br>sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small>${en(s) ? `<br><small lang="en">EN: ${esc(en(s))}</small>` : ''}</td>
           <td lang="bn">${esc(s.current)}</td>
           <td><textarea class="ad-input" data-tr-text="${esc(s.id)}" lang="bn" rows="3" style="width:100%;">${esc(s.suggested)}</textarea>${s.note ? `<br><small>Why: ${esc(s.note)}</small>` : ''}${toks(s.suggested) !== toks(s.current) ? '<br><small style="color:#b3261e">{…} or [[n|…]] parts differ from the current line</small>' : ''}</td>
           <td style="white-space:nowrap;">
@@ -1632,8 +1752,8 @@ async function invite(email, role){
   }
   const link = location.origin + location.pathname + '?invite=' + encodeURIComponent(data.token) + '&type=' + data.type;
   const text = (data.existing
-    ? 'Parishkar Purulia: use this link to set a new password for the admin page. It works once: '
-    : 'You are invited to the Parishkar Purulia moderation team. Open this link and choose a password. It works once: ') + link;
+    ? 'Parishkar Bengal: use this link to set a new password for the admin page. It works once: '
+    : 'You are invited to the Parishkar Bengal moderation team. Open this link and choose a password. It works once: ') + link;
   box.innerHTML = `${data.existing ? esc(email) + ' already has an account, so this is a password-reset link.' : 'Send this to ' + esc(email) + '.'}
     It works once and expires after a while; press Invite again for a fresh one.<br>
     <input class="ad-input" readonly value="${esc(link)}" aria-label="Invite link">

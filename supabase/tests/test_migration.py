@@ -130,6 +130,7 @@ BASELINE = {'require_evidence_photo_check': 'false', 'voter_min_account_hours': 
             'trusted_prior_actions': '0', 'confirm_same_claimant_days': '0', 'max_travel_kmh': '1000000',
             'quiet_start_hour': '0', 'quiet_end_hour': '0', 'require_live_report_photo': 'false',
             'require_live_capture': 'false',
+            'reports_per_hour_network': '100000', 'reports_per_day_network': '100000',
             # Older scenarios are spread over several km, which is now "rural"; keep town numbers for them.
             'rural_verify_quorum': '3', 'rural_min_distinct_networks': '2', 'rural_claim_expiry_days': '14'}
 
@@ -180,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -263,12 +264,12 @@ check('...and stays out of the Purulia view, in the places view', view_row(hres[
       and q('select count(*) from public.kasa_public_place_reports where id::text = %s', (str(hres['id']),))[0][0] == 1)
 check('photo must actually be uploaded',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None,
           p_photo_path='reports/doesnotexist12345678.jpg') == 'KASA_PHOTO_MISSING')
 admin_sql("update kasa_private.settings set value = '\"2000-01-01T00:00:00Z\"' where key = 'old_photo_paths_until'")
 check('old per-user-folder photo paths are refused once the old-page window has closed',
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None,
           p_photo_path=f'reports/{alice}/abcdefgh12345678.jpg') == 'KASA_PHOTO_INVALID')
 admin_sql("update kasa_private.settings set value = '\"2999-01-01T00:00:00Z\"' where key = 'old_photo_paths_until'")
 old_page_user = user('30 days')
@@ -284,15 +285,15 @@ admin_sql("insert into storage.objects (bucket_id, name, owner, owner_id) values
           (old_path2, old_page_user, str(old_page_user)))
 check("...but nobody can use someone else's old-format photo",
       err(rpc, 'kasa_create_report', uid=someone, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=old_path2) == 'KASA_PHOTO_INVALID')
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=old_path2) == 'KASA_PHOTO_INVALID')
 admin_sql("update kasa_private.settings set value = '\"2026-09-26T06:00:00Z\"' where key = 'old_photo_paths_until'")
 check("can't file with someone else's photo",
       err(rpc, 'kasa_create_report', uid=someone, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None,
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None,
           p_photo_path=upload(alice, 'reports')) == 'KASA_PHOTO_NOT_YOURS')
 check("can't reuse a photo already used in another report",
       err(rpc, 'kasa_create_report', uid=alice, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=alice_photo) == 'KASA_PHOTO_REUSED')
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=alice_photo) == 'KASA_PHOTO_REUSED')
 
 bob = user('60 days')
 dup, _ = report(bob, where=offset(10))
@@ -440,10 +441,10 @@ res6_path = upload(bob, 'reports')
 spot6 = offset(7000)
 check('with checks required, unchecked photos are refused',
       err(rpc, 'kasa_create_report', uid=bob, p_category='garbage', p_severity='minor', p_lat=spot6[0], p_lng=spot6[1],
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=res6_path) == 'KASA_PHOTO_UNCHECKED')
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=res6_path) == 'KASA_PHOTO_UNCHECKED')
 photo_check(res6_path, dhash=fp(A), garbage=0.92)
 res6 = rpc('kasa_create_report', uid=bob, p_category='garbage', p_severity='minor', p_lat=spot6[0], p_lng=spot6[1],
-           p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=res6_path)
+           p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=res6_path)
 dirty = upload(official, 'claims'); photo_check(dirty, dhash=fp(B), garbage=0.85)
 check('cleanup photo that still shows garbage is refused', err(claim, official, res6['id'], where=spot6, path=dirty) == 'KASA_STILL_DIRTY')
 same = upload(official, 'claims'); photo_check(same, dhash=fp(A, flip=3), garbage=0.1)
@@ -453,16 +454,16 @@ copy = upload(official, 'claims'); photo_check(copy, sha='deadbeef' * 8, dhash=f
 earlier_user = user()
 earlier = upload(earlier_user, 'reports'); photo_check(earlier, sha='deadbeef' * 8, dhash=fp(C), garbage=0.9)
 rpc('kasa_create_report', uid=earlier_user, p_category='garbage', p_severity='minor', p_lat=offset(7600)[0], p_lng=offset(7600)[1],
-    p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=earlier)
+    p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=earlier)
 check('byte-identical photo used anywhere else is refused', err(claim, official, res6['id'], where=spot6, path=copy) == 'KASA_PHOTO_REUSED')
 retry_user = user()
 first_try = upload(retry_user, 'reports'); photo_check(first_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 check('a refused attempt (outside town) leaves the photo unused...',
       err(rpc, 'kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=27.70, p_lng=85.32,
-          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=first_try) == 'KASA_OUTSIDE_AREA')
+          p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=first_try) == 'KASA_OUTSIDE_AREA')
 second_try = upload(retry_user, 'reports'); photo_check(second_try, sha='feedface' * 8, dhash=None, garbage=0.9)
 retried = rpc('kasa_create_report', uid=retry_user, p_category='garbage', p_severity='minor', p_lat=offset(7800)[0], p_lng=offset(7800)[1],
-              p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=second_try)
+              p_accuracy=10.0, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=second_try)
 check('...so trying again with the same photo works (no false "already used")', retried['moderation_status'] == 'approved', retried)
 unsafe = upload(official, 'claims'); photo_check(unsafe, dhash=fp(D), garbage=0.0, unsafe=True)
 check('unsafe images are refused', err(claim, official, res6['id'], where=spot6, path=unsafe) == 'KASA_PHOTO_UNSAFE')
@@ -542,7 +543,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2479,6 +2480,135 @@ fl = user()
 for i in range(3):
     feed(fl, f'Feeder {i}', offset(-4600 - i * 200, -2400))
 check('one caregiver can register at most three spots', err(feed, fl, 'Feeder 4', offset(-5400, -2400)) == 'KASA_FEED_LIMIT')
+
+# ─────────────────────────── Security audit 2026-10-07 ─────────────────────
+pin = user()
+check('a report without a live GPS fix (hand-placed pin) is refused',
+      err(rpc, 'kasa_create_report', uid=pin, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
+          p_accuracy=None, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=upload(pin, 'reports')) == 'KASA_GPS_REQUIRED')
+check('a report with a useless GPS fix is refused',
+      err(rpc, 'kasa_create_report', uid=pin, p_category='garbage', p_severity='minor', p_lat=SPOT[0], p_lng=SPOT[1],
+          p_accuracy=5000, p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=upload(pin, 'reports')) == 'KASA_GPS_REQUIRED')
+set_rules({'reports_per_hour_network': '2'})
+net_errs = []
+for i in range(3):
+    u = user()
+    path = upload(u, 'reports', )
+    net_errs.append(err(rpc, 'kasa_create_report', uid=u, ip='10.77.1.' + str(i + 2), p_category='garbage', p_severity='minor',
+                        p_lat=offset(-9000 - i * 300, 3000)[0], p_lng=offset(-9000 - i * 300, 3000)[1], p_accuracy=10.0,
+                        p_ward_no=5, p_description=None, p_landmark=None, p_photo_path=path))
+check('fresh sign-ins on one network cannot dodge the report limit', net_errs[:2] == [None, None] and net_errs[2] == 'KASA_RATE_LIMIT', net_errs)
+set_rules({'reports_per_hour_network': '100000'})
+
+admin_sql("insert into public.feature_suggestions (id, category, title, description, status) values ('00000000-0000-0000-0000-00000000f00d', 'feature', 'Idea', 'An idea', 'planned')")
+v1 = rpc('kasa_vote_suggestion', ip='10.88.0.1', p_suggestion_id='00000000-0000-0000-0000-00000000f00d')
+v2 = rpc('kasa_vote_suggestion', ip='10.88.0.2', p_suggestion_id='00000000-0000-0000-0000-00000000f00d')
+v3 = rpc('kasa_vote_suggestion', ip='10.89.0.1', p_suggestion_id='00000000-0000-0000-0000-00000000f00d')
+check('one vote per network on a feature idea', v1['success'] and not v2['success'] and v3['success'] and v3['votes'] == 2, (v1, v2, v3))
+check('anon cannot insert feature ideas straight into the table (skipping review)',
+      err(q, "insert into public.feature_suggestions (category, title, description, status, votes) values ('feature', 'x', 'y', 'planned', 999)") is not None)
+subs = [rpc('kasa_submit_suggestion', ip='10.90.0.1', p_category='feature', p_title=f'T{i}', p_description='D') for i in range(6)]
+check('feature ideas are rate-limited per network', all(x['success'] for x in subs[:5]) and not subs[5]['success'], subs[5])
+digs = [rpc('kasa_digest_subscribe', ip='10.91.0.1', p_email=f'victim{i}@example.org') for i in range(6)]
+check('digest sign-ups are rate-limited per network', all(x['success'] for x in digs[:5]) and not digs[5]['success'], digs[5])
+check('translation wording with HTML tags is refused',
+      err(rpc, 'kasa_suggest_translation', ip='172.20.1.1', p_ns='ward', p_key='title', p_current='x',
+          p_suggested='<img src=x onerror=alert(1)>', p_page='/ward.html') == 'KASA_BAD_TEXT')
+rpc('kasa_suggest_translation', ip='172.21.1.1', p_ns='ward', p_key='title2', p_current='x', p_suggested='ঠিক', p_page='javascript:alert(1)')
+check('a non-path page link is dropped from translation suggestions',
+      admin_sql("select page from kasa_private.translation_suggestions where key = 'title2'")[0][0] is None)
+check('anon cannot claim the weekly pattern email', err(rpc, 'kasa_weekly_pattern_claim') is not None)
+w1 = rpc('kasa_weekly_pattern_claim', role='service_role')
+w2 = rpc('kasa_weekly_pattern_claim', role='service_role')
+check('the weekly pattern email goes out once a week, however often it is called', w1['claimed'] and not w2['claimed'], (w1, w2))
+# ── Snake sightings and snake rescuers ──────────────────────────────────────
+sn_base = offset(-6000, 3000)
+def rescuer(uid, name='Bablu Mahato', where=sn_base, acc=10.0, **kw):
+    args = dict(p_name=name, p_phone='+91 98300 12345', p_whatsapp=True, p_lat=where[0], p_lng=where[1], p_accuracy=acc, p_range_km=5)
+    args.update(kw)
+    return rpc('kasa_register_snake_rescuer', uid=uid, **args)
+sr_u = user()
+check('the public cannot register as a snake rescuer without signing in',
+      refused(err(rpc, 'kasa_register_snake_rescuer', p_name='X', p_phone='9830012345', p_whatsapp=True, p_lat=sn_base[0], p_lng=sn_base[1], p_accuracy=10.0, p_range_km=5)))
+check('a snake rescuer needs a real mobile number', err(rescuer, sr_u, p_phone='12345') == 'KASA_BAD_PHONE')
+check('a snake rescuer needs a sensible range', err(rescuer, sr_u, p_range_km=500) == 'KASA_BAD_FORM')
+check('a weak GPS fix cannot register a snake rescuer', err(rescuer, sr_u, acc=500.0) == 'KASA_GPS_WEAK')
+r1 = rescuer(sr_u)
+check('a snake rescuer registration waits for a moderator', r1['status'] == 'pending', r1)
+check('one account registers one rescuer', err(rescuer, sr_u) == 'KASA_RESCUER_EXISTS')
+check('a waiting rescuer is not public', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
+check('non-admins cannot see the rescuer queue', err(rpc, 'kasa_admin_snake_queue', uid=user()) == 'KASA_NOT_ADMIN')
+sq = [x for x in rpc('kasa_admin_snake_queue', uid=mod) if x['id'] == r1['id']]
+check('moderators see the number to call, stored as 10 digits', sq and sq[0]['phone'] == '9830012345' and 'user_id' not in sq[0], sq)
+rpc('kasa_admin_review_snake', uid=mod, p_id=r1['id'], p_action='approve')
+far_u = user()
+r2 = rescuer(far_u, 'Far Rescuer', offset(-6000, -9000), p_range_km=3)
+rpc('kasa_admin_review_snake', uid=mod, p_id=r2['id'], p_action='approve')
+
+def snake(uid, where, live=True, **kw):
+    path = upload(uid, 'reports')
+    photo_check(path)
+    if live:
+        meta(uid, path, capture='live', capture_token=cam_token(uid))
+    return rpc('kasa_report_snake', uid=uid, p_lat=where[0], p_lng=where[1], p_accuracy=10.0, p_photo_path=path, **kw)
+sn_u = user()
+admin_sql("update kasa_private.settings set value = 'true' where key = 'require_live_capture'")
+check('a snake sighting needs a live camera photo when the site requires one', err(snake, sn_u, offset(1000, 0, base=sn_base), live=False) == 'KASA_LIVE_CAMERA_REQUIRED')
+admin_sql("update kasa_private.settings set value = 'false' where key = 'require_live_capture'")
+s1 = snake(sn_u, offset(1000, 0, base=sn_base), p_note='inside the cowshed')
+names = [x['name'] for x in s1['rescuers']]
+check('a sighting lists the rescuers whose range covers it, not the far ones', names == ['Bablu Mahato'] and s1['rescuers'][0]['phone'] == '9830012345', s1)
+pub = [x for x in rpc('kasa_snake_sightings') if x['id'] == s1['id']]
+check('a sighting is public without the sender', pub and pub[0]['note'] == 'inside the cowshed' and 'user_id' not in pub[0], pub)
+admin_sql("update kasa_private.snake_sightings set created_at = now() - interval '3 days' where id = %s", (s1['id'],))
+check('old sightings leave the public list', not any(x['id'] == s1['id'] for x in rpc('kasa_snake_sightings')))
+rpc('kasa_leave_snake_rescuer', uid=sr_u)
+check('a rescuer who stops leaves the list', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
+check('a stopped rescuer is not offered for new sightings', snake(sn_u, offset(1200, 0, base=sn_base))['rescuers'] == [])
+# ── Swachh Pandal ───────────────────────────────────────────────────────────
+pd_spot = offset(-6400, -2400)
+def pandal(uid, name='Nilkuthidanga Sarbojanin', where=pd_spot, acc=10.0):
+    return rpc('kasa_add_pandal', uid=uid, p_name=name, p_club='Nilkuthidanga Club', p_lat=where[0], p_lng=where[1], p_accuracy=acc)
+check('the public cannot add a pandal without signing in',
+      refused(err(rpc, 'kasa_add_pandal', p_name='Pandal', p_club=None, p_lat=pd_spot[0], p_lng=pd_spot[1], p_accuracy=10.0)))
+pd_u = user()
+check('a weak GPS fix cannot add a pandal', err(pandal, pd_u, acc=500.0) == 'KASA_GPS_WEAK')
+p1 = pandal(pd_u)
+check('a pandal added on the spot waits for a moderator', p1['status'] == 'pending', p1)
+check('a waiting pandal is not public', not any(x['id'] == p1['id'] for x in rpc('kasa_pandals')['pandals']))
+check('the same pandal cannot be added twice', err(pandal, user(), 'Again', offset(10, 0, base=pd_spot)) == 'KASA_PANDAL_TAKEN')
+check('non-admins cannot see the pandal queue', err(rpc, 'kasa_admin_pandal_queue', uid=user()) == 'KASA_NOT_ADMIN')
+check('non-admins cannot approve a pandal', err(rpc, 'kasa_admin_review_pandal', uid=user(), p_id=p1['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_pandal', uid=mod, p_id=p1['id'], p_action='approve')
+check('non-admins cannot set the puja window', err(rpc, 'kasa_admin_set_puja_window', uid=user(), p_start='2026-10-01', p_end='2026-10-10') == 'KASA_NOT_ADMIN')
+check('a puja window longer than 45 days is refused', err(rpc, 'kasa_admin_set_puja_window', uid=mod, p_start='2026-01-01', p_end='2026-12-31') == 'KASA_BAD_FORM')
+rpc('kasa_admin_set_puja_window', uid=mod, p_start=str(admin_sql("select (now() - interval '3 days')::date")[0][0]),
+    p_end=str(admin_sql("select (now() + interval '3 days')::date")[0][0]))
+near, far = offset(40, 0, base=pd_spot), offset(400, 0, base=pd_spot)
+admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url) values (%s, %s, 'open', 'approved', 'x'), (%s, %s, 'resolved', 'approved', 'x'), (%s, %s, 'open', 'hidden', 'x'), (%s, %s, 'open', 'approved', 'x')",
+          (near[0], near[1], near[0], near[1], near[0], near[1], far[0], far[1]))
+admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url, created_at) values (%s, %s, 'open', 'approved', 'x', now() - interval '30 days')", (near[0], near[1]))
+pp = [x for x in rpc('kasa_pandals')['pandals'] if x['id'] == p1['id']]
+check('a pandal counts public reports near it during the puja, open and fixed', pp and pp[0]['open'] == 1 and pp[0]['fixed'] == 1, pp)
+rpc('kasa_admin_review_pandal', uid=mod, p_id=p1['id'], p_action='remove', p_note='duplicate')
+check('a removed pandal leaves the list', not any(x['id'] == p1['id'] for x in rpc('kasa_pandals')['pandals']))
+
+# ── Storage meter / R2 alert ────────────────────────────────────────────────
+check('non-admins cannot see storage use', err(rpc, 'kasa_admin_storage_usage', uid=user()) == 'KASA_NOT_ADMIN')
+su0 = rpc('kasa_admin_storage_usage', uid=mod)
+check('moderators see photo and database size against the plan', su0['storage_limit_mb'] == 1024 and su0['r2_threshold_mb'] == 700 and su0['db_mb'] > 0, su0)
+check('no storage alert below the R2 mark', admin_sql("select kasa_private.storage_alert()")[0][0] == {})
+admin_sql("insert into storage.objects (bucket_id, name, metadata) values ('kasa-photos', 'big/one.jpg', '{\"size\": 750000000}')")
+sa = admin_sql("select kasa_private.storage_alert()")[0][0]
+check('photos past the R2 mark raise the storage alert', float(sa['photos_mb']) > 700 and sa['threshold_mb'] == 700, sa)
+admin_sql("update storage.objects set metadata = '{}' where name = 'big/one.jpg'")
+
+# Help assistant daily limit (kasa-assistant edge function, service key only).
+as_u = user()
+check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))
+takes = [rpc('kasa_assistant_take', role='service_role', p_user=as_u, p_limit=2) for _ in range(3)]
+check('assistant allows the daily limit, then stops', takes == [True, True, False], takes)
+check('another visitor has their own count', rpc('kasa_assistant_take', role='service_role', p_user=user(), p_limit=2) is True)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

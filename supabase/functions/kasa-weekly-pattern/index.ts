@@ -6,7 +6,7 @@
 // Deploy:  supabase functions deploy kasa-weekly-pattern
 // Secrets: RESEND_API_KEY      (required; shared with other alerts)
 //          PATTERN_DIGEST_TO    (optional; email recipients, comma-sep)
-//          PATTERN_DIGEST_FROM  (optional; default "Parishkar Purulia <onboarding@resend.dev>")
+//          PATTERN_DIGEST_FROM  (optional; default "Parishkar Bengal <onboarding@resend.dev>")
 //          SITE_URL             (optional; default https://archiboltmusk.github.io/Purulia)
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
@@ -15,7 +15,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const TO = (Deno.env.get('PATTERN_DIGEST_TO') || '').split(',').map(s => s.trim()).filter(Boolean);
-const FROM = Deno.env.get('PATTERN_DIGEST_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('PATTERN_DIGEST_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '');
 
 interface Pattern {
@@ -125,7 +125,7 @@ function renderEmail(patterns: Pattern[], isPreview: boolean, unsubscribeToken?:
   const lines: string[] = [];
   if (isPreview) lines.push('PREVIEW — sent only to the Parishkar team.\n');
 
-  lines.push(`Parishkar Purulia — weekly patterns for ${week}\n`);
+  lines.push(`Parishkar Bengal — weekly patterns for ${week}\n`);
 
   if (!patterns.length) {
     lines.push('No notable patterns this week. Reports are flowing normally.');
@@ -216,6 +216,12 @@ Deno.serve(async (req) => {
     });
   }
 
+  // Anyone can call this function with the public key, so each week is claimed once in the
+  // database before any email goes out.
+  const { data: claim, error: claimErr } = await admin.rpc('kasa_weekly_pattern_claim');
+  if (claimErr) return reply(500, { error: claimErr.message });
+  if (!claim?.claimed) return reply(200, { sent: false, reason: 'already sent this week', week: claim?.week });
+
   // Send to all recipients
   let sentCount = 0;
   let failCount = 0;
@@ -269,6 +275,10 @@ Deno.serve(async (req) => {
       failCount++;
     }
   }
+
+  await admin.rpc('kasa_weekly_pattern_done', {
+    p_week: claim.week, p_error: sentCount === 0 && failCount > 0 ? `all ${failCount} emails failed` : null,
+  });
 
   return reply(200, {
     sent: sentCount > 0,

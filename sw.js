@@ -1,8 +1,8 @@
-/* Parishkar Purulia service worker
+/* Parishkar Bengal service worker
    - keeps the page usable offline (reports queue and upload later)
    - shows "new report near you" alerts and opens the report when tapped */
 
-const VERSION = 'kasa-v2-134';
+const VERSION = 'kasa-v2-139';
 const SHELL = ['kasa.html', 'kasa.css', 'kasa.js', 'digest-sheet.css', 'digest-sheet.js', 'kasa-i18n.js', 'translate-fix.js', 'kasa-photo-meta.js', 'config.js', 'bug-report.js', 'source-fix.js', 'city.js', 'places.js', 'purulia_wards.geojson', 'purulia_blocks.geojson', 'purulia_towns.geojson', 'purulia_gps.geojson', 'version.js',
   'manifest.webmanifest', 'kasa-icon-192.png'];
 // Versioned CDN files never change, so they can be served straight from cache.
@@ -61,7 +61,7 @@ async function networkFirst(req) {
 self.addEventListener('push', (e) => {
   let data = {};
   try { data = e.data ? e.data.json() : {}; } catch (_) { data = { body: e.data && e.data.text() }; }
-  e.waitUntil(self.registration.showNotification(data.title || 'Parishkar Purulia', {
+  e.waitUntil(self.registration.showNotification(data.title || 'Parishkar Bengal', {
     body: data.body || '',
     icon: 'kasa-icon-192.png',
     badge: 'kasa-icon-192.png',

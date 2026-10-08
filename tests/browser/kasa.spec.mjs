@@ -1,4 +1,5 @@
 import { test, expect, REPORTS } from './fixtures.mjs';
+import { readFileSync } from 'node:fs';
 
 const mapReportIds = (page) => page.evaluate(() => {
   const src = typeof mainMap !== 'undefined' && mainMap && mainMap.getSource('reports');
@@ -93,7 +94,7 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   await page.addInitScript(() => localStorage.setItem('kasa_lang', 'sat'));
   await page.goto('kasa.html');
   await expect(page.locator('html')).toHaveAttribute('lang', 'sat');
-  await expect(page.locator('[data-i18n="step3_submit"]').first()).toHaveText(/[᱐-᱿]/);
+  await expect(page.locator('[data-i18n="step3_slide"]').first()).toHaveText(/[᱐-᱿]/);
   // Strings not yet translated fall back to English rather than showing the raw key.
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
@@ -124,7 +125,20 @@ test('report form sends the picked severity and problem type', async ({ page, ba
   await expect(page.locator('#k-issue-route')).toContainText('Goes to');
   const submit = page.locator('#k-submit');
   await expect(submit).toBeEnabled();
+  // One tap only arms it; a stray tap never files a report.
   await submit.click();
+  await expect(page.locator('#k-submit-label')).toHaveText('Tap again to send');
+  await page.waitForTimeout(300);
+  expect(backend.calls.some(c => c.kind === 'rpc' && c.name === 'kasa_create_report')).toBe(false);
+  // Slide it all the way across.
+  const box = await submit.boundingBox();
+  await page.mouse.move(box.x + 20, box.y + box.height / 2);
+  await page.mouse.down();
+  await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.move(box.x + box.width - 4, box.y + box.height / 2, { steps: 5 });
+  await page.mouse.up();
+  // Each real stage is listed as it happens, ending with the outcome.
+  await expect(page.locator('#k-submit-steps li').first()).toContainText('Location fixed');
   await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body)
     .toMatchObject({ p_severity: 'severe', p_waste_type: 'construction' });
 });
@@ -153,7 +167,7 @@ test.describe('inside the Instagram app on an iPhone', () => {
     await expect(page.locator('#k-iab-report-copy')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-iab-report-note')).not.toHaveAttribute('hidden', '');
-    await expect(page.locator('#k-mini-map')).toHaveAttribute('hidden', '');
+    await expect(page.locator('#k-mini-map')).toHaveCount(0);
   });
 });
 
@@ -266,4 +280,18 @@ test('a report shows its official grievance numbers, and anyone can add one', as
   await add.locator('button[type="submit"]').click();
   await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_add_docket')?.body)
     .toMatchObject({ p_report_id: '102', p_portal: 'rti', p_number: 'PRLDM/R/2026/00042' });
+});
+
+test('all reports download as a GeoJSON map file with the CSV columns', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.locator('[data-geojson="all"]').dispatchEvent('click')]);
+  expect(dl.suggestedFilename()).toMatch(/\.geojson$/);
+  const fc = JSON.parse(readFileSync(await dl.path(), 'utf8'));
+  expect(fc.type).toBe('FeatureCollection');
+  expect(fc.features.length).toBeGreaterThan(0);
+  const f = fc.features[0];
+  expect(f.geometry.type).toBe('Point');
+  expect(f.properties).toHaveProperty('link');
+  expect(f.properties).not.toHaveProperty('lat');
 });

@@ -83,7 +83,7 @@
 <main class="sg-wrap">
   <div class="sg-head">
     <h1 class="sg-title" data-i18n="suggestions_title">Suggest a feature</h1>
-    <p class="sg-sub" data-i18n="suggestions_sub">Help shape the future of Parishkar Purulia. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.</p>
+    <p class="sg-sub" data-i18n="suggestions_sub">Help shape the future of Parishkar Bengal. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.</p>
   </div>
 
   <!-- Submit Form -->
@@ -285,7 +285,10 @@ async function submitSuggestion() {
 }
 
 function showMessage(msg, type, container) {
-  container.innerHTML = `<div class="sg-message sg-${type}">${msg}</div>`;
+  const box = document.createElement('div');
+  box.className = `sg-message sg-${type}`;
+  box.textContent = msg;
+  container.replaceChildren(box);
   setTimeout(() => { container.innerHTML = ''; }, 5000);
 }
 
@@ -361,15 +364,15 @@ function renderSuggestionItem(s) {
         <div>
           <div class="sg-item-title">${escapeHtml(s.title)}</div>
           <span class="sg-item-cat">${escapeHtml(s.category)}</span>
-          ${!s.isLocal ? `<span class="sg-item-status ${statusClass}">${s.status}</span>` : ''}
+          ${!s.isLocal ? `<span class="sg-item-status ${statusClass}">${escapeHtml(s.status)}</span>` : ''}
         </div>
       </div>
       <p class="sg-item-desc">${escapeHtml(s.description)}</p>
       <div class="sg-item-foot">
         <span>${new Date(s.created_at || new Date()).toLocaleDateString()}</span>
         ${!s.isLocal ? `
-          <button class="sg-vote-btn" data-id="${s.id}">
-            👍 <span class="sg-vote-count">${s.votes}</span>
+          <button class="sg-vote-btn" data-id="${escapeHtml(s.id)}">
+            👍 <span class="sg-vote-count">${Number(s.votes) || 0}</span>
           </button>
         ` : '<span style="color:var(--text-lo);">Pending review</span>'}
       </div>

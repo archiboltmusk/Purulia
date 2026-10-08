@@ -3,9 +3,9 @@ name: Kasa tests
 on:
   push:
     branches: [main]
-    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'dogs.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'source-fix.js', 'translate-fix.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'home-place.js', 'circle-place.js', 'municipality-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
+    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'dogs.js', 'routes.js', 'snakes.js', 'pandals.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'source-fix.js', 'translate-fix.js', 'assistant.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'home-place.js', 'circle-place.js', 'municipality-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
   pull_request:
-    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'dogs.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'source-fix.js', 'translate-fix.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'home-place.js', 'circle-place.js', 'municipality-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
+    paths: ['supabase/**', 'kasa*.js', 'places.js', 'add-town.js', 'sw.js', 'admin.js', 'dogs.js', 'routes.js', 'snakes.js', 'pandals.js', 'promises.js', 'noticeboard.js', 'bug-report.js', 'source-fix.js', 'translate-fix.js', 'assistant.js', 'page-lang.js', 'place-facts.js', 'data-place.js', 'home-place.js', 'circle-place.js', 'municipality-place.js', 'changelog.html', 'version.js', 'tools/version.mjs', '.github/workflows/kasa-tests.yml']
   workflow_dispatch:
 
 permissions:
@@ -42,7 +42,7 @@ jobs:
         with:
           node-version: '22'
       - name: Syntax check
-        run: for f in kasa.js kasa-i18n.js digest-sheet.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js dogs.js waste.js toilets.js promises.js noticeboard.js bug-report.js source-fix.js translate-fix.js page-lang.js version.js places.js add-town.js districts.js place-facts.js data-place.js home-place.js circle-place.js municipality-place.js analytics.js digest.js; do node --check "$f"; done
+        run: for f in kasa.js kasa-i18n.js digest-sheet.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js dogs.js snakes.js pandals.js waste.js toilets.js promises.js noticeboard.js bug-report.js source-fix.js translate-fix.js assistant.js page-lang.js version.js places.js add-town.js districts.js place-facts.js data-place.js home-place.js circle-place.js municipality-place.js analytics.js digest.js routes.js; do node --check "$f"; done
       - name: Version matches the changelog
         run: node tools/version.mjs --check
       - name: Photo metadata reader (three time zones)

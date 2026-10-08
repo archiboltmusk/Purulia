@@ -1,7 +1,7 @@
 {
-  "name": "Parishkar Purulia",
+  "name": "Parishkar Bengal",
   "short_name": "Parishkar",
-  "description": "Report civic problems in Purulia town and track who fixes them.",
+  "description": "Report civic problems anywhere in West Bengal, see who is responsible, and ask for help in Bengali, Hindi or English.",
   "start_url": "kasa.html",
   "scope": "./",
   "display": "standalone",
@@ -9,7 +9,41 @@
   "theme_color": "#0a0805",
   "lang": "en",
   "icons": [
-    { "src": "kasa-icon-192.png", "sizes": "192x192", "type": "image/png" },
-    { "src": "kasa-icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+    {
+      "src": "kasa-icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "kasa-icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "id": "kasa.html",
+  "shortcuts": [
+    {
+      "name": "Report a problem",
+      "short_name": "Report",
+      "url": "kasa.html",
+      "icons": [
+        {
+          "src": "kasa-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    },
+    {
+      "name": "Ask Parishkar",
+      "short_name": "Ask",
+      "url": "assistant.html",
+      "icons": [
+        {
+          "src": "kasa-icon-192.png",
+          "sizes": "192x192"
+        }
+      ]
+    }
   ]
 }

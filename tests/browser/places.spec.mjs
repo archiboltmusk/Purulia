@@ -694,6 +694,22 @@ test('community dog feeding spots follow the chosen district and fill the letter
   await expect(page.locator('#dg-letter')).toHaveValue(/Bishnupur Municipality[\s\S]*Ward No\. 4[\s\S]*rule 20/);
 });
 
+test('snake rescuers and sightings follow the chosen district, with call and WhatsApp links', async ({ page }) => {
+  const json = body => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
+  await page.route('**/rest/v1/rpc/kasa_snake_rescuers*', json([
+    { id: 1, name: 'Bablu Mahato', phone: '9830012345', whatsapp: true, range_km: 10, place: 'district:bankura', block_name: 'Onda', district: 'bankura' },
+    { id: 2, name: 'Purulia rescuer', phone: '9830099999', whatsapp: false, range_km: 5, place: null }]));
+  await page.route('**/rest/v1/rpc/kasa_snake_sightings*', json([
+    { id: 7, lat: 23.2, lng: 87.1, photo_url: 'https://example.org/s.jpg', note: 'in the cowshed', place: 'district:bankura', block_name: 'Onda', district: 'bankura', at: new Date().toISOString() }]));
+  await page.goto('snakes.html?d=bankura');
+  await expect(page.locator('#sn-res')).toContainText('Bablu Mahato');
+  await expect(page.locator('#sn-res')).not.toContainText('Purulia rescuer');
+  await expect(page.locator('#sn-res a[href="tel:+919830012345"]')).toBeVisible();
+  await expect(page.locator('#sn-res a[href="https://wa.me/919830012345"]')).toBeVisible();
+  await expect(page.locator('#sn-seen')).toContainText('in the cowshed');
+  await expect(page.locator('#sn-t-seen')).toHaveText('1');
+});
+
 test('municipality, promises and public demands follow the chosen district', async ({ page }) => {
   await page.goto('municipality.html?d=bankura');
   await expect(page.locator('#mu-bodies')).toContainText('Bishnupur');
