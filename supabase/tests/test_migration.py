@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -543,7 +543,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2673,6 +2673,81 @@ check('browsers cannot call the assistant limit', 'permission denied' in (err(rp
 takes = [rpc('kasa_assistant_take', role='service_role', p_user=as_u, p_limit=2) for _ in range(3)]
 check('assistant allows the daily limit, then stops', takes == [True, True, False], takes)
 check('another visitor has their own count', rpc('kasa_assistant_take', role='service_role', p_user=user(), p_limit=2) is True)
+
+# ── Public works linked to verified reports ─────────────────────────────────
+wk = (23.30, 86.30)
+def sq(c, d):
+    return {'type': 'Polygon', 'coordinates': [[[c[1] - d, c[0] - d], [c[1] + d, c[0] - d], [c[1] + d, c[0] + d], [c[1] - d, c[0] + d], [c[1] - d, c[0] - d]]]}
+admin_sql("insert into kasa_private.jurisdictions (body, body_type, outline, source_url) values "
+          "('Test Municipality', 'municipality', %s, 'https://example.org/m'), ('PWD Test Division', 'pwd_division', %s, 'https://example.org/pwd') "
+          "on conflict do nothing", (json.dumps(sq(wk, 0.01)), json.dumps(sq(wk, 0.2))))
+ja = rpc('kasa_jurisdictions_at', p_lat=wk[0], p_lng=wk[1])
+check('a spot lists every body that answers for it, each with a source',
+      {'Test Municipality', 'PWD Test Division'} <= {j['body'] for j in ja} and all(j['source_url'] for j in ja), ja)
+ja2 = rpc('kasa_jurisdictions_at', p_lat=wk[0] + 0.05, p_lng=wk[1])
+check('a spot outside a body\'s limits does not list it', 'Test Municipality' not in {j['body'] for j in ja2}, ja2)
+road = {'type': 'LineString', 'coordinates': [[wk[1] - 0.005, wk[0]], [wk[1] + 0.005, wk[0]]]}
+check('an asset needs a source', err(admin_sql, "insert into kasa_private.assets (kind, name, geometry, source, source_url, licence) values ('road', 'x', %s, 'hand_drawn', 'u', 'l')", (json.dumps(road),)) is not None)
+aid = admin_sql("insert into kasa_private.assets (kind, name, geometry, source, source_ref, source_url, licence) values ('road', 'Station Road', %s, 'osm', 'way/test1', 'https://www.openstreetmap.org/way/1', 'ODbL 1.0') "
+                "on conflict (source, source_ref) where source_ref is not null do update set name = excluded.name returning id, min_lng, max_lng", (json.dumps(road),))[0]
+check('an asset gets its bounding box from its geometry', abs(aid[1] - (wk[1] - 0.005)) < 1e-9 and abs(aid[2] - (wk[1] + 0.005)) < 1e-9, aid)
+aid = aid[0]
+check('a contractor GSTIN must be a GSTIN', err(admin_sql, "insert into kasa_private.contractors (firm_name, gstin, source_url) values ('X', 'ABCDE1234F', 'u')") is not None)
+cid = admin_sql("insert into kasa_private.contractors (firm_name, gstin, source_url) values ('Test Builders', '19ABCDE1234F1Z5', 'https://example.org/award') "
+                "on conflict (gstin) do update set firm_name = excluded.firm_name returning id")[0][0]
+check('a DLP needs the agreement that states it',
+      err(admin_sql, "insert into kasa_private.works (portal, title, dlp_months, source_url) values ('wbtenders', 'x', 12, 'u')") is not None)
+check('works carry no DLP unless one is given',
+      admin_sql("select column_default from information_schema.columns where table_schema = 'kasa_private' and table_name = 'works' and column_name = 'dlp_months'")[0][0] is None)
+w1 = admin_sql("insert into kasa_private.works (portal, tender_ref, title, contractor_id, status, completed_on, completion_source_url, dlp_months, dlp_source_url, source_url) "
+               "values ('wbtenders', 'TEST/NIT/1', 'Resurfacing Station Road', %s, 'completed', current_date - 60, 'https://example.org/cc', 12, 'https://example.org/agreement', 'https://example.org/nit') "
+               "on conflict (portal, tender_ref) where tender_ref is not null do update set title = excluded.title returning id", (cid,))[0][0]
+w2 = admin_sql("insert into kasa_private.works (portal, tender_ref, title, status, completed_on, completion_source_url, source_url) "
+               "values ('wbtenders', 'TEST/NIT/2', 'Drain beside Station Road', 'completed', current_date - 60, 'https://example.org/cc2', 'https://example.org/nit2') "
+               "on conflict (portal, tender_ref) where tender_ref is not null do update set title = excluded.title returning id")[0][0]
+check('a tender cannot be linked to an asset as already confirmed',
+      'probable' in (err(admin_sql, "insert into kasa_private.work_assets (work_id, asset_id, status, proposed_by) values (%s, %s, 'confirmed', 'pipeline')", (w1, aid)) or ''))
+admin_sql("insert into kasa_private.work_assets (work_id, asset_id, proposed_by, match_method, match_score) values (%s, %s, 'pipeline', 'name_distance', 0.91), (%s, %s, 'pipeline', 'distance', 0.6) on conflict do nothing", (w1, aid, w2, aid))
+check('the pipeline cannot confirm its own match',
+      'moderator' in (err(admin_sql, "update kasa_private.work_assets set status = 'confirmed' where work_id = %s", (w1,)) or ''))
+check('a probable match is not public', rpc('kasa_asset_works', p_asset_id=aid)['works'] == [])
+check('non-admins cannot see the tender match queue', err(rpc, 'kasa_admin_work_link_queue', uid=user()) == 'KASA_NOT_ADMIN')
+check('non-admins cannot confirm a tender match', err(rpc, 'kasa_admin_review_work_link', uid=user(), p_work_id=w1, p_asset_id=aid, p_action='confirm') == 'KASA_NOT_ADMIN')
+check('moderators see probable matches', any(x['work_id'] == w1 for x in rpc('kasa_admin_work_link_queue', uid=mod)))
+rpc('kasa_admin_review_work_link', uid=mod, p_work_id=w1, p_asset_id=aid, p_action='confirm')
+rpc('kasa_admin_review_work_link', uid=mod, p_work_id=w2, p_asset_id=aid, p_action='confirm')
+check('a confirmed match records the moderator', admin_sql("select confirmed_by from kasa_private.work_assets where work_id = %s", (w1,))[0][0] == mod)
+aw = {w['id']: w for w in rpc('kasa_asset_works', p_asset_id=aid)['works']}
+check('a confirmed work shows its firm by name and GSTIN, and is inside its stated DLP',
+      aw[w1]['is_under_dlp'] is True and aw[w1]['contractor']['gstin'] == '19ABCDE1234F1Z5' and aw[w1]['dlp_source_url'], aw.get(w1))
+check('a work with no stated DLP shows it as not known, not as over', aw[w2]['is_under_dlp'] is None and aw[w2]['dlp_months'] is None, aw.get(w2))
+admin_sql("update kasa_private.works set completed_on = current_date - 400 where id = %s", (w1,))
+check('the DLP is worked out when read, so it ends on time',
+      {w['id']: w for w in rpc('kasa_asset_works', p_asset_id=aid)['works']}[w1]['is_under_dlp'] is False)
+admin_sql("update kasa_private.works set completed_on = current_date - 60 where id = %s", (w1,))
+admin_sql("insert into kasa_private.work_revisions (work_id, kind, source_url) values (%s, 'cancellation', 'https://example.org/cancel')", (w2,))
+aw = {w['id']: w for w in rpc('kasa_asset_works', p_asset_id=aid)['works']}
+check('a cancelled award drops its DLP badge', aw[w2]['status'] == 'cancelled' and aw[w2]['is_under_dlp'] is False, aw.get(w2))
+near_road = offset(20, 0, base=wk)
+live = {'photo': {'capture': 'live'}}
+rid_live = admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url, photo_path, accuracy_m, moderation_labels) "
+                     "values (%s, %s, 'open', 'approved', 'x', 'p/live.jpg', 30, %s) returning id::text", (near_road[0], near_road[1], json.dumps(live)))[0][0]
+rid_old = admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url, photo_path, accuracy_m, moderation_labels) "
+                    "values (%s, %s, 'open', 'approved', 'x', 'p/old.jpg', 30, '{}') returning id::text", (near_road[0], near_road[1]))[0][0]
+rid_far = admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url, accuracy_m) values (%s, %s, 'open', 'approved', 'x', 5) returning id::text", offset(80, 0, base=wk))[0][0]
+ra = rpc('kasa_report_asset', p_report_id=rid_live)
+check('a report shows the nearest mapped asset as a suggestion', ra and ra['match'] == 'nearest' and ra['asset']['id'] == aid and 15 <= ra['distance_m'] <= 25, ra)
+check('the nearest-asset search stays within the report\'s GPS accuracy', rpc('kasa_report_asset', p_report_id=rid_far) is None)
+check('nobody but a moderator can match a report to an asset',
+      'moderator' in (err(admin_sql, "update public.reports set asset_id = %s where id::text = %s", (aid, rid_live)) or ''))
+check('non-admins cannot match a report to an asset', err(rpc, 'kasa_admin_set_report_asset', uid=user(), p_report_id=rid_live, p_asset_id=aid) == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_set_report_asset', uid=mod, p_report_id=rid_live, p_asset_id=aid)
+rpc('kasa_admin_set_report_asset', uid=mod, p_report_id=rid_old, p_asset_id=aid)
+check('a matched report shows its confirmed asset', rpc('kasa_report_asset', p_report_id=rid_live)['match'] == 'confirmed')
+aw = rpc('kasa_asset_works', p_asset_id=aid)
+check('only verified live-photo GPS reports count against an asset and its DLP',
+      aw['verified_reports'] == 1 and aw['verified_open'] == 1 and {w['id']: w for w in aw['works']}[w1]['verified_reports_in_dlp'] == 1, aw)
+check('director records are not exposed', refused(err(q, 'select * from kasa_private.contractor_directors', uid=user())))
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
