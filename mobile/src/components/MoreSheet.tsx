@@ -3,7 +3,7 @@ import { Modal, Pressable, SectionList, StyleSheet, Text, View } from 'react-nat
 import { SITE_URL } from '../config';
 import { type Key, t } from '../i18n';
 import { LangSwitch } from './TermsGate';
-import { C } from './theme';
+import { C, T } from './theme';
 
 /* Every website section, opened in the in-app browser so it runs the site's own code
    and server rules. Native screens replace these one by one (see mobile/PARITY.md). */
@@ -50,10 +50,10 @@ export function MoreSheet({ visible, onClose }: { visible: boolean; onClose: () 
 const s = StyleSheet.create({
   wrap: { flex: 1, backgroundColor: C.bg },
   head: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', padding: 16, paddingTop: 20 },
-  title: { color: C.text, fontSize: 20, fontWeight: '800' },
+  title: { ...T.h2, color: C.text },
   link: { color: C.text, textDecorationLine: 'underline', fontSize: 14 },
-  group: { color: C.dim, fontSize: 13, fontWeight: '700', textTransform: 'uppercase', marginTop: 20, marginBottom: 6 },
+  group: { ...T.caps, color: C.dim, marginTop: 24, marginBottom: 6 },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', paddingVertical: 14, borderBottomWidth: StyleSheet.hairlineWidth, borderBottomColor: C.line },
-  rowText: { color: C.text, fontSize: 16 },
+  rowText: { ...T.bodyM, color: C.text },
   chev: { color: C.dim, fontSize: 22 },
 });

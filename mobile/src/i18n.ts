@@ -1,6 +1,7 @@
 import { getLocales } from 'expo-localization';
 import AsyncStorage from 'expo-sqlite/kv-store';
 import { ERRORS } from './errors';
+import { SITE } from './siteText';
 
 export type Lang = 'en' | 'bn' | 'hi';
 export const LANGS: Lang[] = ['bn', 'hi', 'en'];
@@ -107,6 +108,15 @@ const en = {
   sec_terms: "Terms",
   sec_grievance: "Grievance officer",
   sec_changelog: "What's new",
+  add_photo: "+ Add another photo ({n} of {max})",
+  adding_hint: "Take one more photo of the same problem",
+  adding_done: "Back to the report",
+  issue_more: "Say exactly what's wrong (optional)",
+  open_report: "Open the report",
+  who_site: "Who's responsible and how to escalate",
+  rules_gps: "Your GPS: ±{a} m",
+  ev_need_photo: "Take the photo with the camera below",
+  loading: "Loading…",
 };
 
 type Dict = typeof en;
@@ -211,6 +221,15 @@ const bn: Dict = {
   sec_terms: "শর্তাবলি",
   sec_grievance: "অভিযোগ আধিকারিক",
   sec_changelog: "নতুন কী",
+  add_photo: "+ আরেকটা ছবি ({n}/{max})",
+  adding_hint: "একই সমস্যার আরেকটা ছবি তুলুন",
+  adding_done: "রিপোর্টে ফিরুন",
+  issue_more: "ঠিক কী সমস্যা বলুন (ঐচ্ছিক)",
+  open_report: "রিপোর্ট খুলুন",
+  who_site: "কে দায়ী, কোথায় জানাবেন",
+  rules_gps: "আপনার জিপিএস: ±{a} মি",
+  ev_need_photo: "নিচের ক্যামেরায় ছবি তুলুন",
+  loading: "লোড হচ্ছে…",
 };
 
 const hi: Dict = {
@@ -313,6 +332,15 @@ const hi: Dict = {
   sec_terms: "शर्तें",
   sec_grievance: "शिकायत अधिकारी",
   sec_changelog: "नया क्या है",
+  add_photo: "+ एक और फ़ोटो ({n}/{max})",
+  adding_hint: "उसी समस्या की एक और फ़ोटो लें",
+  adding_done: "रिपोर्ट पर लौटें",
+  issue_more: "ठीक-ठीक क्या समस्या है (वैकल्पिक)",
+  open_report: "रिपोर्ट खोलें",
+  who_site: "कौन ज़िम्मेदार है, कहाँ शिकायत करें",
+  rules_gps: "आपका जीपीएस: ±{a} मी",
+  ev_need_photo: "नीचे कैमरे से फ़ोटो लें",
+  loading: "लोड हो रहा है…",
 };
 
 const DICTS: Record<Lang, Dict> = { en, bn, hi };
@@ -351,6 +379,34 @@ function fill(s: string, vars: Record<string, string | number>) {
 
 export function t(key: Key, vars: Record<string, string | number> = {}) {
   return fill(DICTS[current][key] ?? en[key] ?? key, vars);
+}
+
+/* Wording shared with kasa.html (siteText.ts), for the report sheet, evidence and sub-types. */
+export function st(key: string, vars: Record<string, string | number> = {}) {
+  return fill(SITE[current][key] ?? SITE.en[key] ?? key, vars);
+}
+
+/* The app's own short category names first, then the site's for every other category. */
+export function catLabel(cat: string) {
+  return hasKey('cat_' + cat) ? t(('cat_' + cat) as Key) : st('cat_' + cat);
+}
+
+export function ago(iso: string) {
+  const m = Math.max(0, Math.floor((Date.now() - new Date(iso).getTime()) / 60000));
+  if (m < 1) return st('ago_now');
+  if (m < 60) return st('ago_m', { n: m });
+  if (m < 1440) return st('ago_h', { n: Math.floor(m / 60) });
+  return st('ago_d', { n: Math.floor(m / 1440) });
+}
+
+export function duration(m: number) {
+  if (m < 60) return st('dur_m', { n: Math.round(m) });
+  if (m < 1440) return st('dur_h', { n: Math.floor(m / 60) });
+  return st('dur_d', { n: Math.floor(m / 1440) });
+}
+
+export function fmtDate(d: string | number | Date) {
+  return new Date(d).toLocaleDateString({ en: 'en-IN', bn: 'bn-IN', hi: 'hi-IN' }[current], { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function hasKey(key: string): key is Key {

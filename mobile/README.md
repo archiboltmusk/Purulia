@@ -11,6 +11,9 @@ Expo (SDK 57) + React Native + TypeScript. Opens straight to the camera; files r
 - **Result card** from server data only: moderation status, duplicate/recurrence, and ward/local body/block from `kasa_public_reports` once approved. Works/contractor/warranty: "No work on record" until a moderator-confirmed works table exists; nothing is ever made up.
 - **Offline "snap & hold".** Network failure → photo copied to app documents, draft in SQLite (`queue.db`). Sent on network return (`expo-network` listener), on app start, and by `expo-background-task` (OS-scheduled, ≥ 15 min). `client_id` makes resends idempotent. A server refusal (old photo, outside area, rate limit…) is shown once and dropped; it is never retried.
 - **User content controls** (App Store 1.2 / Play UGC policy): "Recent reports" list with **Report** (`kasa_flag_report`, same reasons as the site) and **Hide** (this phone). First-run terms state the content rules and link `terms.html`.
+- **Report sheet** (tap any recent report, or "Open the report" after filing): photos, cleanup progress, "I saw it too", rating, official replies, filed-officially numbers, works warranty, timeline, share. Claim / confirm / dispute opens a live camera that checks you are within the site's radius with a good fix (`kasa_claim_cleanup`, `kasa_vote_claim`).
+- **What exactly** (`ISSUE_GROUPS` sub-types, sent as `p_waste_type`) and up to two more live photos per report.
+- **Look:** CRED's NeoPOP design language (near-black, sharp corners, 3 px 45° raised edges, caps labels). Tokens in `src/components/theme.ts`, our own components in `src/components/Pop.tsx` (no NeoPOP code copied; its palette values are credited).
 - **EN / বাংলা / हिन्दी.** Device language by default, switch on the camera screen. Category, flag and server-error wording copied from `kasa-i18n.js`.
 
 ## Run it
@@ -54,5 +57,4 @@ Needs: Apple Team ID + App Attest entitlement, a Google Cloud project linked in 
 ## Follow-ups
 
 - Vector map (MapLibre native, no token) with ward outlines and nearby reports.
-- Sub-type picker (`categories.js` `ISSUE_GROUPS`) instead of the seven top categories.
 - Push alerts for watched reports.

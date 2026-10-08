@@ -47,7 +47,12 @@ export async function enqueue(d: Draft) {
   if (!dir.exists) dir.create({ intermediates: true });
   const kept = new File(dir, `${d.clientId}.jpg`);
   if (!kept.exists) new File(d.photoUri).copySync(kept);
-  const saved: Draft = { ...d, photoUri: kept.uri };
+  const extras = (d.extras ?? []).map((x, i) => {
+    const f = new File(dir, `${d.clientId}-${i + 1}.jpg`);
+    if (!f.exists) new File(x.uri).copySync(f);
+    return { ...x, uri: f.uri };
+  });
+  const saved: Draft = { ...d, photoUri: kept.uri, extras };
   await (await open()).runAsync('insert or ignore into pending (client_id, draft, created_at) values (?, ?, ?)',
     d.clientId, JSON.stringify(saved), Date.now());
   changed();
@@ -89,8 +94,10 @@ async function run(): Promise<DrainResult> {
 
 async function forget(clientId: string) {
   await (await open()).runAsync('delete from pending where client_id = ?', clientId);
-  const f = new File(dir, `${clientId}.jpg`);
-  if (f.exists) f.delete();
+  for (const name of [`${clientId}.jpg`, `${clientId}-1.jpg`, `${clientId}-2.jpg`]) {
+    const f = new File(dir, name);
+    if (f.exists) f.delete();
+  }
 }
 
 TaskManager.defineTask(TASK, async () => {
