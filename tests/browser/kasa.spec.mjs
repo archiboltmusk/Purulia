@@ -1,4 +1,5 @@
 import { test, expect, REPORTS } from './fixtures.mjs';
+import { readFileSync } from 'node:fs';
 
 const mapReportIds = (page) => page.evaluate(() => {
   const src = typeof mainMap !== 'undefined' && mainMap && mainMap.getSource('reports');
@@ -266,4 +267,18 @@ test('a report shows its official grievance numbers, and anyone can add one', as
   await add.locator('button[type="submit"]').click();
   await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_add_docket')?.body)
     .toMatchObject({ p_report_id: '102', p_portal: 'rti', p_number: 'PRLDM/R/2026/00042' });
+});
+
+test('all reports download as a GeoJSON map file with the CSV columns', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  const [dl] = await Promise.all([page.waitForEvent('download'), page.locator('[data-geojson="all"]').dispatchEvent('click')]);
+  expect(dl.suggestedFilename()).toMatch(/\.geojson$/);
+  const fc = JSON.parse(readFileSync(await dl.path(), 'utf8'));
+  expect(fc.type).toBe('FeatureCollection');
+  expect(fc.features.length).toBeGreaterThan(0);
+  const f = fc.features[0];
+  expect(f.geometry.type).toBe('Point');
+  expect(f.properties).toHaveProperty('link');
+  expect(f.properties).not.toHaveProperty('lat');
 });
