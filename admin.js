@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -832,6 +832,60 @@ async function loadSnakes(){
     const reason = prompt(`Reason for removing "${r.name}":`);
     if (reason && reason.trim().length >= 3) act(b, r.id, 'remove', reason);
   }));
+}
+
+/* Puja pandals: waiting ones to approve or reject, approved ones to remove, and the puja window. */
+async function loadPandals(){
+  const el = document.getElementById('adPandals');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_pandal_queue'), sb.rpc('kasa_pandals')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data?.pandals || [], w = pub.data?.window || {};
+  const where = p => esc([p.ward_no ? 'Ward ' + p.ward_no : p.block_name, p.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = `<p class="ad-note">Puja window: ${esc(w.start)} to ${esc(w.end)} · <button data-pd-window>Change</button></p>` + (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Pandal</th><th>Where</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(p => `<tr>
+          <td><strong>${esc(p.name)}</strong>${p.club ? `<br><small>${esc(p.club)}</small>` : ''}<br><small>sent ${esc(new Date(p.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(p.lat)}&mlon=${esc(p.lng)}#map=18/${esc(p.lat)}/${esc(p.lng)}" target="_blank" rel="noopener">${where(p)}</a><br><small>GPS ±${esc(p.accuracy_m)} m</small></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-pd="${esc(p.id)}" data-pd-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-pd="${esc(p.id)}" data-pd-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((p, i) => `<tr>
+        <td><strong>${esc(p.name)}</strong> <small>${esc(p.open)} open · ${esc(p.fixed)} cleaned</small></td>
+        <td><a href="kasa.html?at=${esc(p.lat)},${esc(p.lng)},17" target="_blank" rel="noopener">${where(p)}</a></td>
+        <td><button class="ad-bad" data-pd-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-pd]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_pandal', { p_id: Number(b.dataset.pd), p_action: b.dataset.pdAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadPandals();
+  }));
+  el.querySelectorAll('[data-pd-rm]').forEach(b => b.addEventListener('click', async () => {
+    const p = live[+b.dataset.pdRm];
+    const reason = prompt(`Reason for removing "${p.name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_pandal', { p_id: p.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadPandals();
+  }));
+  el.querySelector('[data-pd-window]').addEventListener('click', async () => {
+    const start = prompt('First day reports count (YYYY-MM-DD):', w.start || '');
+    if (!start) return;
+    const end = prompt('Last day reports count (YYYY-MM-DD):', w.end || '');
+    if (!end) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_set_puja_window', { p_start: start, p_end: end });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadPandals();
+  });
 }
 
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */

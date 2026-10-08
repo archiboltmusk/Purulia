@@ -180,7 +180,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings'}, anon_fns)
+      set(anon_fns) <= {'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -536,7 +536,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2515,6 +2515,34 @@ check('old sightings leave the public list', not any(x['id'] == s1['id'] for x i
 rpc('kasa_leave_snake_rescuer', uid=sr_u)
 check('a rescuer who stops leaves the list', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
 check('a stopped rescuer is not offered for new sightings', snake(sn_u, offset(1200, 0, base=sn_base))['rescuers'] == [])
+# ── Swachh Pandal ───────────────────────────────────────────────────────────
+pd_spot = offset(-6400, -2400)
+def pandal(uid, name='Nilkuthidanga Sarbojanin', where=pd_spot, acc=10.0):
+    return rpc('kasa_add_pandal', uid=uid, p_name=name, p_club='Nilkuthidanga Club', p_lat=where[0], p_lng=where[1], p_accuracy=acc)
+check('the public cannot add a pandal without signing in',
+      refused(err(rpc, 'kasa_add_pandal', p_name='Pandal', p_club=None, p_lat=pd_spot[0], p_lng=pd_spot[1], p_accuracy=10.0)))
+pd_u = user()
+check('a weak GPS fix cannot add a pandal', err(pandal, pd_u, acc=500.0) == 'KASA_GPS_WEAK')
+p1 = pandal(pd_u)
+check('a pandal added on the spot waits for a moderator', p1['status'] == 'pending', p1)
+check('a waiting pandal is not public', not any(x['id'] == p1['id'] for x in rpc('kasa_pandals')['pandals']))
+check('the same pandal cannot be added twice', err(pandal, user(), 'Again', offset(10, 0, base=pd_spot)) == 'KASA_PANDAL_TAKEN')
+check('non-admins cannot see the pandal queue', err(rpc, 'kasa_admin_pandal_queue', uid=user()) == 'KASA_NOT_ADMIN')
+check('non-admins cannot approve a pandal', err(rpc, 'kasa_admin_review_pandal', uid=user(), p_id=p1['id'], p_action='approve') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_review_pandal', uid=mod, p_id=p1['id'], p_action='approve')
+check('non-admins cannot set the puja window', err(rpc, 'kasa_admin_set_puja_window', uid=user(), p_start='2026-10-01', p_end='2026-10-10') == 'KASA_NOT_ADMIN')
+check('a puja window longer than 45 days is refused', err(rpc, 'kasa_admin_set_puja_window', uid=mod, p_start='2026-01-01', p_end='2026-12-31') == 'KASA_BAD_FORM')
+rpc('kasa_admin_set_puja_window', uid=mod, p_start=str(admin_sql("select (now() - interval '3 days')::date")[0][0]),
+    p_end=str(admin_sql("select (now() + interval '3 days')::date")[0][0]))
+near, far = offset(40, 0, base=pd_spot), offset(400, 0, base=pd_spot)
+admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url) values (%s, %s, 'open', 'approved', 'x'), (%s, %s, 'resolved', 'approved', 'x'), (%s, %s, 'open', 'hidden', 'x'), (%s, %s, 'open', 'approved', 'x')",
+          (near[0], near[1], near[0], near[1], near[0], near[1], far[0], far[1]))
+admin_sql("insert into public.reports (lat, lng, status, moderation_status, photo_url, created_at) values (%s, %s, 'open', 'approved', 'x', now() - interval '30 days')", (near[0], near[1]))
+pp = [x for x in rpc('kasa_pandals')['pandals'] if x['id'] == p1['id']]
+check('a pandal counts public reports near it during the puja, open and fixed', pp and pp[0]['open'] == 1 and pp[0]['fixed'] == 1, pp)
+rpc('kasa_admin_review_pandal', uid=mod, p_id=p1['id'], p_action='remove', p_note='duplicate')
+check('a removed pandal leaves the list', not any(x['id'] == p1['id'] for x in rpc('kasa_pandals')['pandals']))
+
 # Help assistant daily limit (kasa-assistant edge function, service key only).
 as_u = user()
 check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))

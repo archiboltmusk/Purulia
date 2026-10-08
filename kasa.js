@@ -4411,6 +4411,47 @@ async function submitRescuer(){
   }
 }
 
+/* Someone standing at a puja pandal adds it; after a moderator approves it, pandals.html
+   counts the reports filed near it during the puja window. */
+let pd = null;
+async function openPandal(){
+  pd = { pos: null };
+  const btn = document.getElementById('k-pd-submit'), status = document.getElementById('k-pd-loc'), want = state.rules.max_gps_accuracy_m;
+  btn.disabled = true;
+  openModal('k-pd-modal');
+  status.className = 'k-ev-status';
+  status.textContent = t('ev_loc_wait', { a: '…' });
+  try {
+    const pos = await getPosition({ want, timeout: 25000, onProgress: p => { status.textContent = t('ev_loc_wait', { a: Math.round(p.accuracy) }); } });
+    if (!pd) return;
+    if (pos.accuracy > want) return setEvStatus(status, 'bad', t('ev_loc_weak', { a: Math.round(pos.accuracy) }));
+    pd.pos = pos;
+    setEvStatus(status, 'ok', t('sc_loc_ok', { a: Math.round(pos.accuracy) }));
+    btn.disabled = false;
+  } catch (e){
+    if (pd) setEvStatus(status, 'bad', t(e && e.code === 1 ? 'ev_loc_denied' : 'ev_loc_fail'));
+  }
+}
+
+async function submitPandal(){
+  if (!pd?.pos) return;
+  const btn = document.getElementById('k-pd-submit');
+  btn.disabled = true;
+  try {
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_add_pandal', {
+      p_name: document.getElementById('k-pd-name').value, p_club: document.getElementById('k-pd-club').value,
+      p_lat: pd.pos.lat, p_lng: pd.pos.lng, p_accuracy: pd.pos.accuracy });
+    if (error) throw rpcError(error);
+    closeModal('k-pd-modal');
+    showToast(t('pd_done'), 7000);
+    pd = null;
+  } catch (e){
+    showToast(errorText(e), 7000);
+    btn.disabled = false;
+  }
+}
+
 function initSchoolCheck(){
   document.querySelectorAll('[data-school-check]').forEach(b => b.addEventListener('click', () => openSchoolCheck()));
   document.getElementById('k-sc-block').addEventListener('change', e => loadSchoolBlock(e.target.value));
@@ -4435,6 +4476,7 @@ function initSchoolCheck(){
   document.getElementById('k-sn-cam-btn').addEventListener('click', captureSnakePhoto);
   document.getElementById('k-sn-submit').addEventListener('click', submitSnake);
   document.getElementById('k-sr-submit').addEventListener('click', submitRescuer);
+  document.getElementById('k-pd-submit').addEventListener('click', submitPandal);
   document.getElementById('k-rc-file-btn').addEventListener('click', () => document.getElementById('k-rc-file').click());
   document.getElementById('k-rc-file').addEventListener('change', e => pickReportCardPicture(e.target.files[0]));
   document.getElementById('k-rc-nums').addEventListener('input', updateReportCardSubmit);
@@ -4463,6 +4505,7 @@ function initSchoolCheck(){
   else if (q.get('feed') === '1') openFeed();
   else if (q.get('snake') === '1') openSnake();
   else if (q.get('rescuer') === '1') openRescuer();
+  else if (q.get('pandal') === '1') openPandal();
   else if (q.get('add') === 'school') openMissingSchool();
   else if (card && /^\d{11}$/.test(card)) openReportCard(card);
   else if (fix && /^\d{11}$/.test(fix)) openSchoolFix(fix);
