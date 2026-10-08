@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1382,124 +1382,6 @@ function wireCommunityForm(row, c){
     if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
     loadCommunities();
   });
-}
-
-/* ── Cleanup drives: the form draws the route on a map (tap points; "Follow roads" asks the
-   public OSM foot router for each leg). Times are typed in India time. ── */
-const drive = { id: null, route: [], undo: [], map: null, list: [] };
-const istInput = iso => new Date(new Date(iso).getTime() + 5.5 * 3600e3).toISOString().slice(0, 16);
-function driveLenKm(r){
-  let m = 0;
-  for (let i = 1; i < r.length; i++){
-    const k = 111320 * Math.cos(r[i][1] * Math.PI / 180);
-    m += Math.hypot((r[i][0] - r[i - 1][0]) * k, (r[i][1] - r[i - 1][1]) * 110540);
-  }
-  return (m / 1000).toFixed(2);
-}
-function drawAdminRoute(){
-  document.getElementById('adDriveLen').textContent = drive.route.length > 1 ? `${driveLenKm(drive.route)} km` : drive.route.length ? 'Tap the next point' : 'Tap the start on the map';
-  const src = drive.map?.getSource('route');
-  if (!src) return;
-  const r = drive.route;
-  src.setData({ type: 'FeatureCollection', features: [
-    ...(r.length > 1 ? [{ type: 'Feature', geometry: { type: 'LineString', coordinates: r }, properties: {} }] : []),
-    ...(r.length ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: r[0] }, properties: {} },
-                    { type: 'Feature', geometry: { type: 'Point', coordinates: r[r.length - 1] }, properties: {} }] : [])] });
-}
-function loadMaplibre(){
-  if (window.maplibregl) return Promise.resolve();
-  return new Promise((ok, bad) => {
-    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
-    const js = document.createElement('script'); js.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
-    js.onload = ok; js.onerror = bad; document.head.append(css, js);
-  });
-}
-async function initDriveMap(){
-  if (drive.map) return;
-  await loadMaplibre();
-  drive.map = new maplibregl.Map({ container: 'adDriveMap', style: 'https://tiles.openfreemap.org/styles/liberty',
-    center: (window.CITY?.mapCenter) || [86.3654, 23.3320], zoom: 14 });
-  drive.map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
-  drive.map.on('load', () => {
-    drive.map.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    drive.map.addLayer({ id: 'route-line', type: 'line', source: 'route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#1f78b4', 'line-width': 5 } });
-    drive.map.addLayer({ id: 'route-ends', type: 'circle', source: 'route', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 6, 'circle-color': '#1f78b4', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
-    drawAdminRoute();
-  });
-  drive.map.on('click', async e => {
-    const p = [+e.lngLat.lng.toFixed(6), +e.lngLat.lat.toFixed(6)], last = drive.route[drive.route.length - 1];
-    drive.undo.push(drive.route.length);
-    if (last && document.getElementById('adDriveSnap').checked){
-      try {
-        const r = await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${last[0]},${last[1]};${p[0]},${p[1]}?overview=full&geometries=geojson`).then(x => x.json());
-        const c = r.routes?.[0]?.geometry?.coordinates;
-        if (c?.length) { drive.route.push(...c.slice(1).map(q => [+q[0].toFixed(6), +q[1].toFixed(6)])); drawAdminRoute(); return; }
-      } catch (err) {}
-      document.getElementById('adDriveMsg').textContent = 'Could not follow roads for that leg; drew a straight line.';
-    }
-    drive.route.push(p);
-    drawAdminRoute();
-  });
-}
-function editDrive(d){
-  drive.id = d?.id || null;
-  const v = (id, x) => { document.getElementById(id).value = x || ''; };
-  v('adDriveTitle', d?.title); v('adDriveStart', d ? istInput(d.starts_at) : ''); v('adDriveMeet', d?.meet_point); v('adDriveEnd', d?.end_point);
-  v('adDriveOrgs', (d?.organisers || []).map(o => o.url ? `${o.name} | ${o.url}` : o.name).join('\n'));
-  v('adDriveProvided', d?.provided); v('adDriveNotes', d?.notes);
-  document.getElementById('adDriveHidden').checked = !!d?.hidden;
-  document.getElementById('adDriveNew').hidden = !d;
-  document.getElementById('adDriveSave').textContent = d ? 'Save changes' : 'Save drive';
-  drive.route = (d?.route || []).slice(); drive.undo = [];
-  drawAdminRoute();
-  if (drive.map && drive.route.length > 1){
-    const xs = drive.route.map(p => p[0]), ys = drive.route.map(p => p[1]);
-    drive.map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 40, maxZoom: 17 });
-  }
-}
-async function loadDrives(){
-  const el = document.getElementById('adDrives');
-  if (!el) return;
-  if (!loadDrives.wired){
-    loadDrives.wired = true;
-    initDriveMap().catch(() => { document.getElementById('adDriveMap').textContent = 'Map did not load.'; });
-    document.getElementById('adDriveUndo').onclick = () => { if (drive.undo.length){ drive.route.length = drive.undo.pop(); drawAdminRoute(); } };
-    document.getElementById('adDriveClear').onclick = () => { drive.route = []; drive.undo = []; drawAdminRoute(); };
-    document.getElementById('adDriveNew').onclick = () => editDrive(null);
-    document.getElementById('adDriveForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const msg = document.getElementById('adDriveMsg'), val = id => document.getElementById(id).value.trim();
-      const organisers = val('adDriveOrgs').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
-        const [name, url] = l.split('|').map(x => x.trim());
-        return url ? { name, url } : { name };
-      });
-      const { error } = await sb.rpc('kasa_admin_save_drive', { p_id: drive.id, p_drive: {
-        title: val('adDriveTitle'), starts_at: val('adDriveStart') + ':00+05:30', meet_point: val('adDriveMeet'),
-        end_point: val('adDriveEnd'), organisers, provided: val('adDriveProvided'), notes: val('adDriveNotes'),
-        route: drive.route.length > 1 ? drive.route : null, hidden: document.getElementById('adDriveHidden').checked } });
-      if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
-      msg.textContent = 'Saved. It is on the report map now' + (drive.route.length > 1 ? '.' : ' (no route drawn yet).');
-      editDrive(null);
-      loadDrives();
-    });
-  }
-  const { data, error } = await sb.rpc('kasa_admin_drives');
-  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  drive.list = data || [];
-  if (!drive.list.length){ el.innerHTML = '<div class="ad-empty">No drives yet.</div>'; return; }
-  el.innerHTML = `<table class="ad-table"><thead><tr><th>Starts</th><th>Drive</th><th>Route</th><th>Coming</th><th></th></tr></thead><tbody>
-    ${drive.list.map(d => `<tr><td>${esc(new Date(d.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }))}</td>
-      <td><strong>${esc(d.title)}</strong>${d.hidden ? ' <small>(hidden)</small>' : ''}<br><small>${esc(d.meet_point)}${d.end_point ? ' → ' + esc(d.end_point) : ''}</small></td>
-      <td>${d.route ? driveLenKm(d.route) + ' km' : '<span style="color:var(--red)">not drawn</span>'}</td><td>${d.going}</td>
-      <td style="white-space:nowrap"><button class="ad-ok" data-drive-edit="${esc(d.id)}">✎ Edit</button>
-        <a class="ad-ok" style="padding:.4rem .6rem;border-radius:3px" href="kasa.html?drive=${esc(d.id)}" target="_blank" rel="noopener">View</a></td></tr>`).join('')}
-    </tbody></table>`;
-  el.querySelectorAll('[data-drive-edit]').forEach(b => b.addEventListener('click', () => {
-    editDrive(drive.list.find(d => d.id === b.dataset.driveEdit));
-    document.getElementById('adDriveForm').scrollIntoView({ behavior: 'smooth' });
-  }));
 }
 
 const CARD_FIELDS = [['enrolment', 'Pupils'], ['teachers', 'Teachers'], ['classrooms', 'Classrooms'], ['drinking_water', 'Water'],

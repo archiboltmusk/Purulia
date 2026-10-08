@@ -955,16 +955,6 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-docket-add form{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;}
 .k-docket-add input{flex:1 1 10rem;min-width:0;}
 
-/* Cleanup drive: banner on the map + drive card. */
-.k-drive-banner{border-color:rgba(79,179,232,.6);}
-.k-drive-banner .k-join-text{padding-right:.6rem;}
-.k-drive-card{width:min(330px,calc(100% - 1.8rem));}
-.k-drive-actions{display:flex;flex-wrap:wrap;gap:.4rem;margin:.8rem 0 .4rem;}
-.k-drive-actions .on{color:var(--green,#6db88a);border-color:rgba(109,184,138,.5);}
-.k-drive-spot{display:flex;align-items:center;gap:.4rem;width:100%;text-align:left;font-size:.85rem;padding:.35rem 0;border-bottom:1px solid var(--border);color:var(--text-hi);}
-.k-drive-progress{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin-top:.8rem;}
-.k-drive-progress span{display:block;height:100%;background:#6db88a;}
-.k-drive-fixed{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.5rem;}
 
 /* Slide to send (kasa.js initSlideSubmit) */
 .k-slide{position:relative;overflow:hidden;--slide:0px;padding:.95rem 3.4rem;touch-action:pan-y;user-select:none;-webkit-user-select:none;}
