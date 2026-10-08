@@ -444,7 +444,12 @@
         <div id="k-issues" role="radiogroup" aria-labelledby="k-issue-search"></div>
         <div class="k-field-note" id="k-issue-route" aria-live="polite" hidden></div>
       </div>
-      <button type="button" class="k-btn k-btn-primary" id="k-submit" disabled data-i18n="step3_submit">Submit Report →</button>
+      <button type="button" class="k-btn k-btn-primary k-slide" id="k-submit" disabled aria-keyshortcuts="Enter">
+        <span class="k-slide-fill" aria-hidden="true"></span>
+        <span class="k-slide-label" id="k-submit-label" data-i18n="step3_slide">Slide to send report</span>
+        <span class="k-slide-knob" aria-hidden="true">»</span>
+      </button>
+      <ol class="k-submit-steps" id="k-submit-steps" aria-live="polite" hidden></ol>
       <div class="k-privacy" data-i18n="step3_privacy">🔒 Reports are anonymous. The photo, location and ward are public; nothing identifies you.</div>
       <div class="k-privacy"><span data-i18n="step3_consent">By submitting you confirm this is true to the best of your knowledge and you agree to the</span> <a href="terms.html" target="_blank" rel="noopener" data-i18n="footer_terms">Terms of Use</a>.</div>
     </div>
