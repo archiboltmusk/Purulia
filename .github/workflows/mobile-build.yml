@@ -62,17 +62,23 @@ jobs:
         working-directory: mobile
     steps:
       - uses: actions/checkout@v4
-      # Expo SDK 57 needs Xcode 27: its ExpoModulesJSI headers use ownership
-      # annotations that Xcode 26 rejects.
       - uses: maxim-lobanov/setup-xcode@v1
         with:
-          xcode-version: '27'
+          xcode-version: latest-stable
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
           cache: npm
           cache-dependency-path: mobile/package-lock.json
       - run: npm ci
+      # expo-modules-jsi 57.0.5+ marks RuntimeScheduler's constructors for Xcode 27,
+      # which hosted runners don't have yet; Xcode 26 rejects that annotation.
+      # Dropping it restores the 57.0.4 header. Remove once runners ship Xcode 27.
+      - name: Make ExpoModulesJSI build on Xcode 26
+        run: |
+          f=node_modules/expo-modules-jsi/apple/Sources/ExpoModulesJSI-Cxx/include/RuntimeScheduler.h
+          sed -i '' 's/SWIFT_RETURNS_RETAINED RuntimeScheduler(/RuntimeScheduler(/' "$f"
+          ! grep -n 'SWIFT_RETURNS_RETAINED RuntimeScheduler(' "$f"
       - name: Generate native project
         run: npx expo prebuild --platform ios --clean
       # No Apple signing: the .ipa only installs after re-signing (an Apple
