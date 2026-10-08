@@ -6,7 +6,7 @@
 // Deploy:  supabase functions deploy kasa-weekly-pattern
 // Secrets: RESEND_API_KEY      (required; shared with other alerts)
 //          PATTERN_DIGEST_TO    (optional; email recipients, comma-sep)
-//          PATTERN_DIGEST_FROM  (optional; default "Parishkar Purulia <onboarding@resend.dev>")
+//          PATTERN_DIGEST_FROM  (optional; default "Parishkar Bengal <onboarding@resend.dev>")
 //          SITE_URL             (optional; default https://archiboltmusk.github.io/Purulia)
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
@@ -15,7 +15,7 @@ const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
 const TO = (Deno.env.get('PATTERN_DIGEST_TO') || '').split(',').map(s => s.trim()).filter(Boolean);
-const FROM = Deno.env.get('PATTERN_DIGEST_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('PATTERN_DIGEST_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '');
 
 interface Pattern {
@@ -125,7 +125,7 @@ function renderEmail(patterns: Pattern[], isPreview: boolean, unsubscribeToken?:
   const lines: string[] = [];
   if (isPreview) lines.push('PREVIEW — sent only to the Parishkar team.\n');
 
-  lines.push(`Parishkar Purulia — weekly patterns for ${week}\n`);
+  lines.push(`Parishkar Bengal — weekly patterns for ${week}\n`);
 
   if (!patterns.length) {
     lines.push('No notable patterns this week. Reports are flowing normally.');

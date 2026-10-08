@@ -2515,6 +2515,12 @@ check('old sightings leave the public list', not any(x['id'] == s1['id'] for x i
 rpc('kasa_leave_snake_rescuer', uid=sr_u)
 check('a rescuer who stops leaves the list', not any(x['id'] == r1['id'] for x in rpc('kasa_snake_rescuers')))
 check('a stopped rescuer is not offered for new sightings', snake(sn_u, offset(1200, 0, base=sn_base))['rescuers'] == [])
+# Help assistant daily limit (kasa-assistant edge function, service key only).
+as_u = user()
+check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))
+takes = [rpc('kasa_assistant_take', role='service_role', p_user=as_u, p_limit=2) for _ in range(3)]
+check('assistant allows the daily limit, then stops', takes == [True, True, False], takes)
+check('another visitor has their own count', rpc('kasa_assistant_take', role='service_role', p_user=user(), p_limit=2) is True)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

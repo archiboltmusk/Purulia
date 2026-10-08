@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — civic problem map
+   PARISHKAR BENGAL — civic problem map
    Report garbage, drains, roads, streetlights, illegal activity.
    Nothing is marked fixed until people on the spot confirm it.
 
@@ -2729,7 +2729,7 @@ Phone / e-mail (optional): <span class="blank">&nbsp;</span></p>
 
 <div class="block">
 <strong>Reference</strong><br>
-A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Purulia on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
+A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> was filed on the public civic-reporting platform Parishkar Bengal on <strong>${esc(filed)}</strong> and remains unresolved as of this application (${days} days). The report, its photograph and location, and its full public history are available at:<br>
 <span class="blank">${esc(link)}</span>
 </div>
 
@@ -2751,7 +2751,7 @@ A report of <strong>${esc(catLabel)}</strong> at <strong>${esc(place)}</strong> 
 <p style="margin-top:24px;">Signature: <span class="blank">&nbsp;</span></p>
 
 <p class="foot">
-Generated from a public report on Parishkar Purulia. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
+Generated from a public report on Parishkar Bengal. This platform did not file this application and is not the applicant — you are. If the reply is inadequate or doesn't arrive within 30 days, a First Appeal to the same department's appellate authority is the next legal step under Section 19(1) of the Act.
 </p>
 
 </body></html>`;
@@ -2767,7 +2767,7 @@ function openRTI(reportId){
 }
 
 function replyMailto(r){
-  const subject = `Right of reply — Parishkar Purulia report ${r.id}`;
+  const subject = `Right of reply — Parishkar Bengal report ${r.id}`;
   const body = [
     'Report: ' + reportLink(r.id),
     'Your name:', 'Your position (e.g. Ward Councillor, Ward ' + (r.ward ?? '?') + '):',
@@ -3104,7 +3104,7 @@ function openContact(spec){
   // The municipality's WhatsApp and e-mail are only for town reports; elsewhere the person picks who to send it to.
   const town = r.area !== 'rural' && r.area !== 'place';
   const wa = town ? `https://wa.me/${MUNICIPALITY_PHONE}?text=${encodeURIComponent(msg)}` : `https://wa.me/?text=${encodeURIComponent(msg)}`;
-  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Purulia — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
+  const mail = town ? `mailto:${MUNICIPALITY_EMAIL}?subject=${encodeURIComponent('Parishkar Bengal — ' + t('cat_' + r.category) + ' — Ward ' + (r.ward ?? '?'))}&body=${encodeURIComponent(msg)}` : null;
   const tweet = (handle) => `https://twitter.com/intent/tweet?text=${encodeURIComponent((handle ? '@' + handle + ' ' : '') + msg.split('\n').slice(0, 4).join('\n') + '\n' + reportLink(r.id))}`;
 
   let title, sub, opts = [];
