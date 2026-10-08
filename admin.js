@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -969,6 +969,23 @@ document.getElementById('adReplyForm').addEventListener('submit', async (e) => {
   msg.textContent = error ? 'Failed: ' + (error.details || error.message) : 'Published on the report.';
   if (!error) e.target.reset();
 });
+
+/* Photos and database size against the plan, and the mark where photos should move to R2. */
+async function loadStorage(){
+  const el = document.getElementById('adStorage');
+  if (!el) return;
+  const { data: u, error } = await sb.rpc('kasa_admin_storage_usage');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const bar = (n, max, mark) => `<div style="position:relative;height:8px;background:var(--border);border-radius:4px;margin:.3rem 0 .8rem;">
+    <div style="width:${Math.min(100, n / max * 100)}%;height:100%;background:${mark && n >= mark ? 'var(--red)' : 'var(--amber)'};border-radius:4px;"></div>
+    ${mark ? `<div title="R2 mark" style="position:absolute;top:-3px;left:${mark / max * 100}%;width:2px;height:14px;background:var(--text-md);"></div>` : ''}</div>`;
+  el.innerHTML = `
+    <div>Report photos: <strong>${esc(u.photos_mb)} MB</strong> of ${esc(u.storage_limit_mb)} MB (${esc(u.photos)} files) · R2 mark ${esc(u.r2_threshold_mb)} MB
+      ${u.photos_mb >= u.r2_threshold_mb ? ' · <strong class="ad-bad">time to move new photos to R2</strong>' : ''}</div>
+    ${bar(u.photos_mb, u.storage_limit_mb, u.r2_threshold_mb)}
+    <div>Database: <strong>${esc(u.db_mb)} MB</strong> of ${esc(u.db_limit_mb)} MB</div>
+    ${bar(u.db_mb, u.db_limit_mb)}`;
+}
 
 async function loadAutomation(){
   const el = document.getElementById('adAutomation');
