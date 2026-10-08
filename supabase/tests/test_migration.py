@@ -2074,6 +2074,16 @@ for i, (kind, cat) in enumerate([('open_defecation', 'toilet'), ('septic_overflo
 check('each Swachhata-app problem type sets its category and is kept',
       all(admin_sql('select category, waste_type from public.reports where id = %s', (rid,))[0] == (cat, kind)
           for kind, (cat, rid) in pt.items()))
+mt, mt_user = {}, user()
+for i, (kind, cat) in enumerate([('no_drinking_water', 'water'), ('water_body_filling', 'illegal_other'),
+                                 ('illegal_construction', 'illegal_construction')]):
+    mt[kind] = (cat, rpc('kasa_create_report', uid=mt_user, p_category='garbage' if i % 2 else None, p_severity='minor',
+         p_lat=offset(-3300 - i * 100, 3700)[0], p_lng=offset(-3300 - i * 100, 3700)[1], p_accuracy=10.0, p_ward_no=5,
+         p_description=None, p_landmark=None, p_photo_path=upload(mt_user, 'reports'), p_client_id=None,
+         p_waste_type=kind)['id'])
+check('station drinking water, pond filling and building work with no plan board each set their category and are kept',
+      all(admin_sql('select category, waste_type from public.reports where id = %s', (rid,))[0] == (cat, kind)
+          for kind, (cat, rid) in mt.items()))
 admin_sql("insert into kasa_private.office_letter_log (office, week, sent_at, report_count) values ('dm', '2026-09-28', now(), 2) on conflict do nothing")
 ol = rpc('kasa_office_letters_public')
 check('anyone can see how many letters each office got, with no email addresses',

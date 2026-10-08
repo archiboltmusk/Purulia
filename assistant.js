@@ -74,7 +74,7 @@
   // Escaped text, with the site's own page names and https links made clickable.
   const linkify = s => esc(s)
     .replace(/https:\/\/[^\s<)]+[^\s<).,;:!?]/g, u => `<a href="${u}" target="_blank" rel="noopener">${u}</a>`)
-    .replace(/(^|[\s(])([a-z-]+\.html)(?=[\s).,;:!?]|$)/g, (m, pre, f) => `${pre}<a href="${f}">${f}</a>`)
+    .replace(/(^|[\s(*])([a-z-]+\.html)(?=[\s).,;:!?*]|$)/g, (m, pre, f) => `${pre}<a href="${f}">${f}</a>`)
     .replace(/\*\*([^*\n]+)\*\*/g, '<strong>$1</strong>');
 
   function bubble(cls, text){

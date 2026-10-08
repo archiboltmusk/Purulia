@@ -406,6 +406,7 @@ select.k-input{background-color:var(--ink3);}
 .k-issue-group summary{padding:.6rem .75rem;min-height:40px;cursor:pointer;font-size:.9rem;color:var(--text-md);}
 .k-issue-group summary b{color:var(--amber);}
 .k-issue-group .k-waste-chips{padding:0 .6rem .6rem;}
+.k-issue-school{display:block;padding:0 .75rem .65rem;color:var(--amber);}
 #k-issue-route{margin-top:.2rem;}
 .k-coords{margin-top:.6rem;font-family:var(--mono);font-size:11px;color:rgba(212,136,42,.85);min-height:1rem;}
 .k-privacy{margin-top:1rem;font-size:.8rem;line-height:1.6;color:var(--text-lo);}
