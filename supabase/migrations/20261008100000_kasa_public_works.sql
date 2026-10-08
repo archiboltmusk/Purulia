@@ -74,6 +74,7 @@ language sql stable security definer set search_path = '' as $$
           and exists (select 1 from public.school_audits a where a.photo_path = p_path))
       or exists (select 1 from kasa_private.school_report_cards rc where rc.photo_path = p_path)
       or exists (select 1 from kasa_private.school_suggestions ss where ss.photo_path = p_path)
+      or exists (select 1 from kasa_private.snake_sightings sn where sn.photo_path = p_path)
       or exists (select 1 from kasa_private.public_works w where w.photo_path = p_path)
 $$;
 
@@ -221,6 +222,8 @@ language sql stable security definer set search_path = '' as $$
     union all select 'Volunteer groups', count(*) from kasa_private.communities
       where status = 'pending' and created_at < now() - interval '72 hours'
     union all select 'Dog feeding spots', count(*) from kasa_private.feeding_spots
+      where status = 'pending' and created_at < now() - interval '72 hours'
+    union all select 'Snake rescuers', count(*) from kasa_private.snake_rescuers
       where status = 'pending' and created_at < now() - interval '72 hours'
     union all select 'Public works boards', count(*) from kasa_private.public_works
       where status = 'pending' and created_at < now() - interval '72 hours'

@@ -2093,6 +2093,9 @@ backlog = admin_sql('select kasa_private.queue_backlog()')[0][0]
 check('a report held for review over 72 hours shows in the moderators\' daily nudge, and nobody else can ask for it',
       backlog.get('Reports held for review', 0) >= 1 and err(rpc, 'kasa_queue_alert_claim') is not None)
 admin_sql("update public.reports set moderation_status = 'approved' where id = %s", (hc['id'],))
+fdefs = admin_sql("select string_agg(pg_get_functiondef(p.oid), ' ') from pg_proc p join pg_namespace n on n.oid = p.pronamespace where n.nspname = 'kasa_private' and p.proname in ('queue_backlog', 'photo_in_use')")[0][0]
+check('later queues keep every earlier one: snake photos stay kept and snake rescuers stay in the daily nudge',
+      all(t in fdefs for t in ('snake_sightings', 'snake_rescuers', 'feeding_spots', 'public_works')))
 rj = rpc('kasa_create_report', uid=wt_user, p_category=None, p_severity='minor',
          p_lat=offset(-3300, 3400)[0], p_lng=offset(-3300, 3400)[1], p_accuracy=10.0, p_ward_no=5,
          p_description=None, p_landmark=None, p_photo_path=upload(wt_user, 'reports'), p_client_id=None,
