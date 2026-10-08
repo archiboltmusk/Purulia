@@ -720,6 +720,24 @@ test('snake rescuers and sightings follow the chosen district, with call and Wha
   await expect(page.locator('#sn-t-seen')).toHaveText('1');
 });
 
+test('public works follow the chosen district and fill the RTI request', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_public_works*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { id: 7, work_name: 'Construction of drain at Ward 4', agency: 'Bishnupur Municipality', contractor: 'M/s Example', work_order: 'WO 12/2025',
+        cost: null, completed_on: '2025-03-31', dlp_years: 3, warranty_until: '2028-03-31', under_warranty: true, lat: 23.07, lng: 87.32,
+        photo_url: 'https://example.org/b.jpg', place: 'bishnupur', ward_no: 4, district: 'bankura' },
+      { id: 8, work_name: 'Purulia road work', agency: 'PWD', place: null, lat: 23.33, lng: 86.36, photo_url: 'https://example.org/c.jpg',
+        dlp_years: null, warranty_until: null, under_warranty: false }]) }));
+  await page.goto('works.html?d=bankura');
+  await expect(page.locator('#wk-list')).toContainText('Construction of drain at Ward 4');
+  await expect(page.locator('#wk-list')).toContainText('Contractor (as on the board): M/s Example');
+  await expect(page.locator('#wk-list')).not.toContainText('Purulia road work');
+  await expect(page.locator('#wk-t-live')).toHaveText('1');
+  await page.locator('[data-rti="7"]').click();
+  await page.locator('#wk-f-me').fill('Asha');
+  await expect(page.locator('#wk-rti')).toHaveValue(/Bishnupur Municipality[\s\S]*section 6\(1\)[\s\S]*WO 12\/2025[\s\S]*completion certificate[\s\S]*Asha/);
+});
+
 test('municipality, promises and public demands follow the chosen district', async ({ page }) => {
   await page.goto('municipality.html?d=bankura');
   await expect(page.locator('#mu-bodies')).toContainText('Bishnupur');

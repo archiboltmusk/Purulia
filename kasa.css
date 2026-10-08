@@ -954,6 +954,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-docket-add{margin-top:.6rem;font-size:.85rem;}
 .k-docket-add form{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.4rem;}
 .k-docket-add input{flex:1 1 10rem;min-width:0;}
+.k-warranty{margin:.6rem 0 0;font-size:.88rem;line-height:1.45;}
+.k-warranty a{white-space:nowrap;}
 
 
 /* Slide to send (kasa.js initSlideSubmit) */
