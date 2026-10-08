@@ -8,11 +8,12 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { type Draft, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport } from './src/api';
+import { type Draft, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport, reportWarranty, type Warranty } from './src/api';
+import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
-import { LangSwitch, TermsGate } from './src/components/TermsGate';
+import { TermsGate } from './src/components/TermsGate';
 import { C } from './src/components/theme';
 import { CAPTURE_TOKEN_TTL_MS, MAX_GPS_ACCURACY_M } from './src/config';
 import { errorText, loadLang, onLang, t } from './src/i18n';
@@ -84,9 +85,10 @@ function Reporter() {
   const [category, setCategory] = useState<string | null>(null);
   const [note, setNote] = useState('');
   const [sending, setSending] = useState(false);
-  const [result, setResult] = useState<{ filed: Filed; row: PublicReport | null } | null>(null);
+  const [result, setResult] = useState<{ filed: Filed; row: PublicReport | null; warranty: Warranty | null } | null>(null);
   const [queued, setQueued] = useState(0);
   const [nearby, setNearby] = useState(false);
+  const [more, setMore] = useState(false);
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
@@ -148,9 +150,12 @@ function Reporter() {
     setSending(true);
     try {
       const filed = await fileReport(draft);
-      const row = filed.moderation === 'approved' ? await publicReport(filed.duplicateOf ?? filed.id).catch(() => null) : null;
+      const shownId = filed.duplicateOf ?? filed.id;
+      const [row, warranty] = filed.moderation === 'approved'
+        ? await Promise.all([publicReport(shownId).catch(() => null), reportWarranty(shownId).catch(() => null)])
+        : [null, null];
       setShot(null);
-      setResult({ filed, row });
+      setResult({ filed, row, warranty });
     } catch (e) {
       if (e instanceof OfflineError || !(e instanceof AppError)) {
         await enqueue(draft);
@@ -172,8 +177,10 @@ function Reporter() {
     <View style={s.fill}>
       <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />
       <SafeAreaView style={s.top} edges={['top']}>
-        <LangSwitch />
-        <Pressable onPress={() => setNearby(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('nearby')}</Text></Pressable>
+        <View style={{ flexDirection: 'row', gap: 8, marginLeft: 'auto' }}>
+          <Pressable onPress={() => setNearby(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('nearby')}</Text></Pressable>
+          <Pressable onPress={() => setMore(true)} hitSlop={8} style={s.pill}><Text style={s.pillText}>{t('more')}</Text></Pressable>
+        </View>
       </SafeAreaView>
 
       {!shot && !result && (
@@ -198,8 +205,9 @@ function Reporter() {
         </KeyboardAvoidingView>
       )}
 
-      {result && <ResultCard filed={result.filed} row={result.row} onDone={reset} />}
+      {result && <ResultCard filed={result.filed} row={result.row} warranty={result.warranty} onDone={reset} />}
       <NearbySheet visible={nearby} onClose={() => setNearby(false)} />
+      <MoreSheet visible={more} onClose={() => setMore(false)} />
     </View>
   );
 }
