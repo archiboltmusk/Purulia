@@ -5165,6 +5165,37 @@ function renderRepWorks(rep){
   });
 }
 
+/* Sworn election affidavit of an MLA or MP, from ADR's MyNeta (places/wb_affidavits.json,
+   tools/build-wb-affidavits.py): assets, liabilities, pending criminal cases, education, and the
+   change in assets since the previous affidavit where ADR compares the two. Loaded on first profile. */
+let wbAffidavits = null;
+function renderRepAffidavit(rep){
+  const el = document.getElementById('k-rep-aff'), kind = rep.group === 'mla' ? 'ac' : 'pc';
+  if (!el) return;
+  (wbAffidavits ||= getJson('places/wb_affidavits.json')).then(d => {
+    if (!d) wbAffidavits = null;
+    const a = d?.[kind]?.[kind === 'ac' ? rep.ac : rep.pc];
+    if (!a || el.dataset.key !== rep.key) return;
+    const inr = n => n == null ? '—' : n < 1e5 ? '₹' + n.toLocaleString('en-IN')
+      : '₹' + (n >= 1e7 ? (n / 1e7).toFixed(2) + ' ' + t('rep_crore') : (n / 1e5).toFixed(1) + ' ' + t('rep_lakh'));
+    const ek = 'rep_edu_' + String(a.edu || '').toLowerCase().replace(/\W+/g, '_');
+    const diff = a.assets != null && a.prevAssets > 0 ? a.assets - a.prevAssets : null;
+    const sign = diff > 0 ? '+' : diff < 0 ? '−' : '';
+    const lines = [a.serious && esc(t('rep_aff_serious')), a.edu && esc(t('rep_aff_edu', { e: I18N.en[ek] ? t(ek) : a.edu })),
+      diff != null && esc(t('rep_aff_change', { e: a.prevElection, d: sign + inr(Math.abs(diff)), p: sign + Math.round(Math.abs(diff) / a.prevAssets * 100) + '%' }))
+        + (a.cmp ? ` <a href="${esc(safeUrl(a.cmp) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_aff_cmp'))} ↗</a>` : '')].filter(Boolean);
+    el.innerHTML = `<div class="k-rep-worst-title">${esc(t('rep_aff'))}</div>
+    <div class="k-rep-stats">
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(a.assets))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_assets'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(a.liab))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_liab'))}</div></div>
+      <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(String(a.cases ?? '—'))}</div><div class="k-rep-stat-l">${esc(t('rep_aff_cases'))}</div></div>
+    </div>
+    ${lines.length ? `<p class="k-rep-src">${lines.join('<br>')}</p>` : ''}
+    <p class="k-rep-src">${esc(t('rep_aff_note', { e: d.elections?.[kind] || '' }))}
+      <a href="${esc(safeUrl(a.url) || '#')}" target="_blank" rel="noopener nofollow">MyNeta ↗</a></p>`;
+  });
+}
+
 // Statewide list under the Purulia leaders: search, then ministers, MPs and MLAs by group.
 function renderWbRepList(){
   const box = document.getElementById('k-wb-reps');
@@ -5363,6 +5394,7 @@ async function openRepProfile(key){
     <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
       <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
     ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
+    ${(rep.group === 'mla' && rep.ac) || (rep.group === 'mp' && rep.pc) ? `<div id="k-rep-aff" data-key="${esc(rep.key)}"></div>` : ''}
     <div class="k-rep-worst-title">${esc(t('rep_updates'))}</div>
     <div id="k-rep-updates" data-key="${esc(rep.key)}"><div class="k-rep-worst-item">${esc(t('rep_loading'))}</div></div>
     <div class="k-rep-links">${links.map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('')}</div>
@@ -5371,6 +5403,7 @@ async function openRepProfile(key){
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
+  renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
     const el = document.getElementById('k-rep-updates');
     if (el && el.dataset.key === rep.key) el.innerHTML = `<div class="k-rep-worst-item">${esc(t('rep_updates_failed'))}
