@@ -24,6 +24,13 @@ npm run typecheck
 
 Expo Go does not ship every module used here; use a development build (`eas build --profile development`) or `expo run:*`.
 
+## Download builds
+
+`.github/workflows/mobile-build.yml` builds on every change to `mobile/` (and on demand from the Actions tab). On `main` it publishes a GitHub Release `app-build-<n>` with:
+
+- `parishkar.apk`: installable Android build (release, signed with the generated debug key). Open it on the phone and allow installs from that source. Play Store builds still go through EAS (below).
+- `parishkar-unsigned.ipa`: iOS build without signing. iPhones refuse unsigned apps, so it installs only after re-signing with an Apple ID (sideloading tools) or through EAS with a developer account.
+
 ## Publish (owner steps; can't be done from CI)
 
 1. Accounts: [Apple Developer Program](https://developer.apple.com/programs/) (US$99/yr) and [Google Play Console](https://play.google.com/console/signup) (US$25 once). Google needs identity verification; new personal accounts must run a closed test with ≥ 12 testers for 14 days before production.
