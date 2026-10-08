@@ -2543,6 +2543,16 @@ check('a pandal counts public reports near it during the puja, open and fixed', 
 rpc('kasa_admin_review_pandal', uid=mod, p_id=p1['id'], p_action='remove', p_note='duplicate')
 check('a removed pandal leaves the list', not any(x['id'] == p1['id'] for x in rpc('kasa_pandals')['pandals']))
 
+# ── Storage meter / R2 alert ────────────────────────────────────────────────
+check('non-admins cannot see storage use', err(rpc, 'kasa_admin_storage_usage', uid=user()) == 'KASA_NOT_ADMIN')
+su0 = rpc('kasa_admin_storage_usage', uid=mod)
+check('moderators see photo and database size against the plan', su0['storage_limit_mb'] == 1024 and su0['r2_threshold_mb'] == 700 and su0['db_mb'] > 0, su0)
+check('no storage alert below the R2 mark', admin_sql("select kasa_private.storage_alert()")[0][0] == {})
+admin_sql("insert into storage.objects (bucket_id, name, metadata) values ('kasa-photos', 'big/one.jpg', '{\"size\": 750000000}')")
+sa = admin_sql("select kasa_private.storage_alert()")[0][0]
+check('photos past the R2 mark raise the storage alert', float(sa['photos_mb']) > 700 and sa['threshold_mb'] == 700, sa)
+admin_sql("update storage.objects set metadata = '{}' where name = 'big/one.jpg'")
+
 # Help assistant daily limit (kasa-assistant edge function, service key only).
 as_u = user()
 check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))

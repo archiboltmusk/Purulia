@@ -46,6 +46,16 @@ Keep at least two admins, so the site isn't stuck if one person is unavailable.
 
 Only add people you trust. A moderator can hide reports, reject claims and void votes, and every one of those actions shows in the report's public history.
 
+## Moving photos to R2
+
+Report photos live in the Supabase `kasa-photos` bucket. Admin → "Storage" shows photos and database size against the plan's limits (free plan: 1 GB files, 500 MB database). Once photos pass `r2_photo_threshold_mb` (700 MB), the daily moderator email says it is time to move. Until then the move is not worth it (decided 28 Sep 2026, when photos were a few MB).
+
+When it is time:
+1. Create an R2 bucket and bind it to the existing Cloudflare worker (`worker.js`, `wrangler.jsonc`). Don't serve photos from `r2.dev`: it is rate-limited and not meant for production.
+2. Add an authenticated `/upload` route on the worker that checks the Supabase session and records who uploaded each object. `kasa_create_report` rejects photos that aren't yours (`KASA_PHOTO_NOT_YOURS`), and that check is part of the anti-fraud rules, so ownership must still be recorded.
+3. Teach `kasa_create_report`, `kasa-photo-check`, `kasa-photo-shrink` and `kasa-cleanup` to accept either store. Leave old photos where they are; only new uploads go to R2.
+4. Raise `r2_photo_threshold_mb` (settings) so the email stops.
+
 ## Backups
 
 `.github/workflows/db-backup.yml` runs every Monday. It dumps `public`, `kasa_private` and the sign-in accounts, encrypts them with `BACKUP_PASSPHRASE` and keeps them as a workflow artifact for 90 days. It needs the repo secrets `SUPABASE_DB_URL` (Session pooler string from Supabase → Connect) and `BACKUP_PASSPHRASE`; the workflow file says how to restore. Photos in Storage are not included.
