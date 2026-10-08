@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PARISHKAR PURULIA — SHARED RUNTIME
+   PARISHKAR BENGAL — SHARED RUNTIME
    Patched: WhatsApp close CSS hook, i18n sync, dead counters
    removed, countdown rounding fixed.
    ══════════════════════════════════════════════════════════ */
@@ -262,7 +262,7 @@ async function submitForm(){
     var shareBtns=document.getElementById('fsShareBtns');
     if(shareBtns){
       var url=window.location.origin+(window.location.pathname.includes('join')?window.location.pathname.replace('join.html',''):window.location.pathname);
-      var msg='I just connected with the Parishkar Purulia team. If you care about transforming a district — read this:';
+      var msg='I just connected with the Parishkar Bengal team. If you care about transforming a district — read this:';
       shareBtns.innerHTML=
         '<a class="ss-btn ss-wa" href="https://wa.me/?text='+encodeURIComponent(msg+' '+url)+'" target="_blank" rel="noopener">WhatsApp</a>'+
         '<a class="ss-btn ss-tw" href="https://twitter.com/intent/tweet?text='+encodeURIComponent(msg)+'&url='+encodeURIComponent(url)+'" target="_blank" rel="noopener">Twitter</a>'+
@@ -351,7 +351,7 @@ document.addEventListener('click',function(e){
     'blueprint.html':'The full 15-year blueprint for transforming Purulia. Six pillars, real funding sources — read it:',
     'data.html':'The hard data on Purulia — why this district is primed for transformation right now:',
     'join.html':'This blueprint needs people, not just readers. Find your role in Purulia\'s future:',
-    'kasa.html':'Parishkar Purulia — report a civic problem in 30 seconds and hold your ward accountable. Try it:'
+    'kasa.html':'Parishkar Bengal — report a civic problem in 30 seconds and hold your ward accountable. Try it:'
   };
   var page=window.location.pathname.split('/').pop()||'index.html';
   var msg=pageMsgs[page]||'A public record of civic problems in Purulia, West Bengal:';
@@ -586,7 +586,7 @@ document.addEventListener('click',function(e){
   });
 })();
 
-/* ── LANGUAGE SWITCHER — synced with Parishkar Purulia brand ── */
+/* ── LANGUAGE SWITCHER — synced with Parishkar Bengal brand ── */
 (function(){
   var T={
     en:{
@@ -595,7 +595,7 @@ document.addEventListener('click',function(e){
       kicker2:'Live Now',
       heroL1:'The Public Record',
       heroL2:'of Purulia.',
-      heroL3:'Parishkar Purulia',
+      heroL3:'Parishkar Bengal',
       heroLead:'Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong>',
       heroCta:'Report a Problem →',
       heroSub1:'See the live map',
@@ -607,7 +607,7 @@ document.addEventListener('click',function(e){
       kicker2:'চালু আছে',
       heroL1:'পুরুলিয়ার',
       heroL2:'প্রকাশ্য রেকর্ড।',
-      heroL3:'পরিষ্কার পুরুলিয়া',
+      heroL3:'পরিষ্কার বাংলা',
       heroLead:'পুরুলিয়ার প্রতিটি নাগরিক সমস্যা — <strong>আবর্জনা, নর্দমা, রাস্তা, স্কুল, স্বাস্থ্যকেন্দ্র, জল</strong> — একটি প্রকাশ্য ম্যাপে।<br>প্রতিটি ব্লক। প্রতিটি পুরসভা। প্রতিটি ওয়ার্ড।<br><strong>যতক্ষণ স্পটে থাকা মানুষ নিশ্চিত না করবেন, ততক্ষণ কিছু সমাধান হিসেবে গণ্য হয় না।</strong>',
       heroCta:'একটি সমস্যা রিপোর্ট করুন →',
       heroSub1:'লাইভ ম্যাপ দেখুন',
@@ -619,7 +619,7 @@ document.addEventListener('click',function(e){
       kicker2:'लाइव है',
       heroL1:'पुरुलिया का',
       heroL2:'सार्वजनिक रिकॉर्ड।',
-      heroL3:'परिष्कार पुरुलिया',
+      heroL3:'परिष्कार बंगाल',
       heroLead:'पुरुलिया जिले की हर नागरिक समस्या — <strong>कचरा, नाली, सड़कें, स्कूल, स्वास्थ्य केंद्र, पानी</strong> — एक सार्वजनिक मैप पर।<br>हर ब्लॉक। हर नगरपालिका। हर वार्ड।<br><strong>जब तक मौके पर मौजूद लोग पुष्टि नहीं करते, कुछ भी हल नहीं माना जाता।</strong>',
       heroCta:'समस्या रिपोर्ट करें →',
       heroSub1:'लाइव मैप देखें',
@@ -733,7 +733,7 @@ window.followSubmit=async function(){
 (function(){
   var PAGES=[
     {href:'index.html',label:'Home',desc:'The public record'},
-    {href:'kasa.html',label:'Parishkar Purulia',desc:'Report & map'},
+    {href:'kasa.html',label:'Parishkar Bengal',desc:'Report & map'},
     {href:'blueprint.html',label:'Blueprint',desc:'The 15-year plan'},
     {href:'data.html',label:'Ground Truth',desc:'Verified data & charts'},
     {href:'join.html',label:'Join',desc:'Get involved'},

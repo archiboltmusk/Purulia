@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA
+   PARISHKAR BENGAL
    ══════════════════════════════════════════════════════════ */
 
 :root{
@@ -704,7 +704,7 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-esc-copy{margin-top:.6rem;width:100%;}
 
 /* ══════════════════════════════════════════════════════════
-   Parishkar Purulia — wordmark
+   Parishkar Bengal — wordmark
    ══════════════════════════════════════════════════════════ */
 .k-mark{display:inline-flex;align-items:center;justify-content:center;width:28px;height:28px;position:relative;flex-shrink:0;}
 .k-mark::before,.k-mark::after{content:'';position:absolute;background:var(--amber);}

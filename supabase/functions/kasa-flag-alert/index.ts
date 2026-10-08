@@ -11,7 +11,7 @@
 //          TELEGRAM_BOT_TOKEN (Telegram; from @BotFather)
 //          TELEGRAM_CHAT_ID   (Telegram; the moderators' group or channel id, e.g. -1001234567890)
 //          At least one of email or Telegram must be set.
-//          FLAG_ALERT_FROM    (optional; default "Parishkar Purulia <onboarding@resend.dev>",
+//          FLAG_ALERT_FROM    (optional; default "Parishkar Bengal <onboarding@resend.dev>",
 //                              which only delivers to your own Resend address until you verify a domain)
 //          SITE_URL           (optional; default https://archiboltmusk.github.io/Purulia)
 
@@ -20,7 +20,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('FLAG_ALERT_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const TG_TOKEN = Deno.env.get('TELEGRAM_BOT_TOKEN') ?? '';
 const TG_CHAT = Deno.env.get('TELEGRAM_CHAT_ID') ?? '';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '');
@@ -48,7 +48,7 @@ function render(flags: Flag[]): { subject: string; text: string } {
       + ` · ${f.flags} flag${f.flags === 1 ? '' : 's'} so far${hidden}\n  ${SITE}/kasa.html?report=${encodeURIComponent(f.report_id)}`;
   });
   return {
-    subject: `${flags.length} new flag${flags.length === 1 ? '' : 's'} on ${reports} report${reports === 1 ? '' : 's'} — Parishkar Purulia`,
+    subject: `${flags.length} new flag${flags.length === 1 ? '' : 's'} on ${reports} report${reports === 1 ? '' : 's'} — Parishkar Bengal`,
     text: [`New flags waiting in the moderation queue:`, '', ...lines, '',
       `Review them: ${SITE}/admin.html`, '',
       'You get this because you are on the Parishkar moderation team.'].join('\n'),

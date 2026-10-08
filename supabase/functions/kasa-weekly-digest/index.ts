@@ -7,7 +7,7 @@
 //
 // Deploy:  supabase functions deploy kasa-weekly-digest
 // Secrets: RESEND_API_KEY      (required; shared with the other alerts)
-//          DIGEST_FROM         (optional; default "Parishkar Purulia <onboarding@resend.dev>")
+//          DIGEST_FROM         (optional; default "Parishkar Bengal <onboarding@resend.dev>")
 //          SITE_URL            (optional; default https://archiboltmusk.github.io/Purulia)
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
@@ -15,7 +15,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 const SUPABASE_URL = Deno.env.get('SUPABASE_URL')!;
 const SERVICE_KEY = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
 const RESEND_KEY = Deno.env.get('RESEND_API_KEY') ?? '';
-const FROM = Deno.env.get('DIGEST_FROM') || 'Parishkar Purulia <onboarding@resend.dev>';
+const FROM = Deno.env.get('DIGEST_FROM') || 'Parishkar Bengal <onboarding@resend.dev>';
 const SITE = (Deno.env.get('SITE_URL') || 'https://archiboltmusk.github.io/Purulia').replace(/\/$/, '');
 
 interface Ward { ward: number; councillor: string | null; new: number; fixed: number; open: number; overdue: number;
@@ -32,7 +32,7 @@ function render(d: Digest, preview: boolean): { subject: string; text: string } 
   const sum = (k: 'new' | 'fixed' | 'open' | 'overdue') => d.wards.reduce((n, w) => n + w[k], 0);
   const lines: string[] = [];
   if (preview) lines.push('PREVIEW — sent only to the Parishkar team. Set weekly_digest_to to send it to the municipality.', '');
-  lines.push(`Parishkar Purulia — ward digest for ${week}`, '',
+  lines.push(`Parishkar Bengal — ward digest for ${week}`, '',
     `Across Purulia town: ${sum('new')} new reports, ${sum('fixed')} verified fixed (confirmed by neighbours on the spot), `
     + `${sum('open')} still unresolved, of which ${sum('overdue')} are past their deadline.`, '');
   if (!d.wards.length) lines.push('No reports in any ward this week.');
