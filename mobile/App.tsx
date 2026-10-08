@@ -13,6 +13,7 @@ import { EvidenceCamera } from './src/components/EvidenceCamera';
 import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
 import { ReportSheet } from './src/components/ReportSheet';
+import { SpotForm, type SpotFormId } from './src/components/SpotForm';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
 import { TermsGate } from './src/components/TermsGate';
@@ -94,6 +95,7 @@ function Reporter() {
   const [more, setMore] = useState(false);
   const [sheetId, setSheetId] = useState<string | null>(null);
   const [sheetRefresh, setSheetRefresh] = useState(0);
+  const [spotForm, setSpotForm] = useState<SpotFormId | null>(null);
   const [evidence, setEvidence] = useState<{ mode: EvidenceMode; report: Report; rules: Rules } | null>(null);
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
@@ -189,7 +191,7 @@ function Reporter() {
   return (
     <View style={s.fill}>
       {/* One camera at a time: the evidence camera takes over while it is open. */}
-      {!evidence && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
+      {!evidence && !spotForm && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
       <SafeAreaView style={s.top} edges={['top']}>
         <View style={{ flexDirection: 'row', gap: 8, marginLeft: 'auto' }}>
           <PopButton kind="secondary" size="small" label={t('nearby')} onPress={() => setNearby(true)} />
@@ -230,7 +232,11 @@ function Reporter() {
         setEvidence(null);
         if (changed) setSheetRefresh((n) => n + 1);
       }} />}
-      <MoreSheet visible={more} onClose={() => setMore(false)} />
+      <MoreSheet visible={more} onClose={() => setMore(false)} onForm={(id) => {
+        setMore(false);
+        setTimeout(() => setSpotForm(id), Platform.OS === 'ios' ? 450 : 0);
+      }} />
+      {spotForm && <SpotForm id={spotForm} onClose={() => setSpotForm(null)} />}
     </View>
   );
 }
