@@ -427,7 +427,13 @@ test.describe('standing in Gorakhpur, Uttar Pradesh', () => {
     await expect(page.locator('#k-place')).toContainText('Filed under Gorakhpur district, Uttar Pradesh.');
     await expect(page.locator('#k-ward-field')).toBeHidden();
     await expect(page.locator('#k-submit')).toBeEnabled();
-    await page.locator('#k-submit').click();
+    await page.locator('#k-submit').click();   // the first tap only arms the slider
+    const box = await page.locator('#k-submit').boundingBox();
+    await page.mouse.move(box.x + 20, box.y + box.height / 2);
+    await page.mouse.down();
+    await page.mouse.move(box.x + box.width / 2, box.y + box.height / 2, { steps: 5 });
+    await page.mouse.move(box.x + box.width - 4, box.y + box.height / 2, { steps: 5 });
+    await page.mouse.up();
     await expect.poll(() => backend.calls.find(c => c.kind === 'rpc' && c.name === 'kasa_create_report')?.body?.p_lat).toBeCloseTo(26.7738, 3);
   });
 });
