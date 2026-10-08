@@ -248,6 +248,7 @@
       <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
       <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
+      <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
       <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
       <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
@@ -577,6 +578,60 @@
     <div class="k-ev-status" id="k-fd-loc"></div>
     <button type="button" class="k-btn k-btn-primary" id="k-fd-submit" disabled data-i18n="fd_submit">🐕 Register this feeding spot</button>
     <div class="k-privacy" data-i18n="fd_note">Only the name you type is public, never your account. You promise to clean up after every feed. You can stop any time from the Community dogs page.</div>
+  </div>
+</div>
+
+<!-- Report a snake -->
+<div class="k-modal" id="k-sn-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-sn-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-sn-title" data-i18n="sn_title">Snake seen here</h3>
+    <p class="k-modal-sub" data-i18n="sn_sub">Keep your distance and don't try to catch or kill it. Take one photo from a safe distance; snake rescuers who cover this spot are listed next, to call or message.</p>
+    <div id="k-sn-form">
+      <div class="k-ev-status" id="k-sn-photo-status" data-i18n="sn_photo_hint">Zoom in rather than walking closer.</div>
+      <button type="button" class="k-btn k-btn-secondary k-btn-sm" id="k-sn-cam-btn" data-i18n="ev_photo_btn">📷 Open camera</button>
+      <div class="k-photo-preview" id="k-sn-preview"></div>
+      <div class="k-ev-status" id="k-sn-loc"></div>
+      <div class="k-field">
+        <label for="k-sn-note" data-i18n="sn_note">Where exactly (optional)</label>
+        <input type="text" id="k-sn-note" class="k-input" maxlength="140" data-i18n-placeholder="sn_note_ph" placeholder="e.g. inside the kitchen, under the hand pump">
+      </div>
+      <button type="button" class="k-btn k-btn-primary" id="k-sn-submit" disabled data-i18n="sn_submit">🐍 Send and find a rescuer</button>
+    </div>
+    <div id="k-sn-result" hidden></div>
+  </div>
+</div>
+
+<!-- Register as a snake rescuer -->
+<div class="k-modal" id="k-sr-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-sr-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-sr-title" data-i18n="sr_title">Register as a snake rescuer</h3>
+    <p class="k-modal-sub" data-i18n="sr_sub">Stand where you usually start from. People who report a snake within your range see your name and number. A moderator calls you before you go on the list.</p>
+    <div class="k-field">
+      <label for="k-sr-name" data-i18n="sr_name">Public name</label>
+      <input type="text" id="k-sr-name" class="k-input" maxlength="60" data-i18n-placeholder="sr_name_ph" placeholder="e.g. Bablu Mahato, Hura">
+    </div>
+    <div class="k-field">
+      <label for="k-sr-phone" data-i18n="sr_phone">Mobile number (shown publicly)</label>
+      <input type="tel" id="k-sr-phone" class="k-input" maxlength="16" inputmode="tel" placeholder="98xxxxxxxx">
+    </div>
+    <label class="k-field"><input type="checkbox" id="k-sr-wa" checked> <span data-i18n="sr_wa">This number is on WhatsApp</span></label>
+    <div class="k-field">
+      <label for="k-sr-range" data-i18n="sr_range">How far you can travel (km)</label>
+      <input type="number" id="k-sr-range" class="k-input" min="1" max="50" value="10" inputmode="numeric">
+    </div>
+    <div class="k-field">
+      <label for="k-sr-note" data-i18n="sr_note_l">About you (optional)</label>
+      <input type="text" id="k-sr-note" class="k-input" maxlength="280" data-i18n-placeholder="sr_note_ph" placeholder="e.g. trained by the forest range office, rescuing since 2019">
+    </div>
+    <div class="k-ev-status" id="k-sr-loc"></div>
+    <button type="button" class="k-btn k-btn-primary" id="k-sr-submit" disabled data-i18n="sr_submit">🐍 Register me</button>
+    <div class="k-privacy" data-i18n="sr_privacy">Your name, number and about 1 km of where you start are public; your account is not. You can stop any time from the Snakes page.</div>
   </div>
 </div>
 

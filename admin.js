@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -782,6 +782,55 @@ async function loadFeedingSpots(){
     const { error: e2 } = await sb.rpc('kasa_admin_set_feeding_designation', { p_id: f.id, p_note: note, p_source_url: url });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadFeedingSpots();
+  }));
+}
+
+/* Snake rescuers: call the number before approving; approved ones can be removed. Sightings of the last 48 h can be hidden. */
+async function loadSnakes(){
+  const el = document.getElementById('adSnakes');
+  if (!el) return;
+  const [q, pub, seen] = await Promise.all([sb.rpc('kasa_admin_snake_queue'), sb.rpc('kasa_snake_rescuers'), sb.rpc('kasa_snake_sightings')]);
+  const error = q.error || pub.error || seen.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [], sights = seen.data || [];
+  const where = r => esc([r.block_name, r.district].filter(Boolean).join(', ') || 'map');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Rescuer</th><th>Number</th><th>Base</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(r => `<tr>
+          <td><strong>${esc(r.name)}</strong><br><small>${esc(r.range_km)} km${r.note ? ' · ' + esc(r.note) : ''} · sent ${esc(new Date(r.created_at).toLocaleString('en-IN'))}</small></td>
+          <td><a href="tel:+91${esc(r.phone)}">${esc(r.phone)}</a>${r.whatsapp ? ' · WhatsApp' : ''}</td>
+          <td><a href="https://www.openstreetmap.org/?mlat=${esc(r.lat)}&mlon=${esc(r.lng)}#map=14/${esc(r.lat)}/${esc(r.lng)}" target="_blank" rel="noopener">${where(r)}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-sn="${esc(r.id)}" data-sn-act="approve">✓ Approve</button>
+            <button class="ad-bad" data-sn="${esc(r.id)}" data-sn-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">No rescuer waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((r, i) => `<tr><td><strong>${esc(r.name)}</strong> <small>${esc(r.phone)} · ${esc(r.range_km)} km</small></td><td>${where(r)}</td>
+        <td><button class="ad-bad" data-sn-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '') + (sights.length ? `
+    <p class="ad-note" style="margin-top:1rem;">Sightings, last 48 hours</p>
+    <table class="ad-table"><tbody>
+      ${sights.map(s => `<tr><td><a href="${esc(s.photo_url)}" target="_blank" rel="noopener"><img src="${esc(s.photo_url)}" alt="" style="width:72px;height:72px;object-fit:cover;border-radius:4px;"></a></td>
+        <td>${where(s)} ${esc(s.note || '')}<br><small>${esc(new Date(s.at).toLocaleString('en-IN'))}</small></td>
+        <td><button class="ad-bad" data-sn-hide="${esc(s.id)}">Hide</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  const act = async (b, p_id, p_action, p_note = null) => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_snake', { p_id, p_action, p_note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadSnakes();
+  };
+  el.querySelectorAll('[data-sn]').forEach(b => b.addEventListener('click', () => act(b, Number(b.dataset.sn), b.dataset.snAct)));
+  el.querySelectorAll('[data-sn-hide]').forEach(b => b.addEventListener('click', () => act(b, Number(b.dataset.snHide), 'hide_sighting')));
+  el.querySelectorAll('[data-sn-rm]').forEach(b => b.addEventListener('click', () => {
+    const r = live[+b.dataset.snRm];
+    const reason = prompt(`Reason for removing "${r.name}":`);
+    if (reason && reason.trim().length >= 3) act(b, r.id, 'remove', reason);
   }));
 }
 
