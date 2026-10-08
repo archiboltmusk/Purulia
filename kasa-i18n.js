@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — interface text (English, Bengali, Hindi, Santali)
+   PARISHKAR BENGAL — interface text (English, Bengali, Hindi, Santali)
    Missing keys fall back to English.
    ══════════════════════════════════════════════════════════ */
 window.KASA_I18N = {
@@ -46,6 +46,7 @@ window.KASA_I18N = {
     stat_reports: 'Reports', stat_open: 'Unresolved', stat_resolved: 'Verified fixed', stat_fake: 'Fake cleanups caught',
     stat_total_short: 'Total', stat_open_short: 'Unresolved', stat_fixed_short: 'Fixed',
     drawer_groups: 'Volunteer communities', drawer_groups_sub: 'Find a group near you, or register yours',
+    drawer_ask: 'Ask Parishkar', drawer_ask_sub: 'Help in Bengali, Hindi or English',
     drawer_your_reports_sub: 'Track your submissions', drawer_ward_sub: "See who's responsible", drawer_alerts_sub: 'Notify me of nearby issues', drawer_more: 'More Resources',
 
     trust_num: '03 · Verification', trust_title: 'Why “resolved” here means resolved',
@@ -57,13 +58,13 @@ window.KASA_I18N = {
     trust_5: 'Every photo, confirmation and dispute stays on the public record. Moderators can remove abusive content, but nobody can mark a report fixed on their own.',
 
     step1_camera: 'Open the camera and take a photo',
-    cam_permission_denied: 'Allow the camera to file a report. Parishkar Purulia only accepts photos taken with the camera on this page. You can turn it on in your browser settings.',
+    cam_permission_denied: 'Allow the camera to file a report. Parishkar Bengal only accepts photos taken with the camera on this page. You can turn it on in your browser settings.',
     cam_report_unavailable: "This browser can't open the camera. Open this page in Chrome or Safari on your phone to file a report.",
     cam_ev_denied: 'Allow the camera to send this photo. Cleanup photos must be taken with the camera on this page. You can turn it on in your browser settings.',
     cam_ev_unavailable: "This browser can't open the camera. Open this page in Chrome or Safari on your phone to send this photo.",
     footer_groups: 'Volunteer groups', wc_groups: '● {n} volunteer group(s) active here →', wc_groups_none: 'No volunteer group here yet. Start one →',
     footer_analytics: 'Analytics', footer_methodology: 'How it works', footer_rules: 'Rules', footer_founder: '👤 Founder', footer_instagram: '📷 @anupamstorm_', footer_project: '👤 Project', footer_project_instagram: '📷 @parishkarpurulia', social_follow: 'Follow us', nav_suggestions: 'Suggest a feature',
-    suggestions_title: 'Suggest a feature', suggestions_sub: 'Help shape the future of Parishkar Purulia. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.',
+    suggestions_title: 'Suggest a feature', suggestions_sub: 'Help shape the future of Parishkar Bengal. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.',
     suggestions_form_title: 'Share your idea', suggestions_category: 'Category', suggestions_title_label: 'Idea title', suggestions_description: 'Details', suggestions_email: 'Email (optional)', suggestions_email_note: 'Leave blank to stay anonymous.', suggestions_submit: 'Submit idea', suggestions_community: 'Community ideas', suggestions_empty: 'No suggestions yet. Be the first to share an idea!',
     suggestions_cat_feature: 'Feature request', suggestions_cat_improvement: 'Improvement', suggestions_cat_reporting: 'Reporting experience', suggestions_cat_other: 'Other', loading: 'Loading suggestions…', filter_all: 'All',
     fixed_num: '✓ · Verified fixes', fixed_title: 'Recently fixed',
@@ -104,9 +105,9 @@ window.KASA_I18N = {
     auth_num: '06 · Representatives', auth_title: 'Elected representatives', auth_view: 'View →',
     auth_sub_home: 'For {p} district. Move the map to another district or town to see its leaders.', auth_sub_district: 'For {p} district. Move the map to see another place.', auth_sub_town: 'Seats covering {p}. Move the map to see another place.', auth_sub_state: 'Move the map onto a district or town to see its MPs and MLAs, or search all of West Bengal below.',
     footer_left: 'Parishkar Bengal · A civic tool for West Bengal',
-    footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Purulia is a neutral platform and not affiliated with any party or government body.',
+    footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Bengal is a neutral platform and not affiliated with any party or government body.',
     footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer', footer_coffee: 'Buy me a coffee', footer_bug: 'Report a bug',
-    qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Purulia', qr_sub: 'Point a phone camera at this QR code to open the report page.',
+    qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Bengal', qr_sub: 'Point a phone camera at this QR code to open the report page.',
 
     grp_clean: 'Cleanliness', grp_infra: 'Roads & utilities', grp_illegal: 'Illegal activity',
     cat_garbage: 'Garbage / dumping', cat_dumpsite: 'Dumping ground — trucks unload here', garbage_note: '🗑️ The National Green Tribunal (order of 22 July 2026, O.A. 606/2018) named Purulia among 14 West Bengal towns that do not collect and transport all their waste. Your photo adds to the public record.', dumpsite_note: '🚛 Reporting a dumping ground. Stand where the trucks or carts unload and take the photo there.', cat_toilet: 'Public toilet — locked, unusable or unclean', toilet_note: '🚻 Reporting a public toilet. Photograph the locked door, the empty water tank, or the state inside — whatever the problem is.', cat_drain: 'Blocked drain / sewage', cat_road: 'Pothole / broken road',
@@ -269,7 +270,7 @@ window.KASA_I18N = {
     wc_reported: '{n} reported', wc_open: '{n} unresolved', wc_fixed: '{n} fixed', wc_fake: '{n} fake cleanups caught', wc_filter: 'Show only this ward', wc_clear: 'Show all wards',
     wc_share: 'Share ward link', wc_page: "This ward's page: councillor, fix rate, overdue →", ward_share_text: 'Ward {n}, Purulia: {open} unresolved, {fixed} fixed. See every report:',
     csv_btn: '⬇ CSV', csv_all: '⬇ Download all reports (CSV)', geojson_all: '⬇ Map file (GeoJSON)', csv_done: '{n} reports downloaded', csv_empty: 'No reports to download.',
-    csv_license: 'Report data is open under', csv_license_2: 'Credit “Parishkar Purulia”. Photos are not covered.',
+    csv_license: 'Report data is open under', csv_license_2: 'Credit “Parishkar Bengal”. Photos are not covered.',
     install_btn: '📲 Install the app', install_ios: 'On iPhone: tap Share, then “Add to Home Screen”.',
 
     alerts_btn: '🔔 Alert me about reports near me', alerts_off_btn: '🔕 Nearby alerts on — turn off',
@@ -350,6 +351,7 @@ window.KASA_I18N = {
     stat_reports: 'মোট রিপোর্ট', stat_open: 'সমাধান বাকি', stat_resolved: 'সমাধান নিশ্চিত', stat_fake: 'ভুয়ো সাফাই ধরা পড়েছে',
     stat_total_short: 'মোট', stat_open_short: 'সমাধান বাকি', stat_fixed_short: 'সমাধান হয়েছে',
     drawer_groups: 'স্বেচ্ছাসেবী দল', drawer_groups_sub: 'আপনার এলাকার দল খুঁজুন বা নিজের দল যুক্ত করুন',
+    drawer_ask: 'পরিষ্কার-কে জিজ্ঞাসা করুন', drawer_ask_sub: 'বাংলা, হিন্দি বা ইংরেজিতে সাহায্য',
     drawer_your_reports_sub: 'আপনার রিপোর্ট ট্র্যাক করুন', drawer_ward_sub: 'দায়িত্বশীল কে দেখুন', drawer_alerts_sub: 'কাছাকাছি সমস্যার জন্য আমাকে জানান', drawer_more: 'অন্যান্য তথ্য ও লিঙ্ক',
 
     trust_num: '০৩ · যাচাই', trust_title: 'এখানে "সমাধান" মানে সত্যিই সমাধান',
@@ -361,13 +363,13 @@ window.KASA_I18N = {
     trust_5: 'প্রতিটি ছবি, নিশ্চিতকরণ ও আপত্তি প্রকাশ্য রেকর্ডে থাকে। মডারেটর আপত্তিকর বিষয় সরাতে পারেন, কিন্তু কেউ একা কোনো রিপোর্টকে সমাধান বলে চিহ্নিত করতে পারেন না।',
 
     step1_camera: 'ক্যামেরা খুলে ছবি তুলুন',
-    cam_permission_denied: 'রিপোর্ট করতে ক্যামেরার অনুমতি দিন। পরিষ্কার পুরুলিয়া শুধু এই পেজের ক্যামেরায় তোলা ছবি নেয়। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
+    cam_permission_denied: 'রিপোর্ট করতে ক্যামেরার অনুমতি দিন। পরিষ্কার বাংলা শুধু এই পেজের ক্যামেরায় তোলা ছবি নেয়। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
     cam_report_unavailable: 'এই ব্রাউজারে ক্যামেরা খোলা যাচ্ছে না। রিপোর্ট করতে ফোনের Chrome বা Safari-তে এই পেজটি খুলুন।',
     cam_ev_denied: 'এই ছবি পাঠাতে ক্যামেরার অনুমতি দিন। সাফাইয়ের ছবি এই পেজের ক্যামেরা দিয়েই তুলতে হবে। ব্রাউজারের সেটিংসে চালু করতে পারেন।',
     cam_ev_unavailable: 'এই ব্রাউজারে ক্যামেরা খোলা যাচ্ছে না। ছবি পাঠাতে ফোনের Chrome বা Safari-তে এই পেজটি খুলুন।',
     footer_groups: 'স্বেচ্ছাসেবী দল', wc_groups: '● এখানে {n}টি স্বেচ্ছাসেবী দল সক্রিয় →', wc_groups_none: 'এখানে এখনও কোনো স্বেচ্ছাসেবী দল নেই। একটি শুরু করুন →',
     footer_analytics: 'পরিসংখ্যান', footer_methodology: 'কীভাবে কাজ করে', footer_rules: 'নিয়ম', footer_founder: '👤 প্রতিষ্ঠাতা', footer_instagram: '📷 @anupamstorm_', footer_project: '👤 প্রকল্প', footer_project_instagram: '📷 @parishkarpurulia', social_follow: 'ফলো করুন', nav_suggestions: 'একটি ফিচার পরামর্শ দিন',
-    suggestions_title: 'একটি ফিচার পরামর্শ দিন', suggestions_sub: 'পরিষ্কার পুরুলিয়াকে আরও ভাল করতে সাহায্য করুন। নতুন ফিচার, উন্নতি এবং নাগরিক জবাবদিহিতা সহজ করার আইডিয়া শেয়ার করুন।',
+    suggestions_title: 'একটি ফিচার পরামর্শ দিন', suggestions_sub: 'পরিষ্কার বাংলাকে আরও ভাল করতে সাহায্য করুন। নতুন ফিচার, উন্নতি এবং নাগরিক জবাবদিহিতা সহজ করার আইডিয়া শেয়ার করুন।',
     suggestions_form_title: 'আপনার আইডিয়া শেয়ার করুন', suggestions_category: 'বিভাগ', suggestions_title_label: 'আইডিয়ার শিরোনাম', suggestions_description: 'বিস্তারিত', suggestions_email: 'ইমেল (ঐচ্ছিক)', suggestions_email_note: 'নিরাপদ থাকতে খালি রাখুন।', suggestions_submit: 'আইডিয়া জমা দিন', suggestions_community: 'কমিউনিটির আইডিয়া', suggestions_empty: 'এখনও কোনো সাজেশন নেই। প্রথম হয়ে একটি আইডিয়া শেয়ার করুন!',
     suggestions_cat_feature: 'নতুন ফিচার', suggestions_cat_improvement: 'উন্নতি', suggestions_cat_reporting: 'রিপোর্টিং অভিজ্ঞতা', suggestions_cat_other: 'অন্যান্য', loading: 'সাজেশন লোড হচ্ছে…', filter_all: 'সব',
     fixed_num: '✓ · যাচাই করা সমাধান', fixed_title: 'সম্প্রতি সমাধান হয়েছে',
@@ -408,9 +410,9 @@ window.KASA_I18N = {
     auth_num: '০৬ · জনপ্রতিনিধি', auth_title: 'নির্বাচিত জনপ্রতিনিধি', auth_view: 'দেখুন →',
     auth_sub_home: '{p} জেলা। অন্য জেলা বা শহরের জনপ্রতিনিধি দেখতে মানচিত্র সরান।', auth_sub_district: '{p} জেলা। অন্য জায়গা দেখতে মানচিত্র সরান।', auth_sub_town: '{p}-এর আসনগুলি। অন্য জায়গা দেখতে মানচিত্র সরান।', auth_sub_state: 'কোনো জেলা বা শহরে মানচিত্র সরালে তার সাংসদ ও বিধায়ক দেখা যাবে, অথবা নিচে সারা পশ্চিমবঙ্গে খুঁজুন।',
     footer_left: 'পরিষ্কার বাংলা · পশ্চিমবঙ্গের নাগরিক উদ্যোগ',
-    footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার পুরুলিয়া একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
+    footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার বাংলা একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
     footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক', footer_coffee: 'আমাকে এক কাপ কফি দিন', footer_bug: 'সমস্যা জানান',
-    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার পুরুলিয়া শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
+    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার বাংলা শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
 
     grp_clean: 'পরিচ্ছন্নতা', grp_infra: 'রাস্তা ও পরিষেবা', grp_illegal: 'বেআইনি কাজ',
     cat_garbage: 'আবর্জনা / ময়লা ফেলা', cat_dumpsite: 'ময়লা ফেলার মাঠ — গাড়ি এখানে ফেলে', garbage_note: '🗑️ জাতীয় পরিবেশ আদালত (NGT, ২২ জুলাই ২০২৬-এর আদেশ, O.A. 606/2018) পুরুলিয়াকে পশ্চিমবঙ্গের সেই ১৪টি পুরসভার মধ্যে রেখেছে, যারা সব আবর্জনা তুলে নিয়ে যায় না। আপনার ছবি সরকারি রেকর্ডে যোগ হয়।', dumpsite_note: '🚛 ময়লা ফেলার জায়গা জানাচ্ছেন। যেখানে গাড়ি বা ভ্যান ময়লা ফেলে সেখানে দাঁড়িয়ে ছবি তুলুন।', cat_toilet: 'সরকারি শৌচাগার — তালাবন্ধ, অকেজো বা নোংরা', toilet_note: '🚻 সরকারি শৌচাগার জানাচ্ছেন। তালাবন্ধ দরজা, খালি জলের ট্যাংক, বা ভেতরের অবস্থার ছবি তুলুন।', cat_drain: 'বন্ধ নর্দমা / নোংরা জল', cat_road: 'গর্ত / ভাঙা রাস্তা',
@@ -573,7 +575,7 @@ window.KASA_I18N = {
     wc_reported: '{n}টি রিপোর্ট', wc_open: '{n}টির সমাধান বাকি', wc_fixed: '{n}টি সমাধান', wc_fake: '{n}টি ভুয়ো সাফাই ধরা পড়েছে', wc_filter: 'শুধু এই ওয়ার্ড দেখুন', wc_clear: 'সব ওয়ার্ড দেখুন',
     wc_share: 'ওয়ার্ডের লিঙ্ক শেয়ার', wc_page: 'এই ওয়ার্ডের পাতা: কাউন্সিলর, সমাধানের হার, সময় পেরোনো →', ward_share_text: 'পুরুলিয়ার ওয়ার্ড {n}: {open}টি অমীমাংসিত, {fixed}টি সমাধান। সব রিপোর্ট দেখুন:',
     csv_btn: '⬇ CSV', csv_all: '⬇ সব রিপোর্ট ডাউনলোড (CSV)', geojson_all: '⬇ ম্যাপ ফাইল (GeoJSON)', csv_done: '{n}টি রিপোর্ট ডাউনলোড হয়েছে', csv_empty: 'ডাউনলোড করার মতো রিপোর্ট নেই।',
-    csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Parishkar Purulia”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
+    csv_license: 'রিপোর্টের তথ্য উন্মুক্ত, লাইসেন্স', csv_license_2: '“Parishkar Bengal”-র নাম উল্লেখ করুন। ছবি এর আওতায় নয়।',
     install_btn: '📲 অ্যাপ ইনস্টল করুন', install_ios: 'আইফোনে: শেয়ার-এ ট্যাপ করুন, তারপর “Add to Home Screen”।',
 
     alerts_btn: '🔔 কাছাকাছি রিপোর্টের খবর দিন', alerts_off_btn: '🔕 কাছের খবর চালু — বন্ধ করুন',
@@ -653,6 +655,7 @@ window.KASA_I18N = {
     stat_reports: 'रिपोर्ट', stat_open: 'अनसुलझी', stat_resolved: 'पुष्टि से सुलझी', stat_fake: 'पकड़ी गई फ़र्ज़ी सफ़ाई',
     stat_total_short: 'कुल', stat_open_short: 'अनसुलझी', stat_fixed_short: 'सुलझी हुई',
     drawer_groups: 'स्वयंसेवी समूह', drawer_groups_sub: 'पास का समूह खोजें, या अपना दर्ज करें',
+    drawer_ask: 'परिष्कार से पूछें', drawer_ask_sub: 'बांग्ला, हिंदी या अंग्रेज़ी में मदद',
     drawer_your_reports_sub: 'अपनी रिपोर्ट ट्रैक करें', drawer_ward_sub: 'जिम्मेदार कौन है देखें', drawer_alerts_sub: 'पास की समस्याओं के बारे में मुझे बताएँ', drawer_more: 'और संसाधन',
 
     trust_num: '03 · पुष्टि', trust_title: 'यहाँ "सुलझ गई" का मतलब सच में सुलझ गई',
@@ -664,7 +667,7 @@ window.KASA_I18N = {
     trust_5: 'हर फ़ोटो, पुष्टि और आपत्ति सार्वजनिक रिकॉर्ड में रहती है। मॉडरेटर आपत्तिजनक सामग्री हटा सकते हैं, पर कोई अकेले किसी रिपोर्ट को ठीक नहीं बता सकता।',
 
     step1_camera: 'कैमरा खोलें और फ़ोटो लें',
-    cam_permission_denied: 'रिपोर्ट करने के लिए कैमरे की अनुमति दें। परिष्कार पुरुलिया केवल इसी पेज के कैमरे से ली गई फ़ोटो लेता है। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
+    cam_permission_denied: 'रिपोर्ट करने के लिए कैमरे की अनुमति दें। परिष्कार बंगाल केवल इसी पेज के कैमरे से ली गई फ़ोटो लेता है। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
     cam_report_unavailable: 'इस ब्राउज़र में कैमरा नहीं खुल रहा। रिपोर्ट करने के लिए यह पेज फ़ोन के Chrome या Safari में खोलें।',
     cam_ev_denied: 'यह फ़ोटो भेजने के लिए कैमरे की अनुमति दें। सफ़ाई की फ़ोटो इसी पेज के कैमरे से लेनी होगी। ब्राउज़र की सेटिंग में इसे चालू कर सकते हैं।',
     cam_ev_unavailable: 'इस ब्राउज़र में कैमरा नहीं खुल रहा। फ़ोटो भेजने के लिए यह पेज फ़ोन के Chrome या Safari में खोलें।',
@@ -711,9 +714,9 @@ window.KASA_I18N = {
     auth_num: '06 · प्रतिनिधि', auth_title: 'चुने हुए प्रतिनिधि', auth_view: 'देखें →',
     auth_sub_home: '{p} ज़िला। दूसरे ज़िले या शहर के प्रतिनिधि देखने के लिए नक्शा खिसकाएँ।', auth_sub_district: '{p} ज़िला। दूसरी जगह देखने के लिए नक्शा खिसकाएँ।', auth_sub_town: '{p} की सीटें। दूसरी जगह देखने के लिए नक्शा खिसकाएँ।', auth_sub_state: 'किसी ज़िले या शहर पर नक्शा ले जाएँ तो उसके सांसद और विधायक दिखेंगे, या नीचे पूरे पश्चिम बंगाल में खोजें।',
     footer_left: 'परिष्कार बंगाल · पश्चिम बंगाल का नागरिक टूल',
-    footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार पुरुलिया एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
+    footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार बंगाल एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
     footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी', footer_coffee: 'मुझे एक कॉफ़ी पिलाएँ', footer_bug: 'बग बताएं',
-    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार पुरुलिया शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
+    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार बंगाल शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
 
     grp_clean: 'सफ़ाई', grp_infra: 'सड़क और सेवाएँ', grp_illegal: 'अवैध गतिविधि',
     cat_garbage: 'कचरा / डंपिंग', cat_dumpsite: 'कूड़ा डालने की जगह — गाड़ियाँ यहाँ उतारती हैं', garbage_note: '🗑️ राष्ट्रीय हरित अधिकरण (NGT, 22 जुलाई 2026 का आदेश, O.A. 606/2018) ने पुरुलिया को पश्चिम बंगाल के उन 14 नगरों में गिना है जो अपना पूरा कचरा उठाकर नहीं ले जाते। आपकी फ़ोटो सार्वजनिक रिकॉर्ड में जुड़ती है।', dumpsite_note: '🚛 आप कूड़ा डालने की जगह बता रहे हैं। जहाँ गाड़ियाँ कूड़ा उतारती हैं वहीं खड़े होकर फ़ोटो लें।', cat_toilet: 'सार्वजनिक शौचालय — बंद, अनुपयोगी या गंदा', toilet_note: '🚻 आप सार्वजनिक शौचालय बता रहे हैं। बंद दरवाज़ा, खाली पानी की टंकी, या अंदर की हालत की फ़ोटो लें।', cat_drain: 'जाम नाली / सीवेज', cat_road: 'गड्ढा / टूटी सड़क',
@@ -876,7 +879,7 @@ window.KASA_I18N = {
     wc_reported: '{n} रिपोर्ट', wc_open: '{n} अनसुलझी', wc_fixed: '{n} ठीक', wc_fake: '{n} फ़र्ज़ी सफ़ाई पकड़ी गई', wc_filter: 'सिर्फ़ यह वार्ड दिखाएँ', wc_clear: 'सभी वार्ड दिखाएँ',
     wc_share: 'वार्ड का लिंक शेयर करें', wc_page: 'इस वार्ड का पेज: पार्षद, ठीक होने की दर, समय सीमा पार →', ward_share_text: 'पुरुलिया का वार्ड {n}: {open} अनसुलझी, {fixed} ठीक। सभी रिपोर्ट देखें:',
     csv_btn: '⬇ CSV', csv_all: '⬇ सभी रिपोर्ट डाउनलोड करें (CSV)', geojson_all: '⬇ मैप फ़ाइल (GeoJSON)', csv_done: '{n} रिपोर्ट डाउनलोड हुईं', csv_empty: 'डाउनलोड के लिए कोई रिपोर्ट नहीं।',
-    csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Parishkar Purulia” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
+    csv_license: 'रिपोर्ट का डेटा खुला है, लाइसेंस', csv_license_2: '“Parishkar Bengal” का नाम दें। फ़ोटो इसमें शामिल नहीं हैं।',
     install_btn: '📲 ऐप इंस्टॉल करें', install_ios: 'iPhone पर: शेयर पर टैप करें, फिर “Add to Home Screen”।',
 
     alerts_btn: '🔔 पास की रिपोर्ट की सूचना दें', alerts_off_btn: '🔕 पास की सूचनाएँ चालू — बंद करें',

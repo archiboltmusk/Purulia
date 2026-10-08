@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════
-   PURULIA KASA — Admin Analytics
+   PARISHKAR BENGAL — Admin Analytics
    ══════════════════════════════════════════════════════════ */
 
 const SUPABASE_URL = (window.KASA_CONFIG && window.KASA_CONFIG.SUPABASE_URL) || '';
@@ -1104,7 +1104,7 @@ async function loadLetters(){
     o.list.sort((a, b) => Date.parse(a.created_at) - Date.parse(b.created_at));
     const late = o.list.filter(r => age(r) > (r.sla_days || 7)).length;
     o.subject = `${o.list.length} open civic report${o.list.length === 1 ? '' : 's'} in your area${late ? `, ${late} overdue` : ''}`;
-    o.body = `To ${o.to},\n\nResidents have reported the problems below on Parishkar Purulia. Each has a live-camera photo taken at the spot with GPS. They are still open.\n\n${o.list.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${o.page}\n\nParishkar Purulia\n${SITE}`;
+    o.body = `To ${o.to},\n\nResidents have reported the problems below on Parishkar Bengal. Each has a live-camera photo taken at the spot with GPS. They are still open.\n\n${o.list.map(line).join('\n')}\n\nWhen one is fixed, a resident photographs the fixed spot and it is marked resolved on the public record. If you would like to reply on the record, answer this email and we will publish your response next to the report.\n\nAll reports for your area: ${o.page}\n\nParishkar Bengal\n${SITE}`;
     return o;
   });
   el.innerHTML = letters.map((o, i) => `
@@ -1632,8 +1632,8 @@ async function invite(email, role){
   }
   const link = location.origin + location.pathname + '?invite=' + encodeURIComponent(data.token) + '&type=' + data.type;
   const text = (data.existing
-    ? 'Parishkar Purulia: use this link to set a new password for the admin page. It works once: '
-    : 'You are invited to the Parishkar Purulia moderation team. Open this link and choose a password. It works once: ') + link;
+    ? 'Parishkar Bengal: use this link to set a new password for the admin page. It works once: '
+    : 'You are invited to the Parishkar Bengal moderation team. Open this link and choose a password. It works once: ') + link;
   box.innerHTML = `${data.existing ? esc(email) + ' already has an account, so this is a password-reset link.' : 'Send this to ' + esc(email) + '.'}
     It works once and expires after a while; press Invite again for a fresh one.<br>
     <input class="ad-input" readonly value="${esc(link)}" aria-label="Invite link">

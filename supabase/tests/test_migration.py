@@ -2471,6 +2471,13 @@ for i in range(3):
     feed(fl, f'Feeder {i}', offset(-4600 - i * 200, -2400))
 check('one caregiver can register at most three spots', err(feed, fl, 'Feeder 4', offset(-5400, -2400)) == 'KASA_FEED_LIMIT')
 
+# Help assistant daily limit (kasa-assistant edge function, service key only).
+as_u = user()
+check('browsers cannot call the assistant limit', 'permission denied' in (err(rpc, 'kasa_assistant_take', uid=as_u, p_user=as_u) or ''))
+takes = [rpc('kasa_assistant_take', role='service_role', p_user=as_u, p_limit=2) for _ in range(3)]
+check('assistant allows the daily limit, then stops', takes == [True, True, False], takes)
+check('another visitor has their own count', rpc('kasa_assistant_take', role='service_role', p_user=user(), p_limit=2) is True)
+
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
 sys.exit(1 if failed else 0)
