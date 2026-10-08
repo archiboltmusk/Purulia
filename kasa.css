@@ -970,3 +970,34 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-drive-progress{height:8px;border-radius:4px;background:var(--border);overflow:hidden;margin-top:.8rem;}
 .k-drive-progress span{display:block;height:100%;background:#6db88a;}
 .k-drive-fixed{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.5rem;}
+
+/* Slide to send (kasa.js initSlideSubmit) */
+.k-slide{position:relative;overflow:hidden;--slide:0px;padding:.95rem 3.4rem;touch-action:pan-y;user-select:none;-webkit-user-select:none;}
+.k-slide-fill{position:absolute;inset:0 auto 0 0;width:calc(var(--slide) + 3.2rem);background:var(--green);opacity:.35;transition:width .25s ease;}
+.k-slide-label{position:relative;transition:opacity .2s;opacity:var(--label-o,1);}
+.k-slide-knob{position:absolute;top:4px;bottom:4px;left:4px;width:2.8rem;display:flex;align-items:center;justify-content:center;border-radius:4px;background:var(--ink);color:var(--amber2);font-size:1.1rem;transform:translateX(var(--slide));transition:transform .35s cubic-bezier(.34,1.56,.64,1);box-shadow:0 2px 6px rgba(0,0,0,.35);}
+.k-slide.k-sliding .k-slide-knob,.k-slide.k-sliding .k-slide-fill{transition:none;}
+.k-slide.k-slide-armed .k-slide-knob{color:var(--green);}
+.k-slide.k-slide-sent .k-slide-knob{color:var(--green);transition:transform .15s ease;}
+.k-slide.k-slide-confirm .k-slide-knob{animation:k-nudge .6s ease 2;}
+.k-slide:disabled .k-slide-knob{opacity:.5;}
+@keyframes k-nudge{50%{transform:translateX(14px);}}
+/* What sending is doing, one line per real stage */
+.k-submit-steps{list-style:none;margin:.8rem 0 0;padding:0;font-family:var(--mono);font-size:11.5px;letter-spacing:.02em;}
+.k-submit-steps li{padding:.3rem 0 .3rem 1.5rem;position:relative;color:var(--text-md);animation:k-step-in .25s ease both;}
+.k-submit-steps li::before{position:absolute;left:0;top:.3rem;width:1rem;text-align:center;}
+.k-step-done::before{content:'✓';color:var(--green);}
+.k-step-run::before{content:'◌';color:var(--amber2);animation:k-spin 1s linear infinite;}
+.k-step-fail::before{content:'✕';color:var(--red);}
+.k-step-run{color:var(--text-hi);}
+@keyframes k-step-in{from{opacity:0;transform:translateY(4px);}}
+@keyframes k-spin{to{transform:rotate(360deg);}}
+.k-done-icon{animation:k-pop .5s cubic-bezier(.34,1.56,.64,1) both;}
+@keyframes k-pop{from{transform:scale(.4);opacity:0;}}
+/* Overdue clock on list chips (ticks each minute) */
+.k-chip-overdue{text-transform:none;animation:k-pulse 2.4s ease-in-out infinite;}
+@keyframes k-pulse{50%{opacity:.6;}}
+@media(prefers-reduced-motion:reduce){
+  .k-slide-knob,.k-slide-fill{transition:none;}
+  .k-slide.k-slide-confirm .k-slide-knob,.k-submit-steps li,.k-step-run::before,.k-done-icon,.k-chip-overdue{animation:none;}
+}

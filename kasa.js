@@ -855,15 +855,18 @@ async function checkPhoto(path, token, lat, lng){
 }
 
 const api = {
-  async createReport(d){
+  // onStep (optional) hears each real stage as it starts: 'photo', then 'save'.
+  async createReport(d, onStep){
     if (state.mode !== 'v2') return legacyCreateReport(d);
     await ensureSession();
+    onStep?.('photo');
     const path = await uploadPhoto('reports', d.photoBlob);
     // Metadata (with the camera token) must be recorded before the report is created.
     await sendPhotoMeta(path, d.photoMeta);
     // The photo check runs in the background so the report isn't held up.
     checkPhoto(path, null, d.lat, d.lng).catch(err => console.warn('photo check failed', err));
     // Create report in database immediately.
+    onStep?.('save');
     const { data, error } = await sb.rpc('kasa_create_report', {
       p_category: d.category, p_severity: d.severity, p_lat: d.lat, p_lng: d.lng, p_accuracy: d.accuracy,
       p_ward_no: d.ward, p_description: d.description || null, p_landmark: d.landmark || null,
@@ -1053,8 +1056,21 @@ function slaCountdown(r){
   const ms = dueAt - Date.now();
   const over = ms < 0;
   const h = Math.abs(ms) / 3600000;
-  const value = h < 48 ? t('sla_hours', { n: Math.max(0, Math.round(h)) }) : t('sla_days', { n: Math.round(h / 24) });
+  // Past the deadline the clock runs to the minute ("18d 14h 22m"), so inaction keeps showing.
+  const mins = Math.floor(Math.abs(ms) / 60000);
+  const value = over
+    ? [mins >= 1440 ? t('sla_days', { n: Math.floor(mins / 1440) }) : '', mins >= 60 ? t('sla_hours', { n: Math.floor(mins / 60) % 24 }) : '',
+       t('sla_mins', { n: mins % 60 })].filter(Boolean).join(' ')
+    : h < 48 ? t('sla_hours', { n: Math.max(0, Math.round(h)) }) : t('sla_days', { n: Math.round(h / 24) });
   return { over, text: t(over ? 'sla_overdue_by' : 'sla_due_in', { t: value }) };
+}
+
+/* List chips of overdue reports carry data-sla-id; one minute tick refreshes just those. */
+function tickOverdueChips(){
+  document.querySelectorAll('[data-sla-id]').forEach(el => {
+    const r = state.byId.get(el.dataset.slaId);
+    if (r) el.textContent = t('sev_' + r.severity) + ' · ' + slaCountdown(r).text;
+  });
 }
 
 /* Per-ward counts: Purulia's wards, or with a slug that town's wards (places.js). */
@@ -1993,6 +2009,7 @@ function statusChip(r){
   if (r.pending) return `<span class="k-chip k-chip-pending">${esc(t('chip_pending'))}</span>`;
   if (r.status === 'resolved') return `<span class="k-chip k-chip-resolved">${esc(t(r.resolution === 'legacy_unverified' ? 'head_resolved_legacy' : 'status_resolved'))}</span>`;
   if (r.status === 'claimed') return `<span class="k-chip k-chip-claimed">${esc(t('status_claimed'))}</span>`;
+  if (isOverdue(r)) return `<span class="k-chip k-chip-${r.severity} k-chip-overdue" data-sla-id="${esc(r.id)}">${esc(t('sev_' + r.severity))} · ${esc(slaCountdown(r).text)}</span>`;
   return `<span class="k-chip k-chip-${r.severity}">${esc(t('sev_' + r.severity))} · ${esc(t('days_open', { n: daysSince(r.createdAt) }))}</span>`;
 }
 
@@ -3377,6 +3394,7 @@ function closeCamera(result){
 async function takeCameraShot(){
   const video = document.getElementById('k-cam-video');
   if (!video.videoWidth) return;
+  haptic(25);
   // Anchor the GPS fix to this exact shutter press, not to whenever the reporter finishes
   // reviewing the still and taps "Use" — a retake gets its own fresh fix the same way.
   camera.posPromise = getPosition({ want: 30, timeout: 10000 }).catch(() => null);
@@ -3509,6 +3527,7 @@ function openReport(prefill){
   document.getElementById('k-iab-report-note').hidden = true;
   document.getElementById('k-iab-report-copy').hidden = true;
   setSeverity('minor');
+  resetSlideSubmit();
   const issueSearch = document.getElementById('k-issue-search');
   if (issueSearch) issueSearch.value = '';
   document.querySelectorAll('#k-issues details[open]').forEach(d => d.removeAttribute('open'));
@@ -4695,34 +4714,140 @@ async function submitReport(){
   draft.boundary_type = detectBoundary(draft.lat, draft.lng);
   draft.clientId = 'R' + Date.now() + randomName(6);
   btn.disabled = true;
-  btn.textContent = t('step3_uploading');
+  const label = document.getElementById('k-submit-label');
+  label.textContent = t('step3_uploading');
+  const steps = submitSteps(draft);
+  const d = draft;
+  const finish = async (res, key) => { steps.end(key); await steps.settle(); afterSubmit(res, d); };
 
   if (!navigator.onLine){
-    await queuePendingReport(draft);
-    btn.textContent = t('step3_submit');
-    return afterSubmit({ offline: true }, draft);
+    await queuePendingReport(d);
+    return finish({ offline: true }, 'ss_offline');
   }
   try {
-    const res = await api.createReport(draft);
-    btn.textContent = t('step3_submit');
-    afterSubmit(res, draft);
+    const res = await api.createReport(d, steps.run);
+    finish(res, res.moderation === 'review' ? 'ss_review' : res.duplicateOf ? 'ss_dup' : res.recurrenceOf ? 'ss_recur' : 'ss_saved');
   } catch (e){
-    btn.textContent = t('step3_submit');
     // The report service can't start a session (e.g. sign-in switched off):
     // keep the report on the phone and upload it on a later visit.
     if (e instanceof KasaError && e.key === 'err_session'){
-      await queuePendingReport(draft);
-      return afterSubmit({ saved: true }, draft);
+      await queuePendingReport(d);
+      return finish({ saved: true }, 'ss_phone');
     }
     if (e instanceof KasaError || /^KASA_/.test(e?.message || '')){
+      steps.fail();
+      resetSlideSubmit();
       btn.disabled = false;
       showToast(errorText(e), 7000);
       return;
     }
     console.warn('Parishkar: submit failed, saving offline', e);
-    await queuePendingReport(draft);
-    afterSubmit({ offline: true }, draft);
+    await queuePendingReport(d);
+    finish({ offline: true }, 'ss_offline');
   }
+}
+
+/* What sending a report is actually doing, one line per real stage: the GPS fix and
+   ward match already done on the phone, then the photo upload and the save (where the
+   server also looks for the same problem nearby). Nothing here is shown that didn't happen. */
+const haptic = (p) => { try { navigator.vibrate?.(p); } catch (e) {} };
+const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+function submitSteps(d){
+  const list = document.getElementById('k-submit-steps');
+  list.innerHTML = '';
+  list.hidden = false;
+  let cur = null;
+  const add = (text, done) => {
+    if (cur){ cur.className = 'k-step-done'; cur.textContent = cur.textContent.replace(/…$/, ''); }
+    const li = document.createElement('li');
+    li.className = done ? 'k-step-done' : 'k-step-run';
+    li.textContent = text;
+    list.append(li);
+    li.scrollIntoView?.({ block: 'nearest', behavior: reducedMotion() ? 'auto' : 'smooth' });
+    cur = done ? null : li;
+    haptic(10);
+  };
+  add(d.accuracy != null ? t('ss_gps', { acc: Math.round(d.accuracy) }) : t('ss_gps_pin'), true);
+  const where = d.place?.kind === 'town' && d.ward ? t('ss_ward', { n: d.ward })
+    : document.getElementById('k-place').hidden ? '' : document.getElementById('k-place').firstChild?.textContent || '';
+  if (where) add(t('ss_place', { p: where }), true);
+  return {
+    run: (stage) => add(t(stage === 'photo' ? 'ss_photo' : 'ss_save')),
+    end: (key) => { add(t(key), true); haptic([20, 40, 30]); },
+    fail: () => { if (cur){ cur.className = 'k-step-fail'; cur = null; } },
+    settle: () => new Promise(res => setTimeout(res, reducedMotion() ? 0 : 900))
+  };
+}
+
+/* Slide to send: a deliberate swipe, so a stray tap can't file a report. A tap (or Enter,
+   or a screen reader's activate) asks for a second one within 3 s instead, so the slide is
+   never the only way in. */
+function resetSlideSubmit(){
+  const btn = document.getElementById('k-submit');
+  btn.style.setProperty('--slide', '0px');
+  btn.style.setProperty('--label-o', '1');
+  btn.classList.remove('k-slide-armed', 'k-sliding', 'k-slide-confirm', 'k-slide-sent');
+  btn.querySelector('.k-slide-knob').textContent = '»';
+  clearTimeout(resetSlideSubmit._t);
+  document.getElementById('k-submit-label').textContent = t('step3_slide');
+  document.getElementById('k-submit-steps').hidden = true;
+}
+function initSlideSubmit(){
+  const btn = document.getElementById('k-submit');
+  const knob = btn.querySelector('.k-slide-knob');
+  const label = document.getElementById('k-submit-label');
+  const max = () => Math.max(0, btn.clientWidth - knob.offsetWidth - 8);
+  let drag = null, armed = false;
+  const send = () => {
+    btn.style.setProperty('--slide', max() + 'px');
+    btn.style.setProperty('--label-o', '1');
+    btn.classList.remove('k-slide-confirm');
+    btn.classList.add('k-slide-sent');
+    knob.textContent = '✓';
+    haptic(35);
+    submitReport();
+  };
+  btn.addEventListener('pointerdown', e => {
+    if (btn.disabled || e.button > 0) return;
+    drag = { x0: e.clientX, moved: false };
+    armed = false;
+    try { btn.setPointerCapture(e.pointerId); } catch (err) {}
+    btn.classList.add('k-sliding');
+  });
+  btn.addEventListener('pointermove', e => {
+    if (!drag) return;
+    const dx = Math.min(max(), Math.max(0, e.clientX - drag.x0));
+    if (dx > 8) drag.moved = true;
+    btn.style.setProperty('--slide', dx + 'px');
+    btn.style.setProperty('--label-o', String(Math.max(0, 1 - dx / (max() * 0.65 || 1))));
+    const now = dx >= max() * 0.85;
+    if (now !== armed){ armed = now; if (armed) haptic(15); }
+    btn.classList.toggle('k-slide-armed', armed);
+  });
+  const end = (cancel) => {
+    if (!drag) return;
+    const moved = drag.moved;
+    drag = null;
+    btn.classList.remove('k-sliding', 'k-slide-armed');
+    if (armed && !cancel){ armed = false; btn.dataset.slid = '1'; return send(); }
+    armed = false;
+    if (moved) btn.dataset.slid = '1';
+    btn.style.setProperty('--slide', '0px');
+    btn.style.setProperty('--label-o', '1');
+  };
+  btn.addEventListener('pointerup', () => end(false));
+  btn.addEventListener('pointercancel', () => end(true));
+  btn.addEventListener('click', () => {
+    // A finished or abandoned slide also ends in a click; only a plain tap/Enter counts here.
+    if (btn.dataset.slid){ delete btn.dataset.slid; return; }
+    if (btn.disabled) return;
+    if (btn.classList.contains('k-slide-confirm')) return send();
+    btn.classList.add('k-slide-confirm');
+    label.textContent = t('step3_slide_again');
+    haptic(10);
+    clearTimeout(resetSlideSubmit._t);
+    resetSlideSubmit._t = setTimeout(() => { btn.classList.remove('k-slide-confirm'); label.textContent = t('step3_slide'); }, 3000);
+  });
 }
 
 async function afterSubmit(res, d){
@@ -5953,7 +6078,8 @@ function wireUI(){
   });
   document.getElementById('k-gps-btn').addEventListener('click', useGPS);
   document.getElementById('k-ward').addEventListener('change', e => { draft.ward = parseInt(e.target.value, 10) || null; updateSubmitState(); });
-  document.getElementById('k-submit').addEventListener('click', submitReport);
+  initSlideSubmit();
+  setInterval(tickOverdueChips, 60000);
   document.getElementById('k-done-share').addEventListener('click', e => { if (e.target.dataset.id) shareReport(e.target.dataset.id); });
 
   document.getElementById('k-ev-loc-btn').addEventListener('click', checkEvidenceLocation);
