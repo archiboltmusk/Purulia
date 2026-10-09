@@ -43,3 +43,7 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 All open from **More** in the in-app browser: ward, districts, ground truth (data), works, promises, noticeboard, municipality, analytics, digest, schools, toilets, waste, snakes, dogs, pandals, adopt, communities, routes, Ask Parishkar, add a town, suggest a feature, join, circle, blueprint, methodology, rules, privacy, terms, grievance, what's new. Static reading pages stay web; interactive ones move native in the batches above when a native screen is better than the page.
 
 Admin (`admin.html`) stays web-only.
+
+## Speed
+
+Recent reports and the map open filled in from the last visit (`src/cache.ts`, stale-while-revalidate on the phone) and are refreshed in the background; rules and both lists are warmed 1.5 s after the camera appears.

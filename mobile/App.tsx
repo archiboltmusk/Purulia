@@ -8,7 +8,7 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { type Draft, type EvidenceMode, type Extra, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport, type Report, reportWarranty, type Rules, type Warranty } from './src/api';
+import { type Draft, type EvidenceMode, type Extra, type Filed, type Fix, fileReport, issueCaptureToken, mapReports, recentReports, rules, newClientId, OfflineError, publicReport, type PublicReport, type Report, reportWarranty, type Rules, type Warranty } from './src/api';
 import { EvidenceCamera } from './src/components/EvidenceCamera';
 import { MapScreen } from './src/components/MapScreen';
 import { MoreSheet } from './src/components/MoreSheet';
@@ -23,6 +23,7 @@ import { CAPTURE_TOKEN_TTL_MS, MAX_GPS_ACCURACY_M } from './src/config';
 import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
 import { drain, enqueue, onQueue, onRefused, pendingCount, startQueue } from './src/queue';
+import { swr } from './src/cache';
 import { snap } from './src/shot';
 import { AppError } from './src/supabase';
 
@@ -102,6 +103,17 @@ function Reporter() {
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
+
+  // Warm what the next taps need while the camera is on screen: rules, and the lists
+  // (cached on the phone) so Map and Recent open filled in.
+  useEffect(() => {
+    const idle = setTimeout(() => {
+      rules().catch(() => {});
+      swr('recent', recentReports, () => {}).catch(() => {});
+      swr('map', mapReports, () => {}).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(idle);
+  }, []);
   const refreshToken = useCallback(() => {
     if (Date.now() - token.current.at < CAPTURE_TOKEN_TTL_MS && token.current.value) return;
     issueCaptureToken().then((v) => { token.current = { value: v, at: Date.now() }; });

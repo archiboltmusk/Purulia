@@ -3,6 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { Linking, Pressable, StyleSheet, Text, View } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { type Fix, type MapDot, mapReports } from '../api';
+import { swr } from '../cache';
 import { SITE_URL } from '../config';
 import { type Key, st, t } from '../i18n';
 import { openSite } from './MoreSheet';
@@ -37,7 +38,7 @@ export function MapScreen({ fix, onOpen, onClose }: { fix: Fix | null; onOpen: (
   const start = useRef(fix ? { center: [fix.lng, fix.lat] as [number, number], zoom: 13 } : { center: WB, zoom: 6.5 });
 
   useEffect(() => {
-    mapReports().then(setDots).catch(() => setFailed(true));
+    swr('map', mapReports, setDots).catch(() => setFailed(true));
     leaders().then(setLead);
   }, []);
 
