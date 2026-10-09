@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { ActivityIndicator, Alert, FlatList, Image, Modal, Pressable, StyleSheet, Text, View } from 'react-native';
 import AsyncStorage from 'expo-sqlite/kv-store';
 import { type PublicReport, recentReports } from '../api';
+import { swr } from '../cache';
 import { catLabel, type Key, t } from '../i18n';
 import { FlagDialog } from './FlagDialog';
 import { PopCard } from './Pop';
@@ -18,9 +19,8 @@ export function NearbySheet({ visible, onClose, onOpen }: { visible: boolean; on
 
   useEffect(() => {
     if (!visible) return;
-    setRows(null);
     AsyncStorage.getItem(HIDDEN_KEY).then((v) => setHidden(new Set(v ? JSON.parse(v) : []))).catch(() => {});
-    recentReports().then(setRows);
+    swr('recent', recentReports, setRows).catch(() => setRows((p) => p ?? []));
   }, [visible]);
 
   const hide = (id: string) => {

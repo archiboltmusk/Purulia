@@ -169,7 +169,8 @@ export async function publicReport(id: string): Promise<PublicReport | null> {
 export async function recentReports(): Promise<PublicReport[]> {
   const { data, error } = await sb.from('kasa_public_reports').select(PUBLIC_COLS)
     .order('created_at', { ascending: false }).limit(50);
-  return error ? [] : ((data as PublicReport[]) ?? []);
+  if (error) throw new OfflineError(error.message);
+  return (data as PublicReport[]) ?? [];
 }
 
 export type MapDot = { id: string; lat: number; lng: number; status: string };
