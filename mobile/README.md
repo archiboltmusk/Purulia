@@ -57,5 +57,5 @@ Needs: Apple Team ID + App Attest entitlement, a Google Cloud project linked in 
 
 ## Follow-ups
 
-- Vector map (MapLibre native, no token) with ward outlines and nearby reports.
+- Ward, block and GP outlines on the native map (district + seat outlines and report dots are in).
 - Push alerts for watched reports.
