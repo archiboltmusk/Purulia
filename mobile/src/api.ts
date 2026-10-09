@@ -172,6 +172,19 @@ export async function recentReports(): Promise<PublicReport[]> {
   return error ? [] : ((data as PublicReport[]) ?? []);
 }
 
+export type MapDot = { id: string; lat: number; lng: number; status: string };
+
+/* The same rows the site map draws: newest 1000 West Bengal reports + 500 from other places. */
+export async function mapReports(): Promise<MapDot[]> {
+  const cols = 'id,lat,lng,status';
+  const [wb, other] = await Promise.all([
+    sb.from('kasa_public_reports').select(cols).order('created_at', { ascending: false }).limit(1000),
+    sb.from('kasa_public_place_reports').select(cols).order('created_at', { ascending: false }).limit(500),
+  ]);
+  if (wb.error && other.error) throw new OfflineError(wb.error.message);
+  return [...((wb.data as MapDot[]) ?? []), ...((other.data as MapDot[]) ?? [])].filter((r) => r.lat != null && r.lng != null);
+}
+
 export type Warranty = { id: number; work_name: string; agency: string | null; contractor: string | null; warranty_until: string; distance_m: number };
 
 /* A moderator-approved public work still under its defect liability period near this

@@ -8,7 +8,7 @@ const ctx = { window: {} };
 vm.runInNewContext(readFileSync(new URL('../../kasa-i18n.js', import.meta.url), 'utf8'), ctx);
 const I18N = ctx.window.KASA_I18N;
 
-const KEEP = /^(cat_|waste_|igrp_|issue_note_|issue_none|issue_search_ph|tl_|ev_|rate_|dk_|pn_|seen_|sheet_|act_|reply_title|reply_note|head_|chip_pending|wk_|ad_|fd_|sn_|sr_|pd_|sc_loc_ok|sev_(minor|severe|critical)$|stat_people|stat_days_|stat_type|nb_|held_|rej_|cap_|flag_done|flag_dup|share_text|pl_share|photo_extra|foot_|ago_|dur_|acc_ward$|acc_block$|acc_gp$|acc_unknown$)/;
+const KEEP = /^(cat_|waste_|igrp_|issue_note_|issue_none|issue_search_ph|tl_|ev_|rate_|dk_|pn_|seen_|sheet_|act_|reply_title|reply_note|head_|chip_pending|wk_|ad_|fd_|sn_|sr_|pd_|sc_loc_ok|sev_(minor|severe|critical)$|stat_people|stat_days_|stat_type|nb_|held_|rej_|cap_|flag_done|flag_dup|share_text|pl_share|photo_extra|foot_|ago_|dur_|acc_ward$|acc_block$|acc_gp$|acc_unknown$|ar_(district_sub|mla|mp|note|src_mla|src_mp)$)/;
 
 const out = {};
 for (const lang of ['en', 'bn', 'hi']) {

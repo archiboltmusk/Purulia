@@ -23,10 +23,12 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Cleanup claim / verify / dispute with live photo | ✓ | Native (`EvidenceCamera`, radius + GPS checked before send) | — |
 | Filed officially: add docket number | ✓ | Native | — |
 | Share report link | ✓ | Native (share sheet, worker `/r/<id>` link) | — |
-| Map with wards, blocks, GPs, districts, India layers | ✓ | In-app web | Batch 4 (MapLibre native) |
-| Area card: leaders, officials, duties, "add who's responsible" | ✓ | In-app web | Batch 4 |
-| Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Batch 4 |
-| Cleanup drives banner, "I'm coming" | Server only (`kasa_drives`, no page shows them yet) | — | When the site gets its drive UI |
+| Map: report dots, district + assembly-seat outlines | ✓ | Native (`MapScreen`, MapLibre, same basemap + files as the site) | — |
+| Map: wards, blocks, GPs, India layers | ✓ | In-app web (area card → full place card) | Later |
+| Area card: district, MLA, MP with cited sources | ✓ | Native (tap a place on the map) | — |
+| Area card: officials, duties, "add who's responsible" | ✓ | In-app web (full place card link) | Later |
+| Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Later |
+| Cleanup drives | Removed from the site 2026-10-08 | — | — |
 | School check (UDISE, six answers, live photo) | ✓ | In-app web (More → At this spot) | Later (block/school search + fix flows) |
 | Snake sighting / rescuer sign-up | ✓ | Native (`SpotForm`: live photo, rescuers with call/WhatsApp) | — |
 | Dog feeding spot | ✓ | Native (`SpotForm`) | — |
