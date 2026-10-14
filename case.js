@@ -17,23 +17,7 @@
   const $ = id => document.getElementById(id);
   const src = (label, href) => `<p class="cf-src">Source: ${href ? `<a href="${esc(href)}"${/^https?:/.test(href) ? ' target="_blank" rel="noopener"' : ''}>${esc(label)}</a>` : esc(label)}</p>`;
   const none = html => `<p class="cf-none">${html}</p>`;
-  /* Mitu the reporter and Bhulu, her desi dog: the site's guide, drawn ligne claire. She only
-     appears where a page has nothing to show yet, and says what to do next. */
-  const MITU = `<svg viewBox="0 0 140 120" role="img" aria-label="Mitu the reporter, notebook in hand, with Bhulu the dog"><g stroke="#1a1410" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
-    <rect x="1" y="1" width="138" height="118" rx="4" fill="#f3ead6"/><path d="M8 112H132" fill="none"/>
-    <path d="M28 112L32 76Q50 64 68 76L72 112Z" fill="#3b6ea8"/><path d="M43 69L50 76L57 69" fill="#fbf7ee"/>
-    <circle cx="50" cy="46" r="17" fill="#f2c9a0"/>
-    <circle cx="63" cy="28" r="6" fill="#2b1d14"/><path d="M33 45Q33 27 50 27Q67 27 67 45Q62 36 54 37Q50 33 46 37Q38 36 33 45Z" fill="#2b1d14"/>
-    <circle cx="44" cy="48" r="1.4" fill="#1a1410"/><circle cx="56" cy="48" r="1.4" fill="#1a1410"/><path d="M46 55Q50 58 54 55" fill="none"/>
-    <g transform="rotate(-8 66 92)"><rect x="57" y="81" width="18" height="23" rx="1" fill="#fbf7ee"/><path d="M61 87h10M61 91h10M61 95h6" fill="none" stroke-width="1.2"/></g>
-    <path d="M37 80Q44 96 58 94" fill="none"/><path d="M76 76L84 66" fill="none" stroke-width="2.5"/><path d="M66 78Q74 82 78 74" fill="none"/>
-    <path d="M118 110Q132 102 128 90" fill="none"/>
-    <path d="M94 112Q92 92 103 88Q117 86 120 112Z" fill="#d9a86a"/><path d="M100 112Q100 98 106 94Q112 98 112 112Z" fill="#fbf7ee"/>
-    <path d="M101 74L98 63L107 70Z" fill="#d9a86a"/><path d="M110 70L116 61L117 73Z" fill="#d9a86a"/>
-    <ellipse cx="108" cy="80" rx="10" ry="9" fill="#d9a86a"/><path d="M114 79Q123 79 123 84Q119 88 112 86" fill="#fbf7ee"/>
-    <circle cx="122.5" cy="81.5" r="1.6" fill="#1a1410"/><circle cx="108" cy="78" r="1.3" fill="#1a1410"/>
-  </g></svg>`;
-  const guide = html => `<div class="cf-guide">${MITU}<p class="cf-quote">${html}</p></div>`;
+  const guide = html => window.MITU ? window.MITU.guide(html) : none(html);
   const rpc = async (name, args) => { const { data, error } = await sb.rpc(name, args); return error ? null : data; };
   const getJSON = async url => { try { const r = await fetch(url); return r.ok ? await r.json() : null; } catch (e) { return null; } };
 
@@ -150,6 +134,60 @@
   fb.addEventListener('click', () => { const g = followed(); if (g[r.id]) delete g[r.id]; else g[r.id] = { at: Date.now(), seen: new Date().toISOString() }; saveFollowed(g); showFollow(); });
   // Opening a followed case marks its events as seen.
   if (followed()[r.id]){ const g = followed(); g[r.id].seen = new Date().toISOString(); saveFollowed(g); }
+
+  /* The cover: one picture of this case like an album front, made on the phone from what is
+     on this page (the live photo, the place, days open). Nothing is uploaded. */
+  const cb = $('cf-cover');
+  cb.hidden = false;
+  cb.addEventListener('click', async () => {
+    cb.disabled = true; cb.textContent = 'Drawing…';
+    const W = 1080, H = 1350, ink = '#1a1410', paper = '#f3ead6';
+    const c = document.createElement('canvas'); c.width = W; c.height = H;
+    const x = c.getContext('2d');
+    const load = (src, cors) => new Promise(res => { const i = new Image(); if (cors) i.crossOrigin = 'anonymous'; i.onload = () => res(i); i.onerror = () => res(null); i.src = src; });
+    const fit = (txt, font, max) => { x.font = font; let t = String(txt); while (t.length > 1 && x.measureText(t).width > max) t = t.slice(0, -2); return t === String(txt) ? t : t + '…'; };
+    const end = status === 'resolved' && r.resolved_at ? new Date(r.resolved_at) : new Date();
+    const d = Math.floor(Math.max(0, end - new Date(r.created_at)) / 86400000);
+    const draw = photo => {
+      x.fillStyle = paper; x.fillRect(0, 0, W, H);
+      x.strokeStyle = ink; x.lineWidth = 6; x.strokeRect(30, 30, W - 60, H - 60);
+      x.fillStyle = ink; x.textBaseline = 'alphabetic';
+      x.font = '500 28px "DM Mono", monospace'; x.fillText(`PARISHKAR · CASE FILE #${r.id}`, 70, 100);
+      x.fillText(fit(where || '', '500 28px "DM Mono", monospace', 940), 70, 330);
+      x.fillText(fit(catName, '700 92px "EB Garamond", Georgia, serif', 940), 70, 210);
+      x.font = 'italic 400 40px "EB Garamond", Georgia, serif'; x.fillText(`filed ${fmt(r.created_at)}`, 70, 270);
+      const px = 70, py = 370, pw = W - 140, ph = 680;
+      x.fillStyle = '#fbf7ee'; x.fillRect(px, py, pw, ph);
+      if (photo){
+        const s = Math.max(pw / photo.width, ph / photo.height), sw = pw / s, sh = ph / s;
+        x.drawImage(photo, (photo.width - sw) / 2, (photo.height - sh) / 2, sw, sh, px, py, pw, ph);
+      }
+      x.lineWidth = 6; x.strokeRect(px, py, pw, ph);
+      x.fillStyle = ink; x.font = '700 120px "EB Garamond", Georgia, serif'; x.fillText(String(d), 70, 1210);
+      const nw = x.measureText(String(d)).width;
+      x.font = '500 30px "DM Mono", monospace';
+      x.fillText(`${d === 1 ? 'DAY' : 'DAYS'} ${status === 'resolved' ? 'TO FIX' : 'OPEN'}`, 90 + nw, 1160);
+      x.fillText(status === 'resolved' ? 'FIXED, CONFIRMED ON THE SPOT' : status === 'claimed' ? 'CLEANUP CLAIMED' : `FIX TARGET ${sla} DAYS`, 90 + nw, 1205);
+      x.font = '500 24px "DM Mono", monospace'; x.textAlign = 'right';
+      x.fillText(location.host + location.pathname.replace(/[^/]*$/, '') + 'case.html?id=' + r.id, W - 70, 1270);
+      x.textAlign = 'left';
+    };
+    const mitu = await load('data:image/svg+xml;charset=utf-8,' + encodeURIComponent((window.MITU && window.MITU.svg || '').replace('<svg ', '<svg xmlns="http://www.w3.org/2000/svg" width="140" height="120" ')));
+    let blob = null;
+    for (const src of [safe(r.photo_url), '']){
+      const img = src ? await load(src, true) : null;
+      draw(img);
+      if (!img && mitu) x.drawImage(mitu, (W - 420) / 2, 370 + (680 - 360) / 2, 420, 360);
+      try { blob = await new Promise(res => c.toBlob(res, 'image/png')); } catch (e) { blob = null; }
+      if (blob) break; // a photo the browser may not copy taints the canvas: draw again without it
+    }
+    cb.disabled = false; cb.textContent = 'Save the cover';
+    if (!blob) return;
+    const file = new File([blob], `parishkar-case-${r.id}.png`, { type: 'image/png' });
+    if (navigator.canShare && navigator.canShare({ files: [file] })){ navigator.share({ files: [file], title: `Case file #${r.id}` }).catch(() => {}); return; }
+    const a = document.createElement('a'); a.href = URL.createObjectURL(blob); a.download = file.name; a.click();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+  });
 
   const panel = (n, key, title, body) => `
     <section class="cf-panel" id="${key}">
