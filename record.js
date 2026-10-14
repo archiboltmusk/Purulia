@@ -1,5 +1,5 @@
 /* The record: published harms, each traced from source document to assertion, case, remedy and
-   checked outcome (kasa_ev_* RPCs, migration 20261014190000_kasa_evidence.sql). Views:
+   checked outcome (kasa_ev_* RPCs, migration 20261014200000_kasa_evidence.sql). Views:
    no query = counts + registry + sources; ?h=H-1 = one harm; ?e=E-1 = one entity; ?s=S-XXXX = a
    submission's status (key kept on this device). Every figure on screen is a row count or a value
    copied from a document that is linked beside it. */

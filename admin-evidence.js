@@ -1,6 +1,6 @@
 /* Admin: the evidence record (record.html). One screen for every kind: pick a kind, see its rows
    with state and approvals, add or edit one, approve / reject / send back / archive with a reason.
-   Server rules (migration 20261014190000_kasa_evidence.sql) decide what can go public; this only
+   Server rules (migration 20261014200000_kasa_evidence.sql) decide what can go public; this only
    calls kasa_admin_ev_save / _review / _list / _link / _triage_submission. Uses admin.js's sb + esc. */
 const EV_STATE = ['draft', 'in_review', 'published', 'rejected', 'archived'];
 const EV_KINDS = {

@@ -2861,6 +2861,16 @@ check('retention runs once a day', rpc('kasa_retention_tick')['ran'] is True and
 check('network hashes older than 180 days are wiped',
       admin_sql("select count(*) from kasa_private.stories where ip_hash = 'old'")[0][0] == 0)
 
+# ── Bodies from the map's own outlines ──
+jb = rpc('kasa_jurisdictions_at', p_lat=SPOT[0], p_lng=SPOT[1])
+check('a Purulia ward spot names Purulia Municipality from the map, with a source',
+      any(j['body'] == 'Purulia Municipality' and j['from_map'] and j['source_url'].startswith('https://') for j in jb)
+      and not any(j['body_type'] == 'gram_panchayat' for j in jb), jb)
+rural = admin_sql("select (min_lat + max_lat) / 2, (min_lng + max_lng) / 2 from kasa_private.areas where id = 'gp:110952'")[0]
+jr = rpc('kasa_jurisdictions_at', p_lat=rural[0], p_lng=rural[1])
+check('a village spot names its gram panchayat, samiti and zilla parishad under the Panchayat Act',
+      {'gram_panchayat', 'panchayat_samiti', 'zilla_parishad'} <= {j['body_type'] for j in jr} and all(j['source_url'] for j in jr), jr)
+
 # ── Evidence system: source → document → assertion → harm → remedy → outcome ──
 mod2 = user()
 admin_sql("insert into public.admins (user_id, role) values (%s, 'moderator')", (mod2,))
