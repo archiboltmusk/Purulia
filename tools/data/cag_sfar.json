@@ -1,0 +1,488 @@
+{
+ "about": "Figures copied by hand from CAG State Finances Audit Reports (cag.gov.in), each with its page and the report's own words. Read by tools/build-money.py. Add a state only from its report; never compute or estimate a figure here.",
+ "states": {
+  "Arunachal Pradesh": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24, Govt. of Arunachal Pradesh (Report No. 1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/124733",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 2785.36,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2024/02-Executive-Summary-069c279cb9d44b0.91240865.pdf",
+     "where": "Executive Summary, PDF page 8",
+     "quote": "Delay in submission of Utilisation Certificate As of 31 March 2024, 561 UCs in respect of the grants amounting to ₹2,785.36 crore have not been submitted by the various departments of the State Government to the office of Principal Accountant General, Arunachal Pradesh, Itanagar."
+    }
+   ]
+  },
+  "Bihar": {
+   "report": "Report of the Report No. 2 of 2026: Comptroller and Auditor General of India on State Finances for the year 2024-25 Government of Bihar (State Finances Audit Report)",
+   "year": "2024-25",
+   "page": "https://cag.gov.in/en/audit-report/details/124515",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 92132.75,
+     "asof": "March 2025",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2026/3-Executive-Summary-C&AG's-SFAR-2024-25-GoB-06a61fb50f22850.67454465.pdf",
+     "where": "Executive Summary, PDF page 5",
+     "quote": "As of March 2025, 62,632 Utilisation Certificates (UCs) amounting to ₹ 92,132.75 crore were outstanding."
+    },
+    {
+     "k": "budget_provision",
+     "crore": 364518.87,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2026/3-Executive-Summary-C&AG's-SFAR-2024-25-GoB-06a61fb50f22850.67454465.pdf",
+     "where": "Executive Summary, PDF page 4",
+     "quote": "During 2024-25, against the total budget provision of ₹ 3,64,518.87 crore, the State incurred an expenditure of only ₹ 2,87,178.49 crore, resulting in savings of ₹ 77,340.38 crore (21.22 per cent)."
+    },
+    {
+     "k": "budget_spent",
+     "crore": 287178.49,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2026/3-Executive-Summary-C&AG's-SFAR-2024-25-GoB-06a61fb50f22850.67454465.pdf",
+     "where": "Executive Summary, PDF page 4",
+     "quote": "During 2024-25, against the total budget provision of ₹ 3,64,518.87 crore, the State incurred an expenditure of only ₹ 2,87,178.49 crore, resulting in savings of ₹ 77,340.38 crore (21.22 per cent)."
+    },
+    {
+     "k": "budget_unspent",
+     "crore": 77340.38,
+     "pct": 21.22,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2026/3-Executive-Summary-C&AG's-SFAR-2024-25-GoB-06a61fb50f22850.67454465.pdf",
+     "where": "Executive Summary, PDF page 4",
+     "quote": "During 2024-25, against the total budget provision of ₹ 3,64,518.87 crore, the State incurred an expenditure of only ₹ 2,87,178.49 crore, resulting in savings of ₹ 77,340.38 crore (21.22 per cent)."
+    }
+   ]
+  },
+  "Delhi": {
+   "report": "Report No. 1 of the year 2025 – “State Finances for the year 2023-24”",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122219",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 3760.84,
+     "asof": "31st March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/4_Executive-summary-06890a6659e5d89.30152092.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Utilisation Certificates against conditional grants • Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 1,313 outstanding UCs of ₹ 3,760.84 crore were pending as on 31st March 2024."
+    }
+   ]
+  },
+  "Goa": {
+   "report": "Report No. 3 of the year 2025- State Finances Audit Report of the CAG",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122272",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 3027.52,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/Executive-Summary-06895e6a18621a6.07712272.pdf",
+     "where": "Executive Summary, PDF page 6",
+     "quote": "Delay in submission of Utilisation Certificates Audit scrutiny revealed that 12,813 Utilisation Certificates (UCs) in respect of Grants-in-aid aggregating ₹ 3,027.52 crore given to 31 Departments of the State Government had not been submitted as on 31 March 2024."
+    }
+   ]
+  },
+  "Gujarat": {
+   "report": "State Finances Audit Report for the year 2023-24 (Report No. 1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/123187",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 11869.17,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/Report-No.-1-of-2025-English-SFAR-2023-24-068c11ca17d08b3.79273636.pdf",
+     "where": "Executive Summary, PDF page 15",
+     "quote": "Delay in submission of Utilisation Certificates Audit scrutiny revealed that 4,745 UCs in respect of GIA aggregating ₹ 11,869.17 crore given to 24 Departments of the State Government from 2001-02 to 2022-23 had not been submitted as on 31 March 2024."
+    }
+   ]
+  },
+  "Haryana": {
+   "report": "State Finances Audit Report of the Comptroller and Auditor General of India for the year ended 31 March 2024 (Report No. 1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/123117",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 17019.5,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/Executive-Summary-068b57668b7bc55.50464960.pdf",
+     "where": "Executive Summary, PDF page 6",
+     "quote": "Outstanding Utilisation Certificates Despite the requirement of submitting Utilisation Certificates (UCs) against Grants-in-aid within a stipulated time period, 2,037 outstanding UCs of ₹ 17,019.50 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "Jharkhand": {
+   "report": "Report No. 2 of 2025 : State Finances Audit Report of the Comptroller and Auditor General of India for the year 2023-24.",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122657",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 133161.5,
+     "asof": "31st March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/4-Executive-Summary-068ac5ca6cc2531.40640323.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against grants-in-aid within a stipulated time period, 47,367 outstanding UCs of ₹ 1,33,161.50 crore were pending as on 31st March 2024."
+    }
+   ]
+  },
+  "Maharashtra": {
+   "report": "Report No. 3 of 2025- Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24, Government of Maharashtra",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122158",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 36756.09,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/Executive-Summary-0687f372279f2b5.68000632.pdf",
+     "where": "Executive Summary, PDF page 8",
+     "quote": "Delay in the submission of Utilisation Certificates against conditional grants As on 31 March 2024, 10,793 Utilization Certificates amounting to ₹ 36,756.09 crore due in respect of conditional grants given to 32 Departments of the State Government were not submitted, which is 6.53 per cent of the total expenditure (₹ 5,62,714.85 crore) of the State."
+    }
+   ]
+  },
+  "Manipur": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24 (Report No.1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/124650",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 15086.85,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/4.-Executive-Summary-069c22b6d012bf3.88940977.pdf",
+     "where": "Executive Summary, PDF page 6",
+     "quote": "State Finances Audit Report for the year ended 31 March 2024 Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 6,599 outstanding UCs of ₹ 15,086.85 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "Meghalaya": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/123192",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 4835.93,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2024/SFAR-2023-24-Executive-Summary-068c3f6b4592de9.40699792.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 733 outstanding UCs of ₹ 4,835.93 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "Mizoram": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24, Government of Mizoram (Report No. 2 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122608",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 235.62,
+     "asof": "end of 2023-24",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2024/Executive-Summary-068ac3346b4ac92.47841547.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Out of these, ₹ 25.99 crore pertaining to 19 outstanding UCs were cleared leaving a balance of 32 UCs amounting to ₹ 235.62 crore outstanding at the end of the year."
+    }
+   ]
+  },
+  "Nagaland": {
+   "report": "Government of Nagaland Report No. 1 of 2025 - State Finances Audit Report of the Comptroller and Auditor General of India for the year ended 31 March 2024",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/123199",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 356.23,
+     "asof": "March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/4-Excutive-Summary-068c3f9bee1a997.72088980.pdf",
+     "where": "Executive Summary, PDF page 8",
+     "quote": "Utilisation Certificates against conditional grants As on March 2024, there are 250 UCs worth ₹356.23 crore, which are due for submission for periods pertaining up to 2023-24."
+    }
+   ]
+  },
+  "Odisha": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2024-25, Government of Odisha Report No. 3 of 2026",
+   "year": "2024-25",
+   "page": "https://cag.gov.in/en/audit-report/details/125084",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 16585.45,
+     "asof": "2024-25",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/6-Executive-Summary-069cbaed211dbc5.47594682.pdf",
+     "where": "Executive Summary, PDF page 3",
+     "quote": "Utilisation Certificates As of 2024-25, 12,050 Utilisation Certificates (UCs) involving ₹ 16,585.45 crore were pending, of which 6,363 crore UCs (₹ 5,622.03 crore) related to the period from 2003-04 to 2019-20,"
+    },
+    {
+     "k": "budget_provision",
+     "crore": 287770.0,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/6-Executive-Summary-069cbaed211dbc5.47594682.pdf",
+     "where": "Executive Summary, PDF page 3",
+     "quote": "During FY 2024-25, against the total budget provision of ₹ 2,87,770 crore, the State incurred an expenditure of ₹ 2,31,613 crore, resulting in an overall savings of ₹ 56,157 crore (19.50 per cent)."
+    },
+    {
+     "k": "budget_spent",
+     "crore": 231613.0,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/6-Executive-Summary-069cbaed211dbc5.47594682.pdf",
+     "where": "Executive Summary, PDF page 3",
+     "quote": "During FY 2024-25, against the total budget provision of ₹ 2,87,770 crore, the State incurred an expenditure of ₹ 2,31,613 crore, resulting in an overall savings of ₹ 56,157 crore (19.50 per cent)."
+    },
+    {
+     "k": "budget_unspent",
+     "crore": 56157.0,
+     "pct": 19.5,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/6-Executive-Summary-069cbaed211dbc5.47594682.pdf",
+     "where": "Executive Summary, PDF page 3",
+     "quote": "During FY 2024-25, against the total budget provision of ₹ 2,87,770 crore, the State incurred an expenditure of ₹ 2,31,613 crore, resulting in an overall savings of ₹ 56,157 crore (19.50 per cent)."
+    }
+   ]
+  },
+  "Punjab": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24 (Report No. 1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/124572",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 3089.57,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2024/03-Executive-Summary-069b8017d11d631.24518319.pdf",
+     "where": "Executive Summary, PDF page 6",
+     "quote": "Non-submission of Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 597 outstanding UCs of ₹ 3,089.57 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "Rajasthan": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-2024 (Government of Rajasthan)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/123143",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 1122.12,
+     "asof": "31st March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/Executive-Summary-068b692ce831b10.50474215.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 996 outstanding UCs of ₹ 1,122.12 crore were pending as on 31st March 2024."
+    }
+   ]
+  },
+  "Tripura": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/124621",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 960.87,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/5-Executive-Summary-069bbe8e1af6030.85259918.pdf",
+     "where": "Executive Summary, PDF page 7",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 2,867 UCs amounting to ₹ 960.87 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "Uttar Pradesh": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24 (Report No. 06 of the Year 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/122472",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 11872.95,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/06--Executive-Summary-2023-24-0689c82d0cf3583.02653094.pdf",
+     "where": "Executive Summary, PDF page 6",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 17,963 outstanding UCs of ₹ 11,872.95 crore were pending as on 31 March 2024 in respect of grantsin-aid released by the State Government during the period 2001-02 to 2022-23 (up to September 2022)."
+    }
+   ]
+  },
+  "Uttarakhand": {
+   "report": "Report of the Comptroller and Auditor General of India on State Finances for the year 2023-24 (Report No. 1 of 2025)",
+   "year": "2023-24",
+   "page": "https://cag.gov.in/en/audit-report/details/124346",
+   "figures": [
+    {
+     "k": "ucs_pending",
+     "crore": 1395.68,
+     "asof": "31 March 2024",
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/5-Executive-Summary-069b0140e653625.34480256.pdf",
+     "where": "Executive Summary, PDF page 8",
+     "quote": "Utilisation Certificates against conditional grants Despite the requirement of submitting Utilisation Certificates (UCs) against conditional grants within a stipulated time period, 210 outstanding UCs of ₹ 1,395.68 crore were pending as on 31 March 2024."
+    }
+   ]
+  },
+  "West Bengal": {
+   "report": "Report No. 2 of 2026: State Finances Audit Report of the Government of West Bengal for the year ended March 2025",
+   "year": "2024-25",
+   "page": "https://cag.gov.in/en/audit-report/details/125757",
+   "figures": [
+    {
+     "k": "own_tax",
+     "crore": 97994,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Own Tax Revenue 89,986 1,02,349 99,863 97,994 95.74 5.40 (2023-24 actuals, 2024-25 BE, RE, actuals, % of BE, % of GSDP)"
+    },
+    {
+     "k": "own_tax_be",
+     "crore": 102349,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.6 and p. 15",
+     "quote": "However, it fell short of both BE (₹ 1,02,349 crore) and RE (₹ 99,863 crore)"
+    },
+    {
+     "k": "union_share",
+     "crore": 96813,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Share of Union taxes/ duties 84,972 92,900 96,010 96,813 104.21 5.33"
+    },
+    {
+     "k": "non_tax",
+     "crore": 3688,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Non-Tax Revenue 3,238 6,318 3,287 3,688 58.37 0.20"
+    },
+    {
+     "k": "grants",
+     "crore": 15205,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Grants-in-aid and Contributions 22,072 34,684 28,431 15,205 43.84 0.84"
+    },
+    {
+     "k": "borrowed",
+     "crore": 61924,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Borrowings and other Liabilities* 53,992 68,248 73,019 61,924 90.73 3.41"
+    },
+    {
+     "k": "total_exp",
+     "crore": 275752,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/9E.-Chapter-1-of-WB-SFAR-2024-25-(Report-No.-2-of-2026)-06a68a3cab83f78.14176665.pdf",
+     "where": "Chapter 1, Table 1.3, p. 6",
+     "quote": "Total Expenditure (11+13+14) 2,55,716 3,04,688 3,00,832 2,75,752 90.50 15.19"
+    },
+    {
+     "k": "capital_exp",
+     "crore": 21622,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, p. x",
+     "quote": "Capital expenditure (₹ 21,622 crore) during FY 2024-25 constituted only 1.19 per cent the GSDP of the State."
+    },
+    {
+     "k": "budget_provision",
+     "crore": 390638.04,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Budgetary Management, p. x",
+     "quote": "During FY 2024-25, against the total budget provision of ₹ 3,90,638.04 crore, the State incurred an expenditure of ₹ 3,19,975.79 crore, resulting in an overall savings of ₹ 70,662.25 crore (18.09 per cent)."
+    },
+    {
+     "k": "budget_spent",
+     "crore": 319975.79,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Budgetary Management, p. x",
+     "quote": "the State incurred an expenditure of ₹ 3,19,975.79 crore"
+    },
+    {
+     "k": "budget_unspent",
+     "crore": 70662.25,
+     "pct": 18.09,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Budgetary Management, p. x",
+     "quote": "resulting in an overall savings of ₹ 70,662.25 crore (18.09 per cent). Similar trend of savings ranging between 19.31 per cent to 20.99 per cent was observed during FY 2020-21 to FY 2023-24."
+    },
+    {
+     "k": "ucs_pending",
+     "crore": 135686,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Utilisation Certificates, p. xi",
+     "quote": "As of 31 March 2025, UCs amounting to ₹ 1,35,686 crore were outstanding ... non-submission of UCs is fraught with the risk of misutilisation.",
+     "asof": "31 March 2025"
+    },
+    {
+     "k": "excess_unregularised",
+     "crore": 57263.62,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, p. xi",
+     "quote": "during FY 2024-25, excess expenditure of ₹ 13,486.92 crore was incurred under seven grants and one appropriation which requires regularisation as per Article 205 (1) (b) of the Constitution. Such unregularised excess expenditure pertaining to the FYs 2009-24 came to ₹ 57,263.62 crore."
+    },
+    {
+     "k": "excess_year",
+     "crore": 13486.92,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, p. xi",
+     "quote": "excess expenditure of ₹ 13,486.92 crore was incurred under seven grants and one appropriation which requires regularisation"
+    },
+    {
+     "k": "supp_unneeded",
+     "crore": 4489.31,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, p. x",
+     "quote": "supplementary provisions of ₹ 4,489.31 crore in 16 grants proved unnecessary, as the expenditure did not come up to even the original provisions."
+    },
+    {
+     "k": "sna_unspent",
+     "crore": 8296.51,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Single Nodal Agency, p. xi",
+     "quote": "As per PFMS portal, ₹ 8,296.51 crore were lying unspent in the bank accounts of SNAs as on 31 March 2025."
+    },
+    {
+     "k": "misclassified",
+     "crore": 1031.84,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Capital Expenditure, p. x",
+     "quote": "the State Government misclassified ₹ 1,031.84 crore of expenditure of Revenue nature as Capital Expenditure, which inflated the Capital Expenditure to that extent."
+    },
+    {
+     "k": "cess_kept",
+     "crore": 1809.66,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Non-transfer of Cess Proceeds, p. xi",
+     "quote": "Cess proceeds amounting to ₹ 1,809.66 crore, credited to the Consolidated Fund of the State, during FY 2024-25, had not been transferred to the Public Account"
+    },
+    {
+     "k": "ac_bills",
+     "crore": 568.98,
+     "url": "https://d7i5wg8xwe4hf.cloudfront.net/uploads/download_audit_report/2025/ToC,-Preface,-Executive-Summary-merged-06a68a3caafb864.16191271.pdf",
+     "where": "Executive Summary, Abstract Contingent Bills, p. xi",
+     "quote": "As of 31 March 2025, 4,454 Abstract Contingent (AC) bills amounting to ₹ 568.98 crore remained pending adjustment ... fraught with the risk of misappropriation"
+    }
+   ]
+  }
+ },
+ "missing": [
+  {
+   "what": "District, block and gram panchayat money: own revenue, grants received, amount spent, unspent balance",
+   "where": "eGramSwaraj (egramswaraj.gov.in) panchayat accounts; Finance Commission grant releases (Ministry of Panchayati Raj)",
+   "why": "eGramSwaraj did not answer from our server when checked on 12 Oct 2026"
+  },
+  {
+   "what": "Municipality money: property tax and fees collected, grants, amount spent",
+   "where": "Each municipality's annual budget and accounts; ask under RTI s.6 to the municipality's Public Information Officer",
+   "why": "No West Bengal municipality budget found published online in a form we can cite"
+  },
+  {
+   "what": "Audit findings for each panchayat and municipality (amounts the auditor objected to)",
+   "where": "Examiner of Local Accounts, West Bengal, and CAG reports on Local Bodies of West Bengal",
+   "why": "Not yet read and copied"
+  },
+  {
+   "what": "Budget used versus budget passed for states other than West Bengal",
+   "where": "That state's CAG State Finances Audit Report, Budgetary Management",
+   "why": "Not yet copied; send a figure with its page using Suggest a correction"
+  },
+  {
+   "what": "MLA local area fund (Bidhayak Elaka Unnayan Prakalpa in West Bengal) per seat",
+   "where": "Department of Development and Planning, Government of West Bengal; RTI",
+   "why": "No published per-seat figures found"
+  }
+ ]
+}

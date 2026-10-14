@@ -8,8 +8,9 @@ import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
 import { Alert, KeyboardAvoidingView, Linking, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider, SafeAreaView } from 'react-native-safe-area-context';
-import { type Draft, type EvidenceMode, type Extra, type Filed, type Fix, fileReport, issueCaptureToken, newClientId, OfflineError, publicReport, type PublicReport, type Report, reportWarranty, type Rules, type Warranty } from './src/api';
+import { type Draft, type EvidenceMode, type Extra, type Filed, type Fix, fileReport, issueCaptureToken, mapReports, recentReports, rules, newClientId, OfflineError, publicReport, type PublicReport, type Report, reportWarranty, type Rules, type Warranty } from './src/api';
 import { EvidenceCamera } from './src/components/EvidenceCamera';
+import { MapScreen } from './src/components/MapScreen';
 import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
 import { ReportSheet } from './src/components/ReportSheet';
@@ -22,6 +23,7 @@ import { CAPTURE_TOKEN_TTL_MS, MAX_GPS_ACCURACY_M } from './src/config';
 import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
 import { drain, enqueue, onQueue, onRefused, pendingCount, startQueue } from './src/queue';
+import { swr } from './src/cache';
 import { snap } from './src/shot';
 import { AppError } from './src/supabase';
 
@@ -93,6 +95,7 @@ function Reporter() {
   const [queued, setQueued] = useState(0);
   const [nearby, setNearby] = useState(false);
   const [more, setMore] = useState(false);
+  const [mapOpen, setMapOpen] = useState(false);
   const [sheetId, setSheetId] = useState<string | null>(null);
   const [sheetRefresh, setSheetRefresh] = useState(0);
   const [spotForm, setSpotForm] = useState<SpotFormId | null>(null);
@@ -100,6 +103,17 @@ function Reporter() {
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
+
+  // Warm what the next taps need while the camera is on screen: rules, and the lists
+  // (cached on the phone) so Map and Recent open filled in.
+  useEffect(() => {
+    const idle = setTimeout(() => {
+      rules().catch(() => {});
+      swr('recent', recentReports, () => {}).catch(() => {});
+      swr('map', mapReports, () => {}).catch(() => {});
+    }, 1500);
+    return () => clearTimeout(idle);
+  }, []);
   const refreshToken = useCallback(() => {
     if (Date.now() - token.current.at < CAPTURE_TOKEN_TTL_MS && token.current.value) return;
     issueCaptureToken().then((v) => { token.current = { value: v, at: Date.now() }; });
@@ -191,9 +205,10 @@ function Reporter() {
   return (
     <View style={s.fill}>
       {/* One camera at a time: the evidence camera takes over while it is open. */}
-      {!evidence && !spotForm && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
+      {!evidence && !spotForm && !mapOpen && <CameraView ref={camera} style={StyleSheet.absoluteFill} facing="back" animateShutter />}
       <SafeAreaView style={s.top} edges={['top']}>
         <View style={{ flexDirection: 'row', gap: 8, marginLeft: 'auto' }}>
+          <PopButton kind="secondary" size="small" label={t('map')} onPress={() => setMapOpen(true)} />
           <PopButton kind="secondary" size="small" label={t('nearby')} onPress={() => setNearby(true)} />
           <PopButton kind="secondary" size="small" label={t('more')} onPress={() => setMore(true)} />
         </View>
@@ -225,6 +240,7 @@ function Reporter() {
 
       {result && <ResultCard filed={result.filed} row={result.row} warranty={result.warranty} onDone={reset}
         onOpen={() => openReport(result.filed.duplicateOf ?? result.filed.id)} />}
+      {mapOpen && <MapScreen fix={fix} onOpen={setSheetId} onClose={() => setMapOpen(false)} />}
       <NearbySheet visible={nearby} onClose={() => setNearby(false)} onOpen={openReport} />
       <ReportSheet id={evidence ? null : sheetId} refresh={sheetRefresh} onClose={() => setSheetId(null)}
         onEvidence={(mode, report, rules) => setEvidence({ mode, report, rules })} />
