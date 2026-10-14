@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadStories(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadStories(), loadEvidence(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
