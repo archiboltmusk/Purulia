@@ -226,6 +226,7 @@
 
   moderation();
   letters();
+  addCsv();
 
   // Another district: its municipalities instead of Purulia's wards, blocks and seats; the
   // moderation counts (statewide) and the forest map, opened on the district.
@@ -262,6 +263,44 @@
       forest.querySelectorAll('.an-card-sub')[1].innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">Open the Global Forest Watch map of ${n} ↗</a> · Data: Global Forest Watch, CC BY 4.0`;
     } else hide(forest);
     moderation();
+    addCsv();
+  }
+
+  // CSV downloads (idea from FixMyStreet's dashboard export): every table as it is shown, and every
+  // report counted on this page with its public columns.
+  function addCsv(){
+    const cell = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const save = (name, text) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8' }));
+      a.download = `parishkar-${slug}-${name}-${dayKey(Date.now())}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    document.querySelectorAll('.an-card').forEach(card => {
+      if (!card.querySelector('.an-table-wrap') || card.querySelector('.an-csv')) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'an-csv'; b.textContent = 'Download CSV';
+      b.addEventListener('click', () => {
+        const tables = [...card.querySelectorAll('table')];
+        if (!tables.length) return;
+        const name = (card.querySelector('h2')?.textContent || 'table').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        save(name, tables.map(t => [...t.rows].map(tr => [...tr.cells].map(c => cell(c.textContent.trim())).join(',')).join('\r\n')).join('\r\n\r\n'));
+      });
+      card.prepend(b);
+    });
+    const meta = document.querySelector('.an-meta');
+    if (meta && !document.getElementById('an-csv-all')){
+      const a = document.createElement('a');
+      a.href = '#'; a.id = 'an-csv-all'; a.textContent = 'All reports (CSV)';
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const cols = ['id', 'created_at', 'category', 'status', 'ward_no', 'block_name', 'place', 'landmark', 'resolved_at', 'resolution_method', 'sla_days'];
+        save('reports', [cols.join(','), ...all.map(r => [...cols.map(c => cell(r[c])), cell(location.origin + location.pathname.replace(/[^/]*$/, '') + reportLink(r))].join(','))]
+          .join('\r\n').replace(/^[^\r]*/, m => m + ',link'));
+      });
+      meta.append(' · ', a);
+    }
   }
 
   // Weekly letters to the offices responsible (Purulia only), and to the DM for reports 14 days past deadline.
