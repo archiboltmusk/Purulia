@@ -20,15 +20,56 @@
   const rpc = async (name, args) => { const { data, error } = await sb.rpc(name, args); return error ? null : data; };
   const getJSON = async url => { try { const r = await fetch(url); return r.ok ? await r.json() : null; } catch (e) { return null; } };
 
+  /* Reporter mode: follow cases on this device only (nothing is sent anywhere), and see
+     on return how long each has been open and what happened since you last looked. */
+  const FOLLOW_KEY = 'parishkar_follow';
+  const followed = () => { try { return JSON.parse(localStorage.getItem(FOLLOW_KEY) || '{}') || {}; } catch (e) { return {}; } };
+  const saveFollowed = f => { try { localStorage.setItem(FOLLOW_KEY, JSON.stringify(f)); } catch (e) {} };
+
   const id = new URLSearchParams(location.search).get('id');
   const main = $('cf-main');
+  const COLS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_photo_url,reply_count,area_kind,block_name,local_body,waste_type';
   if (!id || !/^\d+$/.test(id)){
-    $('cf-title').textContent = 'Open a report first';
-    main.innerHTML = none('A case file follows one report. Open any report on the <a href="kasa.html">map</a> and tap "Case file".');
+    const f = followed(), ids = Object.keys(f).filter(x => /^\d+$/.test(x));
+    document.title = 'Cases you follow — Parishkar';
+    $('cf-no').textContent = 'Reporter mode';
+    $('cf-title').textContent = 'Cases you follow';
+    $('cf-counter').hidden = true;
+    $('cf-state').hidden = true;
+    $('cf-map').textContent = 'Find a report on the map →';
+    if (!ids.length){
+      main.innerHTML = none('Follow a complaint from start to finish. Open any report on the <a href="kasa.html">map</a>, tap "Case file", then "Follow this case". It stays on this device only.');
+      return;
+    }
+    $('cf-where').textContent = `${ids.length} on this device. New events since you last opened each one are counted.`;
+    const rows = [];
+    for (const view of ['kasa_public_reports', 'kasa_public_place_reports']){
+      const { data } = await sb.from(view).select('id,created_at,category,status,resolved_at,sla_days,landmark,ward_no,block_name').in('id', ids);
+      (data || []).forEach(x => rows.push(x));
+    }
+    const { data: evs } = await sb.from('kasa_public_events').select('report_id,created_at').in('report_id', ids);
+    const byId = new Map(rows.map(x => [String(x.id), x]));
+    main.innerHTML = `<ul class="cf-follow">${ids.sort((a, b) => b - a).map(k => {
+      const x = byId.get(k);
+      if (!x) return `<li><b>Report #${esc(k)}</b> <span class="cf-none">no longer on the public record</span> <button type="button" class="cf-unfollow" data-id="${esc(k)}">Stop following</button></li>`;
+      const st = x.status === 'pending_verification' ? 'claimed' : x.status;
+      const end = st === 'resolved' && x.resolved_at ? new Date(x.resolved_at) : new Date();
+      const d = Math.floor(Math.max(0, end - new Date(x.created_at)) / 86400000);
+      const fresh = (evs || []).filter(e => String(e.report_id) === k && new Date(e.created_at) > new Date(f[k].seen || 0)).length;
+      const where = [x.landmark, x.ward_no ? `Ward ${x.ward_no}` : '', x.block_name].filter(Boolean).join(', ');
+      return `<li${d > Number(x.sla_days || 7) && st !== 'resolved' ? ' class="cf-over"' : ''}>
+        <a class="cf-follow-days" href="case.html?id=${esc(k)}"><b>${d}</b><small>${st === 'resolved' ? 'days to fix' : 'days open'}</small></a>
+        <div><a href="case.html?id=${esc(k)}"><b>${esc(t('cat_' + x.category))}</b></a> <span class="cf-state cf-state-${esc(st)}">${esc(st === 'claimed' ? 'cleanup claimed' : st)}</span>
+          <div class="cf-none">${esc(where)}${fresh ? ` · <b>${fresh} new since you last looked</b>` : ''}</div></div>
+        <button type="button" class="cf-unfollow" data-id="${esc(k)}">Stop following</button></li>`;
+    }).join('')}</ul>`;
+    main.addEventListener('click', e => {
+      const b = e.target.closest('.cf-unfollow'); if (!b) return;
+      const g = followed(); delete g[b.dataset.id]; saveFollowed(g); b.closest('li').remove();
+    });
     return;
   }
 
-  const COLS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_photo_url,reply_count,area_kind,block_name,local_body,waste_type';
   let row = null;
   // Place reports carry district/state only once the India migration is live.
   for (const [view, extra] of [['kasa_public_reports', ''], ['kasa_public_place_reports', ',place,district,state'], ['kasa_public_place_reports', ',place']]){
@@ -70,6 +111,12 @@
   $('cf-state').textContent = STATE[status] || 'Open';
   $('cf-state').className = 'cf-state cf-state-' + (STATE[status] ? status : 'open');
   $('cf-map').href = `kasa.html?report=${encodeURIComponent(r.id)}`;
+  const fb = $('cf-follow');
+  const showFollow = () => { const on = !!followed()[r.id]; fb.textContent = on ? 'Following ✓' : 'Follow this case'; fb.setAttribute('aria-pressed', String(on)); };
+  fb.hidden = false; showFollow();
+  fb.addEventListener('click', () => { const g = followed(); if (g[r.id]) delete g[r.id]; else g[r.id] = { at: Date.now(), seen: new Date().toISOString() }; saveFollowed(g); showFollow(); });
+  // Opening a followed case marks its events as seen.
+  if (followed()[r.id]){ const g = followed(); g[r.id].seen = new Date().toISOString(); saveFollowed(g); }
 
   const panel = (n, key, title, body) => `
     <section class="cf-panel" id="${key}">

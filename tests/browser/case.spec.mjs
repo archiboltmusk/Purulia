@@ -19,7 +19,16 @@ test('case file traces one report with a days-open counter and sourced panels', 
   await expect(page.locator('#cf-report .cf-src a')).toHaveAttribute('href', 'kasa.html?report=101');
 });
 
-test('case file without a report id points to the map', async ({ page, backend }) => {
+test('reporter mode: follow a case and see it with its days-open count', async ({ page, backend }) => {
   await page.goto('case.html');
-  await expect(page.locator('#cf-title')).toHaveText('Open a report first');
+  await expect(page.locator('#cf-title')).toHaveText('Cases you follow');
+  await expect(page.locator('#cf-main')).toContainText('Follow this case');
+  await page.goto('case.html?id=101');
+  await page.locator('#cf-follow').click();
+  await expect(page.locator('#cf-follow')).toHaveAttribute('aria-pressed', 'true');
+  await page.goto('case.html');
+  await expect(page.locator('.cf-follow li')).toHaveCount(1);
+  await expect(page.locator('.cf-follow-days b')).toHaveText('1');
+  await page.locator('.cf-unfollow').click();
+  await expect(page.locator('.cf-follow li')).toHaveCount(0);
 });
