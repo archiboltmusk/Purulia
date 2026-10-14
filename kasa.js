@@ -2414,6 +2414,7 @@ function renderSheet(){
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
     </div>
