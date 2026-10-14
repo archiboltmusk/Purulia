@@ -151,6 +151,25 @@
   // Opening a followed case marks its events as seen.
   if (followed()[r.id]){ const g = followed(); g[r.id].seen = new Date().toISOString(); saveFollowed(g); }
 
+  /* A portable research record of the same reviewed facts shown below. The
+     server composes it, so a browser export cannot include raw report,
+     moderator, or reporter fields. */
+  const xb = $('cf-export');
+  xb.hidden = false;
+  xb.addEventListener('click', async () => {
+    xb.disabled = true; xb.textContent = t('cf_export_working');
+    try {
+      const dossier = await rpc('kasa_case_dossier', { p_report_id: String(r.id) });
+      if (!dossier) throw new Error('not found');
+      const blob = new Blob([JSON.stringify(dossier, null, 2) + '\n'], { type: 'application/json' });
+      const link = document.createElement('a');
+      link.href = URL.createObjectURL(blob); link.download = `parishkar-case-${r.id}-record.json`; link.click();
+      setTimeout(() => URL.revokeObjectURL(link.href), 4000);
+      xb.textContent = t('cf_export_done');
+    } catch (e) { xb.textContent = t('cf_export_failed'); }
+    finally { xb.disabled = false; setTimeout(() => { xb.textContent = t('cf_export'); }, 2500); }
+  });
+
   /* The cover: one picture of this case like an album front, made on the phone from what is
      on this page (the live photo, the place, days open). Nothing is uploaded. */
   const cb = $('cf-cover');

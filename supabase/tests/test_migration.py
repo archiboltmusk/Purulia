@@ -180,6 +180,8 @@ open_grants = admin_sql("select table_name, grantee, privilege_type from informa
 check('anon/authenticated cannot write to any public table directly', not open_grants, open_grants)
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
+check('the public can download a read-only case dossier', 'kasa_case_dossier' in anon_fns)
+anon_fns = [f for f in anon_fns if f != 'kasa_case_dossier']
 check('only the intended SECURITY DEFINER functions are callable without signing in',
       set(anon_fns) <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
@@ -546,6 +548,9 @@ if LEGACY:
           'retired' in (err(admin_sql, "select public.mark_resolved(%s::uuid, 'x', 'x')", (str(rid),)) or ''))
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
+check('the public dossier has an explicit, tested exception to the helper allowlist',
+      any(r[0] == 'kasa_case_dossier' for r in open_definers))
+open_definers = [r for r in open_definers if r[0] != 'kasa_case_dossier']
 check('only read-only helpers and the sign-up form are callable without signing in',
       {r[0] for r in open_definers} <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
 
@@ -2792,6 +2797,12 @@ check('a matched report shows its confirmed asset', rpc('kasa_report_asset', p_r
 aw = rpc('kasa_asset_works', p_asset_id=aid)
 check('only verified live-photo GPS reports count against an asset and its DLP',
       aw['verified_reports'] == 1 and aw['verified_open'] == 1 and {w['id']: w for w in aw['works']}[w1]['verified_reports_in_dlp'] == 1, aw)
+dossier = rpc('kasa_case_dossier', p_report_id=rid_live)
+check('a case dossier joins only public report, authority, work and verification records',
+      dossier['report']['id'] == rid_live and dossier['relations']['asset']['match'] == 'confirmed'
+      and any(w.get('contractor', {}).get('firm_name') == 'Test Builders' for w in dossier['relations']['works']['works'])
+      and 'user_id' not in dossier['report'] and 'moderation_labels' not in dossier['report'], dossier)
+check('a hidden or unknown report has no dossier', rpc('kasa_case_dossier', p_report_id='00000000-0000-0000-0000-000000000000') is None)
 check('director records are not exposed', refused(err(q, 'select * from kasa_private.contractor_directors', uid=user())))
 
 # ── "Behind the numbers" stories on data.html ───────────────────────────────

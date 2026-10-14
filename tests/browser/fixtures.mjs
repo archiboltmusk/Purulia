@@ -39,6 +39,7 @@ const RPC = {
   kasa_issue_capture_token: 'test-capture-token',
   kasa_photo_meta: null,
   kasa_create_report: 555,
+  kasa_case_dossier: { schema_version: '1.0', report: { id: 101 }, relations: {}, limitations: [] },
   kasa_vote_claim: { verify_count: 2, dispute_count: 0, claim_status: 'pending', verify_needed: 3 }
 };
 
