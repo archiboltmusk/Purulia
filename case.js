@@ -17,6 +17,23 @@
   const $ = id => document.getElementById(id);
   const src = (label, href) => `<p class="cf-src">Source: ${href ? `<a href="${esc(href)}"${/^https?:/.test(href) ? ' target="_blank" rel="noopener"' : ''}>${esc(label)}</a>` : esc(label)}</p>`;
   const none = html => `<p class="cf-none">${html}</p>`;
+  /* Mitu the reporter and Bhulu, her desi dog: the site's guide, drawn ligne claire. She only
+     appears where a page has nothing to show yet, and says what to do next. */
+  const MITU = `<svg viewBox="0 0 140 120" role="img" aria-label="Mitu the reporter, notebook in hand, with Bhulu the dog"><g stroke="#1a1410" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">
+    <rect x="1" y="1" width="138" height="118" rx="4" fill="#f3ead6"/><path d="M8 112H132" fill="none"/>
+    <path d="M28 112L32 76Q50 64 68 76L72 112Z" fill="#3b6ea8"/><path d="M43 69L50 76L57 69" fill="#fbf7ee"/>
+    <circle cx="50" cy="46" r="17" fill="#f2c9a0"/>
+    <circle cx="63" cy="28" r="6" fill="#2b1d14"/><path d="M33 45Q33 27 50 27Q67 27 67 45Q62 36 54 37Q50 33 46 37Q38 36 33 45Z" fill="#2b1d14"/>
+    <circle cx="44" cy="48" r="1.4" fill="#1a1410"/><circle cx="56" cy="48" r="1.4" fill="#1a1410"/><path d="M46 55Q50 58 54 55" fill="none"/>
+    <g transform="rotate(-8 66 92)"><rect x="57" y="81" width="18" height="23" rx="1" fill="#fbf7ee"/><path d="M61 87h10M61 91h10M61 95h6" fill="none" stroke-width="1.2"/></g>
+    <path d="M37 80Q44 96 58 94" fill="none"/><path d="M76 76L84 66" fill="none" stroke-width="2.5"/><path d="M66 78Q74 82 78 74" fill="none"/>
+    <path d="M118 110Q132 102 128 90" fill="none"/>
+    <path d="M94 112Q92 92 103 88Q117 86 120 112Z" fill="#d9a86a"/><path d="M100 112Q100 98 106 94Q112 98 112 112Z" fill="#fbf7ee"/>
+    <path d="M101 74L98 63L107 70Z" fill="#d9a86a"/><path d="M110 70L116 61L117 73Z" fill="#d9a86a"/>
+    <ellipse cx="108" cy="80" rx="10" ry="9" fill="#d9a86a"/><path d="M114 79Q123 79 123 84Q119 88 112 86" fill="#fbf7ee"/>
+    <circle cx="122.5" cy="81.5" r="1.6" fill="#1a1410"/><circle cx="108" cy="78" r="1.3" fill="#1a1410"/>
+  </g></svg>`;
+  const guide = html => `<div class="cf-guide">${MITU}<p class="cf-quote">${html}</p></div>`;
   const rpc = async (name, args) => { const { data, error } = await sb.rpc(name, args); return error ? null : data; };
   const getJSON = async url => { try { const r = await fetch(url); return r.ok ? await r.json() : null; } catch (e) { return null; } };
 
@@ -25,6 +42,15 @@
   const FOLLOW_KEY = 'parishkar_follow';
   const followed = () => { try { return JSON.parse(localStorage.getItem(FOLLOW_KEY) || '{}') || {}; } catch (e) { return {}; } };
   const saveFollowed = f => { try { localStorage.setItem(FOLLOW_KEY, JSON.stringify(f)); } catch (e) {} };
+
+  // Moving to another phone: case.html?follow=1,2,3 adds those cases to this device's list.
+  const take = new URLSearchParams(location.search).get('follow');
+  if (take){
+    const f = followed();
+    take.split(',').filter(x => /^\d{1,12}$/.test(x)).slice(0, 200).forEach(k => { if (!f[k]) f[k] = { at: Date.now(), seen: new Date().toISOString() }; });
+    saveFollowed(f);
+    history.replaceState(null, '', 'case.html');
+  }
 
   const id = new URLSearchParams(location.search).get('id');
   const main = $('cf-main');
@@ -38,7 +64,7 @@
     $('cf-state').hidden = true;
     $('cf-map').textContent = 'Find a report on the map →';
     if (!ids.length){
-      main.innerHTML = none('Follow a complaint from start to finish. Open any report on the <a href="kasa.html">map</a>, tap "Case file", then "Follow this case". It stays on this device only.');
+      main.innerHTML = guide('Nothing followed yet. Follow a complaint from start to finish: open any report on the <a href="kasa.html">map</a>, tap "Case file", then "Follow this case". Bhulu and I will keep count of the days. It stays on this device only.');
       return;
     }
     $('cf-where').textContent = `${ids.length} on this device. New events since you last opened each one are counted.`;
@@ -63,6 +89,13 @@
           <div class="cf-none">${esc(where)}${fresh ? ` · <b>${fresh} new since you last looked</b>` : ''}</div></div>
         <button type="button" class="cf-unfollow" data-id="${esc(k)}">Stop following</button></li>`;
     }).join('')}</ul>`;
+    const moveUrl = `${location.origin}${location.pathname}?follow=${ids.join(',')}`;
+    main.insertAdjacentHTML('beforeend', `<p class="cf-move">On another phone? Open this link there to follow the same cases:
+      <button type="button" class="cf-follow-btn" id="cf-move">Copy link</button></p>`);
+    $('cf-move').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(moveUrl); $('cf-move').textContent = 'Copied'; }
+      catch (e) { prompt('Copy this link:', moveUrl); }
+    });
     main.addEventListener('click', e => {
       const b = e.target.closest('.cf-unfollow'); if (!b) return;
       const g = followed(); delete g[b.dataset.id]; saveFollowed(g); b.closest('li').remove();
@@ -78,7 +111,7 @@
   }
   if (!row){
     $('cf-title').textContent = `Report #${id} is not on the public record`;
-    main.innerHTML = none('It may have been removed by a moderator, merged into another report, or the link is wrong. See the <a href="kasa.html">map</a>.');
+    main.innerHTML = guide('This trail goes cold here. The report may have been removed by a moderator, merged into another report, or the link is wrong. See the <a href="kasa.html">map</a>.');
     return;
   }
 

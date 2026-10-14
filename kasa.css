@@ -102,6 +102,11 @@ img{display:block;max-width:100%;}
 .k-nt-item{padding:.9rem 0;border-top:1px solid var(--border);}
 .k-nt-item h4{font-family:var(--serif);font-size:1.05rem;color:var(--cream);margin:0 0 .25rem;}
 .k-nt-item p{font-size:.88rem;color:var(--text-md);line-height:1.55;margin:0 0 .6rem;}
+.k-nt-filter{margin-top:.8rem;display:grid;gap:.6rem;}
+.k-nt-radius{display:flex;gap:.6rem;align-items:center;font-size:.88rem;color:var(--text-md);}
+.k-nt-radius select{background:var(--ink);color:var(--text-hi);border:1px solid var(--border2);border-radius:3px;padding:.3rem .4rem;font:inherit;}
+.k-nt-kinds{display:flex;flex-wrap:wrap;gap:.35rem .8rem;font-size:.86rem;color:var(--text-hi);}
+.k-nt-kind{display:inline-flex;gap:.3rem;align-items:center;cursor:pointer;}
 .k-nt-count{font-family:var(--mono);font-size:11px;color:var(--amber) !important;}
 #k-nt-modal .k-note{margin-bottom:.9rem;}
 .k-social-toggle{padding:.4rem .5rem;font-size:14px;color:var(--text-md);transition:all .2s;border-radius:2px;opacity:.7;}
@@ -1009,3 +1014,13 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-tip{box-shadow:none;border:2px solid var(--ink);}
 .k-node-abbr{background:#a9c3ff;box-shadow:none;border:1.5px solid #1d2a66;}
 .k-node-elected .k-node-abbr{background:#f3c27d;border-color:#3a2004;}
+
+/* Check nearby: one open report at a time, swipe or tap. */
+.k-cq-card{position:relative;margin-top:.8rem;border:2px solid var(--border2);border-radius:6px;overflow:hidden;touch-action:pan-y;user-select:none;transition:transform .15s;}
+.k-cq-card img,.k-cq-noimg{display:block;width:100%;height:240px;object-fit:cover;background:var(--ink);}
+.k-cq-noimg{display:flex;align-items:center;justify-content:center;font-size:4rem;}
+.k-cq-info{display:grid;gap:.2rem;padding:.8rem .9rem;font-size:.9rem;color:var(--text-md);}
+.k-cq-info b{font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+.k-cq-count{position:absolute;top:.5rem;right:.5rem;background:var(--ink);color:var(--cream);font-family:var(--mono);font-size:11px;padding:.15rem .45rem;border-radius:3px;}
+.k-cq-actions{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.7rem;}
+.k-cq-empty{padding:1.2rem 0;color:var(--text-md);line-height:1.55;}
