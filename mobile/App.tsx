@@ -25,6 +25,7 @@ import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
 import { drain, enqueue, onQueue, onRefused, pendingCount, startQueue } from './src/queue';
 import { swr } from './src/cache';
+import { onAlertTap } from './src/push';
 import { snap } from './src/shot';
 import { AppError } from './src/supabase';
 
@@ -105,6 +106,7 @@ function Reporter() {
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
+  useEffect(() => onAlertTap(openReport), []);
 
   // Warm what the next taps need while the camera is on screen: rules, and the lists
   // (cached on the phone) so Map and Recent open filled in.
@@ -250,7 +252,7 @@ function Reporter() {
         setEvidence(null);
         if (changed) setSheetRefresh((n) => n + 1);
       }} />}
-      <MoreSheet visible={more} onClose={() => setMore(false)} onForm={(id) => {
+      <MoreSheet fix={fix} visible={more} onClose={() => setMore(false)} onForm={(id) => {
         setMore(false);
         setTimeout(() => (id === 'bug' || id === 'fix' ? setFeedback(id) : setSpotForm(id)), Platform.OS === 'ios' ? 450 : 0);
       }} />
