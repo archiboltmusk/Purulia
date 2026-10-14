@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
+      set(anon_fns) <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -547,7 +547,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2816,6 +2816,50 @@ check('an approved story shows unchanged with its link', len(st) == 1 and st[0][
 check('stories stay with their district', rpc('kasa_stories', p_district='bankura') == [])
 rpc('kasa_admin_review_story', uid=mod, p_id=sq_[0]['id'], p_action='remove', p_note='person asked')
 check('a removed story leaves the page', rpc('kasa_stories', p_district='purulia') == [])
+
+# ── Borrowed civic features: RTI tracker, reply templates, ward priorities, retention ──
+rti = rpc('kasa_add_docket', ip='10.98.0.1', p_report_id=rid, p_portal='rti', p_number='RTI/2026/77', p_filed_on='2026-09-01')
+check('adding an RTI gives its adder a private key', rti.get('key') and rti.get('id'), rti)
+again = rpc('kasa_add_docket', ip='10.98.0.2', p_report_id=rid, p_portal='rti', p_number='RTI/2026/77')
+check('adding the same RTI again gives no key', 'key' not in again, again)
+row = [d for d in rpc('kasa_report_dockets', p_report_id=rid) if d['number'] == 'RTI/2026/77'][0]
+check('an RTI shows its 30-day reply date and first-appeal date',
+      row['filed_on'] == '2026-09-01' and row['reply_due'] == '2026-10-01' and row['appeal_by'] == '2026-10-31' and row['status'] == 'waiting', row)
+check('a future filing date is refused',
+      err(rpc, 'kasa_add_docket', ip='10.98.0.1', p_report_id=rid, p_portal='rti', p_number='RTI/2099/1', p_filed_on='2099-01-01') == 'KASA_BAD_FORM')
+check('only the key holder can change an RTI', err(rpc, 'kasa_set_rti_status', p_id=rti['id'], p_key='wrong', p_status='answered') == 'KASA_NOT_FOUND')
+rpc('kasa_set_rti_status', p_id=rti['id'], p_key=rti['key'], p_status='refused')
+check('the key holder can mark it refused',
+      [d for d in rpc('kasa_report_dockets', p_report_id=rid) if d['number'] == 'RTI/2026/77'][0]['status'] == 'refused')
+check('an unknown RTI status is refused', err(rpc, 'kasa_set_rti_status', p_id=rti['id'], p_key=rti['key'], p_status='lost') == 'KASA_BAD_FORM')
+check('the RTI key is not readable', refused(err(q, 'select edit_hash from kasa_private.report_dockets')))
+
+check('non-admins cannot read reply templates', err(rpc, 'kasa_admin_reply_templates', uid=user()) == 'KASA_NOT_ADMIN')
+check('non-admins cannot save reply templates', err(rpc, 'kasa_admin_save_reply_template', uid=user(), p_kind='hide', p_body='Not a public place') == 'KASA_NOT_ADMIN')
+rpc('kasa_admin_save_reply_template', uid=mod, p_kind='hide', p_body='Inside a private house, not a public place.')
+rpc('kasa_admin_save_reply_template', uid=mod, p_kind='hide', p_body='Inside a private house, not a public place.')
+tpl = rpc('kasa_admin_reply_templates', uid=mod)
+check('a saved reason is listed once', len([x for x in tpl if x['kind'] == 'hide']) == 1, tpl)
+rpc('kasa_admin_delete_reply_template', uid=mod, p_id=tpl[0]['id'])
+check('a deleted reason is gone', rpc('kasa_admin_reply_templates', uid=mod) == [])
+
+check('voting on ward priorities needs a session', err(rpc, 'kasa_ward_priority_vote', p_area='ward:3', p_picks='{road}') is not None)
+v1, v2 = user(), user()
+rpc('kasa_ward_priority_vote', uid=v1, ip='10.99.0.1', p_area='ward:3', p_picks='{road,drain,road}')
+pr = rpc('kasa_ward_priority_vote', uid=v2, ip='10.99.0.2', p_area='ward:3', p_picks='{drain}')
+check('priority votes are counted per problem', pr['voters'] == 2 and pr['counts'] == {'drain': 2, 'road': 1} and pr['mine'] == ['drain'], pr)
+pr = rpc('kasa_ward_priority_vote', uid=v1, ip='10.99.0.1', p_area='ward:3', p_picks='{water}')
+check('voting again replaces your picks', pr['voters'] == 2 and pr['counts'] == {'drain': 1, 'water': 1}, pr)
+check('more than three picks are refused',
+      err(rpc, 'kasa_ward_priority_vote', uid=v1, p_area='ward:3', p_picks='{road,drain,water,toilet}') == 'KASA_BAD_FORM')
+check('unknown problems are refused', err(rpc, 'kasa_ward_priority_vote', uid=v1, p_area='ward:3', p_picks='{potholes!}') == 'KASA_BAD_FORM')
+check('a bad area is refused', err(rpc, 'kasa_ward_priority_vote', uid=v1, p_area='x; drop', p_picks='{road}') == 'KASA_BAD_FORM')
+check('anyone can read the priority counts', rpc('kasa_ward_priorities', p_area='ward:3')['voters'] == 2)
+
+admin_sql("update kasa_private.stories set created_at = now() - interval '200 days', ip_hash = 'old' where id = (select min(id) from kasa_private.stories)")
+check('retention runs once a day', rpc('kasa_retention_tick')['ran'] is True and rpc('kasa_retention_tick')['ran'] is False)
+check('network hashes older than 180 days are wiped',
+      admin_sql("select count(*) from kasa_private.stories where ip_hash = 'old'")[0][0] == 0)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

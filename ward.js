@@ -110,8 +110,71 @@
     ].filter(Boolean).map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('');
     sel.value = `${area.kind}:${area.id}`;
     history.replaceState(null, '', '?' + p);
+    loadPriorities();
     render.summary = `${place}, Purulia: ${open.length} unresolved (${late.length} overdue), ${fixed.length} of ${mine.length} fixed. See every report, or report one:`;
   }
+
+  // What should be fixed first (idea from Decidim's participatory budgets): up to three problems,
+  // one vote per signed-in phone (the report map's anonymous session), counts public.
+  const PRIO = ['garbage', 'dumpsite', 'toilet', 'drain', 'road', 'streetlight', 'water', 'missing',
+                'encroachment', 'illegal_construction', 'illegal_mining', 'illegal_other'];
+  let authed = null;
+  const authClient = () => authed || (authed = window.supabase.createClient(cfg.SUPABASE_URL, cfg.SUPABASE_ANON_KEY,
+    { auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: false } }));
+  function captcha(){
+    if (!cfg.TURNSTILE_SITE_KEY) return Promise.resolve(null);
+    return new Promise((resolve, reject) => {
+      const go = () => {
+        const box = $('wd-prio-captcha'); box.hidden = false; box.innerHTML = '';
+        window.turnstile.render(box, { sitekey: cfg.TURNSTILE_SITE_KEY, action: 'kasa', appearance: 'interaction-only',
+          callback: tok => { box.hidden = true; resolve(tok); }, 'error-callback': () => { box.hidden = true; reject(new Error('check failed')); } });
+      };
+      if (window.turnstile) return go();
+      const sc = document.createElement('script');
+      sc.src = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+      sc.onload = go; sc.onerror = () => reject(new Error('check failed'));
+      document.head.appendChild(sc);
+    });
+  }
+  const areaKey = () => `${area.kind}:${area.id}`;
+  function drawPriorities(d){
+    const max = Math.max(1, ...Object.values(d.counts || {})), mine = new Set(d.mine || []);
+    $('wd-prio-list').innerHTML = PRIO.map(k => { const n = (d.counts || {})[k] || 0; return `<label>
+      <i style="width:${Math.round(n / max * 100)}%"></i><input type="checkbox" value="${k}"${mine.has(k) ? ' checked' : ''}>
+      <span>${esc(cat(k))}</span><small>${n}</small></label>`; }).join('');
+    set('wd-prio-msg', d.voters ? `${d.voters} ${d.voters === 1 ? 'person has' : 'people have'} voted` : 'No votes yet');
+  }
+  async function loadPriorities(){
+    const key = areaKey();
+    let c = sb;
+    try { const a = authClient(); const { data: { session } } = await a.auth.getSession(); if (session) c = a; } catch (e) {}
+    const { data, error } = await c.rpc('kasa_ward_priorities', { p_area: key });
+    if (key === areaKey()) drawPriorities(error ? { voters: 0, counts: {} } : data);
+  }
+  $('wd-prio-list').addEventListener('change', e => {
+    const boxes = [...$('wd-prio-list').querySelectorAll('input:checked')];
+    if (boxes.length > 3){ e.target.checked = false; set('wd-prio-msg', 'Three at most.'); }
+  });
+  $('wd-prio-form').addEventListener('submit', async e => {
+    e.preventDefault();
+    const picks = [...$('wd-prio-list').querySelectorAll('input:checked')].map(b => b.value);
+    if (!picks.length){ set('wd-prio-msg', 'Pick at least one.'); return; }
+    $('wd-prio-save').disabled = true;
+    try {
+      const a = authClient();
+      const { data: { session } } = await a.auth.getSession();
+      if (!session){
+        const tok = await captcha();
+        const { error } = await a.auth.signInAnonymously(tok ? { options: { captchaToken: tok } } : undefined);
+        if (error) throw error;
+      }
+      const { data, error } = await a.rpc('kasa_ward_priority_vote', { p_area: areaKey(), p_picks: picks });
+      if (error) throw error;
+      drawPriorities(data);
+      set('wd-prio-msg', 'Saved. Thank you.');
+    } catch (err){ set('wd-prio-msg', 'Could not save: ' + (err.details || err.message || err)); }
+    $('wd-prio-save').disabled = false;
+  });
 
   sel.addEventListener('change', () => { const [k, ...v] = sel.value.split(':'); area = { kind: k, id: k === 'ward' ? Number(v[0]) : v.join(':') }; render(); });
   $('wd-share').addEventListener('click', async () => {

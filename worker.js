@@ -53,11 +53,80 @@ async function reportPage(id, url){
   return new Response(html, { headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
 }
 
+// Open311 GeoReport v2, read-only (https://wiki.open311.org/GeoReport_v2/): GET services,
+// requests and one request, JSON only, from the public report views. No POST: a report needs a live
+// camera photo and real GPS, which only the site's own report flow checks.
+const O311_COLS = 'id,created_at,category,status,description,landmark,lat,lng,photo_url,resolved_at,resolved_photo_url';
+const json = (body, status = 200) => new Response(JSON.stringify(body), { status, headers: {
+  'Content-Type': 'application/json; charset=utf-8', 'Access-Control-Allow-Origin': '*', 'Cache-Control': 'public, max-age=300' } });
+const o311Error = (status, description) => json([{ code: status, description }], status);
+const toRequest = (r, origin) => ({
+  service_request_id: String(r.id),
+  status: r.status === 'resolved' ? 'closed' : 'open',
+  status_notes: r.status === 'resolved' ? 'Fixed, confirmed on the spot.' : null,
+  service_name: CATS[r.category] || 'Civic problem',
+  service_code: r.category,
+  description: r.description || null,
+  requested_datetime: r.created_at,
+  updated_datetime: r.resolved_at || r.created_at,
+  address: r.landmark || null,
+  lat: r.lat, long: r.lng,
+  media_url: (r.status === 'resolved' && r.resolved_photo_url) || r.photo_url || null,
+  service_notice: `${origin}/kasa.html?report=${encodeURIComponent(r.id)}`,
+});
+async function rest(path){
+  const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
+    headers: { apikey: SUPABASE_ANON_KEY, Authorization: `Bearer ${SUPABASE_ANON_KEY}` }, cf: { cacheTtl: 300, cacheEverything: true } });
+  if (!res.ok) throw new Error(`database ${res.status}`);
+  return res.json();
+}
+async function open311(path, url){
+  const fmt = path.match(/\.(json|xml)$/);
+  if (fmt && fmt[1] !== 'json') return o311Error(400, 'Only JSON is supported here.');
+  path = path.replace(/\.(json|xml)$/, '');
+  if (path === 'services') return json(Object.entries(CATS).map(([code, name]) => ({
+    service_code: code, service_name: name, description: name, metadata: false, type: 'realtime', keywords: '', group: 'civic' })));
+  if (path.startsWith('services/')) return o311Error(404, 'No extra fields: every service takes a live photo, GPS and a short note.');
+  try {
+    const one = path.match(/^requests\/([A-Za-z0-9-]{1,64})$/);
+    if (one){
+      const q = `id=eq.${encodeURIComponent(one[1])}&select=${O311_COLS}&limit=1`;
+      const rows = [...await rest(`kasa_public_reports?${q}`), ...await rest(`kasa_public_place_reports?${q}`).catch(() => [])];
+      return rows.length ? json([toRequest(rows[0], url.origin)]) : o311Error(404, 'No such request.');
+    }
+    if (path !== 'requests') return o311Error(404, 'Not found.');
+    const p = url.searchParams, f = [`select=${O311_COLS}`, 'order=created_at.desc'];
+    const day = v => v && !isNaN(Date.parse(v)) ? new Date(v).toISOString() : null;
+    const start = day(p.get('start_date')), end = day(p.get('end_date'));
+    if (start) f.push(`created_at=gte.${start}`);
+    if (end) f.push(`created_at=lte.${end}`);
+    const st = p.get('status');
+    if (st === 'open') f.push('status=neq.resolved'); else if (st === 'closed') f.push('status=eq.resolved');
+    const codes = (p.get('service_code') || '').split(',').filter(c => CATS[c]);
+    if (codes.length) f.push(`category=in.(${codes.join(',')})`);
+    if (p.get('service_request_id')) f.push(`id=in.(${p.get('service_request_id').split(',').filter(x => /^[A-Za-z0-9-]{1,64}$/.test(x)).join(',')})`);
+    // Default: the last 90 days, up to 1000 (as the spec suggests).
+    if (!start && !end && !p.get('service_request_id')) f.push(`created_at=gte.${new Date(Date.now() - 90 * 86400000).toISOString()}`);
+    const lim = Math.min(1000, Math.max(1, Number(p.get('limit')) || 1000));
+    f.push(`limit=${lim}`);
+    const q = f.join('&');
+    const rows = [...await rest(`kasa_public_reports?${q}`), ...await rest(`kasa_public_place_reports?${q}`).catch(() => [])]
+      .sort((a, b) => Date.parse(b.created_at) - Date.parse(a.created_at)).slice(0, lim);
+    return json(rows.map(r => toRequest(r, url.origin)));
+  } catch (e){ return o311Error(503, 'The report database did not answer. Please try again.'); }
+}
+
 export default {
   async fetch(request, env){
     const url = new URL(request.url);
     const m = url.pathname.match(/^\/r\/([A-Za-z0-9-]{1,64})\/?$/);
     if (m) return reportPage(m[1], url);
+    const o = url.pathname.match(/^\/open311\/v2\/(.+)$/);
+    if (o){
+      if (request.method === 'OPTIONS') return new Response(null, { headers: { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Methods': 'GET' } });
+      if (request.method !== 'GET') return o311Error(405, 'Read only: report a problem with a live photo on the site.');
+      return open311(o[1], url);
+    }
     return env.ASSETS.fetch(request);
   },
 };

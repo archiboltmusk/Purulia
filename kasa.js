@@ -443,6 +443,8 @@ async function init(){
   renderAlertsButtons();
   renderInstallButton();
   registerServiceWorker();
+  setTimeout(() => askReporter().catch(() => {}), 8000);
+  setTimeout(() => sb.rpc('kasa_retention_tick').then(() => {}, () => {}), 15000);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -973,8 +975,16 @@ const api = {
     return error ? null : (data || null);
   },
 
-  async addDocket(id, portal, number){
-    const { error } = await sb.rpc('kasa_add_docket', { p_report_id: String(id), p_portal: portal, p_number: number });
+  async addDocket(id, portal, number, filedOn){
+    const args = { p_report_id: String(id), p_portal: portal, p_number: number };
+    if (portal === 'rti' && filedOn) args.p_filed_on = filedOn;
+    const { data, error } = await sb.rpc('kasa_add_docket', args);
+    if (error) throw rpcError(error);
+    return data || {};
+  },
+
+  async setRtiStatus(docketId, key, status){
+    const { error } = await sb.rpc('kasa_set_rti_status', { p_id: Number(docketId), p_key: key, p_status: status });
     if (error) throw rpcError(error);
   },
 
@@ -2681,16 +2691,38 @@ function renderEscalate(r){
 /* Official reference numbers people got when they filed this report on a grievance portal,
    so the next person follows up the same complaint. Public; who added them is not. */
 const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
+/* RTI tracker (idea from Alaveteli): the PIO must answer within 30 days of filing (RTI Act 2005,
+   s.7(1)); a first appeal lies within 30 days after that (s.19(1)). Whoever added the number holds
+   a key on this phone to mark what happened. */
+const RTI_STATUSES = ['waiting', 'answered', 'refused', 'appealed', 'no_reply'];
+const rtiKeys = () => { try { return JSON.parse(localStorage.getItem('parishkar_rti_keys') || '{}'); } catch (e) { return {}; } };
+function saveRtiKey(id, key){ const k = rtiKeys(); k[id] = key; try { localStorage.setItem('parishkar_rti_keys', JSON.stringify(k)); } catch (e) {} }
+function rtiLineHTML(d, fmt){
+  if (!d.filed_on) return '';
+  const today = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }));
+  const left = Math.round((new Date(d.reply_due) - today) / 86400000);
+  const appealLeft = Math.round((new Date(d.appeal_by) - today) / 86400000);
+  let line;
+  if (d.status === 'waiting' || d.status === 'no_reply'){
+    line = left >= 0 ? t('rti_due', { d: fmt(d.reply_due), n: left })
+      : appealLeft >= 0 ? t('rti_late', { n: -left, d: fmt(d.appeal_by) }) : t('rti_late_appeal', { n: -left });
+  } else line = t('rti_st_' + d.status) + (d.status_at ? ' · ' + fmt(d.status_at) : '');
+  const key = rtiKeys()[d.id];
+  return `<div class="k-rti"><small>${esc(t('rti_filed', { d: fmt(d.filed_on) }))} · ${esc(line)}</small>${key ? `
+    <select data-rti-status="${esc(d.id)}" aria-label="${esc(t('rti_change'))}">${RTI_STATUSES.map(x =>
+      `<option value="${x}"${x === d.status ? ' selected' : ''}>${esc(t('rti_st_' + x))}</option>`).join('')}</select>` : ''}</div>`;
+}
 function renderDocketsHTML(r){
   const list = state.dockets.get(r.id) || [];
   const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
   const w = state.warranty.get(r.id);
   return `${w ? `<p class="k-warranty">🛠 ${esc(t('wk_under', { d: fmt(w.warranty_until) }))} <a href="works.html#work-${esc(w.id)}">${esc(t('wk_see'))}</a></p>` : ''}${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
-      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
+      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small>${d.portal === 'rti' ? rtiLineHTML(d, fmt) : ''}</li>`).join('')}</ul>` : ''}
     <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
       <form id="k-docket-form" data-report="${esc(r.id)}">
         <select id="k-docket-portal" aria-label="${esc(t('dk_where'))}">${DOCKET_PORTALS.map(p => `<option value="${p}">${esc(t('dk_' + p))}</option>`).join('')}</select>
         <input id="k-docket-number" maxlength="40" autocomplete="off" placeholder="${esc(t('dk_number'))}" aria-label="${esc(t('dk_number'))}" required>
+        <label id="k-docket-filed" hidden><small>${esc(t('rti_filed_on'))}</small> <input type="date" id="k-docket-date" max="${new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })}"></label>
         <button type="submit" class="k-btn k-btn-ghost">${esc(t('dk_save'))}</button>
       </form>
     </details>`;
@@ -2703,11 +2735,24 @@ document.addEventListener('submit', async e => {
   const id = form.dataset.report, number = document.getElementById('k-docket-number').value.trim();
   if (!number) return;
   try {
-    await api.addDocket(id, document.getElementById('k-docket-portal').value, number);
+    const res = await api.addDocket(id, document.getElementById('k-docket-portal').value, number, document.getElementById('k-docket-date')?.value || null);
+    if (res.key) saveRtiKey(res.id, res.key);
     state.dockets.set(id, await api.dockets(id));
     const r = state.byId.get(String(id)), el = document.getElementById('k-dockets');
     if (r && el) el.innerHTML = renderDocketsHTML(r);
     showToast(t('dk_saved'));
+  } catch (err){ showToast(errorText(err), 6000); }
+});
+
+document.addEventListener('change', async e => {
+  if (e.target.id === 'k-docket-portal'){ const f = document.getElementById('k-docket-filed'); if (f) f.hidden = e.target.value !== 'rti'; return; }
+  const sel = e.target.closest?.('[data-rti-status]');
+  if (!sel) return;
+  const r = state.byId.get(state.sheetId);
+  try {
+    await api.setRtiStatus(sel.dataset.rtiStatus, rtiKeys()[sel.dataset.rtiStatus], sel.value);
+    if (r){ state.dockets.set(r.id, await api.dockets(r.id)); const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    showToast(t('rti_saved'));
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
@@ -6360,6 +6405,53 @@ function askStillThere(lat, lng, accuracy){
     el.hidden = true;
     if (b.dataset.still === 'yes') handleSeen(r.id, b);
     else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+  };
+}
+
+/* "Is it fixed?" (idea from FixMyStreet's 4-week questionnaire). A reporter whose own report has
+   been open 28 days is asked once every 28 days, on this phone: fixed means photograph it (the usual
+   cleanup claim at the spot); still there opens the report at "Filed officially" to take it further.
+   Only for phones that already have a session; nothing is asked of anyone else. */
+const MINE_ASK_DAYS = 28;
+async function askReporter(){
+  if (askStillThere.done) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  const { data, error } = await sb.rpc('kasa_my_reports');
+  if (error || !data) return;
+  let asked = {};
+  try { asked = JSON.parse(localStorage.getItem('kasa_mine_asked') || '{}'); } catch (e) {}
+  const now = Date.now(), day = 86400000;
+  const r = data.map(normalize).filter(x => x.status === 'open' && !x.pending && daysSince(x.createdAt) >= MINE_ASK_DAYS
+    && !(asked[x.id] && now - asked[x.id] < MINE_ASK_DAYS * day)).sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
+  const el = document.getElementById('k-still');
+  if (!r || askStillThere.done || !el.hidden) return;
+  askStillThere.done = true;
+  asked[r.id] = now;
+  try { localStorage.setItem('kasa_mine_asked', JSON.stringify(asked)); } catch (e) {}
+  if (!state.byId.has(r.id)) state.byId.set(r.id, r);
+  el.innerHTML = `
+    ${r.photo ? `<img src="${esc(r.photo)}" alt="" data-mine-open="${esc(r.id)}">` : ''}
+    <div>
+      <div class="k-still-q">${esc(t('mine_q', { cat: t('cat_' + r.category), d: daysSince(r.createdAt) }))}</div>
+      <div class="k-still-m">${esc(placeText(r))}</div>
+      <div class="k-still-a">
+        <button type="button" class="k-still-gone" data-mine-ans="fixed">${esc(t('mine_fixed'))}</button>
+        <button type="button" class="k-still-yes" data-mine-ans="still">${esc(t('mine_still'))}</button>
+        <button type="button" data-mine-ans="later">${esc(t('still_later'))}</button>
+      </div>
+    </div>`;
+  el.hidden = false;
+  el.onclick = e => {
+    const b = e.target.closest('[data-mine-ans]');
+    if (!b && !e.target.closest('[data-mine-open]')) return;
+    el.hidden = true;
+    const a = b ? b.dataset.mineAns : 'open';
+    if (a === 'fixed') openEvidence('claim:' + r.id);
+    else if (a !== 'later'){
+      openSheet(r.id);
+      if (a === 'still') setTimeout(() => { const d = document.getElementById('k-dockets'); if (d){ d.scrollIntoView({ block: 'center' }); const det = d.querySelector('details'); if (det) det.open = true; } }, 400);
+    }
   };
 }
 
