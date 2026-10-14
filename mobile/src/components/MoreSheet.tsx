@@ -13,15 +13,14 @@ import { C, T } from './theme';
 
 /* Every website section, opened in the in-app browser so it runs the site's own code
    and server rules. Native screens replace these one by one (see mobile/PARITY.md). */
-export type MoreForm = SpotFormId | FeedbackKind;
+export type MoreForm = SpotFormId | FeedbackKind | 'school';
 type Item = [label: string, page: string, form?: MoreForm];
 const site = (items: [Key, string][]): Item[] => items.map(([k, p]) => [t(k), p]);
 
-/* Things you file from where you stand open native forms (SpotForm); the school check
-   is still the website's (UDISE search, six answers). */
+/* Things you file from where you stand open native forms (SpotForm, SchoolCheck). */
 const here = (): Item[] => [
   [st('ad_title'), '', 'adopt'], [st('fd_title'), '', 'feed'], [st('sn_title'), '', 'snake'], [st('sr_title'), '', 'rescuer'],
-  [st('pd_title'), '', 'pandal'], [st('wk_title'), '', 'work'], [t('school_check'), 'kasa.html?check=school'],
+  [st('pd_title'), '', 'pandal'], [st('wk_title'), '', 'work'], [t('school_check'), '', 'school'],
 ];
 
 const help = (): Item[] => [[t('fb_bug'), '', 'bug'], [t('fb_fix'), '', 'fix']];
