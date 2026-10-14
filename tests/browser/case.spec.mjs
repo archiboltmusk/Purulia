@@ -32,3 +32,18 @@ test('reporter mode: follow a case and see it with its days-open count', async (
   await page.locator('.cf-unfollow').click();
   await expect(page.locator('.cf-follow li')).toHaveCount(0);
 });
+
+test('a case file opens from a real report id (a UUID), in Bengali when chosen', async ({ page, backend }) => {
+  const uid = 'a7795355-b2a3-4995-9f5b-133f7c5868df';
+  const row = { id: uid, created_at: new Date(Date.now() - 2 * 86400000).toISOString(), lat: 23.332, lng: 86.3654, ward_no: 5,
+    category: 'garbage', severity: 'severe', status: 'open', upvotes: 0, sla_days: 7, gps_verified: true, reply_count: 0 };
+  await page.route(/\/rest\/v1\/kasa_public_(place_)?reports\?.*/, route => reply(route, route.request().url().includes(uid) ? [row] : []));
+  await page.route('**/rest/v1/rpc/kasa_report_dockets', route => reply(route, [{ id: 1, portal: 'rti', number: 'WBRTI/1', added: '2026-10-01',
+    filed_on: '2026-09-01', reply_due: '2026-10-01', appeal_by: '2026-10-31', status: 'waiting' }]));
+  await page.addInitScript(() => localStorage.setItem('kasa_lang', 'bn'));
+  await page.goto(`case.html?id=${uid}`);
+  await expect(page.locator('#cf-days')).toHaveText('2');
+  await expect(page.locator('#cf-days-l')).toHaveText('দিন খোলা');
+  await expect(page.locator('#cf-now')).toContainText('WBRTI/1');
+  await expect(page.locator('#cf-now')).toContainText('দিন দেরি');
+});
