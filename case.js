@@ -43,6 +43,15 @@
   const followed = () => { try { return JSON.parse(localStorage.getItem(FOLLOW_KEY) || '{}') || {}; } catch (e) { return {}; } };
   const saveFollowed = f => { try { localStorage.setItem(FOLLOW_KEY, JSON.stringify(f)); } catch (e) {} };
 
+  // Moving to another phone: case.html?follow=1,2,3 adds those cases to this device's list.
+  const take = new URLSearchParams(location.search).get('follow');
+  if (take){
+    const f = followed();
+    take.split(',').filter(x => /^\d{1,12}$/.test(x)).slice(0, 200).forEach(k => { if (!f[k]) f[k] = { at: Date.now(), seen: new Date().toISOString() }; });
+    saveFollowed(f);
+    history.replaceState(null, '', 'case.html');
+  }
+
   const id = new URLSearchParams(location.search).get('id');
   const main = $('cf-main');
   const COLS = 'id,created_at,lat,lng,ward_no,category,severity,status,description,landmark,photo_url,upvotes,seen_on_site,resolved_at,resolved_photo_url,resolution_method,sla_days,gps_verified,claim_photo_url,reply_count,area_kind,block_name,local_body,waste_type';
@@ -80,6 +89,13 @@
           <div class="cf-none">${esc(where)}${fresh ? ` · <b>${fresh} new since you last looked</b>` : ''}</div></div>
         <button type="button" class="cf-unfollow" data-id="${esc(k)}">Stop following</button></li>`;
     }).join('')}</ul>`;
+    const moveUrl = `${location.origin}${location.pathname}?follow=${ids.join(',')}`;
+    main.insertAdjacentHTML('beforeend', `<p class="cf-move">On another phone? Open this link there to follow the same cases:
+      <button type="button" class="cf-follow-btn" id="cf-move">Copy link</button></p>`);
+    $('cf-move').addEventListener('click', async () => {
+      try { await navigator.clipboard.writeText(moveUrl); $('cf-move').textContent = 'Copied'; }
+      catch (e) { prompt('Copy this link:', moveUrl); }
+    });
     main.addEventListener('click', e => {
       const b = e.target.closest('.cf-unfollow'); if (!b) return;
       const g = followed(); delete g[b.dataset.id]; saveFollowed(g); b.closest('li').remove();

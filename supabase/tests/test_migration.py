@@ -508,6 +508,10 @@ rpc('kasa_admin_moderate', uid=mod, p_report_id=str(ill['id']), p_action='approv
 check('moderator approval publishes an illegal-activity report', view_row(ill['id']) is not None)
 check('admin can read raw reports', q('select count(*) from public.reports', uid=mod)[0][0] > 0)
 queue = rpc('kasa_admin_queue', uid=mod)
+tr_r, _ = report(user(), category='illegal_other', where=offset(15000), accuracy=25.0)
+tq = next((x for x in rpc('kasa_admin_queue', uid=mod)['reports'] if str(x['id']) == str(tr_r['id'])), None)
+check('queue reports carry the facts behind the trust score',
+      tq is not None and tq['trust']['accuracy_m'] == 25 and tq['trust']['reporter_hidden'] == 0, tq and tq.get('trust'))
 check('moderation queue lists pending claims', any(str(x['id']) == str(cid6) for x in queue['claims']), queue['claims'][:1])
 fake_vote = next(x['id'] for x in next(c for c in queue['claims'] if str(c['id']) == str(cid6))['votes'] if x['vote'] == 'dispute')
 check('non-admins cannot void votes', err(rpc, 'kasa_admin_void_vote', uid=bob, p_vote_id=fake_vote, p_reason='x') == 'KASA_NOT_ADMIN')
@@ -662,6 +666,21 @@ check('nearby subscribers are alerted once; far ones and the reporter are not',
 old_r, _ = report(user(), where=offset(13000))
 admin_sql("update public.reports set created_at = now() - interval '2 hours' where id = %s", (old_r['id'],))
 check('old reports never trigger alerts', rpc('kasa_notify_targets', role='service_role', p_report_id=str(old_r['id']))['targets'] == [])
+fspot = offset(16000)
+f_user, f_ep = user(), f'https://push.example/{uuid.uuid4().hex}'
+sub(f_user, offset(200, base=fspot), endpoint=f_ep)
+check('only the owner can change alert filters',
+      err(rpc, 'kasa_push_prefs', uid=user(), p_endpoint=f_ep, p_categories='{road}', p_radius=500) == 'KASA_NOT_FOUND')
+check('unknown kinds are refused in alert filters',
+      err(rpc, 'kasa_push_prefs', uid=f_user, p_endpoint=f_ep, p_categories='{"Road!"}', p_radius=500) == 'KASA_BAD_FORM')
+rpc('kasa_push_prefs', uid=f_user, p_endpoint=f_ep, p_categories='{road}', p_radius=500)
+g_r, _ = report(user(), where=fspot)
+t3 = rpc('kasa_notify_targets', role='service_role', p_report_id=str(g_r['id']))
+check('a filtered subscriber hears nothing about other kinds', f_ep not in {x['endpoint'] for x in t3['targets']}, t3)
+rpc('kasa_push_prefs', uid=f_user, p_endpoint=f_ep, p_categories='{}', p_radius=500)
+g_r2, _ = report(user(), category='streetlight', where=offset(10, base=fspot))
+t4 = rpc('kasa_notify_targets', role='service_role', p_report_id=str(g_r2['id']))
+check('an empty filter means every kind again', f_ep in {x['endpoint'] for x in t4['targets']}, t4)
 gone_id = t1['targets'][0]['id']
 rpc('kasa_push_result', role='service_role', p_sub_id=gone_id, p_ok=False, p_gone=True)
 check('expired push subscriptions are deleted', admin_sql('select count(*) from kasa_private.push_subs where id = %s', (gone_id,))[0][0] == 0)

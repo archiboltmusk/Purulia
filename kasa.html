@@ -222,6 +222,11 @@
       <span class="k-drawer-text">Ward Accountability</span>
       <span class="k-drawer-sub" data-i18n="drawer_ward_sub">See who's responsible</span>
     </button>
+    <button type="button" class="k-drawer-item" data-checkq>
+      <span class="k-drawer-icon" aria-hidden="true">👆</span>
+      <span class="k-drawer-text" data-i18n="drawer_check">Check reports near you</span>
+      <span class="k-drawer-sub" data-i18n="drawer_check_sub">Swipe through open problems around you</span>
+    </button>
     <a class="k-drawer-item" href="communities.html">
       <span class="k-drawer-icon" aria-hidden="true">🤝</span>
       <span class="k-drawer-text" data-i18n="drawer_groups">Volunteer communities</span>
@@ -253,6 +258,8 @@
       <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
       <a href="municipality.html" class="k-drawer-link" data-i18n="nav_money">Who runs the municipality</a>
       <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
+      <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
+      <a href="compare.html" class="k-drawer-link" data-i18n="nav_compare">Compare districts</a>
       <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
       <a href="promises.html" class="k-drawer-link" data-i18n="nav_promises">Promises: who promised what</a>
       <a href="noticeboard.html" class="k-drawer-link" data-i18n="nav_noticeboard">Ask your leaders</a>
@@ -865,6 +872,13 @@
       <h4 data-i18n="notify_near_h">Problems near you</h4>
       <p data-i18n="notify_near_p">A notification when someone reports a problem within 500 m of where you are now.</p>
       <button type="button" class="k-btn k-btn-secondary k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
+      <div class="k-nt-filter" id="k-nt-filter" hidden>
+        <label class="k-nt-radius"><span data-i18n="notify_radius">How far from you</span>
+          <select id="k-nt-radius"><option value="250">250 m</option><option value="500">500 m</option><option value="1000">1 km</option><option value="2000">2 km</option></select></label>
+        <p class="k-nt-kinds-h" data-i18n="notify_kinds">Only these kinds of problem (tick none for all):</p>
+        <div class="k-nt-kinds" id="k-nt-kinds"></div>
+        <button type="button" class="k-btn k-btn-secondary" id="k-nt-save" data-i18n="notify_save">Save alert choices</button>
+      </div>
     </section>
     <section class="k-nt-item">
       <h4 data-i18n="notify_watch_h">Reports you watch</h4>
@@ -876,6 +890,17 @@
       <p data-i18n="notify_digest_p">One email every Monday with what was reported and fixed in each ward.</p>
       <button type="button" class="k-btn k-btn-secondary" data-close data-digest-open data-i18n="notify_digest_btn">✉ Get it by email</button>
     </section>
+  </div>
+</div>
+
+<div class="k-modal" id="k-cq-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-cq-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-cq-title" data-i18n="cq_title">Check reports near you</h3>
+    <p class="k-modal-sub" data-i18n="cq_sub">Open problems close to you, nearest first. Swipe right if it is still there, left to skip. If it looks fixed, say so with a live photo.</p>
+    <div id="k-cq-body"></div>
   </div>
 </div>
 
