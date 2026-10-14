@@ -43,6 +43,20 @@
             <span class="wk-small"><a href="#rti" data-rti="${esc(w.id)}">RTI request</a></span></td></tr>`).join('')}</tbody></table>`;
   }
 
+  // The puzzle: for each recorded work, which public facts are still missing. "I found it" opens the
+  // site-wide correction form (source-fix.js) with the work and the clue filled in; a link is asked for there.
+  const CLUES = [['contractor', 'Contractor'], ['work_order', 'Work order / tender no.'], ['cost', 'Cost'],
+                 ['completed_on', 'Completion date'], ['dlp_years', 'Defect liability period']];
+  const clueEl = document.getElementById('wk-clues');
+  const open = works.map(w => ({ w, missing: CLUES.filter(([k]) => w[k] == null || w[k] === '') })).filter(x => x.missing.length);
+  clueEl.innerHTML = !works.length ? '' : !open.length
+    ? '<div class="an-empty">Every recorded work here has all five facts on record.</div>'
+    : `<table class="an-table"><thead><tr><th>Work</th><th>Still missing</th><th></th></tr></thead><tbody>
+      ${open.map(({ w, missing }) => `<tr><td><a href="#work-${esc(w.id)}">${esc(w.work_name)}</a><span class="wk-small">${esc(w.agency)}</span></td>
+        <td>${missing.map(([, l]) => esc(l)).join(', ')}</td>
+        <td><button type="button" class="dg-btn" style="margin:0" data-source-fix data-what="${esc(`Works board #${w.id}, ${w.work_name} (${w.agency}): missing ${missing.map(([, l]) => l).join(', ')}`)}">I found one</button></td></tr>`).join('')}
+      </tbody></table>`;
+
   // The RTI request: RTI Act 2005, s.6(1) application, s.6(3) transfer. The items are the papers
   // clause 17 turns on: the contract's period, the measurements, the completion certificate.
   const pick = document.getElementById('wk-f-work');
