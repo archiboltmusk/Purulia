@@ -29,7 +29,7 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Area card: officials, duties, "add who's responsible" | ✓ | In-app web (full place card link) | Later |
 | Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Later |
 | Cleanup drives | Removed from the site 2026-10-08 | — | — |
-| School check (UDISE, six answers, live photo) | ✓ | In-app web (More → At this spot) | Later (block/school search + fix flows) |
+| School check (UDISE, six answers, live photo) | ✓ | Native (`SchoolCheck`: nearby + block search, answers, live photo) | Later: per-problem photos, missing school, school pin fix |
 | Snake sighting / rescuer sign-up | ✓ | Native (`SpotForm`: live photo, rescuers with call/WhatsApp) | — |
 | Dog feeding spot | ✓ | Native (`SpotForm`) | — |
 | Swachh Pandal | ✓ | Native (`SpotForm`) | — |

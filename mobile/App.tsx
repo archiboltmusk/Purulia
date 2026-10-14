@@ -15,6 +15,7 @@ import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
 import { ReportSheet } from './src/components/ReportSheet';
 import { FeedbackForm, type FeedbackKind } from './src/components/FeedbackForm';
+import { SchoolCheck } from './src/components/SchoolCheck';
 import { SpotForm, type SpotFormId } from './src/components/SpotForm';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
@@ -101,6 +102,7 @@ function Reporter() {
   const [sheetId, setSheetId] = useState<string | null>(null);
   const [sheetRefresh, setSheetRefresh] = useState(0);
   const [spotForm, setSpotForm] = useState<SpotFormId | null>(null);
+  const [school, setSchool] = useState(false);
   const [feedback, setFeedback] = useState<FeedbackKind | null>(null);
   const [evidence, setEvidence] = useState<{ mode: EvidenceMode; report: Report; rules: Rules } | null>(null);
 
@@ -254,9 +256,10 @@ function Reporter() {
       }} />}
       <MoreSheet fix={fix} visible={more} onClose={() => setMore(false)} onForm={(id) => {
         setMore(false);
-        setTimeout(() => (id === 'bug' || id === 'fix' ? setFeedback(id) : setSpotForm(id)), Platform.OS === 'ios' ? 450 : 0);
+        setTimeout(() => (id === 'bug' || id === 'fix' ? setFeedback(id) : id === 'school' ? setSchool(true) : setSpotForm(id)), Platform.OS === 'ios' ? 450 : 0);
       }} />
       {spotForm && <SpotForm id={spotForm} onClose={() => setSpotForm(null)} />}
+      {school && <SchoolCheck onClose={() => setSchool(false)} />}
       {feedback && <FeedbackForm kind={feedback} onClose={() => setFeedback(null)} />}
     </View>
   );

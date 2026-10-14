@@ -337,3 +337,37 @@ export async function spotRpc<T = any>(name: string, args: Record<string, unknow
   if (error) throw rpcError(error);
   return data as T;
 }
+
+/* ── School check (kasa.js openSchoolCheck) ── */
+export type School = { udise_code: string; name: string; panchayat: string | null; village: string | null; lat: number | null; seen_lat: number | null };
+export type Nearby = { udise_code: string; name: string; village: string | null; block_name?: string; distance_m: number; learned?: boolean };
+export type SchoolAnswers = {
+  water: boolean; toilets: boolean; boundary: boolean; electricity: boolean; mdm: boolean;
+  girls_toilet: boolean | null; meal_today: boolean | null; building: 'good' | 'needs_repair' | 'unsafe'; teachers: number | null;
+};
+
+export async function schoolBlocks(district: string): Promise<{ block: string; schools: number }[]> {
+  const { data, error } = await sb.rpc('kasa_school_blocks', { p_district: district });
+  if (error) throw rpcError(error);
+  return data ?? [];
+}
+export async function schoolsIn(district: string, block: string): Promise<School[]> {
+  const { data, error } = await sb.from('schools').select('udise_code,name,panchayat,village,lat,seen_lat')
+    .eq('block_name', block).eq('district', district).order('name').limit(1000);
+  if (error) throw rpcError(error);
+  return data ?? [];
+}
+export async function nearbySchools(fix: Fix): Promise<{ district?: string; block?: string; near: Nearby[] }> {
+  const { data, error } = await sb.rpc('kasa_nearby_schools', { p_lat: fix.lat, p_lng: fix.lng });
+  if (error) throw rpcError(error);
+  return { district: data?.district, block: data?.block, near: data?.near ?? [] };
+}
+export async function submitSchoolCheck(code: string, a: SchoolAnswers, shot: Extra, fix: Fix): Promise<{ moderation_status?: string }> {
+  const path = await spotPhoto(shot, fix);
+  return spotRpc('kasa_school_check', {
+    p_udise_code: code, p_lat: fix.lat, p_lng: fix.lng, p_accuracy: fix.accuracy,
+    p_water_ok: a.water, p_toilets_ok: a.toilets, p_boundary_ok: a.boundary, p_electricity_ok: a.electricity, p_mdm_ok: a.mdm,
+    p_building_condition: a.building, p_photo_path: path, p_client_id: randomName(16),
+    p_girls_toilet_ok: a.girls_toilet, p_meal_today_ok: a.meal_today, p_teachers_seen: a.teachers,
+  });
+}
