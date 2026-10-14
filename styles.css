@@ -1682,3 +1682,17 @@ a:focus-visible{
 [data-only][hidden],.gt-pick[hidden],#homeAbout[hidden]{display:none!important;}
 .home-about{max-width:62rem;margin:0 auto;padding:4rem 2rem;}
 .home-about .ss{margin:1rem 0 1.6rem;}
+
+/* ── Ligne claire: flat colour, one even ink line, no glows, gradients, lifts or drop shadows ── */
+nav{box-shadow:none;}
+.btn-a:hover,.btn-c:hover,.crisis-stat:hover,.mom-item:hover,.insights li:hover,.pill:hover,.gt-card:hover,.fp:hover,.spi:hover,
+.sm-card:hover,.pf-role-card:hover,.pf-role-card.pf-selected,#waFloat:hover,#btt:hover{box-shadow:none!important;transform:none!important;}
+.crisis-stat:hover,.mom-item:hover,.gt-card:hover,.fp:hover,.sm-card:hover,.pf-role-card:hover,.pill:hover{outline:1.5px solid rgba(240,230,208,.55);outline-offset:-1.5px;}
+.pill::before,.h-bg,.mf-bg,#cta::before{background:none!important;}
+#ambientGlow{display:none!important;}
+#pillars,#path-finder,.page-hd{background:var(--ink2);}
+#cta{background:var(--forest);}
+.bar-fill{background:var(--amber);} .bar-fill.green-bar{background:var(--green);}
+#cmdpal-inner{box-shadow:none;border:1.5px solid rgba(240,230,208,.55);}
+.form-input:focus,.form-select:focus,.form-textarea:focus{box-shadow:none;}
+.fs-done .fs-tl-dot,.sd-dot.sd-active{box-shadow:none;}
