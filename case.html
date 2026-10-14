@@ -101,29 +101,29 @@
 <nav class="k-nav">
   <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
   <div class="k-nav-links">
-    <a href="index.html">Home</a>
-    <a href="kasa.html">Map</a>
+    <a href="index.html" data-t="cf_nav_home">Home</a>
+    <a href="kasa.html" data-t="cf_nav_map">Map</a>
   </div>
 </nav>
 
 <main class="cf-wrap">
   <header class="cf-head">
     <div>
-      <div class="cf-no" id="cf-no">Case file</div>
-      <h1 class="cf-title" id="cf-title">Loading…</h1>
+      <div class="cf-no" id="cf-no" data-t="cf_case_file">Case file</div>
+      <h1 class="cf-title" id="cf-title" data-t="cf_loading">Loading…</h1>
       <div class="cf-where" id="cf-where"></div>
       <span class="cf-state" id="cf-state"></span>
-      <div class="cf-top-links"><a id="cf-map" href="kasa.html">Open on the map →</a><button type="button" id="cf-follow" class="cf-follow-btn" aria-pressed="false" hidden>Follow this case</button><a href="case.html">Cases you follow</a></div>
+      <div class="cf-top-links"><a id="cf-map" href="kasa.html" data-t="cf_open_on_map">Open on the map →</a><button type="button" id="cf-follow" class="cf-follow-btn" aria-pressed="false" hidden>Follow this case</button><a href="case.html" data-t="cf_follow_title">Cases you follow</a></div>
     </div>
     <div>
-      <div class="cf-counter" id="cf-counter"><b id="cf-days">—</b><small id="cf-days-l">days open</small><small id="cf-hours"></small></div>
+      <div class="cf-counter" id="cf-counter"><b id="cf-days">—</b><small id="cf-days-l" data-t="cf_days_open">days open</small><small id="cf-hours"></small></div>
       <div class="cf-sla" id="cf-sla"></div>
     </div>
   </header>
 
   <div id="cf-main"></div>
 
-  <p class="cf-foot">A case file puts what is already on the public record about one report in one place. It is evidence, not a verdict: a report is a resident's account, and a name here means only that the record links that person or office to the spot. Something wrong? Use "Suggest a correction" below. <a href="methodology.html">How it works</a></p>
+  <p class="cf-foot" data-t-html="cf_foot">A case file puts what is already on the public record about one report in one place. It is evidence, not a verdict: a report is a resident's account, and a name here means only that the record links that person or office to the spot. Something wrong? Use "Suggest a correction" below. <a href="methodology.html">How it works</a></p>
 </main>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>

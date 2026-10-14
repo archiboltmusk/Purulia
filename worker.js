@@ -14,6 +14,7 @@ const CATS = {
   water: 'Water supply / leak', missing: 'Missing or broken public property', encroachment: 'Encroachment',
   illegal_construction: 'Illegal construction', illegal_mining: 'Illegal sand / stone mining',
   illegal_other: 'Other illegal activity', other: 'Other civic problem',
+  hand_pump: 'Broken hand pump', health_centre: 'Health centre', rural_jobs: 'Rural jobs (MGNREGA) work',
 };
 const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
 
