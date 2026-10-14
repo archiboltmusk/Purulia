@@ -72,7 +72,7 @@
       <text x="26" y="34" font-family="Georgia,serif" font-size="15" font-weight="700" fill="#1a1410">${esc(place)}</text>
       <text x="${W - 30}" y="${58}" text-anchor="middle" font-family="Georgia,serif" font-size="11" font-weight="700" fill="#1a1410">N</text></svg>
       <div class="wd-key"><span><i style="background:#e0a14a"></i>waiting</span><span><i style="background:#d9534f"></i>overdue</span><span><i style="background:#5a9e5a"></i>fixed</span></div>
-      <p>Outline: ${esc(area.kind === 'ward' ? city.wardsGeojson : city.blocksGeojson)}, the boundary the report map uses. <a href="add-town.html?fix=purulia${area.kind === 'ward' ? '&ward=' + area.id : ''}">Border wrong?</a></p>`;
+      <p>Outline: ${esc(area.kind === 'ward' ? city.wardsGeojson : city.blocksGeojson)}, the boundary the report map uses. <a href="add-town.html?fix=purulia${area.kind === 'ward' ? '&amp;ward=' + encodeURIComponent(area.id) : ''}">Border wrong?</a></p>`;
   }
 
   const sel = $('wd-area');
