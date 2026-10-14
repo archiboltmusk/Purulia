@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadStories(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -1523,6 +1523,36 @@ async function loadRepReplies(){
     const { error: e2 } = await sb.rpc('kasa_admin_review_rep_reply', { p_id: Number(b.dataset.rr), p_action: b.dataset.rrAct, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadRepReplies();
+  }));
+}
+
+async function loadStories(){
+  const el = document.getElementById('adStories');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_story_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Figure</th><th>Story</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(s => `<tr>
+          <td>${esc(s.stat_label)}<br><small>${esc(s.district)}${s.place ? ' · ' + esc(s.place) : ''} · sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(s.story)}</td>
+          <td><a href="${esc(s.source_url)}" target="_blank" rel="noopener noreferrer">${esc(s.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">${s.status === 'approved'
+            ? `<span class="ad-note">Live</span> <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="remove">Remove</button>`
+            : `<button class="ad-ok" data-sto="${esc(s.id)}" data-sto-act="approve">✓ Published there, with consent</button>
+               <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="reject">✕ Reject</button>`}
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-sto]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const note = b.dataset.stoAct === 'approve' ? null : prompt('Reason (kept with the record):') || null;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_story', { p_id: Number(b.dataset.sto), p_action: b.dataset.stoAct, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadStories();
   }));
 }
 
