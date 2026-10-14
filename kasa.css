@@ -994,3 +994,13 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-slide-knob,.k-slide-fill{transition:none;}
   .k-slide.k-slide-confirm .k-slide-knob,.k-submit-steps li,.k-step-run::before,.k-done-icon,.k-chip-overdue{animation:none;}
 }
+
+/* ── Ligne claire: flat colour, one even ink line, no glows, gradients or drop shadows ── */
+:root{--line:color-mix(in srgb,var(--cream) 55%,transparent);}
+.k-social-dropdown,.k-ward-card,.k-still,.k-toast,.k-join,.maplibregl-ctrl-group{box-shadow:none!important;border:1.5px solid var(--line)!important;}
+.k-modal-sheet{box-shadow:none;border:1.5px solid var(--line);border-bottom:none;}
+.k-hero-cta,.k-map-report-btn,.k-map-report-btn:hover{box-shadow:none;transform:none;border:2px solid var(--cream);}
+.k-seen-btn,.k-slide-knob{box-shadow:none;border:1.5px solid var(--ink);}
+.k-tip{box-shadow:none;border:2px solid var(--ink);}
+.k-node-abbr{background:#a9c3ff;box-shadow:none;border:1.5px solid #1d2a66;}
+.k-node-elected .k-node-abbr{background:#f3c27d;border-color:#3a2004;}
