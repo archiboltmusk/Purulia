@@ -27,6 +27,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `bug-report.js` — "Report a bug" button on every page (load early, no defer).
 - `translate-fix.js` — "অনুবাদ ঠিক করুন" toggle (Bengali only; kasa drawer / next to page-lang switch): tap Bengali text → `kasa_suggest_translation` → `kasa_private.translation_suggestions` → admin `kasa_admin_translation_queue`/`kasa_admin_review_translation` → public `kasa_translations()` patches `KASA_I18N.bn` (ns `kasa`) / `PAGE_I18N.bn` (ns = page name). Load after the dictionaries.
 - `source-fix.js` — "Suggest a correction" for figures (loaded by `bug-report.js`, so every page gets it): foot-of-page line with the contact email (skips non-data pages, list `SKIP`), `[data-source-fix]` opens the form (`data-what` prefills), `data-doubt` on a figure adds a "source?" chip for ones not yet linked → `kasa_suggest_data_fix` → `kasa_private.data_corrections` → admin `kasa_admin_data_fix_queue`/`kasa_admin_review_data_fix` (moderator fixes the page by hand).
+- `poster.css` — Bengali-first poster headings: `<h1 data-bn="…">` shows the Bengali title above in Galada (bn page: the h1 itself). On circle, municipality, promises, noticeboard, communities; copy `data-bn` from the page's own bn translation.
 - `page-lang.js` — bn/hi for static pages via `data-t` keys. `digest-sheet.js`/`.css` — digest sign-up banner.
 - `kasa-photo-meta.js` — EXIF time/GPS/AI-marker reader. `version.js` — generated, see Changelog.
 - `sw.js` — service worker (offline queue, push). Bump `VERSION` when cached files change.
