@@ -1203,7 +1203,7 @@ Object.assign(window.KASA_I18N.en, {
   cat_rural_jobs: 'Rural jobs (MGNREGA) work',
   dk_title: 'Filed officially', dk_cpgrams: 'CPGRAMS', dk_state: 'State helpline', dk_rti: 'RTI', dk_other: 'Other office',
   dk_added: 'added {d}', dk_add: 'Filed it on a portal? Add the reference number', dk_where: 'Where you filed it',
-  dk_number: 'Reference number', dk_save: 'Add', dk_saved: 'Added. The next person can follow up the same complaint.',
+  dk_number: 'Reference number', dk_save: 'Add', dk_saved: 'Added. The next person can follow up the same complaint.', rti_filed_on: 'Date you filed the RTI', rti_filed: 'filed {d}', rti_due: 'reply due by {d} ({n} days left)', rti_late: 'reply {n} days late: first appeal by {d} (RTI Act s.19(1))', rti_late_appeal: 'reply {n} days late; the 30 days for a first appeal have passed, a second appeal goes to the Information Commission (s.19(3))', rti_change: 'What happened with this RTI?', rti_saved: 'Updated.', rti_st_waiting: 'Waiting for a reply', rti_st_answered: 'Answered', rti_st_refused: 'Refused', rti_st_appealed: 'First appeal filed', rti_st_no_reply: 'No reply', mine_q: 'Your {cat} report is {d} days old. Is it fixed?', mine_fixed: 'Fixed: I\'ll photograph it', mine_still: 'Still there: take it further',
   esc_nrega: 'Check the official work list (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: works, payments and muster rolls for each gram panchayat, to compare with what is on the ground.'
 });
 Object.assign(window.KASA_I18N.bn, {
@@ -1220,7 +1220,7 @@ Object.assign(window.KASA_I18N.bn, {
   cat_rural_jobs: '১০০ দিনের কাজ (MGNREGA)',
   dk_title: 'সরকারিভাবে জমা হয়েছে', dk_cpgrams: 'CPGRAMS', dk_state: 'রাজ্যের হেল্পলাইন', dk_rti: 'আরটিআই', dk_other: 'অন্য দপ্তর',
   dk_added: '{d} যোগ হয়েছে', dk_add: 'পোর্টালে জমা দিয়েছেন? রেফারেন্স নম্বর যোগ করুন', dk_where: 'কোথায় জমা দিয়েছেন',
-  dk_number: 'রেফারেন্স নম্বর', dk_save: 'যোগ করুন', dk_saved: 'যোগ হয়েছে। পরের জন একই অভিযোগের খোঁজ নিতে পারবেন।',
+  dk_number: 'রেফারেন্স নম্বর', dk_save: 'যোগ করুন', dk_saved: 'যোগ হয়েছে। পরের জন একই অভিযোগের খোঁজ নিতে পারবেন।', rti_filed_on: 'আরটিআই জমার তারিখ', rti_filed: '{d} জমা', rti_due: '{d}-এর মধ্যে উত্তর দেওয়ার কথা ({n} দিন বাকি)', rti_late: 'উত্তর {n} দিন দেরি: {d}-এর মধ্যে প্রথম আপিল (আরটিআই আইন ধারা ১৯(১))', rti_late_appeal: 'উত্তর {n} দিন দেরি; প্রথম আপিলের ৩০ দিন পেরিয়ে গেছে, দ্বিতীয় আপিল তথ্য কমিশনে (ধারা ১৯(৩))', rti_change: 'এই আরটিআই-এর কী হল?', rti_saved: 'বদলানো হয়েছে।', rti_st_waiting: 'উত্তরের অপেক্ষা', rti_st_answered: 'উত্তর এসেছে', rti_st_refused: 'প্রত্যাখ্যাত', rti_st_appealed: 'প্রথম আপিল করা হয়েছে', rti_st_no_reply: 'কোনো উত্তর নেই', mine_q: 'আপনার {cat} রিপোর্টের {d} দিন হল। ঠিক হয়েছে?', mine_fixed: 'ঠিক হয়েছে: ছবি তুলব', mine_still: 'এখনও আছে: আরও এগোন',
   esc_nrega: 'সরকারি কাজের তালিকা দেখুন (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: প্রতিটি গ্রাম পঞ্চায়েতের কাজ, মজুরি আর মাস্টার রোল, মাটির বাস্তবের সঙ্গে মেলাতে।'
 });
 Object.assign(window.KASA_I18N.hi, {
@@ -1237,7 +1237,7 @@ Object.assign(window.KASA_I18N.hi, {
   cat_rural_jobs: 'मनरेगा का काम',
   dk_title: 'सरकारी तौर पर दर्ज', dk_cpgrams: 'CPGRAMS', dk_state: 'राज्य हेल्पलाइन', dk_rti: 'आरटीआई', dk_other: 'दूसरा दफ़्तर',
   dk_added: '{d} को जोड़ा', dk_add: 'पोर्टल पर दर्ज किया? संदर्भ संख्या जोड़ें', dk_where: 'कहाँ दर्ज किया',
-  dk_number: 'संदर्भ संख्या', dk_save: 'जोड़ें', dk_saved: 'जुड़ गया। अगला व्यक्ति इसी शिकायत की खोज-ख़बर ले सकता है।',
+  dk_number: 'संदर्भ संख्या', dk_save: 'जोड़ें', dk_saved: 'जुड़ गया। अगला व्यक्ति इसी शिकायत की खोज-ख़बर ले सकता है।', rti_filed_on: 'आरटीआई दर्ज करने की तारीख़', rti_filed: '{d} को दर्ज', rti_due: '{d} तक जवाब देना है ({n} दिन बाक़ी)', rti_late: 'जवाब {n} दिन देर से: {d} तक पहली अपील (आरटीआई अधिनियम धारा 19(1))', rti_late_appeal: 'जवाब {n} दिन देर से; पहली अपील के 30 दिन बीत गए, दूसरी अपील सूचना आयोग में (धारा 19(3))', rti_change: 'इस आरटीआई का क्या हुआ?', rti_saved: 'बदल दिया।', rti_st_waiting: 'जवाब का इंतज़ार', rti_st_answered: 'जवाब आया', rti_st_refused: 'मना कर दिया', rti_st_appealed: 'पहली अपील दर्ज', rti_st_no_reply: 'कोई जवाब नहीं', mine_q: 'आपकी {cat} रिपोर्ट {d} दिन पुरानी है। क्या ठीक हुआ?', mine_fixed: 'ठीक हुआ: फ़ोटो लूँगा', mine_still: 'अब भी है: आगे बढ़ाएँ',
   esc_nrega: 'सरकारी काम की सूची देखें (मनरेगा)', esc_nrega_s: 'nrega.dord.gov.in: हर ग्राम पंचायत के काम, भुगतान और मस्टर रोल, ज़मीन पर जो है उससे मिलाने के लिए।'
 });
 

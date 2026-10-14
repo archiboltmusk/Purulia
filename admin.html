@@ -33,6 +33,14 @@ if ('serviceWorker' in navigator) {
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:wght@400;600;700&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <link rel="stylesheet" href="kasa.css">
 <style>
+.ad-reason{max-width:34rem;width:calc(100% - 2rem);background:var(--ink,#0a0805);color:var(--cream,#f2e9da);border:1px solid var(--border);border-radius:6px;padding:1.2rem;}
+.ad-reason::backdrop{background:rgba(0,0,0,.6);}
+.ad-reason textarea{width:100%;margin:.6rem 0;font:inherit;padding:.5rem;}
+.ad-reason-saved{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.6rem;}
+.ad-reason-saved span{display:inline-flex;border:1px solid var(--border);border-radius:4px;}
+.ad-reason-saved button{background:none;border:0;color:inherit;padding:.35rem .5rem;cursor:pointer;text-align:left;}
+.ad-reason menu{display:flex;justify-content:flex-end;gap:.6rem;padding:0;margin:.6rem 0 0;}
+.ad-reason menu .ad-btn{width:auto;min-height:0;padding:.6rem 1rem;}
 .ad-wrap{max-width:1200px;margin:0 auto;padding:2rem 1.6rem 4rem;}
 .ad-header{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:1rem;padding-bottom:1.6rem;border-bottom:1px solid var(--border);margin-bottom:2.4rem;}
 .ad-sub{font-family:var(--mono);font-size:11px;color:var(--text-lo);letter-spacing:.14em;text-transform:uppercase;margin-top:.4rem;}
