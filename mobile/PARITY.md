@@ -35,8 +35,9 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Swachh Pandal | ✓ | Native (`SpotForm`) | — |
 | Public works board (live board photo) | ✓ | Native (`SpotForm`) | — |
 | Adopt a spot | ✓ | Native (`SpotForm`) | — |
-| Nearby alerts / watch a report (web push) | ✓ | — | Batch 5 (native push) |
-| Translation fix, source correction, bug report | ✓ | In-app web | Batch 5 |
+| Nearby alerts / watch a report (web push) | ✓ | — | Needs a push-token table, an edge function that sends via APNs/FCM, and Apple/Firebase keys |
+| Bug report, suggest a correction | ✓ | Native (`FeedbackForm`, More → Help us fix things) | — |
+| Translation fix (tap Bengali text) | ✓ | Web only (needs the page's text) | — |
 
 ## Other pages
 
