@@ -35,7 +35,8 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Swachh Pandal | ✓ | Native (`SpotForm`) | — |
 | Public works board (live board photo) | ✓ | Native (`SpotForm`) | — |
 | Adopt a spot | ✓ | Native (`SpotForm`) | — |
-| Nearby alerts / watch a report (web push) | ✓ | — | Needs a push-token table, an edge function that sends via APNs/FCM, and Apple/Firebase keys |
+| Nearby alerts (web push) | ✓ | Native switch (More → Alerts near me); code done, stays off until the keys below are set | See README "Push alerts" |
+| Watch a report (`kasa-notify-watch`) | ✓ | — | After nearby alerts are live |
 | Bug report, suggest a correction | ✓ | Native (`FeedbackForm`, More → Help us fix things) | — |
 | Translation fix (tap Bengali text) | ✓ | Web only (needs the page's text) | — |
 
