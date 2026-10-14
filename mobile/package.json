@@ -39,5 +39,15 @@
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "install": {
+      "exclude": [
+        "expo",
+        "expo-crypto",
+        "expo-dev-client",
+        "expo-location"
+      ]
+    }
+  }
 }
