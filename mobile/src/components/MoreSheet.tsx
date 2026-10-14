@@ -2,13 +2,15 @@ import * as WebBrowser from 'expo-web-browser';
 import { Modal, Pressable, SectionList, StyleSheet, Text, View } from 'react-native';
 import { SITE_URL } from '../config';
 import { type Key, st, t } from '../i18n';
+import type { FeedbackKind } from './FeedbackForm';
 import type { SpotFormId } from './SpotForm';
 import { LangSwitch } from './TermsGate';
 import { C, T } from './theme';
 
 /* Every website section, opened in the in-app browser so it runs the site's own code
    and server rules. Native screens replace these one by one (see mobile/PARITY.md). */
-type Item = [label: string, page: string, form?: SpotFormId];
+export type MoreForm = SpotFormId | FeedbackKind;
+type Item = [label: string, page: string, form?: MoreForm];
 const site = (items: [Key, string][]): Item[] => items.map(([k, p]) => [t(k), p]);
 
 /* Things you file from where you stand open native forms (SpotForm); the school check
@@ -17,6 +19,8 @@ const here = (): Item[] => [
   [st('ad_title'), '', 'adopt'], [st('fd_title'), '', 'feed'], [st('sn_title'), '', 'snake'], [st('sr_title'), '', 'rescuer'],
   [st('pd_title'), '', 'pandal'], [st('wk_title'), '', 'work'], [t('school_check'), 'kasa.html?check=school'],
 ];
+
+const help = (): Item[] => [[t('fb_bug'), '', 'bug'], [t('fb_fix'), '', 'fix']];
 
 const SECTIONS: { title: Key; items: [Key, string][] }[] = [
   { title: 'grp_places', items: [['sec_kasa', 'kasa.html'], ['sec_ward', 'ward.html'], ['sec_districts', 'districts.html'], ['sec_data', 'data.html']] },
@@ -34,8 +38,8 @@ export function openSite(page: string) {
   }).catch(() => {});
 }
 
-export function MoreSheet({ visible, onClose, onForm }: { visible: boolean; onClose: () => void; onForm: (id: SpotFormId) => void }) {
-  const data = [{ title: 'grp_here' as Key, data: here() }, ...SECTIONS.map((g) => ({ title: g.title, data: site(g.items) }))];
+export function MoreSheet({ visible, onClose, onForm }: { visible: boolean; onClose: () => void; onForm: (id: MoreForm) => void }) {
+  const data = [{ title: 'grp_here' as Key, data: here() }, ...SECTIONS.map((g) => ({ title: g.title, data: site(g.items) })), { title: 'grp_help' as Key, data: help() }];
   return (
     <Modal visible={visible} animationType="slide" onRequestClose={onClose} presentationStyle="pageSheet">
       <View style={s.wrap}>
