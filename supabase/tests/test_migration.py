@@ -181,7 +181,7 @@ check('anon/authenticated cannot write to any public table directly', not open_g
 anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace "
                                           "and p.prosecdef and has_function_privilege('anon', p.oid, 'execute')"))
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
+      set(anon_fns) <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -543,7 +543,7 @@ if LEGACY:
 open_definers = admin_sql("""select p.proname from pg_proc p where p.pronamespace = 'public'::regnamespace and p.prosecdef
   and has_function_privilege('anon', p.oid, 'execute') order by 1""")
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -2774,6 +2774,29 @@ aw = rpc('kasa_asset_works', p_asset_id=aid)
 check('only verified live-photo GPS reports count against an asset and its DLP',
       aw['verified_reports'] == 1 and aw['verified_open'] == 1 and {w['id']: w for w in aw['works']}[w1]['verified_reports_in_dlp'] == 1, aw)
 check('director records are not exposed', refused(err(q, 'select * from kasa_private.contractor_directors', uid=user())))
+
+# ── "Behind the numbers" stories on data.html ───────────────────────────────
+def send_story(ip='10.97.0.1', **kw):
+    args = dict(p_district='purulia', p_stat_label='Anaemia in women', p_place='Bagmundi block',
+                p_story='She walked four kilometres to the health centre twice in her last month and was sent home both times without iron tablets.',
+                p_source_url='https://example.org/story', p_consent=True)
+    args.update(kw)
+    return rpc('kasa_submit_story', ip=ip, **args)
+check('a story needs the person\'s consent', err(send_story, p_consent=False) == 'KASA_BAD_FORM')
+check('a story needs the link where it was published', err(send_story, p_source_url='nowhere') == 'KASA_BAD_FORM')
+check('a story needs real text', err(send_story, p_story='too short') == 'KASA_BAD_FORM')
+check('anyone can send a story; it waits for a moderator', send_story() == {'ok': True, 'status': 'pending'})
+check('nothing shows before a moderator approves', rpc('kasa_stories', p_district='purulia') == [])
+check('the public cannot read waiting stories', refused(err(q, 'select * from kasa_private.stories')))
+check('non-admins cannot see the story queue', err(rpc, 'kasa_admin_story_queue', uid=user()) == 'KASA_NOT_ADMIN')
+sq_ = [x for x in rpc('kasa_admin_story_queue', uid=mod) if x['status'] == 'pending']
+check('moderators see the source, not the network', len(sq_) >= 1 and all(x['source_url'] and 'ip_hash' not in x for x in sq_), sq_)
+rpc('kasa_admin_review_story', uid=mod, p_id=sq_[0]['id'], p_action='approve')
+st = rpc('kasa_stories', p_district='purulia')
+check('an approved story shows unchanged with its link', len(st) == 1 and st[0]['story'] == sq_[0]['story'] and st[0]['source_url'], st)
+check('stories stay with their district', rpc('kasa_stories', p_district='bankura') == [])
+rpc('kasa_admin_review_story', uid=mod, p_id=sq_[0]['id'], p_action='remove', p_note='person asked')
+check('a removed story leaves the page', rpc('kasa_stories', p_district='purulia') == [])
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')
