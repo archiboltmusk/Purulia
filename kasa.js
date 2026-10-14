@@ -2552,12 +2552,19 @@ function renderRepliesHTML(r){
 
 function beforeAfter(before, after){
   if (!after) return '';
+  // Same spot, then and now: drag across one frame instead of comparing two thumbnails.
   return `
-    <div class="k-ba">
-      <figure><img src="${esc(before)}" alt="" loading="lazy"><figcaption>${esc(t('pn_before'))}</figcaption></figure>
-      <figure><img src="${esc(after)}" alt="" loading="lazy"><figcaption class="k-green">${esc(t('pn_after'))}</figcaption></figure>
+    <div class="k-ba k-ba-slider" style="--cut:50%">
+      <img src="${esc(before)}" alt="${esc(t('pn_before'))}" loading="lazy">
+      <img class="k-ba-after" src="${esc(after)}" alt="${esc(t('pn_after'))}" loading="lazy">
+      <input type="range" min="0" max="100" value="50" aria-label="${esc(t('pn_before'))} / ${esc(t('pn_after'))}">
+      <span class="k-ba-tag k-ba-tag-l">${esc(t('pn_before'))}</span><span class="k-ba-tag k-ba-tag-r k-green">${esc(t('pn_after'))}</span>
     </div>`;
 }
+document.addEventListener('input', e => {
+  const s = e.target.closest?.('.k-ba-slider');
+  if (s) s.style.setProperty('--cut', e.target.value + '%');
+});
 
 /* Another West Bengal place: only its municipal body and its own complaint form are named.
    Its officers and representatives are not on record here, so none are shown. */
