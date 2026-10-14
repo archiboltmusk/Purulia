@@ -126,8 +126,10 @@
     document.getElementById('dg-empty').hidden = !quiet;
     document.getElementById('dg-tiles').hidden = quiet;
     document.getElementById('dg-grid').hidden = quiet;
-    if (quiet) document.getElementById('dg-empty').innerHTML =
-      `Nothing was reported in ${esc(place)} this ${U}. See a problem there? <a href="kasa.html">Report it — it takes 30 seconds.</a>`;
+    if (quiet){
+      const say = `A quiet ${U} in ${esc(place)}: nothing was reported. See a problem there? <a href="kasa.html">Report it, it takes 30 seconds.</a>`;
+      document.getElementById('dg-empty').innerHTML = window.MITU ? window.MITU.guide(say) : say;
+    }
 
     document.getElementById('dg-next').disabled = start >= (monthly ? thisMonth : thisWeek);
     // Promises (whole district; they belong to named leaders, not a ward). Month view only.

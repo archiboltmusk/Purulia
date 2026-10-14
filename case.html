@@ -84,15 +84,9 @@
   .cf-quote::after,.cf-panel blockquote::after{content:'';position:absolute;left:22px;bottom:-11px;width:16px;height:16px;background:#f3ead6;border-right:2px solid #1a1410;border-bottom:2px solid #1a1410;transform:skewX(-30deg) rotate(45deg) scale(.8);}
   .cf-panel blockquote small{display:block;margin-top:.3rem;font-family:var(--mono);font-size:11px;color:#5a4a3a !important;}
   .cf-panel blockquote a{color:#8a4b0f;}
-  /* Mitu (reporter) and Bhulu (a desi dog): the guide on empty pages only. */
-  .cf-guide{display:grid;grid-template-columns:150px 1fr;gap:1rem;align-items:end;margin-top:1.6rem;max-width:640px;}
-  .cf-guide svg{width:150px;height:auto;display:block;}
-  .cf-guide .cf-quote{margin:0 0 3.2rem;font-size:1rem;}
-  .cf-guide .cf-quote::after{left:-12px;bottom:14px;transform:skewY(-30deg) rotate(45deg) scale(.8);border-right:0;border-top:0;border-left:2px solid #1a1410;border-bottom:2px solid #1a1410;}
-  .cf-guide .cf-quote a{color:#8a4b0f;}
   .cf-foot{margin-top:2.4rem;font-size:.85rem;color:var(--text-md);line-height:1.6;}
   .cf-foot a{color:var(--amber);}
-  @media(max-width:600px){.cf-guide{grid-template-columns:96px 1fr;}.cf-guide svg{width:96px;}.cf-head{grid-template-columns:1fr;}.cf-counter{justify-self:start;}.cf-panel{grid-template-columns:1fr;gap:.5rem;}}
+  @media(max-width:600px){.cf-head{grid-template-columns:1fr;}.cf-counter{justify-self:start;}.cf-panel{grid-template-columns:1fr;gap:.5rem;}}
 </style>
 <script src="bug-report.js"></script>
 </head>
@@ -113,7 +107,7 @@
       <h1 class="cf-title" id="cf-title" data-t="cf_loading">Loading…</h1>
       <div class="cf-where" id="cf-where"></div>
       <span class="cf-state" id="cf-state"></span>
-      <div class="cf-top-links"><a id="cf-map" href="kasa.html" data-t="cf_open_on_map">Open on the map →</a><button type="button" id="cf-follow" class="cf-follow-btn" aria-pressed="false" hidden>Follow this case</button><a href="case.html" data-t="cf_follow_title">Cases you follow</a></div>
+      <div class="cf-top-links"><a id="cf-map" href="kasa.html" data-t="cf_open_on_map">Open on the map →</a><button type="button" id="cf-follow" class="cf-follow-btn" aria-pressed="false" hidden>Follow this case</button><button type="button" id="cf-cover" class="cf-follow-btn" hidden>Save the cover</button><a href="case.html" data-t="cf_follow_title">Cases you follow</a></div>
     </div>
     <div>
       <div class="cf-counter" id="cf-counter"><b id="cf-days">—</b><small id="cf-days-l" data-t="cf_days_open">days open</small><small id="cf-hours"></small></div>
@@ -130,6 +124,7 @@
 <script defer src="config.js"></script>
 <script defer src="city.js"></script>
 <script defer src="kasa-i18n.js"></script>
+<script defer src="mitu.js"></script>
 <script defer src="case.js"></script>
 </body>
 </html>

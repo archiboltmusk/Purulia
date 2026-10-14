@@ -68,6 +68,19 @@
   .wd-list li small.wd-late{color:#d9534f;}
   .wd-empty{margin-bottom:1.4rem;padding:2rem 1.6rem;border:1px dashed var(--border2,var(--border));border-radius:6px;font-family:var(--serif);font-size:1.25rem;color:var(--cream);line-height:1.5;}
   .wd-empty a{color:var(--amber);}
+  .wd-chapters{list-style:none;margin-top:1rem;display:grid;gap:.7rem;}
+  .wd-chapters li{display:grid;grid-template-columns:44px 1fr auto;gap:.8rem;align-items:center;}
+  .wd-chap-n{width:40px;height:40px;display:grid;place-items:center;border:2px solid var(--cream);border-radius:50%;font-family:var(--serif);font-weight:700;color:var(--cream);}
+  .wd-chapters b{display:block;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+  .wd-chapters small{color:var(--text-md);font-size:.84rem;}
+  .wd-chap-bar{grid-column:2 / -1;height:8px;border:2px solid var(--cream);border-radius:2px;}
+  .wd-chap-bar i{display:block;height:100%;background:var(--cream);}
+  .wd-chap-c{font-family:var(--mono);font-size:12px;color:var(--text-hi);white-space:nowrap;}
+  .wd-endpaper svg{display:block;width:100%;height:auto;margin-top:1rem;border:2px solid var(--cream);border-radius:4px;}
+  .wd-endpaper .wd-key{display:flex;flex-wrap:wrap;gap:.3rem 1rem;margin-top:.6rem;font-family:var(--mono);font-size:11px;color:var(--text-md);}
+  .wd-key i{display:inline-block;width:10px;height:10px;border:2px solid #1a1410;border-radius:50%;margin-right:.35rem;vertical-align:-1px;}
+  .wd-endpaper p{margin-top:.5rem;font-size:.8rem;color:var(--text-lo);}
+  .wd-endpaper p a{color:var(--amber);}
   .wd-links{display:flex;flex-wrap:wrap;gap:.5rem 1.4rem;margin-top:1.4rem;font-family:var(--mono);font-size:12px;}
   .wd-links a{color:var(--amber);}
 .wd-prio{margin:1.4rem 0;}
@@ -131,6 +144,16 @@
   </section>
 
   <div class="an-grid" id="wd-grid">
+    <section class="an-card">
+      <h2>The story so far</h2>
+      <p class="an-card-sub">Every report here goes through four chapters. Each count comes from the public record.</p>
+      <ol class="wd-chapters" id="wd-chapters"></ol>
+    </section>
+    <section class="an-card">
+      <h2>Map of the area</h2>
+      <p class="an-card-sub">Every report at its GPS spot. Tap a dot for its case file.</p>
+      <div class="wd-endpaper" id="wd-endpaper"></div>
+    </section>
     <section class="an-card an-span">
       <h2 data-t="w21">Waiting to be fixed</h2>
       <p class="an-card-sub" data-t="w22">Overdue first, then the longest waiting.</p>
@@ -170,6 +193,7 @@
 <script defer src="config.js"></script>
 <script defer src="city.js"></script>
 <script defer src="kasa-i18n.js"></script>
+<script defer src="mitu.js"></script>
 <script defer src="ward.js"></script>
 </body>
 </html>
