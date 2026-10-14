@@ -78,9 +78,20 @@
   .cf-follow-days small{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
   .cf-follow .cf-state{margin:0 0 0 .4rem;}
   .cf-unfollow{background:none;border:0;color:var(--text-md);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer;}
+  /* Speech balloons: only for words someone actually said or wrote (the report text, a leader's reply, an office reply), shown unedited. */
+  .cf-quote,.cf-panel blockquote{position:relative;margin:.6rem 0 1.1rem;padding:.7rem 1rem;background:#f3ead6;color:#1a1410 !important;border:2px solid #1a1410;border-radius:18px;font-family:var(--serif);font-style:normal;font-size:1.08rem;line-height:1.45;}
+  .cf-quote::after,.cf-panel blockquote::after{content:'';position:absolute;left:22px;bottom:-11px;width:16px;height:16px;background:#f3ead6;border-right:2px solid #1a1410;border-bottom:2px solid #1a1410;transform:skewX(-30deg) rotate(45deg) scale(.8);}
+  .cf-panel blockquote small{display:block;margin-top:.3rem;font-family:var(--mono);font-size:11px;color:#5a4a3a !important;}
+  .cf-panel blockquote a{color:#8a4b0f;}
+  /* Mitu (reporter) and Bhulu (a desi dog): the guide on empty pages only. */
+  .cf-guide{display:grid;grid-template-columns:150px 1fr;gap:1rem;align-items:end;margin-top:1.6rem;max-width:640px;}
+  .cf-guide svg{width:150px;height:auto;display:block;}
+  .cf-guide .cf-quote{margin:0 0 3.2rem;font-size:1rem;}
+  .cf-guide .cf-quote::after{left:-12px;bottom:14px;transform:skewY(-30deg) rotate(45deg) scale(.8);border-right:0;border-top:0;border-left:2px solid #1a1410;border-bottom:2px solid #1a1410;}
+  .cf-guide .cf-quote a{color:#8a4b0f;}
   .cf-foot{margin-top:2.4rem;font-size:.85rem;color:var(--text-md);line-height:1.6;}
   .cf-foot a{color:var(--amber);}
-  @media(max-width:600px){.cf-head{grid-template-columns:1fr;}.cf-counter{justify-self:start;}.cf-panel{grid-template-columns:1fr;gap:.5rem;}}
+  @media(max-width:600px){.cf-guide{grid-template-columns:96px 1fr;}.cf-guide svg{width:96px;}.cf-head{grid-template-columns:1fr;}.cf-counter{justify-self:start;}.cf-panel{grid-template-columns:1fr;gap:.5rem;}}
 </style>
 <script src="bug-report.js"></script>
 </head>
