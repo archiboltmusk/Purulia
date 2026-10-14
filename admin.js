@@ -341,6 +341,36 @@ function photoMetaText(m){
   return bits.join(' · ');
 }
 
+/* One trust hint per report, with every reason that moved it, like a ranked list that shows its
+   working. A hint for the moderator only: never stored, never shown to the public, never decides. */
+function trustScore(r){
+  const why = [], hit = (pts, text) => why.push({ pts, text });
+  const m = r.moderation_labels?.photo, t = r.trust || {};
+  if (!m || !m.capture || m.capture === 'none') hit(-15, 'no photo metadata sent');
+  else if (m.capture === 'file') hit(-40, 'photo from the gallery, not the live camera');
+  else hit(0, 'live camera photo');
+  if (m?.ai_edited) hit(-40, 'photo marked AI-edited');
+  if (m?.exif_distance_m != null && m.exif_distance_m > 100) hit(-25, `photo GPS ${m.exif_distance_m} m from the spot`);
+  if (m?.gps_checked === false) hit(-15, 'photo has no GPS of its own');
+  if (m?.taken_minutes_ago != null && m.taken_minutes_ago > 30) hit(-10, `taken ${m.taken_minutes_ago} min before upload`);
+  if (t.accuracy_m != null) t.accuracy_m > 30 ? hit(-10, `phone GPS accurate only to ${t.accuracy_m} m`) : hit(0, `phone GPS within ${t.accuracy_m} m`);
+  if (t.near_same_m != null && t.near_same_m <= 50) hit(-10, `same kind of report already open ${t.near_same_m} m away (maybe a duplicate)`);
+  if (t.reporter_hidden) hit(-20 * Math.min(2, t.reporter_hidden), `${t.reporter_hidden} earlier report${t.reporter_hidden > 1 ? 's' : ''} by this person hidden`);
+  if (t.reporter_public >= 3) hit(10, `${t.reporter_public} earlier reports by this person published`);
+  if (r.flags) hit(-10 * Math.min(3, r.flags), `flagged ${r.flags}×`);
+  if (r.moderation_labels?.text) hit(-10, 'text needs review');
+  const score = Math.max(0, Math.min(100, 100 + why.reduce((s, x) => s + x.pts, 0)));
+  return { score, why };
+}
+
+function trustHTML(r){
+  const { score, why } = trustScore(r);
+  const tone = score >= 75 ? 'ad-trust-hi' : score >= 45 ? 'ad-trust-mid' : 'ad-trust-lo';
+  return `<details class="ad-trust ${tone}"><summary>Trust hint ${score}/100</summary><ul>${why.map(w =>
+    `<li><b>${w.pts > 0 ? '+' + w.pts : w.pts || '±0'}</b> ${esc(w.text)}</li>`).join('')}</ul>
+    <small>Starts at 100. A hint from what the phone and the record say, not a verdict: look at the photo.</small></details>`;
+}
+
 function renderModeration(q){
   document.getElementById('adModNote').textContent =
     'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, void an obviously fake confirmation or dispute, or clear a photo held because its location data was far from the spot. Every action is published in the report\'s evidence trail with the reason you give.';
@@ -358,6 +388,7 @@ function renderModeration(q){
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
             ${r.moderation_labels?.text ? ' · text needs review: ' + esc(r.moderation_labels.text) : ''}
             ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.suggested_category ? ' → ' + esc(f.suggested_category) : '') + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
+          ${trustHTML(r)}
         </div>
         <div class="ad-actions">
           <button class="ad-ok" data-mod="approve" data-id="${esc(r.id)}">✓ Publish / keep</button>
