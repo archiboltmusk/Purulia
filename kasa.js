@@ -3201,6 +3201,87 @@ function openContact(spec){
 }
 
 /* ══════════════════════════════════════════════════════════
+   CHECK NEARBY — open reports around you, one card at a time
+   ══════════════════════════════════════════════════════════ */
+const CQ_RADIUS = 1500;
+let cq = null;
+
+async function openCheckQueue(){
+  openModal('k-cq-modal');
+  const body = document.getElementById('k-cq-body');
+  body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_locating'))}</p>`;
+  const pos = await getPosition({ want: 200, timeout: 12000 }).catch(() => null);
+  if (!pos){ body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_need_location'))}</p>`; return; }
+  const list = primaries().filter(r => r.status !== 'resolved' && !r.pending && !state.seen.has(r.id))
+    .map(r => ({ r, d: distanceM(pos.lat, pos.lng, r.lat, r.lng) }))
+    .filter(x => x.d <= CQ_RADIUS).sort((a, b) => a.d - b.d).slice(0, 30);
+  cq = { pos, list, i: 0, done: 0 };
+  renderCheckCard();
+}
+
+function renderCheckCard(){
+  const body = document.getElementById('k-cq-body');
+  const x = cq && cq.list[cq.i];
+  if (!x){
+    body.innerHTML = `<p class="k-cq-empty">${esc(t(cq.list.length ? 'cq_done' : 'cq_none', { n: cq.done, km: CQ_RADIUS / 1000 }))}</p>`;
+    return;
+  }
+  const r = x.r, c = CATEGORIES[r.category];
+  const days = Math.max(0, Math.floor((Date.now() - new Date(r.createdAt)) / 86400000));
+  const claimed = r.status === 'claimed' && r.claim && state.mode === 'v2';
+  body.innerHTML = `<div class="k-cq-card" id="k-cq-card">
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="" draggable="false">` : `<div class="k-cq-noimg">${c.icon}</div>`}
+      <div class="k-cq-info"><b>${c.icon} ${esc(t('cat_' + r.category))}</b>
+        ${r.landmark || r.address ? `<span>${esc(r.landmark || r.address)}</span>` : ''}
+        <span>${esc(t('cq_meta', { m: Math.round(x.d), d: days }))}${claimed ? ' · ' + esc(t('cq_claimed')) : ''}</span></div>
+      <div class="k-cq-count">${cq.i + 1} / ${cq.list.length}</div>
+    </div>
+    <div class="k-cq-actions">
+      <button type="button" class="k-act" data-cq="skip">← ${esc(t('cq_skip'))}</button>
+      <button type="button" class="k-act" data-cq="open">${esc(t('cq_open'))}</button>
+      <button type="button" class="k-act k-act-verify" data-cq="fixed">${ICON_CHECK} ${esc(t(claimed ? 'cq_confirm' : 'cq_fixed'))}</button>
+      <button type="button" class="k-act k-act-again" data-cq="there">${esc(t('cq_there'))} →</button>
+    </div>`;
+  // Swipe right = still there, left = skip. Buttons do the same for keyboards and screen readers.
+  const card = document.getElementById('k-cq-card');
+  let x0 = null;
+  card.addEventListener('pointerdown', e => { x0 = e.clientX; card.setPointerCapture(e.pointerId); });
+  card.addEventListener('pointermove', e => { if (x0 != null) card.style.transform = `translateX(${e.clientX - x0}px) rotate(${(e.clientX - x0) / 30}deg)`; });
+  const end = e => {
+    if (x0 == null) return;
+    const dx = e.clientX - x0; x0 = null; card.style.transform = '';
+    if (dx > 80) checkQueueAction('there'); else if (dx < -80) checkQueueAction('skip');
+  };
+  card.addEventListener('pointerup', end);
+  card.addEventListener('pointercancel', () => { x0 = null; card.style.transform = ''; });
+}
+
+async function checkQueueAction(kind){
+  const x = cq && cq.list[cq.i];
+  if (!x) return;
+  const r = x.r;
+  if (kind === 'skip'){ cq.i++; return renderCheckCard(); }
+  if (kind === 'open'){ closeModal('k-cq-modal'); return openSheet(r.id); }
+  if (kind === 'fixed'){
+    closeModal('k-cq-modal');
+    return openEvidence((r.status === 'claimed' && r.claim ? 'verify:' : 'claim:') + r.id);
+  }
+  if (kind !== 'there') return;
+  document.querySelectorAll('#k-cq-body button').forEach(b => { b.disabled = true; });
+  try {
+    const res = await api.markSeen(r, cq.pos);
+    state.seen.add(r.id);
+    try { localStorage.setItem('kasa_seen', JSON.stringify([...state.seen])); } catch (e) {}
+    if (res.counted){ r.seen += 1; cq.done++; }
+    showToast(t(res.counted ? 'seen_done' : res.reason === 'own_report' ? 'seen_own' : 'seen_dup'));
+  } catch (e){
+    showToast(errorText(e));
+  }
+  cq.i++;
+  renderCheckCard();
+}
+
+/* ══════════════════════════════════════════════════════════
    ON-SITE EVIDENCE — claim a cleanup, confirm it, dispute it
    ══════════════════════════════════════════════════════════ */
 function openEvidence(spec){
@@ -5665,6 +5746,45 @@ function renderNotify(){
   const c = document.getElementById('k-nt-count');
   c.hidden = !watching;
   c.textContent = t('notify_watching', { n: watching });
+  renderAlertFilter();
+}
+
+/* Narrow nearby alerts to some kinds of problem and a distance (kasa_push_prefs).
+   The last choice is kept on this device so the sheet shows it again. */
+function alertPrefs(){
+  try { return JSON.parse(localStorage.getItem('kasa_alert_prefs') || 'null') || { radius: 500, cats: [] }; } catch (e) { return { radius: 500, cats: [] }; }
+}
+
+function renderAlertFilter(){
+  const box = document.getElementById('k-nt-filter');
+  if (!box) return;
+  box.hidden = !alertsOn();
+  if (box.hidden) return;
+  const p = alertPrefs();
+  document.getElementById('k-nt-radius').value = String(p.radius || 500);
+  document.getElementById('k-nt-kinds').innerHTML = Object.keys(CATEGORIES).map(k =>
+    `<label class="k-nt-kind"><input type="checkbox" value="${esc(k)}"${p.cats.includes(k) ? ' checked' : ''}> ${CATEGORIES[k].icon} ${esc(t('cat_' + k))}</label>`).join('');
+  document.getElementById('k-nt-save').onclick = saveAlertPrefs;
+}
+
+async function saveAlertPrefs(){
+  const btn = document.getElementById('k-nt-save');
+  const p = { radius: Number(document.getElementById('k-nt-radius').value) || 500,
+    cats: [...document.querySelectorAll('#k-nt-kinds input:checked')].map(i => i.value) };
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) throw new KasaError('alerts_need_location');
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_push_prefs', { p_endpoint: sub.endpoint, p_categories: p.cats, p_radius: p.radius });
+    if (error) throw rpcError(error);
+    try { localStorage.setItem('kasa_alert_prefs', JSON.stringify(p)); } catch (e) {}
+    showToast(t('notify_saved'));
+  } catch (e){
+    showToast(errorText(e), 6000);
+  }
+  btn.disabled = false;
 }
 
 function openNotify(){
@@ -5702,10 +5822,12 @@ async function toggleAlerts(btn){
       const j = sub.toJSON();
       const { error } = await sb.rpc('kasa_push_subscribe', {
         p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth,
-        p_lat: pos.lat, p_lng: pos.lng, p_radius: 500, p_lang: state.lang
+        p_lat: pos.lat, p_lng: pos.lng, p_radius: alertPrefs().radius || 500, p_lang: state.lang
       });
       if (error) throw rpcError(error);
       try { localStorage.setItem('kasa_alerts', '1'); } catch (e) {}
+      const prefs = alertPrefs();
+      if (prefs.cats.length) await sb.rpc('kasa_push_prefs', { p_endpoint: j.endpoint, p_categories: prefs.cats, p_radius: prefs.radius });
       showToast(t('alerts_on'), 5000);
     }
   } catch (e){
@@ -5868,7 +5990,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -5926,6 +6048,8 @@ function wireUI(){
     if (d.geojson) return downloadGeoJSON(d.geojson);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
+    if ('checkq' in d){ setDrawer(false); return openCheckQueue(); }
+    if (d.cq) return checkQueueAction(d.cq);
     if (d.profile) return openRepProfile(d.profile);
     if (d.repMap){ e.preventDefault(); const [k, n] = d.repMap.split(':'); return showSeatOnMap(k, n); }
     if (d.repShare){

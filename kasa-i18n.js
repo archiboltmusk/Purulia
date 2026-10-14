@@ -149,7 +149,7 @@ window.KASA_I18N = {
     rc_done: 'Thank you. A moderator will check the figures against your picture, then they go on the schools page.',
     err_KASA_BAD_YEAR: 'Choose the year printed on the report card.', err_KASA_CARD_EMPTY: 'Enter at least one figure from the report card.',
     ns_open: 'School not on the list? Add it', ns_title: 'Add a missing school', ns_sub: 'Stand at the school. A moderator checks the photo and finds its UDISE code before it goes on the list.', ns_photo: 'Photo of the gate or name board', ns_photo_hint: "The school's name must be readable in the photo. No faces, please.", ns_name: 'School name, as on the board', ns_village_ph: 'Village or para', ns_udise_ph: 'UDISE code, if written on the board (11 digits)', ns_submit: 'Send for checking', ns_done: 'Thank you. A moderator will check the photo and add the school to the list.', err_KASA_SCHOOL_EXISTS: 'That school is already on the list. Search for it by name or village.',
-    sc_submit: 'Save the school check', sc_see_all: "See every school's checks →", nav_school_check: '🏫 Check a school', nav_schools: 'Schools', nav_adopt: '🤝 Adopt this spot', nav_adopted: 'Adopted spots', nav_waste: 'Where the waste goes', nav_money: 'Who runs the municipality', nav_tax: 'Tax and spending', wc_money: 'Who decides and where the money goes →', nav_toilets: 'Public toilets',
+    sc_submit: 'Save the school check', sc_see_all: "See every school's checks →", nav_school_check: '🏫 Check a school', nav_schools: 'Schools', nav_adopt: '🤝 Adopt this spot', nav_adopted: 'Adopted spots', nav_waste: 'Where the waste goes', nav_money: 'Who runs the municipality', nav_tax: 'Tax and spending', nav_calendar: 'Civic calendar', nav_compare: 'Compare districts', wc_money: 'Who decides and where the money goes →', nav_toilets: 'Public toilets',
     sc_q_water: 'Drinking water available?', sc_q_toilets: 'Toilets usable?', sc_q_boundary: 'Boundary wall standing?', sc_q_electricity: 'Electricity working?',
     sc_q_mdm: 'Mid-day meal kitchen and utensils?', sc_q_girls_toilet: "Separate girls' toilet usable?", sc_q_meal_today: 'Mid-day meal cooked today?', sc_q_teachers: 'How many teachers did you see teaching? (optional)', sc_teachers_ph: 'Leave blank if you did not count', sc_cant_tell: "Can't tell", err_KASA_BAD_TEACHERS: 'Enter how many teachers you saw, from 0 to 200.', sc_q_building: 'Building', sc_yes: 'Yes', sc_no: 'No', sc_good: 'Good', sc_repair: 'Needs repair', sc_unsafe: 'Unsafe',
     sc_loc_ok: '✓ Location found (±{a} m)', sc_done: 'School check saved. It is on the school’s public record now.',
@@ -467,7 +467,7 @@ window.KASA_I18N = {
     rc_done: 'ধন্যবাদ। একজন মডারেটর আপনার ছবির সঙ্গে সংখ্যাগুলো মিলিয়ে দেখবেন, তারপর সেগুলো স্কুলের পাতায় যাবে।',
     err_KASA_BAD_YEAR: 'রিপোর্ট কার্ডে ছাপা বছরটি বেছে নিন।', err_KASA_CARD_EMPTY: 'রিপোর্ট কার্ড থেকে অন্তত একটি সংখ্যা লিখুন।',
     ns_open: 'তালিকায় স্কুলটি নেই? যোগ করুন', ns_title: 'বাদ পড়া স্কুল যোগ করুন', ns_sub: 'স্কুলে দাঁড়িয়ে পাঠান। একজন মডারেটর ছবি দেখে স্কুলের UDISE কোড খুঁজে তালিকায় যোগ করবেন।', ns_photo: 'গেট বা নামফলকের ছবি', ns_photo_hint: 'ছবিতে স্কুলের নাম পড়া যেতে হবে। কারও মুখ নয়।', ns_name: 'বোর্ডে যেমন লেখা, স্কুলের নাম', ns_village_ph: 'গ্রাম বা পাড়া', ns_udise_ph: 'বোর্ডে লেখা থাকলে UDISE কোড (১১ সংখ্যা)', ns_submit: 'যাচাইয়ের জন্য পাঠান', ns_done: 'ধন্যবাদ। মডারেটর ছবি দেখে স্কুলটি তালিকায় যোগ করবেন।', err_KASA_SCHOOL_EXISTS: 'স্কুলটি তালিকায় আছে। নাম বা গ্রাম দিয়ে খুঁজুন।',
-    sc_submit: 'স্কুল যাচাই জমা দিন', sc_see_all: 'সব স্কুলের যাচাই দেখুন →', nav_school_check: '🏫 স্কুল যাচাই করুন', nav_schools: 'স্কুল', nav_adopt: '🤝 এই জায়গা দত্তক নিন', nav_adopted: 'দত্তক নেওয়া জায়গা', nav_waste: 'বর্জ্য কোথায় যায়', nav_money: 'পুরসভা কে চালায়', nav_tax: 'কর আর খরচ', wc_money: 'কে সিদ্ধান্ত নেয়, টাকা কোথায় যায় →', nav_toilets: 'সরকারি শৌচাগার',
+    sc_submit: 'স্কুল যাচাই জমা দিন', sc_see_all: 'সব স্কুলের যাচাই দেখুন →', nav_school_check: '🏫 স্কুল যাচাই করুন', nav_schools: 'স্কুল', nav_adopt: '🤝 এই জায়গা দত্তক নিন', nav_adopted: 'দত্তক নেওয়া জায়গা', nav_waste: 'বর্জ্য কোথায় যায়', nav_money: 'পুরসভা কে চালায়', nav_tax: 'কর আর খরচ', nav_calendar: 'নাগরিক ক্যালেন্ডার', nav_compare: 'জেলা পাশাপাশি তুলনা', wc_money: 'কে সিদ্ধান্ত নেয়, টাকা কোথায় যায় →', nav_toilets: 'সরকারি শৌচাগার',
     sc_q_water: 'খাবার জল আছে?', sc_q_toilets: 'শৌচাগার ব্যবহারযোগ্য?', sc_q_boundary: 'সীমানা প্রাচীর আছে?', sc_q_electricity: 'বিদ্যুৎ আছে?',
     sc_q_mdm: 'মিড-ডে মিলের রান্নাঘর ও বাসন আছে?', sc_q_girls_toilet: 'মেয়েদের আলাদা শৌচাগার ব্যবহারযোগ্য?', sc_q_meal_today: 'আজ মিড-ডে মিল রান্না হয়েছে?', sc_q_teachers: 'কতজন শিক্ষককে পড়াতে দেখলেন? (ঐচ্ছিক)', sc_teachers_ph: 'না গুনলে ফাঁকা রাখুন', sc_cant_tell: 'বলতে পারছি না', err_KASA_BAD_TEACHERS: 'কতজন শিক্ষক দেখলেন, ০ থেকে ২০০-র মধ্যে লিখুন।', sc_q_building: 'ভবন', sc_yes: 'হ্যাঁ', sc_no: 'না', sc_good: 'ভালো', sc_repair: 'মেরামত দরকার', sc_unsafe: 'বিপজ্জনক',
     sc_loc_ok: '✓ অবস্থান পাওয়া গেছে (±{a} মি)', sc_done: 'স্কুল যাচাই জমা হয়েছে। এটি এখন স্কুলের সর্বজনীন রেকর্ডে।',
@@ -784,7 +784,7 @@ window.KASA_I18N = {
     rc_done: 'धन्यवाद। एक मॉडरेटर आपकी तस्वीर से आँकड़े मिलाएगा, फिर वे स्कूलों के पेज पर जाएँगे।',
     err_KASA_BAD_YEAR: 'रिपोर्ट कार्ड पर छपा वर्ष चुनें।', err_KASA_CARD_EMPTY: 'रिपोर्ट कार्ड से कम से कम एक आँकड़ा भरें।',
     ns_open: 'सूची में स्कूल नहीं है? जोड़ें', ns_title: 'छूटा हुआ स्कूल जोड़ें', ns_sub: 'स्कूल पर खड़े होकर भेजें। मॉडरेटर फ़ोटो देखकर स्कूल का UDISE कोड ढूँढेंगे और सूची में जोड़ेंगे।', ns_photo: 'गेट या नाम-पट्ट की फ़ोटो', ns_photo_hint: 'फ़ोटो में स्कूल का नाम पढ़ा जा सके। किसी का चेहरा नहीं।', ns_name: 'बोर्ड पर लिखा स्कूल का नाम', ns_village_ph: 'गाँव या टोला', ns_udise_ph: 'बोर्ड पर लिखा हो तो UDISE कोड (11 अंक)', ns_submit: 'जाँच के लिए भेजें', ns_done: 'धन्यवाद। मॉडरेटर फ़ोटो देखकर स्कूल को सूची में जोड़ेंगे।', err_KASA_SCHOOL_EXISTS: 'यह स्कूल सूची में है। नाम या गाँव से खोजें।',
-    sc_submit: 'स्कूल जाँच सहेजें', sc_see_all: 'सभी स्कूलों की जाँच देखें →', nav_school_check: '🏫 स्कूल जाँचें', nav_schools: 'स्कूल', nav_adopt: '🤝 यह जगह गोद लें', nav_adopted: 'गोद ली गई जगहें', nav_waste: 'कचरा कहाँ जाता है', nav_money: 'नगरपालिका कौन चलाता है', nav_tax: 'टैक्स और खर्च', wc_money: 'कौन तय करता है, पैसा कहाँ जाता है →', nav_toilets: 'सार्वजनिक शौचालय',
+    sc_submit: 'स्कूल जाँच सहेजें', sc_see_all: 'सभी स्कूलों की जाँच देखें →', nav_school_check: '🏫 स्कूल जाँचें', nav_schools: 'स्कूल', nav_adopt: '🤝 यह जगह गोद लें', nav_adopted: 'गोद ली गई जगहें', nav_waste: 'कचरा कहाँ जाता है', nav_money: 'नगरपालिका कौन चलाता है', nav_tax: 'टैक्स और खर्च', nav_calendar: 'नागरिक कैलेंडर', nav_compare: 'ज़िलों की तुलना', wc_money: 'कौन तय करता है, पैसा कहाँ जाता है →', nav_toilets: 'सार्वजनिक शौचालय',
     sc_q_water: 'पीने का पानी है?', sc_q_toilets: 'शौचालय इस्तेमाल लायक?', sc_q_boundary: 'चारदीवारी है?', sc_q_electricity: 'बिजली है?',
     sc_q_mdm: 'मिड-डे मील की रसोई और बर्तन हैं?', sc_q_girls_toilet: 'लड़कियों का अलग शौचालय इस्तेमाल लायक?', sc_q_meal_today: 'आज मिड-डे मील बना?', sc_q_teachers: 'कितने शिक्षकों को पढ़ाते देखा? (वैकल्पिक)', sc_teachers_ph: 'नहीं गिना तो खाली छोड़ें', sc_cant_tell: 'पता नहीं', err_KASA_BAD_TEACHERS: 'कितने शिक्षक देखे, 0 से 200 के बीच लिखें।', sc_q_building: 'भवन', sc_yes: 'हाँ', sc_no: 'नहीं', sc_good: 'अच्छा', sc_repair: 'मरम्मत चाहिए', sc_unsafe: 'असुरक्षित',
     sc_loc_ok: '✓ जगह मिल गई (±{a} मी)', sc_done: 'स्कूल जाँच सहेजी गई। यह अब स्कूल के सार्वजनिक रिकॉर्ड में है।',
@@ -1369,7 +1369,9 @@ Object.assign(window.KASA_I18N.en, {
   notify_watch_h: 'Reports you watch', notify_watch_p: 'Open any report and tap “Watch this report” to hear when it is claimed, fixed or disputed.',
   notify_watching: "You're watching {n} on this device.",
   notify_digest_h: 'Weekly digest by email', notify_digest_p: 'One email every Monday with what was reported and fixed in each ward.',
-  notify_digest_btn: '✉ Get it by email'
+  notify_digest_btn: '✉ Get it by email',
+  notify_radius: 'How far from you', notify_kinds: 'Only these kinds of problem (tick none for all):',
+  notify_save: 'Save alert choices', notify_saved: 'Alert choices saved.'
 });
 Object.assign(window.KASA_I18N.bn, {
   notify_title: 'সতর্কবার্তা', notify_sub: 'Parishkar আপনাকে কী জানাবে বেছে নিন। যেকোনো সতর্কবার্তা এখান থেকেই বন্ধ করা যায়।',
@@ -1379,6 +1381,8 @@ Object.assign(window.KASA_I18N.bn, {
   notify_watch_h: 'যে রিপোর্ট ফলো করছেন', notify_watch_p: 'যেকোনো রিপোর্ট খুলে “এই রিপোর্ট ফলো করুন” ট্যাপ করুন, দায়িত্ব নেওয়া, সমাধান বা আপত্তি হলে জানতে পারবেন।',
   notify_watching: 'এই ডিভাইসে {n}টি ফলো করছেন।',
   notify_digest_h: 'সাপ্তাহিক ডাইজেস্ট ইমেলে', notify_digest_p: 'প্রতি সোমবার একটি ইমেল: প্রতিটি ওয়ার্ডে কী জানানো হল আর কী ঠিক হল।',
+  notify_radius: 'আপনার থেকে কত দূর পর্যন্ত', notify_kinds: 'শুধু এই ধরনের সমস্যা (সব চাইলে কোনোটাই টিক দেবেন না):',
+  notify_save: 'সতর্কবার্তার পছন্দ রাখুন', notify_saved: 'সতর্কবার্তার পছন্দ রাখা হল।',
   notify_digest_btn: '✉ ইমেলে পান'
 });
 Object.assign(window.KASA_I18N.hi, {
@@ -1389,7 +1393,37 @@ Object.assign(window.KASA_I18N.hi, {
   notify_watch_h: 'जिन रिपोर्ट को आप फ़ॉलो करते हैं', notify_watch_p: 'कोई भी रिपोर्ट खोलें और “इस रिपोर्ट को फ़ॉलो करें” दबाएँ, ताकि ज़िम्मेदारी लेने, ठीक होने या आपत्ति पर पता चले।',
   notify_watching: 'इस डिवाइस पर आप {n} फ़ॉलो कर रहे हैं।',
   notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
+  notify_radius: 'आपसे कितनी दूर तक', notify_kinds: 'सिर्फ़ इस तरह की समस्याएँ (सब के लिए कुछ न चुनें):',
+  notify_save: 'सूचना की पसंद सहेजें', notify_saved: 'सूचना की पसंद सहेज ली गई।',
   notify_digest_btn: '✉ ईमेल पर पाएँ'
+});
+/* Check nearby: the swipe queue of open reports around you. */
+Object.assign(window.KASA_I18N.en, {
+  drawer_check: 'Check reports near you', drawer_check_sub: 'Swipe through open problems around you',
+  cq_title: 'Check reports near you',
+  cq_sub: 'Open problems close to you, nearest first. Swipe right if it is still there, left to skip. If it looks fixed, say so with a live photo.',
+  cq_locating: 'Finding where you are…', cq_need_location: 'Turn on location to see the open reports around you.',
+  cq_none: 'No open reports within {km} km that you have not already checked.', cq_done: "That's all of them nearby. You confirmed {n}. Thank you.",
+  cq_meta: '{m} m away · open {d} days', cq_claimed: 'someone says it is fixed',
+  cq_skip: 'Skip', cq_open: 'Details', cq_fixed: 'Looks fixed', cq_confirm: 'Check the fix', cq_there: 'Still there'
+});
+Object.assign(window.KASA_I18N.bn, {
+  drawer_check: 'কাছের রিপোর্ট যাচাই করুন', drawer_check_sub: 'আশেপাশের খোলা সমস্যাগুলো একে একে দেখুন',
+  cq_title: 'কাছের রিপোর্ট যাচাই করুন',
+  cq_sub: 'আপনার কাছের খোলা সমস্যা, সবচেয়ে কাছেরটা আগে। এখনও থাকলে ডানে সোয়াইপ করুন, বাদ দিতে বাঁয়ে। ঠিক হয়ে গেছে মনে হলে লাইভ ছবি দিয়ে জানান।',
+  cq_locating: 'আপনি কোথায় আছেন খোঁজা হচ্ছে…', cq_need_location: 'আশেপাশের খোলা রিপোর্ট দেখতে লোকেশন চালু করুন।',
+  cq_none: '{km} কিমির মধ্যে আপনার না-দেখা কোনো খোলা রিপোর্ট নেই।', cq_done: 'কাছের সবগুলো দেখা হল। আপনি {n}টি নিশ্চিত করলেন। ধন্যবাদ।',
+  cq_meta: '{m} মিটার দূরে · {d} দিন ধরে খোলা', cq_claimed: 'কেউ বলেছেন ঠিক হয়ে গেছে',
+  cq_skip: 'বাদ দিন', cq_open: 'বিস্তারিত', cq_fixed: 'ঠিক হয়ে গেছে', cq_confirm: 'সমাধান যাচাই করুন', cq_there: 'এখনও আছে'
+});
+Object.assign(window.KASA_I18N.hi, {
+  drawer_check: 'पास की रिपोर्ट जाँचें', drawer_check_sub: 'आसपास की खुली समस्याएँ एक-एक करके देखें',
+  cq_title: 'पास की रिपोर्ट जाँचें',
+  cq_sub: 'आपके पास की खुली समस्याएँ, सबसे पास वाली पहले। अब भी है तो दाएँ स्वाइप करें, छोड़ने के लिए बाएँ। ठीक हो गई लगे तो लाइव फ़ोटो से बताएँ।',
+  cq_locating: 'आपकी जगह ढूँढी जा रही है…', cq_need_location: 'आसपास की खुली रिपोर्ट देखने के लिए लोकेशन चालू करें।',
+  cq_none: '{km} किमी के भीतर ऐसी कोई खुली रिपोर्ट नहीं जो आपने न देखी हो।', cq_done: 'पास की सब देख लीं। आपने {n} की पुष्टि की। धन्यवाद।',
+  cq_meta: '{m} मीटर दूर · {d} दिन से खुली', cq_claimed: 'किसी ने कहा ठीक हो गई',
+  cq_skip: 'छोड़ें', cq_open: 'विवरण', cq_fixed: 'ठीक हो गई', cq_confirm: 'सुधार जाँचें', cq_there: 'अब भी है'
 });
 /* Local bodies: the district's other municipalities and every gram panchayat. */
 Object.assign(window.KASA_I18N.en, {
