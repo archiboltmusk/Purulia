@@ -1154,3 +1154,7 @@ body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-sha
 body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
 body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
 body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
+
+/* ── Home map clutter (low-risk): frosted status card, steady digits ── */
+body[data-app-layout] .k-map-pill{background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+body[data-app-layout] .k-map-pill,body[data-app-layout] .k-pill-num,body[data-app-layout] .k-stat-n{font-variant-numeric:tabular-nums;}
