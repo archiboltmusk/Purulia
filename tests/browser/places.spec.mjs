@@ -25,8 +25,8 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await stubBackend(page);
   await page.addInitScript(() => { try { localStorage.setItem('kasa_tips_done', '1'); localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {} });
   await page.goto('kasa.html');
-  await expect(wordmark(page)).toHaveText('Bengal');
-  await expect(page).toHaveTitle(/Parishkar Bengal/);
+  await expect(wordmark(page)).toHaveText('West Bengal');
+  await expect(page).toHaveTitle(/Parishkar West Bengal/);
   await page.click('#k-place-pick');
   await page.click('#k-place-list [data-place="district:bankura"]');
   await expect(wordmark(page)).toHaveText('Bankura');
@@ -53,7 +53,8 @@ test('tapping a Kolkata ward opens its card, like a Purulia ward; a shared ward 
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   await expect.poll(() => page.evaluate(() => !!mainMap.getLayer('place-kolkata-fill'))).toBe(true);
   await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.3510, 22.5646], zoom: 15 }); });
-  await page.waitForTimeout(800);
+  // Wait for the jump to render before tapping; a fixed sleep raced the render on slower CI runners.
+  await expect.poll(() => page.evaluate(() => !mainMap.isMoving() && mainMap.areTilesLoaded())).toBe(true);
   const box = await page.locator('#k-map').boundingBox();
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   const card = page.locator('#k-ward-card');
@@ -470,6 +471,30 @@ test('the MP named on an area card opens their profile with the MP fund works, a
   expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
 });
 
+test("an MP's profile shows their Lok Sabha work, and takes a reply only with a link", async ({ page }) => {
+  const calls = await stubBackend(page, { rpc: {
+    kasa_submit_rep_reply: { ok: true, status: 'pending' },
+    kasa_rep_replies: [{ reply: 'Work on the Bishnupur road starts after the monsoon.', said_on: '2026-09-20',
+                         source_url: 'https://example.org/press-note', checked: '2026-09-21' }] } });
+  await page.goto('kasa.html');
+  await page.evaluate(() => openRepProfile('pc:37'));
+  const sheet = page.locator('#k-rep-modal');
+  await expect(sheet).toHaveClass(/open/);
+  await expect(sheet).toContainText('Work in the Lok Sabha');
+  await expect(sheet.locator('a', { hasText: 'PRS Legislative Research' })).toHaveAttribute('href', /prsindia\.org\/mptrack\/18th-lok-sabha\//);
+  await expect(sheet.locator('#k-rep-replies')).toContainText('Work on the Bishnupur road starts after the monsoon.');
+  await sheet.locator('.k-rep-reply-add summary').click();
+  await sheet.locator('#k-rr-text').fill('We have written to the PWD about the road.');
+  await sheet.locator('#k-rr-date').fill('2026-10-01');
+  await sheet.locator('#k-rr-url').fill('not a link');
+  await sheet.locator('#k-rep-reply-form button[type=submit]').click();
+  expect(calls.some(c => c.name === 'kasa_submit_rep_reply')).toBe(false);
+  await sheet.locator('#k-rr-url').fill('https://example.org/letter');
+  await sheet.locator('#k-rep-reply-form button[type=submit]').click();
+  await expect.poll(() => calls.find(c => c.name === 'kasa_submit_rep_reply')?.body).toMatchObject({
+    p_rep_key: 'pc:37', p_reply: 'We have written to the PWD about the road.', p_said_on: '2026-10-01', p_source_url: 'https://example.org/letter' });
+});
+
 test('any minister in West Bengal can be found by department and opens with their seat', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await page.locator('#k-more-btn').click();
@@ -720,6 +745,24 @@ test('snake rescuers and sightings follow the chosen district, with call and Wha
   await expect(page.locator('#sn-t-seen')).toHaveText('1');
 });
 
+test('public works follow the chosen district and fill the RTI request', async ({ page, backend }) => {
+  await page.route('**/rest/v1/rpc/kasa_public_works*', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify([
+      { id: 7, work_name: 'Construction of drain at Ward 4', agency: 'Bishnupur Municipality', contractor: 'M/s Example', work_order: 'WO 12/2025',
+        cost: null, completed_on: '2025-03-31', dlp_years: 3, warranty_until: '2028-03-31', under_warranty: true, lat: 23.07, lng: 87.32,
+        photo_url: 'https://example.org/b.jpg', place: 'bishnupur', ward_no: 4, district: 'bankura' },
+      { id: 8, work_name: 'Purulia road work', agency: 'PWD', place: null, lat: 23.33, lng: 86.36, photo_url: 'https://example.org/c.jpg',
+        dlp_years: null, warranty_until: null, under_warranty: false }]) }));
+  await page.goto('works.html?d=bankura');
+  await expect(page.locator('#wk-list')).toContainText('Construction of drain at Ward 4');
+  await expect(page.locator('#wk-list')).toContainText('Contractor (as on the board): M/s Example');
+  await expect(page.locator('#wk-list')).not.toContainText('Purulia road work');
+  await expect(page.locator('#wk-t-live')).toHaveText('1');
+  await page.locator('[data-rti="7"]').click();
+  await page.locator('#wk-f-me').fill('Asha');
+  await expect(page.locator('#wk-rti')).toHaveValue(/Bishnupur Municipality[\s\S]*section 6\(1\)[\s\S]*WO 12\/2025[\s\S]*completion certificate[\s\S]*Asha/);
+});
+
 test('municipality, promises and public demands follow the chosen district', async ({ page }) => {
   await page.goto('municipality.html?d=bankura');
   await expect(page.locator('#mu-bodies')).toContainText('Bishnupur');
@@ -762,4 +805,18 @@ test('analytics lists the weekly letters to each office in Purulia, and not else
   await page.goto('analytics.html?d=bankura');
   await expect(page.locator('.an-title')).toContainText('Bankura');
   await expect(page.locator('#an-letters-card')).toBeHidden();
+});
+
+test('the place picker reaches any state and district in India; the header names what is picked', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'bihar');
+  await expect(page.locator('#k-place-list [data-place="in:bihar"]')).toBeVisible();
+  await expect(page.locator('#k-place-list [data-place="in:karnataka"]')).toBeHidden();
+  await page.click('#k-place-list [data-place="in:bihar"]');
+  await expect(wordmark(page)).toHaveText('Bihar');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'patna');
+  await page.click('#k-place-list [data-place="in:bihar:patna"]');
+  await expect(wordmark(page)).toHaveText('Patna');
 });

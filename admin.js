@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadDrives(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadStories(), loadEvidence(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -341,6 +341,36 @@ function photoMetaText(m){
   return bits.join(' · ');
 }
 
+/* One trust hint per report, with every reason that moved it, like a ranked list that shows its
+   working. A hint for the moderator only: never stored, never shown to the public, never decides. */
+function trustScore(r){
+  const why = [], hit = (pts, text) => why.push({ pts, text });
+  const m = r.moderation_labels?.photo, t = r.trust || {};
+  if (!m || !m.capture || m.capture === 'none') hit(-15, 'no photo metadata sent');
+  else if (m.capture === 'file') hit(-40, 'photo from the gallery, not the live camera');
+  else hit(0, 'live camera photo');
+  if (m?.ai_edited) hit(-40, 'photo marked AI-edited');
+  if (m?.exif_distance_m != null && m.exif_distance_m > 100) hit(-25, `photo GPS ${m.exif_distance_m} m from the spot`);
+  if (m?.gps_checked === false) hit(-15, 'photo has no GPS of its own');
+  if (m?.taken_minutes_ago != null && m.taken_minutes_ago > 30) hit(-10, `taken ${m.taken_minutes_ago} min before upload`);
+  if (t.accuracy_m != null) t.accuracy_m > 30 ? hit(-10, `phone GPS accurate only to ${t.accuracy_m} m`) : hit(0, `phone GPS within ${t.accuracy_m} m`);
+  if (t.near_same_m != null && t.near_same_m <= 50) hit(-10, `same kind of report already open ${t.near_same_m} m away (maybe a duplicate)`);
+  if (t.reporter_hidden) hit(-20 * Math.min(2, t.reporter_hidden), `${t.reporter_hidden} earlier report${t.reporter_hidden > 1 ? 's' : ''} by this person hidden`);
+  if (t.reporter_public >= 3) hit(10, `${t.reporter_public} earlier reports by this person published`);
+  if (r.flags) hit(-10 * Math.min(3, r.flags), `flagged ${r.flags}×`);
+  if (r.moderation_labels?.text) hit(-10, 'text needs review');
+  const score = Math.max(0, Math.min(100, 100 + why.reduce((s, x) => s + x.pts, 0)));
+  return { score, why };
+}
+
+function trustHTML(r){
+  const { score, why } = trustScore(r);
+  const tone = score >= 75 ? 'ad-trust-hi' : score >= 45 ? 'ad-trust-mid' : 'ad-trust-lo';
+  return `<details class="ad-trust ${tone}"><summary>Trust hint ${score}/100</summary><ul>${why.map(w =>
+    `<li><b>${w.pts > 0 ? '+' + w.pts : w.pts || '±0'}</b> ${esc(w.text)}</li>`).join('')}</ul>
+    <small>Starts at 100. A hint from what the phone and the record say, not a verdict: look at the photo.</small></details>`;
+}
+
 function renderModeration(q){
   document.getElementById('adModNote').textContent =
     'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, void an obviously fake confirmation or dispute, or clear a photo held because its location data was far from the spot. Every action is published in the report\'s evidence trail with the reason you give.';
@@ -358,6 +388,7 @@ function renderModeration(q){
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
             ${r.moderation_labels?.text ? ' · text needs review: ' + esc(r.moderation_labels.text) : ''}
             ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.suggested_category ? ' → ' + esc(f.suggested_category) : '') + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
+          ${trustHTML(r)}
         </div>
         <div class="ad-actions">
           <button class="ad-ok" data-mod="approve" data-id="${esc(r.id)}">✓ Publish / keep</button>
@@ -404,7 +435,7 @@ function renderModeration(q){
   el.querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => moderate(b.dataset.id, b.dataset.mod)));
   el.querySelectorAll('[data-recat]').forEach(b => b.addEventListener('click', async () => {
     const cat = el.querySelector(`[data-recat-sel="${b.dataset.recat}"]`).value;
-    const reason = prompt('Public reason for the new category (shown in the report history):');
+    const reason = await askReason('Public reason for the new category (shown in the report history):', 'recategorize');
     if (!reason) return;
     const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: b.dataset.recat, p_category: cat, p_reason: reason });
     if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -418,9 +449,48 @@ function renderModeration(q){
   el.querySelectorAll('[data-clear-claim]').forEach(b => b.addEventListener('click', () => clearHeld('claim', b.dataset.clearClaim)));
 }
 
+/* Saved reasons (idea from FixMyStreet's response templates): moderators pick a reason they
+   wrote before instead of retyping it. Resolves to the text, '' for an empty answer, or null on Cancel. */
+let reasonTemplates = null;
+async function askReason(question, kind){
+  if (!reasonTemplates){
+    const { data, error } = await sb.rpc('kasa_admin_reply_templates');
+    reasonTemplates = error ? [] : (data || []);
+  }
+  const mine = reasonTemplates.filter(x => x.kind === kind || x.kind === 'any');
+  const dlg = document.createElement('dialog');
+  dlg.className = 'ad-reason';
+  dlg.innerHTML = `<form method="dialog">
+    <p>${esc(question)}</p>
+    ${mine.length ? `<div class="ad-reason-saved">${mine.map(x => `<span><button type="button" data-use="${esc(x.id)}">${esc(x.body)}</button><button type="button" data-del="${esc(x.id)}" aria-label="Delete this saved reason" title="Delete">×</button></span>`).join('')}</div>` : ''}
+    <textarea rows="3" maxlength="400"></textarea>
+    <label><input type="checkbox"> Save this reason for next time</label>
+    <menu><button value="cancel">Cancel</button> <button value="ok" class="ad-btn">OK</button></menu>
+  </form>`;
+  document.body.appendChild(dlg);
+  const ta = dlg.querySelector('textarea');
+  dlg.addEventListener('click', async e => {
+    const use = e.target.closest('[data-use]'), del = e.target.closest('[data-del]');
+    if (use){ ta.value = reasonTemplates.find(x => String(x.id) === use.dataset.use)?.body || ''; ta.focus(); }
+    if (del && confirm('Delete this saved reason for every moderator?')){
+      const { error } = await sb.rpc('kasa_admin_delete_reply_template', { p_id: Number(del.dataset.del) });
+      if (!error){ reasonTemplates = reasonTemplates.filter(x => String(x.id) !== del.dataset.del); del.parentElement.remove(); }
+    }
+  });
+  dlg.showModal();
+  ta.focus();
+  const answer = await new Promise(res => dlg.addEventListener('close', () => res(dlg.returnValue === 'ok' ? ta.value.trim() : null), { once: true }));
+  if (answer && answer.length >= 3 && dlg.querySelector('input[type=checkbox]').checked){
+    const { error } = await sb.rpc('kasa_admin_save_reply_template', { p_kind: kind, p_body: answer });
+    if (!error) reasonTemplates = null;
+  }
+  dlg.remove();
+  return answer;
+}
+
 // Clearing says, on the public record, that the photo was checked and is from the spot.
 async function clearHeld(kind, id){
-  const note = prompt('Public reason for clearing this photo (e.g. "landmarks match the spot; phone had a stale location"):');
+  const note = await askReason('Public reason for clearing this photo (e.g. "landmarks match the spot; phone had a stale location"):', 'clear');
   if (!note) return;
   const { error } = kind === 'vote'
     ? await sb.rpc('kasa_admin_clear_vote', { p_vote_id: id, p_note: note })
@@ -431,8 +501,9 @@ async function clearHeld(kind, id){
 
 async function moderate(id, action){
   if (action === 'delete' && !confirm('Delete this report and its photo from the site for good? This cannot be undone.')) return;
-  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:'
-    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:');
+  const reason = await askReason(action === 'hide' ? 'Public reason for hiding this report:'
+    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:',
+    action === 'hide' ? 'hide' : action === 'delete' ? 'remove' : 'any');
   if ((action === 'hide' || action === 'delete') && !(reason && reason.trim().length >= 3)) return;
   const { error } = await sb.rpc('kasa_admin_moderate', { p_report_id: id, p_action: action, p_reason: reason || null });
   if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -490,7 +561,7 @@ async function findReport(){
   document.getElementById('adFindCatBtn').addEventListener('click', async () => {
     const cat = document.getElementById('adFindCatSel').value;
     if (cat === r.category) return;
-    const reason = prompt('Public reason for the new category (shown in the report history):');
+    const reason = await askReason('Public reason for the new category (shown in the report history):', 'recategorize');
     if (!reason) return;
     const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: r.id, p_category: cat, p_reason: reason });
     if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -504,7 +575,7 @@ async function findReport(){
    join a report the check missed, or delete a repeat photo. The report's first photo always
    stays; every change shows on the report's public timeline. */
 async function removePhoto(reportId, kind, ref){
-  const reason = prompt('Public reason for deleting this photo (e.g. "same photo as the first"):');
+  const reason = await askReason('Public reason for deleting this photo (e.g. "same photo as the first"):', 'remove_photo');
   if (!reason || reason.trim().length < 3) return false;
   const { error } = await sb.rpc('kasa_admin_remove_photo', { p_report_id: reportId, p_kind: kind, p_ref: String(ref), p_reason: reason });
   if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
@@ -516,7 +587,7 @@ async function repeatAction(action, childId, parentId){
   let res;
   if (action === 'keep') res = await sb.rpc('kasa_admin_confirm_duplicate', { p_report_id: childId });
   else {
-    const reason = prompt('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")') ;
+    const reason = await askReason('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")', 'unlink');
     if (reason === null) return false;
     res = await sb.rpc('kasa_admin_unlink_duplicate', { p_report_id: childId, p_reason: reason || null });
   }
@@ -623,7 +694,7 @@ function wardsSvg(wards){
   const path = ring => ring.map((p, i) => `${i ? 'L' : 'M'}${((p[0] - x0) * k).toFixed(1)},${((y1 - p[1]) * k).toFixed(1)}`).join('') + 'Z';
   return `<svg width="190" height="190" viewBox="-5 -5 190 190" style="background:#0a0805;border-radius:6px">${wards.map(w => {
     const ring = w.polygons[0][0], cx = ring.reduce((a, p) => a + p[0], 0) / ring.length, cy = ring.reduce((a, p) => a + p[1], 0) / ring.length;
-    return `<path d="${w.polygons.map(p => p.map(path).join('')).join('')}" fill="rgba(212,136,42,.15)" stroke="#d4882a" stroke-width="1"/>`
+    return `<path d="${w.polygons.map(p => p.map(path).join('')).join('')}" fill="rgba(221,51,51,.15)" stroke="#DD3333" stroke-width="1"/>`
       + `<text x="${((cx - x0) * k).toFixed(1)}" y="${((y1 - cy) * k).toFixed(1)}" font-size="9" fill="#f0e6d0" text-anchor="middle">${esc(w.ward)}</text>`;
   }).join('')}</svg>`;
 }
@@ -886,6 +957,55 @@ async function loadPandals(){
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
     loadPandals();
   });
+}
+
+/* Public works boards: waiting ones to check against the photo, approved ones to remove. */
+async function loadWorks(){
+  const el = document.getElementById('adWorks');
+  if (!el) return;
+  const [q, pub] = await Promise.all([sb.rpc('kasa_admin_works_queue'), sb.rpc('kasa_public_works')]);
+  const error = q.error || pub.error;
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  const wait = q.data || [], live = pub.data || [];
+  const where = w => esc([w.ward_no ? 'Ward ' + w.ward_no : w.block_name, w.district].filter(Boolean).join(', ') || 'map');
+  const dlp = y => y == null ? 'not on board' : y < 1 ? Math.round(y * 12) + ' months' : y + (Number(y) === 1 ? ' year' : ' years');
+  el.innerHTML = (wait.length ? `
+    <table class="ad-table">
+      <thead><tr><th>Board photo</th><th>What they copied</th><th></th></tr></thead>
+      <tbody>
+        ${wait.map(w => `<tr>
+          <td><a href="${esc(w.photo_url)}" target="_blank" rel="noopener"><img src="${esc(w.photo_url)}" alt="" style="width:160px;height:120px;object-fit:cover;border-radius:4px;"></a></td>
+          <td><strong>${esc(w.work_name)}</strong><br>Agency: ${esc(w.agency)}${w.contractor ? `<br>Contractor: ${esc(w.contractor)}` : ''}${w.work_order ? `<br>Work order: ${esc(w.work_order)}` : ''}${w.cost ? `<br>Cost: ${esc(w.cost)}` : ''}
+            <br>Completed: ${esc(w.completed_on || 'not given')} · DLP: ${esc(dlp(w.dlp_years))}${w.warranty_until ? ` · warranty until ${esc(w.warranty_until)}` : ''}
+            <br><small><a href="https://www.openstreetmap.org/?mlat=${esc(w.lat)}&mlon=${esc(w.lng)}#map=18/${esc(w.lat)}/${esc(w.lng)}" target="_blank" rel="noopener">${where(w)}</a> · GPS ±${esc(w.accuracy_m)} m · sent ${esc(new Date(w.created_at).toLocaleString('en-IN'))}</small></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-wk="${esc(w.id)}" data-wk-act="approve">✓ Matches the board</button>
+            <button class="ad-bad" data-wk="${esc(w.id)}" data-wk-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>` : '<div class="ad-empty">Nothing waiting.</div>') + (live.length ? `
+    <p class="ad-note" style="margin-top:1rem;">On the public list</p>
+    <table class="ad-table"><tbody>
+      ${live.map((w, i) => `<tr>
+        <td><a href="${esc(w.photo_url)}" target="_blank" rel="noopener"><strong>${esc(w.work_name)}</strong></a><br><small>${esc(w.agency)}${w.warranty_until ? ' · warranty until ' + esc(w.warranty_until) : ''}</small></td>
+        <td><a href="kasa.html?at=${esc(w.lat)},${esc(w.lng)}" target="_blank" rel="noopener">${where(w)}</a></td>
+        <td><button class="ad-bad" data-wk-rm="${i}">Remove</button></td></tr>`).join('')}
+    </tbody></table>` : '');
+  el.querySelectorAll('[data-wk]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const note = b.dataset.wkAct === 'reject' ? prompt('Reason (optional, e.g. "photo does not show the board"):') : null;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_work', { p_id: Number(b.dataset.wk), p_action: b.dataset.wkAct, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadWorks();
+  }));
+  el.querySelectorAll('[data-wk-rm]').forEach(b => b.addEventListener('click', async () => {
+    const w = live[+b.dataset.wkRm];
+    const reason = prompt(`Reason for removing "${w.work_name}":`);
+    if (!reason || reason.trim().length < 3) return;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_work', { p_id: w.id, p_action: 'remove', p_note: reason });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); return; }
+    loadWorks();
+  }));
 }
 
 /* The latest reports, newest first, so an admin can spot an exact repeat without hunting for its ID. */
@@ -1384,124 +1504,6 @@ function wireCommunityForm(row, c){
   });
 }
 
-/* ── Cleanup drives: the form draws the route on a map (tap points; "Follow roads" asks the
-   public OSM foot router for each leg). Times are typed in India time. ── */
-const drive = { id: null, route: [], undo: [], map: null, list: [] };
-const istInput = iso => new Date(new Date(iso).getTime() + 5.5 * 3600e3).toISOString().slice(0, 16);
-function driveLenKm(r){
-  let m = 0;
-  for (let i = 1; i < r.length; i++){
-    const k = 111320 * Math.cos(r[i][1] * Math.PI / 180);
-    m += Math.hypot((r[i][0] - r[i - 1][0]) * k, (r[i][1] - r[i - 1][1]) * 110540);
-  }
-  return (m / 1000).toFixed(2);
-}
-function drawAdminRoute(){
-  document.getElementById('adDriveLen').textContent = drive.route.length > 1 ? `${driveLenKm(drive.route)} km` : drive.route.length ? 'Tap the next point' : 'Tap the start on the map';
-  const src = drive.map?.getSource('route');
-  if (!src) return;
-  const r = drive.route;
-  src.setData({ type: 'FeatureCollection', features: [
-    ...(r.length > 1 ? [{ type: 'Feature', geometry: { type: 'LineString', coordinates: r }, properties: {} }] : []),
-    ...(r.length ? [{ type: 'Feature', geometry: { type: 'Point', coordinates: r[0] }, properties: {} },
-                    { type: 'Feature', geometry: { type: 'Point', coordinates: r[r.length - 1] }, properties: {} }] : [])] });
-}
-function loadMaplibre(){
-  if (window.maplibregl) return Promise.resolve();
-  return new Promise((ok, bad) => {
-    const css = document.createElement('link'); css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
-    const js = document.createElement('script'); js.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
-    js.onload = ok; js.onerror = bad; document.head.append(css, js);
-  });
-}
-async function initDriveMap(){
-  if (drive.map) return;
-  await loadMaplibre();
-  drive.map = new maplibregl.Map({ container: 'adDriveMap', style: 'https://tiles.openfreemap.org/styles/liberty',
-    center: (window.CITY?.mapCenter) || [86.3654, 23.3320], zoom: 14 });
-  drive.map.addControl(new maplibregl.NavigationControl({ showCompass: false }));
-  drive.map.on('load', () => {
-    drive.map.addSource('route', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-    drive.map.addLayer({ id: 'route-line', type: 'line', source: 'route', filter: ['==', ['geometry-type'], 'LineString'],
-      layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#1f78b4', 'line-width': 5 } });
-    drive.map.addLayer({ id: 'route-ends', type: 'circle', source: 'route', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 6, 'circle-color': '#1f78b4', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
-    drawAdminRoute();
-  });
-  drive.map.on('click', async e => {
-    const p = [+e.lngLat.lng.toFixed(6), +e.lngLat.lat.toFixed(6)], last = drive.route[drive.route.length - 1];
-    drive.undo.push(drive.route.length);
-    if (last && document.getElementById('adDriveSnap').checked){
-      try {
-        const r = await fetch(`https://routing.openstreetmap.de/routed-foot/route/v1/foot/${last[0]},${last[1]};${p[0]},${p[1]}?overview=full&geometries=geojson`).then(x => x.json());
-        const c = r.routes?.[0]?.geometry?.coordinates;
-        if (c?.length) { drive.route.push(...c.slice(1).map(q => [+q[0].toFixed(6), +q[1].toFixed(6)])); drawAdminRoute(); return; }
-      } catch (err) {}
-      document.getElementById('adDriveMsg').textContent = 'Could not follow roads for that leg; drew a straight line.';
-    }
-    drive.route.push(p);
-    drawAdminRoute();
-  });
-}
-function editDrive(d){
-  drive.id = d?.id || null;
-  const v = (id, x) => { document.getElementById(id).value = x || ''; };
-  v('adDriveTitle', d?.title); v('adDriveStart', d ? istInput(d.starts_at) : ''); v('adDriveMeet', d?.meet_point); v('adDriveEnd', d?.end_point);
-  v('adDriveOrgs', (d?.organisers || []).map(o => o.url ? `${o.name} | ${o.url}` : o.name).join('\n'));
-  v('adDriveProvided', d?.provided); v('adDriveNotes', d?.notes);
-  document.getElementById('adDriveHidden').checked = !!d?.hidden;
-  document.getElementById('adDriveNew').hidden = !d;
-  document.getElementById('adDriveSave').textContent = d ? 'Save changes' : 'Save drive';
-  drive.route = (d?.route || []).slice(); drive.undo = [];
-  drawAdminRoute();
-  if (drive.map && drive.route.length > 1){
-    const xs = drive.route.map(p => p[0]), ys = drive.route.map(p => p[1]);
-    drive.map.fitBounds([[Math.min(...xs), Math.min(...ys)], [Math.max(...xs), Math.max(...ys)]], { padding: 40, maxZoom: 17 });
-  }
-}
-async function loadDrives(){
-  const el = document.getElementById('adDrives');
-  if (!el) return;
-  if (!loadDrives.wired){
-    loadDrives.wired = true;
-    initDriveMap().catch(() => { document.getElementById('adDriveMap').textContent = 'Map did not load.'; });
-    document.getElementById('adDriveUndo').onclick = () => { if (drive.undo.length){ drive.route.length = drive.undo.pop(); drawAdminRoute(); } };
-    document.getElementById('adDriveClear').onclick = () => { drive.route = []; drive.undo = []; drawAdminRoute(); };
-    document.getElementById('adDriveNew').onclick = () => editDrive(null);
-    document.getElementById('adDriveForm').addEventListener('submit', async e => {
-      e.preventDefault();
-      const msg = document.getElementById('adDriveMsg'), val = id => document.getElementById(id).value.trim();
-      const organisers = val('adDriveOrgs').split('\n').map(l => l.trim()).filter(Boolean).map(l => {
-        const [name, url] = l.split('|').map(x => x.trim());
-        return url ? { name, url } : { name };
-      });
-      const { error } = await sb.rpc('kasa_admin_save_drive', { p_id: drive.id, p_drive: {
-        title: val('adDriveTitle'), starts_at: val('adDriveStart') + ':00+05:30', meet_point: val('adDriveMeet'),
-        end_point: val('adDriveEnd'), organisers, provided: val('adDriveProvided'), notes: val('adDriveNotes'),
-        route: drive.route.length > 1 ? drive.route : null, hidden: document.getElementById('adDriveHidden').checked } });
-      if (error){ msg.textContent = 'Failed: ' + (error.details || error.message); return; }
-      msg.textContent = 'Saved. It is on the report map now' + (drive.route.length > 1 ? '.' : ' (no route drawn yet).');
-      editDrive(null);
-      loadDrives();
-    });
-  }
-  const { data, error } = await sb.rpc('kasa_admin_drives');
-  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
-  drive.list = data || [];
-  if (!drive.list.length){ el.innerHTML = '<div class="ad-empty">No drives yet.</div>'; return; }
-  el.innerHTML = `<table class="ad-table"><thead><tr><th>Starts</th><th>Drive</th><th>Route</th><th>Coming</th><th></th></tr></thead><tbody>
-    ${drive.list.map(d => `<tr><td>${esc(new Date(d.starts_at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short', timeZone: 'Asia/Kolkata' }))}</td>
-      <td><strong>${esc(d.title)}</strong>${d.hidden ? ' <small>(hidden)</small>' : ''}<br><small>${esc(d.meet_point)}${d.end_point ? ' → ' + esc(d.end_point) : ''}</small></td>
-      <td>${d.route ? driveLenKm(d.route) + ' km' : '<span style="color:var(--red)">not drawn</span>'}</td><td>${d.going}</td>
-      <td style="white-space:nowrap"><button class="ad-ok" data-drive-edit="${esc(d.id)}">✎ Edit</button>
-        <a class="ad-ok" style="padding:.4rem .6rem;border-radius:3px" href="kasa.html?drive=${esc(d.id)}" target="_blank" rel="noopener">View</a></td></tr>`).join('')}
-    </tbody></table>`;
-  el.querySelectorAll('[data-drive-edit]').forEach(b => b.addEventListener('click', () => {
-    editDrive(drive.list.find(d => d.id === b.dataset.driveEdit));
-    document.getElementById('adDriveForm').scrollIntoView({ behavior: 'smooth' });
-  }));
-}
-
 const CARD_FIELDS = [['enrolment', 'Pupils'], ['teachers', 'Teachers'], ['classrooms', 'Classrooms'], ['drinking_water', 'Water'],
   ['girls_toilet', "Girls' toilet"], ['boys_toilet', "Boys' toilet"], ['electricity', 'Electricity'], ['boundary_wall', 'Wall'],
   ['handwash', 'Hand-wash'], ['library', 'Library'], ['playground', 'Playground'], ['ramp', 'Ramp']];
@@ -1564,6 +1566,64 @@ async function loadOfficials(){
       p_name: el.querySelector(`[data-of-name="${id}"]`).value, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadOfficials();
+  }));
+}
+
+async function loadRepReplies(){
+  const el = document.getElementById('adRepReplies');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_rep_reply_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Leader</th><th>What they said</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(r => `<tr>
+          <td><a href="kasa.html?rep=${encodeURIComponent(r.rep_key)}" target="_blank" rel="noopener">${esc(r.rep_name)}</a><br><small>said ${esc(r.said_on)} · sent ${esc(new Date(r.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(r.reply)}</td>
+          <td><a href="${esc(r.source_url)}" target="_blank" rel="noopener noreferrer">${esc(r.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">
+            <button class="ad-ok" data-rr="${esc(r.id)}" data-rr-act="approve">✓ They said this there</button>
+            <button class="ad-bad" data-rr="${esc(r.id)}" data-rr-act="reject">✕ Reject</button>
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-rr]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_rep_reply', { p_id: Number(b.dataset.rr), p_action: b.dataset.rrAct, p_note: null });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadRepReplies();
+  }));
+}
+
+async function loadStories(){
+  const el = document.getElementById('adStories');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_story_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Figure</th><th>Story</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(s => `<tr>
+          <td>${esc(s.stat_label)}<br><small>${esc(s.district)}${s.place ? ' · ' + esc(s.place) : ''} · sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(s.story)}</td>
+          <td><a href="${esc(s.source_url)}" target="_blank" rel="noopener noreferrer">${esc(s.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">${s.status === 'approved'
+            ? `<span class="ad-note">Live</span> <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="remove">Remove</button>`
+            : `<button class="ad-ok" data-sto="${esc(s.id)}" data-sto-act="approve">✓ Published there, with consent</button>
+               <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="reject">✕ Reject</button>`}
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-sto]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const note = b.dataset.stoAct === 'approve' ? null : prompt('Reason (kept with the record):') || null;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_story', { p_id: Number(b.dataset.sto), p_action: b.dataset.stoAct, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadStories();
   }));
 }
 

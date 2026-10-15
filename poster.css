@@ -1,0 +1,9 @@
+/* Bengali-first poster headings: the page title's Bengali line set large in a brush display face,
+   above the heading in English or Hindi; on the Bengali page the heading itself takes the face.
+   The Bengali text sits in the h1's data-bn attribute (copied from that page's own translation). */
+@import url('https://fonts.googleapis.com/css2?family=Galada&display=swap');
+h1[data-bn]::before{content:attr(data-bn);display:block;margin-bottom:.15em;font-family:'Galada',var(--serif,serif);font-style:normal;font-weight:400;
+  font-size:1em;line-height:1.15;letter-spacing:0;color:var(--amber,#DD3333);}
+html[lang="bn"] h1[data-bn]::before{content:none;}
+html[lang="bn"] h1[data-bn]{font-family:'Galada',var(--serif,serif);font-weight:400;letter-spacing:0;}
+html[lang="bn"] h1[data-bn] em{font-style:normal;color:var(--amber,#DD3333);}

@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tax and spending — Parishkar</title>
+<meta name="description" content="How much tax each state collects, how much of its budget it actually spends, and what the auditor (CAG) flagged: money unspent, grants with no proof of use, spending over budget. Every figure linked to its source.">
+<meta property="og:title" content="Tax and spending — Parishkar">
+<meta property="og:description" content="Tax collected, budget used and money the auditor flagged, state by state and seat by seat, with sources.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/money.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/money.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.6rem 1.4rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-table a{color:var(--amber);}
+  .an-table tr:target td{background:rgba(221,51,51,.08);}
+  .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-empty a{color:var(--amber);}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  .wk-thumb{display:block;width:88px;height:66px;object-fit:cover;border-radius:4px;border:1px solid var(--border);}
+  .wk-small{display:block;margin-top:.25rem;font-size:.82rem;color:var(--text-md);}
+  .ad-ok{color:#7fbf7f;} .ad-over{color:var(--text-lo);}
+  .ad-steps{margin-top:1rem;display:grid;gap:.8rem;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));}
+  .ad-steps div{border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;color:var(--text-md);font-size:.9rem;line-height:1.55;}
+  .ad-steps b{display:block;color:var(--cream);font-family:var(--serif);font-size:1.05rem;margin-bottom:.25rem;}
+  .ad-steps a{color:var(--amber);}
+  .dg-law{color:var(--text-md);line-height:1.6;font-size:.92rem;}
+  .dg-law h3{margin-top:1.2rem;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+  .dg-law blockquote{margin:.6rem 0;padding:.4rem .9rem;border-left:2px solid var(--amber);color:var(--text-hi);font-style:italic;}
+  .dg-law a{color:var(--amber);}
+  .dg-form{display:grid;gap:.7rem;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));margin-top:1rem;}
+  .dg-form label{display:flex;flex-direction:column;gap:.3rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
+  .dg-form input,.dg-form select{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.55rem .6rem;color:var(--text-hi);font:inherit;font-size:.92rem;text-transform:none;letter-spacing:0;min-width:0;}
+  #wk-rti{width:100%;min-height:420px;margin-top:1rem;background:var(--ink);border:1px solid var(--border2);border-radius:6px;padding:1rem;color:var(--text-hi);font:inherit;font-size:.9rem;line-height:1.55;}
+  .dg-btn{margin-top:.8rem;display:inline-block;background:var(--amber);color:var(--ink);border:0;border-radius:4px;padding:.6rem 1rem;font-family:var(--mono);font-size:12px;letter-spacing:.06em;cursor:pointer;text-decoration:none;}
+  @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+  .mn-pick{display:flex;flex-wrap:wrap;gap:.8rem;align-items:center;margin:0 0 1.2rem;}
+  .mn-pick select{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.55rem .6rem;color:var(--text-hi);font:inherit;font-size:1rem;}
+  .mn-pick label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s a{color:var(--amber);}
+  #mn-map{height:min(70vh,560px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .mn-legend{display:flex;align-items:center;gap:.4rem;margin-top:.6rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
+  .mn-legend i{display:inline-block;width:26px;height:10px;}
+  .mn-bar{display:grid;grid-template-columns:minmax(140px,1.2fr) 2fr auto;gap:.3rem .8rem;align-items:center;margin-top:.8rem;font-size:.9rem;color:var(--text-hi);}
+  .mn-bar-t{height:10px;background:rgba(var(--cream-rgb),.06);border-radius:3px;overflow:hidden;}
+  .mn-bar-t span{display:block;height:100%;background:var(--amber);}
+  .mn-bar-n{font-family:var(--mono);font-size:12px;white-space:nowrap;}
+  .mn-bar-s{grid-column:1/-1;font-size:.78rem;color:var(--text-lo);} .mn-bar-s a{color:var(--amber);}
+  .mn-flag{border-top:1px solid var(--border);padding:.7rem 0;}
+  .mn-flag summary{cursor:pointer;display:flex;gap:1rem;align-items:baseline;flex-wrap:wrap;}
+  .mn-flag-n{font-family:var(--serif);font-size:1.25rem;font-weight:700;color:var(--cream);min-width:9rem;}
+  .mn-flag-l{color:var(--text-hi);} .mn-flag small{color:var(--text-lo);font-size:.8rem;}
+  .mn-flag p{margin-top:.5rem;color:var(--text-md);font-size:.9rem;line-height:1.55;}
+  .mn-flag blockquote{margin:.5rem 0;padding:.4rem .9rem;border-left:2px solid var(--amber);color:var(--text-hi);font-style:italic;font-size:.88rem;}
+  .mn-flag a,.an-card-sub a,.mn-src a{color:var(--amber);}
+  .mn-src{margin-top:.8rem;color:var(--text-md);font-size:.88rem;line-height:1.6;padding-left:1.1rem;}
+  .maplibregl-popup-content{background:var(--ink);color:var(--text-hi);border:1px solid var(--border2);font-size:.88rem;}
+  .maplibregl-popup-content a{color:var(--amber);}
+  @media(max-width:600px){.mn-bar{grid-template-columns:1fr auto;}.mn-bar-t{grid-column:1/-1;grid-row:2;}}
+</style>
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">Tax and spending: <em>where the money goes</em></h1>
+      <p class="an-sub">How much tax a state collects itself, how much of the budget its Assembly passed was actually spent, and what the government's auditor, the Comptroller and Auditor General (CAG), flagged. Every figure links to the page it comes from. No official report gives one number for "money wasted", so this page shows what the auditor does report: money left unspent, grants with no proof of what they bought, and spending beyond what was approved.</p>
+    </div>
+    <div class="an-meta"><span id="mn-updated">Loading…</span></div>
+  </div>
+
+  <div class="mn-pick"><label for="mn-pick">State</label><select id="mn-pick"></select></div>
+
+  <section id="mn-state">
+    <h2 class="an-title" style="font-size:1.6rem;margin-bottom:1rem;" id="mn-state-name"></h2>
+    <div class="an-tiles" id="mn-tiles"></div>
+  </section>
+
+  <div class="an-grid">
+    <section class="an-card">
+      <h2>Where the money came from</h2>
+      <div id="mn-came"></div>
+    </section>
+
+    <section class="an-card">
+      <h2>What the auditor flagged</h2>
+      <p class="an-card-sub">From the CAG's State Finances Audit Report. Tap a line for what it means and the report's own words. These are audit findings, not proof that anyone stole money.</p>
+      <div id="mn-flags"></div>
+    </section>
+
+    <section class="an-card" id="map">
+      <h2>Map</h2>
+      <div class="mn-pick" style="margin:.8rem 0 0;"><label for="mn-layer">Show</label><select id="mn-layer"></select></div>
+      <p class="an-card-sub" id="mn-layer-note"></p>
+      <div id="mn-map"></div>
+      <div class="mn-legend">less <i style="background:#f3dcae"></i><i style="background:#e8b665"></i><i style="background:#DD3333"></i><i style="background:#a35f12"></i><i style="background:#6b3a05"></i> more · <i style="background:#d9d4ca;border:1px solid #999"></i> not on file</div>
+      <p class="an-card-sub">Shades rank states against each other (fifths), they are not good or bad marks. Tap a state or seat for its figure and source.</p>
+      <div class="an-table-wrap" id="mn-table"></div>
+    </section>
+
+    <section class="an-card">
+      <h2>Not on file yet</h2>
+      <p class="an-card-sub">These are the figures that would show the money for your district, block, panchayat or town. We have not found them published in a form we can cite. Have one, with its source? <button type="button" class="dg-btn" style="margin:0 .3rem;" data-source-fix data-what="Tax and spending figure">Send it with its source</button></p>
+      <div class="an-table-wrap"><table class="an-table"><thead><tr><th>Figure</th><th>Where it should come from</th><th>Why it is missing</th></tr></thead><tbody id="mn-missing"></tbody></table></div>
+    </section>
+
+    <section class="an-card">
+      <h2>Sources</h2>
+      <ul class="mn-src" id="mn-src"></ul>
+      <p class="an-card-sub">"Own taxes as % of spending" and "budget used" are divisions of two figures from the same source, shown with both numbers. Years differ between sources: each tile names its year.</p>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="municipality.html">Who runs the municipality</a>
+    <a href="promises.html">Promises</a>
+    <a href="changelog.html">What's new</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="methodology.html">How it works</a>
+  </div>
+</main>
+
+<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
+<script defer src="money.js"></script>
+</body>
+</html>

@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "main": "index.ts",
   "dependencies": {
+    "@maplibre/maplibre-react-native": "11.4.0",
     "@supabase/supabase-js": "^2.117.3",
     "expo": "~57.0.27",
     "expo-background-task": "~57.0.21",
@@ -15,10 +16,12 @@
     "expo-localization": "~57.0.2",
     "expo-location": "~57.0.20",
     "expo-network": "~57.0.2",
+    "expo-notifications": "57.0.21",
     "expo-sqlite": "~57.0.4",
     "expo-status-bar": "~57.0.1",
     "expo-system-ui": "~57.0.4",
     "expo-task-manager": "~57.0.21",
+    "expo-web-browser": "~57.0.3",
     "react": "19.2.3",
     "react-native": "0.86.3",
     "react-native-gesture-handler": "~2.32.0",
@@ -37,5 +40,16 @@
     "ios": "expo run:ios",
     "typecheck": "tsc --noEmit"
   },
-  "private": true
+  "private": true,
+  "expo": {
+    "install": {
+      "exclude": [
+        "expo",
+        "expo-crypto",
+        "expo-dev-client",
+        "expo-location",
+        "expo-notifications"
+      ]
+    }
+  }
 }

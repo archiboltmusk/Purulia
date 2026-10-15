@@ -4,7 +4,7 @@ import { type LayoutChangeEvent, StyleSheet, Text, View } from 'react-native';
 import { Gesture, GestureDetector } from 'react-native-gesture-handler';
 import Animated, { useAnimatedStyle, useSharedValue, withSpring } from 'react-native-reanimated';
 import { scheduleOnRN } from 'react-native-worklets';
-import { C } from './theme';
+import { C, T } from './theme';
 
 const KNOB = 56;
 
@@ -56,9 +56,11 @@ export function SlideToSubmit({ label, disabled, onDone }: { label: string; disa
 }
 
 const s = StyleSheet.create({
-  track: { height: KNOB + 8, borderRadius: (KNOB + 8) / 2, backgroundColor: 'rgba(255,255,255,0.08)', justifyContent: 'center', overflow: 'hidden' },
-  fill: { position: 'absolute', left: 4, top: 4, bottom: 4, borderRadius: KNOB / 2, backgroundColor: 'rgba(61,220,151,0.25)' },
-  label: { position: 'absolute', alignSelf: 'center', color: C.text, fontSize: 16, fontWeight: '600', letterSpacing: 0.3 },
-  knob: { position: 'absolute', left: 4, width: KNOB, height: KNOB, borderRadius: KNOB / 2, backgroundColor: C.accent, alignItems: 'center', justifyContent: 'center' },
-  arrow: { color: '#06281A', fontSize: 30, fontWeight: '700', marginTop: -3 },
+  track: { height: KNOB + 8, backgroundColor: C.raised, borderWidth: 1, borderColor: C.line, justifyContent: 'center', overflow: 'hidden' },
+  fill: { position: 'absolute', left: 4, top: 4, bottom: 4, backgroundColor: 'rgba(59,255,173,0.18)' },
+  label: { ...T.caps, position: 'absolute', alignSelf: 'center', color: C.text },
+  // Square knob with NeoPOP's lit right and shaded bottom edge.
+  knob: { position: 'absolute', left: 4, width: KNOB, height: KNOB, backgroundColor: C.accent, borderRightWidth: 3, borderBottomWidth: 3,
+    borderRightColor: C.accentEdge, borderBottomColor: C.accentDeep, alignItems: 'center', justifyContent: 'center' },
+  arrow: { color: C.ink, fontSize: 30, fontWeight: '800', marginTop: -3 },
 });

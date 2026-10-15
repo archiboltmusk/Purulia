@@ -1,0 +1,398 @@
+{
+ "avg": {
+  "from": "2024-06-24",
+  "national": {
+   "attendance": 85,
+   "bills": 0.4,
+   "debates": 21.5,
+   "questions": 120
+  },
+  "state": {
+   "attendance": 68,
+   "bills": 0.1,
+   "debates": 12.6,
+   "questions": 66
+  },
+  "to": "2026-08-13"
+ },
+ "checked": "2026-10-08",
+ "missing": {
+  "prs": [
+   "Dum Dum"
+  ]
+ },
+ "pc": {
+  "1": {
+   "prs": {
+    "attendance": 51,
+    "bills": 0,
+    "debates": 6,
+    "questions": 34,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/jagadish-chandra-barma-basunia"
+   }
+  },
+  "10": {
+   "prs": {
+    "attendance": 61,
+    "bills": 0,
+    "debates": 14,
+    "questions": 100,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/pathan-yusuf"
+   }
+  },
+  "11": {
+   "prs": {
+    "attendance": 81,
+    "bills": 0,
+    "debates": 5,
+    "questions": 70,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/abu-taher-khan"
+   }
+  },
+  "12": {
+   "prs": {
+    "attendance": 88,
+    "bills": 0,
+    "debates": 17,
+    "questions": 74,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/mahua-moitra"
+   }
+  },
+  "13": {
+   "prs": {
+    "attendance": 81,
+    "bills": 0,
+    "debates": 2,
+    "questions": 106,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/jagannath-sarkar"
+   }
+  },
+  "14": {
+   "prs": {
+    "attendance": null,
+    "bills": null,
+    "debates": null,
+    "questions": null,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/shantanu-thakur"
+   }
+  },
+  "15": {
+   "prs": {
+    "attendance": 17,
+    "bills": 0,
+    "debates": 2,
+    "questions": 7,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/partha-bhowmick"
+   }
+  },
+  "17": {
+   "prs": {
+    "attendance": 62,
+    "bills": 0,
+    "debates": 6,
+    "questions": 26,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/kakoli-ghosh-dastidar"
+   }
+  },
+  "18": {
+   "prs": {
+    "attendance": 5,
+    "bills": null,
+    "debates": 0,
+    "questions": 0,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sk-nurul-islam"
+   }
+  },
+  "19": {
+   "prs": {
+    "attendance": 83,
+    "bills": 0,
+    "debates": 46,
+    "questions": 96,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/pratima-mondal"
+   }
+  },
+  "2": {
+   "prs": {
+    "attendance": 88,
+    "bills": 0,
+    "debates": 5,
+    "questions": 4,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/manoj-tigga"
+   }
+  },
+  "20": {
+   "prs": {
+    "attendance": 79,
+    "bills": 0,
+    "debates": 9,
+    "questions": 74,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/bapi-haldar"
+   }
+  },
+  "21": {
+   "prs": {
+    "attendance": 28,
+    "bills": 0,
+    "debates": 4,
+    "questions": 69,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/abhishek-banerjee"
+   }
+  },
+  "22": {
+   "prs": {
+    "attendance": 84,
+    "bills": 0,
+    "debates": 12,
+    "questions": 107,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sayani-ghosh"
+   }
+  },
+  "23": {
+   "prs": {
+    "attendance": 28,
+    "bills": 0,
+    "debates": 2,
+    "questions": 135,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/mala-roy"
+   }
+  },
+  "24": {
+   "prs": {
+    "attendance": 38,
+    "bills": 0,
+    "debates": 5,
+    "questions": 0,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sudip-bandyopadhyay"
+   }
+  },
+  "25": {
+   "prs": {
+    "attendance": 76,
+    "bills": 0,
+    "debates": 1,
+    "questions": 0,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/prasun-banerjee"
+   }
+  },
+  "26": {
+   "prs": {
+    "attendance": 58,
+    "bills": 0,
+    "debates": 8,
+    "questions": 62,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sajda-ahmed"
+   }
+  },
+  "27": {
+   "prs": {
+    "attendance": 75,
+    "bills": 0,
+    "debates": 25,
+    "questions": 72,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/kalyan-banerjee"
+   }
+  },
+  "28": {
+   "prs": {
+    "attendance": 45,
+    "bills": 0,
+    "debates": 5,
+    "questions": 117,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/rachna-banerjee"
+   }
+  },
+  "29": {
+   "prs": {
+    "attendance": 65,
+    "bills": 0,
+    "debates": 13,
+    "questions": 27,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/mitali-bag"
+   }
+  },
+  "3": {
+   "prs": {
+    "attendance": 90,
+    "bills": 1,
+    "debates": 11,
+    "questions": 79,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/jayanta-kumar-roy"
+   }
+  },
+  "30": {
+   "prs": {
+    "attendance": 87,
+    "bills": 0,
+    "debates": 6,
+    "questions": 0,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/abhijit-gangopadhyay"
+   }
+  },
+  "31": {
+   "prs": {
+    "attendance": 84,
+    "bills": 0,
+    "debates": 0,
+    "questions": 38,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/adhikari-soumendu"
+   }
+  },
+  "32": {
+   "prs": {
+    "attendance": 8,
+    "bills": 0,
+    "debates": 0,
+    "questions": 97,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/deepak-dev-adhikari"
+   }
+  },
+  "33": {
+   "prs": {
+    "attendance": 81,
+    "bills": 0,
+    "debates": 18,
+    "questions": 44,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/kalipada-saren-kherwal"
+   }
+  },
+  "34": {
+   "prs": {
+    "attendance": 79,
+    "bills": 0,
+    "debates": 31,
+    "questions": 53,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/june-maliah"
+   }
+  },
+  "35": {
+   "prs": {
+    "attendance": 71,
+    "bills": 0,
+    "debates": 2,
+    "questions": 43,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/jyotirmay-singh-mahato"
+   }
+  },
+  "36": {
+   "prs": {
+    "attendance": 45,
+    "bills": 0,
+    "debates": 2,
+    "questions": 24,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/arup-chakraborty"
+   }
+  },
+  "37": {
+   "prs": {
+    "attendance": 79,
+    "bills": 0,
+    "debates": 15,
+    "questions": 100,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/saumitra-khan"
+   }
+  },
+  "38": {
+   "prs": {
+    "attendance": 79,
+    "bills": 0,
+    "debates": 12,
+    "questions": 48,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sharmila-sarkar"
+   }
+  },
+  "39": {
+   "prs": {
+    "attendance": 90,
+    "bills": 0,
+    "debates": 26,
+    "questions": 125,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/azad-kirti-jha"
+   }
+  },
+  "4": {
+   "prs": {
+    "attendance": 90,
+    "bills": 2,
+    "debates": 37,
+    "questions": 151,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/raju-bista"
+   }
+  },
+  "40": {
+   "prs": {
+    "attendance": 64,
+    "bills": 0,
+    "debates": 0,
+    "questions": 6,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/shatrughan-sinha"
+   }
+  },
+  "41": {
+   "prs": {
+    "attendance": 86,
+    "bills": 0,
+    "debates": 7,
+    "questions": 0,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/asit-kumar-mal"
+   }
+  },
+  "42": {
+   "prs": {
+    "attendance": 76,
+    "bills": 0,
+    "debates": 15,
+    "questions": 19,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/satabdi-roy"
+   }
+  },
+  "5": {
+   "prs": {
+    "attendance": 92,
+    "bills": 0,
+    "debates": 4,
+    "questions": 27,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/kartick-chandra-paul"
+   }
+  },
+  "6": {
+   "prs": {
+    "attendance": null,
+    "bills": null,
+    "debates": null,
+    "questions": null,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/sukanta-majumdar"
+   }
+  },
+  "7": {
+   "prs": {
+    "attendance": 95,
+    "bills": 0,
+    "debates": 34,
+    "questions": 297,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/khagen-murmu"
+   }
+  },
+  "8": {
+   "prs": {
+    "attendance": 80,
+    "bills": 0,
+    "debates": 8,
+    "questions": 19,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/isha-khan-choudhury"
+   }
+  },
+  "9": {
+   "prs": {
+    "attendance": 72,
+    "bills": 0,
+    "debates": 13,
+    "questions": 68,
+    "url": "https://prsindia.org/mptrack/18th-lok-sabha/khalilur-rahaman"
+   }
+  }
+ },
+ "sources": {
+  "prs": "https://prsindia.org/mptrack/18th-lok-sabha"
+ }
+}
