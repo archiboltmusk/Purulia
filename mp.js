@@ -59,7 +59,7 @@
       (s.assembly || []).map(function (x) { return '<span class="mp-chip">' + esc(x.name) + ' · ' + esc(x.mla || NR) + '</span>'; }).join('') + '</div>';
     var center = s.center || [];
     h += '<div class="mp-links">' +
-      '<a href="kasa.html?at=' + center[0] + ',' + center[1] + ',9">Show seat on map →</a>' +
+      (center.length ? '<a href="kasa.html?at=' + center[0] + ',' + center[1] + ',9">Show seat on map →</a>' : '') +
       '<a href="#" id="mp-share">Share this profile →</a></div>';
     h += '<div class="mp-h">Reports in this seat</div><div class="mp-stats">' +
       '<div class="mp-stat"><b>—</b><span>Unresolved</span></div>' +

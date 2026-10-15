@@ -60,8 +60,8 @@ def api_pages(url, key):
 
 
 # Lok Sabha seat name -> the spelling a source uses, where it differs beyond accents and punctuation.
-MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Warangal': 'Warangel'}
-SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara'}  # PRS and MyNeta
+MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Warangal': 'Warangel', 'Bathinda': 'Bhatinda', 'Sonipat': 'Sonepat'}
+SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Sarguja': 'Surguja', 'Nowgong': 'Nagaon', 'Anantnag': 'Anantnag-Rajouri'}  # PRS and MyNeta
 
 
 def norm(s):
@@ -99,13 +99,23 @@ def seats_of(state):
         s['center'] = [round((min(ys) + max(ys)) / 2, 4), round((min(xs) + max(xs)) / 2, 4)]
         s['assembly'].sort(key=lambda a: a['name'] or '')
     if not out:
-        # No assembly outlines (union territories, some small states): one seat, from the state's index entry.
         info = json.loads((ROOT / 'places' / 'in' / 'index.json').read_text())['states'][state]
         x0, y0, x1, y1 = info['bbox'][0], info['bbox'][1], info['bbox'][2], info['bbox'][3]
         for row in info.get('mp') or []:
+            # No assembly outlines (union territories, some small states): one seat, from the state's index entry.
             out[row['name']] = {'mp': row['person'], 'mp_party': row['party'], 'assembly': [],
                                 'center': [round((y0 + y1) / 2, 4), round((x0 + x1) / 2, 4)]}
+        if not out:
+            # No seat outlines and no MP list in the index (Assam, Jammu and Kashmir): the seat roster is
+            # MPLADS's list of Lok Sabha constituencies for the state. No map centre: no outline is sourced.
+            for m in mplads(info['name']):
+                pc = m['constituency'].title()
+                out[pc] = {'mp': clean_name(m['mpName']), 'mp_party': None, 'assembly': [], 'center': None}
     return out
+
+
+def clean_name(s):
+    return re.sub(r'\s+', ' ', s.strip()).title()
 
 
 def _coords(c):
@@ -116,7 +126,7 @@ def _coords(c):
 # ── MPLADS ──
 def mplads(state_name):
     rows = json.loads(get(f'{API}/summary/mps?page=1&limit=1000'))['data']
-    return [m for m in rows if m['state'] == state_name and m['house'] == 'Lok Sabha']
+    return [m for m in rows if m['state'].lower() == state_name.lower() and m['house'] == 'Lok Sabha']
 
 
 def mplads_works(m):
@@ -276,6 +286,7 @@ def build(state):
             if cid in prev:
                 rec['affidavit']['prevAssets'], rec['affidavit']['prevElection'] = prev[cid][0], prev[cid][1]
         else: gaps['affidavit'].append(pc)
+        if rec['mp']['party'] is None and rec['affidavit']: rec['mp']['party'] = rec['affidavit']['party']
         out[key] = rec
     data = {'state': name, 'slug': state, 'checked': date.today().isoformat(),
             'sources': {'seats': f'places/in/{state}.geojson', 'mplads': MPLADS_SITE, 'prs': PRS_LIST,
