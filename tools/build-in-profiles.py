@@ -32,6 +32,12 @@ SOURCES = {
         'pc_prev_page': '2019 Indian general election in Uttar Pradesh',
         'ac_year': 2022, 'pc_year': 2024, 'pc_prev_year': 2019,
     },
+    'maharashtra': {
+        'ac_page': '2024 Maharashtra Legislative Assembly election',
+        'pc_page': '2024 Indian general election in Maharashtra',
+        'pc_prev_page': '2019 Indian general election in Maharashtra',
+        'ac_year': 2024, 'pc_year': 2024, 'pc_prev_year': 2019,
+    },
 }
 
 
