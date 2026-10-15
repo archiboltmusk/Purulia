@@ -120,6 +120,7 @@ def firms_fires(districts, key):
 
 
 MANDI_RESOURCE = '9ef84268-d588-465a-a308-a864a43d0070'
+GST_RESOURCE = '14613c4e-5ab0-4705-b440-e4e49ae345de'  # Net central GST revenue vs budget, 2019-20 to 2023-24 (national)
 
 
 def norm(name):
@@ -188,7 +189,7 @@ def main():
     districts = load_districts()
     prev = load_previous()
     out = {'generated': datetime.now(timezone.utc).strftime('%Y-%m-%dT%H:%M:%SZ'), 'sources': SOURCES,
-           'districts': {}, 'status': {}}
+           'districts': {}, 'status': {}, 'national': prev.get('national', {})}
     for d in districts:
         out['districts'][d['slug']] = dict(prev.get('districts', {}).get(d['slug'], {}), name=d['name'], at=[d['lng'], d['lat']])
 
@@ -215,7 +216,20 @@ def main():
     mkey = os.environ.get('DATA_GOV_IN_API_KEY', '').strip()
     if not mkey:
         out['status']['data-gov-in-mandi'] = 'no key'
+        out['status']['data-gov-in-gst'] = 'no key'
     else:
+        # National series: kept as the API returns it (no field names assumed) until checked on a live run.
+        try:
+            q = urllib.parse.urlencode({'api-key': mkey, 'format': 'json', 'limit': 100})
+            page = json.loads(get('https://api.data.gov.in/resource/%s?%s' % (GST_RESOURCE, q), timeout=120))
+            out['national'] = {'gst_net_revenue': {'records': page.get('records') or [], 'total': page.get('total'),
+                                                   'source': 'data.gov.in resource ' + GST_RESOURCE}}
+            out['status']['data-gov-in-gst'] = 'ok'
+        except Exception as ex:
+            print('gst failed:', type(ex).__name__, file=sys.stderr)
+            out['status']['data-gov-in-gst'] = 'failed'
+            if 'national' in prev:
+                out['national'] = prev['national']
         try:
             res, unmatched = mandi_prices(districts, mkey)
             for slug, v in res.items():
