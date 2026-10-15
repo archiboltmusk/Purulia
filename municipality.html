@@ -33,7 +33,7 @@
   .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
   .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
   @media(min-width:1100px){.an-grid{grid-template-columns:1fr 1fr;}.an-span{grid-column:1 / -1;}}
-  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
   .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
   .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
   .an-chart{position:relative;margin-top:1.2rem;height:220px;}
@@ -57,7 +57,7 @@
   .mu-steps li::before{content:counter(mu);font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--amber);line-height:1;}
   .mu-steps b{color:var(--text-hi);}
   .mu-chain{display:grid;gap:.6rem;margin-top:1rem;}
-  .mu-node{border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;background:rgba(240,230,208,.02);}
+  .mu-node{border:1px solid var(--border);border-radius:6px;padding:.8rem 1rem;background:rgba(var(--cream-rgb),.02);}
   .mu-node b{color:var(--cream);font-family:var(--serif);font-size:1.08rem;}
   .mu-node p{margin-top:.3rem;color:var(--text-md);font-size:.9rem;line-height:1.6;}
   .mu-down{text-align:center;color:var(--amber);font-family:var(--mono);font-size:12px;}
@@ -65,8 +65,9 @@
   .an-card p + p{margin-top:.7rem;}
   .an-card ul.mu-list{margin:.7rem 0 0 1.1rem;color:var(--text-md);font-size:.92rem;line-height:1.6;}
   .an-card ul.mu-list b{color:var(--text-hi);}
-  .ws-rti{margin-top:.8rem;white-space:pre-wrap;font-size:.86rem;line-height:1.6;background:rgba(240,230,208,.03);border:1px solid var(--border);border-radius:4px;padding:1rem;color:var(--text-hi);}
+  .ws-rti{margin-top:.8rem;white-space:pre-wrap;font-size:.86rem;line-height:1.6;background:rgba(var(--cream-rgb),.03);border:1px solid var(--border);border-radius:4px;padding:1rem;color:var(--text-hi);}
   .ws-btn{margin-top:.8rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;padding:.6rem 1rem;font:inherit;font-weight:600;cursor:pointer;}
+  .an-card a.ws-btn,.ws-src a.ws-btn,.ws-dumps a.ws-btn{color:#0a0805;}
   .ws-src{margin-top:.5rem;font-size:.8rem;color:var(--text-lo);}
   .ws-src a,.an-card a{color:var(--amber);}
 </style>

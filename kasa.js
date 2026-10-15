@@ -31,6 +31,12 @@ const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (daylightMap ? 'posi
 // Ligne-claire paper for the light basemap: cream paper, flat water, road casings in ink with sand
 // fills, no hillshade. Runs on the OpenFreeMap positron style; dark style is left alone.
 const INK = '#1a1410';
+// Overlay labels were drawn for the dark basemap (light text, dark halo). On the light basemap they take ink text on a paper halo.
+function labelHalo() { return daylightMap ? '#F7F2E8' : '#0a0805'; }
+function labelInk(c) {
+  if (!daylightMap) return c;
+  return { '#e8d9b8': INK, '#6db88a': '#2a6e44', '#9ca3af': '#5b6470', '#DD3333': '#B91C1C' }[c] || c;
+}
 function inkStyle(prev, next) {
   if (!daylightMap) return next;
   const layers = next.layers.filter(l => !(l.source === 'ne2_shaded' || l.type === 'hillshade'));
@@ -1308,7 +1314,7 @@ function addBlockLayers(){
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, below);
   mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': labelInk('#6db88a'), 'text-opacity': .7, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, below);
 }
 
 /* Gram panchayat outlines show from district zoom in; the two other towns are shaded like Purulia's wards. */
@@ -1321,12 +1327,12 @@ function addLocalLayers(){
     paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, below);
   mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
     layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': labelInk('#6db88a'), 'text-opacity': .6, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#DD3333', 'fill-opacity': .05 } }, below);
   mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
     layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#DD3333', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': labelInk('#DD3333'), 'text-opacity': .8, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, below);
 }
 
 function addWardLayers(){
@@ -1366,7 +1372,7 @@ function addPlaceLayers(slug){
     paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#DD3333', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': labelInk('#DD3333'), 'text-opacity': .7, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
 }
 
 /* All West Bengal: district outlines always; each district's blocks and gram panchayats
@@ -1394,7 +1400,7 @@ async function addDistrictLayers(){
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
     filter: ['!=', ['get', 'slug'], 'purulia'],
     layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
-    paint: { 'text-color': '#9ca3af', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': labelInk('#9ca3af'), 'text-opacity': .6, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
   // Every district's blocks from the first screen, drawn and named like Purulia's (coarse file;
   // each district's detailed outlines take over from zoom 8).
   mainMap.addSource('wb-blocks', { type: 'geojson', data: 'places/wb_blocks.geojson' });
@@ -1402,7 +1408,7 @@ async function addDistrictLayers(){
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
   mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': labelInk('#6db88a'), 'text-opacity': .7, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
   mainMap.on('click', onAreaTap);
   loadLocalInView();
@@ -1426,7 +1432,7 @@ async function addTownLayers(){
     paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-label', type: 'symbol', source: 'wb-towns', minzoom: 9, maxzoom: 13.5,
     layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-offset': ['case', pt, ['literal', [0, 1.1]], ['literal', [0, 0]]] },
-    paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': labelInk(amber), 'text-opacity': .8, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
 }
 
 /* All India outside West Bengal (tools/build-in-map.py): state outlines always; each state's districts
@@ -1446,7 +1452,7 @@ async function addIndiaLayers(){
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
     layout: { 'text-field': ['get', 'state'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
-    paint: { 'text-color': '#e8d9b8', 'text-opacity': .65, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': labelInk('#e8d9b8'), 'text-opacity': .65, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
   mainMap.on('moveend', loadIndiaInView);
   mainMap.on('moveend', loadWardsInView);
   loadIndiaInView();
@@ -1477,12 +1483,12 @@ function addStateLocal(slug){
       paint: { 'line-color': '#e8d9b8', 'line-opacity': .25, 'line-width': 1 } }, 'clusters');
     mainMap.addLayer({ id: src + '-district-label', type: 'symbol', source: src, minzoom: 6.5, maxzoom: 9, filter: kind('district'),
       layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': labelInk('#e8d9b8'), 'text-opacity': .6, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
     mainMap.addLayer({ id: src + '-ac-line', type: 'line', source: src, minzoom: 8, filter: kind('ac'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .3, 'line-width': .8, 'line-dasharray': [3, 2] } }, 'clusters');
     mainMap.addLayer({ id: src + '-ac-label', type: 'symbol', source: src, minzoom: 9.5, filter: kind('ac'),
       layout: { 'text-field': ['get', 'name'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': labelInk('#6db88a'), 'text-opacity': .6, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
     // Towns with a ward map (Swachh Bharat Mission GIS): limits, or a dot; wards load from zoom 11.
     const pt = ['==', ['geometry-type'], 'Point'], amber = '#DD3333', town = ['all', kind('town'), ['!', pt]];
     mainMap.addLayer({ id: src + '-town-line', type: 'line', source: src, minzoom: 8, filter: town,
@@ -1491,7 +1497,7 @@ function addStateLocal(slug){
       paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-label', type: 'symbol', source: src, minzoom: 9, maxzoom: IN_WARD_ZOOM + 1.5, filter: kind('town'),
       layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': labelInk(amber), 'text-opacity': .8, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
     loadWardsInView();
   }).catch(() => { delete inLoading[slug]; });
 }
@@ -1521,7 +1527,7 @@ function addTownWards(ulb){
       paint: { 'line-color': amber, 'line-opacity': .4, 'line-width': .8 } }, 'clusters');
     mainMap.addLayer({ id: src + '-label', type: 'symbol', source: src, minzoom: 13,
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': amber, 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': labelInk(amber), 'text-opacity': .7, 'text-halo-color': labelHalo(), 'text-halo-width': 1 } }, 'clusters');
   }).catch(() => { delete inWardLoading[ulb]; });
 }
 
@@ -1629,7 +1635,7 @@ function addDistrictLocal(slug, attribution){
     attribution ||= g.attribution;
     const src = 'wb-' + slug, kind = k => ['==', ['get', 'kind'], k];
     mainMap.addSource(src, { type: 'geojson', data: g, attribution });
-    const green = { 'text-color': '#6db88a', 'text-halo-color': '#0a0805', 'text-halo-width': 1 };
+    const green = { 'text-color': labelInk('#6db88a'), 'text-halo-color': labelHalo(), 'text-halo-width': 1 };
     mainMap.addLayer({ id: src + '-gp-line', type: 'line', source: src, minzoom: 10, filter: kind('gp'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, 'clusters');
     mainMap.addLayer({ id: src + '-block-line', type: 'line', source: src, minzoom: WB_LOCAL_ZOOM, filter: kind('block'),
