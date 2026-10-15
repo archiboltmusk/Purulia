@@ -1281,9 +1281,16 @@ check('a third moderator-hidden report within the window pauses reporting',
 other_r = report(user(), where=offset(7500, 15000))[0]['id']
 last = rpc('kasa_flag_report', uid=offender, p_report_id=str(other_r), p_reason='not_an_issue')
 check("a paused reporter can still flag, confirm and dispute others' reports", last['counted'])
+# Test-only backdate: the events append-only trigger is lifted for this one statement.
+admin_sql("alter table kasa_private.events disable trigger kasa_events_append_only")
 admin_sql("update kasa_private.events set created_at = now() - interval '31 days' "
           "where kind = 'moderated' and detail->>'action' = 'hide' "
           "and report_id in (select id from public.reports where user_id = %s)", (offender,))
+admin_sql("alter table kasa_private.events enable trigger kasa_events_append_only")
+check('event evidence cannot be edited',
+      err(admin_sql, "update kasa_private.events set kind = 'tampered' where id = (select min(id) from kasa_private.events)") is not None)
+check('event delivery markers can still be set',
+      err(admin_sql, "update kasa_private.events set notify_claimed_at = now() where id = (select min(id) from kasa_private.events)") is None)
 check('...and the pause ends after 30 days',
       report(offender, where=offset(7800, 15000))[0]['moderation_status'] == 'approved')
 approved_offender = user()

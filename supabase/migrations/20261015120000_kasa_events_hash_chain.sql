@@ -35,15 +35,25 @@ drop trigger if exists kasa_events_chain_fill on kasa_private.events;
 create trigger kasa_events_chain_fill before insert on kasa_private.events
   for each row execute function kasa_private.events_chain_fill();
 
--- No update at all. Delete only as part of a report delete (the cascade): the parent row is
--- already gone when the child's delete trigger runs, so a direct delete of one event is refused.
+-- Evidence columns are frozen. The notify_* columns are delivery bookkeeping (watch alerts
+-- claim and mark events), so they may still change. Delete only as part of a report delete
+-- (the cascade): the parent row is already gone when the child's delete trigger runs, so a
+-- direct delete of one event is refused.
 create or replace function kasa_private.events_append_only() returns trigger
 language plpgsql set search_path = '' as $$
 begin
+  if tg_op = 'UPDATE' and
+     row(new.report_id, new.kind, new.actor_id, new.actor_tag, new.claim_id, new.photo_url,
+         new.distance_m, new.detail, new.created_at, new.prev_hash, new.row_hash)
+     is not distinct from
+     row(old.report_id, old.kind, old.actor_id, old.actor_tag, old.claim_id, old.photo_url,
+         old.distance_m, old.detail, old.created_at, old.prev_hash, old.row_hash) then
+    return new;
+  end if;
   if tg_op = 'DELETE' and not exists (select 1 from public.reports r where r.id = old.report_id) then
     return old;
   end if;
-  raise exception 'KASA_APPEND_ONLY' using detail = 'kasa_private.events rows cannot be changed or deleted.';
+  raise exception 'KASA_APPEND_ONLY' using detail = 'kasa_private.events evidence rows cannot be changed or deleted.';
 end $$;
 
 drop trigger if exists kasa_events_append_only on kasa_private.events;
