@@ -254,15 +254,15 @@ test('the report map knows gram panchayats and the other towns', async ({ page, 
   expect(labels).toEqual(['Jhalda Municipality', 'Sirkabad gram panchayat, Arsha block', 'agency_municipality', 'agency_panchayat']);
 });
 
-test('the Daylight map switch in the menu swaps to a light map', async ({ page, backend }) => {
+test('the map opens light, and the Daylight map switch in the menu goes back to dark', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
-  expect(await page.evaluate(() => MAP_STYLE)).toContain('/dark');
-  await page.locator('#k-more-btn').click();
-  await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'false');
-  await Promise.all([page.waitForEvent('load'), page.locator('#k-daylight').click()]);
   expect(await page.evaluate(() => MAP_STYLE)).toContain('/positron');
+  await page.locator('#k-more-btn').click();
   await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'true');
+  await Promise.all([page.waitForEvent('load'), page.locator('#k-daylight').click()]);
+  expect(await page.evaluate(() => MAP_STYLE)).toContain('/dark');
+  await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('a report shows its official grievance numbers, and anyone can add one', async ({ page, backend }) => {
