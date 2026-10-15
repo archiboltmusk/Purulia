@@ -806,3 +806,17 @@ test('analytics lists the weekly letters to each office in Purulia, and not else
   await expect(page.locator('.an-title')).toContainText('Bankura');
   await expect(page.locator('#an-letters-card')).toBeHidden();
 });
+
+test('the place picker reaches any state and district in India; the header names what is picked', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'bihar');
+  await expect(page.locator('#k-place-list [data-place="in:bihar"]')).toBeVisible();
+  await expect(page.locator('#k-place-list [data-place="in:karnataka"]')).toBeHidden();
+  await page.click('#k-place-list [data-place="in:bihar"]');
+  await expect(wordmark(page)).toHaveText('Bihar');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'patna');
+  await page.click('#k-place-list [data-place="in:bihar:patna"]');
+  await expect(wordmark(page)).toHaveText('Patna');
+});
