@@ -96,7 +96,7 @@ const ISSUE_GROUPS = [
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
-const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
+const COLORS = { minor: '#9ca3af', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
    approves it before it is public (enforced on the server). */
@@ -1253,7 +1253,7 @@ function initMainMapNow(){
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': '#7a3f16', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
@@ -1305,20 +1305,20 @@ function addLocalLayers(){
   mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
     layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
-  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#d4882a', 'fill-opacity': .05 } }, below);
-  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, below);
+  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#DD3333', 'fill-opacity': .05 } }, below);
+  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
     layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': '#DD3333', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
 }
 
 function addWardLayers(){
   if (!mainMap || !state.wardGeo || mainMap.getSource('wards')) return;
   mainMap.addSource('wards', { type: 'geojson', data: state.wardGeo });
-  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'wards-selected', type: 'fill', source: 'wards', filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
-  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
   mainMap.on('click', 'wards-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward));
@@ -1338,18 +1338,18 @@ function addPlaceLayers(slug){
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
   // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
   mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
   mainMap.on('click', 'place-' + slug + '-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward), slug);
   });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
-    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
+    paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': '#DD3333', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
 }
 
 /* All West Bengal: district outlines always; each district's blocks and gram panchayats
@@ -1392,7 +1392,7 @@ async function addTownLayers(){
   const g = await loadTowns();
   if (!mainMap || !g?.features?.length || mainMap.getSource('wb-towns')) return;
   mainMap.addSource('wb-towns', { type: 'geojson', data: g, attribution: g.attribution });
-  const pt = ['==', ['geometry-type'], 'Point'], amber = '#d4882a';
+  const pt = ['==', ['geometry-type'], 'Point'], amber = '#DD3333';
   mainMap.addLayer({ id: 'wb-towns-line', type: 'line', source: 'wb-towns', minzoom: 8, filter: ['!', pt],
     paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-dot', type: 'circle', source: 'wb-towns', minzoom: 8, filter: pt,
@@ -1457,7 +1457,7 @@ function addStateLocal(slug){
       layout: { 'text-field': ['get', 'name'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
       paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
     // Towns with a ward map (Swachh Bharat Mission GIS): limits, or a dot; wards load from zoom 11.
-    const pt = ['==', ['geometry-type'], 'Point'], amber = '#d4882a', town = ['all', kind('town'), ['!', pt]];
+    const pt = ['==', ['geometry-type'], 'Point'], amber = '#DD3333', town = ['all', kind('town'), ['!', pt]];
     mainMap.addLayer({ id: src + '-town-line', type: 'line', source: src, minzoom: 8, filter: town,
       paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-dot', type: 'circle', source: src, minzoom: 8, filter: ['all', kind('town'), pt],
@@ -1488,7 +1488,7 @@ function addTownWards(ulb){
     if (!g) { delete inWardLoading[ulb]; return; }
     inWardGeo[ulb] = g;
     if (!mainMap || mainMap.getSource('inw-' + ulb)) return;
-    const src = 'inw-' + ulb, amber = '#d4882a';
+    const src = 'inw-' + ulb, amber = '#DD3333';
     mainMap.addSource(src, { type: 'geojson', data: g });
     mainMap.addLayer({ id: src + '-line', type: 'line', source: src, minzoom: IN_WARD_ZOOM,
       paint: { 'line-color': amber, 'line-opacity': .4, 'line-width': .8 } }, 'clusters');
@@ -1726,8 +1726,8 @@ function renderAreaCard(){
   const f = areaFeature();
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data: f });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
-    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#DD3333', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#DD3333', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(f);
 }
 
@@ -3183,12 +3183,12 @@ async function shareCard(r){
   g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `400 40px ${serif}`;
   y = wrap(r.landmark || r.address ? `${placeText(r)} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
   const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
-  g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
+  g.font = `500 32px ${mono}`; g.fillStyle = '#EF4444';
   const otherBody = r.area === 'place' && (window.KasaPlaces?.bySlug(r.place)?.body || t('pl_incharge_unknown'));
   y = wrap(`${t('card_responsible')}: ${otherBody || t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
   if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
   // Footer
-  g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+  g.fillStyle = '#DD3333'; g.fillRect(0, H - 120, W, 120);
   g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`;
   g.fillText(brandName(r), PAD, H - 68);
   g.font = `500 28px ${mono}`;
@@ -5445,8 +5445,8 @@ function showSeatOnMap(kind, n){
   const data = { type: 'FeatureCollection', features: fs };
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12 } }, 'clusters');
-    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#DD3333', 'fill-opacity': .12 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#DD3333', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(data);
   const b = fs.map(f => f.bbox);
   userMovedMap = true;

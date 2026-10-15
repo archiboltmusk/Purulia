@@ -125,13 +125,13 @@
   const esc = (s) => String(s).replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]));
   const style = document.createElement('style');
   style.textContent = `
-.tf-toggle{font:500 12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:.45rem .7rem;margin:.5rem 0 0;border-radius:6px;border:1px dashed rgba(212,136,42,.7);background:transparent;color:inherit;cursor:pointer}
-.tf-toggle[aria-pressed="true"]{background:#D4882A;color:#0a0805;border-style:solid}
+.tf-toggle{font:500 12px/1.2 system-ui,-apple-system,Segoe UI,Roboto,sans-serif;padding:.45rem .7rem;margin:.5rem 0 0;border-radius:6px;border:1px dashed rgba(221,51,51,.7);background:transparent;color:inherit;cursor:pointer}
+.tf-toggle[aria-pressed="true"]{background:#DD3333;color:#0a0805;border-style:solid}
 .pl-lang + .tf-toggle{margin:0 .8rem 0 0;vertical-align:middle}
 .tf-bar{position:fixed;left:50%;transform:translateX(-50%);top:calc(8px + env(safe-area-inset-top,0px));z-index:9990;display:flex;gap:10px;align-items:center;max-width:calc(100vw - 24px);
-  padding:8px 12px;border-radius:10px;background:#D4882A;color:#0a0805;font:500 13px/1.35 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.3)}
+  padding:8px 12px;border-radius:10px;background:#DD3333;color:#0a0805;font:500 13px/1.35 system-ui,sans-serif;box-shadow:0 6px 20px rgba(0,0,0,.3)}
 .tf-bar button{font:600 13px system-ui,sans-serif;padding:5px 10px;border-radius:6px;border:0;background:#0a0805;color:#fff;cursor:pointer;flex:none}
-html.tf-on[lang="bn"] [data-i18n]:hover,html.tf-on[lang="bn"] [data-t]:hover{outline:1px dashed #D4882A;outline-offset:2px;cursor:help}
+html.tf-on[lang="bn"] [data-i18n]:hover,html.tf-on[lang="bn"] [data-t]:hover{outline:1px dashed #DD3333;outline-offset:2px;cursor:help}
 .tf-toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));z-index:9991;max-width:calc(100vw - 32px);padding:9px 14px;border-radius:8px;background:#1d1a16;color:#fff;font:13px/1.4 system-ui,sans-serif}
 .tf-back{position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.55);display:flex;align-items:flex-end;justify-content:center;padding:16px}
 @media (min-width:600px){.tf-back{align-items:center}}
