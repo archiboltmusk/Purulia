@@ -5627,6 +5627,24 @@ document.addEventListener('submit', async e => {
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
+/* Response rate: of the reports addressed to this leader, the share with a reply from them on record
+   (kasa_public_replies, matched by name). Nothing is shown below RATE_MIN reports. */
+const RATE_MIN = 10;
+async function renderRepRate(rep, all){
+  const el = document.getElementById('k-rep-rate');
+  if (!el || !sb || all.length < RATE_MIN) return;
+  const ids = all.filter(r => r.replyCount > 0).map(r => r.id);
+  const { data, error } = ids.length ? await sb.from('kasa_public_replies').select('report_id,responder_name').in('report_id', ids).limit(5000) : { data: [] };
+  if (el.dataset.key !== rep.key || error) return;
+  const norm = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const mine = new Set((data || []).filter(x => norm(x.responder_name) === norm(rep.name)).map(x => String(x.report_id)));
+  const answered = all.filter(r => mine.has(String(r.id))).length;
+  const times = all.map(r => Date.parse(r.createdAt)).filter(Number.isFinite);
+  const day = ms => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  el.innerHTML = `<div class="k-rep-worst-title">${esc(t('rep_rate_h'))}</div>
+    <p class="k-rep-src"><b>${Math.round(answered / all.length * 100)}%</b> · ${esc(t('rep_rate_note', { a: answered, n: all.length, f: day(Math.min(...times)), t: day(Math.max(...times)) }))}</p>`;
+}
+
 // Photos of the reports a leader answers for: filter and sort in place. A tap opens that report's sheet.
 function renderRepPhotos(all){
   const bar = document.getElementById('k-rep-ph-bar'), grid = document.getElementById('k-rep-ph-grid');
@@ -5710,6 +5728,7 @@ async function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${verified.length}</div><div class="k-rep-stat-l">${esc(t('rep_resolved'))}</div></div>
       <div class="k-rep-stat"><div class="k-rep-stat-n">${byPlace.size}</div><div class="k-rep-stat-l">${esc(t('rep_places'))}</div></div>
     </div>
+    <div id="k-rep-rate" data-key="${esc(rep.key)}"></div>
     <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
     ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
       : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}
@@ -5739,7 +5758,7 @@ async function openRepProfile(key){
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
-  if (rep.covers) renderRepPhotos(all);
+  if (rep.covers) { renderRepPhotos(all); renderRepRate(rep, all); }
   loadRepReplies(rep);
   renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
