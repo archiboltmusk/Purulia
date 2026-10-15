@@ -1142,3 +1142,15 @@ body[data-app-layout] .k-maplibregl-ctrl-group,body[data-app-layout] .maplibregl
 body[data-app-layout] .maplibregl-ctrl-group button{width:40px;height:40px;}
 body[data-app-layout] .k-quick-chip{border-radius:999px;font-size:13px;}
 body[data-app-layout] .k-filter-select{padding-right:2.1rem;background-position:right .8rem center;}
+
+/* ── Ligne-claire type and outlines (home map + header): flat fills, crisp dark
+   outlines, bold display lettering for headings. Type and colour only. ── */
+body[data-app-layout]{--line-ink:#1a1410;}
+body[data-app-layout] .k-nav-logo{font-weight:700;letter-spacing:-.01em;}
+body[data-app-layout] .k-nav-logo .k-wordmark-second{font-weight:700;}
+body[data-app-layout] .k-map-pill{background:#ffffff;border:2px solid var(--line-ink);box-shadow:none;border-radius:999px;}
+body[data-app-layout] .k-pill-num{font-weight:700;}
+body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-shadow:0 3px 0 var(--line-ink);font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px;}
+body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
+body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
+body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
