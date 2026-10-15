@@ -18,7 +18,7 @@
                     ['boys_toilet', "boys' toilet", null], ['electricity', 'electricity', 'electricity_ok'],
                     ['boundary_wall', 'boundary wall', 'boundary_ok'], ['handwash', 'hand-wash', null],
                     ['library', 'library', null], ['playground', 'playground', null], ['ramp', 'ramp', null]];
-  // State and national figures from the UDISE+ 2024-25 report (tools/udise-benchmarks.py).
+  // State and national figures from the UDISE+ 2025-26 report (tools/udise-benchmarks.py).
   const bench = await fetch('schools-benchmarks.json').then(r => r.ok ? r.json() : null).catch(() => null);
   const bm = key => bench?.indicators.find(i => i.key === key);
   const pct = v => v == null ? '—' : `${v}%`;

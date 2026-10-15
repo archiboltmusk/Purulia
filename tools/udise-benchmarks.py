@@ -1,8 +1,8 @@
 #!/usr/bin/env python3
-"""Builds schools-benchmarks.json from the Ministry of Education's UDISE+ 2024-25 booklet.
+"""Builds schools-benchmarks.json from the Ministry of Education's UDISE+ 2025-26 booklet (the "existing" edition, same table layout as 2024-25).
 
     python3 -m pip install pymupdf
-    curl -o udise.pdf "https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2024_25_Booklet_existing.118ba29d4773e6372f72.pdf"
+    curl -o udise.pdf "https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2025_26_Booklet_existing.edd7cd16d934a10377ba.pdf"
     python3 tools/udise-benchmarks.py udise.pdf schools-benchmarks.json
 
 Every figure is read from the booklet's own tables (the page and column are
@@ -14,11 +14,11 @@ import json
 import sys
 
 SOURCE = {
-    'title': 'UDISE+ 2024-25 (Unified District Information System for Education Plus)',
+    'title': 'UDISE+ 2025-26 (Unified District Information System for Education Plus)',
     'publisher': 'Ministry of Education, Government of India',
-    'year': '2024-25',
-    'url': 'https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2024_25_Booklet_existing.118ba29d4773e6372f72.pdf',
-    'note': "Schools' own self-reported data for 2024-25, all managements (government, aided, private and others).",
+    'year': '2025-26',
+    'url': 'https://dashboard.udiseplus.gov.in/report2026/static/media/UDISE+2025_26_Booklet_existing.edd7cd16d934a10377ba.pdf',
+    'note': "Schools' own self-reported data for 2025-26, all managements (government, aided, private and others).",
 }
 
 # key, label, booklet page, column index in the extracted row (index 3 is total schools)
