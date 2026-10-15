@@ -2809,7 +2809,7 @@ check('only verified live-photo GPS reports count against an asset and its DLP',
 dossier = rpc('kasa_case_dossier', p_report_id=rid_live)
 check('a case dossier joins only public report, authority, work and verification records',
       dossier['report']['id'] == rid_live and dossier['relations']['asset']['match'] == 'confirmed'
-      and any(w.get('contractor', {}).get('firm_name') == 'Test Builders' for w in dossier['relations']['works']['works'])
+      and any((w.get('contractor') or {}).get('firm_name') == 'Test Builders' for w in dossier['relations']['works']['works'])
       and 'user_id' not in dossier['report'] and 'moderation_labels' not in dossier['report'], dossier)
 check('a hidden or unknown report has no dossier', rpc('kasa_case_dossier', p_report_id='00000000-0000-0000-0000-000000000000') is None)
 check('director records are not exposed', refused(err(q, 'select * from kasa_private.contractor_directors', uid=user())))
