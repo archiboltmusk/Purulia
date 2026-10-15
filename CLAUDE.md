@@ -20,6 +20,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `assistant.html` + `assistant.js` — "Ask Parishkar" help chat (bn/hi/en, kasa drawer + manifest shortcut): anonymous sign-in → edge function `kasa-assistant` → Sarvam AI chat API (secret `SARVAM_API_KEY`, optional `SARVAM_MODEL`, default sarvam-105b; unset = 503 "not on yet"); daily cap per visitor via service-only `kasa_assistant_take` → `kasa_private.assistant_usage`. Nothing else stored.
 - Static idea board: `ray.html` (five Ray-inspired ideas as Hergé-style panels, not built; mitu.js guide). Static text only: `circle.html`, `municipality.html` (use `page-lang.js` + `<page>-i18n.js`), `methodology.html`, `rules.html`, `grievance.html`, `privacy.html`, `terms.html`, `changelog.html`, `poster.html`.
 - `solutions.html` + `solutions.js` — "Find a solution": static keyword index (problem -> existing page or helpline), no server; rows added only when the page exists. Next phase: `kasa_solutions_search` RPC.
+- `blood.html` — static: blood donation facts (WHO, linked) + link to official eRaktKosh stock service. No donor data, no copied stock data. raktkhoj.org is a self-described demo: no API, no reuse licence, so not copied.
 - `helplines.html` — static: CPGRAMS, NALSA 15100, RTI Online (central only), each row linked to its official page. Add a row only after confirming the number on its official site.
 - Redirect stubs only (don't add features): `map.html`, `audience.html`, `digest-subscribe.html`, `suggestions.html`, `app/index.html`.
 - `og-card.html` — OG image source, not published.
@@ -94,8 +95,9 @@ GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `verce
 
 # Changelog
 
-- Every user-visible change adds a line at the top of `changelog.html` (newest date first, plain words a reporter would use). Internal-only changes (CI, refactors, config) don't need one.
-- After editing `changelog.html`, run `node tools/version.mjs` and commit `version.js` (the version badge on the report map: v1.<dated sections>.<entries on the newest day>). CI fails if it is out of date.
+- Small PRs do NOT edit `changelog.html` or `version.js`. Only radical changes (a new feature area, a new page for the public, a change to how reports work) get a line, and only in the release step below. Ordinary fixes and small UI tweaks: no changelog line, no version bump. This keeps PRs from conflicting on the top of `changelog.html`.
+- Release step (one PR, done by a maintainer when cutting a release): add the dated lines at the top of "Changes so far" in `changelog.html` (newest date first, plain words a reporter would use), then run `node tools/version.mjs` and commit `version.js` (the version badge on the report map: v1.<dated sections>.<entries on the newest day>). CI fails if `version.js` is out of date with `changelog.html`, so the release PR must include both.
+- The "What's next" section at the top of `changelog.html` is edited in the same release PR, not in feature PRs.
 
 # Pull requests
 
