@@ -31,3 +31,15 @@ Last checked: 2026-10-15 from the project sandbox. Status column = what was actu
 2. Ask eRaktKosh / NHM Blood Cell for written permission to publish the stock and bank list (blocks live stock and the map).
 3. Open sources 4-8 and record licence and figures before any use.
 4. Verify every phone number on its official page on the day it is published, and record the date.
+
+## Verified 2026-10-15: CDSCO state-wise count (official PDF)
+
+Source: [CDSCO, licensed Blood Centres, state/UT wise, up to Dec-2021](https://cdsco.gov.in/opencms/opencms/en/BloodCentre/) (released 2022-Jan-05). PDF, 1 page, downloaded and read.
+Licence: not stated in the PDF; government document, check GODL terms before reuse.
+
+| State | Govt | Other than govt | Total |
+|---|---|---|---|
+| West Bengal | 109 | 44 | 153 |
+| All India | 1241 | 2541 | 3782 |
+
+Note: All India total here (3782) differs from the MoHFW figure of 4,263 on [dghs.mohfw.gov.in/bts.php](https://dghs.mohfw.gov.in/bts.php). Different dates and definitions; cite each with its date. Names and addresses are not in this PDF, only counts.
