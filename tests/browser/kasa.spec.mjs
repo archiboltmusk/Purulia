@@ -282,6 +282,15 @@ test('a report shows its official grievance numbers, and anyone can add one', as
     .toMatchObject({ p_report_id: '102', p_portal: 'rti', p_number: 'PRLDM/R/2026/00042' });
 });
 
+test('a report has a letter to the office that answers first', async ({ page, backend }) => {
+  await page.goto('kasa.html?report=102');
+  await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
+  const letter = page.locator('.k-letter-text');
+  await expect(letter).toHaveCount(1);
+  await expect(letter).toHaveValue(/Respected Sir\/Madam[\s\S]*Name:/);
+  await expect(page.locator('[data-copy-letter]')).toHaveCount(1);
+});
+
 test('all reports download as a GeoJSON map file with the CSV columns', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
