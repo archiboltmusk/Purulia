@@ -26,6 +26,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `escalate.html` — static: escalation steps for an open report (fix date → councillor/MLA/MP → RTI s.7(1) → first appeal s.19(1) → second appeal s.19(3) → CPGRAMS (central only) → NALSA 15100), each row cited. Linked from helplines.html.
 - `helplines.html` — static: CPGRAMS, NALSA 15100, RTI Online (central only), each row linked to its official page. Add a row only after confirming the number on its official site.
 - `pmgsy.html` — static: PMGSY rural road tender list (closing dates from the live list, checked 16 Oct 2026); no count given.
+- `njdg.html` — static: all-India court cases pending and disposed (NJDG), figures copied by hand, snapshot date not shown on the source.
 - Redirect stubs only (don't add features): `map.html`, `audience.html`, `digest-subscribe.html`, `suggestions.html`, `app/index.html`.
 - `og-card.html` — OG image source, not published.
 - Report map viewport: `kasa_reports_in_bbox(min_lng,min_lat,max_lng,max_lat,p_limit)` (migration `20261015150000_kasa_reports_in_bbox.sql`) returns public reports in a box, newest first, capped at 1000. Not yet called by kasa.js.

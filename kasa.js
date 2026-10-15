@@ -812,7 +812,9 @@ function errorText(err){
     const key = 'err_' + code;
     const hasOwn = I18N[state.lang]?.[key] || I18N.en[key];
     const taken = data.taken_minutes_ago != null ? ago(new Date(Date.now() - data.taken_minutes_ago * 60000).toISOString()) : '';
-    return hasOwn ? t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m, ago: taken }) : (err.details || t('err_generic'));
+    if (!hasOwn) return err.details || t('err_generic');
+    const msg = t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m, ago: taken });
+    return code === 'KASA_RATE_LIMIT' ? msg + ' ' + t('rate_upvote') : msg;
   }
   return t('err_generic');
 }
@@ -3606,6 +3608,12 @@ function openCamera(){
   return new Promise(resolve => {
     camera.resolve = resolve;
     camera.blob = null;
+    // After dark (before 06:00 or from 18:00) the phone's camera struggles, so say how to light the spot.
+    const hour = new Date().getHours();
+    if (hour < 6 || hour >= 18) {
+      const hint = document.querySelector('#k-cam .k-cam-hint');
+      if (hint && !hint.dataset.dark) { hint.dataset.dark = '1'; hint.textContent += ' ' + t('cam_dark_tip'); }
+    }
     const shutter = document.getElementById('k-cam-shutter');
     shutter.disabled = true;
     shutter.setAttribute('aria-label', t('cam_capture'));
@@ -3893,6 +3901,11 @@ function selectCategory(key, advance = true){
 async function captureReportPhoto(){
   if (!draft) return;
   const note = document.getElementById('k-photo-note');
+  // In-app browsers (Facebook, Instagram, and so on) usually block GPS; say so before the camera opens.
+  if (/FBAN|FBAV|Instagram|Line\/|MicroMessenger|LinkedInApp|Twitter/i.test(navigator.userAgent)) {
+    note.hidden = false;
+    note.textContent = t('inapp_warn');
+  }
   const res = await openLiveCamera();
   if (!draft) return;
   if (!res.blob){
@@ -3975,8 +3988,10 @@ function setLocation(lat, lng, accuracy){
     add.textContent = ' ' + t('pl_add_town');
     note.append(add);
   }
+  // Above 30 m the ward can flip to the neighbour, so say so before filing.
+  const rough = accuracy > 30 ? ' · ' + t('step3_loc_rough', { acc: Math.round(accuracy) }) : '';
   document.getElementById('k-coords').textContent =
-    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` +
+    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` + rough +
     (['town', 'rural', 'outside', 'place', 'india'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   if (draft.wasteType) renderIssues();
   updateSubmitState();
