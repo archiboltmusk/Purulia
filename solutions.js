@@ -4,7 +4,7 @@
   var INDEX = [
     { title: 'Snakebite or a snake in the house', words: 'snake snakebite bite rescue rescuer cobra venom', href: 'snakes.html', text: 'Report a sighting, or find an approved rescuer near you.' },
     { title: 'Stray dogs and feeding', words: 'dog dogs stray feed feeding animal abc', href: 'dogs.html', text: 'Community dog feeding spots and the rules that apply.' },
-    { title: 'Blood, blood donors and blood banks', words: 'blood donor donate bank thalassemia platelet rakt', href: '', text: 'Not on this site yet. Ask your nearest hospital or government blood bank for their blood services.' },
+    { title: 'Blood, blood donors and blood banks', words: 'blood donor donate bank thalassemia platelet rakt', href: 'blood.html', text: 'Blood donation facts and the official eRaktKosh stock service.' },
     { title: 'Drinking water and tap water', words: 'water tap drinking supply jal jjm pipe', href: 'data.html', text: 'Tap-water coverage figures for each district, with their sources.' },
     { title: 'Garbage, waste and cleanliness', words: 'garbage waste trash dustbin clean swachh drain', href: 'waste.html', text: 'Waste collection and cleanliness by place.' },
     { title: 'Toilets', words: 'toilet latrine sanitation washroom', href: 'toilets.html', text: 'Public toilets reported and checked.' },
