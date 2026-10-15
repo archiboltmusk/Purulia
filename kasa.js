@@ -637,7 +637,7 @@ async function loadCommunities(){
 async function loadWardGeo(){
   try {
     const res = await fetch(CITY.wardsGeojson || 'purulia_wards.geojson');
-    if (res.ok) state.wardGeo = await res.json();
+    if (res.ok) state.wardGeo = window.BoundaryLive.apply(await res.json(), await window.BoundaryLive.rows('purulia', sb));
   } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
 
