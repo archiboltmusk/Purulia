@@ -183,7 +183,7 @@ anon_fns = sorted(r[0] for r in admin_sql("select p.proname from pg_proc p where
 check('the public can download a read-only case dossier', 'kasa_case_dossier' in anon_fns)
 anon_fns = [f for f in anon_fns if f != 'kasa_case_dossier']
 check('only the intended SECURITY DEFINER functions are callable without signing in',
-      set(anon_fns) <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, anon_fns)
+      set(anon_fns) <= {'kasa_ev_sources', 'kasa_ev_harms', 'kasa_ev_harm', 'kasa_ev_entity', 'kasa_ev_search', 'kasa_ev_stats', 'kasa_ev_submit', 'kasa_ev_submission_status', 'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_finalize_due', 'kasa_rules', 'kasa_version', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works', 'kasa_notices_in_viewport', 'kasa_notice_map', 'kasa_register_blood_donor', 'kasa_blood_donors', 'kasa_boundary_live', 'kasa_boundary_history'}, anon_fns)
 ecols = [r[0] for r in admin_sql("select column_name from information_schema.columns where table_name = 'kasa_public_events'")]
 check('public events expose no actor ids', 'actor_id' not in ecols, ecols)
 check('anon cannot read private tables',
@@ -366,7 +366,7 @@ v2, v3 = user('60 days'), user('60 days')
 vote(v2, cid, ip='49.36.10.77')
 r3 = vote(v3, cid, ip='49.36.10.200')
 row = view_row(rid)
-check('3 confirmations from one network do not reach quorum', r3['final_after'] is None and row['claim_quorum_reached_at'] is None, (r3, row))
+check('one confirmation is enough for quorum (quorum is 1; moderator still reviews untrusted confirmers)', row['claim_quorum_reached_at'] is not None, (r3, row))
 v4 = user('60 days')
 r4 = vote(v4, cid, ip='117.200.1.9')
 row = view_row(rid)
@@ -552,7 +552,7 @@ check('the public dossier has an explicit, tested exception to the helper allowl
       any(r[0] == 'kasa_case_dossier' for r in open_definers))
 open_definers = [r for r in open_definers if r[0] != 'kasa_case_dossier']
 check('only read-only helpers and the sign-up form are callable without signing in',
-      {r[0] for r in open_definers} <= {'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works'}, open_definers)
+      {r[0] for r in open_definers} <= {'kasa_ev_sources', 'kasa_ev_harms', 'kasa_ev_harm', 'kasa_ev_entity', 'kasa_ev_search', 'kasa_ev_stats', 'kasa_ev_submit', 'kasa_ev_submission_status', 'kasa_set_rti_status', 'kasa_ward_priorities', 'kasa_retention_tick', 'kasa_submit_rep_reply', 'kasa_rep_replies', 'kasa_submit_story', 'kasa_stories', 'kasa_rules', 'kasa_finalize_due', 'p2040_submit', 'kasa_register_community', 'kasa_public_transparency', 'kasa_report_photos', 'kasa_fast_claims', 'kasa_report_addresses', 'kasa_school_coverage', 'kasa_school_checks', 'kasa_school_blocks', 'kasa_nearby_schools', 'kasa_problem_spots', 'kasa_adopted_spots', 'kasa_people_count', 'kasa_digest_subscribe', 'kasa_digest_join', 'kasa_digest_subscriber_count', 'kasa_digest_unsubscribe', 'kasa_submit_suggestion', 'kasa_get_suggestions', 'kasa_vote_suggestion', 'kasa_promises', 'kasa_promise_suggest', 'kasa_demands', 'kasa_demand_submit', 'kasa_demand_reply_suggest', 'kasa_bug_submit', 'kasa_place_visit', 'kasa_place_reaction', 'kasa_places', 'kasa_place_wards', 'kasa_submit_place', 'kasa_submit_official', 'kasa_officials', 'kasa_suggest_translation', 'kasa_translations', 'kasa_office_letters_public', 'kasa_suggest_data_fix', 'kasa_add_docket', 'kasa_report_dockets', 'kasa_drives', 'kasa_drive_going', 'kasa_feeding_spots', 'kasa_public_works', 'kasa_report_warranty', 'kasa_snake_rescuers', 'kasa_snake_sightings', 'kasa_pandals', 'kasa_jurisdictions_at', 'kasa_report_asset', 'kasa_asset_works', 'kasa_notices_in_viewport', 'kasa_notice_map', 'kasa_register_blood_donor', 'kasa_blood_donors', 'kasa_boundary_live', 'kasa_boundary_history'}, open_definers)
 
 # Photo cleanup: the live function deleted every photo the old client uploaded
 if LEGACY:
@@ -1142,7 +1142,9 @@ vil_row = view_row(vil['id'])
 check('a village report is placed in its block, without a ward, and can use village categories',
       vil_row['area_kind'] == 'rural' and vil_row['block_name'] == 'Jhalda I' and vil_row['ward_no'] is None
       and vil_row['category'] == 'hand_pump', vil_row)
-check('rural reports publish how many confirmations they need', vil_row['verify_needed'] == 2 and town_row['verify_needed'] == 3)
+rural_need = int(admin_sql("select value #>> '{}' from kasa_private.settings where key = 'rural_verify_quorum'")[0][0])
+town_need = int(admin_sql("select value #>> '{}' from kasa_private.settings where key = 'verify_quorum'")[0][0])
+check('reports publish how many confirmations they need (the live settings)', vil_row['verify_needed'] == rural_need and town_row['verify_needed'] == town_need, (vil_row['verify_needed'], town_row['verify_needed']))
 vcl = claim(user(), vil['id'], where=jhalda)
 check('a rural claim asks for the rural number of confirmations', vcl['verify_needed'] == 2, vcl)
 vv1, vv2 = user(), user()
@@ -1286,9 +1288,16 @@ check('a third moderator-hidden report within the window pauses reporting',
 other_r = report(user(), where=offset(7500, 15000))[0]['id']
 last = rpc('kasa_flag_report', uid=offender, p_report_id=str(other_r), p_reason='not_an_issue')
 check("a paused reporter can still flag, confirm and dispute others' reports", last['counted'])
+# Test-only backdate: the events append-only trigger is lifted for this one statement.
+admin_sql("alter table kasa_private.events disable trigger kasa_events_append_only")
 admin_sql("update kasa_private.events set created_at = now() - interval '31 days' "
           "where kind = 'moderated' and detail->>'action' = 'hide' "
           "and report_id in (select id from public.reports where user_id = %s)", (offender,))
+admin_sql("alter table kasa_private.events enable trigger kasa_events_append_only")
+check('event evidence cannot be edited',
+      err(admin_sql, "update kasa_private.events set kind = 'tampered' where id = (select min(id) from kasa_private.events)") is not None)
+check('event delivery markers can still be set',
+      err(admin_sql, "update kasa_private.events set notify_claimed_at = now() where id = (select min(id) from kasa_private.events)") is None)
 check('...and the pause ends after 30 days',
       report(offender, where=offset(7800, 15000))[0]['moderation_status'] == 'approved')
 approved_offender = user()
@@ -2358,7 +2367,7 @@ rpc('kasa_admin_review_place', uid=mod, p_id=fix['id'], p_action='approve', p_sl
 fw = rpc('kasa_place_wards', p_slug='sonamukhi')['features']
 check('a border fix replaces only the wards it sends', len(fw) == 2 and
       max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.44, fw)
-check('a pinned spot must be in West Bengal', err(send_town, ip='10.74.0.1', p_pin=[77.1, 28.6]) == 'KASA_BAD_FORM')
+check('a pinned spot must be in India', err(send_town, ip='10.74.0.1', p_pin=[-0.1, 51.5]) == 'KASA_BAD_FORM')
 check('a new town cannot be only a note', err(send_town, ip='10.74.0.1', p_geojson=None, p_note='Please add Sonamukhi') == 'KASA_BAD_MAP')
 named = ward_fc((2, (87.45, 23.29, 87.48, 23.32)))
 named['features'][0]['properties'].update(name='Lalbazar', note='Border follows the canal')
@@ -2881,6 +2890,128 @@ rural = admin_sql("select (min_lat + max_lat) / 2, (min_lng + max_lng) / 2 from 
 jr = rpc('kasa_jurisdictions_at', p_lat=rural[0], p_lng=rural[1])
 check('a village spot names its gram panchayat, samiti and zilla parishad under the Panchayat Act',
       {'gram_panchayat', 'panchayat_samiti', 'zilla_parishad'} <= {j['body_type'] for j in jr} and all(j['source_url'] for j in jr), jr)
+
+# ── Evidence system: source → document → assertion → harm → remedy → outcome ──
+mod2 = user()
+admin_sql("insert into public.admins (user_id, role) values (%s, 'moderator')", (mod2,))
+def ev(kind, row, uid=None, **kw):
+    return rpc('kasa_admin_ev_save', uid=uid or mod, p_kind=kind, p_row=row, **kw)['id']
+def review(kind, id_, decision='approve', uid=None, why='checked against the document'):
+    return rpc('kasa_admin_ev_review', uid=uid or mod, p_kind=kind, p_id=id_, p_decision=decision, p_rationale=why)
+check('the public cannot read evidence tables', refused(err(q, 'select * from kasa_private.assertions', uid=user())))
+check('non-admins cannot write evidence', err(rpc, 'kasa_admin_ev_save', uid=user(), p_kind='source',
+      p_row={'url': 'https://x.in/', 'title': 'x', 'source_type': 'other', 'jurisdiction': 'x'}) == 'KASA_NOT_ADMIN')
+srcs = rpc('kasa_ev_sources')
+check('seeded sources are listed as not yet checked', len(srcs) >= 27 and all(x['state'] == 'candidate' for x in srcs), len(srcs))
+sid = ev('source', {'url': 'https://purulia.gov.in/tenders/', 'publisher': 'Purulia Municipality', 'title': 'Purulia Municipality tenders',
+                    'source_type': 'government', 'jurisdiction': 'West Bengal'})
+review('source', sid)
+check('an approved source shows approved', [x for x in rpc('kasa_ev_sources') if x['id'] == sid][0]['state'] == 'approved')
+sha = 'a' * 64
+doc = ev('document', {'source_id': sid, 'url': 'https://purulia.gov.in/tenders/wo-12.pdf', 'title': 'Work order 12/2026',
+                      'source_class': 'official_primary', 'sha256': sha, 'published_on': '2026-03-01'})
+check('the same file (by hash) cannot be added twice', err(ev, 'document', {'source_id': sid, 'url': 'https://purulia.gov.in/copy.pdf',
+      'title': 'copy', 'source_class': 'official_primary', 'sha256': sha}) is not None)
+check('publication state cannot be written directly', err(ev, 'harm', {'publication_state': 'published'}) == 'KASA_BAD_FORM')
+hid = ev('harm', {'title': 'Ward 5 road broke within warranty', 'description': 'Potholes on a road completed in March.',
+                  'domain': 'infrastructure', 'district': 'purulia', 'local_body': 'Purulia Municipality'})
+aid = ev('assertion', {'harm_id': hid, 'headline': 'Road completed March 2026', 'body': 'The work order records completion on 1 March 2026.',
+                       'evidence_state': 'source_checked', 'evidence_as_of': '2026-10-14'})
+check('an assertion without an accepted document cannot go public', err(review, 'assertion', aid) == 'KASA_NO_EVIDENCE')
+eid = ev('evidence', {'assertion_id': aid, 'document_id': doc, 'locator': 'p. 2, para 4', 'excerpt': 'Date of completion: 01.03.2026', 'role': 'supports'})
+ev('evidence', {'assertion_id': aid, 'document_id': doc, 'locator': 'p. 3', 'excerpt': 'Handover pending', 'role': 'contradicts'})
+check('evidence must be accepted by a moderator first', err(review, 'assertion', aid) == 'KASA_NO_EVIDENCE')
+review('evidence', eid)
+for row in rpc('kasa_admin_ev_list', uid=mod, p_kind='evidence'):
+    if row['role'] == 'contradicts': review('evidence', row['id'])
+check('an assertion with an accepted document goes public', review('assertion', aid)['state'] == 'published')
+check('a harm needs a note on what is still unknown', err(review, 'harm', hid) == 'KASA_BAD_FORM')
+check('editing a public record needs a correction note', err(ev, 'assertion', {'evidence_state': 'corroborated'}, p_id=aid) == 'KASA_BAD_FORM')
+ev('assertion', {'evidence_state': 'corroborated', 'evidence_as_of': '2026-10-15'}, p_id=aid, p_note='Second copy found on the state portal.')
+ev('harm', {'unknown_note': 'Whether the contractor was told of the defect.'}, p_id=hid)
+check('a harm with a public assertion and an unknowns note goes public', review('harm', hid)['state'] == 'published')
+h = rpc('kasa_ev_harm', p_id=f'H-{hid}')
+a0 = h['assertions'][0]
+check('the harm page shows supporting and contrary documents with locators',
+      {e['role'] for e in a0['evidence']} == {'supports', 'contradicts'} and a0['evidence'][0]['document']['sha256'] == sha, a0['evidence'])
+check('superseded evidence states stay in the history', [x['value'] for x in a0['history']] == ['source_checked', 'corroborated'], a0['history'])
+check('the correction is in the public log', len(h['corrections']) == 1 and 'state portal' in h['corrections'][0]['note'], h['corrections'])
+check('published harms are listed and searchable', rpc('kasa_ev_harms', p_district='purulia')[0]['id'] == f'H-{hid}'
+      and rpc('kasa_ev_search', p_q='warranty')[0]['id'] == f'H-{hid}')
+check('drafts are not public', rpc('kasa_ev_harm', p_id='H-999999') is None)
+
+# Entities, links and the legal gate.
+body = ev('entity', {'kind': 'public_body', 'name': 'Purulia Municipality', 'district': 'purulia'})
+firm = ev('entity', {'kind': 'company', 'name': 'Example Builders', 'identifier': '19ABCDE1234F1Z5', 'identity_basis': 'GSTIN on work order'})
+review('entity', body); review('entity', firm)
+rel = ev('relationship', {'from_entity_id': body, 'to_entity_id': firm, 'kind': 'awarded_work_to', 'document_id': doc,
+                          'locator': 'p. 1', 'rationale': 'Work order names the firm', 'confidence': 'tentative_candidate'})
+check('tentative links are never published', err(review, 'relationship', rel) == 'KASA_TENTATIVE')
+ev('relationship', {'confidence': 'strong_documentary_link'}, p_id=rel)
+review('relationship', rel)
+e = rpc('kasa_ev_entity', p_id=f'E-{body}')
+check('an entity page shows its links with the document', e['links'][0]['other']['name'] == 'Example Builders' and e['links'][0]['document']['id'] == doc, e['links'])
+off = ev('entity', {'kind': 'public_official', 'name': 'Executive Officer, Purulia Municipality'})
+check('a person in an official role is always sensitive',
+      [x for x in rpc('kasa_admin_ev_list', uid=mod, p_kind='entity') if x['id'] == off][0]['sensitivity'] == 'sensitive')
+check('a sensitive record needs two different moderators', review('entity', off)['state'] == 'in_review')
+check('the same moderator approving twice does not count', review('entity', off)['state'] == 'in_review')
+check('sensitive records wait for the legal gate', err(review, 'entity', off, uid=mod2) == 'KASA_LEGAL_GATE')
+crim = ev('proceeding', {'kind': 'criminal', 'ref_no': 'FIR 12/2026', 'stage': 'fir_registered'})
+check('criminal cases are always sensitive',
+      [x for x in rpc('kasa_admin_ev_list', uid=mod, p_kind='proceeding') if x['id'] == crim][0]['sensitivity'] == 'sensitive')
+rti_p = ev('proceeding', {'kind': 'rti', 'ref_no': 'RTI/2026/77', 'forum': 'PIO, Purulia Municipality', 'stage': 'complaint', 'filed_on': '2026-09-01'})
+check('a case stage needs its date and document', err(review, 'proceeding', rti_p) == 'KASA_NO_EVIDENCE')
+ev('proceeding', {'stage_as_of': '2026-09-01', 'stage_document_id': doc}, p_id=rti_p)
+review('proceeding', rti_p)
+rpc('kasa_admin_ev_link', uid=mod, p_kind='assertion_proceeding', p_a=aid, p_b=str(rti_p), p_rationale='RTI asks for the completion certificate')
+ev('proceeding', {'stage': 'decision', 'stage_as_of': '2026-10-01'}, p_id=rti_p, p_note='PIO replied')
+p0 = rpc('kasa_ev_harm', p_id=f'H-{hid}')['assertions'][0]['proceedings'][0]
+check('legal stages keep their full dated history', [x['value'] for x in p0['history']] == ['complaint', 'decision'] and p0['stage'] == 'decision', p0)
+
+# Money kinds, remedy ledger and outcomes.
+ev('money', {'harm_id': hid, 'amount_basis': 'contract', 'amount': 1200000, 'document_id': doc, 'locator': 'p. 1'})
+mid = ev('money', {'harm_id': hid, 'amount_basis': 'reported_paid', 'amount': 1100000, 'document_id': doc, 'locator': 'p. 4'})
+for x in rpc('kasa_admin_ev_list', uid=mod, p_kind='money'): review('money', x['id'])
+check('money figures keep their kind', sorted(m['basis'] for m in rpc('kasa_ev_harm', p_id=f'H-{hid}')['money']) == ['contract', 'reported_paid'])
+rem = ev('remedy', {'harm_id': hid, 'body_entity_id': body, 'requested_action': 'Repair under the defect liability period', 'remedy_type': 'repair_under_warranty'})
+check('a remedy cannot be marked outcome verified on the office\'s word', err(ev, 'remedy', {'stage': 'outcome_verified'}, p_id=rem) == 'KASA_NO_EVIDENCE')
+check('nor marked verified complete', err(ev, 'remedy', {'action_status': 'verified_complete'}, p_id=rem) == 'KASA_NO_EVIDENCE')
+ev('remedy', {'stage': 'referred', 'action_status': 'claimed_complete'}, p_id=rem)
+bad_o = ev('outcome', {'remedy_id': rem, 'metric': 'office letter says fixed', 'method': 'letter', 'evidence_kind': 'document'})
+check('an outcome cannot be verified without a photo or document', err(review, 'outcome', bad_o) is not None)
+oid = ev('outcome', {'remedy_id': rem, 'metric': 'potholes on the stretch', 'baseline': 6, 'observed': 0, 'method': 'live camera check of the whole stretch',
+                     'evidence_kind': 'live_photo', 'evidence_ref': str(rid)})
+review('outcome', oid)
+ev('remedy', {'stage': 'outcome_verified', 'action_status': 'verified_complete'}, p_id=rem)
+review('remedy', rem)
+rm = rpc('kasa_ev_harm', p_id=f'H-{hid}')['remedies'][0]
+check('a verified outcome closes the ledger and sets a recurrence check', rm['stage'] == 'outcome_verified' and rm['recheck_on'] and len(rm['outcomes']) == 1, rm)
+check('the ledger keeps each stage', [x['value'] for x in rm['history'] if x['field'] == 'stage'] == ['identified', 'referred', 'outcome_verified'], rm['history'])
+ev('remedy', {'recurred': True}, p_id=rem, p_note='Potholes back after the monsoon')
+check('a recurrence marks the remedy unresolved', rpc('kasa_ev_harm', p_id=f'H-{hid}')['remedies'][0]['unresolved'] is True)
+
+# Audit trail.
+check('every change is in the audit log', admin_sql("select count(*) from kasa_private.audit_log where target_type = 'assertions'")[0][0] >= 3)
+check('the audit log cannot be edited', err(admin_sql, 'delete from kasa_private.audit_log') is not None
+      and err(admin_sql, 'update kasa_private.reviews set decision = \'reject\'') is not None
+      and err(admin_sql, 'delete from kasa_private.status_history') is not None)
+
+# Public submissions stay private.
+check('a document submission needs a link', err(rpc, 'kasa_ev_submit', ip='10.101.0.1', p_kind='document', p_body='The completion certificate for this road.') == 'KASA_BAD_FORM')
+sub = rpc('kasa_ev_submit', ip='10.101.0.1', p_kind='correction', p_body='The completion date on this record is wrong, it was April.',
+          p_target_type='harm', p_target_id=f'H-{hid}')
+check('a submission gets a reference and a private key', sub['ref_no'].startswith('S-') and sub['key'], sub)
+check('the sender can check its status with the key', rpc('kasa_ev_submission_status', p_ref_no=sub['ref_no'], p_key=sub['key'])['status'] == 'received')
+check('nobody else can', rpc('kasa_ev_submission_status', p_ref_no=sub['ref_no'], p_key='wrong') is None)
+check('submissions are not readable', refused(err(q, 'select * from kasa_private.ev_submissions')))
+sl = rpc('kasa_admin_ev_list', uid=mod, p_kind='submission')
+check('moderators see the submission without the network hash', sl[0]['ref_no'] == sub['ref_no'] and 'ip_hash' not in sl[0])
+check('rejecting needs a reason for the sender', err(rpc, 'kasa_admin_ev_triage_submission', uid=mod, p_id=sl[0]['id'], p_status='rejected') == 'KASA_BAD_FORM')
+rpc('kasa_admin_ev_triage_submission', uid=mod, p_id=sl[0]['id'], p_status='rejected', p_reason='The work order says 1 March.')
+check('the sender sees the reason', rpc('kasa_ev_submission_status', p_ref_no=sub['ref_no'], p_key=sub['key'])['reason'] == 'The work order says 1 March.')
+st = rpc('kasa_ev_stats')
+check('stats count published records by state', st['assertions'].get('corroborated') == 1 and st['legal_gate_open'] is False, st)
 
 failed = [n for n, ok in results if not ok]
 print(f'\n{len(results) - len(failed)}/{len(results)} passed')

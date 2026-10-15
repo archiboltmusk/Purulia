@@ -43,6 +43,13 @@
   await Promise.all([['ward', city.wardsGeojson], ['block', city.blocksGeojson]].map(async ([k, f]) => {
     try { const r = f && await fetch(f); shapes[k] = r && r.ok ? (await r.json()).features || [] : []; } catch (e) { shapes[k] = []; }
   }));
+  // Border fixes approved by a moderator replace the shipped outline; the change is noted under the links.
+  let borderHistory = [];
+  if (area.kind === 'ward') {
+    BoundaryLive.apply({ features: shapes.ward }, await BoundaryLive.rows('purulia', sb));
+    borderHistory = await BoundaryLive.history('purulia', sb);
+  }
+  const borderLine = () => BoundaryLive.note(borderHistory, area.kind === 'ward' ? area.id : null);
 
   /* Endpaper: the area drawn ligne claire (flat paper, one ink line) with every report as a dot,
      like the map pages inside an album cover. Projection: plain lng/lat scaled by cos(latitude). */
@@ -159,6 +166,7 @@
       area.kind === 'ward' && [`add-town.html?fix=purulia&ward=${area.id}`, 'Border wrong? Suggest a fix'],
       [`poster.html?${p}`, 'Print a poster for ' + place]
     ].filter(Boolean).map(([h, l]) => `<a href="${esc(h)}">${esc(l)} →</a>`).join('');
+    $('wd-border').innerHTML = borderLine();
     sel.value = `${area.kind}:${area.id}`;
     history.replaceState(null, '', '?' + p);
     loadPriorities();

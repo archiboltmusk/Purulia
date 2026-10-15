@@ -11,10 +11,6 @@ window.KASA_CONFIG = {
   // (private key → Supabase Edge Function secret, never committed here).
   VAPID_PUBLIC_KEY: 'BH_Ne_kXoB6Ghqcyfj5EuiiLoOdzTWwGN_scPgmTuSbhXu3TzcdyqPQcaOx7sx7Gs6E91E8mS70vth4Pho5aynQ',
 
-  // World Air Quality Index token for the air-quality layer on map.html (free: https://aqicn.org/data-platform/token/).
-  // Leave empty to fall back to WAQI's shared "demo" token, which is rate-limited and may return no stations.
-  WAQI_API_KEY: '8b116d06bed9fc883f02ff38515f53f4b490547c',
-
   // Address of the Cloudflare worker (worker.js), e.g. 'https://purulia.example.workers.dev'. When set, shared
   // report links go through it so WhatsApp/X/Facebook previews show the report's photo. Empty = plain links.
   SHARE_URL: 'https://purulia.mahatoanupam002.workers.dev',

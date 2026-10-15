@@ -25,8 +25,8 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await stubBackend(page);
   await page.addInitScript(() => { try { localStorage.setItem('kasa_tips_done', '1'); localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {} });
   await page.goto('kasa.html');
-  await expect(wordmark(page)).toHaveText('Bengal');
-  await expect(page).toHaveTitle(/Parishkar Bengal/);
+  await expect(wordmark(page)).toHaveText('West Bengal');
+  await expect(page).toHaveTitle(/Parishkar West Bengal/);
   await page.click('#k-place-pick');
   await page.click('#k-place-list [data-place="district:bankura"]');
   await expect(wordmark(page)).toHaveText('Bankura');
@@ -53,7 +53,8 @@ test('tapping a Kolkata ward opens its card, like a Purulia ward; a shared ward 
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   await expect.poll(() => page.evaluate(() => !!mainMap.getLayer('place-kolkata-fill'))).toBe(true);
   await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.3510, 22.5646], zoom: 15 }); });
-  await page.waitForTimeout(800);
+  // Wait for the jump to render before tapping; a fixed sleep raced the render on slower CI runners.
+  await expect.poll(() => page.evaluate(() => !mainMap.isMoving() && mainMap.areTilesLoaded())).toBe(true);
   const box = await page.locator('#k-map').boundingBox();
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   const card = page.locator('#k-ward-card');
@@ -804,4 +805,18 @@ test('analytics lists the weekly letters to each office in Purulia, and not else
   await page.goto('analytics.html?d=bankura');
   await expect(page.locator('.an-title')).toContainText('Bankura');
   await expect(page.locator('#an-letters-card')).toBeHidden();
+});
+
+test('the place picker reaches any state and district in India; the header names what is picked', async ({ page, backend }) => {
+  await page.goto('kasa.html');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'bihar');
+  await expect(page.locator('#k-place-list [data-place="in:bihar"]')).toBeVisible();
+  await expect(page.locator('#k-place-list [data-place="in:karnataka"]')).toBeHidden();
+  await page.click('#k-place-list [data-place="in:bihar"]');
+  await expect(wordmark(page)).toHaveText('Bihar');
+  await page.click('#k-place-pick');
+  await page.fill('#k-place-search', 'patna');
+  await page.click('#k-place-list [data-place="in:bihar:patna"]');
+  await expect(wordmark(page)).toHaveText('Patna');
 });

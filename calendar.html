@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Civic calendar — Parishkar Bengal</title>
@@ -11,7 +12,7 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/calendar.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/calendar.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
@@ -31,7 +32,7 @@
   .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
   .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
   .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
-  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
   .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
   .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
   .an-table-wrap{margin-top:1rem;overflow-x:auto;}
@@ -39,7 +40,7 @@
   .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
   .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
   .an-table a{color:var(--amber);}
-  .an-table tr:target td{background:rgba(212,136,42,.08);}
+  .an-table tr:target td{background:rgba(221,51,51,.08);}
   .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
   .an-empty a{color:var(--amber);}
   .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
@@ -130,7 +131,7 @@
   </div>
 </main>
 
-<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
 <script defer src="config.js"></script>
 <script defer src="kasa-i18n.js"></script>
 <script defer src="place-facts.js"></script>

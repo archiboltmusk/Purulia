@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ground Truth — Parishkar Bengal</title>
@@ -15,7 +16,7 @@
 <meta name="twitter:description" content="Verified, sourced data for every West Bengal district.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta name="theme-color" content="#0C0A05">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="kasa-icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="kasa-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -37,16 +38,16 @@ if(sessionStorage.getItem("pgt")){
 <script src="bug-report.js"></script>
 <style>
   .st-wrap{max-width:900px;margin:4rem auto 0;}
-  .st-intro{color:var(--text-md,rgba(240,230,208,.7));line-height:1.6;margin:.6rem 0 1.4rem;}
-  .st-item{margin:0 0 1.2rem;padding:1rem 1.2rem;border:1.5px solid rgba(240,230,208,.55);}
+  .st-intro{color:var(--text-md,rgba(var(--cream-rgb),.7));line-height:1.6;margin:.6rem 0 1.4rem;}
+  .st-item{margin:0 0 1.2rem;padding:1rem 1.2rem;border:1.5px solid rgba(var(--cream-rgb),.55);}
   .st-stat{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);}
   .st-item blockquote{margin:.5rem 0;font-family:'EB Garamond',serif;font-size:1.2rem;line-height:1.5;color:var(--cream);}
-  .st-item figcaption{font-size:.85rem;color:rgba(240,230,208,.6);} .st-item a{color:var(--amber);}
-  .st-empty{color:rgba(240,230,208,.6);}
+  .st-item figcaption{font-size:.85rem;color:rgba(var(--cream-rgb),.6);} .st-item a{color:var(--amber);}
+  .st-empty{color:rgba(var(--cream-rgb),.6);}
   .st-add{margin-top:1.4rem;} .st-add summary{cursor:pointer;color:var(--amber);font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
   #st-form{display:grid;gap:.8rem;margin-top:1rem;}
-  #st-form label{display:grid;gap:.3rem;font-size:.85rem;color:rgba(240,230,208,.75);}
-  #st-form input,#st-form select,#st-form textarea{background:var(--ink);border:1px solid rgba(240,230,208,.3);color:var(--cream);padding:.55rem .6rem;font:inherit;}
+  #st-form label{display:grid;gap:.3rem;font-size:.85rem;color:rgba(var(--cream-rgb),.75);}
+  #st-form input,#st-form select,#st-form textarea{background:var(--ink);border:1px solid rgba(var(--cream-rgb),.3);color:var(--cream);padding:.55rem .6rem;font:inherit;}
   #st-form .st-check{display:flex;gap:.6rem;align-items:flex-start;}
 </style>
 </head>
@@ -436,7 +437,7 @@ if(sessionStorage.getItem("pgt")){
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 <script>
 window.filterSM=function(cat,btn){
