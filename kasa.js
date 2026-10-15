@@ -1441,7 +1441,17 @@ const loadInStates = () => inStates || (inStates = getJson('places/in_states.geo
 async function addIndiaLayers(){
   const [g, idx] = await Promise.all([loadInStates(), loadInIndex()]);
   if (!mainMap || !g?.features?.length || mainMap.getSource('in-states')) return;
-  mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution });
+  // Census of India 2011 state population (places/in_state_population.json, cited there). West Bengal is
+  // shaded by district instead; Telangana and Ladakh had no separate 2011 figure and stay unshaded.
+  const sp = await fetch('places/in_state_population.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  for (const f of g.features) {
+    const pop = sp?.population?.[String(f.properties.code)];
+    if (pop) f.properties.pop = pop;
+  }
+  mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution + (sp ? ' Population: Census of India 2011 (Basic Statistics, Andaman & Nicobar DES, Table 32).' : '') });
+  mainMap.addLayer({ id: 'in-states-fill', type: 'fill', source: 'in-states',
+    filter: ['all', ['has', 'pop'], ['!=', ['get', 'code'], 19]],
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .45 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
