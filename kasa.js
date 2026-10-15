@@ -5617,6 +5617,38 @@ document.addEventListener('submit', async e => {
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
+// Photos of the reports a leader answers for: filter and sort in place. A tap opens that report's sheet.
+function renderRepPhotos(all){
+  const bar = document.getElementById('k-rep-ph-bar'), grid = document.getElementById('k-rep-ph-grid');
+  if (!bar || !grid) return;
+  const st = { f: 'all', s: 'new' };
+  const pool = all.filter(r => r.photo);
+  const FILTERS = { all: () => true, open: r => r.status !== 'resolved', fixed: r => r.status === 'resolved' && r.resolution !== 'legacy_unverified' };
+  const SORTS = { new: (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt), sev: (a, b) => SEVERITIES.indexOf(b.severity) - SEVERITIES.indexOf(a.severity) };
+  const btn = (attr, k, label) => `<button type="button" class="k-rep-ph-btn${st[attr] === k ? ' on' : ''}" data-${attr}="${k}" aria-pressed="${st[attr] === k}">${esc(t(label))}</button>`;
+  const draw = () => {
+    bar.innerHTML = btn('f', 'all', 'rep_ph_all') + btn('f', 'open', 'rep_ph_open') + btn('f', 'fixed', 'rep_ph_fixed')
+      + '<span class="k-rep-ph-sep"></span>' + btn('s', 'new', 'rep_ph_new') + btn('s', 'sev', 'rep_ph_sev');
+    const list = pool.filter(FILTERS[st.f]).sort(SORTS[st.s]);
+    grid.innerHTML = list.length ? list.map(r => `<button type="button" class="k-rep-ph" data-rep-ph="${esc(r.id)}">
+        <img src="${esc(r.photo)}" alt="" loading="lazy"><span>${esc(t('sev_' + r.severity))} · ${esc(new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }))}</span></button>`).join('')
+      : `<div class="k-rep-worst-item">${esc(t('rep_ph_none'))}</div>`;
+  };
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('[data-f],[data-s]');
+    if (!b) return;
+    if (b.dataset.f) st.f = b.dataset.f; else st.s = b.dataset.s;
+    draw();
+  });
+  grid.addEventListener('click', e => {
+    const b = e.target.closest('[data-rep-ph]');
+    if (!b) return;
+    closeModal('k-rep-modal');
+    openSheet(b.dataset.repPh);
+  });
+  draw();
+}
+
 async function openRepProfile(key){
   await loadWbReps();
   const rep = findRep(key);
@@ -5670,7 +5702,12 @@ async function openRepProfile(key){
     </div>
     <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
     ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
-      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`
+      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}
+    <div class="k-rep-worst-title">${esc(t('rep_by_sev'))}</div>
+    <div class="k-rep-stats">${SEVERITIES.map(s => `<div class="k-rep-stat"><div class="k-rep-stat-n">${open.filter(r => r.severity === s).length}</div><div class="k-rep-stat-l">${esc(t('sev_' + s))}</div></div>`).join('')}</div>
+    <div class="k-rep-worst-title">${esc(t('rep_photos'))}</div>
+    <div class="k-rep-ph-bar" id="k-rep-ph-bar"></div>
+    <div class="k-rep-ph-grid" id="k-rep-ph-grid"></div>`
     : ''}
     ${m ? `<div class="k-rep-worst-title">${esc(t('rep_mplads'))}</div>
     <div class="k-rep-stats">
@@ -5692,6 +5729,7 @@ async function openRepProfile(key){
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
+  if (rep.covers) renderRepPhotos(all);
   loadRepReplies(rep);
   renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
