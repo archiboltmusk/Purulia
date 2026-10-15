@@ -43,3 +43,9 @@ Licence: not stated in the PDF; government document, check GODL terms before reu
 | All India | 1241 | 2541 | 3782 |
 
 Note: All India total here (3782) differs from the MoHFW figure of 4,263 on [dghs.mohfw.gov.in/bts.php](https://dghs.mohfw.gov.in/bts.php). Different dates and definitions; cite each with its date. Names and addresses are not in this PDF, only counts.
+
+## Status 2026-10-15 (coordinator decision: link out only)
+
+- No donor register, no personal donor data on the site. Decided on the donor-register card: "Link out only".
+- Delhi Drugs Control list and WB Health list: both returned 503 on 2026-10-15; not added to the site. Retry before use.
+- Bank list not published until eRaktKosh or NBTC permission, or a verified licence, is in hand.
