@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Parishkar Bengal — Report a civic problem in 30 seconds</title>
@@ -11,7 +12,7 @@
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/kasa.html">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
@@ -19,8 +20,8 @@
 <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap"></noscript>
 <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"></noscript>
 <link rel="stylesheet" href="kasa.css">
@@ -45,6 +46,10 @@
 <script src="bug-report.js"></script>
 </head>
 <body data-app-layout>
+<div class="k-splash" id="k-splash" aria-hidden="true">
+  <div class="k-splash-mark">Parishkar <span>Purulia</span></div>
+  <div class="k-splash-sub">Loading…</div>
+</div>
 
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
@@ -103,6 +108,14 @@
 </nav>
 
 
+<nav class="k-quick" aria-label="Sections">
+  <a href="schools.html" class="k-quick-chip" data-i18n="nav_schools"><span class="k-quick-ico" aria-hidden="true">🏫</span>Schools</a>
+  <a href="money.html" class="k-quick-chip" data-i18n="nav_tax"><span class="k-quick-ico" aria-hidden="true">₹</span>Tax and spending</a>
+  <a href="waste.html" class="k-quick-chip" data-i18n="nav_waste"><span class="k-quick-ico" aria-hidden="true">♻️</span>Where the waste goes</a>
+  <a href="toilets.html" class="k-quick-chip" data-i18n="nav_toilets"><span class="k-quick-ico" aria-hidden="true">🚻</span>Public toilets</a>
+  <a href="promises.html" class="k-quick-chip" data-i18n="nav_promises"><span class="k-quick-ico" aria-hidden="true">📜</span>Promises</a>
+  <a href="noticeboard.html" class="k-quick-chip" data-i18n="nav_noticeboard"><span class="k-quick-ico" aria-hidden="true">📣</span>Ask your leaders</a>
+</nav>
 <section class="k-map-section" aria-label="Report map">
   <div id="k-map" role="application" aria-label="Map of reports"></div>
   <div class="k-list" id="k-list" hidden>
@@ -160,14 +173,6 @@
     </button>
   </div>
 
-  <nav class="k-quick" aria-label="Sections">
-    <a href="schools.html" class="k-quick-chip" data-i18n="nav_schools"><span class="k-quick-ico" aria-hidden="true">🏫</span>Schools</a>
-    <a href="money.html" class="k-quick-chip" data-i18n="nav_tax"><span class="k-quick-ico" aria-hidden="true">₹</span>Tax and spending</a>
-    <a href="waste.html" class="k-quick-chip" data-i18n="nav_waste"><span class="k-quick-ico" aria-hidden="true">♻️</span>Where the waste goes</a>
-    <a href="toilets.html" class="k-quick-chip" data-i18n="nav_toilets"><span class="k-quick-ico" aria-hidden="true">🚻</span>Public toilets</a>
-    <a href="promises.html" class="k-quick-chip" data-i18n="nav_promises"><span class="k-quick-ico" aria-hidden="true">📜</span>Promises</a>
-    <a href="noticeboard.html" class="k-quick-chip" data-i18n="nav_noticeboard"><span class="k-quick-ico" aria-hidden="true">📣</span>Ask your leaders</a>
-  </nav>
   <div class="k-ward-card" id="k-ward-card" hidden></div>
   <div class="k-still" id="k-still" hidden role="dialog" aria-live="polite"></div>
 

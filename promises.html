@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Promises: who promised what, and what was delivered — Parishkar Bengal</title>
@@ -11,7 +12,7 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/promises.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/promises.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
@@ -42,7 +43,7 @@
   .pr-tools select,.pr-tools input{background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);padding:.5rem .7rem;font:inherit;font-size:.9rem;min-width:0;}
   .pr-tools input{flex:1 1 180px;}
   .pr-chip{background:none;border:1px solid var(--border);border-radius:999px;color:var(--text-md);padding:.35rem .8rem;font-family:var(--mono);font-size:11px;cursor:pointer;}
-  .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+  .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(221,51,51,.08);}
   .pr-list{list-style:none;margin-top:1rem;display:grid;gap:.8rem;}
   .pr-strip{margin-top:1rem;}
   .pr-strip-h{display:flex;flex-wrap:wrap;gap:.3rem .8rem;align-items:baseline;color:var(--cream);font-family:var(--serif);font-size:1.1rem;}
@@ -63,7 +64,7 @@
   .pr-meta a{color:var(--amber);}
   .pr-status{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border);margin-bottom:.4rem;}
   .pr-s-promised{color:var(--text-md);}
-  .pr-s-in_progress{color:var(--amber);border-color:rgba(212,136,42,.45);}
+  .pr-s-in_progress{color:var(--amber);border-color:rgba(221,51,51,.45);}
   .pr-s-delivered{color:var(--green,#6fbf73);border-color:rgba(111,191,115,.45);}
   .pr-s-broken{color:#e0705a;border-color:rgba(224,112,90,.45);}
   .pr-news{margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border);font-size:.84rem;}
@@ -96,7 +97,7 @@
   .pr-rules{margin:.7rem 0 0 1.1rem;color:var(--text-md);font-size:.9rem;line-height:1.6;}
   .pr-lang{display:flex;gap:.3rem;}
   .pr-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
-  .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(221,51,51,.5);}
   @media(max-width:600px){.an-card{padding:1.1rem 1rem;}.an-tile{padding:1.1rem 1rem;}}
 </style>
 <script src="bug-report.js"></script>
