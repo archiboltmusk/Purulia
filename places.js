@@ -67,7 +67,9 @@ window.KasaPlaces = (() => {
   const loading = {};    // slug -> Promise
   let districts = null;  // FeatureCollection of district outlines once loaded
   let districtsLoading = null;
-  let current = null;    // key of the place the page is named after ('kolkata', 'district:bankura'), or null (Purulia)
+  let current = null;    // key of the place the page is named after ('kolkata', 'district:bankura', 'in:<state>'), or null (Purulia)
+  let currentName = null; // the label shown after 'Parishkar'
+  let indiaNamer = null;  // set by kasa.js: names the place at a spot outside West Bengal
   let home = null;       // Purulia's page title and wordmark text
   let server = null;     // { places(), wards(slug) } from kasa.js
   let lastView = null;
@@ -83,7 +85,7 @@ window.KasaPlaces = (() => {
 
   /* A town, a district as 'district:<slug>' (name without "district"; body unknown), or 'bengal' (the whole state). */
   function bySlug(slug){
-    if (slug === 'bengal') return { slug, name: 'Bengal', isState: true, body: null };
+    if (slug === 'bengal') return { slug, name: 'West Bengal', isState: true, body: null };
     if (typeof slug === 'string' && slug.startsWith('district:')){
       const name = DISTRICTS[slug.slice(9)];
       return name ? { slug, name, isDistrict: true, body: null } : null;
@@ -155,21 +157,23 @@ window.KasaPlaces = (() => {
   }
 
   /* Name the page after the place (null = Purulia). */
-  function brand(key){
+  function brand(key, label){
     const p = key ? bySlug(key) : null;
-    key = p ? p.slug : null;
+    // Indian places outside West Bengal ('in:<state>', 'in:<state>:<district>') carry their own label.
+    const k = p ? p.slug : key && key.startsWith('in:') ? key : null;
     if (!home) home = { title: document.title, second: document.querySelector('.k-wordmark-second')?.textContent || 'Purulia' };
-    countVisit(key || 'purulia');
-    if (key === current) return;
-    current = key;
-    const name = p ? p.name : home.second;
+    countVisit(k === null ? 'purulia' : p ? k : null);
+    const name = label || (p ? p.name : home.second);
+    if (k === current && name === currentName) return;
+    current = k;
+    currentName = name;
     document.querySelectorAll('.k-wordmark-second').forEach(el => { el.textContent = name; });
     document.querySelectorAll('.k-wordmark, .k-nav-logo').forEach(el => {
       if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Parishkar ' + name);
     });
     document.title = home.title.replace(/Parishkar [^—·]+?(?= —|$)/, 'Parishkar ' + name);
-    document.documentElement.dataset.place = key || 'purulia';
-    emit('brand', key);
+    document.documentElement.dataset.place = k || 'purulia';
+    emit('brand', k);
   }
 
   /* The map moved: follow the town or district in view. On Purulia the page is Purulia;
@@ -178,6 +182,7 @@ window.KasaPlaces = (() => {
     lastView = [lat, lng, zoom];
     const p = zoom >= 10 ? boxAt(lat, lng) : null;
     if (p){ load(p.slug); return brand(p.slug); }
+    if (!inWB(lat, lng) && indiaNamer) return indiaNamer(lat, lng);
     if (zoom < 7 || !inWB(lat, lng)) return brand('bengal');
     if (inBox(PURULIA, lat, lng)) return brand(null);
     if (!districts){ loadDistricts(); return brand('bengal'); }
@@ -236,6 +241,7 @@ window.KasaPlaces = (() => {
   return {
     list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, saved, remember,
     get current(){ return current; },
+    setIndiaNamer(fn){ indiaNamer = fn; },
     get geo(){ return geo; },
     on: f => listeners.push(f),
     setSender: f => { send = f; },

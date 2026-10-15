@@ -25,8 +25,8 @@ test('without a location the page opens as Parishkar Bengal; the picker moves th
   await stubBackend(page);
   await page.addInitScript(() => { try { localStorage.setItem('kasa_tips_done', '1'); localStorage.setItem('kasa_loc_asked', '1'); } catch (e) {} });
   await page.goto('kasa.html');
-  await expect(wordmark(page)).toHaveText('Bengal');
-  await expect(page).toHaveTitle(/Parishkar Bengal/);
+  await expect(wordmark(page)).toHaveText('West Bengal');
+  await expect(page).toHaveTitle(/Parishkar West Bengal/);
   await page.click('#k-place-pick');
   await page.click('#k-place-list [data-place="district:bankura"]');
   await expect(wordmark(page)).toHaveText('Bankura');
