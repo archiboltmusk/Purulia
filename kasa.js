@@ -330,13 +330,8 @@ function setLang(lang){
 }
 
 function loadTheme(){
-  try { state.theme = localStorage.getItem('kasa_theme'); } catch (e) {}
-  if (state.theme && ['light', 'dark'].includes(state.theme)){
-    document.documentElement.setAttribute('data-theme', state.theme);
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    state.theme = null;
-  }
+  // theme-init.js sets data-theme before first paint; white unless dark was chosen
+  state.theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   const btn = document.getElementById('k-theme-toggle');
   if (btn) btn.innerHTML = '<span aria-hidden="true">' + (state.theme === 'light' ? '🌙' : '☀️') + '</span>';
 }
@@ -345,7 +340,7 @@ function setTheme(theme){
   if (!['light', 'dark'].includes(theme)) return;
   state.theme = theme;
   document.documentElement.setAttribute('data-theme', theme);
-  try { localStorage.setItem('kasa_theme', theme); } catch (e) {}
+  try { localStorage.setItem('parishkar_theme', theme); } catch (e) {}
   const btn = document.getElementById('k-theme-toggle');
   if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
 }

@@ -9,29 +9,16 @@
   --serif:'EB Garamond',Georgia,serif;
   --civic:'Noto Sans Bengali','Noto Sans Devanagari','Noto Sans Ol Chiki','DM Mono',sans-serif;
 
-  /* Dark mode (default) */
-  --ink:#0a0805; --ink2:#0f0c07; --ink3:#15110a; --ink4:#1c1710;
-  --cream:#f0e6d0;
-  --border:rgba(221,51,51,.14);
-  --border2:rgba(221,51,51,.28);
-  --text-hi:rgba(240,230,208,.92);
-  --text-md:rgba(240,230,208,.68);
-  --text-lo:rgba(240,230,208,.55);
-}
-
-/* Light mode */
-@media(prefers-color-scheme:light){
-  :root:not([data-theme="dark"]){
-    --ink:#f8f6f2; --ink2:#f0ebe4; --ink3:#e8e1d8; --ink4:#dfd7ce;
-    --cream:#1a1410;
-    --border:rgba(26,20,16,.12);
-    --border2:rgba(26,20,16,.24);
-    --text-hi:rgba(10,8,5,.92);
-    --text-md:rgba(10,8,5,.68);
-    --text-lo:rgba(10,8,5,.62);
-    --amber:#B91C1C; --amber2:#991B1B;
-    --green:#2a6e44; --red:#b8322b; --orange:#9a4a14; --violet:#5c48b8;
-  }
+  /* White by default; dark is set with data-theme="dark" (theme-init.js) */
+  --ink:#f8f6f2; --ink2:#f0ebe4; --ink3:#e8e1d8; --ink4:#dfd7ce;
+  --cream:#1a1410;
+  --border:rgba(26,20,16,.12);
+  --border2:rgba(26,20,16,.24);
+  --text-hi:rgba(10,8,5,.92);
+  --text-md:rgba(10,8,5,.68);
+  --text-lo:rgba(10,8,5,.62);
+  --amber:#B91C1C; --amber2:#991B1B;
+  --green:#2a6e44; --red:#b8322b; --orange:#9a4a14; --violet:#5c48b8;
 }
 
 /* Override via data attribute */
@@ -49,6 +36,8 @@
 }
 [data-theme="dark"]{
   --ink:#0a0805; --ink2:#0f0c07; --ink3:#15110a; --ink4:#1c1710;
+  --amber:#DD3333; --amber2:#EF4444;
+  --green:#6db88a; --red:#e8524a; --orange:#e88a4a; --violet:#8f7ae6;
   --cream:#f0e6d0;
   --border:rgba(221,51,51,.14);
   --border2:rgba(221,51,51,.28);
