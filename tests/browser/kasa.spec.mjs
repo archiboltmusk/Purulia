@@ -193,7 +193,7 @@ test('representatives: every MP, MLA, chairperson and the Zilla Parishad, with a
   const ok = body => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
   await page.route('**/rest/v1/rpc/kasa_promises', ok({ promises: [{ id: 'p1', who: 'Jyotirmay Singh Mahato', promise: 'A rail overbridge at the station', made_on: '2026-06-01', status: 'promised' }], news: [] }));
   await page.route('**/rest/v1/rpc/kasa_demands', ok([{ id: 'd1', leader_name: 'Jyotirmay Singh Mahato', title: 'Fix the district hospital lifts', supports: 4, replies: [] }]));
-  await page.goto('kasa.html');
+  await page.goto('kasa.html?place=purulia');
   await page.locator('#k-more-btn').click();
   await page.locator('#k-auth-sec summary').click();
   const cards = page.locator('#k-auth-grid .k-auth-card');

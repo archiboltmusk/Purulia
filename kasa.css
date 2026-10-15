@@ -178,7 +178,7 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-map-legend{position:absolute;bottom:.9rem;left:.9rem;z-index:5;display:flex;gap:.8rem;padding:.5rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-md);flex-wrap:wrap;border-radius:3px;max-width:calc(100% - 9rem);}
 .k-map-legend span{display:flex;align-items:center;gap:.35rem;}
 .k-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
-.k-dot-minor{background:var(--amber);} .k-dot-severe{background:var(--orange);} .k-dot-critical{background:var(--red);}
+.k-dot-minor{background:#9ca3af;} .k-dot-severe{background:var(--orange);} .k-dot-critical{background:var(--red);}
 .k-dot-claimed{background:var(--violet);} .k-dot-resolved{background:var(--green);}
 .k-map-report-btn{position:absolute;bottom:.9rem;right:.9rem;z-index:5;display:flex;align-items:center;gap:.65rem;padding:1.1rem 1.6rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;white-space:nowrap;text-transform:uppercase;border-radius:4px;box-shadow:0 12px 32px rgba(221,51,51,.36);transition:all .2s;}
 .k-map-report-btn:hover{background:var(--amber2);box-shadow:0 14px 40px rgba(221,51,51,.44);transform:translateY(-1px);}
@@ -218,7 +218,7 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-list-where{font-size:.85rem;color:var(--text-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .k-list-meta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font-family:var(--mono);font-size:11px;color:var(--text-lo);}
 .k-chip{display:inline-block;padding:.12rem .45rem;border-radius:2px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
-.k-chip-minor{background:rgba(221,51,51,.14);color:var(--amber);} .k-chip-severe{background:rgba(232,138,74,.14);color:var(--orange);}
+.k-chip-minor{background:rgba(107,114,128,.14);color:#4b5563;} .k-chip-severe{background:rgba(232,138,74,.14);color:var(--orange);}
 .k-chip-critical{background:rgba(232,82,74,.15);color:var(--red);} .k-chip-claimed{background:rgba(143,122,230,.16);color:var(--violet);}
 .k-chip-resolved{background:rgba(109,184,138,.14);color:var(--green);} .k-chip-pending{background:rgba(240,230,208,.08);color:var(--text-md);}
 
@@ -390,7 +390,7 @@ select.k-input{background-color:var(--ink3);}
 .k-seg{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
 .k-seg button{flex:1;padding:.8rem .4rem;font-family:var(--mono);font-size:11px;color:var(--text-md);border-right:1px solid var(--border);}
 .k-seg button:last-child{border-right:none;}
-.k-seg button[aria-checked="true"][data-sev="minor"]{background:rgba(221,51,51,.2);color:var(--amber);}
+.k-seg button[aria-checked="true"][data-sev="minor"]{background:rgba(107,114,128,.2);color:#4b5563;}
 .k-seg button[aria-checked="true"][data-sev="severe"]{background:rgba(232,138,74,.2);color:var(--orange);}
 .k-seg button[aria-checked="true"][data-sev="critical"]{background:rgba(232,82,74,.22);color:var(--red);}
 /* Report screen: severity cards and waste-type chips (one tap each). */
@@ -398,7 +398,7 @@ select.k-input{background-color:var(--ink3);}
 .k-sev-cards button{display:grid;grid-template-columns:auto 1fr;column-gap:.6rem;align-items:center;text-align:left;padding:.7rem .85rem;border:1px solid var(--border);border-radius:8px;color:var(--text-md);background:transparent;min-height:44px;}
 .k-sev-cards button b{font-family:var(--civic);font-size:.95rem;font-weight:600;color:var(--text-hi);}
 .k-sev-cards button span{grid-column:2;font-family:var(--civic);font-size:.8rem;line-height:1.4;color:var(--text-lo);}
-.k-sev-cards button[aria-checked="true"][data-sev="minor"]{border-color:var(--amber);background:rgba(221,51,51,.1);}
+.k-sev-cards button[aria-checked="true"][data-sev="minor"]{border-color:#4b5563;background:rgba(107,114,128,.1);}
 .k-sev-cards button[aria-checked="true"][data-sev="severe"]{border-color:var(--orange);background:rgba(232,138,74,.1);}
 .k-sev-cards button[aria-checked="true"][data-sev="critical"]{border-color:var(--red);background:rgba(232,82,74,.1);}
 .k-sev-cards button[aria-checked="true"] span{color:var(--text-md);}
@@ -724,6 +724,7 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-esc-item b{display:block;font-size:.88rem;}
 .k-esc-item small{display:block;margin-top:.15rem;font-size:.76rem;color:var(--text-md);line-height:1.4;}
 .k-esc-copy{margin-top:.6rem;width:100%;}
+.k-letter-text{width:100%;box-sizing:border-box;margin-top:.4rem;font:inherit;font-size:.85rem;padding:.5rem;border:1px solid var(--line,#ccc);border-radius:6px;background:transparent;color:inherit;resize:vertical;}
 
 /* ══════════════════════════════════════════════════════════
    Parishkar Bengal — wordmark
@@ -862,6 +863,8 @@ body.k-drawer-open{overflow:hidden;}
 .k-still-a .k-still-yes{background:var(--amber);color:var(--ink);border-color:var(--amber);}
 .k-still-a .k-still-gone{border-color:rgba(109,184,138,.5);color:var(--green);}
 @media(max-width:640px){.k-still{bottom:3.6rem;}}
+.k-near{position:absolute;left:.9rem;bottom:6rem;z-index:5;padding:.45rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border2);border-radius:3px;color:var(--cream);font-family:var(--mono);font-size:11px;letter-spacing:.04em;}
+@media(max-width:640px){.k-near{bottom:3.6rem;}}
 
 /* Extra report photos (up to 2 more) */
 .k-photo-extras{display:flex;gap:.5rem;margin-top:.5rem;}
@@ -900,16 +903,7 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 .k-map-legend{display:none;}
 
 /* "Join N people" line at the top of the map. */
-.k-join{position:absolute;top:3.6rem;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:.2rem;max-width:calc(100% - 1.8rem);padding:.2rem .3rem .2rem .9rem;background:rgba(10,8,5,.94);border:1px solid rgba(221,51,51,.45);border-radius:40px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
-.k-join-text{font-family:var(--serif);font-size:.95rem;color:var(--cream);text-align:left;padding:.3rem 0;}
-.k-join-x{padding:.3rem .55rem;color:var(--text-md);font-size:.9rem;}
-@media(max-width:640px){.k-join{top:7rem;}.k-join-text{font-size:.86rem;}}
 
-/* First-visit tips. */
-.k-tip{position:fixed;z-index:900;width:min(280px,calc(100vw - 16px));padding:.8rem .9rem;background:var(--ink);color:var(--cream);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.18);font-family:var(--serif);font-size:1rem;line-height:1.45;}
-.k-tip-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:.6rem;}
-.k-tip-skip{font-family:var(--mono);font-size:11px;color:#6b5a40;}
-.k-tip-next{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:.4rem .9rem;background:var(--cream);color:var(--ink);border-radius:20px;}
 
 /* The map is the whole screen below the nav: logo and More only — our three-language switch
    doesn't fit the nav row, so language stays in the menu along with the other pages. */
@@ -931,9 +925,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* The open filter bar can wrap to reach the middle of the screen on narrow screens; step aside while it's open. */
 .k-map-topbar.k-filters-open ~ .k-map-pill{display:none;}
 
-.k-join{top:6.8rem;}
-@media(max-width:640px){.k-join{top:auto;bottom:8.6rem;}}
-.k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend,.k-join){display:none;}
+.k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend){display:none;}
 
 /* "The school is here": drag the map under a fixed pin. */
 .k-sf-mapwrap{position:relative;margin-top:.9rem;height:240px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);}
@@ -1014,11 +1006,10 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 
 /* ── Ligne claire: flat colour, one even ink line, no glows, gradients or drop shadows ── */
 :root{--line:color-mix(in srgb,var(--cream) 55%,transparent);}
-.k-social-dropdown,.k-ward-card,.k-still,.k-toast,.k-join,.maplibregl-ctrl-group{box-shadow:none!important;border:1.5px solid var(--line)!important;}
+.k-social-dropdown,.k-ward-card,.k-still,.k-toast,.maplibregl-ctrl-group{box-shadow:none!important;border:1.5px solid var(--line)!important;}
 .k-modal-sheet{box-shadow:none;border:1.5px solid var(--line);border-bottom:none;}
 .k-hero-cta,.k-map-report-btn,.k-map-report-btn:hover{box-shadow:none;transform:none;border:2px solid var(--cream);}
 .k-seen-btn,.k-slide-knob{box-shadow:none;border:1.5px solid var(--ink);}
-.k-tip{box-shadow:none;border:2px solid var(--ink);}
 .k-node-abbr{background:#a9c3ff;box-shadow:none;border:1.5px solid #1d2a66;}
 .k-node-elected .k-node-abbr{background:#f3c27d;border-color:#3a2004;}
 
@@ -1132,8 +1123,8 @@ body[data-app-layout] .k-reset-ctrl button,body[data-app-layout] .maplibregl-ctr
 body[data-app-layout] .k-quick-chip{background:#ffffff;border-color:#e5e7eb;color:#374151;}
 body[data-app-layout] .k-quick-chip:hover,body[data-app-layout] .k-quick-chip:focus-visible{color:#DD3333;border-color:#DD3333;}
 body[data-app-layout] .k-nav{background:#ffffff;border-bottom:1px solid #e5e7eb;}
-body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still,body[data-app-layout] .k-join{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
-body[data-app-layout] .k-join-text,body[data-app-layout] .k-still-q{color:#1f2937;}
+body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+body[data-app-layout] .k-still-q{color:#1f2937;}
 
 /* ── Namma Kasa details on the home map (scoped to the app layout): sans-serif UI type,
    rounded-rectangle red Report button, white rounded map controls, pill with a divider. ── */
@@ -1150,3 +1141,21 @@ body[data-app-layout] .k-maplibregl-ctrl-group,body[data-app-layout] .maplibregl
 body[data-app-layout] .maplibregl-ctrl-group button{width:40px;height:40px;}
 body[data-app-layout] .k-quick-chip{border-radius:999px;font-size:13px;}
 body[data-app-layout] .k-filter-select{padding-right:2.1rem;background-position:right .8rem center;}
+
+/* ── Ligne-claire type and outlines (home map + header): flat fills, crisp dark
+   outlines, bold display lettering for headings. Type and colour only. ── */
+body[data-app-layout]{--line-ink:#1a1410;}
+body[data-app-layout] .k-nav-logo{font-weight:700;letter-spacing:-.01em;}
+body[data-app-layout] .k-nav-logo .k-wordmark-second{font-weight:700;}
+body[data-app-layout] .k-map-pill{background:#ffffff;border:2px solid var(--line-ink);box-shadow:none;border-radius:999px;}
+body[data-app-layout] .k-pill-num{font-weight:700;}
+body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-shadow:0 3px 0 var(--line-ink);font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px;}
+body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
+body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
+body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
+
+/* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
+@media(prefers-reduced-motion:no-preference){
+  .k-splash-sub{animation:kBlink .9s steps(2,start) infinite;}
+}
+@keyframes kBlink{0%,100%{opacity:1;}50%{opacity:.15;}}

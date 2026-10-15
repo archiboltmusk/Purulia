@@ -96,7 +96,7 @@ const ISSUE_GROUPS = [
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
-const COLORS = { minor: '#DD3333', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
+const COLORS = { minor: '#9ca3af', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
    approves it before it is public (enforced on the server). */
@@ -391,7 +391,7 @@ async function init(){
     KasaPlaces.on((what, slug) => {
       if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
       // The counts, the "fixed" chip, the ticker, the join line, the representatives, the leaderboard and "Who's responsible" follow the place in view.
-      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); renderReps(); renderLeaderboard(); renderChainSection(); }
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderReps(); renderLeaderboard(); renderChainSection(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
@@ -424,11 +424,8 @@ async function init(){
   // Statewide leaders load only when someone opens the representatives section.
   document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
+  if (!location.hash && !location.search) mapReady.then(openOnHomePlace);
   initPlacePicker();
-  if (state.mode === 'v2') showJoin();
-  // Tips also start on their own if the location question didn't run (a shared link, for example).
-  setTimeout(startTips, 5000);
   syncOfflineQueue();
   startLiveRefresh();
 
@@ -1248,19 +1245,21 @@ function initMainMapNow(){
   setTimeout(hideSplash, 8000);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-  mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
+  const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
+  mainMap.addControl(locate, 'bottom-right');
+  locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
 
   return new Promise(resolve => {
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#991b1b', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
         layout: { 'text-field': '{point_count_abbreviated}', 'text-font': ['Noto Sans Regular'], 'text-size': 12 },
-        paint: { 'text-color': '#f0e6d0' } });
+        paint: { 'text-color': '#ffffff' } });
       mainMap.addLayer({ id: 'report-halo', type: 'circle', source: 'reports', filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'halo'], 1]], paint: {
         'circle-color': COLORS.critical, 'circle-opacity': .18, 'circle-radius': ['*', ['get', 'radius'], 2.3]
       }});
@@ -2067,8 +2066,8 @@ function updateStats(){
   const open = all.filter(r => r.status !== 'resolved').length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
-  setText('k-pill-active', open);
-  setText('k-pill-total', all.length);
+  countUp('k-pill-active', open);
+  countUp('k-pill-total', all.length);
   setText('k-stat-total', all.length);
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
@@ -2636,17 +2635,30 @@ function renderPlaceAccountability(r){
     </div>`;
 }
 
+// The approved official for this post at this report's spot (kasa_officials), or null. Vacant posts have none.
+function officialFor(role, r){
+  const d = DISTRICT_OF(r);
+  if (!d) return null;
+  if (!addedRows[d]) addedIn(d);
+  return (addedRows[d] || []).find(o => o.role === role && (
+    (o.level === 'district' && !o.block && !o.gp) ||
+    (o.level === 'block' && !!r.block && o.block === r.block) ||
+    (o.level === 'gp' && role === 'pradhan' && !!r.body && o.gp === r.body))) || null;
+}
+
 function renderAccountability(r){
   if (r.area === 'place') return renderPlaceAccountability(r);
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const town2 = otherTown(r);
   const w = state.wards[r.ward] || {};
-  const node = (role, i) => `
+  const node = (role, i) => {
+    const o = officialFor(role, r);
+    return `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
-      <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length, r))}</small></span>
-    </button>`;
+      <span class="k-node-text"><b>${esc(o ? o.name : t('role_' + role))}</b><small>${esc(o ? t('role_' + role) : roleSub(role, i, chain.nodes.length, r))}</small></span>
+    </button>`; };
   // The tree shows two people: who fixes it first, and who you elected. Everyone above
   // them, the reps and the escalation routes sit behind one tap.
   const [first, ...above] = chain.nodes;
@@ -2708,8 +2720,65 @@ function renderEscalate(r){
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
       ${isOverdue(r) && r.area !== 'place' ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      ${renderLetter(r)}
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
+    </div>`;
+}
+
+/* Letter to the office that answers first for this report. The contact is shown only when a cited
+   official file names it (places/wb_officials.json: DM, BDO); otherwise the letter goes without one. */
+function letterOffice(r){
+  const role = chainFor(r).nodes?.[0];
+  if (!role) return null;
+  const dslug = r.place === 'purulia' ? 'purulia' : r.place?.startsWith('district:') ? r.place.slice(9) : null;
+  const off = dslug ? officialsFile()?.districts?.[dslug] : null;
+  let who = null, src = null;
+  if (role === 'dm' && off?.dm) { who = off.dm; src = off.source || off.dm_source; }
+  if (role === 'bdo' && off?.bdo && r.block) {
+    const k = Object.keys(off.bdo).find(b => b.toLowerCase() === r.block.toLowerCase());
+    if (k) { who = off.bdo[k]; src = off.source; }
+  }
+  const phone = who?.phone || '', email = who?.email || '';
+  const contact = src && (phone || email) ? { name: who.name || '', phone, email, src } : null;
+  // The DM's post name is per district; Purulia keeps its own wording.
+  const dname = dslug && dslug !== 'purulia' ? (window.KasaPlaces?.bySlug(r.place)?.name || r.district || null) : null;
+  const key = role === 'dm' ? (dslug === 'purulia' ? 'role_dm' : dname ? 'role_dm_of' : 'role_dm_any') : 'role_' + role;
+  const vars = key === 'role_dm_of' ? { d: dname } : undefined;
+  return { role, label: t(key, vars), toEN: tEN(key, vars), contact };
+}
+function letterText(r, o){
+  return [
+    'To: ' + o.toEN + (o.contact?.name ? ' (' + o.contact.name + ')' : '') + ', ' + CITY_NAME,
+    '',
+    'Respected Sir/Madam,',
+    '',
+    'I am writing about this problem, reported on Parishkar:',
+    '',
+    reportMessage(r),
+    '',
+    'Please inspect the spot, tell me what action will be taken and by when, and give me a reference number.',
+    '',
+    'Name:',
+    'Phone:',
+    'Date:'
+  ].join('\n');
+}
+function renderLetter(r){
+  const o = letterOffice(r);
+  if (!o) return '';
+  const c = o.contact;
+  const contact = c
+    ? [c.name && esc(c.name), c.phone && `<a href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>`,
+       c.email && `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`,
+       `<a href="${esc(c.src)}" target="_blank" rel="noopener">${esc(t('letter_src'))}</a>`].filter(Boolean).join(' · ')
+    : esc(t('letter_no_contact'));
+  return `
+    <div class="k-letter">
+      <div class="k-acc-reps-label">${esc(t('letter_title'))}</div>
+      <div class="k-esc-item"><b>${esc(t('letter_to', { who: o.label }))}</b><small>${contact}</small></div>
+      <textarea class="k-letter-text" readonly rows="9">${esc(letterText(r, o))}</textarea>
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-letter="${esc(r.id)}">📋 ${esc(t('letter_copy'))}</button>
     </div>`;
 }
 
@@ -5646,6 +5715,24 @@ document.addEventListener('submit', async e => {
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
+/* Response rate: of the reports addressed to this leader, the share with a reply from them on record
+   (kasa_public_replies, matched by name). Nothing is shown below RATE_MIN reports. */
+const RATE_MIN = 10;
+async function renderRepRate(rep, all){
+  const el = document.getElementById('k-rep-rate');
+  if (!el || !sb || all.length < RATE_MIN) return;
+  const ids = all.filter(r => r.replyCount > 0).map(r => r.id);
+  const { data, error } = ids.length ? await sb.from('kasa_public_replies').select('report_id,responder_name').in('report_id', ids).limit(5000) : { data: [] };
+  if (el.dataset.key !== rep.key || error) return;
+  const norm = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const mine = new Set((data || []).filter(x => norm(x.responder_name) === norm(rep.name)).map(x => String(x.report_id)));
+  const answered = all.filter(r => mine.has(String(r.id))).length;
+  const times = all.map(r => Date.parse(r.createdAt)).filter(Number.isFinite);
+  const day = ms => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  el.innerHTML = `<div class="k-rep-worst-title">${esc(t('rep_rate_h'))}</div>
+    <p class="k-rep-src"><b>${Math.round(answered / all.length * 100)}%</b> · ${esc(t('rep_rate_note', { a: answered, n: all.length, f: day(Math.min(...times)), t: day(Math.max(...times)) }))}</p>`;
+}
+
 // Photos of the reports a leader answers for: filter and sort in place. A tap opens that report's sheet.
 function renderRepPhotos(all){
   const bar = document.getElementById('k-rep-ph-bar'), grid = document.getElementById('k-rep-ph-grid');
@@ -5729,6 +5816,7 @@ async function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${verified.length}</div><div class="k-rep-stat-l">${esc(t('rep_resolved'))}</div></div>
       <div class="k-rep-stat"><div class="k-rep-stat-n">${byPlace.size}</div><div class="k-rep-stat-l">${esc(t('rep_places'))}</div></div>
     </div>
+    <div id="k-rep-rate" data-key="${esc(rep.key)}"></div>
     <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
     ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
       : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}
@@ -5758,7 +5846,7 @@ async function openRepProfile(key){
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
-  if (rep.covers) renderRepPhotos(all);
+  if (rep.covers) { renderRepPhotos(all); renderRepRate(rep, all); }
   loadRepReplies(rep);
   renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
@@ -6102,7 +6190,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-copy-letter],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -6121,6 +6209,7 @@ function wireUI(){
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
     if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
+    if (d.copyLetter){ const r = state.byId.get(d.copyLetter); const o = r && letterOffice(r); return o && copyText(letterText(r, o), 'letter_copied'); }
     if (d.copyLink) return copyText(reportLink(d.copyLink));
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
@@ -6314,30 +6403,17 @@ function wireUI(){
   });
 }
 
-/* Every plain visit asks for location (the phone shows its own prompt until allowed) and flies
-   the map to street level where the person stands; the place picker follows. Denied or failed
-   keeps the home-place view. The position stays on the phone; nothing is sent until they file a report. */
-async function locateOnOpen(){
-  try {
-    if (!navigator.geolocation) return;
-    const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
-    if (st === 'denied') return startTips();
-    showToast(t('locating_you'));
-    navigator.geolocation.getCurrentPosition(p => {
-      const { latitude: lat, longitude: lng } = p.coords;
-      const b = state.rules.bbox;
-      const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
-      if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
-      askStillThere(lat, lng, p.coords.accuracy);
-      startTips();
-      if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
-      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 16), duration: 1200 });
-      // Where they are becomes their home place for next time (once the page has been renamed after it).
-      mainMap.once('moveend', () => setTimeout(() => {
-        if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
-      }, 300));
-    }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
-  } catch (e) { startTips(); }
+/* Runs only when someone taps the locate button: the phone asks for location then, not on load.
+   The map flies to them (GeolocateControl); the position stays on the phone until they file a report. */
+function onLocated(lat, lng, accuracy){
+  const b = state.rules.bbox;
+  const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
+  if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return; }
+  askStillThere(lat, lng, accuracy);
+  // Where they are becomes their home place for next time (once the page has been renamed after it).
+  mainMap.once('moveend', () => setTimeout(() => {
+    if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
+  }, 300));
 }
 
 /* A plain visit opens on the place this device last chose or was found in, else all of West Bengal
@@ -6378,60 +6454,6 @@ function initPlacePicker(){
   });
 }
 
-/* First-visit tips: a few small bubbles that point at a feature and say what it does.
-   Shown once per device, after the location question, and never while a form is open. */
-const TIPS = [
-  { key: 'tip_lang_menu', target: () => visible('#k-more-btn'), when: () => state.lang === 'en' },
-  { key: 'tip_report', target: () => visible('.k-map-report-btn') },
-];
-function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
-function startTips(){
-  if (startTips.started) return;
-  startTips.started = true;
-  try { if (localStorage.getItem('kasa_tips_done') === '1') return; } catch (e) { return; }
-  const list = TIPS.filter(x => (!x.when || x.when()) && x.target());
-  const box = document.getElementById('k-tip'), next = document.getElementById('k-tip-next');
-  let i = 0;
-  const finish = () => { box.hidden = true; try { localStorage.setItem('kasa_tips_done', '1'); } catch (e) {} };
-  const show = () => {
-    if (i >= list.length) return finish();
-    const el = list[i].target();
-    if (!el || document.querySelector('.k-modal.open')) return finish();
-    const k = list[i].key;
-    document.getElementById('k-tip-text').textContent = t(typeof k === 'function' ? k() : k);
-    next.textContent = t(i === list.length - 1 ? 'tip_done' : 'tip_next');
-    box.hidden = false;
-    const r = el.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
-    const below = r.top < window.innerHeight / 2;
-    box.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
-    box.style.top = (below ? r.bottom + 10 : r.top - h - 10) + 'px';
-    box.dataset.dir = below ? 'down' : 'up';
-  };
-  next.onclick = () => { i++; show(); };
-  document.getElementById('k-tip-skip').onclick = finish;
-  setTimeout(show, 600);
-}
-
-/* The count is Purulia's; elsewhere the line names the town or district in view. */
-function renderJoin(){
-  const el = document.getElementById('k-join-text');
-  if (!el) return;
-  const p = window.KasaPlaces?.current && KasaPlaces.bySlug(KasaPlaces.current);
-  const n = state.peopleCount;
-  el.textContent = p ? t('join_first_place', { place: p.name }) : n >= 20 ? t('join_n', { n }) : t('join_first');
-}
-
-/* "Join N people keeping Purulia clean" — a small, closable line on the map. */
-async function showJoin(){
-  try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
-  const { data: n } = await sb.rpc('kasa_people_count');
-  state.peopleCount = n;
-  const el = document.getElementById('k-join');
-  renderJoin();
-  el.hidden = false;
-  document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
-}
-
 /* "Still there?" Someone who already shares their location, standing within 100 m of an
    unresolved report at least 2 days old, is asked once (per report, per week, per phone)
    whether it's still there. "Yes" is an on-site sighting; "It's been cleaned" starts the
@@ -6464,32 +6486,43 @@ function askStillThere(lat, lng, accuracy){
         <button type="button" data-still="no">${esc(t('still_later'))}</button>
       </div>
     </div>`;
-  el.hidden = false;
-  el.onclick = e => {
-    const b = e.target.closest('[data-still]');
-    if (e.target.closest('[data-open]')) el.hidden = true;
-    if (!b) return;
-    el.hidden = true;
-    if (b.dataset.still === 'yes') handleSeen(r.id, b);
-    else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+  // Off the map until asked: a small "near you" line opens the card.
+  const near = document.getElementById('k-near');
+  near.textContent = t('near_line');
+  near.hidden = false;
+  near.onclick = () => {
+    near.hidden = true;
+    el.hidden = false;
+    el.onclick = e => {
+      const b = e.target.closest('[data-still]');
+      if (e.target.closest('[data-open]')) el.hidden = true;
+      if (!b) return;
+      el.hidden = true;
+      if (b.dataset.still === 'yes') handleSeen(r.id, b);
+      else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+    };
   };
 }
 
 /* "Is it fixed?" (idea from FixMyStreet's 4-week questionnaire). A reporter whose own report has
-   been open 28 days is asked once every 28 days, on this phone: fixed means photograph it (the usual
-   cleanup claim at the spot); still there opens the report at "Filed officially" to take it further.
-   Only for phones that already have a session; nothing is asked of anyone else. */
+   been open 28 days is asked: still there / fixed / not sure. The answer is kept by kasa_report_followup
+   (owner only, changes no public status). Fixed means photograph it (the usual cleanup claim at the
+   spot); still there opens the report at "Filed officially" to take it further. A report answered
+   "still" or "fixed" is not asked again; "not sure" is asked again after 28 days. Only for phones
+   that already have a session; nothing is asked of anyone else. */
 const MINE_ASK_DAYS = 28;
 async function askReporter(){
   if (askStillThere.done) return;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return;
-  const { data, error } = await sb.rpc('kasa_my_reports');
+  const [{ data, error }, { data: fu }] = await Promise.all([sb.rpc('kasa_my_reports'), sb.rpc('kasa_my_followups')]);
   if (error || !data) return;
+  const answered = new Map((fu || []).map(f => [f.report_id, f.answer]));
   let asked = {};
   try { asked = JSON.parse(localStorage.getItem('kasa_mine_asked') || '{}'); } catch (e) {}
   const now = Date.now(), day = 86400000;
   const r = data.map(normalize).filter(x => x.status === 'open' && !x.pending && daysSince(x.createdAt) >= MINE_ASK_DAYS
+    && !['still', 'fixed'].includes(answered.get(x.id))
     && !(asked[x.id] && now - asked[x.id] < MINE_ASK_DAYS * day)).sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
   const el = document.getElementById('k-still');
   if (!r || askStillThere.done || !el.hidden) return;
@@ -6505,6 +6538,7 @@ async function askReporter(){
       <div class="k-still-a">
         <button type="button" class="k-still-gone" data-mine-ans="fixed">${esc(t('mine_fixed'))}</button>
         <button type="button" class="k-still-yes" data-mine-ans="still">${esc(t('mine_still'))}</button>
+        <button type="button" data-mine-ans="unsure">${esc(t('mine_unsure'))}</button>
         <button type="button" data-mine-ans="later">${esc(t('still_later'))}</button>
       </div>
     </div>`;
@@ -6514,6 +6548,7 @@ async function askReporter(){
     if (!b && !e.target.closest('[data-mine-open]')) return;
     el.hidden = true;
     const a = b ? b.dataset.mineAns : 'open';
+    if (a === 'still' || a === 'fixed' || a === 'unsure') sb.rpc('kasa_report_followup', { p_report_id: r.id, p_answer: a }).then(() => {}, () => {});
     if (a === 'fixed') openEvidence('claim:' + r.id);
     else if (a !== 'later'){
       openSheet(r.id);
@@ -6592,6 +6627,23 @@ function safeUrl(u){
 }
 
 function setText(id, v){ const el = document.getElementById(id); if (el) el.textContent = v; }
+
+/* Counts roll up to the real number once data arrives. Reduced motion gets the number at once. */
+const countShown = new Map();
+function countUp(id, target){
+  const el = document.getElementById(id); if (!el) return;
+  const from = countShown.has(id) ? countShown.get(id) : 0;
+  countShown.set(id, target);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || from === target){ el.textContent = target; return; }
+  const t0 = performance.now(), dur = 900;
+  const frame = now => {
+    const p = Math.min((now - t0) / dur, 1), e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = Math.round(from + (target - from) * e);
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
 
 function randomName(n){
   const a = new Uint8Array(n);
