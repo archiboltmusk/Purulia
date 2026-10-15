@@ -1109,3 +1109,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-splash-sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;opacity:.75;}
 @media(min-width:641px){.k-splash{display:none;}}
 @media(prefers-reduced-motion:reduce){.k-splash{transition:none;}}
+/* Fallback: the splash lifts after 3 s even if the map never reports idle (e.g. no network). */
+.k-splash{animation:kSplashOut var(--motion-settle) var(--ease-in) 2.8s forwards;}
+@keyframes kSplashOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
+@media(prefers-reduced-motion:reduce){.k-splash{animation:none;}}
