@@ -24,7 +24,7 @@ test('schools.html compares Purulia with West Bengal and India, and shows offici
   await expect(cmp).toBeVisible();
   const water = cmp.locator('tr', { hasText: 'Working drinking water' });
   await expect(water).toContainText('50.0%');   // residents: 1 of 2 checked schools
-  await expect(water).toContainText('99.9%');   // West Bengal, UDISE+ 2024-25
+  await expect(water).toContainText('99.5%');   // West Bengal functional drinking water, UDISE+ 2025-26 Table 7.2
   await expect(water).toContainText('Meghalaya');
   await expect(page.locator('#sc-compare a[href*="udiseplus.gov.in"]')).toHaveCount(1);
 
@@ -33,5 +33,5 @@ test('schools.html compares Purulia with West Bengal and India, and shows offici
   const poor = page.locator('#s-19141300204');
   await expect(poor.locator('.sc-off')).toContainText('120 pupils');
   await expect(poor.locator('.sc-gap')).toContainText("drinking water, girls' toilet, teachers (1 of 4 seen)");
-  await expect(poor.locator('.sc-bench')).toContainText('Across West Bengal, 99.9% of schools report working drinking water');
+  await expect(poor.locator('.sc-bench')).toContainText('Across West Bengal, 99.5% of schools report working drinking water');
 });
