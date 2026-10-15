@@ -112,7 +112,7 @@ const ISSUE_GROUPS = [
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
-const COLORS = { minor: '#9ca3af', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
+const COLORS = { minor: '#f4a6a6', severe: '#DD3333', critical: '#7a2428', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
    approves it before it is public (enforced on the server). */
