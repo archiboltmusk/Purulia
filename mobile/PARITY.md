@@ -29,14 +29,16 @@ Rules that hold for every batch: reports and evidence need a live camera photo a
 | Area card: officials, duties, "add who's responsible" | ✓ | In-app web (full place card link) | Later |
 | Leader profiles, MPLADS works, `?rep=` links | ✓ | In-app web | Later |
 | Cleanup drives | Removed from the site 2026-10-08 | — | — |
-| School check (UDISE, six answers, live photo) | ✓ | In-app web (More → At this spot) | Later (block/school search + fix flows) |
+| School check (UDISE, six answers, live photo) | ✓ | Native (`SchoolCheck`: nearby + block search, answers, live photo) | Later: per-problem photos, missing school, school pin fix |
 | Snake sighting / rescuer sign-up | ✓ | Native (`SpotForm`: live photo, rescuers with call/WhatsApp) | — |
 | Dog feeding spot | ✓ | Native (`SpotForm`) | — |
 | Swachh Pandal | ✓ | Native (`SpotForm`) | — |
 | Public works board (live board photo) | ✓ | Native (`SpotForm`) | — |
 | Adopt a spot | ✓ | Native (`SpotForm`) | — |
-| Nearby alerts / watch a report (web push) | ✓ | — | Batch 5 (native push) |
-| Translation fix, source correction, bug report | ✓ | In-app web | Batch 5 |
+| Nearby alerts (web push) | ✓ | Native switch (More → Alerts near me); code done, stays off until the keys below are set | See README "Push alerts" |
+| Watch a report (`kasa-notify-watch`) | ✓ | — | After nearby alerts are live |
+| Bug report, suggest a correction | ✓ | Native (`FeedbackForm`, More → Help us fix things) | — |
+| Translation fix (tap Bengali text) | ✓ | Web only (needs the page's text) | — |
 
 ## Other pages
 

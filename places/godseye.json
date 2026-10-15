@@ -1,0 +1,472 @@
+{
+ "generated": "2026-10-15T18:23:36Z",
+ "sources": [
+  {
+   "id": "open-meteo-forecast",
+   "name": "Open-Meteo forecast API",
+   "url": "https://open-meteo.com/",
+   "key_required": false,
+   "licence": "Free for non-commercial use; CC BY 4.0 data",
+   "terms": "Free tier, no key; fair-use limit on calls per day"
+  },
+  {
+   "id": "open-meteo-air",
+   "name": "Open-Meteo air-quality API",
+   "url": "https://open-meteo.com/en/docs/air-quality-api",
+   "key_required": false,
+   "licence": "Free for non-commercial use; CAMS data (Copernicus) under its own terms",
+   "terms": "Free tier, no key; fair-use limit on calls per day"
+  },
+  {
+   "id": "nasa-firms",
+   "name": "NASA FIRMS (VIIRS S-NPP near-real-time)",
+   "url": "https://firms.modaps.eosdis.nasa.gov/",
+   "key_required": true,
+   "licence": "NASA open data, free to use with attribution",
+   "terms": "Free MAP_KEY; transaction limit per 10 minutes; 7-day area window"
+  }
+ ],
+ "districts": {
+  "north-24-parganas": {
+   "name": "North 24 Parganas",
+   "at": [
+    88.7824,
+    22.7893
+   ],
+   "weather": {
+    "temp_c": 25.3,
+    "humidity_pct": 91,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 77.3,
+    "pm10": 78.2,
+    "us_aqi": 109,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "south-24-parganas": {
+   "name": "South 24 Parganas",
+   "at": [
+    88.5705,
+    22.0807
+   ],
+   "weather": {
+    "temp_c": 25.4,
+    "humidity_pct": 94,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 26.8,
+    "pm10": 27.1,
+    "us_aqi": 85,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "alipurduar": {
+   "name": "Alipurduar",
+   "at": [
+    89.4999,
+    26.5815
+   ],
+   "weather": {
+    "temp_c": 23.7,
+    "humidity_pct": 80,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 76.1,
+    "pm10": 78.5,
+    "us_aqi": 118,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "bankura": {
+   "name": "Bankura",
+   "at": [
+    87.1501,
+    23.0877
+   ],
+   "weather": {
+    "temp_c": 25.1,
+    "humidity_pct": 91,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 47.4,
+    "pm10": 48.1,
+    "us_aqi": 145,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "birbhum": {
+   "name": "Birbhum",
+   "at": [
+    87.6728,
+    24.0533
+   ],
+   "weather": {
+    "temp_c": 24.7,
+    "humidity_pct": 88,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 130.4,
+    "pm10": 132.7,
+    "us_aqi": 164,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "cooch-behar": {
+   "name": "Cooch Behar",
+   "at": [
+    89.3227,
+    26.2814
+   ],
+   "weather": {
+    "temp_c": 23.6,
+    "humidity_pct": 92,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 130.9,
+    "pm10": 136.0,
+    "us_aqi": 157,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "darjeeling": {
+   "name": "Darjeeling",
+   "at": [
+    88.2546,
+    26.8104
+   ],
+   "weather": {
+    "temp_c": 22.8,
+    "humidity_pct": 66,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 64.5,
+    "pm10": 74.3,
+    "us_aqi": 99,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "dakshin-dinajpur": {
+   "name": "Dakshin Dinajpur",
+   "at": [
+    88.6063,
+    25.3649
+   ],
+   "weather": {
+    "temp_c": 24.4,
+    "humidity_pct": 84,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 134.6,
+    "pm10": 140.2,
+    "us_aqi": 156,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "uttar-dinajpur": {
+   "name": "Uttar Dinajpur",
+   "at": [
+    88.171,
+    25.9239
+   ],
+   "weather": {
+    "temp_c": 23.9,
+    "humidity_pct": 89,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 77.1,
+    "pm10": 80.8,
+    "us_aqi": 150,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "hooghly": {
+   "name": "Hooghly",
+   "at": [
+    87.99,
+    22.8811
+   ],
+   "weather": {
+    "temp_c": 25.0,
+    "humidity_pct": 93,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 60.8,
+    "pm10": 61.2,
+    "us_aqi": 140,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "howrah": {
+   "name": "Howrah",
+   "at": [
+    88.0788,
+    22.5954
+   ],
+   "weather": {
+    "temp_c": 25.1,
+    "humidity_pct": 96,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 42.8,
+    "pm10": 43.1,
+    "us_aqi": 112,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "jalpaiguri": {
+   "name": "Jalpaiguri",
+   "at": [
+    88.7539,
+    26.5682
+   ],
+   "weather": {
+    "temp_c": 22.6,
+    "humidity_pct": 94,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 108.7,
+    "pm10": 113.9,
+    "us_aqi": 158,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "jhargram": {
+   "name": "Jhargram",
+   "at": [
+    86.9665,
+    22.3527
+   ],
+   "weather": {
+    "temp_c": 25.1,
+    "humidity_pct": 94,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 16.8,
+    "pm10": 17.1,
+    "us_aqi": 84,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "kalimpong": {
+   "name": "Kalimpong",
+   "at": [
+    88.6203,
+    27.0471
+   ],
+   "weather": {
+    "temp_c": 12.0,
+    "humidity_pct": 85,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 27.7,
+    "pm10": 32.5,
+    "us_aqi": 58,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "kolkata": {
+   "name": "Kolkata",
+   "at": [
+    88.3483,
+    22.5086
+   ],
+   "weather": {
+    "temp_c": 27.4,
+    "humidity_pct": 80,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 46.9,
+    "pm10": 47.3,
+    "us_aqi": 108,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "malda": {
+   "name": "Malda",
+   "at": [
+    88.1557,
+    25.1647
+   ],
+   "weather": {
+    "temp_c": 24.5,
+    "humidity_pct": 89,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 138.3,
+    "pm10": 146.2,
+    "us_aqi": 159,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "purba-medinipur": {
+   "name": "Purba Medinipur",
+   "at": [
+    87.7225,
+    22.0469
+   ],
+   "weather": {
+    "temp_c": 25.5,
+    "humidity_pct": 91,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 30.4,
+    "pm10": 31.0,
+    "us_aqi": 93,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "paschim-medinipur": {
+   "name": "Paschim Medinipur",
+   "at": [
+    87.4266,
+    22.3898
+   ],
+   "weather": {
+    "temp_c": 24.8,
+    "humidity_pct": 96,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 27.0,
+    "pm10": 27.1,
+    "us_aqi": 109,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "murshidabad": {
+   "name": "Murshidabad",
+   "at": [
+    88.0996,
+    24.2184
+   ],
+   "weather": {
+    "temp_c": 24.6,
+    "humidity_pct": 82,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 143.9,
+    "pm10": 147.1,
+    "us_aqi": 159,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "nadia": {
+   "name": "Nadia",
+   "at": [
+    88.5608,
+    23.5344
+   ],
+   "weather": {
+    "temp_c": 25.1,
+    "humidity_pct": 92,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 132.7,
+    "pm10": 134.6,
+    "us_aqi": 157,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "paschim-bardhaman": {
+   "name": "Paschim Bardhaman",
+   "at": [
+    87.2581,
+    23.6207
+   ],
+   "weather": {
+    "temp_c": 25.9,
+    "humidity_pct": 86,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 119.7,
+    "pm10": 121.5,
+    "us_aqi": 178,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "purba-bardhaman": {
+   "name": "Purba Bardhaman",
+   "at": [
+    87.9531,
+    23.3787
+   ],
+   "weather": {
+    "temp_c": 24.8,
+    "humidity_pct": 95,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 110.6,
+    "pm10": 111.8,
+    "us_aqi": 155,
+    "at": "2026-10-15T23:30"
+   }
+  },
+  "purulia": {
+   "name": "Purulia",
+   "at": [
+    86.434,
+    23.2635
+   ],
+   "weather": {
+    "temp_c": 24.2,
+    "humidity_pct": 91,
+    "rain_mm": 0.0,
+    "at": "2026-10-15T23:45"
+   },
+   "air": {
+    "pm2_5": 93.8,
+    "pm10": 94.5,
+    "us_aqi": 169,
+    "at": "2026-10-15T23:30"
+   }
+  }
+ },
+ "status": {
+  "open-meteo": "ok",
+  "nasa-firms": "no key"
+ }
+}

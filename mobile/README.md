@@ -58,4 +58,15 @@ Needs: Apple Team ID + App Attest entitlement, a Google Cloud project linked in 
 ## Follow-ups
 
 - Ward, block and GP outlines on the native map (district + seat outlines and report dots are in).
-- Push alerts for watched reports.
+- Push alerts for watched reports (`kasa-notify-watch`).
+
+## Push alerts
+
+Code is in (`src/push.ts`, More → Alerts near me, `kasa-notify` Expo branch). The switch reports "not switched on in this build" until these are done by the project owner:
+
+1. Link the app to an Expo project (`eas init`) so `extra.eas.projectId` exists in `app.json`.
+2. Android: create a Firebase project, add the app, put `google-services.json` in `mobile/` and upload the FCM v1 service-account key to EAS credentials.
+3. iOS: let EAS create the APNs key (needs the Apple Developer account); builds then need a provisioning profile with Push Notifications.
+4. Deploy the edge function: `supabase functions deploy kasa-notify`.
+
+The app stores its Expo push token through the site's own `kasa_push_subscribe` (endpoint `https://exp.host/--/expo-push/<token>`), so no migration is needed.

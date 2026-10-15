@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Ground Truth — Parishkar Bengal</title>
@@ -15,7 +16,7 @@
 <meta name="twitter:description" content="Verified, sourced data for every West Bengal district.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta name="theme-color" content="#0C0A05">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="kasa-icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="kasa-icon-192.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -35,6 +36,20 @@ if(sessionStorage.getItem("pgt")){
 }
 </script>
 <script src="bug-report.js"></script>
+<style>
+  .st-wrap{max-width:900px;margin:4rem auto 0;}
+  .st-intro{color:var(--text-md,rgba(var(--cream-rgb),.7));line-height:1.6;margin:.6rem 0 1.4rem;}
+  .st-item{margin:0 0 1.2rem;padding:1rem 1.2rem;border:1.5px solid rgba(var(--cream-rgb),.55);}
+  .st-stat{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.16em;text-transform:uppercase;color:var(--amber);}
+  .st-item blockquote{margin:.5rem 0;font-family:'EB Garamond',serif;font-size:1.2rem;line-height:1.5;color:var(--cream);}
+  .st-item figcaption{font-size:.85rem;color:rgba(var(--cream-rgb),.6);} .st-item a{color:var(--amber);}
+  .st-empty{color:rgba(var(--cream-rgb),.6);}
+  .st-add{margin-top:1.4rem;} .st-add summary{cursor:pointer;color:var(--amber);font-family:'DM Mono',monospace;font-size:.75rem;letter-spacing:.1em;text-transform:uppercase;}
+  #st-form{display:grid;gap:.8rem;margin-top:1rem;}
+  #st-form label{display:grid;gap:.3rem;font-size:.85rem;color:rgba(var(--cream-rgb),.75);}
+  #st-form input,#st-form select,#st-form textarea{background:var(--ink);border:1px solid rgba(var(--cream-rgb),.3);color:var(--cream);padding:.55rem .6rem;font:inherit;}
+  #st-form .st-check{display:flex;gap:.6rem;align-items:flex-start;}
+</style>
 </head>
 <body>
 <a href="#main-content" class="skip-link">Skip to main content</a>
@@ -91,7 +106,7 @@ if(sessionStorage.getItem("pgt")){
     <div class="sl">// The Honest Numbers — Official Data First</div>
     <h2>The Numbers Are <em>Hard.</em> That Is Exactly Why They Must Be Right.</h2>
     <p>Official figures come first (NFHS-5, government records, court orders), each with its source. Figures from single academic studies are labelled "one study". Anything we could not confirm has been removed.</p>
-    <label class="gt-pick">District <select id="gtPick" aria-label="District"><option>Purulia</option></select></label>
+    <label class="gt-pick">District <select id="gtPick" aria-label="District"><option>Purulia</option></select></label> <a class="gt-compare-link" href="compare.html">Compare districts side by side →</a>
     <p class="gt-about" id="gtAbout" hidden></p>
     <p class="gt-updated" id="gtUpdated" hidden></p>
   </div>
@@ -130,6 +145,26 @@ if(sessionStorage.getItem("pgt")){
       <div class="gt-card-label">Removed until sourced</div>
       <div class="gt-card-desc">Earlier versions of this page quoted figures we could not confirm at an official source: per-capita income, BPL share, child labour and dropout rates, women without bank accounts, power transmission loss, irrigation coverage, solar irradiance, industrial land prices, a "62.4% child malnutrition" figure, an HDI of 0.31, a 71% tribal dropout rate, a migration survey, and quick-commerce availability. They are gone until a primary source is found. <a href="grievance.html" class="src-link">Tell us</a> if you have one.</div>
     </div>
+  </div>
+
+  <!-- ══ BEHIND THE NUMBERS (stories.js) ══ -->
+  <div id="stories" class="st-wrap">
+    <div class="sl">// Behind the numbers</div>
+    <h2>Each figure is <em>people.</em></h2>
+    <p class="st-intro">A story beside a figure, told by someone it counts. Only stories already published with the person's agreement go here, unedited, with the link to where they appeared. A moderator opens that link before anything shows. No photos, and no names of children.</p>
+    <div id="st-list"><p class="st-empty">Loading…</p></div>
+    <details class="st-add">
+      <summary>Add a published story</summary>
+      <form id="st-form">
+        <label>Figure<select id="st-stat" name="stat" required></select></label>
+        <label>The story, as published (60 to 1500 letters)<textarea name="story" minlength="60" maxlength="1500" rows="5" required></textarea></label>
+        <label>Village, block or town<input name="place" maxlength="120"></label>
+        <label>Link where it was published<input name="source" type="url" maxlength="300" required placeholder="https://"></label>
+        <label class="st-check"><input type="checkbox" name="consent" required> The person agreed to share this story, and it is published at that link. Name a private person only if the source does.</label>
+        <button type="submit" class="btn btn-a">Send for checking</button>
+        <p id="st-msg" class="st-empty" role="status"></p>
+      </form>
+    </details>
   </div>
 
   <!-- ══ DATA CHARTS ══ -->
@@ -402,7 +437,7 @@ if(sessionStorage.getItem("pgt")){
   </div>
 </footer>
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js" integrity="sha384-e6nUZLBkQ86NJ6TVVKAeSaK8jWa3NhkYWZFomE39AvDbQWeie9PlQqM3pmYW5d1g" crossorigin="anonymous"></script>
 <script src="script.js"></script>
 <script>
 window.filterSM=function(cat,btn){
@@ -416,5 +451,6 @@ window.filterSM=function(cat,btn){
 </script>
 <script src="place-facts.js"></script>
 <script src="data-place.js"></script>
+<script src="stories.js"></script>
 </body>
 </html>

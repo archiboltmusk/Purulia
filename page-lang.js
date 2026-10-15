@@ -39,8 +39,8 @@
   });
   const style = document.createElement('style');
   style.textContent = '.pl-lang{display:inline-flex;gap:2px;margin-right:.8rem;vertical-align:middle}'
-    + '.pl-lang button{font:500 11px/1 var(--mono,monospace);padding:.45rem .55rem;background:transparent;color:inherit;border:1px solid rgba(212,136,42,.35);border-radius:3px;cursor:pointer}'
-    + '.pl-lang button[aria-pressed="true"]{background:#D4882A;color:#0a0805;border-color:#D4882A}'
+    + '.pl-lang button{font:500 11px/1 var(--mono,monospace);padding:.45rem .55rem;background:transparent;color:inherit;border:1px solid rgba(221,51,51,.35);border-radius:3px;cursor:pointer}'
+    + '.pl-lang button[aria-pressed="true"]{background:#DD3333;color:#0a0805;border-color:#DD3333}'
     + '.pl-lang-top{display:flex;justify-content:flex-end;margin-bottom:1rem}';
   document.head.appendChild(style);
   const navRight = document.querySelector('.k-nav-right');

@@ -1,17 +1,18 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Parishkar Bengal — Report a civic problem in 30 seconds</title>
 <meta name="description" content="A public map of civic problems across West Bengal: garbage, drains, roads, streetlights, hand pumps, anganwadis, health centres, schools and illegal activity. Every report is public, every ward, block and district is counted, and nothing is marked fixed until people on the spot confirm it.">
-<meta name="theme-color" content="#0a0805">
+<meta name="theme-color" content="#ffffff">
 <meta property="og:title" content="Parishkar Bengal — Report a civic problem in 30 seconds">
 <meta property="og:description" content="West Bengal's civic problem map. Live photo and GPS. Every report public. Nothing marked fixed until people on the spot confirm it.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/kasa.html">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
@@ -19,19 +20,19 @@
 <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap"></noscript>
-<link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap"></noscript>
+<link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <link rel="stylesheet" href="digest-sheet.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="kasa-icon-192.png">
 
 <!-- async, not defer: the page runs without waiting for the 800 KB map library; kasa.js waits for it only to draw the map. -->
-<script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js" integrity="sha384-oM43ZjLL5cj/w3ORvbvwAubendEp51/buLZ9CGEMjp5ExAxNxAC7N7GJ2X2Oreb9" crossorigin="anonymous"></script>
 <script src="config.js"></script>
 <script defer src="categories.js"></script>
 <script defer src="city.js"></script>
@@ -40,11 +41,16 @@
 <script defer src="kasa-i18n.js"></script>
 <script defer src="translate-fix.js"></script>
 <script defer src="kasa-photo-meta.js"></script>
+<script defer src="boundary-live.js"></script>
 <script defer src="kasa.js"></script>
 <script defer src="digest-sheet.js"></script>
 <script src="bug-report.js"></script>
 </head>
 <body data-app-layout>
+<div class="k-splash" id="k-splash" aria-hidden="true">
+  <div class="k-splash-mark">Parishkar <span>Purulia</span></div>
+  <div class="k-splash-sub">Loading…</div>
+</div>
 
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
@@ -69,6 +75,7 @@
   <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
     <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
   <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
+  <input type="search" class="k-place-search" id="k-place-search" placeholder="Search a state or district" aria-label="Search a state or district" autocomplete="off">
   <div class="k-place-list" id="k-place-list"></div>
 </dialog>
   <div class="k-nav-links">
@@ -103,6 +110,14 @@
 </nav>
 
 
+<nav class="k-quick" aria-label="Sections">
+  <a href="schools.html" class="k-quick-chip" data-i18n="nav_schools"><span class="k-quick-ico" aria-hidden="true">🏫</span>Schools</a>
+  <a href="money.html" class="k-quick-chip" data-i18n="nav_tax"><span class="k-quick-ico" aria-hidden="true">₹</span>Tax and spending</a>
+  <a href="waste.html" class="k-quick-chip" data-i18n="nav_waste"><span class="k-quick-ico" aria-hidden="true">♻️</span>Where the waste goes</a>
+  <a href="toilets.html" class="k-quick-chip" data-i18n="nav_toilets"><span class="k-quick-ico" aria-hidden="true">🚻</span>Public toilets</a>
+  <a href="promises.html" class="k-quick-chip" data-i18n="nav_promises"><span class="k-quick-ico" aria-hidden="true">📜</span>Promises</a>
+  <a href="noticeboard.html" class="k-quick-chip" data-i18n="nav_noticeboard"><span class="k-quick-ico" aria-hidden="true">📣</span>Ask your leaders</a>
+</nav>
 <section class="k-map-section" aria-label="Report map">
   <div id="k-map" role="application" aria-label="Map of reports"></div>
   <div class="k-list" id="k-list" hidden>
@@ -163,18 +178,7 @@
   <div class="k-ward-card" id="k-ward-card" hidden></div>
   <div class="k-still" id="k-still" hidden role="dialog" aria-live="polite"></div>
 
-  <div class="k-join" id="k-join" hidden>
-    <button type="button" class="k-join-text" id="k-join-text" data-action="report"></button>
-    <button type="button" class="k-join-x" id="k-join-x" aria-label="Close">✕</button>
-  </div>
-
-  <div class="k-tip" id="k-tip" hidden role="dialog" aria-live="polite">
-    <div class="k-tip-text" id="k-tip-text"></div>
-    <div class="k-tip-actions">
-      <button type="button" class="k-tip-skip" id="k-tip-skip" data-i18n="tip_skip">Skip</button>
-      <button type="button" class="k-tip-next" id="k-tip-next"></button>
-    </div>
-  </div>
+  <button type="button" class="k-near" id="k-near" hidden></button>
 
   <div class="k-fixed-strip" id="k-fixed-strip" hidden>
     <div class="k-fixed-strip-head">
@@ -195,7 +199,7 @@
     <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
-    <span aria-hidden="true">📷</span> <span data-i18n="map_report">Report a problem</span>
+    <svg class="k-map-report-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> <span data-i18n="map_report">Report a problem</span>
   </button>
 </section>
 
@@ -222,6 +226,11 @@
       <span class="k-drawer-text">Ward Accountability</span>
       <span class="k-drawer-sub" data-i18n="drawer_ward_sub">See who's responsible</span>
     </button>
+    <button type="button" class="k-drawer-item" data-checkq>
+      <span class="k-drawer-icon" aria-hidden="true">👆</span>
+      <span class="k-drawer-text" data-i18n="drawer_check">Check reports near you</span>
+      <span class="k-drawer-sub" data-i18n="drawer_check_sub">Swipe through open problems around you</span>
+    </button>
     <a class="k-drawer-item" href="communities.html">
       <span class="k-drawer-icon" aria-hidden="true">🤝</span>
       <span class="k-drawer-text" data-i18n="drawer_groups">Volunteer communities</span>
@@ -242,20 +251,17 @@
     </button>
     <div class="k-drawer-more-list" id="k-drawer-more-list" hidden>
       <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
-      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
-      <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
+        <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
       <a href="works.html" class="k-drawer-link" data-i18n="nav_works">Public works warranty</a>
       <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
       <a href="pandals.html" class="k-drawer-link" data-i18n="nav_pandal">Swachh Pandal</a>
       <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
       <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
-      <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
       <a href="municipality.html" class="k-drawer-link" data-i18n="nav_money">Who runs the municipality</a>
-      <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
-      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
-      <a href="promises.html" class="k-drawer-link" data-i18n="nav_promises">Promises: who promised what</a>
-      <a href="noticeboard.html" class="k-drawer-link" data-i18n="nav_noticeboard">Ask your leaders</a>
+      <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
+      <a href="compare.html" class="k-drawer-link" data-i18n="nav_compare">Compare districts</a>
+      <a href="record.html" class="k-drawer-link" data-i18n="nav_record">The record: evidence and remedies</a>
     </div>
   </nav>
 
@@ -865,6 +871,13 @@
       <h4 data-i18n="notify_near_h">Problems near you</h4>
       <p data-i18n="notify_near_p">A notification when someone reports a problem within 500 m of where you are now.</p>
       <button type="button" class="k-btn k-btn-secondary k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
+      <div class="k-nt-filter" id="k-nt-filter" hidden>
+        <label class="k-nt-radius"><span data-i18n="notify_radius">How far from you</span>
+          <select id="k-nt-radius"><option value="250">250 m</option><option value="500">500 m</option><option value="1000">1 km</option><option value="2000">2 km</option></select></label>
+        <p class="k-nt-kinds-h" data-i18n="notify_kinds">Only these kinds of problem (tick none for all):</p>
+        <div class="k-nt-kinds" id="k-nt-kinds"></div>
+        <button type="button" class="k-btn k-btn-secondary" id="k-nt-save" data-i18n="notify_save">Save alert choices</button>
+      </div>
     </section>
     <section class="k-nt-item">
       <h4 data-i18n="notify_watch_h">Reports you watch</h4>
@@ -876,6 +889,17 @@
       <p data-i18n="notify_digest_p">One email every Monday with what was reported and fixed in each ward.</p>
       <button type="button" class="k-btn k-btn-secondary" data-close data-digest-open data-i18n="notify_digest_btn">✉ Get it by email</button>
     </section>
+  </div>
+</div>
+
+<div class="k-modal" id="k-cq-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-cq-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-cq-title" data-i18n="cq_title">Check reports near you</h3>
+    <p class="k-modal-sub" data-i18n="cq_sub">Open problems close to you, nearest first. Swipe right if it is still there, left to skip. If it looks fixed, say so with a live photo.</p>
+    <div id="k-cq-body"></div>
   </div>
 </div>
 

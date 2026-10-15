@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>How it works — Parishkar Bengal</title>
@@ -11,7 +12,7 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/methodology.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/methodology.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
@@ -150,10 +151,39 @@
     </ul>
     <p>The figures are refreshed by a script in the code repository (<code>tools/build-wb-record.py</code>, <code>tools/build-wb-affidavits.py</code>), and each one links to its source. If a figure is wrong, use "Suggest a correction" at the foot of the page.</p>
 
-    <h2>9. Corrections</h2>
+    <h2 id="rti">9. Official complaint numbers and RTI dates</h2>
+    <p>Anyone who files a report on an official channel (CPGRAMS, the state helpline, an RTI application) can add the reference number to the report, and the date they filed it. The number is public; who added it is not. For an RTI, only the phone that added it can later record what happened: answered, refused, no reply or first appeal filed.</p>
+    <ul>
+      <li><strong>RTI reply date</strong>: section 7(1) gives 30 days from the office's receipt of the application; Parishkar counts from the filing date you enter, which is the same day for an online application. Section 7(1) is in the <a href="https://cic.gov.in/sites/default/files/RTI-Act_English.pdf" rel="noopener" target="_blank">Right to Information Act, 2005</a>. If it went to an Assistant Public Information Officer, section 5(2) adds five days; the date shown does not, so check yours.</li>
+      <li><strong>First appeal</strong>: within 30 days of that date, or of the reply if one came, under section 19(1).</li>
+      <li>CPGRAMS and state helpline numbers carry no clock here, because their time limits are set by government guidelines that change, not by an Act.</li>
+    </ul>
+    <p>The case file's "Who answers for this spot" lists offices on record for the spot first, then the bodies the map already knows from its own outlines: the municipality of a mapped ward or town; outside towns, the gram panchayat, the panchayat samiti of the block and the zilla parishad, with their duties from the <a href="https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf" rel="noopener" target="_blank">West Bengal Panchayat Act, 1973</a> (sections 19, 109 and 153).</p>
+
+    <h2 id="evidence">10. How records on "The record" are checked</h2>
+    <p><a href="record.html">The record</a> traces one public problem at a time from the official document to whatever was done about it. The rules below are enforced by the database, not left to judgement.</p>
+    <ul>
+      <li><strong>Four different things, kept apart.</strong> That a document exists; what the document says; whether that is true; and where any related case stands. A record can quote an authentic document while the statement in it is still disputed.</li>
+      <li><strong>Every statement has a page.</strong> A statement (an "assertion") is published only with at least one document a moderator has opened and accepted, with the page, paragraph or table it rests on and the exact words. Documents that contradict it are attached and shown next to it, never dropped.</li>
+      <li><strong>Evidence states.</strong> <em>Not yet checked</em>: received, not reviewed. <em>Source checked</em>: the document is real and says this. <em>Corroborated</em>: a second independent record agrees. <em>Disputed</em>: a credible record says otherwise. <em>Not enough evidence</em>: the documents do not settle it. <em>Official or court finding</em>: an authority or court has decided it, within the scope of that finding. <em>Corrected</em>, <em>withdrawn</em>, <em>superseded</em>: as they say. Every change of state stays visible with its date.</li>
+      <li><strong>Case stages are not verdicts.</strong> An FIR means a case was registered, not that anyone is guilty; a charge sheet is not a conviction; an audit remark is not proof of wrongdoing. Each stage is shown only with its date and the document showing it, and earlier stages stay in the history. Closures, acquittals and dismissals are recorded as plainly as anything else.</li>
+      <li><strong>Links between bodies, firms and works.</strong> A link (for example "Municipality awarded work to Firm") is published only with the document that states it and a reason. A link guessed from a shared name, address or place is never published. Sharing a contract or an office does not show that anyone did anything wrong.</li>
+      <li><strong>Money.</strong> Allocated, contract value, reported as paid, independently verified as paid, value of work done, questioned by audit, officially recoverable and actually recovered are different figures. Each is shown with its document and they are never added together.</li>
+      <li><strong>When a problem counts as fixed.</strong> A remedy moves through five stages: identified, verified, referred, response assessed, outcome checked. "Outcome checked" needs a live camera photo, a document or a measurement; an office saying it is done is recorded as what the office says, not as a fix. A checked fix is looked at again after 90 days, and if the problem is back the record says so.</li>
+      <li><strong>People and criminal cases wait for legal review.</strong> Records that name a person in an official role, or a criminal case, need two different moderators to approve, and stay private until the site has had Indian legal advice on publishing them. No person is scored, rated or ranked.</li>
+      <li><strong>Sources.</strong> Official portals are listed on the record page with their state. A source is used only after a moderator has opened it and checked what it publishes and its terms. Documents are collected by hand or through official downloads and APIs; logins, CAPTCHAs and rate limits are never bypassed.</li>
+      <li><strong>Sending something.</strong> Anyone can send a document, a correction or a reply from the record page. Nothing sent is published as it is; you get a reference number to follow it. Only links to public documents are accepted, and personal details are removed before anything is shown.</li>
+      <li><strong>Nothing is quietly rewritten.</strong> Every change is kept in an audit log that cannot be edited. Changing anything already public needs a note, which appears in the record's corrections list.</li>
+    </ul>
+    <p>The counts at the top of the record page are plain counts of published rows in each state. A record being here says nothing about how common a problem is: it reflects which documents someone found and checked.</p>
+
+    <h2 id="corrections">11. Corrections</h2>
     <p>If you think a number or a rule here is wrong, write to the <a href="grievance.html">Grievance Officer</a>. Corrections are recorded in the affected report's history.</p>
 
-    <h2>10. Open data and tools we build on</h2>
+    <h3 id="drawings">The drawings</h3>
+    <p>Mitu the reporter, Bhulu her dog, the speech balloons, the case covers and the ward maps are Parishkar's own drawings, made in the spirit of Hergé's <em>ligne claire</em> (clear line): one even ink line, flat colour, and every panel readable at a glance. They are not Tintin characters (<a href="https://www.tintin.com" rel="noopener" target="_blank">tintin.com</a>). A speech balloon only ever holds words someone actually said or wrote, unedited, and every number they sit beside comes from the record.</p>
+
+    <h2 id="open-data">12. Open data and tools we build on</h2>
     <p>Parishkar is one small piece of India's civic tech. These are the open projects it uses or learns from; the right column says which.</p>
     <table class="legal-table">
       <thead><tr><th>Project</th><th>What it is</th><th>How Parishkar relates</th></tr></thead>

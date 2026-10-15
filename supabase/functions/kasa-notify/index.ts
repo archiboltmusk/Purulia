@@ -9,6 +9,9 @@
 // Secrets: VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT (mailto:...),
 //          KASA_PAGE_URL (e.g. https://your-site/kasa.html)
 //          Generate keys once with:  npx web-push generate-vapid-keys
+// App phones: a subscription whose endpoint starts with EXPO_PREFIX holds an Expo push
+// token (the mobile app) and is sent through Expo's push service instead of web-push.
+// Android needs FCM and iOS needs APNs set up in the Expo project; no secret lives here.
 
 import { createClient } from 'npm:@supabase/supabase-js@2.45.4';
 import webpush from 'npm:web-push@3.6.7';
@@ -21,6 +24,9 @@ const PAGE_URL = Deno.env.get('KASA_PAGE_URL') ?? '';
 const VAPID_PUBLIC = Deno.env.get('VAPID_PUBLIC_KEY') ?? '';
 const VAPID_PRIVATE = Deno.env.get('VAPID_PRIVATE_KEY') ?? '';
 const VAPID_SUBJECT = Deno.env.get('VAPID_SUBJECT') ?? '';
+
+const EXPO_PREFIX = 'https://exp.host/--/expo-push/';
+const EXPO_SEND = 'https://exp.host/--/api/v2/push/send';
 
 const CORS = {
   'Access-Control-Allow-Origin': '*',
@@ -37,7 +43,8 @@ interface Target { id: string; endpoint: string; p256dh: string; auth: string; l
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') return new Response('ok', { headers: CORS });
   if (req.method !== 'POST') return reply(405, { error: 'POST only' });
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE || !VAPID_SUBJECT || !PAGE_URL) return reply(503, { error: 'alerts not configured' });
+  const webOk = !!(VAPID_PUBLIC && VAPID_PRIVATE && VAPID_SUBJECT);
+  if (!PAGE_URL) return reply(503, { error: 'alerts not configured' });
 
   const jwt = (req.headers.get('Authorization') ?? '').replace(/^Bearer\s+/i, '');
   const asUser = createClient(SUPABASE_URL, ANON_KEY, { global: { headers: { Authorization: `Bearer ${jwt}` } } });
@@ -53,13 +60,32 @@ Deno.serve(async (req) => {
   if (error) return reply(500, { error: error.message });
   if (!data?.report) return reply(200, { sent: 0 });
 
-  webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
+  if (webOk) webpush.setVapidDetails(VAPID_SUBJECT, VAPID_PUBLIC, VAPID_PRIVATE);
   const targets: Target[] = data.targets ?? [];
   let sent = 0;
   for (let i = 0; i < targets.length; i += 20) {
     await Promise.all(targets.slice(i, i + 20).map(async (t) => {
       const msg = buildMessage(data.report, t.lang, t.distance_m, PAGE_URL);
       let ok = false, gone = false;
+      if (t.endpoint.startsWith(EXPO_PREFIX)) {
+        try {
+          const res = await fetch(EXPO_SEND, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+            body: JSON.stringify({
+              to: decodeURIComponent(t.endpoint.slice(EXPO_PREFIX.length)), title: msg.title, body: msg.body,
+              data: { report_id: data.report.id }, channelId: 'nearby', ttl: 3 * 3600,
+            }),
+          });
+          const out = await res.json().catch(() => ({}));
+          ok = res.ok && out?.data?.status === 'ok';
+          gone = out?.data?.details?.error === 'DeviceNotRegistered';
+          if (ok) sent++;
+        } catch (_) { /* counted as a failure below */ }
+        await admin.rpc('kasa_push_result', { p_sub_id: t.id, p_ok: ok, p_gone: gone });
+        return;
+      }
+      if (!webOk) return;
       try {
         await webpush.sendNotification({ endpoint: t.endpoint, keys: { p256dh: t.p256dh, auth: t.auth } },
           JSON.stringify(msg), { TTL: 3 * 3600, urgency: 'normal' });

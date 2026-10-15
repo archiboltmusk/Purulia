@@ -1,6 +1,7 @@
+const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).getPropertyValue('--cream-rgb').trim() || '240,230,208') + ',' + a + ')';
 /* Public analytics for the chosen district (place-facts.js): computed in the browser from the public view. */
 (async function(){
-  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name,parent_report_id,place,place_ward';
+  const COLUMNS = 'id,created_at,ward_no,category,status,landmark,resolved_at,resolution_method,sla_days,is_duplicate,recurrence_count,rejected_claims,area_kind,block_name,parent_report_id,place,place_ward,waste_type';
   const DAY = 86400000;
 
   // Fixes that didn't last: a new report at the spot (a recurrence) within fixMustLastDays of the fix.
@@ -55,6 +56,7 @@
   set('t-open', open.length);
   set('t-overdue', overdue.length ? `${overdue.length} overdue (past fix target)` : 'none overdue');
   set('t-fixed', fixed.length);
+  set('t-rate', all.length ? Math.round(100 * fixed.length / all.length) + '%' : '—');
   const byPhoto = fixed.filter(r => r.resolution_method === 'photo_check').length;
   set('t-fixed-how', `${fixed.length - byPhoto} by neighbours · ${byPhoto} by photo check` + (relapsed.size ? ` · ${relapsed.size} more didn't last` : ''));
   const med = median(fixed.map(fixDays));
@@ -66,14 +68,18 @@
   for (let d = fixDaysSet.has(dayKey(now)) ? now : now - DAY; fixDaysSet.has(dayKey(d)); d -= DAY) streak++;
   set('t-streak', streak);
 
-  // Reports per day, last 30 days
-  const days = [];
-  for (let i = 29; i >= 0; i--){ const d = now - i * DAY; days.push({ key: dayKey(d), date: new Date(d), n: 0 }); }
-  const byKey = Object.fromEntries(days.map(d => [d.key, d]));
-  all.forEach(r => { const d = byKey[dayKey(r.created_at)]; if (d) d.n++; });
+  // Reports per day: 7, 30 or 90 days (toggle on the card)
+  let days = [], range = 30;
   const fmt = d => d.toLocaleDateString('en-IN', { day: 'numeric', month: 'short' });
-  document.getElementById('an-chart-table').innerHTML = `<table class="an-table"><thead><tr><th>Day</th><th class="n">Reports</th></tr></thead><tbody>${
-    days.map(d => `<tr><td>${fmt(d.date)}</td><td class="n">${d.n}</td></tr>`).join('')}</tbody></table>`;
+  function buildDays(n){
+    days = [];
+    for (let i = n - 1; i >= 0; i--){ const d = now - i * DAY; days.push({ key: dayKey(d), date: new Date(d), n: 0 }); }
+    const byKey = Object.fromEntries(days.map(d => [d.key, d]));
+    all.forEach(r => { const d = byKey[dayKey(r.created_at)]; if (d) d.n++; });
+    document.getElementById('an-chart-sub').textContent = `Last ${n} days, all categories.`;
+    document.getElementById('an-chart-table').innerHTML = `<table class="an-table"><thead><tr><th>Day</th><th class="n">Reports</th></tr></thead><tbody>${
+      days.map(d => `<tr><td>${fmt(d.date)}</td><td class="n">${d.n}</td></tr>`).join('')}</tbody></table>`;
+  }
 
   const chart = document.getElementById('an-chart');
   const tip = document.getElementById('an-tip');
@@ -87,16 +93,16 @@
     const y = v => padT + ih - (v / top) * ih;
     let g = '';
     for (let v = 0; v <= top; v += step){
-      g += `<line x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="rgba(240,230,208,${v ? .07 : .22})" stroke-width="1"/>`
-         + `<text x="${padL - 6}" y="${y(v) + 3.5}" text-anchor="end" font-family="DM Mono,monospace" font-size="10" fill="rgba(240,230,208,.46)">${v}</text>`;
+      g += `<line x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="${rgbaCream(v ? .07 : .22)}" stroke-width="1"/>`
+         + `<text x="${padL - 6}" y="${y(v) + 3.5}" text-anchor="end" font-family="DM Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${v}</text>`;
     }
     days.forEach((d, i) => {
       const x = padL + i * slot + 1, h = ih * d.n / top, yt = padT + ih - h, r = Math.min(4, bw / 2, h);
-      if (d.n) g += `<path d="M${x},${padT + ih} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + bw - r} Q${x + bw},${yt} ${x + bw},${yt + r} V${padT + ih} Z" fill="#d4882a"/>`;
+      if (d.n) g += `<path d="M${x},${padT + ih} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + bw - r} Q${x + bw},${yt} ${x + bw},${yt + r} V${padT + ih} Z" fill="#DD3333"/>`;
       g += `<rect class="an-hit" data-i="${i}" x="${padL + i * slot}" y="${padT}" width="${slot}" height="${ih}" fill="transparent"/>`;
     });
-    [0, 14, 29].forEach(i => {
-      g += `<text x="${padL + i * slot + slot / 2}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === 29 ? 'end' : 'middle'}" font-family="DM Mono,monospace" font-size="10" fill="rgba(240,230,208,.46)">${fmt(days[i].date)}</text>`;
+    [0, (days.length - 1) >> 1, days.length - 1].forEach(i => {
+      g += `<text x="${padL + i * slot + slot / 2}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === days.length - 1 ? 'end' : 'middle'}" font-family="DM Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${fmt(days[i].date)}</text>`;
     });
     chart.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reports filed per day over the last 30 days">${g}</svg>`);
     chart.querySelectorAll('.an-hit').forEach(el => {
@@ -110,8 +116,14 @@
       el.addEventListener('mouseleave', () => { tip.style.opacity = 0; });
     });
   }
+  buildDays(range);
   drawChart();
   new ResizeObserver(drawChart).observe(chart);
+  document.querySelectorAll('[data-range]').forEach(b => b.addEventListener('click', () => {
+    range = +b.dataset.range;
+    document.querySelectorAll('[data-range]').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+    buildDays(range); drawChart();
+  }));
 
   const table = (head, rows, empty) => rows.length
     ? `<table class="an-table"><thead><tr>${head}</tr></thead><tbody>${rows.join('')}</tbody></table>`
@@ -142,23 +154,35 @@
       'No place has 3 or more reports in the last 90 days.');
   });
 
+  speed(); stale(); types();
+
   if (!isPurulia) return otherDistrict();
 
   // Every ward
   const stats = {};
-  for (let w = 1; w <= 23; w++) stats[w] = { ward: w, open: 0, overdue: 0, fixed: 0, fake: 0, days: [] };
+  for (let w = 1; w <= 23; w++) stats[w] = { ward: w, open: 0, overdue: 0, fixed: 0, fake: 0, total: 0, days: [] };
   all.forEach(r => {
     const s = stats[r.ward_no]; if (!s) return;
+    s.total++;
     if (r.status !== 'resolved'){ s.open++; if ((now - new Date(r.created_at)) / DAY > (r.sla_days || 7)) s.overdue++; }
     s.fake += r.rejected_claims || 0;
   });
   fixed.forEach(r => { const s = stats[r.ward_no]; if (s){ s.fixed++; s.days.push(fixDays(r)); } });
-  const rows = Object.values(stats).sort((a, b) => b.open - a.open || b.overdue - a.overdue || a.ward - b.ward);
-  document.getElementById('an-wards').innerHTML = table(
-    '<th>Ward</th><th>Councillor</th><th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>',
-    rows.map(s => { const m = median(s.days); return `<tr><td><a href="kasa.html?ward=${s.ward}">Ward ${s.ward}</a></td><td>${esc(wards[s.ward]?.councillor_name || '—')}</td>
-      <td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
-    'No wards yet.');
+  const sorts = {
+    open: (a, b) => b.open - a.open || b.overdue - a.overdue || a.ward - b.ward,
+    total: (a, b) => b.total - a.total || a.ward - b.ward,
+    fixed: (a, b) => b.fixed - a.fixed || a.ward - b.ward,
+    speed: (a, b) => (median(a.days) ?? Infinity) - (median(b.days) ?? Infinity) || a.ward - b.ward,
+  };
+  const drawWards = by => {
+    document.getElementById('an-wards').innerHTML = table(
+      '<th>Ward</th><th>Councillor</th><th class="n">Total</th><th class="n">Unresolved</th><th class="n">Overdue</th><th class="n">Verified fixed</th><th class="n">Typical days to fix</th><th class="n">Fake cleanups caught</th>',
+      Object.values(stats).sort(sorts[by]).map(s => `<tr><td><a href="kasa.html?ward=${s.ward}">Ward ${s.ward}</a></td><td>${esc(wards[s.ward]?.councillor_name || '—')}</td>
+        <td class="n">${s.total}</td><td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${medCell(s.days)}</td><td class="n">${s.fake}</td></tr>`),
+      'No wards yet.');
+  };
+  drawWards('open');
+  document.getElementById('an-ward-sort').addEventListener('change', e => drawWards(e.target.value));
 
   // Every block (reports outside Purulia town)
   const bstats = {};
@@ -226,6 +250,61 @@
 
   moderation();
   letters();
+  addCsv();
+
+  // Median days, with the sample size shown when it is small.
+  function medCell(days){
+    const m = median(days);
+    if (m == null) return '—';
+    return (m < 1 ? '< 1' : Math.round(m)) + (days.length < 5 ? ` <small>(${days.length} fix${days.length === 1 ? '' : 'es'})</small>` : '');
+  }
+
+  // How fast verified fixes happen: report to fix, town (wards) vs village (blocks).
+  function speed(){
+    const LABELS = ['Within 1 day', '1 to 3 days', '3 to 7 days', 'Over 7 days'];
+    const split = { town: [0, 0, 0, 0], village: [0, 0, 0, 0] };
+    fixed.forEach(r => {
+      const d = fixDays(r), k = d <= 1 ? 0 : d <= 3 ? 1 : d <= 7 ? 2 : 3;
+      split[r.area_kind === 'rural' ? 'village' : 'town'][k]++;
+    });
+    const t = split.town.reduce((a, b) => a + b, 0), v = split.village.reduce((a, b) => a + b, 0), all2 = t + v;
+    const pct = (n, of) => of ? `${n} <small>(${Math.round(100 * n / of)}%)</small>` : '—';
+    document.getElementById('an-speed').innerHTML = table('<th>Report to verified fix</th><th class="n">Town</th><th class="n">Villages</th><th class="n">All</th>',
+      LABELS.map((label, k) => `<tr><td>${label}</td><td class="n">${pct(split.town[k], t)}</td><td class="n">${pct(split.village[k], v)}</td><td class="n">${pct(split.town[k] + split.village[k], all2)}</td></tr>`),
+      'No verified fixes yet.');
+    set('an-speed-note', all2 < 10
+      ? `Small sample: ${all2} verified fix${all2 === 1 ? '' : 'es'} so far. Percentages will move a lot until there are more.`
+      : `${all2} verified fixes counted. Percentages are of verified fixes in each column.`);
+  }
+
+  // Unresolved reports by how long they have waited.
+  function stale(){
+    const open = all.filter(r => r.status !== 'resolved');
+    const town = open.filter(r => r.area_kind !== 'rural'), village = open.filter(r => r.area_kind === 'rural');
+    const waiting = (list, n) => list.filter(r => (now - new Date(r.created_at)) / DAY >= n).length;
+    const pct = (n, of) => of ? `${n} <small>(${Math.round(100 * n / of)}%)</small>` : '—';
+    document.getElementById('an-stale').innerHTML = table('<th>Unresolved for</th><th class="n">Town</th><th class="n">Villages</th><th class="n">All</th>',
+      [7, 14, 30].map(n => `<tr><td>${n} days or more</td><td class="n">${pct(waiting(town, n), town.length)}</td><td class="n">${pct(waiting(village, n), village.length)}</td><td class="n">${pct(waiting(open, n), open.length)}</td></tr>`),
+      'Nothing unresolved right now.');
+  }
+
+  // Reports by complaint type and waste type, all reports on this page.
+  function types(){
+    const group = (key, label) => {
+      const m = new Map();
+      all.forEach(r => {
+        const k = r[key]; if (k == null || k === '') return;
+        const s = m.get(k) || { n: 0, open: 0, fixed: 0 };
+        s.n++; if (r.status !== 'resolved') s.open++; m.set(k, s);
+      });
+      fixed.forEach(r => { const s = m.get(r[key]); if (s) s.fixed++; });
+      return table(`<th>${label}</th><th class="n">Reports</th><th class="n">Unresolved</th><th class="n">Verified fixed</th><th class="n">Share fixed</th>`,
+        [...m].sort((a, b) => b[1].n - a[1].n).map(([k, s]) => `<tr><td>${esc(key === 'category' ? cat(k) : k.replace(/_/g, ' '))}</td><td class="n">${s.n}</td><td class="n">${s.open}</td><td class="n">${s.fixed}</td><td class="n">${Math.round(100 * s.fixed / s.n)}%</td></tr>`),
+        'No reports yet.');
+    };
+    document.getElementById('an-types').innerHTML = group('category', 'Complaint type');
+    document.getElementById('an-waste').innerHTML = group('waste_type', 'Waste type');
+  }
 
   // Another district: its municipalities instead of Purulia's wards, blocks and seats; the
   // moderation counts (statewide) and the forest map, opened on the district.
@@ -251,6 +330,7 @@
       trows.map(s => { const m = median(s.days); return `<tr><td>${esc(s.name)}</td><td class="n">${s.open}</td><td class="n">${s.overdue}</td><td class="n">${s.fixed}</td><td class="n">${m == null ? '—' : m < 1 ? '< 1' : Math.round(m)}</td><td class="n">${s.fake}</td></tr>`; }),
       `No report from ${NAME} yet. Be the first: report a problem on the map.`);
     hide(document.getElementById('an-blocks-card'));
+    hide(document.getElementById('an-ward-sort'));
     document.querySelector('#an-mla-card .an-card-sub').innerHTML = `Who answers for each part of ${n}, with their reports, is on the map: <a href="kasa.html?place=district:${esc(slug)}">open ${n}'s leaderboard</a>.`;
     ['an-mla', 'an-mp', 'an-mla-note'].forEach(id => hide(document.getElementById(id)));
     const pts = bodies.map(b => b.at).filter(Boolean);
@@ -262,6 +342,44 @@
       forest.querySelectorAll('.an-card-sub')[1].innerHTML = `<a href="${esc(url)}" target="_blank" rel="noopener">Open the Global Forest Watch map of ${n} ↗</a> · Data: Global Forest Watch, CC BY 4.0`;
     } else hide(forest);
     moderation();
+    addCsv();
+  }
+
+  // CSV downloads (idea from FixMyStreet's dashboard export): every table as it is shown, and every
+  // report counted on this page with its public columns.
+  function addCsv(){
+    const cell = v => '"' + String(v == null ? '' : v).replace(/"/g, '""') + '"';
+    const save = (name, text) => {
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(new Blob(['\ufeff' + text], { type: 'text/csv;charset=utf-8' }));
+      a.download = `parishkar-${slug}-${name}-${dayKey(Date.now())}.csv`;
+      document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+    };
+    document.querySelectorAll('.an-card').forEach(card => {
+      if (!card.querySelector('.an-table-wrap') || card.querySelector('.an-csv')) return;
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'an-csv'; b.textContent = 'Download CSV';
+      b.addEventListener('click', () => {
+        const tables = [...card.querySelectorAll('table')];
+        if (!tables.length) return;
+        const name = (card.querySelector('h2')?.textContent || 'table').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '');
+        save(name, tables.map(t => [...t.rows].map(tr => [...tr.cells].map(c => cell(c.textContent.trim())).join(',')).join('\r\n')).join('\r\n\r\n'));
+      });
+      card.prepend(b);
+    });
+    const meta = document.querySelector('.an-meta');
+    if (meta && !document.getElementById('an-csv-all')){
+      const a = document.createElement('a');
+      a.href = '#'; a.id = 'an-csv-all'; a.textContent = 'All reports (CSV)';
+      a.addEventListener('click', e => {
+        e.preventDefault();
+        const cols = ['id', 'created_at', 'category', 'status', 'ward_no', 'block_name', 'place', 'landmark', 'resolved_at', 'resolution_method', 'sla_days'];
+        save('reports', [cols.join(','), ...all.map(r => [...cols.map(c => cell(r[c])), cell(location.origin + location.pathname.replace(/[^/]*$/, '') + reportLink(r))].join(','))]
+          .join('\r\n').replace(/^[^\r]*/, m => m + ',link'));
+      });
+      meta.append(' · ', a);
+    }
   }
 
   // Weekly letters to the offices responsible (Purulia only), and to the DM for reports 14 days past deadline.
