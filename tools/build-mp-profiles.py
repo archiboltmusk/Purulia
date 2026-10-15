@@ -15,7 +15,7 @@ A field with no matching source is null and listed in "gaps"; nothing is estimat
 Matching is by constituency name (accent and punctuation free); unmatched names are printed.
 Cache: tools/data/.mp-cache (delete to refetch).
 """
-import difflib, hashlib, html, json, re, sys, time, unicodedata, urllib.parse, urllib.request
+import difflib, hashlib, html, http.client, json, re, sys, time, unicodedata, urllib.parse, urllib.request
 from datetime import date
 from pathlib import Path
 
@@ -43,7 +43,7 @@ def get(url, tries=4):
             f.write_text(body)
             time.sleep(0.3)
             return body
-        except OSError as e:
+        except (OSError, http.client.HTTPException) as e:
             print(f'retry {i + 1}: {url} ({e})', file=sys.stderr)
             time.sleep(2 ** i)
     sys.exit('failed: ' + url)
@@ -60,8 +60,8 @@ def api_pages(url, key):
 
 
 # Lok Sabha seat name -> the spelling a source uses, where it differs beyond accents and punctuation.
-MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma'}
-SEAT_ALIAS = {'Koderma': 'Kodarma'}  # PRS and MyNeta
+MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour'}
+SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour'}  # PRS and MyNeta
 
 
 def norm(s):
