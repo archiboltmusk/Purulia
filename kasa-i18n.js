@@ -5,7 +5,7 @@
 window.KASA_I18N = {
   en: {
     ar_gp_sub: 'Gram panchayat · {b} block · {d}', ar_block_sub: 'Community development block · {d}', ar_district_sub: 'District, West Bengal',
-    ar_mlas: 'MLAs ({n} seats)', ar_mla: 'MLA · {c}', ar_mp: 'MP · {c}', ar_elected: '{p}, elected {y}', ar_vacant: 'Vacant since {d}',
+    ar_mlas: 'MLAs ({n} seats)', ar_mla: 'MLA · {c}', ar_mp: 'MP · {c}', ar_mp_record: 'MP’s record →', ar_elected: '{p}, elected {y}', ar_vacant: 'Vacant since {d}',
     ar_head_gp: 'Pradhan', ar_head_block: 'Sabhapati', ar_head_district: 'Sabhadhipati', ar_not_on_record: 'Not on record yet',
     ar_head_town: 'Chairperson', ar_town_sub: '{b} · {d}', ar_wards: 'Wards',
     ar_wards_mapped: '{m} wards on the map', ar_wards_2022: '{n} elected in 2022', ar_no_wards: 'No elected wards (a development authority)',
@@ -326,7 +326,7 @@ window.KASA_I18N = {
 
   bn: {
     ar_gp_sub: 'গ্রাম পঞ্চায়েত · {b} ব্লক · {d}', ar_block_sub: 'সমষ্টি উন্নয়ন ব্লক · {d}', ar_district_sub: 'জেলা, পশ্চিমবঙ্গ',
-    ar_mlas: 'বিধায়ক ({n}টি আসন)', ar_mla: 'বিধায়ক · {c}', ar_mp: 'সাংসদ · {c}', ar_elected: '{p}, নির্বাচিত {y}', ar_vacant: '{d} থেকে শূন্য',
+    ar_mlas: 'বিধায়ক ({n}টি আসন)', ar_mla: 'বিধায়ক · {c}', ar_mp: 'সাংসদ · {c}', ar_mp_record: 'সাংসদের রেকর্ড →', ar_elected: '{p}, নির্বাচিত {y}', ar_vacant: '{d} থেকে শূন্য',
     ar_head_gp: 'প্রধান', ar_head_block: 'সভাপতি', ar_head_district: 'সভাধিপতি', ar_not_on_record: 'এখনও তথ্য নেই',
     ar_head_town: 'চেয়ারপার্সন', ar_town_sub: '{b} · {d}', ar_wards: 'ওয়ার্ড',
     ar_wards_mapped: 'মানচিত্রে {m}টি ওয়ার্ড', ar_wards_2022: '২০২২-এ {n}টি ওয়ার্ডে ভোট', ar_no_wards: 'নির্বাচিত ওয়ার্ড নেই (উন্নয়ন কর্তৃপক্ষ)',
@@ -646,7 +646,7 @@ window.KASA_I18N = {
 
   hi: {
     ar_gp_sub: 'ग्राम पंचायत · {b} ब्लॉक · {d}', ar_block_sub: 'सामुदायिक विकास ब्लॉक · {d}', ar_district_sub: 'ज़िला, पश्चिम बंगाल',
-    ar_mlas: 'विधायक ({n} सीटें)', ar_mla: 'विधायक · {c}', ar_mp: 'सांसद · {c}', ar_elected: '{p}, निर्वाचित {y}', ar_vacant: '{d} से रिक्त',
+    ar_mlas: 'विधायक ({n} सीटें)', ar_mla: 'विधायक · {c}', ar_mp: 'सांसद · {c}', ar_mp_record: 'सांसद का रिकॉर्ड →', ar_elected: '{p}, निर्वाचित {y}', ar_vacant: '{d} से रिक्त',
     ar_head_gp: 'प्रधान', ar_head_block: 'सभापति', ar_head_district: 'सभाधिपति', ar_not_on_record: 'अभी जानकारी नहीं',
     ar_head_town: 'चेयरपर्सन', ar_town_sub: '{b} · {d}', ar_wards: 'वार्ड',
     ar_wards_mapped: 'नक्शे पर {m} वार्ड', ar_wards_2022: '2022 में {n} वार्डों में चुनाव', ar_no_wards: 'कोई निर्वाचित वार्ड नहीं (विकास प्राधिकरण)',
