@@ -32,6 +32,12 @@ SOURCES = {
         'pc_prev_page': '2019 Indian general election in Uttar Pradesh',
         'ac_year': 2022, 'pc_year': 2024, 'pc_prev_year': 2019,
     },
+    'bihar': {
+        'ac_page': '2025 Bihar Legislative Assembly election',
+        'pc_page': '2024 Indian general election in Bihar',
+        'pc_prev_page': '2019 Indian general election in Bihar',
+        'ac_year': 2025, 'pc_year': 2024, 'pc_prev_year': 2019,
+    },
     'maharashtra': {
         'ac_page': '2024 Maharashtra Legislative Assembly election',
         'pc_page': '2024 Indian general election in Maharashtra',
@@ -90,20 +96,20 @@ def num(v):
 
 def parse(html):
     t = results_table(html)
-    i_no = col(t, '#')
+    i_no = col(t, '#') if col(t, '#') is not None else col(t, 'no.')
     i_name = col(t, 'name')
     i_turn = col(t, 'turnout') if col(t, 'turnout') is not None else col(t, 'poll')
     w_cand = col(t, 'winner', 'candidate') if col(t, 'winner', 'candidate') is not None else col(t, 'winner', nth=0, exclude=('party', 'votes', '%'))
     w_party = max([i for i, x in enumerate([flat(c) for c in t.columns]) if 'winner' in x and 'party' in x] or [None],
                   key=lambda i: (i is not None, t.iloc[:, i].notna().sum() if i is not None else -1))
     w_votes = col(t, 'winner', 'votes')
-    w_pct = next(i for i, c in enumerate(t.columns) if 'winner' in flat(c) and clean(c[-1] if isinstance(c, tuple) else c) == '%')
+    w_pct = next(i for i, c in enumerate(t.columns) if 'winner' in flat(c) and flat(c).endswith('%'))
     r_cand = col(t, 'runner', 'candidate')
     r_party = max([i for i, x in enumerate([flat(c) for c in t.columns]) if 'runner' in x and 'party' in x] or [None],
                   key=lambda i: (i is not None, t.iloc[:, i].notna().sum() if i is not None else -1))
     r_votes = col(t, 'runner', 'votes')
-    r_pct = next(i for i, c in enumerate(t.columns) if 'runner' in flat(c) and clean(c[-1] if isinstance(c, tuple) else c) == '%')
-    margin = col(t, 'margin', nth=0)
+    r_pct = next(i for i, c in enumerate(t.columns) if 'runner' in flat(c) and flat(c).endswith('%'))
+    margin = col(t, 'margin', nth=0)  # Bihar 2025 has 'margin votes' with no % column
     out = {}
     for _, r in t.iterrows():
         no = num(str(r.iloc[i_no]).split('.')[0]) if i_no is not None else None
