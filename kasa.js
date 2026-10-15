@@ -28,6 +28,22 @@ const MAP_ZOOM = CITY.mapZoom || 13;
 let daylightMap = false;
 try { daylightMap = localStorage.getItem('kasa_daylight') !== '0'; } catch (e) {}
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (daylightMap ? 'positron' : 'dark');
+// Ligne-claire paper for the light basemap: cream paper, flat water, road casings in ink with sand
+// fills, no hillshade. Runs on the OpenFreeMap positron style; dark style is left alone.
+const INK = '#1a1410';
+function inkStyle(prev, next) {
+  if (!daylightMap) return next;
+  const layers = next.layers.filter(l => !(l.source === 'ne2_shaded' || l.type === 'hillshade'));
+  for (const l of layers) {
+    const id = l.id;
+    if (id === 'background') l.paint = { ...l.paint, 'background-color': '#F7F2E8' };
+    else if (/^(water|waterway|water_)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#A9CFCB' };
+    else if (/^(landuse|landcover|park|building)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#EFE6CF' };
+    else if (/^highway_.*casing$/.test(id) || /^tunnel_.*casing$/.test(id)) l.paint = { ...l.paint, 'line-color': INK };
+    else if (/^highway_(minor|major_inner|motorway_inner|path|major_subtle)/.test(id)) l.paint = { ...l.paint, 'line-color': '#F3EAD6' };
+  }
+  return { ...next, layers };
+}
 const PAGE_URL = location.origin + location.pathname;
 // Links people share. With SHARE_URL set (the Cloudflare worker, worker.js), /r/<id> shows the
 // report's photo in WhatsApp/X/Facebook previews and then opens the report here.
@@ -1217,7 +1233,7 @@ function boostRoadLabels(map){
 
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
-    container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
+    container: 'k-map', style: MAP_STYLE, transformStyle: inkStyle, center: MAP_CENTER, zoom: MAP_ZOOM,
     minZoom: 3.5, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
@@ -1254,7 +1270,7 @@ function initMainMapNow(){
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': INK, 'circle-stroke-width': 1.5, 'circle-opacity': 1,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
