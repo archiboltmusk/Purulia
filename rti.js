@@ -42,7 +42,7 @@
     { id: 'trade', when: 'Refused as trade secret or commercial confidence', act: 'Ask whether a third party was consulted, and ask for the decision in writing. The public-interest override applies here too.', cite: 's.8(1)(d), s.11' },
     { id: 'investigation', when: 'Refused as likely to impede an investigation or prosecution', act: 'Ask the PIO to say how release would impede it. A bare claim is not enough.', cite: 's.8(1)(h)' },
     { id: 'security', when: 'Refused on security, sovereignty or foreign-relations grounds', act: 'Ask for the specific ground and the reasons in writing, then appeal if none are given.', cite: 's.8(1)(a)' },
-    { id: 'repeat', when: 'Refused as repeated or substantially the same as an earlier request', act: 'Check the earlier request and reply with the new details you need.', cite: 's.9' },
+    { id: 'copyright', when: 'Refused on copyright held by someone other than the State', act: 'Ask which copyright is claimed and whose. The ground covers only copyright held by a person other than the State.', cite: 's.9' },
     { id: 'form', when: 'Part of the information given, or not in the form you asked for', act: 'Ask for it in the form requested, unless that would divert the office\'s resources. Ask for the rest in writing.', cite: 's.7(9)' },
     { id: 'life', when: 'Life or liberty at risk and the reply came after 48 hours', act: 'Note the filing and reply dates. The Act sets 48 hours for these requests.', cite: 's.7(1), proviso' },
     { id: 'first_refused', when: 'First appeal decided against you', act: 'Second appeal to the Information Commission within 90 days.', cite: 's.19(3)' },
