@@ -24,7 +24,7 @@ test('schools.html compares Purulia with West Bengal and India, and shows offici
   await expect(cmp).toBeVisible();
   const water = cmp.locator('tr', { hasText: 'Working drinking water' });
   await expect(water).toContainText('50.0%');   // residents: 1 of 2 checked schools
-  await expect(water).toContainText('99.9%');   // West Bengal, UDISE+ 2024-25
+  await expect(water).toContainText('99.5%');   // West Bengal, UDISE+ 2025-26
   await expect(water).toContainText('Meghalaya');
   await expect(page.locator('#sc-compare a[href*="udiseplus.gov.in"]')).toHaveCount(1);
 
