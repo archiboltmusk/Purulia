@@ -11,7 +11,7 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/noticeboard.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/noticeboard.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
@@ -42,7 +42,7 @@
   .pr-tools select,.pr-tools input{background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);padding:.5rem .7rem;font:inherit;font-size:.9rem;min-width:0;}
   .pr-tools input{flex:1 1 180px;}
   .pr-chip{background:none;border:1px solid var(--border);border-radius:999px;color:var(--text-md);padding:.35rem .8rem;font-family:var(--mono);font-size:11px;cursor:pointer;}
-  .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
+  .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(221,51,51,.08);}
   .pr-list{list-style:none;margin-top:1rem;display:grid;gap:.8rem;}
   .pr-item{border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;background:rgba(240,230,208,.015);}
   .pr-who{font-family:var(--serif);font-size:1.12rem;font-weight:700;color:var(--cream);}
@@ -52,7 +52,7 @@
   .pr-meta a{color:var(--amber);}
   .pr-status{display:inline-block;font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;padding:.2rem .5rem;border-radius:3px;border:1px solid var(--border);margin-bottom:.4rem;}
   .pr-s-promised{color:var(--text-md);}
-  .pr-s-in_progress{color:var(--amber);border-color:rgba(212,136,42,.45);}
+  .pr-s-in_progress{color:var(--amber);border-color:rgba(221,51,51,.45);}
   .pr-s-delivered{color:var(--green,#6fbf73);border-color:rgba(111,191,115,.45);}
   .pr-s-broken{color:#e0705a;border-color:rgba(224,112,90,.45);}
   .pr-news{margin-top:.6rem;padding-top:.5rem;border-top:1px dashed var(--border);font-size:.84rem;}
@@ -78,22 +78,22 @@
   .pr-rules{margin:.7rem 0 0 1.1rem;color:var(--text-md);font-size:.9rem;line-height:1.6;}
   .pr-lang{display:flex;gap:.3rem;}
   .pr-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
-  .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(221,51,51,.5);}
   .nb-top{display:flex;flex-wrap:wrap;align-items:center;gap:.3rem .7rem;}
   .nb-top .pr-status{margin-bottom:0;}
   .nb-to{font-size:.84rem;color:var(--text-md);}
   .nb-to strong{color:var(--cream);font-weight:600;}
   .nb-title{margin-top:.5rem;}
   .nb-s-open{color:var(--text-md);}
-  .nb-s-answered{color:var(--amber);border-color:rgba(212,136,42,.45);}
+  .nb-s-answered{color:var(--amber);border-color:rgba(221,51,51,.45);}
   .nb-s-promised{color:var(--green,#6fbf73);border-color:rgba(111,191,115,.45);}
-  .nb-reply{margin-top:.7rem;padding:.6rem .8rem;border-left:2px solid var(--amber);background:rgba(212,136,42,.05);color:var(--text-hi);font-size:.92rem;line-height:1.55;}
+  .nb-reply{margin-top:.7rem;padding:.6rem .8rem;border-left:2px solid var(--amber);background:rgba(221,51,51,.05);color:var(--text-hi);font-size:.92rem;line-height:1.55;}
   .nb-promise{margin-top:.6rem;font-size:.9rem;}
   .nb-promise a{color:var(--green,#6fbf73);}
   .nb-actions{display:flex;flex-wrap:wrap;align-items:center;gap:.5rem 1rem;margin-top:.8rem;}
   .nb-actions .pr-upd{margin-top:0;}
   .nb-plus{background:none;border:1px solid var(--amber);color:var(--amber);border-radius:999px;padding:.45rem .95rem;font:inherit;font-size:.9rem;font-weight:600;cursor:pointer;min-height:40px;}
-  .nb-plus[aria-pressed="true"]{background:rgba(212,136,42,.12);cursor:default;}
+  .nb-plus[aria-pressed="true"]{background:rgba(221,51,51,.12);cursor:default;}
   .nb-count{font-family:var(--mono);font-size:11.5px;color:var(--text-md);}
   .nb-check{display:flex !important;grid-template-columns:none !important;align-items:flex-start;gap:.6rem !important;color:var(--text-hi) !important;font-size:.92rem !important;}
   .nb-check input{width:20px !important;height:20px;flex:0 0 20px;margin-top:.1rem;}
