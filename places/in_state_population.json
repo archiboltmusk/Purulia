@@ -1,8 +1,8 @@
 {
- "source": "Census of India 2011, Primary Census Abstract, state-wise population (persons), as reproduced in Directorate of Economics and Statistics, Andaman & Nicobar Administration, Basic Statistics 2024-25, Table 32 (p.123). https://ecostat.andamannicobar.gov.in/basicstatPDF2024_25/33.populationcensus.pdf",
- "note": "Keys are LGD state codes (places/in_states.geojson). Code 38 = Dadra & Nagar Haveli plus Daman & Diu, summed from census codes 26 and 25 (the two were merged in 2020). Telangana (36) and Ladakh (37) were part of Andhra Pradesh and Jammu & Kashmir in 2011 and are not given separately, so they are left uncoloured. West Bengal (19) is excluded from the state fill: its districts are shaded from the district table.",
+ "source": "Census of India 2011, Primary Census Abstract, state-wise population (persons), as reproduced in Directorate of Economics and Statistics, Andaman & Nicobar Administration, Basic Statistics 2024-25, Table 32 (p.123). https://ecostat.andamannicobar.gov.in/basicstatPDF2024_25/33.populationcensus.pdf Ladakh (37) and the Jammu & Kashmir figure (1) split: Ladakh 274,289 = Kargil 140,802 + Leh 133,487, Office of the Registrar General and Census Commissioner figures as published on citypopulation.de/en/india/ladakh/admin; Jammu & Kashmir (1) is the 2011 total 12,541,302 less Ladakh, computed here.",
+ "note": "Keys are LGD state codes (places/in_states.geojson). Code 38 = Dadra & Nagar Haveli plus Daman & Diu, summed from census codes 26 and 25 (the two were merged in 2020). Telangana (36) was part of Andhra Pradesh in 2011 and is not given separately, so it is left uncoloured. West Bengal (19) is excluded from the state fill: its districts are shaded from the district table.",
  "population": {
-  "1": 12541302,
+  "1": 12267013,
   "2": 6864602,
   "3": 27743338,
   "4": 1055450,
@@ -35,6 +35,7 @@
   "33": 72147030,
   "34": 1247953,
   "35": 380581,
+  "37": 274289,
   "38": 277956
  }
 }
