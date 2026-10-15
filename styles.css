@@ -3,13 +3,22 @@
    Dark manuscript luxury · Mahua amber · Laterite earth
    ═══════════════════════════════════════════════ */
 :root{
-  --ink:#0C0A05; --ink2:#181208; --ink3:#221A0C; --ink4:#2A200E;
-  --amber:#DD3333; --amber2:#EF4444; --amber3:#991B1B; --amber4:#FCA5A5;
+  --ink:#FAF7F2; --ink2:#F2EDE4; --ink3:#E9E2D6; --ink4:#DDD4C4;
+  --amber:#DD3333; --amber2:#B91C1C; --amber3:#991B1B; --amber4:#FCA5A5;
   --crimson:#8B2525; --forest:#243D1C; --forest2:#1A2E14; --sky:#1E4A6A;
+  --green:#2F7A4A; --red:#B91C1C;
+  --cream:#1A1410; --cream2:#3A2F26; --cream3:#FAF5EC;
+  --ghost:rgba(26,20,16,.05); --ghost2:rgba(221,51,51,.07);
+  --border:rgba(221,51,51,.2); --border2:rgba(26,20,16,.12); --border3:rgba(26,20,16,.1);
+}
+/* Dark is opt-in: theme-init.js sets data-theme="dark" when the visitor chose it */
+[data-theme="dark"]{
+  --ink:#0C0A05; --ink2:#181208; --ink3:#221A0C; --ink4:#2A200E;
+  --amber2:#EF4444;
   --green:#4A8C5C; --red:#C0392B;
-  --cream:#F0E6D0; --cream2:#D8CAA8; --cream3:#FAF5EC;
-  --ghost:rgba(240,230,208,.05); --ghost2:rgba(221,51,51,.07);
-  --border:rgba(221,51,51,.2); --border2:rgba(221,51,51,.09); --border3:rgba(240,230,208,.08);
+  --cream:#F0E6D0; --cream2:#D8CAA8;
+  --border2:rgba(221,51,51,.09); --border3:rgba(240,230,208,.08);
+  --ghost:rgba(240,230,208,.05);
 }
 *,*::before,*::after{margin:0;padding:0;box-sizing:border-box;}
 html{scroll-behavior:smooth;}
@@ -21,7 +30,7 @@ body::after{content:'';position:fixed;inset:0;background-image:url("data:image/s
 #pbar{position:fixed;top:0;left:0;height:2px;background:linear-gradient(90deg,var(--amber3),var(--amber),var(--amber2));z-index:8999;width:0%;}
 
 /* ── NAV ── */
-nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3.5rem;background:linear-gradient(to bottom,rgba(12,10,5,.97),transparent);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border2);}
+nav{position:fixed;top:0;left:0;right:0;z-index:800;display:flex;justify-content:space-between;align-items:center;padding:1.2rem 3.5rem;background:linear-gradient(to bottom,color-mix(in srgb,var(--ink) 97%,transparent),transparent);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);border-bottom:1px solid var(--border2);}
 .nav-logo{font-family:'DM Mono',monospace;font-size:.7rem;letter-spacing:.45em;color:var(--amber);text-transform:uppercase;}
 
 /* ── HERO ── */
