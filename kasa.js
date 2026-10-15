@@ -96,7 +96,7 @@ const ISSUE_GROUPS = [
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
-const COLORS = { minor: '#DD3333', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
+const COLORS = { minor: '#9ca3af', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
    approves it before it is public (enforced on the server). */
@@ -1253,7 +1253,7 @@ function initMainMapNow(){
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': '#7a3f16', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
@@ -1305,20 +1305,20 @@ function addLocalLayers(){
   mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
     layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
-  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#d4882a', 'fill-opacity': .05 } }, below);
-  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, below);
+  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#DD3333', 'fill-opacity': .05 } }, below);
+  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
     layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': '#DD3333', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
 }
 
 function addWardLayers(){
   if (!mainMap || !state.wardGeo || mainMap.getSource('wards')) return;
   mainMap.addSource('wards', { type: 'geojson', data: state.wardGeo });
-  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'wards-selected', type: 'fill', source: 'wards', filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
-  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
   mainMap.on('click', 'wards-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward));
@@ -1338,18 +1338,18 @@ function addPlaceLayers(slug){
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
   // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
   mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
+    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
   mainMap.on('click', 'place-' + slug + '-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward), slug);
   });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
-    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
+    paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': '#DD3333', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
 }
 
 /* All West Bengal: district outlines always; each district's blocks and gram panchayats
