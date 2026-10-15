@@ -443,6 +443,8 @@ async function init(){
   renderAlertsButtons();
   renderInstallButton();
   registerServiceWorker();
+  setTimeout(() => askReporter().catch(() => {}), 8000);
+  setTimeout(() => sb.rpc('kasa_retention_tick').then(() => {}, () => {}), 15000);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -973,8 +975,16 @@ const api = {
     return error ? null : (data || null);
   },
 
-  async addDocket(id, portal, number){
-    const { error } = await sb.rpc('kasa_add_docket', { p_report_id: String(id), p_portal: portal, p_number: number });
+  async addDocket(id, portal, number, filedOn){
+    const args = { p_report_id: String(id), p_portal: portal, p_number: number };
+    if (portal === 'rti' && filedOn) args.p_filed_on = filedOn;
+    const { data, error } = await sb.rpc('kasa_add_docket', args);
+    if (error) throw rpcError(error);
+    return data || {};
+  },
+
+  async setRtiStatus(docketId, key, status){
+    const { error } = await sb.rpc('kasa_set_rti_status', { p_id: Number(docketId), p_key: key, p_status: status });
     if (error) throw rpcError(error);
   },
 
@@ -2414,6 +2424,7 @@ function renderSheet(){
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
     </div>
@@ -2551,12 +2562,19 @@ function renderRepliesHTML(r){
 
 function beforeAfter(before, after){
   if (!after) return '';
+  // Same spot, then and now: drag across one frame instead of comparing two thumbnails.
   return `
-    <div class="k-ba">
-      <figure><img src="${esc(before)}" alt="" loading="lazy"><figcaption>${esc(t('pn_before'))}</figcaption></figure>
-      <figure><img src="${esc(after)}" alt="" loading="lazy"><figcaption class="k-green">${esc(t('pn_after'))}</figcaption></figure>
+    <div class="k-ba k-ba-slider" style="--cut:50%">
+      <img src="${esc(before)}" alt="${esc(t('pn_before'))}" loading="lazy">
+      <img class="k-ba-after" src="${esc(after)}" alt="${esc(t('pn_after'))}" loading="lazy">
+      <input type="range" min="0" max="100" value="50" aria-label="${esc(t('pn_before'))} / ${esc(t('pn_after'))}">
+      <span class="k-ba-tag k-ba-tag-l">${esc(t('pn_before'))}</span><span class="k-ba-tag k-ba-tag-r k-green">${esc(t('pn_after'))}</span>
     </div>`;
 }
+document.addEventListener('input', e => {
+  const s = e.target.closest?.('.k-ba-slider');
+  if (s) s.style.setProperty('--cut', e.target.value + '%');
+});
 
 /* Another West Bengal place: only its municipal body and its own complaint form are named.
    Its officers and representatives are not on record here, so none are shown. */
@@ -2673,16 +2691,38 @@ function renderEscalate(r){
 /* Official reference numbers people got when they filed this report on a grievance portal,
    so the next person follows up the same complaint. Public; who added them is not. */
 const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
+/* RTI tracker (idea from Alaveteli): the PIO must answer within 30 days of filing (RTI Act 2005,
+   s.7(1)); a first appeal lies within 30 days after that (s.19(1)). Whoever added the number holds
+   a key on this phone to mark what happened. */
+const RTI_STATUSES = ['waiting', 'answered', 'refused', 'appealed', 'no_reply'];
+const rtiKeys = () => { try { return JSON.parse(localStorage.getItem('parishkar_rti_keys') || '{}'); } catch (e) { return {}; } };
+function saveRtiKey(id, key){ const k = rtiKeys(); k[id] = key; try { localStorage.setItem('parishkar_rti_keys', JSON.stringify(k)); } catch (e) {} }
+function rtiLineHTML(d, fmt){
+  if (!d.filed_on) return '';
+  const today = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }));
+  const left = Math.round((new Date(d.reply_due) - today) / 86400000);
+  const appealLeft = Math.round((new Date(d.appeal_by) - today) / 86400000);
+  let line;
+  if (d.status === 'waiting' || d.status === 'no_reply'){
+    line = left >= 0 ? t('rti_due', { d: fmt(d.reply_due), n: left })
+      : appealLeft >= 0 ? t('rti_late', { n: -left, d: fmt(d.appeal_by) }) : t('rti_late_appeal', { n: -left });
+  } else line = t('rti_st_' + d.status) + (d.status_at ? ' · ' + fmt(d.status_at) : '');
+  const key = rtiKeys()[d.id];
+  return `<div class="k-rti"><small>${esc(t('rti_filed', { d: fmt(d.filed_on) }))} · ${esc(line)}</small>${key ? `
+    <select data-rti-status="${esc(d.id)}" aria-label="${esc(t('rti_change'))}">${RTI_STATUSES.map(x =>
+      `<option value="${x}"${x === d.status ? ' selected' : ''}>${esc(t('rti_st_' + x))}</option>`).join('')}</select>` : ''}</div>`;
+}
 function renderDocketsHTML(r){
   const list = state.dockets.get(r.id) || [];
   const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
   const w = state.warranty.get(r.id);
   return `${w ? `<p class="k-warranty">🛠 ${esc(t('wk_under', { d: fmt(w.warranty_until) }))} <a href="works.html#work-${esc(w.id)}">${esc(t('wk_see'))}</a></p>` : ''}${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
-      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
+      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small>${d.portal === 'rti' ? rtiLineHTML(d, fmt) : ''}</li>`).join('')}</ul>` : ''}
     <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
       <form id="k-docket-form" data-report="${esc(r.id)}">
         <select id="k-docket-portal" aria-label="${esc(t('dk_where'))}">${DOCKET_PORTALS.map(p => `<option value="${p}">${esc(t('dk_' + p))}</option>`).join('')}</select>
         <input id="k-docket-number" maxlength="40" autocomplete="off" placeholder="${esc(t('dk_number'))}" aria-label="${esc(t('dk_number'))}" required>
+        <label id="k-docket-filed" hidden><small>${esc(t('rti_filed_on'))}</small> <input type="date" id="k-docket-date" max="${new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })}"></label>
         <button type="submit" class="k-btn k-btn-ghost">${esc(t('dk_save'))}</button>
       </form>
     </details>`;
@@ -2695,11 +2735,24 @@ document.addEventListener('submit', async e => {
   const id = form.dataset.report, number = document.getElementById('k-docket-number').value.trim();
   if (!number) return;
   try {
-    await api.addDocket(id, document.getElementById('k-docket-portal').value, number);
+    const res = await api.addDocket(id, document.getElementById('k-docket-portal').value, number, document.getElementById('k-docket-date')?.value || null);
+    if (res.key) saveRtiKey(res.id, res.key);
     state.dockets.set(id, await api.dockets(id));
     const r = state.byId.get(String(id)), el = document.getElementById('k-dockets');
     if (r && el) el.innerHTML = renderDocketsHTML(r);
     showToast(t('dk_saved'));
+  } catch (err){ showToast(errorText(err), 6000); }
+});
+
+document.addEventListener('change', async e => {
+  if (e.target.id === 'k-docket-portal'){ const f = document.getElementById('k-docket-filed'); if (f) f.hidden = e.target.value !== 'rti'; return; }
+  const sel = e.target.closest?.('[data-rti-status]');
+  if (!sel) return;
+  const r = state.byId.get(state.sheetId);
+  try {
+    await api.setRtiStatus(sel.dataset.rtiStatus, rtiKeys()[sel.dataset.rtiStatus], sel.value);
+    if (r){ state.dockets.set(r.id, await api.dockets(r.id)); const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    showToast(t('rti_saved'));
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
@@ -3190,6 +3243,87 @@ function openContact(spec){
       <button type="button" class="k-btn k-btn-ghost" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
   openModal('k-contact-modal');
+}
+
+/* ══════════════════════════════════════════════════════════
+   CHECK NEARBY — open reports around you, one card at a time
+   ══════════════════════════════════════════════════════════ */
+const CQ_RADIUS = 1500;
+let cq = null;
+
+async function openCheckQueue(){
+  openModal('k-cq-modal');
+  const body = document.getElementById('k-cq-body');
+  body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_locating'))}</p>`;
+  const pos = await getPosition({ want: 200, timeout: 12000 }).catch(() => null);
+  if (!pos){ body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_need_location'))}</p>`; return; }
+  const list = primaries().filter(r => r.status !== 'resolved' && !r.pending && !state.seen.has(r.id))
+    .map(r => ({ r, d: distanceM(pos.lat, pos.lng, r.lat, r.lng) }))
+    .filter(x => x.d <= CQ_RADIUS).sort((a, b) => a.d - b.d).slice(0, 30);
+  cq = { pos, list, i: 0, done: 0 };
+  renderCheckCard();
+}
+
+function renderCheckCard(){
+  const body = document.getElementById('k-cq-body');
+  const x = cq && cq.list[cq.i];
+  if (!x){
+    body.innerHTML = `<p class="k-cq-empty">${esc(t(cq.list.length ? 'cq_done' : 'cq_none', { n: cq.done, km: CQ_RADIUS / 1000 }))}</p>`;
+    return;
+  }
+  const r = x.r, c = CATEGORIES[r.category];
+  const days = Math.max(0, Math.floor((Date.now() - new Date(r.createdAt)) / 86400000));
+  const claimed = r.status === 'claimed' && r.claim && state.mode === 'v2';
+  body.innerHTML = `<div class="k-cq-card" id="k-cq-card">
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="" draggable="false">` : `<div class="k-cq-noimg">${c.icon}</div>`}
+      <div class="k-cq-info"><b>${c.icon} ${esc(t('cat_' + r.category))}</b>
+        ${r.landmark || r.address ? `<span>${esc(r.landmark || r.address)}</span>` : ''}
+        <span>${esc(t('cq_meta', { m: Math.round(x.d), d: days }))}${claimed ? ' · ' + esc(t('cq_claimed')) : ''}</span></div>
+      <div class="k-cq-count">${cq.i + 1} / ${cq.list.length}</div>
+    </div>
+    <div class="k-cq-actions">
+      <button type="button" class="k-act" data-cq="skip">← ${esc(t('cq_skip'))}</button>
+      <button type="button" class="k-act" data-cq="open">${esc(t('cq_open'))}</button>
+      <button type="button" class="k-act k-act-verify" data-cq="fixed">${ICON_CHECK} ${esc(t(claimed ? 'cq_confirm' : 'cq_fixed'))}</button>
+      <button type="button" class="k-act k-act-again" data-cq="there">${esc(t('cq_there'))} →</button>
+    </div>`;
+  // Swipe right = still there, left = skip. Buttons do the same for keyboards and screen readers.
+  const card = document.getElementById('k-cq-card');
+  let x0 = null;
+  card.addEventListener('pointerdown', e => { x0 = e.clientX; card.setPointerCapture(e.pointerId); });
+  card.addEventListener('pointermove', e => { if (x0 != null) card.style.transform = `translateX(${e.clientX - x0}px) rotate(${(e.clientX - x0) / 30}deg)`; });
+  const end = e => {
+    if (x0 == null) return;
+    const dx = e.clientX - x0; x0 = null; card.style.transform = '';
+    if (dx > 80) checkQueueAction('there'); else if (dx < -80) checkQueueAction('skip');
+  };
+  card.addEventListener('pointerup', end);
+  card.addEventListener('pointercancel', () => { x0 = null; card.style.transform = ''; });
+}
+
+async function checkQueueAction(kind){
+  const x = cq && cq.list[cq.i];
+  if (!x) return;
+  const r = x.r;
+  if (kind === 'skip'){ cq.i++; return renderCheckCard(); }
+  if (kind === 'open'){ closeModal('k-cq-modal'); return openSheet(r.id); }
+  if (kind === 'fixed'){
+    closeModal('k-cq-modal');
+    return openEvidence((r.status === 'claimed' && r.claim ? 'verify:' : 'claim:') + r.id);
+  }
+  if (kind !== 'there') return;
+  document.querySelectorAll('#k-cq-body button').forEach(b => { b.disabled = true; });
+  try {
+    const res = await api.markSeen(r, cq.pos);
+    state.seen.add(r.id);
+    try { localStorage.setItem('kasa_seen', JSON.stringify([...state.seen])); } catch (e) {}
+    if (res.counted){ r.seen += 1; cq.done++; }
+    showToast(t(res.counted ? 'seen_done' : res.reason === 'own_report' ? 'seen_own' : 'seen_dup'));
+  } catch (e){
+    showToast(errorText(e));
+  }
+  cq.i++;
+  renderCheckCard();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -5657,6 +5791,45 @@ function renderNotify(){
   const c = document.getElementById('k-nt-count');
   c.hidden = !watching;
   c.textContent = t('notify_watching', { n: watching });
+  renderAlertFilter();
+}
+
+/* Narrow nearby alerts to some kinds of problem and a distance (kasa_push_prefs).
+   The last choice is kept on this device so the sheet shows it again. */
+function alertPrefs(){
+  try { return JSON.parse(localStorage.getItem('kasa_alert_prefs') || 'null') || { radius: 500, cats: [] }; } catch (e) { return { radius: 500, cats: [] }; }
+}
+
+function renderAlertFilter(){
+  const box = document.getElementById('k-nt-filter');
+  if (!box) return;
+  box.hidden = !alertsOn();
+  if (box.hidden) return;
+  const p = alertPrefs();
+  document.getElementById('k-nt-radius').value = String(p.radius || 500);
+  document.getElementById('k-nt-kinds').innerHTML = Object.keys(CATEGORIES).map(k =>
+    `<label class="k-nt-kind"><input type="checkbox" value="${esc(k)}"${p.cats.includes(k) ? ' checked' : ''}> ${CATEGORIES[k].icon} ${esc(t('cat_' + k))}</label>`).join('');
+  document.getElementById('k-nt-save').onclick = saveAlertPrefs;
+}
+
+async function saveAlertPrefs(){
+  const btn = document.getElementById('k-nt-save');
+  const p = { radius: Number(document.getElementById('k-nt-radius').value) || 500,
+    cats: [...document.querySelectorAll('#k-nt-kinds input:checked')].map(i => i.value) };
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) throw new KasaError('alerts_need_location');
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_push_prefs', { p_endpoint: sub.endpoint, p_categories: p.cats, p_radius: p.radius });
+    if (error) throw rpcError(error);
+    try { localStorage.setItem('kasa_alert_prefs', JSON.stringify(p)); } catch (e) {}
+    showToast(t('notify_saved'));
+  } catch (e){
+    showToast(errorText(e), 6000);
+  }
+  btn.disabled = false;
 }
 
 function openNotify(){
@@ -5694,10 +5867,12 @@ async function toggleAlerts(btn){
       const j = sub.toJSON();
       const { error } = await sb.rpc('kasa_push_subscribe', {
         p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth,
-        p_lat: pos.lat, p_lng: pos.lng, p_radius: 500, p_lang: state.lang
+        p_lat: pos.lat, p_lng: pos.lng, p_radius: alertPrefs().radius || 500, p_lang: state.lang
       });
       if (error) throw rpcError(error);
       try { localStorage.setItem('kasa_alerts', '1'); } catch (e) {}
+      const prefs = alertPrefs();
+      if (prefs.cats.length) await sb.rpc('kasa_push_prefs', { p_endpoint: j.endpoint, p_categories: prefs.cats, p_radius: prefs.radius });
       showToast(t('alerts_on'), 5000);
     }
   } catch (e){
@@ -5860,7 +6035,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -5918,6 +6093,8 @@ function wireUI(){
     if (d.geojson) return downloadGeoJSON(d.geojson);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
+    if ('checkq' in d){ setDrawer(false); return openCheckQueue(); }
+    if (d.cq) return checkQueueAction(d.cq);
     if (d.profile) return openRepProfile(d.profile);
     if (d.repMap){ e.preventDefault(); const [k, n] = d.repMap.split(':'); return showSeatOnMap(k, n); }
     if (d.repShare){
@@ -6228,6 +6405,53 @@ function askStillThere(lat, lng, accuracy){
     el.hidden = true;
     if (b.dataset.still === 'yes') handleSeen(r.id, b);
     else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+  };
+}
+
+/* "Is it fixed?" (idea from FixMyStreet's 4-week questionnaire). A reporter whose own report has
+   been open 28 days is asked once every 28 days, on this phone: fixed means photograph it (the usual
+   cleanup claim at the spot); still there opens the report at "Filed officially" to take it further.
+   Only for phones that already have a session; nothing is asked of anyone else. */
+const MINE_ASK_DAYS = 28;
+async function askReporter(){
+  if (askStillThere.done) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  const { data, error } = await sb.rpc('kasa_my_reports');
+  if (error || !data) return;
+  let asked = {};
+  try { asked = JSON.parse(localStorage.getItem('kasa_mine_asked') || '{}'); } catch (e) {}
+  const now = Date.now(), day = 86400000;
+  const r = data.map(normalize).filter(x => x.status === 'open' && !x.pending && daysSince(x.createdAt) >= MINE_ASK_DAYS
+    && !(asked[x.id] && now - asked[x.id] < MINE_ASK_DAYS * day)).sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
+  const el = document.getElementById('k-still');
+  if (!r || askStillThere.done || !el.hidden) return;
+  askStillThere.done = true;
+  asked[r.id] = now;
+  try { localStorage.setItem('kasa_mine_asked', JSON.stringify(asked)); } catch (e) {}
+  if (!state.byId.has(r.id)) state.byId.set(r.id, r);
+  el.innerHTML = `
+    ${r.photo ? `<img src="${esc(r.photo)}" alt="" data-mine-open="${esc(r.id)}">` : ''}
+    <div>
+      <div class="k-still-q">${esc(t('mine_q', { cat: t('cat_' + r.category), d: daysSince(r.createdAt) }))}</div>
+      <div class="k-still-m">${esc(placeText(r))}</div>
+      <div class="k-still-a">
+        <button type="button" class="k-still-gone" data-mine-ans="fixed">${esc(t('mine_fixed'))}</button>
+        <button type="button" class="k-still-yes" data-mine-ans="still">${esc(t('mine_still'))}</button>
+        <button type="button" data-mine-ans="later">${esc(t('still_later'))}</button>
+      </div>
+    </div>`;
+  el.hidden = false;
+  el.onclick = e => {
+    const b = e.target.closest('[data-mine-ans]');
+    if (!b && !e.target.closest('[data-mine-open]')) return;
+    el.hidden = true;
+    const a = b ? b.dataset.mineAns : 'open';
+    if (a === 'fixed') openEvidence('claim:' + r.id);
+    else if (a !== 'later'){
+      openSheet(r.id);
+      if (a === 'still') setTimeout(() => { const d = document.getElementById('k-dockets'); if (d){ d.scrollIntoView({ block: 'center' }); const det = d.querySelector('details'); if (det) det.open = true; } }, 400);
+    }
   };
 }
 

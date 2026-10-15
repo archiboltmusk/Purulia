@@ -127,7 +127,7 @@ async function loadAll(){
     'Updated ' + new Date().toLocaleString('en-IN', { dateStyle:'medium', timeStyle:'short' });
   await Promise.all([
     loadOverview(), loadDaily(), loadWards(), loadSla(),
-    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
+    loadResolutions(), loadLetters(), loadAutomation(), loadStorage(), loadPromises(), loadDemands(), loadBugs(), loadCommunities(), loadSchoolChecks(), loadReportCards(), loadSchoolSuggestions(), loadOfficials(), loadRepReplies(), loadStories(), loadEvidence(), loadDataFixes(), loadTranslations(), loadRepeatPhotos(), loadAdoptions(), loadFeedingSpots(), loadWorks(), loadSnakes(), loadPandals(), loadPlaces(), loadTownRequests(), loadLatest(),
     ...(isSuper() ? [loadSignups(), loadTeam()] : [])
   ]);
 }
@@ -341,6 +341,36 @@ function photoMetaText(m){
   return bits.join(' · ');
 }
 
+/* One trust hint per report, with every reason that moved it, like a ranked list that shows its
+   working. A hint for the moderator only: never stored, never shown to the public, never decides. */
+function trustScore(r){
+  const why = [], hit = (pts, text) => why.push({ pts, text });
+  const m = r.moderation_labels?.photo, t = r.trust || {};
+  if (!m || !m.capture || m.capture === 'none') hit(-15, 'no photo metadata sent');
+  else if (m.capture === 'file') hit(-40, 'photo from the gallery, not the live camera');
+  else hit(0, 'live camera photo');
+  if (m?.ai_edited) hit(-40, 'photo marked AI-edited');
+  if (m?.exif_distance_m != null && m.exif_distance_m > 100) hit(-25, `photo GPS ${m.exif_distance_m} m from the spot`);
+  if (m?.gps_checked === false) hit(-15, 'photo has no GPS of its own');
+  if (m?.taken_minutes_ago != null && m.taken_minutes_ago > 30) hit(-10, `taken ${m.taken_minutes_ago} min before upload`);
+  if (t.accuracy_m != null) t.accuracy_m > 30 ? hit(-10, `phone GPS accurate only to ${t.accuracy_m} m`) : hit(0, `phone GPS within ${t.accuracy_m} m`);
+  if (t.near_same_m != null && t.near_same_m <= 50) hit(-10, `same kind of report already open ${t.near_same_m} m away (maybe a duplicate)`);
+  if (t.reporter_hidden) hit(-20 * Math.min(2, t.reporter_hidden), `${t.reporter_hidden} earlier report${t.reporter_hidden > 1 ? 's' : ''} by this person hidden`);
+  if (t.reporter_public >= 3) hit(10, `${t.reporter_public} earlier reports by this person published`);
+  if (r.flags) hit(-10 * Math.min(3, r.flags), `flagged ${r.flags}×`);
+  if (r.moderation_labels?.text) hit(-10, 'text needs review');
+  const score = Math.max(0, Math.min(100, 100 + why.reduce((s, x) => s + x.pts, 0)));
+  return { score, why };
+}
+
+function trustHTML(r){
+  const { score, why } = trustScore(r);
+  const tone = score >= 75 ? 'ad-trust-hi' : score >= 45 ? 'ad-trust-mid' : 'ad-trust-lo';
+  return `<details class="ad-trust ${tone}"><summary>Trust hint ${score}/100</summary><ul>${why.map(w =>
+    `<li><b>${w.pts > 0 ? '+' + w.pts : w.pts || '±0'}</b> ${esc(w.text)}</li>`).join('')}</ul>
+    <small>Starts at 100. A hint from what the phone and the record say, not a verdict: look at the photo.</small></details>`;
+}
+
 function renderModeration(q){
   document.getElementById('adModNote').textContent =
     'Reports only become "resolved" through on-site confirmations. You can approve or hide reports, throw out a fake cleanup claim, void an obviously fake confirmation or dispute, or clear a photo held because its location data was far from the spot. Every action is published in the report\'s evidence trail with the reason you give.';
@@ -358,6 +388,7 @@ function renderModeration(q){
             ${photoMetaText(r.moderation_labels?.photo) ? ' · ' + esc(photoMetaText(r.moderation_labels.photo)) : ''}
             ${r.moderation_labels?.text ? ' · text needs review: ' + esc(r.moderation_labels.text) : ''}
             ${(r.flag_reasons || []).map(f => ' · ' + esc(f.reason) + (f.suggested_category ? ' → ' + esc(f.suggested_category) : '') + (f.note ? ': ' + esc(f.note) : '')).join('')}</div>
+          ${trustHTML(r)}
         </div>
         <div class="ad-actions">
           <button class="ad-ok" data-mod="approve" data-id="${esc(r.id)}">✓ Publish / keep</button>
@@ -404,7 +435,7 @@ function renderModeration(q){
   el.querySelectorAll('[data-mod]').forEach(b => b.addEventListener('click', () => moderate(b.dataset.id, b.dataset.mod)));
   el.querySelectorAll('[data-recat]').forEach(b => b.addEventListener('click', async () => {
     const cat = el.querySelector(`[data-recat-sel="${b.dataset.recat}"]`).value;
-    const reason = prompt('Public reason for the new category (shown in the report history):');
+    const reason = await askReason('Public reason for the new category (shown in the report history):', 'recategorize');
     if (!reason) return;
     const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: b.dataset.recat, p_category: cat, p_reason: reason });
     if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -418,9 +449,48 @@ function renderModeration(q){
   el.querySelectorAll('[data-clear-claim]').forEach(b => b.addEventListener('click', () => clearHeld('claim', b.dataset.clearClaim)));
 }
 
+/* Saved reasons (idea from FixMyStreet's response templates): moderators pick a reason they
+   wrote before instead of retyping it. Resolves to the text, '' for an empty answer, or null on Cancel. */
+let reasonTemplates = null;
+async function askReason(question, kind){
+  if (!reasonTemplates){
+    const { data, error } = await sb.rpc('kasa_admin_reply_templates');
+    reasonTemplates = error ? [] : (data || []);
+  }
+  const mine = reasonTemplates.filter(x => x.kind === kind || x.kind === 'any');
+  const dlg = document.createElement('dialog');
+  dlg.className = 'ad-reason';
+  dlg.innerHTML = `<form method="dialog">
+    <p>${esc(question)}</p>
+    ${mine.length ? `<div class="ad-reason-saved">${mine.map(x => `<span><button type="button" data-use="${esc(x.id)}">${esc(x.body)}</button><button type="button" data-del="${esc(x.id)}" aria-label="Delete this saved reason" title="Delete">×</button></span>`).join('')}</div>` : ''}
+    <textarea rows="3" maxlength="400"></textarea>
+    <label><input type="checkbox"> Save this reason for next time</label>
+    <menu><button value="cancel">Cancel</button> <button value="ok" class="ad-btn">OK</button></menu>
+  </form>`;
+  document.body.appendChild(dlg);
+  const ta = dlg.querySelector('textarea');
+  dlg.addEventListener('click', async e => {
+    const use = e.target.closest('[data-use]'), del = e.target.closest('[data-del]');
+    if (use){ ta.value = reasonTemplates.find(x => String(x.id) === use.dataset.use)?.body || ''; ta.focus(); }
+    if (del && confirm('Delete this saved reason for every moderator?')){
+      const { error } = await sb.rpc('kasa_admin_delete_reply_template', { p_id: Number(del.dataset.del) });
+      if (!error){ reasonTemplates = reasonTemplates.filter(x => String(x.id) !== del.dataset.del); del.parentElement.remove(); }
+    }
+  });
+  dlg.showModal();
+  ta.focus();
+  const answer = await new Promise(res => dlg.addEventListener('close', () => res(dlg.returnValue === 'ok' ? ta.value.trim() : null), { once: true }));
+  if (answer && answer.length >= 3 && dlg.querySelector('input[type=checkbox]').checked){
+    const { error } = await sb.rpc('kasa_admin_save_reply_template', { p_kind: kind, p_body: answer });
+    if (!error) reasonTemplates = null;
+  }
+  dlg.remove();
+  return answer;
+}
+
 // Clearing says, on the public record, that the photo was checked and is from the spot.
 async function clearHeld(kind, id){
-  const note = prompt('Public reason for clearing this photo (e.g. "landmarks match the spot; phone had a stale location"):');
+  const note = await askReason('Public reason for clearing this photo (e.g. "landmarks match the spot; phone had a stale location"):', 'clear');
   if (!note) return;
   const { error } = kind === 'vote'
     ? await sb.rpc('kasa_admin_clear_vote', { p_vote_id: id, p_note: note })
@@ -431,8 +501,9 @@ async function clearHeld(kind, id){
 
 async function moderate(id, action){
   if (action === 'delete' && !confirm('Delete this report and its photo from the site for good? This cannot be undone.')) return;
-  const reason = prompt(action === 'hide' ? 'Public reason for hiding this report:'
-    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:');
+  const reason = await askReason(action === 'hide' ? 'Public reason for hiding this report:'
+    : action === 'delete' ? 'Reason for deleting (kept in the deletion log), e.g. "exact repeat of another report":' : 'Optional public note:',
+    action === 'hide' ? 'hide' : action === 'delete' ? 'remove' : 'any');
   if ((action === 'hide' || action === 'delete') && !(reason && reason.trim().length >= 3)) return;
   const { error } = await sb.rpc('kasa_admin_moderate', { p_report_id: id, p_action: action, p_reason: reason || null });
   if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -490,7 +561,7 @@ async function findReport(){
   document.getElementById('adFindCatBtn').addEventListener('click', async () => {
     const cat = document.getElementById('adFindCatSel').value;
     if (cat === r.category) return;
-    const reason = prompt('Public reason for the new category (shown in the report history):');
+    const reason = await askReason('Public reason for the new category (shown in the report history):', 'recategorize');
     if (!reason) return;
     const { error } = await sb.rpc('kasa_admin_recategorize', { p_report_id: r.id, p_category: cat, p_reason: reason });
     if (error){ alert('Failed: ' + (error.details || error.message)); return; }
@@ -504,7 +575,7 @@ async function findReport(){
    join a report the check missed, or delete a repeat photo. The report's first photo always
    stays; every change shows on the report's public timeline. */
 async function removePhoto(reportId, kind, ref){
-  const reason = prompt('Public reason for deleting this photo (e.g. "same photo as the first"):');
+  const reason = await askReason('Public reason for deleting this photo (e.g. "same photo as the first"):', 'remove_photo');
   if (!reason || reason.trim().length < 3) return false;
   const { error } = await sb.rpc('kasa_admin_remove_photo', { p_report_id: reportId, p_kind: kind, p_ref: String(ref), p_reason: reason });
   if (error){ alert('Failed: ' + (error.details || error.message)); return false; }
@@ -516,7 +587,7 @@ async function repeatAction(action, childId, parentId){
   let res;
   if (action === 'keep') res = await sb.rpc('kasa_admin_confirm_duplicate', { p_report_id: childId });
   else {
-    const reason = prompt('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")') ;
+    const reason = await askReason('Why are these different? (shown publicly; leave empty for "A different problem, not the same spot")', 'unlink');
     if (reason === null) return false;
     res = await sb.rpc('kasa_admin_unlink_duplicate', { p_report_id: childId, p_reason: reason || null });
   }
@@ -1523,6 +1594,36 @@ async function loadRepReplies(){
     const { error: e2 } = await sb.rpc('kasa_admin_review_rep_reply', { p_id: Number(b.dataset.rr), p_action: b.dataset.rrAct, p_note: null });
     if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
     loadRepReplies();
+  }));
+}
+
+async function loadStories(){
+  const el = document.getElementById('adStories');
+  if (!el) return;
+  const { data, error } = await sb.rpc('kasa_admin_story_queue');
+  if (error){ el.innerHTML = `<div class="ad-empty">Could not load: ${esc(error.details || error.message)}</div>`; return; }
+  if (!data?.length){ el.innerHTML = '<div class="ad-empty">Nothing waiting.</div>'; return; }
+  el.innerHTML = `
+    <table class="ad-table">
+      <thead><tr><th>Figure</th><th>Story</th><th>Source</th><th></th></tr></thead>
+      <tbody>
+        ${data.map(s => `<tr>
+          <td>${esc(s.stat_label)}<br><small>${esc(s.district)}${s.place ? ' · ' + esc(s.place) : ''} · sent ${esc(new Date(s.created_at).toLocaleString('en-IN'))}</small></td>
+          <td>${esc(s.story)}</td>
+          <td><a href="${esc(s.source_url)}" target="_blank" rel="noopener noreferrer">${esc(s.source_url.replace(/^https?:\/\//, '').slice(0, 60))}</a></td>
+          <td style="white-space:nowrap;">${s.status === 'approved'
+            ? `<span class="ad-note">Live</span> <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="remove">Remove</button>`
+            : `<button class="ad-ok" data-sto="${esc(s.id)}" data-sto-act="approve">✓ Published there, with consent</button>
+               <button class="ad-bad" data-sto="${esc(s.id)}" data-sto-act="reject">✕ Reject</button>`}
+          </td></tr>`).join('')}
+      </tbody>
+    </table>`;
+  el.querySelectorAll('[data-sto]').forEach(b => b.addEventListener('click', async () => {
+    b.disabled = true;
+    const note = b.dataset.stoAct === 'approve' ? null : prompt('Reason (kept with the record):') || null;
+    const { error: e2 } = await sb.rpc('kasa_admin_review_story', { p_id: Number(b.dataset.sto), p_action: b.dataset.stoAct, p_note: note });
+    if (e2){ alert('Failed: ' + (e2.details || e2.message)); b.disabled = false; return; }
+    loadStories();
   }));
 }
 

@@ -149,7 +149,7 @@ window.KASA_I18N = {
     rc_done: 'Thank you. A moderator will check the figures against your picture, then they go on the schools page.',
     err_KASA_BAD_YEAR: 'Choose the year printed on the report card.', err_KASA_CARD_EMPTY: 'Enter at least one figure from the report card.',
     ns_open: 'School not on the list? Add it', ns_title: 'Add a missing school', ns_sub: 'Stand at the school. A moderator checks the photo and finds its UDISE code before it goes on the list.', ns_photo: 'Photo of the gate or name board', ns_photo_hint: "The school's name must be readable in the photo. No faces, please.", ns_name: 'School name, as on the board', ns_village_ph: 'Village or para', ns_udise_ph: 'UDISE code, if written on the board (11 digits)', ns_submit: 'Send for checking', ns_done: 'Thank you. A moderator will check the photo and add the school to the list.', err_KASA_SCHOOL_EXISTS: 'That school is already on the list. Search for it by name or village.',
-    sc_submit: 'Save the school check', sc_see_all: "See every school's checks →", nav_school_check: '🏫 Check a school', nav_schools: 'Schools', nav_adopt: '🤝 Adopt this spot', nav_adopted: 'Adopted spots', nav_waste: 'Where the waste goes', nav_money: 'Who runs the municipality', nav_tax: 'Tax and spending', wc_money: 'Who decides and where the money goes →', nav_toilets: 'Public toilets',
+    sc_submit: 'Save the school check', sc_see_all: "See every school's checks →", nav_school_check: '🏫 Check a school', nav_schools: 'Schools', nav_adopt: '🤝 Adopt this spot', nav_adopted: 'Adopted spots', nav_waste: 'Where the waste goes', nav_money: 'Who runs the municipality', nav_tax: 'Tax and spending', nav_calendar: 'Civic calendar', nav_compare: 'Compare districts', nav_record: 'The record: evidence and remedies', wc_money: 'Who decides and where the money goes →', nav_toilets: 'Public toilets',
     sc_q_water: 'Drinking water available?', sc_q_toilets: 'Toilets usable?', sc_q_boundary: 'Boundary wall standing?', sc_q_electricity: 'Electricity working?',
     sc_q_mdm: 'Mid-day meal kitchen and utensils?', sc_q_girls_toilet: "Separate girls' toilet usable?", sc_q_meal_today: 'Mid-day meal cooked today?', sc_q_teachers: 'How many teachers did you see teaching? (optional)', sc_teachers_ph: 'Leave blank if you did not count', sc_cant_tell: "Can't tell", err_KASA_BAD_TEACHERS: 'Enter how many teachers you saw, from 0 to 200.', sc_q_building: 'Building', sc_yes: 'Yes', sc_no: 'No', sc_good: 'Good', sc_repair: 'Needs repair', sc_unsafe: 'Unsafe',
     sc_loc_ok: '✓ Location found (±{a} m)', sc_done: 'School check saved. It is on the school’s public record now.',
@@ -175,7 +175,7 @@ window.KASA_I18N = {
     list_search: 'Search ward number, place or problem', locating_you: 'Locating you on the map…',
     sheet_anonymous: 'All reports are anonymous', sheet_allegation: 'A citizen report — an allegation, not a verified fact.', sheet_terms: 'Terms',
     sheet_seen_btn: 'I saw this too', sheet_seen_done: 'You saw this',
-    sheet_directions: 'Get directions', sheet_gps: 'Located by GPS', sheet_pinned: 'Pinned on map',
+    sheet_directions: 'Get directions', sheet_case: 'Case file', sheet_gps: 'Located by GPS', sheet_pinned: 'Pinned on map',
     sheet_share: 'Share', sheet_close: 'Close', sheet_prev: 'Previous photo', sheet_next: 'Next photo',
     stat_people: 'People saw it', stat_days_open: 'Days open', stat_days_fix: 'Days to fix', stat_type: 'Issue type',
     nb_verified: 'Verified by neighbours', nb_doubted: 'Neighbours doubt this',
@@ -467,7 +467,7 @@ window.KASA_I18N = {
     rc_done: 'ধন্যবাদ। একজন মডারেটর আপনার ছবির সঙ্গে সংখ্যাগুলো মিলিয়ে দেখবেন, তারপর সেগুলো স্কুলের পাতায় যাবে।',
     err_KASA_BAD_YEAR: 'রিপোর্ট কার্ডে ছাপা বছরটি বেছে নিন।', err_KASA_CARD_EMPTY: 'রিপোর্ট কার্ড থেকে অন্তত একটি সংখ্যা লিখুন।',
     ns_open: 'তালিকায় স্কুলটি নেই? যোগ করুন', ns_title: 'বাদ পড়া স্কুল যোগ করুন', ns_sub: 'স্কুলে দাঁড়িয়ে পাঠান। একজন মডারেটর ছবি দেখে স্কুলের UDISE কোড খুঁজে তালিকায় যোগ করবেন।', ns_photo: 'গেট বা নামফলকের ছবি', ns_photo_hint: 'ছবিতে স্কুলের নাম পড়া যেতে হবে। কারও মুখ নয়।', ns_name: 'বোর্ডে যেমন লেখা, স্কুলের নাম', ns_village_ph: 'গ্রাম বা পাড়া', ns_udise_ph: 'বোর্ডে লেখা থাকলে UDISE কোড (১১ সংখ্যা)', ns_submit: 'যাচাইয়ের জন্য পাঠান', ns_done: 'ধন্যবাদ। মডারেটর ছবি দেখে স্কুলটি তালিকায় যোগ করবেন।', err_KASA_SCHOOL_EXISTS: 'স্কুলটি তালিকায় আছে। নাম বা গ্রাম দিয়ে খুঁজুন।',
-    sc_submit: 'স্কুল যাচাই জমা দিন', sc_see_all: 'সব স্কুলের যাচাই দেখুন →', nav_school_check: '🏫 স্কুল যাচাই করুন', nav_schools: 'স্কুল', nav_adopt: '🤝 এই জায়গা দত্তক নিন', nav_adopted: 'দত্তক নেওয়া জায়গা', nav_waste: 'বর্জ্য কোথায় যায়', nav_money: 'পুরসভা কে চালায়', nav_tax: 'কর আর খরচ', wc_money: 'কে সিদ্ধান্ত নেয়, টাকা কোথায় যায় →', nav_toilets: 'সরকারি শৌচাগার',
+    sc_submit: 'স্কুল যাচাই জমা দিন', sc_see_all: 'সব স্কুলের যাচাই দেখুন →', nav_school_check: '🏫 স্কুল যাচাই করুন', nav_schools: 'স্কুল', nav_adopt: '🤝 এই জায়গা দত্তক নিন', nav_adopted: 'দত্তক নেওয়া জায়গা', nav_waste: 'বর্জ্য কোথায় যায়', nav_money: 'পুরসভা কে চালায়', nav_tax: 'কর আর খরচ', nav_calendar: 'নাগরিক ক্যালেন্ডার', nav_compare: 'জেলা পাশাপাশি তুলনা', nav_record: 'নথি: প্রমাণ আর প্রতিকার', wc_money: 'কে সিদ্ধান্ত নেয়, টাকা কোথায় যায় →', nav_toilets: 'সরকারি শৌচাগার',
     sc_q_water: 'খাবার জল আছে?', sc_q_toilets: 'শৌচাগার ব্যবহারযোগ্য?', sc_q_boundary: 'সীমানা প্রাচীর আছে?', sc_q_electricity: 'বিদ্যুৎ আছে?',
     sc_q_mdm: 'মিড-ডে মিলের রান্নাঘর ও বাসন আছে?', sc_q_girls_toilet: 'মেয়েদের আলাদা শৌচাগার ব্যবহারযোগ্য?', sc_q_meal_today: 'আজ মিড-ডে মিল রান্না হয়েছে?', sc_q_teachers: 'কতজন শিক্ষককে পড়াতে দেখলেন? (ঐচ্ছিক)', sc_teachers_ph: 'না গুনলে ফাঁকা রাখুন', sc_cant_tell: 'বলতে পারছি না', err_KASA_BAD_TEACHERS: 'কতজন শিক্ষক দেখলেন, ০ থেকে ২০০-র মধ্যে লিখুন।', sc_q_building: 'ভবন', sc_yes: 'হ্যাঁ', sc_no: 'না', sc_good: 'ভালো', sc_repair: 'মেরামত দরকার', sc_unsafe: 'বিপজ্জনক',
     sc_loc_ok: '✓ অবস্থান পাওয়া গেছে (±{a} মি)', sc_done: 'স্কুল যাচাই জমা হয়েছে। এটি এখন স্কুলের সর্বজনীন রেকর্ডে।',
@@ -493,7 +493,7 @@ window.KASA_I18N = {
     list_search: 'ওয়ার্ড নম্বর, জায়গা বা সমস্যা খুঁজুন', locating_you: 'ম্যাপে আপনাকে খোঁজা হচ্ছে…',
     sheet_anonymous: 'সব রিপোর্ট বেনামি', sheet_allegation: 'এটি নাগরিকের রিপোর্ট — অভিযোগ, প্রমাণিত তথ্য নয়।', sheet_terms: 'শর্তাবলি',
     sheet_seen_btn: 'আমিও দেখেছি', sheet_seen_done: 'আপনি দেখেছেন',
-    sheet_directions: 'পথনির্দেশ', sheet_gps: 'GPS দিয়ে লোকেশন', sheet_pinned: 'ম্যাপে চিহ্নিত',
+    sheet_directions: 'পথনির্দেশ', sheet_case: 'কেস ফাইল', sheet_gps: 'GPS দিয়ে লোকেশন', sheet_pinned: 'ম্যাপে চিহ্নিত',
     sheet_share: 'শেয়ার', sheet_close: 'বন্ধ',
     stat_people: 'জন দেখেছেন', stat_days_open: 'দিন খোলা', stat_days_fix: 'দিনে সমাধান', stat_type: 'সমস্যার ধরন',
     nb_verified: 'প্রতিবেশীদের দ্বারা যাচাই করা', nb_doubted: 'প্রতিবেশীদের সন্দেহ আছে',
@@ -784,7 +784,7 @@ window.KASA_I18N = {
     rc_done: 'धन्यवाद। एक मॉडरेटर आपकी तस्वीर से आँकड़े मिलाएगा, फिर वे स्कूलों के पेज पर जाएँगे।',
     err_KASA_BAD_YEAR: 'रिपोर्ट कार्ड पर छपा वर्ष चुनें।', err_KASA_CARD_EMPTY: 'रिपोर्ट कार्ड से कम से कम एक आँकड़ा भरें।',
     ns_open: 'सूची में स्कूल नहीं है? जोड़ें', ns_title: 'छूटा हुआ स्कूल जोड़ें', ns_sub: 'स्कूल पर खड़े होकर भेजें। मॉडरेटर फ़ोटो देखकर स्कूल का UDISE कोड ढूँढेंगे और सूची में जोड़ेंगे।', ns_photo: 'गेट या नाम-पट्ट की फ़ोटो', ns_photo_hint: 'फ़ोटो में स्कूल का नाम पढ़ा जा सके। किसी का चेहरा नहीं।', ns_name: 'बोर्ड पर लिखा स्कूल का नाम', ns_village_ph: 'गाँव या टोला', ns_udise_ph: 'बोर्ड पर लिखा हो तो UDISE कोड (11 अंक)', ns_submit: 'जाँच के लिए भेजें', ns_done: 'धन्यवाद। मॉडरेटर फ़ोटो देखकर स्कूल को सूची में जोड़ेंगे।', err_KASA_SCHOOL_EXISTS: 'यह स्कूल सूची में है। नाम या गाँव से खोजें।',
-    sc_submit: 'स्कूल जाँच सहेजें', sc_see_all: 'सभी स्कूलों की जाँच देखें →', nav_school_check: '🏫 स्कूल जाँचें', nav_schools: 'स्कूल', nav_adopt: '🤝 यह जगह गोद लें', nav_adopted: 'गोद ली गई जगहें', nav_waste: 'कचरा कहाँ जाता है', nav_money: 'नगरपालिका कौन चलाता है', nav_tax: 'टैक्स और खर्च', wc_money: 'कौन तय करता है, पैसा कहाँ जाता है →', nav_toilets: 'सार्वजनिक शौचालय',
+    sc_submit: 'स्कूल जाँच सहेजें', sc_see_all: 'सभी स्कूलों की जाँच देखें →', nav_school_check: '🏫 स्कूल जाँचें', nav_schools: 'स्कूल', nav_adopt: '🤝 यह जगह गोद लें', nav_adopted: 'गोद ली गई जगहें', nav_waste: 'कचरा कहाँ जाता है', nav_money: 'नगरपालिका कौन चलाता है', nav_tax: 'टैक्स और खर्च', nav_calendar: 'नागरिक कैलेंडर', nav_compare: 'ज़िलों की तुलना', nav_record: 'रिकॉर्ड: सबूत और समाधान', wc_money: 'कौन तय करता है, पैसा कहाँ जाता है →', nav_toilets: 'सार्वजनिक शौचालय',
     sc_q_water: 'पीने का पानी है?', sc_q_toilets: 'शौचालय इस्तेमाल लायक?', sc_q_boundary: 'चारदीवारी है?', sc_q_electricity: 'बिजली है?',
     sc_q_mdm: 'मिड-डे मील की रसोई और बर्तन हैं?', sc_q_girls_toilet: 'लड़कियों का अलग शौचालय इस्तेमाल लायक?', sc_q_meal_today: 'आज मिड-डे मील बना?', sc_q_teachers: 'कितने शिक्षकों को पढ़ाते देखा? (वैकल्पिक)', sc_teachers_ph: 'नहीं गिना तो खाली छोड़ें', sc_cant_tell: 'पता नहीं', err_KASA_BAD_TEACHERS: 'कितने शिक्षक देखे, 0 से 200 के बीच लिखें।', sc_q_building: 'भवन', sc_yes: 'हाँ', sc_no: 'नहीं', sc_good: 'अच्छा', sc_repair: 'मरम्मत चाहिए', sc_unsafe: 'असुरक्षित',
     sc_loc_ok: '✓ जगह मिल गई (±{a} मी)', sc_done: 'स्कूल जाँच सहेजी गई। यह अब स्कूल के सार्वजनिक रिकॉर्ड में है।',
@@ -810,7 +810,7 @@ window.KASA_I18N = {
     list_search: 'वार्ड नंबर, जगह या समस्या खोजें', locating_you: 'मैप पर आपको ढूँढा जा रहा है…',
     sheet_anonymous: 'सभी रिपोर्ट गुमनाम हैं', sheet_allegation: 'यह नागरिक की रिपोर्ट है — आरोप, प्रमाणित तथ्य नहीं।', sheet_terms: 'शर्तें',
     sheet_seen_btn: 'मैंने भी देखा', sheet_seen_done: 'आपने देखा',
-    sheet_directions: 'रास्ता देखें', sheet_gps: 'GPS से लोकेशन', sheet_pinned: 'मैप पर चिह्नित',
+    sheet_directions: 'रास्ता देखें', sheet_case: 'केस फ़ाइल', sheet_gps: 'GPS से लोकेशन', sheet_pinned: 'मैप पर चिह्नित',
     sheet_share: 'शेयर', sheet_close: 'बंद करें',
     stat_people: 'लोगों ने देखा', stat_days_open: 'दिन से खुली', stat_days_fix: 'दिन में ठीक', stat_type: 'समस्या का प्रकार',
     nb_verified: 'पड़ोसियों द्वारा पुष्ट', nb_doubted: 'पड़ोसियों को संदेह',
@@ -1203,7 +1203,7 @@ Object.assign(window.KASA_I18N.en, {
   cat_rural_jobs: 'Rural jobs (MGNREGA) work',
   dk_title: 'Filed officially', dk_cpgrams: 'CPGRAMS', dk_state: 'State helpline', dk_rti: 'RTI', dk_other: 'Other office',
   dk_added: 'added {d}', dk_add: 'Filed it on a portal? Add the reference number', dk_where: 'Where you filed it',
-  dk_number: 'Reference number', dk_save: 'Add', dk_saved: 'Added. The next person can follow up the same complaint.',
+  dk_number: 'Reference number', dk_save: 'Add', dk_saved: 'Added. The next person can follow up the same complaint.', rti_filed_on: 'Date you filed the RTI', rti_filed: 'filed {d}', rti_due: 'reply due by {d} ({n} days left)', rti_late: 'reply {n} days late: first appeal by {d} (RTI Act s.19(1))', rti_late_appeal: 'reply {n} days late; the 30 days for a first appeal have passed, a second appeal goes to the Information Commission (s.19(3))', rti_change: 'What happened with this RTI?', rti_saved: 'Updated.', rti_st_waiting: 'Waiting for a reply', rti_st_answered: 'Answered', rti_st_refused: 'Refused', rti_st_appealed: 'First appeal filed', rti_st_no_reply: 'No reply', mine_q: 'Your {cat} report is {d} days old. Is it fixed?', mine_fixed: 'Fixed: I\'ll photograph it', mine_still: 'Still there: take it further',
   esc_nrega: 'Check the official work list (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: works, payments and muster rolls for each gram panchayat, to compare with what is on the ground.'
 });
 Object.assign(window.KASA_I18N.bn, {
@@ -1220,7 +1220,7 @@ Object.assign(window.KASA_I18N.bn, {
   cat_rural_jobs: '১০০ দিনের কাজ (MGNREGA)',
   dk_title: 'সরকারিভাবে জমা হয়েছে', dk_cpgrams: 'CPGRAMS', dk_state: 'রাজ্যের হেল্পলাইন', dk_rti: 'আরটিআই', dk_other: 'অন্য দপ্তর',
   dk_added: '{d} যোগ হয়েছে', dk_add: 'পোর্টালে জমা দিয়েছেন? রেফারেন্স নম্বর যোগ করুন', dk_where: 'কোথায় জমা দিয়েছেন',
-  dk_number: 'রেফারেন্স নম্বর', dk_save: 'যোগ করুন', dk_saved: 'যোগ হয়েছে। পরের জন একই অভিযোগের খোঁজ নিতে পারবেন।',
+  dk_number: 'রেফারেন্স নম্বর', dk_save: 'যোগ করুন', dk_saved: 'যোগ হয়েছে। পরের জন একই অভিযোগের খোঁজ নিতে পারবেন।', rti_filed_on: 'আরটিআই জমার তারিখ', rti_filed: '{d} জমা', rti_due: '{d}-এর মধ্যে উত্তর দেওয়ার কথা ({n} দিন বাকি)', rti_late: 'উত্তর {n} দিন দেরি: {d}-এর মধ্যে প্রথম আপিল (আরটিআই আইন ধারা ১৯(১))', rti_late_appeal: 'উত্তর {n} দিন দেরি; প্রথম আপিলের ৩০ দিন পেরিয়ে গেছে, দ্বিতীয় আপিল তথ্য কমিশনে (ধারা ১৯(৩))', rti_change: 'এই আরটিআই-এর কী হল?', rti_saved: 'বদলানো হয়েছে।', rti_st_waiting: 'উত্তরের অপেক্ষা', rti_st_answered: 'উত্তর এসেছে', rti_st_refused: 'প্রত্যাখ্যাত', rti_st_appealed: 'প্রথম আপিল করা হয়েছে', rti_st_no_reply: 'কোনো উত্তর নেই', mine_q: 'আপনার {cat} রিপোর্টের {d} দিন হল। ঠিক হয়েছে?', mine_fixed: 'ঠিক হয়েছে: ছবি তুলব', mine_still: 'এখনও আছে: আরও এগোন',
   esc_nrega: 'সরকারি কাজের তালিকা দেখুন (MGNREGA)', esc_nrega_s: 'nrega.dord.gov.in: প্রতিটি গ্রাম পঞ্চায়েতের কাজ, মজুরি আর মাস্টার রোল, মাটির বাস্তবের সঙ্গে মেলাতে।'
 });
 Object.assign(window.KASA_I18N.hi, {
@@ -1237,7 +1237,7 @@ Object.assign(window.KASA_I18N.hi, {
   cat_rural_jobs: 'मनरेगा का काम',
   dk_title: 'सरकारी तौर पर दर्ज', dk_cpgrams: 'CPGRAMS', dk_state: 'राज्य हेल्पलाइन', dk_rti: 'आरटीआई', dk_other: 'दूसरा दफ़्तर',
   dk_added: '{d} को जोड़ा', dk_add: 'पोर्टल पर दर्ज किया? संदर्भ संख्या जोड़ें', dk_where: 'कहाँ दर्ज किया',
-  dk_number: 'संदर्भ संख्या', dk_save: 'जोड़ें', dk_saved: 'जुड़ गया। अगला व्यक्ति इसी शिकायत की खोज-ख़बर ले सकता है।',
+  dk_number: 'संदर्भ संख्या', dk_save: 'जोड़ें', dk_saved: 'जुड़ गया। अगला व्यक्ति इसी शिकायत की खोज-ख़बर ले सकता है।', rti_filed_on: 'आरटीआई दर्ज करने की तारीख़', rti_filed: '{d} को दर्ज', rti_due: '{d} तक जवाब देना है ({n} दिन बाक़ी)', rti_late: 'जवाब {n} दिन देर से: {d} तक पहली अपील (आरटीआई अधिनियम धारा 19(1))', rti_late_appeal: 'जवाब {n} दिन देर से; पहली अपील के 30 दिन बीत गए, दूसरी अपील सूचना आयोग में (धारा 19(3))', rti_change: 'इस आरटीआई का क्या हुआ?', rti_saved: 'बदल दिया।', rti_st_waiting: 'जवाब का इंतज़ार', rti_st_answered: 'जवाब आया', rti_st_refused: 'मना कर दिया', rti_st_appealed: 'पहली अपील दर्ज', rti_st_no_reply: 'कोई जवाब नहीं', mine_q: 'आपकी {cat} रिपोर्ट {d} दिन पुरानी है। क्या ठीक हुआ?', mine_fixed: 'ठीक हुआ: फ़ोटो लूँगा', mine_still: 'अब भी है: आगे बढ़ाएँ',
   esc_nrega: 'सरकारी काम की सूची देखें (मनरेगा)', esc_nrega_s: 'nrega.dord.gov.in: हर ग्राम पंचायत के काम, भुगतान और मस्टर रोल, ज़मीन पर जो है उससे मिलाने के लिए।'
 });
 
@@ -1369,7 +1369,9 @@ Object.assign(window.KASA_I18N.en, {
   notify_watch_h: 'Reports you watch', notify_watch_p: 'Open any report and tap “Watch this report” to hear when it is claimed, fixed or disputed.',
   notify_watching: "You're watching {n} on this device.",
   notify_digest_h: 'Weekly digest by email', notify_digest_p: 'One email every Monday with what was reported and fixed in each ward.',
-  notify_digest_btn: '✉ Get it by email'
+  notify_digest_btn: '✉ Get it by email',
+  notify_radius: 'How far from you', notify_kinds: 'Only these kinds of problem (tick none for all):',
+  notify_save: 'Save alert choices', notify_saved: 'Alert choices saved.'
 });
 Object.assign(window.KASA_I18N.bn, {
   notify_title: 'সতর্কবার্তা', notify_sub: 'Parishkar আপনাকে কী জানাবে বেছে নিন। যেকোনো সতর্কবার্তা এখান থেকেই বন্ধ করা যায়।',
@@ -1379,6 +1381,8 @@ Object.assign(window.KASA_I18N.bn, {
   notify_watch_h: 'যে রিপোর্ট ফলো করছেন', notify_watch_p: 'যেকোনো রিপোর্ট খুলে “এই রিপোর্ট ফলো করুন” ট্যাপ করুন, দায়িত্ব নেওয়া, সমাধান বা আপত্তি হলে জানতে পারবেন।',
   notify_watching: 'এই ডিভাইসে {n}টি ফলো করছেন।',
   notify_digest_h: 'সাপ্তাহিক ডাইজেস্ট ইমেলে', notify_digest_p: 'প্রতি সোমবার একটি ইমেল: প্রতিটি ওয়ার্ডে কী জানানো হল আর কী ঠিক হল।',
+  notify_radius: 'আপনার থেকে কত দূর পর্যন্ত', notify_kinds: 'শুধু এই ধরনের সমস্যা (সব চাইলে কোনোটাই টিক দেবেন না):',
+  notify_save: 'সতর্কবার্তার পছন্দ রাখুন', notify_saved: 'সতর্কবার্তার পছন্দ রাখা হল।',
   notify_digest_btn: '✉ ইমেলে পান'
 });
 Object.assign(window.KASA_I18N.hi, {
@@ -1389,7 +1393,37 @@ Object.assign(window.KASA_I18N.hi, {
   notify_watch_h: 'जिन रिपोर्ट को आप फ़ॉलो करते हैं', notify_watch_p: 'कोई भी रिपोर्ट खोलें और “इस रिपोर्ट को फ़ॉलो करें” दबाएँ, ताकि ज़िम्मेदारी लेने, ठीक होने या आपत्ति पर पता चले।',
   notify_watching: 'इस डिवाइस पर आप {n} फ़ॉलो कर रहे हैं।',
   notify_digest_h: 'साप्ताहिक डाइजेस्ट ईमेल पर', notify_digest_p: 'हर सोमवार एक ईमेल: हर वार्ड में क्या दर्ज हुआ और क्या ठीक हुआ।',
+  notify_radius: 'आपसे कितनी दूर तक', notify_kinds: 'सिर्फ़ इस तरह की समस्याएँ (सब के लिए कुछ न चुनें):',
+  notify_save: 'सूचना की पसंद सहेजें', notify_saved: 'सूचना की पसंद सहेज ली गई।',
   notify_digest_btn: '✉ ईमेल पर पाएँ'
+});
+/* Check nearby: the swipe queue of open reports around you. */
+Object.assign(window.KASA_I18N.en, {
+  drawer_check: 'Check reports near you', drawer_check_sub: 'Swipe through open problems around you',
+  cq_title: 'Check reports near you',
+  cq_sub: 'Open problems close to you, nearest first. Swipe right if it is still there, left to skip. If it looks fixed, say so with a live photo.',
+  cq_locating: 'Finding where you are…', cq_need_location: 'Turn on location to see the open reports around you.',
+  cq_none: 'No open reports within {km} km that you have not already checked.', cq_done: "That's all of them nearby. You confirmed {n}. Thank you.",
+  cq_meta: '{m} m away · open {d} days', cq_claimed: 'someone says it is fixed',
+  cq_skip: 'Skip', cq_open: 'Details', cq_fixed: 'Looks fixed', cq_confirm: 'Check the fix', cq_there: 'Still there'
+});
+Object.assign(window.KASA_I18N.bn, {
+  drawer_check: 'কাছের রিপোর্ট যাচাই করুন', drawer_check_sub: 'আশেপাশের খোলা সমস্যাগুলো একে একে দেখুন',
+  cq_title: 'কাছের রিপোর্ট যাচাই করুন',
+  cq_sub: 'আপনার কাছের খোলা সমস্যা, সবচেয়ে কাছেরটা আগে। এখনও থাকলে ডানে সোয়াইপ করুন, বাদ দিতে বাঁয়ে। ঠিক হয়ে গেছে মনে হলে লাইভ ছবি দিয়ে জানান।',
+  cq_locating: 'আপনি কোথায় আছেন খোঁজা হচ্ছে…', cq_need_location: 'আশেপাশের খোলা রিপোর্ট দেখতে লোকেশন চালু করুন।',
+  cq_none: '{km} কিমির মধ্যে আপনার না-দেখা কোনো খোলা রিপোর্ট নেই।', cq_done: 'কাছের সবগুলো দেখা হল। আপনি {n}টি নিশ্চিত করলেন। ধন্যবাদ।',
+  cq_meta: '{m} মিটার দূরে · {d} দিন ধরে খোলা', cq_claimed: 'কেউ বলেছেন ঠিক হয়ে গেছে',
+  cq_skip: 'বাদ দিন', cq_open: 'বিস্তারিত', cq_fixed: 'ঠিক হয়ে গেছে', cq_confirm: 'সমাধান যাচাই করুন', cq_there: 'এখনও আছে'
+});
+Object.assign(window.KASA_I18N.hi, {
+  drawer_check: 'पास की रिपोर्ट जाँचें', drawer_check_sub: 'आसपास की खुली समस्याएँ एक-एक करके देखें',
+  cq_title: 'पास की रिपोर्ट जाँचें',
+  cq_sub: 'आपके पास की खुली समस्याएँ, सबसे पास वाली पहले। अब भी है तो दाएँ स्वाइप करें, छोड़ने के लिए बाएँ। ठीक हो गई लगे तो लाइव फ़ोटो से बताएँ।',
+  cq_locating: 'आपकी जगह ढूँढी जा रही है…', cq_need_location: 'आसपास की खुली रिपोर्ट देखने के लिए लोकेशन चालू करें।',
+  cq_none: '{km} किमी के भीतर ऐसी कोई खुली रिपोर्ट नहीं जो आपने न देखी हो।', cq_done: 'पास की सब देख लीं। आपने {n} की पुष्टि की। धन्यवाद।',
+  cq_meta: '{m} मीटर दूर · {d} दिन से खुली', cq_claimed: 'किसी ने कहा ठीक हो गई',
+  cq_skip: 'छोड़ें', cq_open: 'विवरण', cq_fixed: 'ठीक हो गई', cq_confirm: 'सुधार जाँचें', cq_there: 'अब भी है'
 });
 /* Local bodies: the district's other municipalities and every gram panchayat. */
 Object.assign(window.KASA_I18N.en, {
@@ -1578,3 +1612,149 @@ Object.assign(window.KASA_I18N.hi, { step3_slide: 'रिपोर्ट भे�
   ss_review: 'सेव हुआ · पहले एक मॉडरेटर देखेंगे', ss_offline: 'नेटवर्क नहीं · फ़ोन में रखा गया, ऑनलाइन होते ही जाएगा', ss_phone: 'फ़ोन में रखा गया · अगली बार खोलने पर जाएगा' });
 // No Santali wording for "slide" yet: show the existing "send report" line.
 window.KASA_I18N.sat.step3_slide = window.KASA_I18N.sat.step3_submit;
+
+// Case file (case.js).
+Object.assign(window.KASA_I18N.en, {
+  cf_source: 'Source', cf_how: 'How it works', cf_nav_home: 'Home', cf_nav_map: 'Map', cf_open_on_map: 'Open on the map →',
+  cf_case_file: 'Case file', cf_no: 'Case file · report {n} · filed {d}', cf_loading: 'Loading…', cf_reporter_mode: 'Reporter mode',
+  cf_follow_title: 'Cases you follow', cf_find_map: 'Find a report on the map →',
+  cf_follow_empty: 'Nothing followed yet. Follow a complaint from start to finish: open any report on the map, tap "Case file", then "Follow this case". Bhulu and I will keep count of the days. It stays on this device only.',
+  cf_open_map: 'Open the map', cf_follow_count: '{n} on this device. New events since you last opened each one are counted.',
+  cf_unfollow: 'Stop following', cf_report_no: 'Report {n}', cf_gone_short: 'no longer on the public record',
+  cf_ward: 'Ward {n}', cf_block: '{b} block', cf_days_fix: 'days to fix', cf_days_open: 'days open', cf_hours: '{n} h',
+  cf_fresh: '{n} new since you last looked', cf_move: 'On another phone? Open this link there to follow the same cases:',
+  cf_copy: 'Copy link', cf_copied: 'Copied', cf_gone_title: 'Report {n} is not on the public record',
+  cf_gone: 'This trail goes cold here. The report may have been removed by a moderator, merged into another report, or the link is wrong.',
+  cf_sla_fixed_late: 'Fixed {n} days after its {s}-day target', cf_sla_fixed_ok: 'Fixed within its {s}-day target',
+  cf_sla_over: '{n} days past its {s}-day target', cf_sla_left: '{n} days left of its {s}-day target',
+  cf_st_open: 'Open', cf_st_claimed: 'Cleanup claimed, waiting for neighbours to confirm', cf_st_resolved: 'Fixed, confirmed on the spot',
+  cf_st_open_s: 'open', cf_st_claimed_s: 'cleanup claimed', cf_st_resolved_s: 'fixed',
+  cf_follow: 'Follow this case', cf_following: 'Following ✓', cf_photo_alt: 'Photo of the problem, taken on the spot',
+  cf_filed: 'Filed', cf_serious: 'How serious', cf_located: 'Located', cf_loc_gps: 'By the phone\'s GPS at the spot', cf_loc_pin: 'Pinned on the map',
+  cf_saw: 'People who saw it', cf_on_spot: '({n} on the spot)', cf_src_report: 'Report {n}, live camera photo and GPS, on the Parishkar map',
+  cf_p_report: 'The report', cf_p_record: 'What happened since', cf_p_who: 'Who answers for this spot',
+  cf_p_tender: 'Any work or tender on this spot', cf_p_money: 'The money', cf_p_now: 'Where it stands',
+  cf_when_reported: 'When reported', cf_after_fix: 'After the fix', cf_cleanup_photo: 'Cleanup photo',
+  cf_slide: 'Slide between the photo when reported and the later photo', cf_more_photos: 'More photos from the spot',
+  cf_m_from: '{n} m from the spot', cf_photo: 'photo',
+  cf_src_events: 'Public event log of this report (every claim, confirmation, flag and moderator action is written there by the server)',
+  cf_no_events: 'Nothing has happened on this report since it was filed.',
+  cf_mla: 'MLA, {s} (seat {n})', cf_mp: 'MP, {s} (Lok Sabha)', cf_bodies: 'Bodies responsible here', cf_src_link: 'source',
+  cf_elected: 'Elected for this spot', cf_profile: 'profile', cf_where_said: 'where they said it', cf_promises: 'Their promises on record',
+  cf_promises_note: 'These promises are about their area in general, not this report.', cf_all_promises: 'All promises',
+  cf_no_bodies: 'No body or elected seat is on record for this point yet. The report page lists who to contact for the ward or panchayat:',
+  cf_open_report: 'open it',
+  cf_src_seats: 'Seat outlines: Election Commission delimitation via places/wb_assembly.geojson; members: Wikipedia election results; replies: checked by a moderator against the link given',
+  cf_asset_is: 'This report is about', cf_asset_near: 'Nearest mapped asset, {n} m away (a suggestion, not checked)', cf_owned_by: 'owned by {b}',
+  cf_tender: 'Tender', cf_work_order: 'Work order', cf_issued_by: 'Issued by', cf_contractor: 'Contractor', cf_status: 'Status',
+  cf_completed: 'completed {d}', cf_dlp: 'Defect liability', cf_dlp_until: 'Running until {d}', cf_dlp_ended: 'Ended {d}', cf_clause: 'clause',
+  cf_tender_record: 'Tender record',
+  cf_board: 'A works board {n} m away: {w} by {a}, under the contractor\'s defect liability until {d}.', cf_board_contractor: 'Contractor on the board: {c}.',
+  cf_board_photo: 'The board\'s photo',
+  cf_tender_note: 'A tender linked to a spot does not mean anyone did anything wrong; it says who was paid to build it and who must repair defects.',
+  cf_no_tender: 'No tender or works board is linked to this spot yet. Standing at a site board nearby?', cf_record_board: 'Record it',
+  cf_sanctioned: 'sanctioned {r}', cf_awarded: 'awarded {r}',
+  cf_mplads: 'MP fund (MPLADS) of {p}: {a} allocated this term, {s} spent, {c} of {r} recommended works completed.',
+  cf_budget: 'state budget and audit', cf_no_money: 'No amount is on record for work at this spot. For the wider picture see the',
+  cf_src_rti: 'Reply and appeal dates: RTI Act 2005, s.7(1) and s.19(1)',
+  cf_no_docket: 'No official complaint number added yet. Filed it with a portal? Add the number on the report so the next person can follow it up:',
+  cf_add_on_report: 'open the report',
+  cf_src_status: 'Report status is set only by photo confirmations on the spot or a moderator (see How it works)',
+  cf_foot: 'A case file puts what is already on the public record about one report in one place. It is evidence, not a verdict: a report is a resident\'s account, and a name here means only that the record links that person or office to the spot. Something wrong? Use "Suggest a correction" below.'
+});
+Object.assign(window.KASA_I18N.bn, {
+  cf_source: 'সূত্র', cf_how: 'কীভাবে কাজ করে', cf_nav_home: 'হোম', cf_nav_map: 'মানচিত্র', cf_open_on_map: 'মানচিত্রে খুলুন →',
+  cf_case_file: 'কেস ফাইল', cf_no: 'কেস ফাইল · রিপোর্ট {n} · জমা {d}', cf_loading: 'লোড হচ্ছে…', cf_reporter_mode: 'রিপোর্টার মোড',
+  cf_follow_title: 'আপনি যে কেসগুলি অনুসরণ করছেন', cf_find_map: 'মানচিত্রে রিপোর্ট খুঁজুন →',
+  cf_follow_empty: 'এখনও কিছু অনুসরণ করা হয়নি। একটি অভিযোগ শুরু থেকে শেষ পর্যন্ত অনুসরণ করুন। মানচিত্রে যেকোনো রিপোর্ট খুলে "কেস ফাইল", তারপর "এই কেস অনুসরণ করুন" (Follow this case) চাপুন। ভুলু আর আমি দিন গুনে রাখব। এটি শুধু এই ফোনেই থাকে।',
+  cf_open_map: 'মানচিত্র খুলুন', cf_follow_count: 'এই ফোনে {n}টি। শেষবার খোলার পর থেকে নতুন ঘটনা গোনা হয়।',
+  cf_unfollow: 'অনুসরণ বন্ধ করুন', cf_report_no: 'রিপোর্ট {n}', cf_gone_short: 'আর সর্বজনীন রেকর্ডে নেই',
+  cf_ward: 'ওয়ার্ড {n}', cf_block: '{b} ব্লক', cf_days_fix: 'দিনে ঠিক হয়েছে', cf_days_open: 'দিন খোলা', cf_hours: '{n} ঘণ্টা',
+  cf_fresh: 'শেষবার দেখার পর {n}টি নতুন', cf_move: 'অন্য ফোনে? সেখানে এই লিংক খুললে একই কেসগুলি অনুসরণ হবে:',
+  cf_copy: 'লিংক কপি করুন', cf_copied: 'কপি হয়েছে', cf_gone_title: 'রিপোর্ট {n} সর্বজনীন রেকর্ডে নেই',
+  cf_gone: 'এখানে খোঁজ থেমে গেল। হয়তো মডারেটর সরিয়েছেন, অন্য রিপোর্টের সঙ্গে জুড়ে গেছে, বা লিংকটি ভুল।',
+  cf_sla_fixed_late: '{s} দিনের লক্ষ্যের {n} দিন পরে ঠিক হয়েছে', cf_sla_fixed_ok: '{s} দিনের লক্ষ্যের মধ্যে ঠিক হয়েছে',
+  cf_sla_over: '{s} দিনের লক্ষ্য {n} দিন পেরিয়ে গেছে', cf_sla_left: '{s} দিনের লক্ষ্যের {n} দিন বাকি',
+  cf_st_open: 'খোলা', cf_st_claimed: 'পরিষ্কারের দাবি হয়েছে, প্রতিবেশীদের নিশ্চিত করার অপেক্ষা', cf_st_resolved: 'ঠিক হয়েছে, ঘটনাস্থলে নিশ্চিত',
+  cf_st_open_s: 'খোলা', cf_st_claimed_s: 'পরিষ্কারের দাবি', cf_st_resolved_s: 'ঠিক হয়েছে',
+  cf_follow: 'এই কেস অনুসরণ করুন', cf_following: 'অনুসরণ করছেন ✓', cf_photo_alt: 'সমস্যার ছবি, ঘটনাস্থলে তোলা',
+  cf_filed: 'জমা', cf_serious: 'কতটা গুরুতর', cf_located: 'অবস্থান', cf_loc_gps: 'ঘটনাস্থলে ফোনের জিপিএস দিয়ে', cf_loc_pin: 'মানচিত্রে পিন করা',
+  cf_saw: 'যাঁরা দেখেছেন', cf_on_spot: '({n} জন ঘটনাস্থলে)', cf_src_report: 'রিপোর্ট {n}, লাইভ ক্যামেরার ছবি ও জিপিএস, পরিষ্কার মানচিত্রে',
+  cf_p_report: 'রিপোর্ট', cf_p_record: 'তারপর কী হল', cf_p_who: 'এই জায়গার দায় কার',
+  cf_p_tender: 'এই জায়গায় কোনো কাজ বা টেন্ডার', cf_p_money: 'টাকা', cf_p_now: 'এখন কী অবস্থা',
+  cf_when_reported: 'রিপোর্টের দিন', cf_after_fix: 'ঠিক হওয়ার পরে', cf_cleanup_photo: 'পরিষ্কারের ছবি',
+  cf_slide: 'রিপোর্টের দিনের ছবি আর পরের ছবির মধ্যে স্লাইড করুন', cf_more_photos: 'ঘটনাস্থলের আরও ছবি',
+  cf_m_from: 'জায়গা থেকে {n} মিটার', cf_photo: 'ছবি',
+  cf_src_events: 'এই রিপোর্টের সর্বজনীন ঘটনা-তালিকা (প্রতিটি দাবি, নিশ্চিতকরণ, ফ্ল্যাগ ও মডারেটরের কাজ সার্ভার নিজেই লেখে)',
+  cf_no_events: 'জমা হওয়ার পর থেকে এই রিপোর্টে কিছু ঘটেনি।',
+  cf_mla: 'বিধায়ক, {s} (আসন {n})', cf_mp: 'সাংসদ, {s} (লোকসভা)', cf_bodies: 'এখানে দায়িত্বে যে সংস্থাগুলি', cf_src_link: 'সূত্র',
+  cf_elected: 'এই জায়গার নির্বাচিত প্রতিনিধি', cf_profile: 'প্রোফাইল', cf_where_said: 'যেখানে বলেছেন', cf_promises: 'রেকর্ডে তাঁদের প্রতিশ্রুতি',
+  cf_promises_note: 'এই প্রতিশ্রুতিগুলি তাঁদের এলাকা নিয়ে, এই রিপোর্ট নিয়ে নয়।', cf_all_promises: 'সব প্রতিশ্রুতি',
+  cf_no_bodies: 'এই জায়গার কোনো সংস্থা বা নির্বাচিত আসন এখনও রেকর্ডে নেই। রিপোর্টের পাতায় ওয়ার্ড বা পঞ্চায়েতে কার সঙ্গে যোগাযোগ করবেন লেখা আছে:',
+  cf_open_report: 'খুলুন',
+  cf_src_seats: 'আসনের সীমানা: নির্বাচন কমিশনের ডিলিমিটেশন (places/wb_assembly.geojson); সদস্য: উইকিপিডিয়ার নির্বাচনী ফল; উত্তর: দেওয়া লিংক মিলিয়ে মডারেটর দেখেছেন',
+  cf_asset_is: 'এই রিপোর্টের বিষয়', cf_asset_near: 'সবচেয়ে কাছের মানচিত্রে থাকা সম্পদ, {n} মিটার দূরে (একটি পরামর্শ, যাচাই হয়নি)', cf_owned_by: 'মালিক {b}',
+  cf_tender: 'টেন্ডার', cf_work_order: 'ওয়ার্ক অর্ডার', cf_issued_by: 'জারি করেছে', cf_contractor: 'ঠিকাদার', cf_status: 'অবস্থা',
+  cf_completed: '{d} শেষ', cf_dlp: 'ত্রুটি সারানোর দায়', cf_dlp_until: '{d} পর্যন্ত চলছে', cf_dlp_ended: '{d} শেষ হয়েছে', cf_clause: 'ধারা',
+  cf_tender_record: 'টেন্ডারের রেকর্ড',
+  cf_board: '{n} মিটার দূরে একটি কাজের বোর্ড: {w}, {a}, {d} পর্যন্ত ঠিকাদারের ত্রুটি সারানোর দায় আছে।', cf_board_contractor: 'বোর্ডে ঠিকাদার: {c}।',
+  cf_board_photo: 'বোর্ডের ছবি',
+  cf_tender_note: 'কোনো জায়গার সঙ্গে টেন্ডার জোড়া মানে কেউ অন্যায় করেছেন তা নয়; এটা শুধু বলে কাকে বানানোর টাকা দেওয়া হয়েছিল আর ত্রুটি কে সারাবে।',
+  cf_no_tender: 'এই জায়গার সঙ্গে এখনও কোনো টেন্ডার বা কাজের বোর্ড জোড়া নেই। কাছে কোনো সাইট বোর্ডের সামনে দাঁড়িয়ে?', cf_record_board: 'রেকর্ড করুন',
+  cf_sanctioned: '{r} মঞ্জুর', cf_awarded: '{r} বরাদ্দ',
+  cf_mplads: '{p}-এর সাংসদ তহবিল (MPLADS): এই মেয়াদে {a} বরাদ্দ, {s} খরচ, প্রস্তাবিত {r}টি কাজের {c}টি শেষ।',
+  cf_budget: 'রাজ্যের বাজেট ও অডিট', cf_no_money: 'এই জায়গার কাজের কোনো অঙ্ক রেকর্ডে নেই। বড় ছবিটা দেখুন:',
+  cf_src_rti: 'উত্তর ও আপিলের তারিখ: তথ্য অধিকার আইন ২০০৫, ধারা ৭(১) ও ১৯(১)',
+  cf_no_docket: 'এখনও কোনো সরকারি অভিযোগ নম্বর যোগ হয়নি। পোর্টালে জমা দিয়েছেন? রিপোর্টে নম্বরটি যোগ করুন, যাতে পরের জন খোঁজ নিতে পারেন:',
+  cf_add_on_report: 'রিপোর্ট খুলুন',
+  cf_src_status: 'রিপোর্টের অবস্থা বদলায় শুধু ঘটনাস্থলের ছবি-নিশ্চিতকরণে বা মডারেটরের হাতে (কীভাবে কাজ করে দেখুন)',
+  cf_foot: 'কেস ফাইল একটি রিপোর্ট নিয়ে সর্বজনীন রেকর্ডে যা আছে তা এক জায়গায় রাখে। এটি প্রমাণ, রায় নয়: রিপোর্ট একজন বাসিন্দার বিবরণ, আর এখানে কারও নাম থাকা মানে শুধু রেকর্ড সেই ব্যক্তি বা দপ্তরকে জায়গাটির সঙ্গে জোড়ে। কিছু ভুল? নিচে "সংশোধনের প্রস্তাব" ব্যবহার করুন।'
+});
+Object.assign(window.KASA_I18N.hi, {
+  cf_source: 'स्रोत', cf_how: 'यह कैसे काम करता है', cf_nav_home: 'होम', cf_nav_map: 'नक्शा', cf_open_on_map: 'नक्शे पर खोलें →',
+  cf_case_file: 'केस फ़ाइल', cf_no: 'केस फ़ाइल · रिपोर्ट {n} · {d} को दर्ज', cf_loading: 'लोड हो रहा है…', cf_reporter_mode: 'रिपोर्टर मोड',
+  cf_follow_title: 'आप जिन मामलों को फ़ॉलो कर रहे हैं', cf_find_map: 'नक्शे पर रिपोर्ट ढूँढें →',
+  cf_follow_empty: 'अभी कुछ फ़ॉलो नहीं किया। एक शिकायत को शुरू से अंत तक फ़ॉलो करें। नक्शे पर कोई भी रिपोर्ट खोलें, "केस फ़ाइल" और फिर "यह मामला फ़ॉलो करें" (Follow this case) दबाएँ। भुलू और मैं दिन गिनते रहेंगे। यह सिर्फ़ इसी फ़ोन में रहता है।',
+  cf_open_map: 'नक्शा खोलें', cf_follow_count: 'इस फ़ोन पर {n}। पिछली बार खोलने के बाद की नई घटनाएँ गिनी जाती हैं।',
+  cf_unfollow: 'फ़ॉलो करना बंद करें', cf_report_no: 'रिपोर्ट {n}', cf_gone_short: 'अब सार्वजनिक रिकॉर्ड में नहीं',
+  cf_ward: 'वार्ड {n}', cf_block: '{b} ब्लॉक', cf_days_fix: 'दिन में ठीक हुआ', cf_days_open: 'दिन से खुला', cf_hours: '{n} घंटे',
+  cf_fresh: 'पिछली बार देखने के बाद {n} नई', cf_move: 'दूसरे फ़ोन पर? वहाँ यह लिंक खोलें, वही मामले फ़ॉलो होंगे:',
+  cf_copy: 'लिंक कॉपी करें', cf_copied: 'कॉपी हो गया', cf_gone_title: 'रिपोर्ट {n} सार्वजनिक रिकॉर्ड में नहीं है',
+  cf_gone: 'यहाँ सुराग़ ख़त्म हो गया। शायद मॉडरेटर ने हटाया, किसी दूसरी रिपोर्ट में जोड़ा गया, या लिंक ग़लत है।',
+  cf_sla_fixed_late: '{s} दिन के लक्ष्य के {n} दिन बाद ठीक हुआ', cf_sla_fixed_ok: '{s} दिन के लक्ष्य के भीतर ठीक हुआ',
+  cf_sla_over: '{s} दिन के लक्ष्य से {n} दिन ऊपर', cf_sla_left: '{s} दिन के लक्ष्य में {n} दिन बाक़ी',
+  cf_st_open: 'खुला', cf_st_claimed: 'सफ़ाई का दावा, पड़ोसियों की पुष्टि का इंतज़ार', cf_st_resolved: 'ठीक हुआ, मौक़े पर पुष्टि',
+  cf_st_open_s: 'खुला', cf_st_claimed_s: 'सफ़ाई का दावा', cf_st_resolved_s: 'ठीक हुआ',
+  cf_follow: 'यह मामला फ़ॉलो करें', cf_following: 'फ़ॉलो कर रहे हैं ✓', cf_photo_alt: 'समस्या की फ़ोटो, मौक़े पर ली गई',
+  cf_filed: 'दर्ज', cf_serious: 'कितना गंभीर', cf_located: 'जगह', cf_loc_gps: 'मौक़े पर फ़ोन के जीपीएस से', cf_loc_pin: 'नक्शे पर पिन किया',
+  cf_saw: 'जिन्होंने देखा', cf_on_spot: '({n} मौक़े पर)', cf_src_report: 'रिपोर्ट {n}, लाइव कैमरा फ़ोटो और जीपीएस, परिष्कार नक्शे पर',
+  cf_p_report: 'रिपोर्ट', cf_p_record: 'उसके बाद क्या हुआ', cf_p_who: 'इस जगह का ज़िम्मेदार कौन',
+  cf_p_tender: 'इस जगह पर कोई काम या टेंडर', cf_p_money: 'पैसा', cf_p_now: 'अभी क्या स्थिति है',
+  cf_when_reported: 'रिपोर्ट के दिन', cf_after_fix: 'ठीक होने के बाद', cf_cleanup_photo: 'सफ़ाई की फ़ोटो',
+  cf_slide: 'रिपोर्ट के दिन की फ़ोटो और बाद की फ़ोटो के बीच स्लाइड करें', cf_more_photos: 'मौक़े की और फ़ोटो',
+  cf_m_from: 'जगह से {n} मीटर', cf_photo: 'फ़ोटो',
+  cf_src_events: 'इस रिपोर्ट की सार्वजनिक घटना-सूची (हर दावा, पुष्टि, फ़्लैग और मॉडरेटर का काम सर्वर ख़ुद लिखता है)',
+  cf_no_events: 'दर्ज होने के बाद से इस रिपोर्ट पर कुछ नहीं हुआ।',
+  cf_mla: 'विधायक, {s} (सीट {n})', cf_mp: 'सांसद, {s} (लोकसभा)', cf_bodies: 'यहाँ ज़िम्मेदार संस्थाएँ', cf_src_link: 'स्रोत',
+  cf_elected: 'इस जगह के चुने हुए प्रतिनिधि', cf_profile: 'प्रोफ़ाइल', cf_where_said: 'जहाँ कहा', cf_promises: 'रिकॉर्ड पर उनके वादे',
+  cf_promises_note: 'ये वादे उनके इलाक़े के बारे में हैं, इस रिपोर्ट के बारे में नहीं।', cf_all_promises: 'सभी वादे',
+  cf_no_bodies: 'इस जगह की कोई संस्था या चुनी हुई सीट अभी रिकॉर्ड में नहीं है। रिपोर्ट के पन्ने पर वार्ड या पंचायत में किससे संपर्क करें, लिखा है:',
+  cf_open_report: 'खोलें',
+  cf_src_seats: 'सीटों की सीमा: चुनाव आयोग का परिसीमन (places/wb_assembly.geojson); सदस्य: विकिपीडिया के चुनाव नतीजे; जवाब: दिए गए लिंक से मिलाकर मॉडरेटर ने देखे',
+  cf_asset_is: 'यह रिपोर्ट इसके बारे में है', cf_asset_near: 'नक्शे पर सबसे पास की संपत्ति, {n} मीटर दूर (एक सुझाव, जाँचा नहीं गया)', cf_owned_by: 'मालिक {b}',
+  cf_tender: 'टेंडर', cf_work_order: 'वर्क ऑर्डर', cf_issued_by: 'जारी करने वाला', cf_contractor: 'ठेकेदार', cf_status: 'स्थिति',
+  cf_completed: '{d} को पूरा', cf_dlp: 'दोष सुधार की ज़िम्मेदारी', cf_dlp_until: '{d} तक चालू', cf_dlp_ended: '{d} को ख़त्म', cf_clause: 'धारा',
+  cf_tender_record: 'टेंडर का रिकॉर्ड',
+  cf_board: '{n} मीटर दूर काम का बोर्ड: {w}, {a}, {d} तक ठेकेदार की दोष सुधार की ज़िम्मेदारी।', cf_board_contractor: 'बोर्ड पर ठेकेदार: {c}।',
+  cf_board_photo: 'बोर्ड की फ़ोटो',
+  cf_tender_note: 'किसी जगह से टेंडर जुड़ने का मतलब यह नहीं कि किसी ने ग़लत किया; यह बस बताता है कि बनाने का पैसा किसे मिला और दोष कौन ठीक करेगा।',
+  cf_no_tender: 'इस जगह से अभी कोई टेंडर या काम का बोर्ड नहीं जुड़ा है। पास में किसी साइट बोर्ड के सामने खड़े हैं?', cf_record_board: 'दर्ज करें',
+  cf_sanctioned: '{r} स्वीकृत', cf_awarded: '{r} आवंटित',
+  cf_mplads: '{p} की सांसद निधि (MPLADS): इस कार्यकाल में {a} आवंटित, {s} ख़र्च, सुझाए गए {r} कामों में से {c} पूरे।',
+  cf_budget: 'राज्य का बजट और ऑडिट', cf_no_money: 'इस जगह के काम की कोई रक़म रिकॉर्ड में नहीं है। बड़ी तस्वीर देखें:',
+  cf_src_rti: 'जवाब और अपील की तारीख़ें: सूचना का अधिकार अधिनियम 2005, धारा 7(1) और 19(1)',
+  cf_no_docket: 'अभी कोई सरकारी शिकायत संख्या नहीं जोड़ी गई। पोर्टल पर दर्ज किया? रिपोर्ट पर संख्या जोड़ें, ताकि अगला व्यक्ति खोज-ख़बर ले सके:',
+  cf_add_on_report: 'रिपोर्ट खोलें',
+  cf_src_status: 'रिपोर्ट की स्थिति सिर्फ़ मौक़े की फ़ोटो-पुष्टि से या मॉडरेटर बदलते हैं (यह कैसे काम करता है देखें)',
+  cf_foot: 'केस फ़ाइल एक रिपोर्ट के बारे में सार्वजनिक रिकॉर्ड में जो है, उसे एक जगह रखती है। यह सबूत है, फ़ैसला नहीं: रिपोर्ट एक निवासी का बयान है, और यहाँ किसी का नाम होने का मतलब बस इतना है कि रिकॉर्ड उस व्यक्ति या दफ़्तर को उस जगह से जोड़ता है। कुछ ग़लत? नीचे "सुधार सुझाएँ" का इस्तेमाल करें।'
+});
