@@ -60,8 +60,10 @@ def api_pages(url, key):
 
 
 # Lok Sabha seat name -> the spelling a source uses, where it differs beyond accents and punctuation.
-MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Warangal': 'Warangel', 'Bathinda': 'Bhatinda', 'Sonipat': 'Sonepat'}
+MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Warangal': 'Warangel', 'Bathinda': 'Bhatinda', 'Sonipat': 'Sonepat', 'Barrackpore': 'Barrackpur', 'Bongaon': 'Bangaon'}
 SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Sarguja': 'Surguja', 'Nowgong': 'Nagaon', 'Anantnag': 'Anantnag-Rajouri'}  # PRS and MyNeta
+PRS_ALIAS = {**SEAT_ALIAS, 'Barrackpore': 'Barrackpur', 'Bongaon': 'Bangaon'}
+MYNETA_ALIAS = {**SEAT_ALIAS, 'Barrackpore': 'Barrackpur', 'Bongaon': 'Bangaon', 'Joynagar': 'Jaynagar', 'Bardhaman–Durgapur': 'Burdwan - Durgapur'}
 
 
 def norm(s):
@@ -85,6 +87,7 @@ def num(s):
 # ── seats ──
 def seats_of(state):
     """{pc name: {mp, mp_party, assembly: [...], center}} from the state's outlines."""
+    if state == 'west-bengal': return wb_seats()
     data = json.loads((ROOT / 'places' / 'in' / f'{state}.geojson').read_text())
     out, pts = {}, {}
     for f in data['features']:
@@ -118,6 +121,28 @@ def clean_name(s):
     s = re.sub(r'\s*\(.*?\)', '', s)  # "(18Ls)" and similar source tags
     s = re.sub(r'^(Shri|Smt\.?|Shrimati|Dr\.?|Ms\.?|Mr\.?)\s+', '', s.strip(), flags=re.I)
     return re.sub(r'\s+', ' ', s).strip().title()
+
+
+def wb_seats():
+    """West Bengal: seats and assembly names from places/wb_leaders.json (MLAs and MPs, cited), outlines from
+    places/wb_assembly.geojson (294 AC outlines, grouped by seat number)."""
+    L = json.loads((ROOT / 'places' / 'wb_leaders.json').read_text())
+    out, pts = {}, {}
+    for f in json.loads((ROOT / 'places' / 'wb_assembly.geojson').read_text())['features']:
+        p = f['properties']
+        pts.setdefault(str(p['pc']), []).extend(_coords(f['geometry']['coordinates']))
+        out.setdefault(str(p['pc']), []).append({'name': L['ac'][str(p['ac'])]['name'],
+                                                 'mla': L['ac'][str(p['ac'])].get('person'),
+                                                 'mla_party': L['ac'][str(p['ac'])].get('party')})
+    seats = {}
+    for n, v in L['pc'].items():
+        xs, ys = zip(*pts[n])
+        vac = v.get('vacant')
+        seats[v['name']] = {'mp': None if vac else v.get('person'), 'mp_party': None if vac else v.get('party'),
+                            'assembly': sorted(out[n], key=lambda a: a['name']),
+                            'center': [round((min(ys) + max(ys)) / 2, 4), round((min(xs) + max(xs)) / 2, 4)],
+                            'vacant': vac and vac.get('since')}
+    return seats
 
 
 def _coords(c):
@@ -246,7 +271,7 @@ def myneta_recontest():
 
 
 def build(state):
-    name = json.loads((ROOT / 'places' / 'in' / 'index.json').read_text())['states'][state]['name']
+    name = {'west-bengal': 'West Bengal'}.get(state) or json.loads((ROOT / 'places' / 'in' / 'index.json').read_text())['states'][state]['name']
     seats = seats_of(state)
     mp_rows = {m['constituency']: m for m in mplads(name)}
     prs_recs = {}
@@ -262,7 +287,7 @@ def build(state):
     out, gaps = {}, {'mplads': [], 'prs': [], 'affidavit': []}
     for pc, s in sorted(seats.items()):
         key = slug(pc)
-        rec = {'name': pc, 'center': s['center'], 'mp': {'name': s['mp'], 'party': s['mp_party']},
+        rec = {'name': pc, 'center': s['center'], 'vacant': s.get('vacant'), 'mp': {'name': s['mp'], 'party': s['mp_party']},
                'assembly': s['assembly'], 'mplads': None, 'works': None, 'prs': None, 'affidavit': None}
         m = find(mp_rows, MPLADS_ALIAS.get(pc, pc), norm)
         if m:
@@ -272,12 +297,12 @@ def build(state):
                              'worksCompleted': row['completedWorksCount'], 'mp': row['mpName']}
             rec['works'] = mplads_works(row)
         else: gaps['mplads'].append(pc)
-        p = find(prs_recs, SEAT_ALIAS.get(pc, pc), norm)
+        p = find(prs_recs, PRS_ALIAS.get(pc, pc), norm)
         if p:  # PRS lists one MP per seat; its name can differ from Wikipedia's (e.g. a title or spelling)
             r = prs_recs[p]
             rec['prs'] = {k: r[k] for k in ('url', 'from', 'to', 'attendance', 'debates', 'questions', 'bills', 'avg')}
         else: gaps['prs'].append(pc)
-        cids = [c for c, w in wins.items() if same(w['seat'], SEAT_ALIAS.get(pc, pc), 0.9)]
+        cids = [c for c, w in wins.items() if same(w['seat'], MYNETA_ALIAS.get(pc, pc), 0.9)]
         if len(cids) > 1: cids = [c for c in cids if same(wins[c]['person'], s['mp'] or '', 0.5)]
         if len(cids) == 1:
             cid = cids[0]

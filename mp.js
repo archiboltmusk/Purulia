@@ -53,8 +53,8 @@
     var mp = s.mp || {}, m = s.mplads, w = s.works, p = s.prs, a = s.affidavit;
     var h = '';
     h += '<div class="mp-head"><div class="mp-av">' + esc(initials(mp.name)) + '</div><div>' +
-      '<h1 class="mp-name">' + esc(mp.name || NR) + '</h1>' +
-      '<div class="mp-sub">MP · ' + esc(s.name) + ' (Lok Sabha) · ' + esc(mp.party || NR) + '</div></div></div>';
+      '<h1 class="mp-name">' + esc(s.vacant ? 'Seat vacant' : (mp.name || NR)) + '</h1>' +
+      '<div class="mp-sub">' + (s.vacant ? 'Vacant since ' + esc(s.vacant) : 'MP · ' + esc(s.name) + ' (Lok Sabha) · ' + esc(mp.party || NR)) + '</div></div></div>';
     h += '<div class="mp-h">Assembly seats in this constituency</div><div class="mp-chips">' +
       (s.assembly || []).map(function (x) { return '<span class="mp-chip">' + esc(x.name) + ' · ' + esc(x.mla || NR) + '</span>'; }).join('') + '</div>';
     var center = s.center || [];
