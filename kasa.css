@@ -143,6 +143,8 @@ img{display:block;max-width:100%;}
 #k-map{position:absolute;inset:0;background:var(--ink2);}
 .maplibregl-ctrl-attrib{background:rgba(10,8,5,.85)!important;color:rgba(240,230,208,.4)!important;font-family:var(--mono)!important;font-size:10px!important;}
 .maplibregl-ctrl-attrib a{color:rgba(240,230,208,.5)!important;}
+body[data-app-layout] .maplibregl-ctrl-attrib{background:#ffffff!important;color:#6b7280!important;border:1px solid #e5e7eb;border-radius:999px;font-family:var(--serif)!important;box-shadow:0 1px 4px rgba(0,0,0,.08);}
+body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .maplibregl-ctrl-group{background:rgba(10,8,5,.94)!important;border:1px solid var(--border)!important;border-radius:3px!important;box-shadow:0 4px 16px rgba(0,0,0,.4)!important;overflow:hidden;}
 .maplibregl-ctrl-group button{background:transparent!important;border-bottom:1px solid var(--border)!important;}
 .maplibregl-ctrl-group button:last-child{border-bottom:none!important;}
