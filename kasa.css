@@ -753,6 +753,7 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-place-head{display:flex;justify-content:space-between;align-items:center;padding:1rem 1.1rem .4rem;font-family:var(--serif);font-size:1.25rem;color:var(--cream);}
 .k-place-x{background:none;border:0;color:var(--text-md);font-size:1.2rem;cursor:pointer;}
 .k-place-note{padding:0 1.1rem .6rem;font-size:.82rem;color:var(--text-md);line-height:1.45;}
+.k-place-search{display:block;box-sizing:border-box;width:calc(100% - 2.2rem);margin:0 1.1rem .6rem;padding:.55rem .7rem;border:1px solid var(--border);border-radius:8px;background:var(--ink2);color:var(--text-hi);font:inherit;font-size:.9rem;}
 .k-place-list{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;padding:0 1.1rem 1.1rem;overflow:auto;max-height:60dvh;}
 .k-place-list button{padding:.6rem .7rem;border:1px solid var(--border);border-radius:8px;background:var(--ink2);color:var(--text-hi);font-family:inherit;font-size:.9rem;text-align:left;cursor:pointer;}
 .k-place-list button[aria-current="true"]{border-color:var(--amber);background:rgba(221,51,51,.12);}

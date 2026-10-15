@@ -182,7 +182,10 @@ window.KasaPlaces = (() => {
     lastView = [lat, lng, zoom];
     const p = zoom >= 10 ? boxAt(lat, lng) : null;
     if (p){ load(p.slug); return brand(p.slug); }
-    if (!inWB(lat, lng) && indiaNamer) return indiaNamer(lat, lng);
+    // inWB is a box: at a district's zoom, a spot in the box but in no West Bengal district is another state.
+    if (!districts) loadDistricts();  // re-runs this view once the outlines are in
+    const outside = !inWB(lat, lng) || (districts && !districtAt(lat, lng) && !inBox(PURULIA, lat, lng));
+    if (outside && indiaNamer) return indiaNamer(lat, lng, zoom);
     if (zoom < 7 || !inWB(lat, lng)) return brand('bengal');
     if (inBox(PURULIA, lat, lng)) return brand(null);
     if (!districts){ loadDistricts(); return brand('bengal'); }
@@ -219,6 +222,7 @@ window.KasaPlaces = (() => {
   async function boxOf(key){
     if (key === 'bengal') return WB;
     if (!key || key === 'purulia') return PURULIA;
+    if (key.startsWith('in:')) return inBoxOf(key);
     const p = bySlug(key);
     if (!p) return null;
     if (p.bbox) return p.bbox;
@@ -231,6 +235,28 @@ window.KasaPlaces = (() => {
              min_lng: Math.min(...pts.map(q => q[0])), max_lng: Math.max(...pts.map(q => q[0])) };
   }
 
+  /* Indian states and districts outside West Bengal: places/in/index.json (tools/build-in-map.py).
+     Keys are 'in:<state-slug>' and 'in:<state-slug>:<district-slug>'. */
+  const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  let inIndex = null;
+  const loadInIndex = () => inIndex || (inIndex = fetch('places/in/index.json').then(r => r.json())
+    .catch(() => ({ states: {} })));
+  const bbox = b => ({ min_lng: b[0], min_lat: b[1], max_lng: b[2], max_lat: b[3] });
+  async function inBoxOf(key){
+    const [, st, d] = key.split(':');
+    const s = (await loadInIndex()).states[st];
+    if (!s) return null;
+    if (!d) return bbox(s.bbox);
+    const name = Object.keys(s.district_boxes || {}).find(n => slugify(n) === d);
+    return name ? bbox(s.district_boxes[name]) : null;
+  }
+  /* Every state and district outside West Bengal, for the header's place picker. */
+  async function inPlaces(){
+    const states = (await loadInIndex()).states;
+    return Object.entries(states).map(([slug, s]) => ({ slug, name: s.name,
+      districts: Object.keys(s.district_boxes || {}).map(n => ({ key: 'in:' + slug + ':' + slugify(n), name: n })) }));
+  }
+
   // The place this device last looked at, so a repeat visit opens there.
   const SAVED = 'parishkar_place';
   const saved = () => { try { return localStorage.getItem(SAVED); } catch (e) { return null; } };
@@ -239,7 +265,7 @@ window.KasaPlaces = (() => {
   };
 
   return {
-    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, saved, remember,
+    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, inPlaces, saved, remember,
     get current(){ return current; },
     setIndiaNamer(fn){ indiaNamer = fn; },
     get geo(){ return geo; },

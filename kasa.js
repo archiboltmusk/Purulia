@@ -1262,11 +1262,11 @@ function initMainMapNow(){
   mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
   if (window.KasaPlaces){
     // Outside West Bengal the header names the Indian district or state under the map.
-    KasaPlaces.setIndiaNamer(async (lat, lng) => {
+    KasaPlaces.setIndiaNamer(async (lat, lng, zoom) => {
       const a = await indiaAreasAt(lat, lng).catch(() => null);
-      if (!a) return KasaPlaces.brand('in:', 'India');
+      if (!a) return KasaPlaces.inWB(lat, lng) ? KasaPlaces.brand('bengal') : KasaPlaces.brand('in:', 'India');
       const sk = 'in:' + a.state.properties.slug;
-      if (a.district) return KasaPlaces.brand(sk + ':' + a.district.properties.district.toLowerCase().replace(/[^a-z0-9]+/g, '-'), a.district.properties.district);
+      if (a.district && zoom >= 7) return KasaPlaces.brand(sk + ':' + a.district.properties.district.toLowerCase().replace(/[^a-z0-9]+/g, '-'), a.district.properties.district);
       return KasaPlaces.brand(sk, a.state.properties.state);
     });
     const follow = () => { const c = mainMap.getCenter(); KasaPlaces.onView(c.lat, c.lng, mainMap.getZoom()); };
@@ -6489,28 +6489,43 @@ async function openOnHomePlace(){
 function initPlacePicker(){
   const btn = document.getElementById('k-place-pick'), dlg = document.getElementById('k-place-dialog');
   if (!btn || !dlg || !window.KasaPlaces) { if (btn) btn.hidden = true; return; }
-  const pick = async key => {
+  const pick = async (key, label) => {
     dlg.close();
     const b = await KasaPlaces.boxOf(key);
     if (!b || !mainMap) return;
     userMovedMap = true;
     KasaPlaces.remember(key);
     mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+    // A state or district outside West Bengal is named as picked, once its move ends (the map's own follow runs first).
+    if (key.startsWith('in:')) mainMap.once('moveend', () => KasaPlaces.brand(key, label));
   };
-  btn.addEventListener('click', () => {
+  const search = document.getElementById('k-place-search'), list = document.getElementById('k-place-list');
+  btn.addEventListener('click', async () => {
     const cur = KasaPlaces.current || 'purulia';
     const towns = KasaPlaces.list.filter(p => p.bbox).map(p => [p.slug, p.name]);
     const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia').map(([k, v]) => ['district:' + k, t('pl_district', { d: v })]);
     const items = [['bengal', t('pk_state'), 'k-place-wide'], ['purulia', 'Purulia'], ...towns,
       ...districts.sort((a, b) => a[1].localeCompare(b[1]))];
-    document.getElementById('k-place-list').innerHTML = items.map(([k, name, cls]) =>
-      `<button type="button" data-place="${esc(k)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    // Every other state and district in India (places/in/index.json), after West Bengal's.
+    const india = (await KasaPlaces.inPlaces().catch(() => [])).sort((a, b) => a.name.localeCompare(b.name));
+    for (const st of india){
+      items.push(['in:' + st.slug, st.name, 'k-place-wide']);
+      st.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => items.push([d.key, `${d.name}, ${st.name}`, '', d.name]));
+    }
+    list.innerHTML = items.map(([k, name, cls, label]) =>
+      `<button type="button" data-place="${esc(k)}" data-name="${esc(name.toLowerCase())}" data-label="${esc(label || name)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    if (search){ search.value = ''; }
     dlg.showModal();
+    search?.focus();
+  });
+  search?.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    list.querySelectorAll('[data-place]').forEach(b => { b.hidden = !!q && !b.dataset.name.includes(q); });
   });
   dlg.addEventListener('click', e => {
     if (e.target === dlg || e.target.closest('[data-close]')) return dlg.close();
     const b = e.target.closest('[data-place]');
-    if (b) pick(b.dataset.place);
+    if (b) pick(b.dataset.place, b.dataset.label);
   });
 }
 
