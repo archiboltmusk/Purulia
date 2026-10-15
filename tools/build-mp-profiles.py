@@ -60,8 +60,8 @@ def api_pages(url, key):
 
 
 # Lok Sabha seat name -> the spelling a source uses, where it differs beyond accents and punctuation.
-MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour'}
-SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour'}  # PRS and MyNeta
+MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara', 'Warangal': 'Warangel'}
+SEAT_ALIAS = {'Koderma': 'Kodarma', 'Mandsaur': 'Mandsour', 'Vatakara': 'Vadakara'}  # PRS and MyNeta
 
 
 def norm(s):
