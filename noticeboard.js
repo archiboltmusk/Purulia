@@ -421,7 +421,7 @@
         <div class="pr-meta">${esc(t('said_on', { d: fmtDate(p.made_on) }))} · <a href="${esc(safeUrl(p.source_url))}" target="_blank" rel="noopener nofollow">${esc(p.source_name || t('source'))} ↗</a>
           · <a href="promises.html#p-${esc(p.id)}">${esc(t('lv_promise_more'))} ↗</a></div></li>`).join('')
       : `<li class="an-empty">${esc(t('lv_none_p'))}</li>`;
-    document.title = `${c.name} — Ask your leaders — Parishkar ${place.slug === 'purulia' ? 'Purulia' : 'Bengal'}`;
+    document.title = `${c.name} — Ask your leaders — Parishkar ${place.slug === 'purulia' ? 'Purulia' : place.name}`;
   }
 
   function renderReplyForm(){
