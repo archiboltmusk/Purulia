@@ -59,6 +59,11 @@ def api_pages(url, key):
         n += 1
 
 
+# Lok Sabha seat name -> the spelling a source uses, where it differs beyond accents and punctuation.
+MPLADS_ALIAS = {'Purnia': 'Purnea', 'Ujiarpur': 'Ujjarpur', 'Koderma': 'Kodarma'}
+SEAT_ALIAS = {'Koderma': 'Kodarma'}  # PRS and MyNeta
+
+
 def norm(s):
     s = re.sub(r'\((sc|st)\)', '', unicodedata.normalize('NFKD', str(s)).encode('ascii', 'ignore').decode().lower())
     return re.sub(r'[^a-z]', '', s)
@@ -247,7 +252,7 @@ def build(state):
         key = slug(pc)
         rec = {'name': pc, 'center': s['center'], 'mp': {'name': s['mp'], 'party': s['mp_party']},
                'assembly': s['assembly'], 'mplads': None, 'works': None, 'prs': None, 'affidavit': None}
-        m = find(mp_rows, pc, norm)
+        m = find(mp_rows, MPLADS_ALIAS.get(pc, pc), norm)
         if m:
             row = mp_rows[m]
             rec['mplads'] = {'allocated': round(row['allocatedAmount']), 'recommended': round(row['totalRecommendedAmount']),
@@ -255,12 +260,12 @@ def build(state):
                              'worksCompleted': row['completedWorksCount'], 'mp': row['mpName']}
             rec['works'] = mplads_works(row)
         else: gaps['mplads'].append(pc)
-        p = find(prs_recs, pc, lambda k: norm(k))
+        p = find(prs_recs, SEAT_ALIAS.get(pc, pc), norm)
         if p:  # PRS lists one MP per seat; its name can differ from Wikipedia's (e.g. a title or spelling)
             r = prs_recs[p]
             rec['prs'] = {k: r[k] for k in ('url', 'from', 'to', 'attendance', 'debates', 'questions', 'bills', 'avg')}
         else: gaps['prs'].append(pc)
-        cids = [c for c, w in wins.items() if same(w['seat'], pc, 0.9)]
+        cids = [c for c, w in wins.items() if same(w['seat'], SEAT_ALIAS.get(pc, pc), 0.9)]
         if len(cids) > 1: cids = [c for c in cids if same(wins[c]['person'], s['mp'] or '', 0.5)]
         if len(cids) == 1:
             cid = cids[0]
