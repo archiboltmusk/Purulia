@@ -862,6 +862,8 @@ body.k-drawer-open{overflow:hidden;}
 .k-still-a .k-still-yes{background:var(--amber);color:var(--ink);border-color:var(--amber);}
 .k-still-a .k-still-gone{border-color:rgba(109,184,138,.5);color:var(--green);}
 @media(max-width:640px){.k-still{bottom:3.6rem;}}
+.k-near{position:absolute;left:.9rem;bottom:6rem;z-index:5;padding:.45rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border2);border-radius:3px;color:var(--cream);font-family:var(--mono);font-size:11px;letter-spacing:.04em;}
+@media(max-width:640px){.k-near{bottom:3.6rem;}}
 
 /* Extra report photos (up to 2 more) */
 .k-photo-extras{display:flex;gap:.5rem;margin-top:.5rem;}
@@ -900,16 +902,8 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 .k-map-legend{display:none;}
 
 /* "Join N people" line at the top of the map. */
-.k-join{position:absolute;top:3.6rem;left:50%;transform:translateX(-50%);z-index:6;display:flex;align-items:center;gap:.2rem;max-width:calc(100% - 1.8rem);padding:.2rem .3rem .2rem .9rem;background:rgba(10,8,5,.94);border:1px solid rgba(221,51,51,.45);border-radius:40px;box-shadow:0 4px 14px rgba(0,0,0,.35);}
-.k-join-text{font-family:var(--serif);font-size:.95rem;color:var(--cream);text-align:left;padding:.3rem 0;}
-.k-join-x{padding:.3rem .55rem;color:var(--text-md);font-size:.9rem;}
-@media(max-width:640px){.k-join{top:7rem;}.k-join-text{font-size:.86rem;}}
 
 /* First-visit tips. */
-.k-tip{position:fixed;z-index:900;width:min(280px,calc(100vw - 16px));padding:.8rem .9rem;background:var(--cream);color:var(--ink);border-radius:10px;box-shadow:0 10px 30px rgba(0,0,0,.45);font-family:var(--serif);font-size:1rem;line-height:1.45;}
-.k-tip-actions{display:flex;justify-content:flex-end;gap:.6rem;margin-top:.6rem;}
-.k-tip-skip{font-family:var(--mono);font-size:11px;color:#6b5a40;}
-.k-tip-next{font-family:var(--mono);font-size:11px;letter-spacing:.08em;padding:.4rem .9rem;background:var(--ink);color:var(--cream);border-radius:20px;}
 
 /* The map is the whole screen below the nav: logo and More only — our three-language switch
    doesn't fit the nav row, so language stays in the menu along with the other pages. */
@@ -931,9 +925,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* The open filter bar can wrap to reach the middle of the screen on narrow screens; step aside while it's open. */
 .k-map-topbar.k-filters-open ~ .k-map-pill{display:none;}
 
-.k-join{top:6.8rem;}
-@media(max-width:640px){.k-join{top:auto;bottom:8.6rem;}}
-.k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend,.k-join){display:none;}
+.k-map-section:has(#k-list:not([hidden])) :is(.k-map-legend){display:none;}
 
 /* "The school is here": drag the map under a fixed pin. */
 .k-sf-mapwrap{position:relative;margin-top:.9rem;height:240px;border-radius:8px;overflow:hidden;border:1px solid var(--border2);}
@@ -1014,11 +1006,10 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 
 /* ── Ligne claire: flat colour, one even ink line, no glows, gradients or drop shadows ── */
 :root{--line:color-mix(in srgb,var(--cream) 55%,transparent);}
-.k-social-dropdown,.k-ward-card,.k-still,.k-toast,.k-join,.maplibregl-ctrl-group{box-shadow:none!important;border:1.5px solid var(--line)!important;}
+.k-social-dropdown,.k-ward-card,.k-still,.k-toast,.maplibregl-ctrl-group{box-shadow:none!important;border:1.5px solid var(--line)!important;}
 .k-modal-sheet{box-shadow:none;border:1.5px solid var(--line);border-bottom:none;}
 .k-hero-cta,.k-map-report-btn,.k-map-report-btn:hover{box-shadow:none;transform:none;border:2px solid var(--cream);}
 .k-seen-btn,.k-slide-knob{box-shadow:none;border:1.5px solid var(--ink);}
-.k-tip{box-shadow:none;border:2px solid var(--ink);}
 .k-node-abbr{background:#a9c3ff;box-shadow:none;border:1.5px solid #1d2a66;}
 .k-node-elected .k-node-abbr{background:#f3c27d;border-color:#3a2004;}
 
@@ -1132,8 +1123,8 @@ body[data-app-layout] .k-reset-ctrl button,body[data-app-layout] .maplibregl-ctr
 body[data-app-layout] .k-quick-chip{background:#ffffff;border-color:#e5e7eb;color:#374151;}
 body[data-app-layout] .k-quick-chip:hover,body[data-app-layout] .k-quick-chip:focus-visible{color:#DD3333;border-color:#DD3333;}
 body[data-app-layout] .k-nav{background:#ffffff;border-bottom:1px solid #e5e7eb;}
-body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still,body[data-app-layout] .k-join{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
-body[data-app-layout] .k-join-text,body[data-app-layout] .k-still-q{color:#1f2937;}
+body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+body[data-app-layout] .k-still-q{color:#1f2937;}
 
 /* ── Namma Kasa details on the home map (scoped to the app layout): sans-serif UI type,
    rounded-rectangle red Report button, white rounded map controls, pill with a divider. ── */

@@ -391,7 +391,7 @@ async function init(){
     KasaPlaces.on((what, slug) => {
       if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
       // The counts, the "fixed" chip, the ticker, the join line, the representatives, the leaderboard and "Who's responsible" follow the place in view.
-      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); renderReps(); renderLeaderboard(); renderChainSection(); }
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderReps(); renderLeaderboard(); renderChainSection(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
@@ -424,11 +424,8 @@ async function init(){
   // Statewide leaders load only when someone opens the representatives section.
   document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
+  if (!location.hash && !location.search) mapReady.then(openOnHomePlace);
   initPlacePicker();
-  if (state.mode === 'v2') showJoin();
-  // Tips also start on their own if the location question didn't run (a shared link, for example).
-  setTimeout(startTips, 5000);
   syncOfflineQueue();
   startLiveRefresh();
 
@@ -1248,7 +1245,9 @@ function initMainMapNow(){
   setTimeout(hideSplash, 3000);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-  mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
+  const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
+  mainMap.addControl(locate, 'bottom-right');
+  locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
 
   return new Promise(resolve => {
     mainMap.on('load', () => {
@@ -6314,30 +6313,17 @@ function wireUI(){
   });
 }
 
-/* Every plain visit asks for location (the phone shows its own prompt until allowed) and flies
-   the map to street level where the person stands; the place picker follows. Denied or failed
-   keeps the home-place view. The position stays on the phone; nothing is sent until they file a report. */
-async function locateOnOpen(){
-  try {
-    if (!navigator.geolocation) return;
-    const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
-    if (st === 'denied') return startTips();
-    showToast(t('locating_you'));
-    navigator.geolocation.getCurrentPosition(p => {
-      const { latitude: lat, longitude: lng } = p.coords;
-      const b = state.rules.bbox;
-      const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
-      if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
-      askStillThere(lat, lng, p.coords.accuracy);
-      startTips();
-      if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
-      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 16), duration: 1200 });
-      // Where they are becomes their home place for next time (once the page has been renamed after it).
-      mainMap.once('moveend', () => setTimeout(() => {
-        if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
-      }, 300));
-    }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
-  } catch (e) { startTips(); }
+/* Runs only when someone taps the locate button: the phone asks for location then, not on load.
+   The map flies to them (GeolocateControl); the position stays on the phone until they file a report. */
+function onLocated(lat, lng, accuracy){
+  const b = state.rules.bbox;
+  const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
+  if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return; }
+  askStillThere(lat, lng, accuracy);
+  // Where they are becomes their home place for next time (once the page has been renamed after it).
+  mainMap.once('moveend', () => setTimeout(() => {
+    if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
+  }, 300));
 }
 
 /* A plain visit opens on the place this device last chose or was found in, else all of West Bengal
@@ -6378,60 +6364,6 @@ function initPlacePicker(){
   });
 }
 
-/* First-visit tips: a few small bubbles that point at a feature and say what it does.
-   Shown once per device, after the location question, and never while a form is open. */
-const TIPS = [
-  { key: 'tip_lang_menu', target: () => visible('#k-more-btn'), when: () => state.lang === 'en' },
-  { key: 'tip_report', target: () => visible('.k-map-report-btn') },
-];
-function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
-function startTips(){
-  if (startTips.started) return;
-  startTips.started = true;
-  try { if (localStorage.getItem('kasa_tips_done') === '1') return; } catch (e) { return; }
-  const list = TIPS.filter(x => (!x.when || x.when()) && x.target());
-  const box = document.getElementById('k-tip'), next = document.getElementById('k-tip-next');
-  let i = 0;
-  const finish = () => { box.hidden = true; try { localStorage.setItem('kasa_tips_done', '1'); } catch (e) {} };
-  const show = () => {
-    if (i >= list.length) return finish();
-    const el = list[i].target();
-    if (!el || document.querySelector('.k-modal.open')) return finish();
-    const k = list[i].key;
-    document.getElementById('k-tip-text').textContent = t(typeof k === 'function' ? k() : k);
-    next.textContent = t(i === list.length - 1 ? 'tip_done' : 'tip_next');
-    box.hidden = false;
-    const r = el.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
-    const below = r.top < window.innerHeight / 2;
-    box.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
-    box.style.top = (below ? r.bottom + 10 : r.top - h - 10) + 'px';
-    box.dataset.dir = below ? 'down' : 'up';
-  };
-  next.onclick = () => { i++; show(); };
-  document.getElementById('k-tip-skip').onclick = finish;
-  setTimeout(show, 600);
-}
-
-/* The count is Purulia's; elsewhere the line names the town or district in view. */
-function renderJoin(){
-  const el = document.getElementById('k-join-text');
-  if (!el) return;
-  const p = window.KasaPlaces?.current && KasaPlaces.bySlug(KasaPlaces.current);
-  const n = state.peopleCount;
-  el.textContent = p ? t('join_first_place', { place: p.name }) : n >= 20 ? t('join_n', { n }) : t('join_first');
-}
-
-/* "Join N people keeping Purulia clean" — a small, closable line on the map. */
-async function showJoin(){
-  try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
-  const { data: n } = await sb.rpc('kasa_people_count');
-  state.peopleCount = n;
-  const el = document.getElementById('k-join');
-  renderJoin();
-  el.hidden = false;
-  document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
-}
-
 /* "Still there?" Someone who already shares their location, standing within 100 m of an
    unresolved report at least 2 days old, is asked once (per report, per week, per phone)
    whether it's still there. "Yes" is an on-site sighting; "It's been cleaned" starts the
@@ -6464,14 +6396,21 @@ function askStillThere(lat, lng, accuracy){
         <button type="button" data-still="no">${esc(t('still_later'))}</button>
       </div>
     </div>`;
-  el.hidden = false;
-  el.onclick = e => {
-    const b = e.target.closest('[data-still]');
-    if (e.target.closest('[data-open]')) el.hidden = true;
-    if (!b) return;
-    el.hidden = true;
-    if (b.dataset.still === 'yes') handleSeen(r.id, b);
-    else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+  // Off the map until asked: a small "near you" line opens the card.
+  const near = document.getElementById('k-near');
+  near.textContent = t('near_line');
+  near.hidden = false;
+  near.onclick = () => {
+    near.hidden = true;
+    el.hidden = false;
+    el.onclick = e => {
+      const b = e.target.closest('[data-still]');
+      if (e.target.closest('[data-open]')) el.hidden = true;
+      if (!b) return;
+      el.hidden = true;
+      if (b.dataset.still === 'yes') handleSeen(r.id, b);
+      else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+    };
   };
 }
 
