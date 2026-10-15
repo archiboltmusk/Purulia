@@ -26,3 +26,23 @@ Kolkata: Central Blood Centre Maniktala 033-23557212; SSKM 033-22235181; CMCH 03
 
 ## Claimed: Delhi reference centres (not verified)
 AIIMS 011-26588641 / 26594870; Safdarjung 011-26168470; RML 011-23365581; Lok Nayak 011-23233809; Indian Red Cross NHQ 011-23711551; GTB Dilshad Garden 011-22586262; DDU Hari Nagar 011-25494402; Rotary Tughlakabad 011-29962078.
+
+## Verification log 2026-10-15 (sandbox fetches; summaries from the fetch tool, not verbatim)
+
+| Claim | Result | Source checked |
+|---|---|---|
+| Age 18-65 | Confirmed | eraktkosh donateblood.cnt; bbpublicindex.html |
+| Whole blood weight min 45 kg | Confirmed | bbpublicindex.html |
+| Apheresis weight min 50 kg | Confirmed | bbpublicindex.html (plasma apheresis) |
+| 55 kg for 450 ml unit | Not found | both pages |
+| Haemoglobin min 12.5 g/dL | Not found on eRaktKosh pages | both pages |
+| BP 100-140 / 60-90 | Not found | both pages |
+| 90 days men, 120 days women (whole blood) | Confirmed | bbpublicindex.html |
+| Platelet apheresis every 2 weeks, max 24 a year | Confirmed | bbpublicindex.html |
+| Screened infections (HIV, HBV, HCV, syphilis, malaria) | Partly: DGHS BTS page names five TTIs (fetch summary). eRaktKosh pages do not list them | dghs.mohfw.gov.in/bts.php |
+| data.gov.in schema | Not verified: 403 | data.gov.in |
+| WB centre count 153 | Confirmed | CDSCO PDF, row "West Bengal 109 44 153" |
+| Delhi centre count 72 | **Wrong: CDSCO PDF gives 80** (25 govt, 55 other) | CDSCO PDF, row "NCT of Delhi 25 55 80" |
+| WB and Delhi centre phone numbers | Not verified: state portals 503 | wbhealth.gov.in, drugs.delhi.gov.in |
+
+Do not publish the Delhi 72 figure. Use 80 from the CDSCO PDF if it is needed.
