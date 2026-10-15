@@ -1245,6 +1245,8 @@ function initMainMapNow(){
     mainMap.once('load', follow);
   }
   watchMapStyleLoad(mainMap);
+  document.getElementById('k-map').classList.add('k-map-loading');
+  mainMap.once('idle', () => document.getElementById('k-map').classList.remove('k-map-loading'));
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');

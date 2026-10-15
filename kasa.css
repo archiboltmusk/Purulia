@@ -1075,13 +1075,28 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* Namma Kasa feel on phones: the map fades in on load, controls ease on tap, the stats
    pill sits at the top of the map. Reduced-motion users get none of it. */
 @media(max-width:640px){
-  body[data-app-layout] .k-map-section{animation:kFade .35s ease both;}
-  .k-map-topbar .k-filter-select,.k-nearby-btn,.k-view-btn,.k-map-report-btn{transition:transform .15s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+  body[data-app-layout] .k-map-section{animation:kFade var(--motion-settle) var(--ease-out) both;}
+  .k-map-topbar .k-filter-select,.k-nearby-btn,.k-view-btn,.k-map-report-btn{transition:transform var(--motion-change) var(--ease-settle),background var(--motion-change) var(--ease-out),border-color var(--motion-change) var(--ease-out),box-shadow var(--motion-change) var(--ease-out);}
   .k-map-topbar .k-filter-select:active,.k-nearby-btn:active,.k-view-btn:active,.k-map-report-btn:active{transform:scale(.97);}
   .k-map-report-btn{box-shadow:0 10px 26px rgba(212,136,42,.32);}
-  .k-map-pill{top:4.6rem;bottom:auto;transition:opacity .25s ease;}
-  .k-reset-ctrl button{transition:background .2s ease;}
+  .k-map-pill{top:4.6rem;bottom:auto;transition:opacity var(--motion-settle) var(--ease-out);}
+  .k-reset-ctrl button{transition:background var(--motion-change) var(--ease-out);}
+  #k-map.k-map-loading::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%) var(--ink2,#eee);background-size:200% 100%;animation:kShimmer 1.2s linear infinite;}
 }
 @media(prefers-reduced-motion:reduce){
   body[data-app-layout] .k-map-section,.k-map-topbar *,.k-map-report-btn,.k-map-pill{animation:none!important;transition:none!important;}
+}
+
+/* Motion tokens for the phone map: one easing family, 0.18–0.42 s, transform and opacity only. */
+:root{
+  --ease-out:cubic-bezier(.32,.72,0,1);
+  --ease-in:cubic-bezier(.4,0,1,1);
+  --ease-settle:cubic-bezier(.22,1,.36,1);
+  --motion-change:.18s;
+  --motion-settle:.36s;
+  --motion-move:.42s;
+}
+@keyframes kShimmer{from{background-position:100% 0;}to{background-position:-100% 0;}}
+@media(prefers-reduced-motion:reduce){
+  #k-map.k-map-loading::after{animation:none;}
 }
