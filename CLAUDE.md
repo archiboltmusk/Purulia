@@ -25,6 +25,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `rti.html` + `rti.js` — RTI tracker (device-only, localStorage `parishkar_rti_tracker`, no server): 30-day reply date (s.7(1)), first appeal (s.19(1)), refusal checklist citing RTI Act sections; public holidays not yet adjusted (no official calendar linked). Test `node tests/rti.test.mjs`. Linked from solutions.html.
 - `escalate.html` — static: escalation steps for an open report (fix date → councillor/MLA/MP → RTI s.7(1) → first appeal s.19(1) → second appeal s.19(3) → CPGRAMS (central only) → NALSA 15100), each row cited. Linked from helplines.html.
 - `helplines.html` — static: CPGRAMS, NALSA 15100, RTI Online (central only), each row linked to its official page. Add a row only after confirming the number on its official site.
+- `pmgsy.html` — static: PMGSY rural road tender list (closing dates from the live list, checked 16 Oct 2026); no count given.
 - `cag.html` — static: count of CAG audit reports listed (2,753) and the WB Report No. 01 of 2026 listing; PDF not read.
 - `njdg.html` — static: all-India court cases pending and disposed (NJDG), figures copied by hand, snapshot date not shown on the source.
 - Redirect stubs only (don't add features): `map.html`, `audience.html`, `digest-subscribe.html`, `suggestions.html`, `app/index.html`.
