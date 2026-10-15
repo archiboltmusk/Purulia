@@ -69,7 +69,7 @@ const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,s
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
-  verify_quorum: 3, dispute_quorum: 2, challenge_hours: 12, claim_expiry_days: 14,
+  verify_quorum: 1, dispute_quorum: 2, challenge_hours: 12, claim_expiry_days: 14,
   claim_radius_m: 50, vote_radius_m: 100, max_gps_accuracy_m: 60,
   max_photo_age_minutes: 120, photo_gps_far_m: 500, require_live_capture: 0
 };
@@ -637,7 +637,7 @@ async function loadCommunities(){
 async function loadWardGeo(){
   try {
     const res = await fetch(CITY.wardsGeojson || 'purulia_wards.geojson');
-    if (res.ok) state.wardGeo = await res.json();
+    if (res.ok) state.wardGeo = window.BoundaryLive.apply(await res.json(), await window.BoundaryLive.rows('purulia', sb));
   } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
 
