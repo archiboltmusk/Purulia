@@ -733,6 +733,7 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-esc-item b{display:block;font-size:.88rem;}
 .k-esc-item small{display:block;margin-top:.15rem;font-size:.76rem;color:var(--text-md);line-height:1.4;}
 .k-esc-copy{margin-top:.6rem;width:100%;}
+.k-letter-text{width:100%;box-sizing:border-box;margin-top:.4rem;font:inherit;font-size:.85rem;padding:.5rem;border:1px solid var(--line,#ccc);border-radius:6px;background:transparent;color:inherit;resize:vertical;}
 
 /* ══════════════════════════════════════════════════════════
    Parishkar Bengal — wordmark

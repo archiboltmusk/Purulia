@@ -2702,8 +2702,65 @@ function renderEscalate(r){
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
       ${isOverdue(r) && r.area !== 'place' ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      ${renderLetter(r)}
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
+    </div>`;
+}
+
+/* Letter to the office that answers first for this report. The contact is shown only when a cited
+   official file names it (places/wb_officials.json: DM, BDO); otherwise the letter goes without one. */
+function letterOffice(r){
+  const role = chainFor(r).nodes?.[0];
+  if (!role) return null;
+  const dslug = r.place === 'purulia' ? 'purulia' : r.place?.startsWith('district:') ? r.place.slice(9) : null;
+  const off = dslug ? officialsFile()?.districts?.[dslug] : null;
+  let who = null, src = null;
+  if (role === 'dm' && off?.dm) { who = off.dm; src = off.source || off.dm_source; }
+  if (role === 'bdo' && off?.bdo && r.block) {
+    const k = Object.keys(off.bdo).find(b => b.toLowerCase() === r.block.toLowerCase());
+    if (k) { who = off.bdo[k]; src = off.source; }
+  }
+  const phone = who?.phone || '', email = who?.email || '';
+  const contact = src && (phone || email) ? { name: who.name || '', phone, email, src } : null;
+  // The DM's post name is per district; Purulia keeps its own wording.
+  const dname = dslug && dslug !== 'purulia' ? (window.KasaPlaces?.bySlug(r.place)?.name || r.district || null) : null;
+  const key = role === 'dm' ? (dslug === 'purulia' ? 'role_dm' : dname ? 'role_dm_of' : 'role_dm_any') : 'role_' + role;
+  const vars = key === 'role_dm_of' ? { d: dname } : undefined;
+  return { role, label: t(key, vars), toEN: tEN(key, vars), contact };
+}
+function letterText(r, o){
+  return [
+    'To: ' + o.toEN + (o.contact?.name ? ' (' + o.contact.name + ')' : '') + ', ' + CITY_NAME,
+    '',
+    'Respected Sir/Madam,',
+    '',
+    'I am writing about this problem, reported on Parishkar:',
+    '',
+    reportMessage(r),
+    '',
+    'Please inspect the spot, tell me what action will be taken and by when, and give me a reference number.',
+    '',
+    'Name:',
+    'Phone:',
+    'Date:'
+  ].join('\n');
+}
+function renderLetter(r){
+  const o = letterOffice(r);
+  if (!o) return '';
+  const c = o.contact;
+  const contact = c
+    ? [c.name && esc(c.name), c.phone && `<a href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>`,
+       c.email && `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`,
+       `<a href="${esc(c.src)}" target="_blank" rel="noopener">${esc(t('letter_src'))}</a>`].filter(Boolean).join(' · ')
+    : esc(t('letter_no_contact'));
+  return `
+    <div class="k-letter">
+      <div class="k-acc-reps-label">${esc(t('letter_title'))}</div>
+      <div class="k-esc-item"><b>${esc(t('letter_to', { who: o.label }))}</b><small>${contact}</small></div>
+      <textarea class="k-letter-text" readonly rows="9">${esc(letterText(r, o))}</textarea>
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-letter="${esc(r.id)}">📋 ${esc(t('letter_copy'))}</button>
     </div>`;
 }
 
@@ -6115,7 +6172,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-copy-letter],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -6134,6 +6191,7 @@ function wireUI(){
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
     if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
+    if (d.copyLetter){ const r = state.byId.get(d.copyLetter); const o = r && letterOffice(r); return o && copyText(letterText(r, o), 'letter_copied'); }
     if (d.copyLink) return copyText(reportLink(d.copyLink));
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
