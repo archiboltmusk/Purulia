@@ -3,7 +3,7 @@ import { test, expect, stubBackend } from './fixtures.mjs';
 const wordmark = page => page.locator('.k-nav-logo .k-wordmark-second');
 
 test('the page is Parishkar Purulia in Purulia', async ({ page, backend }) => {
-  await page.goto('kasa.html');
+  await page.goto('kasa.html?place=purulia');
   await expect(wordmark(page)).toHaveText('Purulia');
   await expect.poll(() => backend.calls.some(c => c.name === 'kasa_place_visit' && c.body?.p_place === 'purulia')).toBe(true);
 });
