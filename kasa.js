@@ -1245,6 +1245,7 @@ function initMainMapNow(){
     mainMap.once('load', follow);
   }
   watchMapStyleLoad(mainMap);
+  mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
 
@@ -1827,6 +1828,23 @@ function areaBounds(f){
 function zoomToArea(){
   userMovedMap = true;
   mainMap.fitBounds(areaBounds(areaFeature()), { padding: { top: 90, bottom: 260, left: 40, right: 40 }, duration: 900, essential: true });
+}
+
+/* Map control: zoom back out to the whole area after the user has zoomed or panned in. */
+class ResetViewControl {
+  onAdd(){
+    this._box = document.createElement('div');
+    this._box.className = 'maplibregl-ctrl maplibregl-ctrl-group k-reset-ctrl';
+    this._btn = document.createElement('button');
+    this._btn.type = 'button';
+    this._btn.textContent = '⌂';
+    this._btn.title = t('reset_view');
+    this._btn.setAttribute('aria-label', t('reset_view'));
+    this._btn.addEventListener('click', zoomToArea);
+    this._box.appendChild(this._btn);
+    return this._box;
+  }
+  onRemove(){ this._box.remove(); }
 }
 
 function shareArea(){
