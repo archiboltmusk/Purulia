@@ -29,21 +29,30 @@ def slug(s):
     return re.sub(r'[^a-z0-9]+', '-', s.lower()).strip('-') or 'unknown'
 
 
-def fetch_all():
+def fetch_all(cache):
+    # Each page is kept in `cache` as it arrives, so a stopped run resumes where it left off.
+    os.makedirs(cache, exist_ok=True)
     offset, total = 0, None
     while total is None or offset < total:
-        q = urllib.parse.urlencode({'resource_id': RESOURCE, 'sort': '_id', 'limit': PAGE,
-                                    'offset': offset, 'fields': ','.join(FIELDS)})
-        for attempt in range(4):
-            try:
-                with urllib.request.urlopen(f'{API}?{q}', timeout=120) as r:
-                    res = json.load(r)['result']
-                break
-            except Exception as e:  # network blip: back off and retry
-                if attempt == 3:
-                    raise
-                time.sleep(2 ** attempt)
-                print('retry', offset, e, file=sys.stderr)
+        path = os.path.join(cache, f'{offset}.json')
+        if os.path.exists(path):
+            with open(path, encoding='utf-8') as f:
+                res = json.load(f)
+        else:
+            q = urllib.parse.urlencode({'resource_id': RESOURCE, 'sort': '_id', 'limit': PAGE,
+                                        'offset': offset, 'fields': ','.join(FIELDS)})
+            for attempt in range(6):
+                try:
+                    with urllib.request.urlopen(f'{API}?{q}', timeout=60) as r:
+                        res = json.load(r)['result']
+                    break
+                except Exception as e:  # network blip: back off and retry
+                    if attempt == 5:
+                        raise
+                    time.sleep(2 ** attempt)
+                    print('retry', offset, e, file=sys.stderr)
+            with open(path, 'w', encoding='utf-8') as f:
+                json.dump(res, f, ensure_ascii=False)
         total = res['total']
         for rec in res['records']:
             yield rec
@@ -64,11 +73,12 @@ def row(rec):
 def main():
     ap = argparse.ArgumentParser()
     ap.add_argument('--out', default='places/schools')
+    ap.add_argument('--cache', default='.schools-cache', help='page cache, kept between runs')
     args = ap.parse_args()
 
     groups = defaultdict(list)  # (state-slug, district-slug) -> rows
     states = {}
-    for rec in fetch_all():
+    for rec in fetch_all(args.cache):
         st, dt = rec['state_name'] or 'Unknown', rec['district_name'] or 'Unknown'
         key = (slug(st), slug(dt))
         groups[key].append(row(rec))
