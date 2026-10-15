@@ -18,5 +18,4 @@ test('first visit: map shows at once with no location prompt, tour, join line or
   await expect(page.locator('#k-still')).toBeHidden();
   await expect(page.locator('#k-near')).toBeHidden();
   await expect(page.locator('.k-map-report-btn')).toBeVisible();
-  await page.screenshot({ path: process.env.FIRST_VISIT_SHOT || 'first-visit-390.png' });
 });
