@@ -1598,6 +1598,7 @@ function indiaMp(info, district){
   return mps.length === 1 ? mps[0] : mps.find(m => d && m.name.toLowerCase().includes(d)) || null;
 }
 
+function slugOf(s){ return String(s || '').normalize('NFKD').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function renderIndiaCard(el){
   const a = state.area, { india: I, state: S, district, ac, town, ward } = a.areas, f = areaFeature();
   const atTown = town && ['town', 'ward'].includes(a.level);
@@ -1617,6 +1618,7 @@ function renderIndiaCard(el){
   if (ac){
     reps += row(t('ar_mla', { c: P.name }), P.mla ? esc(P.mla) : P.mla_vacant ? esc(t('in_vacant')) : none, P.mla_party);
     reps += row(t('ar_mp', { c: P.pc }), P.mp ? esc(P.mp) : P.mp_vacant ? esc(t('in_vacant')) : none, P.mp ? t('ar_elected', { p: P.mp_party, y: 2024 }) : '');
+    if (P.mp && S.properties.slug) reps += row('', link(`mp.html?state=${S.properties.slug}&seat=${slugOf(P.pc)}`, t('ar_mp_record')));
   } else {
     if (I.note) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_seat_old'))}</span> ${link(I.mla_list, t('in_mla_list', { s: sname }))}`);
     else if (!I.seats && !I.mla_list) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_no_assembly'))}</span>`);
