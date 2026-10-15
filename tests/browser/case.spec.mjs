@@ -19,6 +19,15 @@ test('case file traces one report with a days-open counter and sourced panels', 
   await expect(page.locator('#cf-report .cf-src a')).toHaveAttribute('href', 'kasa.html?report=101');
 });
 
+test('case file exports the server-composed public dossier', async ({ page, backend }) => {
+  await page.goto('case.html?id=101');
+  const download = page.waitForEvent('download');
+  await page.locator('#cf-export').click();
+  await expect(page.locator('#cf-export')).toHaveText('Downloaded');
+  await expect(await download).toHaveSuggestedFilename('parishkar-case-101-record.json');
+  expect(backend.calls.some(x => x.kind === 'rpc' && x.name === 'kasa_case_dossier' && x.body.p_report_id === '101')).toBe(true);
+});
+
 test('reporter mode: follow a case and see it with its days-open count', async ({ page, backend }) => {
   await page.goto('case.html');
   await expect(page.locator('#cf-title')).toHaveText('Cases you follow');
