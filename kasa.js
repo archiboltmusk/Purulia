@@ -1254,12 +1254,12 @@ function initMainMapNow(){
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#991b1b', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
         layout: { 'text-field': '{point_count_abbreviated}', 'text-font': ['Noto Sans Regular'], 'text-size': 12 },
-        paint: { 'text-color': '#f0e6d0' } });
+        paint: { 'text-color': '#ffffff' } });
       mainMap.addLayer({ id: 'report-halo', type: 'circle', source: 'reports', filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'halo'], 1]], paint: {
         'circle-color': COLORS.critical, 'circle-opacity': .18, 'circle-radius': ['*', ['get', 'radius'], 2.3]
       }});
@@ -2066,8 +2066,8 @@ function updateStats(){
   const open = all.filter(r => r.status !== 'resolved').length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
-  setText('k-pill-active', open);
-  setText('k-pill-total', all.length);
+  countUp('k-pill-active', open);
+  countUp('k-pill-total', all.length);
   setText('k-stat-total', all.length);
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
@@ -6627,6 +6627,23 @@ function safeUrl(u){
 }
 
 function setText(id, v){ const el = document.getElementById(id); if (el) el.textContent = v; }
+
+/* Counts roll up to the real number once data arrives. Reduced motion gets the number at once. */
+const countShown = new Map();
+function countUp(id, target){
+  const el = document.getElementById(id); if (!el) return;
+  const from = countShown.has(id) ? countShown.get(id) : 0;
+  countShown.set(id, target);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || from === target){ el.textContent = target; return; }
+  const t0 = performance.now(), dur = 900;
+  const frame = now => {
+    const p = Math.min((now - t0) / dur, 1), e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = Math.round(from + (target - from) * e);
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
 
 function randomName(n){
   const a = new Uint8Array(n);

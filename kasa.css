@@ -1154,3 +1154,9 @@ body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-sha
 body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
 body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
 body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
+
+/* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
+@media(prefers-reduced-motion:no-preference){
+  .k-splash-sub{animation:kBlink .9s steps(2,start) infinite;}
+}
+@keyframes kBlink{0%,100%{opacity:1;}50%{opacity:.15;}}
