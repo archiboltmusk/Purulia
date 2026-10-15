@@ -178,7 +178,7 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-map-legend{position:absolute;bottom:.9rem;left:.9rem;z-index:5;display:flex;gap:.8rem;padding:.5rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border);font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;color:var(--text-md);flex-wrap:wrap;border-radius:3px;max-width:calc(100% - 9rem);}
 .k-map-legend span{display:flex;align-items:center;gap:.35rem;}
 .k-dot{width:8px;height:8px;border-radius:50%;display:inline-block;}
-.k-dot-minor{background:var(--amber);} .k-dot-severe{background:var(--orange);} .k-dot-critical{background:var(--red);}
+.k-dot-minor{background:#9ca3af;} .k-dot-severe{background:var(--orange);} .k-dot-critical{background:var(--red);}
 .k-dot-claimed{background:var(--violet);} .k-dot-resolved{background:var(--green);}
 .k-map-report-btn{position:absolute;bottom:.9rem;right:.9rem;z-index:5;display:flex;align-items:center;gap:.65rem;padding:1.1rem 1.6rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;white-space:nowrap;text-transform:uppercase;border-radius:4px;box-shadow:0 12px 32px rgba(221,51,51,.36);transition:all .2s;}
 .k-map-report-btn:hover{background:var(--amber2);box-shadow:0 14px 40px rgba(221,51,51,.44);transform:translateY(-1px);}
@@ -218,7 +218,7 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-list-where{font-size:.85rem;color:var(--text-md);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
 .k-list-meta{display:flex;flex-wrap:wrap;gap:.5rem;align-items:center;font-family:var(--mono);font-size:11px;color:var(--text-lo);}
 .k-chip{display:inline-block;padding:.12rem .45rem;border-radius:2px;font-family:var(--mono);font-size:10px;letter-spacing:.06em;text-transform:uppercase;}
-.k-chip-minor{background:rgba(221,51,51,.14);color:var(--amber);} .k-chip-severe{background:rgba(232,138,74,.14);color:var(--orange);}
+.k-chip-minor{background:rgba(107,114,128,.14);color:#4b5563;} .k-chip-severe{background:rgba(232,138,74,.14);color:var(--orange);}
 .k-chip-critical{background:rgba(232,82,74,.15);color:var(--red);} .k-chip-claimed{background:rgba(143,122,230,.16);color:var(--violet);}
 .k-chip-resolved{background:rgba(109,184,138,.14);color:var(--green);} .k-chip-pending{background:rgba(240,230,208,.08);color:var(--text-md);}
 
@@ -390,7 +390,7 @@ select.k-input{background-color:var(--ink3);}
 .k-seg{display:flex;border:1px solid var(--border);border-radius:5px;overflow:hidden;}
 .k-seg button{flex:1;padding:.8rem .4rem;font-family:var(--mono);font-size:11px;color:var(--text-md);border-right:1px solid var(--border);}
 .k-seg button:last-child{border-right:none;}
-.k-seg button[aria-checked="true"][data-sev="minor"]{background:rgba(221,51,51,.2);color:var(--amber);}
+.k-seg button[aria-checked="true"][data-sev="minor"]{background:rgba(107,114,128,.2);color:#4b5563;}
 .k-seg button[aria-checked="true"][data-sev="severe"]{background:rgba(232,138,74,.2);color:var(--orange);}
 .k-seg button[aria-checked="true"][data-sev="critical"]{background:rgba(232,82,74,.22);color:var(--red);}
 /* Report screen: severity cards and waste-type chips (one tap each). */
@@ -398,7 +398,7 @@ select.k-input{background-color:var(--ink3);}
 .k-sev-cards button{display:grid;grid-template-columns:auto 1fr;column-gap:.6rem;align-items:center;text-align:left;padding:.7rem .85rem;border:1px solid var(--border);border-radius:8px;color:var(--text-md);background:transparent;min-height:44px;}
 .k-sev-cards button b{font-family:var(--civic);font-size:.95rem;font-weight:600;color:var(--text-hi);}
 .k-sev-cards button span{grid-column:2;font-family:var(--civic);font-size:.8rem;line-height:1.4;color:var(--text-lo);}
-.k-sev-cards button[aria-checked="true"][data-sev="minor"]{border-color:var(--amber);background:rgba(221,51,51,.1);}
+.k-sev-cards button[aria-checked="true"][data-sev="minor"]{border-color:#4b5563;background:rgba(107,114,128,.1);}
 .k-sev-cards button[aria-checked="true"][data-sev="severe"]{border-color:var(--orange);background:rgba(232,138,74,.1);}
 .k-sev-cards button[aria-checked="true"][data-sev="critical"]{border-color:var(--red);background:rgba(232,82,74,.1);}
 .k-sev-cards button[aria-checked="true"] span{color:var(--text-md);}
@@ -724,6 +724,7 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-esc-item b{display:block;font-size:.88rem;}
 .k-esc-item small{display:block;margin-top:.15rem;font-size:.76rem;color:var(--text-md);line-height:1.4;}
 .k-esc-copy{margin-top:.6rem;width:100%;}
+.k-letter-text{width:100%;box-sizing:border-box;margin-top:.4rem;font:inherit;font-size:.85rem;padding:.5rem;border:1px solid var(--line,#ccc);border-radius:6px;background:transparent;color:inherit;resize:vertical;}
 
 /* ══════════════════════════════════════════════════════════
    Parishkar Bengal — wordmark
