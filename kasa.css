@@ -171,6 +171,11 @@ img{display:block;max-width:100%;}
 .k-view-toggle{display:flex;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;padding:2px;flex-shrink:0;}
 .k-view-btn{padding:.42rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-md);border-radius:2px;}
 .k-view-active{background:var(--amber);color:var(--ink);}
+.k-quick{position:absolute;top:7.4rem;left:.9rem;right:.9rem;z-index:5;display:grid;grid-template-columns:repeat(3,1fr);gap:.4rem;pointer-events:auto;}
+.k-quick-chip{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.25rem;min-height:3.9rem;padding:.5rem .3rem;border:1px solid var(--border);border-radius:3px;background:rgba(10,8,5,.86);backdrop-filter:blur(8px);color:var(--text-md);font-family:var(--mono);font-size:10.5px;line-height:1.25;letter-spacing:.02em;text-align:center;text-decoration:none;}
+.k-quick-ico{font-size:20px;line-height:1;}
+.k-quick-chip:hover,.k-quick-chip:focus-visible{color:var(--amber);border-color:var(--amber);}
+@media(min-width:701px){.k-quick{top:7.4rem;left:auto;right:.9rem;grid-template-columns:repeat(6,7rem);}}
 .k-map-pill{position:absolute;left:.9rem;bottom:3.2rem;z-index:5;display:flex;align-items:center;gap:.6rem;padding:.65rem 1.1rem;background:rgba(10,8,5,.94);border:1px solid var(--border);backdrop-filter:blur(10px);font-family:var(--mono);font-size:12px;color:var(--text-md);border-radius:3px;white-space:nowrap;}
 .k-pill-num{font-family:var(--serif);font-weight:700;font-size:18px;color:var(--amber);line-height:1;}
 .k-pill-label{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:rgba(240,230,208,.62);}
@@ -1024,3 +1029,12 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-cq-count{position:absolute;top:.5rem;right:.5rem;background:var(--ink);color:var(--cream);font-family:var(--mono);font-size:11px;padding:.15rem .45rem;border-radius:3px;}
 .k-cq-actions{display:grid;grid-template-columns:1fr 1fr;gap:.4rem;margin-top:.7rem;}
 .k-cq-empty{padding:1.2rem 0;color:var(--text-md);line-height:1.55;}
+
+/* ── Phone map home: one thin bar over the map (logo, counter, Report, Menu).
+   Filters sits top-left, the six tiles under it, the counter floats above the Report button. ── */
+@media(max-width:640px){
+  .k-nav{padding:.45rem .7rem;}
+  .k-nav .k-nav-cta,.k-nav .k-social-menu,.k-nav .k-nav-mine,.k-nav .k-lang-switch{display:none;}
+  .k-map-pill{top:auto;bottom:5.1rem;transform:translateX(-50%);font-size:10.5px;padding:.4rem .8rem;}
+  .k-quick{top:3.6rem;}
+}
