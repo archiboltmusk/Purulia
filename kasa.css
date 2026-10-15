@@ -1049,7 +1049,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-map-topbar .k-view-toggle{margin-left:auto;}
   .k-list{position:relative;inset:auto;flex:1;min-height:0;padding:.6rem .9rem 5.5rem;}
   .k-map-pill{top:auto;bottom:4.9rem;left:50%;transform:translateX(-50%);}
-  .k-map-report-btn{left:.6rem;right:.6rem;bottom:.6rem;justify-content:center;padding:1rem 1.2rem;font-size:14px;border-radius:999px;}
+  .k-map-report-btn{left:.6rem;right:.6rem;bottom:calc(.6rem + env(safe-area-inset-bottom));justify-content:center;padding:1rem 1.2rem;font-size:14px;border-radius:999px;}
   .maplibregl-ctrl-bottom-right{bottom:4.9rem;}
   .k-ward-card{bottom:4.9rem;}
   .k-version{display:inline-flex;}
