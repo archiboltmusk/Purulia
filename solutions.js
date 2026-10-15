@@ -20,6 +20,9 @@
     { title: 'Report a civic problem', words: 'road pothole streetlight light drain water leak problem report complaint', href: 'kasa.html', text: 'Report it with a live photo and your location. Reports go to the people who can fix it.' },
     { title: 'Complaint to a central government department', words: 'complaint grievance cpgrams central department', href: 'helplines.html', text: 'CPGRAMS and how to use it.' },
     { title: 'Free legal aid', words: 'legal aid lawyer court nalsa 15100 help', href: 'helplines.html', text: 'NALSA free legal aid helpline, 15100.' },
+    { title: 'Consumer complaint: refund, shop, product or service', words: 'consumer complaint refund shop product service warranty bill overcharge 1915', href: 'helplines.html#consumer', text: 'National Consumer Helpline 1915, with its official link.' },
+    { title: 'Money lost to online or cyber fraud', words: 'fraud cyber online scam upi otp money lost hacked bank 1930 phishing', href: 'helplines.html#cyber', text: 'Call 1930 straight away, then file on cybercrime.gov.in.' },
+    { title: 'Worker registration and payment status (e-Shram)', words: 'labour worker e-shram eshram registration payment migrant card 14434 gig', href: 'helplines.html#labour', text: 'e-Shram helpline 14434 and the official helpdesk page.' },
     { title: 'Information under the RTI Act', words: 'rti information right law officer file', href: 'helplines.html', text: 'RTI Online for central bodies, with the official helpline.' },
     { title: 'Ask a question about this site', words: 'help question how use ask assistant', href: 'assistant.html', text: 'Ask the help assistant.' }
   ];
