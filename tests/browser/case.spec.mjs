@@ -24,7 +24,7 @@ test('case file exports the server-composed public dossier', async ({ page, back
   const download = page.waitForEvent('download');
   await page.locator('#cf-export').click();
   await expect(page.locator('#cf-export')).toHaveText('Downloaded');
-  await expect(await download).toHaveSuggestedFilename('parishkar-case-101-record.json');
+  expect((await download).suggestedFilename()).toBe('parishkar-case-101-record.json');
   expect(backend.calls.some(x => x.kind === 'rpc' && x.name === 'kasa_case_dossier' && x.body.p_report_id === '101')).toBe(true);
 });
 
