@@ -13,7 +13,13 @@
    "basis": "Wikipedia constituency results table (ECI figures)"
   }
  },
- "method": "Percentile = share of same-house seats in this state with a lower value (0 = lowest, 100 = highest). Metrics: winner vote share, margin (winner % minus runner-up %), turnout. Results only; no chance figure.",
+ "method": "Percentile = share of same-house seats in this state with a lower value (0 = lowest, 100 = highest). Metrics: winner vote share, margin (winner % minus runner-up %), turnout. Band (label, not a forecast): close = margin under 5 pp; marginal = margin 5 to 10 pp, or the same party lost 5 pp or more of vote share since the previous Lok Sabha election; comfortable = otherwise. Where no comparable previous share exists (MLAs: the 2017 page has no vote share), the band uses margin only. Trend compares the same party, so it is not a candidate record.",
+ "sources_prev": {
+  "pc": {
+   "year": 2019,
+   "url": "https://en.wikipedia.org/wiki/2019_Indian_general_election_in_Uttar_Pradesh"
+  }
+ },
  "counts": {
   "ac": 402,
   "pc": 80
@@ -51,6 +57,8 @@
     "margin": 37880.0,
     "margin_pct": 13.47,
     "result_seat": "Behat",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 64,
     "pct_margin_pct": 68,
     "pct_turnout": 100
@@ -74,6 +82,8 @@
     "margin": 315.0,
     "margin_pct": 0.12,
     "result_seat": "Nakur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 1,
     "pct_turnout": 100
@@ -97,6 +107,8 @@
     "margin": 7434.0,
     "margin_pct": 2.53,
     "result_seat": "Saharanpur Nagar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 70,
     "pct_margin_pct": 15,
     "pct_turnout": 79
@@ -120,6 +132,8 @@
     "margin": 30745.0,
     "margin_pct": 11.83,
     "result_seat": "Saharanpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 20,
     "pct_margin_pct": 63,
     "pct_turnout": 98
@@ -143,6 +157,8 @@
     "margin": 7104.0,
     "margin_pct": 2.94,
     "result_seat": "Deoband",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 7,
     "pct_margin_pct": 19,
     "pct_turnout": 92
@@ -166,6 +182,8 @@
     "margin": 20593.0,
     "margin_pct": 8.87,
     "result_seat": "Rampur Maniharan",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 51,
     "pct_turnout": 97
@@ -189,6 +207,8 @@
     "margin": 23449.0,
     "margin_pct": 8.66,
     "result_seat": "Gangoh",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 32,
     "pct_margin_pct": 50,
     "pct_turnout": 95
@@ -212,6 +232,8 @@
     "margin": 25887.0,
     "margin_pct": 10.7,
     "result_seat": "Kairana",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 90,
     "pct_margin_pct": 58,
     "pct_turnout": 100
@@ -235,6 +257,8 @@
     "margin": 10806.0,
     "margin_pct": 4.94,
     "result_seat": "Thana Bhawan",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 63,
     "pct_margin_pct": 32,
     "pct_turnout": 83
@@ -258,6 +282,8 @@
     "margin": 7107.0,
     "margin_pct": 3.37,
     "result_seat": "Shamli",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 70,
     "pct_margin_pct": 24,
     "pct_turnout": 87
@@ -281,6 +307,8 @@
     "margin": 28310.0,
     "margin_pct": 11.07,
     "result_seat": "Budhana",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 81,
     "pct_margin_pct": 59,
     "pct_turnout": 84
@@ -304,6 +332,8 @@
     "margin": 5334.0,
     "margin_pct": 2.4,
     "result_seat": "Charthawal",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 14,
     "pct_turnout": 87
@@ -327,6 +357,8 @@
     "margin": 6532.0,
     "margin_pct": 3.04,
     "result_seat": "Purqazi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 33,
     "pct_margin_pct": 20,
     "pct_turnout": 78
@@ -350,6 +382,8 @@
     "margin": 18694.0,
     "margin_pct": 8.29,
     "result_seat": "Muzaffarnagar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 73,
     "pct_margin_pct": 48,
     "pct_turnout": 64
@@ -373,6 +407,8 @@
     "margin": 16345.0,
     "margin_pct": 7.36,
     "result_seat": "Khatauli",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 50,
     "pct_margin_pct": 43,
     "pct_turnout": 94
@@ -396,6 +432,8 @@
     "margin": 27380.0,
     "margin_pct": 12.63,
     "result_seat": "Meerapur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 73,
     "pct_margin_pct": 64,
     "pct_turnout": 92
@@ -419,6 +457,8 @@
     "margin": 23770.0,
     "margin_pct": 10.22,
     "result_seat": "Najibabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 41,
     "pct_margin_pct": 56,
     "pct_turnout": 85
@@ -442,6 +482,8 @@
     "margin": 26451.0,
     "margin_pct": 11.84,
     "result_seat": "Nagina",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 36,
     "pct_margin_pct": 63,
     "pct_turnout": 70
@@ -465,6 +507,8 @@
     "margin": 14345.0,
     "margin_pct": 5.96,
     "result_seat": "Barhapur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 22,
     "pct_margin_pct": 37,
     "pct_turnout": 84
@@ -488,6 +532,8 @@
     "margin": 203.0,
     "margin_pct": 0.1,
     "result_seat": "Dhampur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 13,
     "pct_margin_pct": 0,
     "pct_turnout": 88
@@ -511,6 +557,8 @@
     "margin": 258.0,
     "margin_pct": 0.12,
     "result_seat": "Nehtaur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 8,
     "pct_margin_pct": 1,
     "pct_turnout": 78
@@ -534,6 +582,8 @@
     "margin": 1445.0,
     "margin_pct": 0.58,
     "result_seat": "Bijnor",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 5,
     "pct_turnout": 71
@@ -557,6 +607,8 @@
     "margin": 234.0,
     "margin_pct": 0.1,
     "result_seat": "Chandpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 16,
     "pct_margin_pct": 0,
     "pct_turnout": 91
@@ -580,6 +632,8 @@
     "margin": 6065.0,
     "margin_pct": 2.84,
     "result_seat": "Noorpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 35,
     "pct_margin_pct": 19,
     "pct_turnout": 79
@@ -603,6 +657,8 @@
     "margin": 43178.0,
     "margin_pct": 15.77,
     "result_seat": "Kanth",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 72,
     "pct_margin_pct": 74,
     "pct_turnout": 96
@@ -626,6 +682,8 @@
     "margin": 19684.0,
     "margin_pct": 7.14,
     "result_seat": "Thakurdwara",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 69,
     "pct_margin_pct": 42,
     "pct_turnout": 99
@@ -649,6 +707,8 @@
     "margin": 27820.0,
     "margin_pct": 22.54,
     "result_seat": "Moradabad Rural",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 93,
     "pct_margin_pct": 87,
     "pct_turnout": 73
@@ -672,6 +732,8 @@
     "margin": 782.0,
     "margin_pct": 0.24,
     "result_seat": "Moradabad Nagar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 54,
     "pct_margin_pct": 2,
     "pct_turnout": 49
@@ -695,6 +757,8 @@
     "margin": 43162.0,
     "margin_pct": 15.88,
     "result_seat": "Kundarki",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 55,
     "pct_margin_pct": 74,
     "pct_turnout": 97
@@ -718,6 +782,8 @@
     "margin": 7610.0,
     "margin_pct": 3.19,
     "result_seat": "Bilari",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 13,
     "pct_margin_pct": 23,
     "pct_turnout": 81
@@ -741,6 +807,8 @@
     "margin": 35367.0,
     "margin_pct": 15.52,
     "result_seat": "Chandausi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 73,
     "pct_margin_pct": 73,
     "pct_turnout": 40
@@ -764,6 +832,8 @@
     "margin": 25206.0,
     "margin_pct": 9.69,
     "result_seat": "Asmoli",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 31,
     "pct_margin_pct": 54,
     "pct_turnout": 90
@@ -787,6 +857,8 @@
     "margin": 41697.0,
     "margin_pct": 17.03,
     "result_seat": "Sambhal",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 76,
     "pct_turnout": 71
@@ -810,6 +882,8 @@
     "margin": 61103.0,
     "margin_pct": 28.57,
     "result_seat": "Suar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 95,
     "pct_margin_pct": 93,
     "pct_turnout": 93
@@ -833,6 +907,8 @@
     "margin": 34290.0,
     "margin_pct": 17.1,
     "result_seat": "Chamraua",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 76,
     "pct_margin_pct": 76,
     "pct_turnout": 74
@@ -856,6 +932,8 @@
     "margin": 307.0,
     "margin_pct": 0.13,
     "result_seat": "Bilaspur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 33,
     "pct_margin_pct": 1,
     "pct_turnout": 90
@@ -879,6 +957,8 @@
     "margin": 55141.0,
     "margin_pct": 25.09,
     "result_seat": "Rampur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 96,
     "pct_margin_pct": 90,
     "pct_turnout": 18
@@ -902,6 +982,8 @@
     "margin": 5912.0,
     "margin_pct": 2.61,
     "result_seat": "Milak",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 33,
     "pct_margin_pct": 16,
     "pct_turnout": 67
@@ -925,6 +1007,8 @@
     "margin": 11425.0,
     "margin_pct": 4.69,
     "result_seat": "Dhanaura",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 28,
     "pct_margin_pct": 31,
     "pct_turnout": 96
@@ -948,6 +1032,8 @@
     "margin": 6540.0,
     "margin_pct": 2.74,
     "result_seat": "Naugawan Sadat",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 42,
     "pct_margin_pct": 17,
     "pct_turnout": 99
@@ -971,6 +1057,8 @@
     "margin": 71036.0,
     "margin_pct": 31.69,
     "result_seat": "Amroha",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 94,
     "pct_margin_pct": 95,
     "pct_turnout": 97
@@ -994,6 +1082,8 @@
     "margin": 22382.0,
     "margin_pct": 8.32,
     "result_seat": "Hasanpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 45,
     "pct_margin_pct": 48,
     "pct_turnout": 99
@@ -1017,6 +1107,8 @@
     "margin": 9182.0,
     "margin_pct": 3.91,
     "result_seat": "Siwalkhas",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 37,
     "pct_margin_pct": 27,
     "pct_turnout": 91
@@ -1040,6 +1132,8 @@
     "margin": 18200.0,
     "margin_pct": 7.48,
     "result_seat": "Sardhana",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 69,
     "pct_margin_pct": 44,
     "pct_turnout": 85
@@ -1063,6 +1157,8 @@
     "margin": 7312.0,
     "margin_pct": 3.17,
     "result_seat": "Hastinapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 59,
     "pct_margin_pct": 22,
     "pct_turnout": 83
@@ -1086,6 +1182,8 @@
     "margin": 2180.0,
     "margin_pct": 0.86,
     "result_seat": "Kithore",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 27,
     "pct_margin_pct": 7,
     "pct_turnout": 95
@@ -1109,6 +1207,8 @@
     "margin": 118072.0,
     "margin_pct": 48.29,
     "result_seat": "Meerut Cantt",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 100,
     "pct_margin_pct": 100,
     "pct_turnout": 19
@@ -1132,6 +1232,8 @@
     "margin": 26065.0,
     "margin_pct": 12.93,
     "result_seat": "Meerut",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 86,
     "pct_margin_pct": 66,
     "pct_turnout": 72
@@ -1155,6 +1257,8 @@
     "margin": 7942.0,
     "margin_pct": 2.67,
     "result_seat": "Meerut South",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 36,
     "pct_margin_pct": 16,
     "pct_turnout": 58
@@ -1178,6 +1282,8 @@
     "margin": 29508.0,
     "margin_pct": 14.06,
     "result_seat": "Chhaprauli",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 88,
     "pct_margin_pct": 70,
     "pct_turnout": 60
@@ -1201,6 +1307,8 @@
     "margin": 315.0,
     "margin_pct": 0.16,
     "result_seat": "Baraut",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 56,
     "pct_margin_pct": 2,
     "pct_turnout": 71
@@ -1224,6 +1332,8 @@
     "margin": 6733.0,
     "margin_pct": 3.15,
     "result_seat": "Baghpat",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 62,
     "pct_margin_pct": 22,
     "pct_turnout": 88
@@ -1247,6 +1357,8 @@
     "margin": 8676.0,
     "margin_pct": 2.76,
     "result_seat": "Loni",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 17,
     "pct_margin_pct": 18,
     "pct_turnout": 54
@@ -1270,6 +1382,8 @@
     "margin": 97295.0,
     "margin_pct": 35.35,
     "result_seat": "Muradnagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 98,
     "pct_margin_pct": 97,
     "pct_turnout": 43
@@ -1293,6 +1407,8 @@
     "margin": 214835.0,
     "margin_pct": 44.6,
     "result_seat": "Sahibabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 100,
     "pct_margin_pct": 99,
     "pct_turnout": 1
@@ -1316,6 +1432,8 @@
     "margin": 105537.0,
     "margin_pct": 43.12,
     "result_seat": "Ghaziabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 98,
     "pct_margin_pct": 99,
     "pct_turnout": 4
@@ -1339,6 +1457,8 @@
     "margin": 34619.0,
     "margin_pct": 15.46,
     "result_seat": "Modinagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 79,
     "pct_margin_pct": 73,
     "pct_turnout": 86
@@ -1362,6 +1482,8 @@
     "margin": 12628.0,
     "margin_pct": 4.51,
     "result_seat": "Dhaulana",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 45,
     "pct_margin_pct": 30,
     "pct_turnout": 88
@@ -1385,6 +1507,8 @@
     "margin": 7034.0,
     "margin_pct": 2.85,
     "result_seat": "Hapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 12,
     "pct_margin_pct": 19,
     "pct_turnout": 83
@@ -1408,6 +1532,8 @@
     "margin": 26306.0,
     "margin_pct": 11.13,
     "result_seat": "Garhmukteshwar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 40,
     "pct_margin_pct": 60,
     "pct_turnout": 88
@@ -1431,6 +1557,8 @@
     "margin": 181513.0,
     "margin_pct": 52.12,
     "result_seat": "Noida",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 100,
     "pct_margin_pct": 100,
     "pct_turnout": 2
@@ -1454,6 +1582,8 @@
     "margin": 138218.0,
     "margin_pct": 39.07,
     "result_seat": "Dadri",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 98,
     "pct_margin_pct": 98,
     "pct_turnout": 31
@@ -1477,6 +1607,8 @@
     "margin": 56315.0,
     "margin_pct": 24.28,
     "result_seat": "Jewar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 78,
     "pct_margin_pct": 89,
     "pct_turnout": 79
@@ -1500,6 +1632,8 @@
     "margin": 29343.0,
     "margin_pct": 10.74,
     "result_seat": "Sikandrabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 53,
     "pct_margin_pct": 58,
     "pct_turnout": 86
@@ -1523,6 +1657,8 @@
     "margin": 25600.0,
     "margin_pct": 9.95,
     "result_seat": "Bulandshahr",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 71,
     "pct_margin_pct": 55,
     "pct_turnout": 74
@@ -1546,6 +1682,8 @@
     "margin": 89657.0,
     "margin_pct": 35.41,
     "result_seat": "Syana",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 95,
     "pct_margin_pct": 97,
     "pct_turnout": 75
@@ -1569,6 +1707,8 @@
     "margin": 77623.0,
     "margin_pct": 32.53,
     "result_seat": "Anupshahr",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 85,
     "pct_margin_pct": 95,
     "pct_turnout": 64
@@ -1592,6 +1732,8 @@
     "margin": 68025.0,
     "margin_pct": 30.99,
     "result_seat": "Debai",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 94,
     "pct_margin_pct": 94,
     "pct_turnout": 65
@@ -1615,6 +1757,8 @@
     "margin": 55683.0,
     "margin_pct": 25.94,
     "result_seat": "Shikarpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 87,
     "pct_margin_pct": 91,
     "pct_turnout": 69
@@ -1638,6 +1782,8 @@
     "margin": 67084.0,
     "margin_pct": 25.86,
     "result_seat": "Khurja",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 86,
     "pct_margin_pct": 91,
     "pct_turnout": 81
@@ -1661,6 +1807,8 @@
     "margin": 74341.0,
     "margin_pct": 29.57,
     "result_seat": "Khair",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 92,
     "pct_margin_pct": 94,
     "pct_turnout": 57
@@ -1684,6 +1832,8 @@
     "margin": 90645.0,
     "margin_pct": 37.1,
     "result_seat": "Barauli",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 97,
     "pct_margin_pct": 98,
     "pct_turnout": 70
@@ -1707,6 +1857,8 @@
     "margin": 39324.0,
     "margin_pct": 16.28,
     "result_seat": "Atrauli",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 83,
     "pct_margin_pct": 76,
     "pct_turnout": 43
@@ -1730,6 +1882,8 @@
     "margin": 24327.0,
     "margin_pct": 10.01,
     "result_seat": "Chharra",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 52,
     "pct_margin_pct": 55,
     "pct_turnout": 63
@@ -1753,6 +1907,8 @@
     "margin": 5028.0,
     "margin_pct": 1.99,
     "result_seat": "Koil",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 30,
     "pct_margin_pct": 12,
     "pct_turnout": 61
@@ -1776,6 +1932,8 @@
     "margin": 12786.0,
     "margin_pct": 5.06,
     "result_seat": "Aligarh",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 64,
     "pct_margin_pct": 33,
     "pct_turnout": 69
@@ -1799,6 +1957,8 @@
     "margin": 59163.0,
     "margin_pct": 24.35,
     "result_seat": "Iglas",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 84,
     "pct_margin_pct": 89,
     "pct_turnout": 52
@@ -1822,6 +1982,8 @@
     "margin": 100856.0,
     "margin_pct": 38.34,
     "result_seat": "Hathras",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 95,
     "pct_margin_pct": 98,
     "pct_turnout": 66
@@ -1845,6 +2007,8 @@
     "margin": 6437.0,
     "margin_pct": 2.65,
     "result_seat": "Sadabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 34,
     "pct_margin_pct": 16,
     "pct_turnout": 70
@@ -1868,6 +2032,8 @@
     "margin": 8104.0,
     "margin_pct": 3.44,
     "result_seat": "Sikandra Rao",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 23,
     "pct_margin_pct": 25,
     "pct_turnout": 61
@@ -1891,6 +2057,8 @@
     "margin": 48948.0,
     "margin_pct": 20.53,
     "result_seat": "Chhata",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 84,
     "pct_margin_pct": 86,
     "pct_turnout": 75
@@ -1914,6 +2082,8 @@
     "margin": 9580.0,
     "margin_pct": 4.26,
     "result_seat": "Mant",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 4,
     "pct_margin_pct": 29,
     "pct_turnout": 74
@@ -1937,6 +2107,8 @@
     "margin": 42507.0,
     "margin_pct": 19.18,
     "result_seat": "Goverdhan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 48,
     "pct_margin_pct": 82,
     "pct_turnout": 80
@@ -1960,6 +2132,8 @@
     "margin": 109803.0,
     "margin_pct": 41.65,
     "result_seat": "Mathura",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 97,
     "pct_margin_pct": 99,
     "pct_turnout": 23
@@ -1983,6 +2157,8 @@
     "margin": 25255.0,
     "margin_pct": 10.28,
     "result_seat": "Baldev",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 41,
     "pct_margin_pct": 56,
     "pct_turnout": 75
@@ -2006,6 +2182,8 @@
     "margin": 47924.0,
     "margin_pct": 15.94,
     "result_seat": "Etmadpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 69,
     "pct_margin_pct": 75,
     "pct_turnout": 86
@@ -2029,6 +2207,8 @@
     "margin": 48697.0,
     "margin_pct": 19.34,
     "result_seat": "Agra Cantonment",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 59,
     "pct_margin_pct": 83,
     "pct_turnout": 9
@@ -2052,6 +2232,8 @@
     "margin": 56640.0,
     "margin_pct": 27.16,
     "result_seat": "Agra South",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 85,
     "pct_margin_pct": 92,
     "pct_turnout": 18
@@ -2075,6 +2257,8 @@
     "margin": 112370.0,
     "margin_pct": 46.67,
     "result_seat": "Agra North",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 99,
     "pct_margin_pct": 100,
     "pct_turnout": 13
@@ -2098,6 +2282,8 @@
     "margin": 76608.0,
     "margin_pct": 29.37,
     "result_seat": "Agra Rural",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 85,
     "pct_margin_pct": 94,
     "pct_turnout": 50
@@ -2121,6 +2307,8 @@
     "margin": 47269.0,
     "margin_pct": 19.45,
     "result_seat": "Fatehpur Sikri",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 54,
     "pct_margin_pct": 83,
     "pct_turnout": 87
@@ -2144,6 +2332,8 @@
     "margin": 53235.0,
     "margin_pct": 24.69,
     "result_seat": "Fatehabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 78,
     "pct_margin_pct": 90,
     "pct_turnout": 83
@@ -2167,6 +2357,8 @@
     "margin": 24235.0,
     "margin_pct": 12.73,
     "result_seat": "Bah",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 20,
     "pct_margin_pct": 65,
     "pct_turnout": 20
@@ -2190,6 +2382,8 @@
     "margin": 47691.0,
     "margin_pct": 19.2,
     "result_seat": "Tundla",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 72,
     "pct_margin_pct": 83,
     "pct_turnout": 82
@@ -2213,6 +2407,8 @@
     "margin": 836.0,
     "margin_pct": 0.34,
     "result_seat": "Jasrana",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 3,
     "pct_turnout": 86
@@ -2236,6 +2432,8 @@
     "margin": 32955.0,
     "margin_pct": 12.72,
     "result_seat": "Firozabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 35,
     "pct_margin_pct": 65,
     "pct_turnout": 35
@@ -2259,6 +2457,8 @@
     "margin": 9328.0,
     "margin_pct": 3.96,
     "result_seat": "Shikohabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 48,
     "pct_margin_pct": 27,
     "pct_turnout": 78
@@ -2282,6 +2482,8 @@
     "margin": 8805.0,
     "margin_pct": 4.23,
     "result_seat": "Sirsaganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 55,
     "pct_margin_pct": 29,
     "pct_turnout": 73
@@ -2305,6 +2507,8 @@
     "margin": 46265.0,
     "margin_pct": 19.75,
     "result_seat": "Kasganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 86,
     "pct_margin_pct": 84,
     "pct_turnout": 70
@@ -2328,6 +2532,8 @@
     "margin": 43329.0,
     "margin_pct": 22.66,
     "result_seat": "Amanpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 77,
     "pct_margin_pct": 87,
     "pct_turnout": 55
@@ -2351,6 +2557,8 @@
     "margin": 4001.0,
     "margin_pct": 1.82,
     "result_seat": "Patiyali",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 24,
     "pct_margin_pct": 11,
     "pct_turnout": 52
@@ -2374,6 +2582,8 @@
     "margin": 3810.0,
     "margin_pct": 1.68,
     "result_seat": "Aliganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 50,
     "pct_margin_pct": 10,
     "pct_turnout": 80
@@ -2397,6 +2607,8 @@
     "margin": 17247.0,
     "margin_pct": 8.19,
     "result_seat": "Etah",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 56,
     "pct_margin_pct": 48,
     "pct_turnout": 61
@@ -2420,6 +2632,8 @@
     "margin": 17609.0,
     "margin_pct": 8.51,
     "result_seat": "Marhara",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 71,
     "pct_margin_pct": 49,
     "pct_turnout": 82
@@ -2443,6 +2657,8 @@
     "margin": 4441.0,
     "margin_pct": 2.19,
     "result_seat": "Jalesar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 48,
     "pct_margin_pct": 13,
     "pct_turnout": 89
@@ -2466,6 +2682,8 @@
     "margin": 6766.0,
     "margin_pct": 3.17,
     "result_seat": "Mainpuri",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 59,
     "pct_margin_pct": 22,
     "pct_turnout": 58
@@ -2489,6 +2707,8 @@
     "margin": 4767.0,
     "margin_pct": 2.21,
     "result_seat": "Bhongaon",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 48,
     "pct_margin_pct": 14,
     "pct_turnout": 62
@@ -2512,6 +2732,8 @@
     "margin": 19151.0,
     "margin_pct": 9.78,
     "result_seat": "Kishni",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 73,
     "pct_margin_pct": 54,
     "pct_turnout": 65
@@ -2535,6 +2757,8 @@
     "margin": 67504.0,
     "margin_pct": 27.38,
     "result_seat": "Karhal",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 96,
     "pct_margin_pct": 92,
     "pct_turnout": 79
@@ -2558,6 +2782,8 @@
     "margin": 29529.0,
     "margin_pct": 12.24,
     "result_seat": "Gunnaur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 82,
     "pct_margin_pct": 64,
     "pct_turnout": 33
@@ -2581,6 +2807,8 @@
     "margin": 1834.0,
     "margin_pct": 0.73,
     "result_seat": "Bisauli",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 41,
     "pct_margin_pct": 6,
     "pct_turnout": 40
@@ -2604,6 +2832,8 @@
     "margin": 13945.0,
     "margin_pct": 5.56,
     "result_seat": "Sahaswan",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 1,
     "pct_margin_pct": 36,
     "pct_turnout": 35
@@ -2627,6 +2857,8 @@
     "margin": 25115.0,
     "margin_pct": 12.23,
     "result_seat": "Bilsi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 51,
     "pct_margin_pct": 64,
     "pct_turnout": 26
@@ -2650,6 +2882,8 @@
     "margin": 11179.0,
     "margin_pct": 5.1,
     "result_seat": "Badaun",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 54,
     "pct_margin_pct": 33,
     "pct_turnout": 30
@@ -2673,6 +2907,8 @@
     "margin": 6100.0,
     "margin_pct": 2.48,
     "result_seat": "Shekhupur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 31,
     "pct_margin_pct": 15,
     "pct_turnout": 51
@@ -2696,6 +2932,8 @@
     "margin": 9476.0,
     "margin_pct": 3.99,
     "result_seat": "Dataganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 50,
     "pct_margin_pct": 28,
     "pct_turnout": 30
@@ -2719,6 +2957,8 @@
     "margin": 3355.0,
     "margin_pct": 1.26,
     "result_seat": "Baheri",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 58,
     "pct_margin_pct": 8,
     "pct_turnout": 98
@@ -2742,6 +2982,8 @@
     "margin": 32840.0,
     "margin_pct": 14.22,
     "result_seat": "Meerganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 80,
     "pct_margin_pct": 70,
     "pct_turnout": 85
@@ -2765,6 +3007,8 @@
     "margin": 9409.0,
     "margin_pct": 3.62,
     "result_seat": "Bhojipura",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 53,
     "pct_margin_pct": 26,
     "pct_turnout": 91
@@ -2788,6 +3032,8 @@
     "margin": 9237.0,
     "margin_pct": 4.0,
     "result_seat": "Nawabganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 67,
     "pct_margin_pct": 28,
     "pct_turnout": 89
@@ -2811,6 +3057,8 @@
     "margin": 2921.0,
     "margin_pct": 1.44,
     "result_seat": "Faridpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 49,
     "pct_margin_pct": 9,
     "pct_turnout": 59
@@ -2834,6 +3082,8 @@
     "margin": 15841.0,
     "margin_pct": 6.38,
     "result_seat": "Bithari Chainpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 58,
     "pct_margin_pct": 39,
     "pct_turnout": 64
@@ -2857,6 +3107,8 @@
     "margin": 32320.0,
     "margin_pct": 13.47,
     "result_seat": "Bareilly",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 89,
     "pct_margin_pct": 68,
     "pct_turnout": 6
@@ -2880,6 +3132,8 @@
     "margin": 10768.0,
     "margin_pct": 5.49,
     "result_seat": "Bareilly Cantt",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 77,
     "pct_margin_pct": 36,
     "pct_turnout": 4
@@ -2903,6 +3157,8 @@
     "margin": 18424.0,
     "margin_pct": 9.62,
     "result_seat": "Aonla",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 57,
     "pct_margin_pct": 53,
     "pct_turnout": 49
@@ -2926,6 +3182,8 @@
     "margin": 6970.0,
     "margin_pct": 2.67,
     "result_seat": "Pilibhit",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 66,
     "pct_margin_pct": 16,
     "pct_turnout": 92
@@ -2949,6 +3207,8 @@
     "margin": 81472.0,
     "margin_pct": 34.25,
     "result_seat": "Barkhera",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 99,
     "pct_margin_pct": 96,
     "pct_turnout": 98
@@ -2972,6 +3232,8 @@
     "margin": 26576.0,
     "margin_pct": 9.91,
     "result_seat": "Puranpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 75,
     "pct_margin_pct": 55,
     "pct_turnout": 94
@@ -2995,6 +3257,8 @@
     "margin": 50409.0,
     "margin_pct": 21.03,
     "result_seat": "Bisalpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 78,
     "pct_margin_pct": 86,
     "pct_turnout": 81
@@ -3018,6 +3282,8 @@
     "margin": 357.0,
     "margin_pct": 0.18,
     "result_seat": "Katra",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 13,
     "pct_margin_pct": 2,
     "pct_turnout": 24
@@ -3041,6 +3307,8 @@
     "margin": 4572.0,
     "margin_pct": 2.11,
     "result_seat": "Jalalabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 53,
     "pct_margin_pct": 13,
     "pct_turnout": 36
@@ -3064,6 +3332,8 @@
     "margin": 13277.0,
     "margin_pct": 6.22,
     "result_seat": "Tilhar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 65,
     "pct_margin_pct": 39,
     "pct_turnout": 42
@@ -3087,6 +3357,8 @@
     "margin": 51578.0,
     "margin_pct": 22.0,
     "result_seat": "Powayan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 93,
     "pct_margin_pct": 87,
     "pct_turnout": 45
@@ -3110,6 +3382,8 @@
     "margin": 9313.0,
     "margin_pct": 4.15,
     "result_seat": "Shahjahanpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 71,
     "pct_margin_pct": 29,
     "pct_turnout": 10
@@ -3133,6 +3407,8 @@
     "margin": 9701.0,
     "margin_pct": 4.33,
     "result_seat": "Dadraul",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 47,
     "pct_margin_pct": 29,
     "pct_turnout": 64
@@ -3156,6 +3432,8 @@
     "margin": 38129.0,
     "margin_pct": 16.1,
     "result_seat": "Palia",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 76,
     "pct_margin_pct": 75,
     "pct_turnout": 77
@@ -3179,6 +3457,8 @@
     "margin": 41009.0,
     "margin_pct": 17.31,
     "result_seat": "Nighasan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 88,
     "pct_margin_pct": 78,
     "pct_turnout": 93
@@ -3202,6 +3482,8 @@
     "margin": 29294.0,
     "margin_pct": 11.27,
     "result_seat": "Gola Gokrannath",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 68,
     "pct_margin_pct": 61,
     "pct_turnout": 77
@@ -3225,6 +3507,8 @@
     "margin": 17608.0,
     "margin_pct": 7.68,
     "result_seat": "Sri Nagar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 61,
     "pct_margin_pct": 45,
     "pct_turnout": 97
@@ -3248,6 +3532,8 @@
     "margin": 24610.0,
     "margin_pct": 10.73,
     "result_seat": "Dhaurahra",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 72,
     "pct_margin_pct": 58,
     "pct_turnout": 92
@@ -3271,6 +3557,8 @@
     "margin": 20578.0,
     "margin_pct": 7.64,
     "result_seat": "Lakhimpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 62,
     "pct_margin_pct": 44,
     "pct_turnout": 76
@@ -3294,6 +3582,8 @@
     "margin": 13817.0,
     "margin_pct": 6.41,
     "result_seat": "Kasta",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 65,
     "pct_margin_pct": 39,
     "pct_turnout": 93
@@ -3317,6 +3607,8 @@
     "margin": 4871.0,
     "margin_pct": 2.09,
     "result_seat": "Mohammdi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 30,
     "pct_margin_pct": 12,
     "pct_turnout": 91
@@ -3340,6 +3632,8 @@
     "margin": 12172.0,
     "margin_pct": 4.86,
     "result_seat": "Maholi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 46,
     "pct_margin_pct": 32,
     "pct_turnout": 80
@@ -3363,6 +3657,8 @@
     "margin": 1253.0,
     "margin_pct": 0.54,
     "result_seat": "Sitapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 29,
     "pct_margin_pct": 4,
     "pct_turnout": 29
@@ -3386,6 +3682,8 @@
     "margin": 38160.0,
     "margin_pct": 17.15,
     "result_seat": "Hargaon",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 85,
     "pct_margin_pct": 77,
     "pct_turnout": 89
@@ -3409,6 +3707,8 @@
     "margin": 13155.0,
     "margin_pct": 5.48,
     "result_seat": "Laharpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 60,
     "pct_margin_pct": 36,
     "pct_turnout": 82
@@ -3432,6 +3732,8 @@
     "margin": 10478.0,
     "margin_pct": 4.42,
     "result_seat": "Biswan",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 46,
     "pct_margin_pct": 30,
     "pct_turnout": 95
@@ -3455,6 +3757,8 @@
     "margin": 20438.0,
     "margin_pct": 8.09,
     "result_seat": "Sevata",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 62,
     "pct_margin_pct": 47,
     "pct_turnout": 96
@@ -3478,6 +3782,8 @@
     "margin": 5222.0,
     "margin_pct": 2.4,
     "result_seat": "Mahmoodabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 25,
     "pct_margin_pct": 14,
     "pct_turnout": 94
@@ -3501,6 +3807,8 @@
     "margin": 9716.0,
     "margin_pct": 3.98,
     "result_seat": "Sidhauli",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 37,
     "pct_margin_pct": 27,
     "pct_turnout": 90
@@ -3524,6 +3832,8 @@
     "margin": 11465.0,
     "margin_pct": 5.18,
     "result_seat": "Misrikh",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 20,
     "pct_margin_pct": 33,
     "pct_turnout": 55
@@ -3547,6 +3857,8 @@
     "margin": 26047.0,
     "margin_pct": 10.35,
     "result_seat": "Sawayazpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 53,
     "pct_margin_pct": 57,
     "pct_turnout": 55
@@ -3570,6 +3882,8 @@
     "margin": 6479.0,
     "margin_pct": 2.77,
     "result_seat": "Shahabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 17,
     "pct_margin_pct": 18,
     "pct_turnout": 77
@@ -3593,6 +3907,8 @@
     "margin": 42411.0,
     "margin_pct": 17.8,
     "result_seat": "Hardoi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 87,
     "pct_margin_pct": 79,
     "pct_turnout": 23
@@ -3616,6 +3932,8 @@
     "margin": 7998.0,
     "margin_pct": 3.75,
     "result_seat": "Gopamau",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 32,
     "pct_margin_pct": 26,
     "pct_turnout": 58
@@ -3639,6 +3957,8 @@
     "margin": 9233.0,
     "margin_pct": 4.73,
     "result_seat": "Sandi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 23,
     "pct_margin_pct": 31,
     "pct_turnout": 35
@@ -3662,6 +3982,8 @@
     "margin": 24890.0,
     "margin_pct": 10.6,
     "result_seat": "Bilgram-Mallanwan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 2,
     "pct_margin_pct": 57,
     "pct_turnout": 54
@@ -3685,6 +4007,8 @@
     "margin": 26424.0,
     "margin_pct": 13.71,
     "result_seat": "Balamau",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 31,
     "pct_margin_pct": 69,
     "pct_turnout": 12
@@ -3708,6 +4032,8 @@
     "margin": 37103.0,
     "margin_pct": 18.15,
     "result_seat": "Sandila",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 74,
     "pct_margin_pct": 79,
     "pct_turnout": 42
@@ -3731,6 +4057,8 @@
     "margin": 15793.0,
     "margin_pct": 7.76,
     "result_seat": "Bangarmau",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 46,
     "pct_margin_pct": 46,
     "pct_turnout": 20
@@ -3754,6 +4082,8 @@
     "margin": 34132.0,
     "margin_pct": 17.28,
     "result_seat": "Safipur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 83,
     "pct_margin_pct": 77,
     "pct_turnout": 21
@@ -3777,6 +4107,8 @@
     "margin": 43179.0,
     "margin_pct": 20.37,
     "result_seat": "Mohan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 89,
     "pct_margin_pct": 85,
     "pct_turnout": 57
@@ -3800,6 +4132,8 @@
     "margin": 31128.0,
     "margin_pct": 12.68,
     "result_seat": "Unnao",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 82,
     "pct_margin_pct": 65,
     "pct_turnout": 42
@@ -3823,6 +4157,8 @@
     "margin": 43010.0,
     "margin_pct": 17.35,
     "result_seat": "Bhagwantnagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 81,
     "pct_margin_pct": 78,
     "pct_turnout": 40
@@ -3846,6 +4182,8 @@
     "margin": 31061.0,
     "margin_pct": 12.13,
     "result_seat": "Purwa",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 84,
     "pct_margin_pct": 63,
     "pct_turnout": 56
@@ -3869,6 +4207,8 @@
     "margin": 7745.0,
     "margin_pct": 3.22,
     "result_seat": "Malihabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 41,
     "pct_margin_pct": 23,
     "pct_turnout": 82
@@ -3892,6 +4232,8 @@
     "margin": 27788.0,
     "margin_pct": 8.71,
     "result_seat": "Bakshi Kaa Talab",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 56,
     "pct_margin_pct": 50,
     "pct_turnout": 94
@@ -3915,6 +4257,8 @@
     "margin": 56186.0,
     "margin_pct": 17.17,
     "result_seat": "Sarojini Nagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 72,
     "pct_margin_pct": 77,
     "pct_turnout": 25
@@ -3938,6 +4282,8 @@
     "margin": 8184.0,
     "margin_pct": 3.16,
     "result_seat": "Lucknow West",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 67,
     "pct_margin_pct": 22,
     "pct_turnout": 30
@@ -3961,6 +4307,8 @@
     "margin": 33953.0,
     "margin_pct": 13.01,
     "result_seat": "Lucknow North",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 88,
     "pct_margin_pct": 66,
     "pct_turnout": 16
@@ -3984,6 +4332,8 @@
     "margin": 68731.0,
     "margin_pct": 26.7,
     "result_seat": "Lucknow East",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 96,
     "pct_margin_pct": 92,
     "pct_turnout": 16
@@ -4007,6 +4357,8 @@
     "margin": 10935.0,
     "margin_pct": 5.19,
     "result_seat": "Lucknow Central",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 74,
     "pct_margin_pct": 34,
     "pct_turnout": 19
@@ -4030,6 +4382,8 @@
     "margin": 39512.0,
     "margin_pct": 19.99,
     "result_seat": "Lucknow Cantonment",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 91,
     "pct_margin_pct": 84,
     "pct_turnout": 8
@@ -4053,6 +4407,8 @@
     "margin": 16548.0,
     "margin_pct": 6.74,
     "result_seat": "Mohanlalganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 37,
     "pct_margin_pct": 41,
     "pct_turnout": 87
@@ -4076,6 +4432,8 @@
     "margin": 2812.0,
     "margin_pct": 1.34,
     "result_seat": "Bachhrawan",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 1,
     "pct_margin_pct": 9,
     "pct_turnout": 59
@@ -4099,6 +4457,8 @@
     "margin": 27829.0,
     "margin_pct": 13.58,
     "result_seat": "Tiloi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 68,
     "pct_margin_pct": 68,
     "pct_turnout": 30
@@ -4122,6 +4482,8 @@
     "margin": 14489.0,
     "margin_pct": 7.18,
     "result_seat": "Harchandpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 52,
     "pct_margin_pct": 43,
     "pct_turnout": 66
@@ -4145,6 +4507,8 @@
     "margin": 7175.0,
     "margin_pct": 3.11,
     "result_seat": "Rae Bareli",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 21,
     "pct_turnout": 60
@@ -4168,6 +4532,8 @@
     "margin": 1511.0,
     "margin_pct": 1.06,
     "result_seat": "Salon",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 7,
     "pct_turnout": 22
@@ -4191,6 +4557,8 @@
     "margin": 3807.0,
     "margin_pct": 1.75,
     "result_seat": "Sareni",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 0,
     "pct_margin_pct": 10,
     "pct_turnout": 31
@@ -4214,6 +4582,8 @@
     "margin": 6621.0,
     "margin_pct": 3.13,
     "result_seat": "Unchahar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 8,
     "pct_margin_pct": 21,
     "pct_turnout": 62
@@ -4237,6 +4607,8 @@
     "margin": 22824.0,
     "margin_pct": 11.23,
     "result_seat": "Jagdishpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 40,
     "pct_margin_pct": 60,
     "pct_turnout": 8
@@ -4260,6 +4632,8 @@
     "margin": 6963.0,
     "margin_pct": 3.43,
     "result_seat": "Gauriganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 8,
     "pct_margin_pct": 25,
     "pct_turnout": 27
@@ -4283,6 +4657,8 @@
     "margin": 18096.0,
     "margin_pct": 6.53,
     "result_seat": "Amethi",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 57,
     "pct_margin_pct": 40,
     "pct_turnout": 10
@@ -4306,6 +4682,8 @@
     "margin": 269.0,
     "margin_pct": 0.13,
     "result_seat": "Isauli",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 1,
     "pct_margin_pct": 1,
     "pct_turnout": 17
@@ -4329,6 +4707,8 @@
     "margin": 1009.0,
     "margin_pct": 0.46,
     "result_seat": "Sultanpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 27,
     "pct_margin_pct": 4,
     "pct_turnout": 25
@@ -4352,6 +4732,8 @@
     "margin": 15754.0,
     "margin_pct": 7.74,
     "result_seat": "Sadar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 24,
     "pct_margin_pct": 46,
     "pct_turnout": 38
@@ -4375,6 +4757,8 @@
     "margin": 9533.0,
     "margin_pct": 4.52,
     "result_seat": "Lambhua",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 10,
     "pct_margin_pct": 30,
     "pct_turnout": 21
@@ -4398,6 +4782,8 @@
     "margin": 25723.0,
     "margin_pct": 11.59,
     "result_seat": "Kadipur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 35,
     "pct_margin_pct": 61,
     "pct_turnout": 32
@@ -4421,6 +4807,8 @@
     "margin": 18543.0,
     "margin_pct": 7.68,
     "result_seat": "Kaimganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 63,
     "pct_margin_pct": 45,
     "pct_turnout": 54
@@ -4444,6 +4832,8 @@
     "margin": 44686.0,
     "margin_pct": 24.0,
     "result_seat": "Amritpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 87,
     "pct_margin_pct": 89,
     "pct_turnout": 39
@@ -4467,6 +4857,8 @@
     "margin": 39326.0,
     "margin_pct": 18.84,
     "result_seat": "Farrukhabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 90,
     "pct_margin_pct": 82,
     "pct_turnout": 15
@@ -4490,6 +4882,8 @@
     "margin": 27468.0,
     "margin_pct": 13.92,
     "result_seat": "Bhojpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 79,
     "pct_margin_pct": 70,
     "pct_turnout": 56
@@ -4513,6 +4907,8 @@
     "margin": 1111.0,
     "margin_pct": 0.4,
     "result_seat": "Chhibramau",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 42,
     "pct_margin_pct": 4,
     "pct_turnout": 48
@@ -4536,6 +4932,8 @@
     "margin": 4608.0,
     "margin_pct": 1.94,
     "result_seat": "Tirwa",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 11,
     "pct_turnout": 63
@@ -4559,6 +4957,8 @@
     "margin": 6090.0,
     "margin_pct": 2.24,
     "result_seat": "Kannauj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 44,
     "pct_margin_pct": 14,
     "pct_turnout": 66
@@ -4582,6 +4982,8 @@
     "margin": 90979.0,
     "margin_pct": 35.87,
     "result_seat": "Jaswantnagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 99,
     "pct_margin_pct": 97,
     "pct_turnout": 73
@@ -4605,6 +5007,8 @@
     "margin": 3984.0,
     "margin_pct": 1.62,
     "result_seat": "Etawah",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 13,
     "pct_margin_pct": 9,
     "pct_turnout": 46
@@ -4628,6 +5032,8 @@
     "margin": 7559.0,
     "margin_pct": 3.06,
     "result_seat": "Bharthana",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 26,
     "pct_margin_pct": 20,
     "pct_turnout": 47
@@ -4651,6 +5057,8 @@
     "margin": 3265.0,
     "margin_pct": 3.4,
     "result_seat": "Bidhuna",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 29,
     "pct_margin_pct": 24,
     "pct_turnout": 62
@@ -4674,6 +5082,8 @@
     "margin": 473.0,
     "margin_pct": 0.24,
     "result_seat": "Dibiyapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 16,
     "pct_margin_pct": 2,
     "pct_turnout": 59
@@ -4697,6 +5107,8 @@
     "margin": 22447.0,
     "margin_pct": 11.47,
     "result_seat": "Auraiya",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 49,
     "pct_margin_pct": 61,
     "pct_turnout": 34
@@ -4720,6 +5132,8 @@
     "margin": 21512.0,
     "margin_pct": 10.97,
     "result_seat": "Rasulabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 59,
     "pct_margin_pct": 59,
     "pct_turnout": 48
@@ -4743,6 +5157,8 @@
     "margin": 13417.0,
     "margin_pct": 6.33,
     "result_seat": "Akbarpur-Raniya",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 39,
     "pct_turnout": 73
@@ -4766,6 +5182,8 @@
     "margin": 31567.0,
     "margin_pct": 15.84,
     "result_seat": "Sikandra",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 47,
     "pct_margin_pct": 74,
     "pct_turnout": 44
@@ -4789,6 +5207,8 @@
     "margin": 11893.0,
     "margin_pct": 5.45,
     "result_seat": "Bhognipur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 15,
     "pct_margin_pct": 35,
     "pct_turnout": 60
@@ -4812,6 +5232,8 @@
     "margin": 42351.0,
     "margin_pct": 17.32,
     "result_seat": "Bilhaur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 76,
     "pct_margin_pct": 78,
     "pct_turnout": 60
@@ -4835,6 +5257,8 @@
     "margin": 21073.0,
     "margin_pct": 8.73,
     "result_seat": "Bithoor",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 50,
     "pct_turnout": 77
@@ -4858,6 +5282,8 @@
     "margin": 21535.0,
     "margin_pct": 11.47,
     "result_seat": "Kalyanpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 86,
     "pct_margin_pct": 61,
     "pct_turnout": 6
@@ -4881,6 +5307,8 @@
     "margin": 80896.0,
     "margin_pct": 41.98,
     "result_seat": "Govindnagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 98,
     "pct_margin_pct": 99,
     "pct_turnout": 11
@@ -4904,6 +5332,8 @@
     "margin": 12266.0,
     "margin_pct": 7.85,
     "result_seat": "Sishamau",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 79,
     "pct_margin_pct": 46,
     "pct_turnout": 19
@@ -4927,6 +5357,8 @@
     "margin": 7924.0,
     "margin_pct": 5.21,
     "result_seat": "Arya Nagar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 78,
     "pct_margin_pct": 34,
     "pct_turnout": 3
@@ -4950,6 +5382,8 @@
     "margin": 37760.0,
     "margin_pct": 18.33,
     "result_seat": "Kidwai Nagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 92,
     "pct_margin_pct": 80,
     "pct_turnout": 37
@@ -4973,6 +5407,8 @@
     "margin": 19987.0,
     "margin_pct": 10.55,
     "result_seat": "Kanpur Cantonment",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 75,
     "pct_margin_pct": 57,
     "pct_turnout": 5
@@ -4996,6 +5432,8 @@
     "margin": 82261.0,
     "margin_pct": 32.6,
     "result_seat": "Maharajpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 97,
     "pct_margin_pct": 96,
     "pct_turnout": 16
@@ -5019,6 +5457,8 @@
     "margin": 14474.0,
     "margin_pct": 7.37,
     "result_seat": "Ghatampur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 23,
     "pct_margin_pct": 43,
     "pct_turnout": 47
@@ -5042,6 +5482,8 @@
     "margin": 34974.0,
     "margin_pct": 13.72,
     "result_seat": "Madhogarh",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 22,
     "pct_margin_pct": 69,
     "pct_turnout": 21
@@ -5065,6 +5507,8 @@
     "margin": 2816.0,
     "margin_pct": 1.19,
     "result_seat": "Kalpi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 0,
     "pct_margin_pct": 8,
     "pct_turnout": 42
@@ -5088,6 +5532,8 @@
     "margin": 37648.0,
     "margin_pct": 13.89,
     "result_seat": "Orai",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 63,
     "pct_margin_pct": 70,
     "pct_turnout": 50
@@ -5111,6 +5557,8 @@
     "margin": 44529.0,
     "margin_pct": 18.98,
     "result_seat": "Babina",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 77,
     "pct_margin_pct": 82,
     "pct_turnout": 96
@@ -5134,6 +5582,8 @@
     "margin": 76353.0,
     "margin_pct": 30.2,
     "result_seat": "Jhansi Nagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 95,
     "pct_margin_pct": 94,
     "pct_turnout": 41
@@ -5157,6 +5607,8 @@
     "margin": 58595.0,
     "margin_pct": 21.15,
     "result_seat": "Mauranipur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 82,
     "pct_margin_pct": 86,
     "pct_turnout": 84
@@ -5180,6 +5632,8 @@
     "margin": 33662.0,
     "margin_pct": 14.27,
     "result_seat": "Garautha",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 67,
     "pct_margin_pct": 71,
     "pct_turnout": 84
@@ -5203,6 +5657,8 @@
     "margin": 107215.0,
     "margin_pct": 32.18,
     "result_seat": "Lalitpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 86,
     "pct_margin_pct": 95,
     "pct_turnout": 90
@@ -5226,6 +5682,8 @@
     "margin": 110451.0,
     "margin_pct": 32.79,
     "result_seat": "Mehroni",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 91,
     "pct_margin_pct": 96,
     "pct_turnout": 99
@@ -5249,6 +5707,8 @@
     "margin": 25485.0,
     "margin_pct": 9.7,
     "result_seat": "Hamirpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 14,
     "pct_margin_pct": 54,
     "pct_turnout": 68
@@ -5272,6 +5732,8 @@
     "margin": 61979.0,
     "margin_pct": 23.92,
     "result_seat": "Rath",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 89,
     "pct_margin_pct": 89,
     "pct_turnout": 74
@@ -5295,6 +5757,8 @@
     "margin": 43447.0,
     "margin_pct": 20.97,
     "result_seat": "Mahoba",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 51,
     "pct_margin_pct": 86,
     "pct_turnout": 76
@@ -5318,6 +5782,8 @@
     "margin": 41881.0,
     "margin_pct": 18.78,
     "result_seat": "Charkhari",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 51,
     "pct_margin_pct": 81,
     "pct_turnout": 71
@@ -5341,6 +5807,8 @@
     "margin": 28425.0,
     "margin_pct": 14.48,
     "result_seat": "Tindwari",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 42,
     "pct_margin_pct": 71,
     "pct_turnout": 56
@@ -5364,6 +5832,8 @@
     "margin": 7393.0,
     "margin_pct": 3.6,
     "result_seat": "Baberu",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 7,
     "pct_margin_pct": 25,
     "pct_turnout": 48
@@ -5387,6 +5857,8 @@
     "margin": 6719.0,
     "margin_pct": 3.14,
     "result_seat": "Naraini",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 7,
     "pct_margin_pct": 21,
     "pct_turnout": 62
@@ -5410,6 +5882,8 @@
     "margin": 15214.0,
     "margin_pct": 7.71,
     "result_seat": "Banda",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 22,
     "pct_margin_pct": 45,
     "pct_turnout": 68
@@ -5433,6 +5907,8 @@
     "margin": 20876.0,
     "margin_pct": 8.61,
     "result_seat": "Chitrakoot",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 34,
     "pct_margin_pct": 49,
     "pct_turnout": 72
@@ -5456,6 +5932,8 @@
     "margin": 1048.0,
     "margin_pct": 0.5,
     "result_seat": "Manikpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 2,
     "pct_margin_pct": 4,
     "pct_turnout": 53
@@ -5479,6 +5957,8 @@
     "margin": 18192.0,
     "margin_pct": 9.55,
     "result_seat": "Jahanabad",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 21,
     "pct_margin_pct": 53,
     "pct_turnout": 52
@@ -5502,6 +5982,8 @@
     "margin": 3797.0,
     "margin_pct": 1.99,
     "result_seat": "Bindki",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 19,
     "pct_margin_pct": 12,
     "pct_turnout": 50
@@ -5525,6 +6007,8 @@
     "margin": 8601.0,
     "margin_pct": 4.02,
     "result_seat": "Fatehpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 49,
     "pct_margin_pct": 28,
     "pct_turnout": 41
@@ -5548,6 +6032,8 @@
     "margin": 13006.0,
     "margin_pct": 8.1,
     "result_seat": "Ayah Shah",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 47,
     "pct_turnout": 32
@@ -5571,6 +6057,8 @@
     "margin": 25181.0,
     "margin_pct": 13.37,
     "result_seat": "Husainganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 69,
     "pct_margin_pct": 67,
     "pct_turnout": 58
@@ -5594,6 +6082,8 @@
     "margin": 5509.0,
     "margin_pct": 2.75,
     "result_seat": "Khaga",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 24,
     "pct_margin_pct": 17,
     "pct_turnout": 31
@@ -5617,6 +6107,8 @@
     "margin": 14741.0,
     "margin_pct": 8.78,
     "result_seat": "Rampur Khas",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 76,
     "pct_margin_pct": 50,
     "pct_turnout": 5
@@ -5640,6 +6132,8 @@
     "margin": 15767.0,
     "margin_pct": 9.54,
     "result_seat": "Babaganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 16,
     "pct_margin_pct": 52,
     "pct_turnout": 5
@@ -5663,6 +6157,8 @@
     "margin": 30315.0,
     "margin_pct": 15.39,
     "result_seat": "Kunda",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 79,
     "pct_margin_pct": 73,
     "pct_turnout": 12
@@ -5686,6 +6182,8 @@
     "margin": 48052.0,
     "margin_pct": 23.91,
     "result_seat": "Vishwanathganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 34,
     "pct_margin_pct": 88,
     "pct_turnout": 3
@@ -5709,6 +6207,8 @@
     "margin": 25063.0,
     "margin_pct": 12.79,
     "result_seat": "Pratapgarh",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 52,
     "pct_margin_pct": 65,
     "pct_turnout": 12
@@ -5732,6 +6232,8 @@
     "margin": 22051.0,
     "margin_pct": 9.94,
     "result_seat": "Patti",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 68,
     "pct_margin_pct": 55,
     "pct_turnout": 46
@@ -5755,6 +6257,8 @@
     "margin": 2649.0,
     "margin_pct": 1.4,
     "result_seat": "Raniganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 14,
     "pct_margin_pct": 9,
     "pct_turnout": 15
@@ -5778,6 +6282,8 @@
     "margin": 7337.0,
     "margin_pct": 3.21,
     "result_seat": "Sirathu",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 58,
     "pct_margin_pct": 23,
     "pct_turnout": 42
@@ -5801,6 +6307,8 @@
     "margin": 23878.0,
     "margin_pct": 9.27,
     "result_seat": "Manjhanpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 61,
     "pct_margin_pct": 51,
     "pct_turnout": 57
@@ -5824,6 +6332,8 @@
     "margin": 13209.0,
     "margin_pct": 5.89,
     "result_seat": "Chail",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 11,
     "pct_margin_pct": 37,
     "pct_turnout": 26
@@ -5847,6 +6357,8 @@
     "margin": 14324.0,
     "margin_pct": 6.79,
     "result_seat": "Phaphamau",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 35,
     "pct_margin_pct": 41,
     "pct_turnout": 24
@@ -5870,6 +6382,8 @@
     "margin": 5590.0,
     "margin_pct": 2.51,
     "result_seat": "Soraon",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 19,
     "pct_margin_pct": 15,
     "pct_turnout": 33
@@ -5893,6 +6407,8 @@
     "margin": 2732.0,
     "margin_pct": 1.11,
     "result_seat": "Phulpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 26,
     "pct_margin_pct": 8,
     "pct_turnout": 45
@@ -5916,6 +6432,8 @@
     "margin": 10956.0,
     "margin_pct": 4.82,
     "result_seat": "Pratappur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 14,
     "pct_margin_pct": 31,
     "pct_turnout": 14
@@ -5939,6 +6457,8 @@
     "margin": 3543.0,
     "margin_pct": 1.65,
     "result_seat": "Handia",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 10,
     "pct_margin_pct": 10,
     "pct_turnout": 7
@@ -5962,6 +6482,8 @@
     "margin": 3439.0,
     "margin_pct": 1.84,
     "result_seat": "Meja",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 27,
     "pct_margin_pct": 11,
     "pct_turnout": 21
@@ -5985,6 +6507,8 @@
     "margin": 9328.0,
     "margin_pct": 4.59,
     "result_seat": "Karachhana",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 40,
     "pct_margin_pct": 31,
     "pct_turnout": 28
@@ -6008,6 +6532,8 @@
     "margin": 29933.0,
     "margin_pct": 13.43,
     "result_seat": "Allahabad West",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 88,
     "pct_margin_pct": 68,
     "pct_turnout": 1
@@ -6031,6 +6557,8 @@
     "margin": 54883.0,
     "margin_pct": 31.19,
     "result_seat": "Allahabad North",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 92,
     "pct_margin_pct": 95,
     "pct_turnout": 0
@@ -6054,6 +6582,8 @@
     "margin": 26182.0,
     "margin_pct": 14.48,
     "result_seat": "Allahabad South",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 90,
     "pct_margin_pct": 71,
     "pct_turnout": 0
@@ -6077,6 +6607,8 @@
     "margin": 12464.0,
     "margin_pct": 6.11,
     "result_seat": "Bara",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 36,
     "pct_margin_pct": 38,
     "pct_turnout": 52
@@ -6100,6 +6632,8 @@
     "margin": 24487.0,
     "margin_pct": 11.79,
     "result_seat": "Koraon",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 18,
     "pct_margin_pct": 62,
     "pct_turnout": 36
@@ -6123,6 +6657,8 @@
     "margin": 217.0,
     "margin_pct": 0.08,
     "result_seat": "Kursi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 20,
     "pct_margin_pct": 0,
     "pct_turnout": 98
@@ -6146,6 +6682,8 @@
     "margin": 261.0,
     "margin_pct": 0.11,
     "result_seat": "Ramnagar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 25,
     "pct_margin_pct": 1,
     "pct_turnout": 93
@@ -6169,6 +6707,8 @@
     "margin": 35050.0,
     "margin_pct": 13.16,
     "result_seat": "Barabanki",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 61,
     "pct_margin_pct": 67,
     "pct_turnout": 89
@@ -6192,6 +6732,8 @@
     "margin": 2982.0,
     "margin_pct": 1.07,
     "result_seat": "Zaidpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 19,
     "pct_margin_pct": 8,
     "pct_turnout": 95
@@ -6215,6 +6757,8 @@
     "margin": 32617.0,
     "margin_pct": 11.84,
     "result_seat": "Dariyabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 60,
     "pct_margin_pct": 63,
     "pct_turnout": 80
@@ -6238,6 +6782,8 @@
     "margin": 40616.0,
     "margin_pct": 18.55,
     "result_seat": "Rudauli",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 32,
     "pct_margin_pct": 81,
     "pct_turnout": 54
@@ -6261,6 +6807,8 @@
     "margin": 25691.0,
     "margin_pct": 11.17,
     "result_seat": "Haidergarh",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 80,
     "pct_margin_pct": 60,
     "pct_turnout": 78
@@ -6284,6 +6832,8 @@
     "margin": 13338.0,
     "margin_pct": 6.16,
     "result_seat": "Milkipur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 65,
     "pct_margin_pct": 38,
     "pct_turnout": 46
@@ -6307,6 +6857,8 @@
     "margin": 5560.0,
     "margin_pct": 2.2,
     "result_seat": "Bikapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 42,
     "pct_margin_pct": 13,
     "pct_turnout": 68
@@ -6330,6 +6882,8 @@
     "margin": 19990.0,
     "margin_pct": 8.64,
     "result_seat": "Ayodhya",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 71,
     "pct_margin_pct": 49,
     "pct_turnout": 47
@@ -6353,6 +6907,8 @@
     "margin": 13079.0,
     "margin_pct": 5.42,
     "result_seat": "Goshainganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 39,
     "pct_margin_pct": 35,
     "pct_turnout": 51
@@ -6376,6 +6932,8 @@
     "margin": 7696.0,
     "margin_pct": 3.11,
     "result_seat": "Katehari",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 5,
     "pct_margin_pct": 21,
     "pct_turnout": 63
@@ -6399,6 +6957,8 @@
     "margin": 32097.0,
     "margin_pct": 14.65,
     "result_seat": "Tanda",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 36,
     "pct_margin_pct": 72,
     "pct_turnout": 81
@@ -6422,6 +6982,8 @@
     "margin": 9383.0,
     "margin_pct": 4.5,
     "result_seat": "Alapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 2,
     "pct_margin_pct": 30,
     "pct_turnout": 53
@@ -6445,6 +7007,8 @@
     "margin": 13630.0,
     "margin_pct": 5.27,
     "result_seat": "Jalalpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 3,
     "pct_margin_pct": 35,
     "pct_turnout": 68
@@ -6468,6 +7032,8 @@
     "margin": 12336.0,
     "margin_pct": 5.75,
     "result_seat": "Akbarpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 5,
     "pct_margin_pct": 37,
     "pct_turnout": 72
@@ -6491,6 +7057,8 @@
     "margin": 16573.0,
     "margin_pct": 7.72,
     "result_seat": "Balha",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 59,
     "pct_margin_pct": 46,
     "pct_turnout": 39
@@ -6514,6 +7082,8 @@
     "margin": 12184.0,
     "margin_pct": 6.1,
     "result_seat": "Nanpara",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 40,
     "pct_margin_pct": 38,
     "pct_turnout": 28
@@ -6537,6 +7107,8 @@
     "margin": 10428.0,
     "margin_pct": 4.89,
     "result_seat": "Matera",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 66,
     "pct_margin_pct": 32,
     "pct_turnout": 63
@@ -6560,6 +7132,8 @@
     "margin": 42684.0,
     "margin_pct": 19.76,
     "result_seat": "Mahasi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 91,
     "pct_margin_pct": 84,
     "pct_turnout": 65
@@ -6583,6 +7157,8 @@
     "margin": 4078.0,
     "margin_pct": 1.76,
     "result_seat": "Bahraich",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 57,
     "pct_margin_pct": 10,
     "pct_turnout": 36
@@ -6606,6 +7182,8 @@
     "margin": 12056.0,
     "margin_pct": 5.23,
     "result_seat": "Payagpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 64,
     "pct_margin_pct": 34,
     "pct_turnout": 38
@@ -6629,6 +7207,8 @@
     "margin": 7771.0,
     "margin_pct": 3.4,
     "result_seat": "Kaiserganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 51,
     "pct_margin_pct": 24,
     "pct_turnout": 29
@@ -6652,6 +7232,8 @@
     "margin": 13574.0,
     "margin_pct": 5.87,
     "result_seat": "Bhinga",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 47,
     "pct_margin_pct": 37,
     "pct_turnout": 34
@@ -6675,6 +7257,8 @@
     "margin": 1457.0,
     "margin_pct": 0.58,
     "result_seat": "Shrawasti",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 8,
     "pct_margin_pct": 5,
     "pct_turnout": 49
@@ -6698,6 +7282,8 @@
     "margin": 35841.0,
     "margin_pct": 17.65,
     "result_seat": "Tulsipur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 31,
     "pct_margin_pct": 79,
     "pct_turnout": 6
@@ -6721,6 +7307,8 @@
     "margin": 5837.0,
     "margin_pct": 3.07,
     "result_seat": "Gainsari",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 11,
     "pct_margin_pct": 20,
     "pct_turnout": 4
@@ -6744,6 +7332,8 @@
     "margin": 21769.0,
     "margin_pct": 10.5,
     "result_seat": "Utraula",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 57,
     "pct_turnout": 0
@@ -6767,6 +7357,8 @@
     "margin": 10971.0,
     "margin_pct": 5.31,
     "result_seat": "Balrampur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 70,
     "pct_margin_pct": 35,
     "pct_turnout": 1
@@ -6790,6 +7382,8 @@
     "margin": 23128.0,
     "margin_pct": 10.83,
     "result_seat": "Mehnaun",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 75,
     "pct_margin_pct": 59,
     "pct_turnout": 33
@@ -6813,6 +7407,8 @@
     "margin": 6700.0,
     "margin_pct": 3.34,
     "result_seat": "Gonda",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 67,
     "pct_margin_pct": 24,
     "pct_turnout": 24
@@ -6836,6 +7432,8 @@
     "margin": 18457.0,
     "margin_pct": 7.87,
     "result_seat": "Katra Bazar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 65,
     "pct_margin_pct": 47,
     "pct_turnout": 47
@@ -6859,6 +7457,8 @@
     "margin": 35472.0,
     "margin_pct": 18.31,
     "result_seat": "Colonelganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 93,
     "pct_margin_pct": 80,
     "pct_turnout": 33
@@ -6882,6 +7482,8 @@
     "margin": 53690.0,
     "margin_pct": 25.44,
     "result_seat": "Tarabganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 96,
     "pct_margin_pct": 91,
     "pct_turnout": 23
@@ -6905,6 +7507,8 @@
     "margin": 42349.0,
     "margin_pct": 23.12,
     "result_seat": "Mankapur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 94,
     "pct_margin_pct": 88,
     "pct_turnout": 12
@@ -6928,6 +7532,8 @@
     "margin": 22974.0,
     "margin_pct": 13.31,
     "result_seat": "Gaura",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 29,
     "pct_margin_pct": 67,
     "pct_turnout": 8
@@ -6951,6 +7557,8 @@
     "margin": 24463.0,
     "margin_pct": 14.9,
     "result_seat": "Shohratgarh",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 4,
     "pct_margin_pct": 72,
     "pct_turnout": 6
@@ -6974,6 +7582,8 @@
     "margin": 30939.0,
     "margin_pct": 12.26,
     "result_seat": "Kapilvastu",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 68,
     "pct_margin_pct": 64,
     "pct_turnout": 14
@@ -6997,6 +7607,8 @@
     "margin": 20340.0,
     "margin_pct": 10.78,
     "result_seat": "Bansi",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 47,
     "pct_margin_pct": 58,
     "pct_turnout": 2
@@ -7020,6 +7632,8 @@
     "margin": 1662.0,
     "margin_pct": 0.99,
     "result_seat": "Itwa",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 7,
     "pct_turnout": 2
@@ -7043,6 +7657,8 @@
     "margin": 771.0,
     "margin_pct": 0.37,
     "result_seat": "Domariyaganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 21,
     "pct_margin_pct": 3,
     "pct_turnout": 3
@@ -7066,6 +7682,8 @@
     "margin": 18329.0,
     "margin_pct": 8.18,
     "result_seat": "Harraiya",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 12,
     "pct_margin_pct": 48,
     "pct_turnout": 20
@@ -7089,6 +7707,8 @@
     "margin": 24179.0,
     "margin_pct": 11.2,
     "result_seat": "Kaptanganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 37,
     "pct_margin_pct": 60,
     "pct_turnout": 38
@@ -7112,6 +7732,8 @@
     "margin": 15226.0,
     "margin_pct": 6.49,
     "result_seat": "Rudhauli",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 3,
     "pct_margin_pct": 40,
     "pct_turnout": 10
@@ -7135,6 +7757,8 @@
     "margin": 1779.0,
     "margin_pct": 0.82,
     "result_seat": "Basti Sadar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 12,
     "pct_margin_pct": 7,
     "pct_turnout": 33
@@ -7158,6 +7782,8 @@
     "margin": 5495.0,
     "margin_pct": 2.6,
     "result_seat": "Mahadewa",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 10,
     "pct_margin_pct": 16,
     "pct_turnout": 29
@@ -7181,6 +7807,8 @@
     "margin": 5223.0,
     "margin_pct": 2.15,
     "result_seat": "Menhdawal",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 4,
     "pct_margin_pct": 13,
     "pct_turnout": 7
@@ -7204,6 +7832,8 @@
     "margin": 12262.0,
     "margin_pct": 5.04,
     "result_seat": "Khalilabad",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 0,
     "pct_margin_pct": 33,
     "pct_turnout": 11
@@ -7227,6 +7857,8 @@
     "margin": 10553.0,
     "margin_pct": 4.88,
     "result_seat": "Dhanghata",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 32,
     "pct_turnout": 14
@@ -7250,6 +7882,8 @@
     "margin": 1246.0,
     "margin_pct": 0.59,
     "result_seat": "Pharenda",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 15,
     "pct_margin_pct": 5,
     "pct_turnout": 50
@@ -7273,6 +7907,8 @@
     "margin": 15691.0,
     "margin_pct": 6.8,
     "result_seat": "Nautanwa",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 14,
     "pct_margin_pct": 42,
     "pct_turnout": 55
@@ -7296,6 +7932,8 @@
     "margin": 62731.0,
     "margin_pct": 24.59,
     "result_seat": "Siswa",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 75,
     "pct_margin_pct": 90,
     "pct_turnout": 76
@@ -7319,6 +7957,8 @@
     "margin": 76903.0,
     "margin_pct": 28.55,
     "result_seat": "Maharajganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 81,
     "pct_margin_pct": 93,
     "pct_turnout": 67
@@ -7342,6 +7982,8 @@
     "margin": 61428.0,
     "margin_pct": 23.63,
     "result_seat": "Paniyara",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 83,
     "pct_margin_pct": 88,
     "pct_turnout": 53
@@ -7365,6 +8007,8 @@
     "margin": 42656.0,
     "margin_pct": 19.01,
     "result_seat": "Caimpiyarganj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 90,
     "pct_margin_pct": 82,
     "pct_turnout": 32
@@ -7388,6 +8032,8 @@
     "margin": 65357.0,
     "margin_pct": 25.29,
     "result_seat": "Pipraich",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 91,
     "pct_margin_pct": 91,
     "pct_turnout": 69
@@ -7411,6 +8057,8 @@
     "margin": 103390.0,
     "margin_pct": 41.34,
     "result_seat": "Gorakhpur Urban",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 99,
     "pct_margin_pct": 98,
     "pct_turnout": 9
@@ -7434,6 +8082,8 @@
     "margin": 24070.0,
     "margin_pct": 9.45,
     "result_seat": "Gorakhpur Rural",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 74,
     "pct_margin_pct": 52,
     "pct_turnout": 49
@@ -7457,6 +8107,8 @@
     "margin": 43406.0,
     "margin_pct": 19.34,
     "result_seat": "Sahajanwa",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 61,
     "pct_margin_pct": 83,
     "pct_turnout": 38
@@ -7480,6 +8132,8 @@
     "margin": 37101.0,
     "margin_pct": 18.6,
     "result_seat": "Khajani",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 50,
     "pct_margin_pct": 81,
     "pct_turnout": 5
@@ -7503,6 +8157,8 @@
     "margin": 41127.0,
     "margin_pct": 19.97,
     "result_seat": "Chauri-Chaura",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 45,
     "pct_margin_pct": 84,
     "pct_turnout": 27
@@ -7526,6 +8182,8 @@
     "margin": 32209.0,
     "margin_pct": 17.13,
     "result_seat": "Bansgaon",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 55,
     "pct_margin_pct": 77,
     "pct_turnout": 2
@@ -7549,6 +8207,8 @@
     "margin": 21645.0,
     "margin_pct": 9.51,
     "result_seat": "Chillupar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 28,
     "pct_margin_pct": 52,
     "pct_turnout": 7
@@ -7572,6 +8232,8 @@
     "margin": 41451.0,
     "margin_pct": 20.23,
     "result_seat": "Khadda",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 32,
     "pct_margin_pct": 85,
     "pct_turnout": 44
@@ -7595,6 +8257,8 @@
     "margin": 42008.0,
     "margin_pct": 18.27,
     "result_seat": "Padrauna",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 74,
     "pct_margin_pct": 80,
     "pct_turnout": 44
@@ -7618,6 +8282,8 @@
     "margin": 66472.0,
     "margin_pct": 29.34,
     "result_seat": "Tamkuhi Raj",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 80,
     "pct_margin_pct": 93,
     "pct_turnout": 18
@@ -7641,6 +8307,8 @@
     "margin": 45014.0,
     "margin_pct": 20.46,
     "result_seat": "Fazilnagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 82,
     "pct_margin_pct": 85,
     "pct_turnout": 15
@@ -7664,6 +8332,8 @@
     "margin": 34790.0,
     "margin_pct": 15.74,
     "result_seat": "Kushinagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 84,
     "pct_margin_pct": 74,
     "pct_turnout": 39
@@ -7687,6 +8357,8 @@
     "margin": 59365.0,
     "margin_pct": 27.4,
     "result_seat": "Hata",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 93,
     "pct_margin_pct": 93,
     "pct_turnout": 28
@@ -7710,6 +8382,8 @@
     "margin": 72543.0,
     "margin_pct": 33.87,
     "result_seat": "Ramkola",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 94,
     "pct_margin_pct": 96,
     "pct_turnout": 24
@@ -7733,6 +8407,8 @@
     "margin": 41936.0,
     "margin_pct": 23.06,
     "result_seat": "Rudrapur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 32,
     "pct_margin_pct": 88,
     "pct_turnout": 17
@@ -7756,6 +8432,8 @@
     "margin": 40655.0,
     "margin_pct": 20.39,
     "result_seat": "Deoria",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 89,
     "pct_margin_pct": 85,
     "pct_turnout": 18
@@ -7779,6 +8457,8 @@
     "margin": 28681.0,
     "margin_pct": 14.25,
     "result_seat": "Pathardeva",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 58,
     "pct_margin_pct": 71,
     "pct_turnout": 40
@@ -7802,6 +8482,8 @@
     "margin": 14670.0,
     "margin_pct": 7.09,
     "result_seat": "Rampur Karkhana",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 39,
     "pct_margin_pct": 42,
     "pct_turnout": 28
@@ -7825,6 +8507,8 @@
     "margin": 18082.0,
     "margin_pct": 9.3,
     "result_seat": "Bhatpar Rani",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 60,
     "pct_margin_pct": 51,
     "pct_turnout": 23
@@ -7848,6 +8532,8 @@
     "margin": 16608.0,
     "margin_pct": 9.35,
     "result_seat": "Salempur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 54,
     "pct_margin_pct": 52,
     "pct_turnout": 4
@@ -7871,6 +8557,8 @@
     "margin": 16861.0,
     "margin_pct": 9.11,
     "result_seat": "Barhaj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 55,
     "pct_margin_pct": 51,
     "pct_turnout": 29
@@ -7894,6 +8582,8 @@
     "margin": 17247.0,
     "margin_pct": 7.45,
     "result_seat": "Atrauliya",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 10,
     "pct_margin_pct": 44,
     "pct_turnout": 50
@@ -7917,6 +8607,8 @@
     "margin": 24307.0,
     "margin_pct": 11.77,
     "result_seat": "Gopalpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 19,
     "pct_margin_pct": 62,
     "pct_turnout": 36
@@ -7940,6 +8632,8 @@
     "margin": 22515.0,
     "margin_pct": 11.59,
     "result_seat": "Sagri",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 30,
     "pct_margin_pct": 61,
     "pct_turnout": 26
@@ -7963,6 +8657,8 @@
     "margin": 29103.0,
     "margin_pct": 12.99,
     "result_seat": "Mubarakpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 3,
     "pct_margin_pct": 66,
     "pct_turnout": 66
@@ -7986,6 +8682,8 @@
     "margin": 16036.0,
     "margin_pct": 6.79,
     "result_seat": "Azamgarh",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 29,
     "pct_margin_pct": 41,
     "pct_turnout": 41
@@ -8009,6 +8707,8 @@
     "margin": 34187.0,
     "margin_pct": 18.51,
     "result_seat": "Nizamabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 34,
     "pct_margin_pct": 80,
     "pct_turnout": 17
@@ -8032,6 +8732,8 @@
     "margin": 25306.0,
     "margin_pct": 13.09,
     "result_seat": "Phoolpur Pawai",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 26,
     "pct_margin_pct": 67,
     "pct_turnout": 34
@@ -8055,6 +8757,8 @@
     "margin": 13561.0,
     "margin_pct": 6.74,
     "result_seat": "Didarganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 4,
     "pct_margin_pct": 41,
     "pct_turnout": 12
@@ -8078,6 +8782,8 @@
     "margin": 14733.0,
     "margin_pct": 6.74,
     "result_seat": "Lalganj",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 5,
     "pct_margin_pct": 41,
     "pct_turnout": 8
@@ -8101,6 +8807,8 @@
     "margin": 14149.0,
     "margin_pct": 6.41,
     "result_seat": "Mehnagar",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 9,
     "pct_margin_pct": 39,
     "pct_turnout": 11
@@ -8124,6 +8832,8 @@
     "margin": 4448.0,
     "margin_pct": 1.98,
     "result_seat": "Madhuban",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 2,
     "pct_margin_pct": 12,
     "pct_turnout": 13
@@ -8147,6 +8857,8 @@
     "margin": 22216.0,
     "margin_pct": 8.64,
     "result_seat": "Ghosi",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 27,
     "pct_margin_pct": 49,
     "pct_turnout": 32
@@ -8170,6 +8882,8 @@
     "margin": 26649.0,
     "margin_pct": 11.68,
     "result_seat": "Muhammadabad-Gohna",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 22,
     "pct_margin_pct": 62,
     "pct_turnout": 43
@@ -8193,6 +8907,8 @@
     "margin": 38116.0,
     "margin_pct": 13.66,
     "result_seat": "Mau",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 45,
     "pct_margin_pct": 69,
     "pct_turnout": 27
@@ -8216,6 +8932,8 @@
     "margin": 5514.0,
     "margin_pct": 2.76,
     "result_seat": "Belthara Road",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 11,
     "pct_margin_pct": 18,
     "pct_turnout": 14
@@ -8239,6 +8957,8 @@
     "margin": 6583.0,
     "margin_pct": 3.28,
     "result_seat": "Rasara",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 24,
     "pct_turnout": 16
@@ -8262,6 +8982,8 @@
     "margin": 11855.0,
     "margin_pct": 6.72,
     "result_seat": "Sikanderpur",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 30,
     "pct_margin_pct": 40,
     "pct_turnout": 22
@@ -8285,6 +9007,8 @@
     "margin": 19354.0,
     "margin_pct": 10.21,
     "result_seat": "Phephana",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 69,
     "pct_margin_pct": 56,
     "pct_turnout": 22
@@ -8308,6 +9032,8 @@
     "margin": 26239.0,
     "margin_pct": 12.94,
     "result_seat": "Ballia Nagar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 81,
     "pct_margin_pct": 66,
     "pct_turnout": 9
@@ -8331,6 +9057,8 @@
     "margin": 21352.0,
     "margin_pct": 9.85,
     "result_seat": "Bansdih",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 64,
     "pct_margin_pct": 54,
     "pct_turnout": 7
@@ -8354,6 +9082,8 @@
     "margin": 12951.0,
     "margin_pct": 7.33,
     "result_seat": "Bairia",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 16,
     "pct_margin_pct": 43,
     "pct_turnout": 1
@@ -8377,6 +9107,8 @@
     "margin": 1326.0,
     "margin_pct": 0.64,
     "result_seat": "Badlapur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 12,
     "pct_margin_pct": 6,
     "pct_turnout": 36
@@ -8400,6 +9132,8 @@
     "margin": 719.0,
     "margin_pct": 0.3,
     "result_seat": "Shahganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 3,
     "pct_margin_pct": 3,
     "pct_turnout": 38
@@ -8423,6 +9157,8 @@
     "margin": 8052.0,
     "margin_pct": 3.24,
     "result_seat": "Jaunpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 9,
     "pct_margin_pct": 23,
     "pct_turnout": 20
@@ -8446,6 +9182,8 @@
     "margin": 17527.0,
     "margin_pct": 7.66,
     "result_seat": "Malhani",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 28,
     "pct_margin_pct": 45,
     "pct_turnout": 45
@@ -8469,6 +9207,8 @@
     "margin": 5230.0,
     "margin_pct": 2.38,
     "result_seat": "Mungra Badshahpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 25,
     "pct_margin_pct": 14,
     "pct_turnout": 19
@@ -8492,6 +9232,8 @@
     "margin": 8484.0,
     "margin_pct": 3.89,
     "result_seat": "Machhlishahr",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 25,
     "pct_margin_pct": 27,
     "pct_turnout": 10
@@ -8515,6 +9257,8 @@
     "margin": 1206.0,
     "margin_pct": 0.63,
     "result_seat": "Mariyahu",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 9,
     "pct_margin_pct": 5,
     "pct_turnout": 22
@@ -8538,6 +9282,8 @@
     "margin": 6292.0,
     "margin_pct": 2.81,
     "result_seat": "Zafrabad",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 17,
     "pct_margin_pct": 18,
     "pct_turnout": 15
@@ -8561,6 +9307,8 @@
     "margin": 9844.0,
     "margin_pct": 4.09,
     "result_seat": "Kerakat",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 9,
     "pct_margin_pct": 28,
     "pct_turnout": 25
@@ -8584,6 +9332,8 @@
     "margin": 36865.0,
     "margin_pct": 14.48,
     "result_seat": "Jakhanian",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 44,
     "pct_margin_pct": 71,
     "pct_turnout": 35
@@ -8607,6 +9357,8 @@
     "margin": 36635.0,
     "margin_pct": 15.48,
     "result_seat": "Saidpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 56,
     "pct_margin_pct": 73,
     "pct_turnout": 37
@@ -8630,6 +9382,8 @@
     "margin": 1692.0,
     "margin_pct": 0.75,
     "result_seat": "Ghazipur Sadar",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 18,
     "pct_margin_pct": 6,
     "pct_turnout": 59
@@ -8653,6 +9407,8 @@
     "margin": 35063.0,
     "margin_pct": 15.22,
     "result_seat": "Jangipur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 46,
     "pct_margin_pct": 72,
     "pct_turnout": 52
@@ -8676,6 +9432,8 @@
     "margin": 45632.0,
     "margin_pct": 24.96,
     "result_seat": "Zahoorabad",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 57,
     "pct_margin_pct": 90,
     "pct_turnout": 48
@@ -8699,6 +9457,8 @@
     "margin": 18759.0,
     "margin_pct": 7.62,
     "result_seat": "Mohammadabad",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 49,
     "pct_margin_pct": 44,
     "pct_turnout": 27
@@ -8722,6 +9482,8 @@
     "margin": 22456.0,
     "margin_pct": 9.62,
     "result_seat": "Zamania",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 17,
     "pct_margin_pct": 53,
     "pct_turnout": 11
@@ -8745,6 +9507,8 @@
     "margin": 14921.0,
     "margin_pct": 6.19,
     "result_seat": "Mughalsarai",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 28,
     "pct_margin_pct": 38,
     "pct_turnout": 44
@@ -8768,6 +9532,8 @@
     "margin": 16661.0,
     "margin_pct": 7.86,
     "result_seat": "Sakaldiha",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 18,
     "pct_margin_pct": 47,
     "pct_turnout": 66
@@ -8791,6 +9557,8 @@
     "margin": 10917.0,
     "margin_pct": 5.2,
     "result_seat": "Saiyadraja",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 24,
     "pct_margin_pct": 34,
     "pct_turnout": 65
@@ -8814,6 +9582,8 @@
     "margin": 9251.0,
     "margin_pct": 3.75,
     "result_seat": "Chakia",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 11,
     "pct_margin_pct": 26,
     "pct_turnout": 75
@@ -8837,6 +9607,8 @@
     "margin": 35559.0,
     "margin_pct": 16.12,
     "result_seat": "Pindra",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 5,
     "pct_margin_pct": 75,
     "pct_turnout": 37
@@ -8860,6 +9632,8 @@
     "margin": 9160.0,
     "margin_pct": 3.74,
     "result_seat": "Ajagara",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 21,
     "pct_margin_pct": 26,
     "pct_turnout": 76
@@ -8883,6 +9657,8 @@
     "margin": 27687.0,
     "margin_pct": 10.99,
     "result_seat": "Shivpur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 52,
     "pct_margin_pct": 59,
     "pct_turnout": 85
@@ -8906,6 +9682,8 @@
     "margin": 46472.0,
     "margin_pct": 18.83,
     "result_seat": "Rohaniya",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 66,
     "pct_margin_pct": 81,
     "pct_turnout": 45
@@ -8929,6 +9707,8 @@
     "margin": 40776.0,
     "margin_pct": 16.56,
     "result_seat": "Varanasi North",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 91,
     "pct_margin_pct": 76,
     "pct_turnout": 25
@@ -8952,6 +9732,8 @@
     "margin": 10722.0,
     "margin_pct": 5.47,
     "result_seat": "Varanasi South",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 80,
     "pct_margin_pct": 36,
     "pct_turnout": 46
@@ -8975,6 +9757,8 @@
     "margin": 86844.0,
     "margin_pct": 35.62,
     "result_seat": "Varanasi Cantt.",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 97,
     "pct_margin_pct": 97,
     "pct_turnout": 9
@@ -8998,6 +9782,8 @@
     "margin": 22531.0,
     "margin_pct": 10.19,
     "result_seat": "Sevapuri",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 63,
     "pct_margin_pct": 56,
     "pct_turnout": 69
@@ -9021,6 +9807,8 @@
     "margin": 4885.0,
     "margin_pct": 1.95,
     "result_seat": "Bhadohi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 15,
     "pct_margin_pct": 11,
     "pct_turnout": 31
@@ -9044,6 +9832,8 @@
     "margin": 6231.0,
     "margin_pct": 2.89,
     "result_seat": "Gyanpur",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 1,
     "pct_margin_pct": 19,
     "pct_turnout": 13
@@ -9067,6 +9857,8 @@
     "margin": 1647.0,
     "margin_pct": 0.74,
     "result_seat": "Aurai",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 23,
     "pct_margin_pct": 6,
     "pct_turnout": 41
@@ -9090,6 +9882,8 @@
     "margin": 38113.0,
     "margin_pct": 17.58,
     "result_seat": "Chhanbey",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 62,
     "pct_margin_pct": 79,
     "pct_turnout": 26
@@ -9113,6 +9907,8 @@
     "margin": 39876.0,
     "margin_pct": 17.51,
     "result_seat": "Mirzapur",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 83,
     "pct_margin_pct": 78,
     "pct_turnout": 17
@@ -9136,6 +9932,8 @@
     "margin": 33587.0,
     "margin_pct": 13.69,
     "result_seat": "Majhawan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 26,
     "pct_margin_pct": 69,
     "pct_turnout": 57
@@ -9159,6 +9957,8 @@
     "margin": 47614.0,
     "margin_pct": 21.56,
     "result_seat": "Chunar",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 76,
     "pct_margin_pct": 87,
     "pct_turnout": 61
@@ -9182,6 +9982,8 @@
     "margin": 62911.0,
     "margin_pct": 26.57,
     "result_seat": "Marihan",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 92,
     "pct_turnout": 72
@@ -9205,6 +10007,8 @@
     "margin": 23922.0,
     "margin_pct": 9.56,
     "result_seat": "Ghorawal",
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 17,
     "pct_margin_pct": 53,
     "pct_turnout": 67
@@ -9228,6 +10032,8 @@
     "margin": 5621.0,
     "margin_pct": 2.68,
     "result_seat": "Robertsganj",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 15,
     "pct_margin_pct": 17,
     "pct_turnout": 51
@@ -9251,6 +10057,8 @@
     "margin": 26442.0,
     "margin_pct": 16.21,
     "result_seat": "Obra",
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 66,
     "pct_margin_pct": 75,
     "pct_turnout": 3
@@ -9274,6 +10082,8 @@
     "margin": 6297.0,
     "margin_pct": 3.08,
     "result_seat": "Duddhi",
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 21,
     "pct_margin_pct": 20,
     "pct_turnout": 56
@@ -9298,6 +10108,12 @@
     "margin": 64542.0,
     "margin_pct": 5.25,
     "result_seat": "Saharanpur",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 22,
     "pct_margin_pct": 47,
     "pct_turnout": 99
@@ -9320,6 +10136,12 @@
     "margin": 69116.0,
     "margin_pct": 6.4,
     "result_seat": "Kairana",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 42.23,
+    "trend_pp": 6.67,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 66,
     "pct_margin_pct": 52,
     "pct_turnout": 87
@@ -9342,6 +10164,12 @@
     "margin": 24672.0,
     "margin_pct": 2.29,
     "result_seat": "Muzaffarnagar",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 13,
     "pct_margin_pct": 13,
     "pct_turnout": 73
@@ -9364,6 +10192,12 @@
     "margin": 37508.0,
     "margin_pct": 3.66,
     "result_seat": "Bijnor",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 1,
     "pct_margin_pct": 32,
     "pct_turnout": 68
@@ -9386,6 +10220,12 @@
     "margin": 151473.0,
     "margin_pct": 15.13,
     "result_seat": "Nagina",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 80,
     "pct_margin_pct": 85,
     "pct_turnout": 82
@@ -9408,6 +10248,12 @@
     "margin": 105762.0,
     "margin_pct": 8.24,
     "result_seat": "Moradabad",
+    "prev_year_winner": "SP",
+    "prev_winner_pct": 50.65,
+    "trend_pp": -0.98,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 70,
     "pct_margin_pct": 62,
     "pct_turnout": 86
@@ -9430,6 +10276,12 @@
     "margin": 87434.0,
     "margin_pct": 9.03,
     "result_seat": "Rampur",
+    "prev_year_winner": "SP",
+    "prev_winner_pct": 52.69,
+    "trend_pp": -2.95,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 71,
     "pct_margin_pct": 67,
     "pct_turnout": 41
@@ -9452,6 +10304,12 @@
     "margin": 121494.0,
     "margin_pct": 10.17,
     "result_seat": "Sambhal",
+    "prev_year_winner": "SP",
+    "prev_winner_pct": 55.58,
+    "trend_pp": -7.78,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 53,
     "pct_margin_pct": 70,
     "pct_turnout": 91
@@ -9474,6 +10332,12 @@
     "margin": 28670.0,
     "margin_pct": 2.58,
     "result_seat": "Amroha",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": 45.98,
+    "trend_pp": -3.08,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 9,
     "pct_margin_pct": 16,
     "pct_turnout": 96
@@ -9496,6 +10360,12 @@
     "margin": 10585.0,
     "margin_pct": 0.89,
     "result_seat": "Meerut",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 48.17,
+    "trend_pp": -1.96,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 35,
     "pct_margin_pct": 8,
     "pct_turnout": 71
@@ -9518,6 +10388,12 @@
     "margin": 159459.0,
     "margin_pct": 17.07,
     "result_seat": "Baghpat",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 48.04,
+    "trend_pp": 4.32,
+    "trend_party": "RLD",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 84,
     "pct_margin_pct": 90,
     "pct_turnout": 43
@@ -9540,6 +10416,12 @@
     "margin": 336965.0,
     "margin_pct": 22.92,
     "result_seat": "Ghaziabad",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 61.93,
+    "trend_pp": -3.84,
+    "trend_party": "BJP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 97,
     "pct_margin_pct": 94,
     "pct_turnout": 3
@@ -9562,6 +10444,12 @@
     "margin": 559472.0,
     "margin_pct": 24.52,
     "result_seat": "G. B. Nagar",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 59.64,
+    "trend_pp": 0.05,
+    "trend_party": "BJP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 99,
     "pct_margin_pct": 96,
     "pct_turnout": 22
@@ -9584,6 +10472,12 @@
     "margin": 275134.0,
     "margin_pct": 26.09,
     "result_seat": "Bulandshahr",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 60.56,
+    "trend_pp": -3.91,
+    "trend_party": "BJP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 95,
     "pct_margin_pct": 97,
     "pct_turnout": 43
@@ -9606,6 +10500,12 @@
     "margin": 15647.0,
     "margin_pct": 1.38,
     "result_seat": "Aligarh",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.38,
+    "trend_pp": -12.1,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 20,
     "pct_margin_pct": 9,
     "pct_turnout": 53
@@ -9628,6 +10528,12 @@
     "margin": 247318.0,
     "margin_pct": 22.85,
     "result_seat": "Hathras",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 59.43,
+    "trend_pp": -8.19,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 81,
     "pct_margin_pct": 92,
     "pct_turnout": 39
@@ -9650,6 +10556,12 @@
     "margin": 293407.0,
     "margin_pct": 30.65,
     "result_seat": "Mathura",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 60.79,
+    "trend_pp": -7.5,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 86,
     "pct_margin_pct": 99,
     "pct_turnout": 1
@@ -9672,6 +10584,12 @@
     "margin": 271294.0,
     "margin_pct": 24.14,
     "result_seat": "Agra",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.46,
+    "trend_pp": -3.12,
+    "trend_party": "BJP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 87,
     "pct_margin_pct": 95,
     "pct_turnout": 23
@@ -9694,6 +10612,12 @@
     "margin": 43405.0,
     "margin_pct": 4.19,
     "result_seat": "Fatehpur Sikri",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 64.24,
+    "trend_pp": -21.15,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 11,
     "pct_margin_pct": 37,
     "pct_turnout": 56
@@ -9716,6 +10640,12 @@
     "margin": 89312.0,
     "margin_pct": 8.06,
     "result_seat": "Firozabad",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 43.38,
+    "trend_pp": 5.63,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 67,
     "pct_margin_pct": 59,
     "pct_turnout": 67
@@ -9738,6 +10668,12 @@
     "margin": 221639.0,
     "margin_pct": 21.03,
     "result_seat": "Mainpuri",
+    "prev_year_winner": "SP",
+    "prev_winner_pct": 53.66,
+    "trend_pp": 3.13,
+    "trend_party": "SP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 96,
     "pct_margin_pct": 91,
     "pct_turnout": 68
@@ -9760,6 +10696,12 @@
     "margin": 28052.0,
     "margin_pct": 2.77,
     "result_seat": "Etah",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 42.25,
+    "trend_pp": 4.84,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 44,
     "pct_margin_pct": 19,
     "pct_turnout": 76
@@ -9782,6 +10724,12 @@
     "margin": 34991.0,
     "margin_pct": 3.21,
     "result_seat": "Badaun",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 45.58,
+    "trend_pp": 0.39,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 33,
     "pct_margin_pct": 27,
     "pct_turnout": 25
@@ -9804,6 +10752,12 @@
     "margin": 15969.0,
     "margin_pct": 1.47,
     "result_seat": "Aonla",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 27,
     "pct_margin_pct": 10,
     "pct_turnout": 58
@@ -9826,6 +10780,12 @@
     "margin": 34804.0,
     "margin_pct": 3.11,
     "result_seat": "Bareilly",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 52.88,
+    "trend_pp": -2.22,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 77,
     "pct_margin_pct": 24,
     "pct_turnout": 65
@@ -9848,6 +10808,12 @@
     "margin": 164935.0,
     "margin_pct": 14.21,
     "result_seat": "Pilibhit",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 59.34,
+    "trend_pp": -7.04,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 82,
     "pct_margin_pct": 84,
     "pct_turnout": 92
@@ -9870,6 +10836,12 @@
     "margin": 55379.0,
     "margin_pct": 4.44,
     "result_seat": "Shahjahanpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 58.04,
+    "trend_pp": -10.54,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 49,
     "pct_margin_pct": 41,
     "pct_turnout": 20
@@ -9892,6 +10864,12 @@
     "margin": 34329.0,
     "margin_pct": 2.83,
     "result_seat": "Kheri",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 34.38,
+    "trend_pp": 11.56,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 32,
     "pct_margin_pct": 20,
     "pct_turnout": 97
@@ -9914,6 +10892,12 @@
     "margin": 4449.0,
     "margin_pct": 0.4,
     "result_seat": "Dhaurahra",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 3,
     "pct_margin_pct": 5,
     "pct_turnout": 95
@@ -9936,6 +10920,12 @@
     "margin": 89641.0,
     "margin_pct": 8.14,
     "result_seat": "Sitapur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 54,
     "pct_margin_pct": 61,
     "pct_turnout": 89
@@ -9958,6 +10948,12 @@
     "margin": 27856.0,
     "margin_pct": 2.53,
     "result_seat": "Hardoi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 53.71,
+    "trend_pp": -9.46,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 19,
     "pct_margin_pct": 15,
     "pct_turnout": 59
@@ -9980,6 +10976,12 @@
     "margin": 33406.0,
     "margin_pct": 3.17,
     "result_seat": "Misrikh",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 52.02,
+    "trend_pp": -6.87,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 24,
     "pct_margin_pct": 25,
     "pct_turnout": 42
@@ -10002,6 +11004,12 @@
     "margin": 35818.0,
     "margin_pct": 2.75,
     "result_seat": "Unnao",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.85,
+    "trend_pp": -9.54,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 47,
     "pct_margin_pct": 18,
     "pct_turnout": 33
@@ -10024,6 +11032,12 @@
     "margin": 70292.0,
     "margin_pct": 5.01,
     "result_seat": "Mohanlalganj",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 58,
     "pct_margin_pct": 46,
     "pct_turnout": 90
@@ -10046,6 +11060,12 @@
     "margin": 135159.0,
     "margin_pct": 11.59,
     "result_seat": "Lucknow",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.64,
+    "trend_pp": -3.05,
+    "trend_party": "BJP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 89,
     "pct_margin_pct": 75,
     "pct_turnout": 13
@@ -10068,6 +11088,12 @@
     "margin": 390030.0,
     "margin_pct": 37.53,
     "result_seat": "Rae Bareli",
+    "prev_year_winner": "INC",
+    "prev_winner_pct": 55.78,
+    "trend_pp": 10.39,
+    "trend_party": "INC",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 100,
     "pct_margin_pct": 100,
     "pct_turnout": 66
@@ -10090,6 +11116,12 @@
     "margin": 167196.0,
     "margin_pct": 17.05,
     "result_seat": "Amethi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 43.84,
+    "trend_pp": 11.15,
+    "trend_party": "INC",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 92,
     "pct_margin_pct": 89,
     "pct_turnout": 24
@@ -10112,6 +11144,12 @@
     "margin": 43174.0,
     "margin_pct": 4.18,
     "result_seat": "Sultanpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 10,
     "pct_margin_pct": 35,
     "pct_turnout": 37
@@ -10134,6 +11172,12 @@
     "margin": 66206.0,
     "margin_pct": 6.99,
     "result_seat": "Pratapgarh",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 41,
     "pct_margin_pct": 54,
     "pct_turnout": 5
@@ -10156,6 +11200,12 @@
     "margin": 2678.0,
     "margin_pct": 0.26,
     "result_seat": "Farrukhabad",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.8,
+    "trend_pp": -9.6,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 46,
     "pct_margin_pct": 1,
     "pct_turnout": 72
@@ -10178,6 +11228,12 @@
     "margin": 58419.0,
     "margin_pct": 5.65,
     "result_seat": "Etawah",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 44.49,
+    "trend_pp": 2.98,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 48,
     "pct_margin_pct": 48,
     "pct_turnout": 48
@@ -10200,6 +11256,12 @@
     "margin": 170922.0,
     "margin_pct": 14.03,
     "result_seat": "Kannauj",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 48.27,
+    "trend_pp": 4.47,
+    "trend_party": "SP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 85,
     "pct_margin_pct": 81,
     "pct_turnout": 84
@@ -10222,6 +11284,12 @@
     "margin": 20968.0,
     "margin_pct": 2.37,
     "result_seat": "Kanpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 55.6,
+    "trend_pp": -5.67,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 73,
     "pct_margin_pct": 14,
     "pct_turnout": 18
@@ -10244,6 +11312,12 @@
     "margin": 44345.0,
     "margin_pct": 4.08,
     "result_seat": "Akbarpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.62,
+    "trend_pp": -9.02,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 51,
     "pct_margin_pct": 34,
     "pct_turnout": 62
@@ -10266,6 +11340,12 @@
     "margin": 53898.0,
     "margin_pct": 4.77,
     "result_seat": "Jalaun",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 43,
     "pct_margin_pct": 42,
     "pct_turnout": 47
@@ -10288,6 +11368,12 @@
     "margin": 102614.0,
     "margin_pct": 7.43,
     "result_seat": "Jhansi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 58.59,
+    "trend_pp": -8.59,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 75,
     "pct_margin_pct": 57,
     "pct_turnout": 94
@@ -10310,6 +11396,12 @@
     "margin": 2629.0,
     "margin_pct": 0.24,
     "result_seat": "Hamirpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 16,
     "pct_margin_pct": 0,
     "pct_turnout": 81
@@ -10332,6 +11424,12 @@
     "margin": 71210.0,
     "margin_pct": 6.82,
     "result_seat": "Banda",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 40.49,
+    "trend_pp": -1.55,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 0,
     "pct_margin_pct": 53,
     "pct_turnout": 77
@@ -10354,6 +11452,12 @@
     "margin": 33199.0,
     "margin_pct": 3.0,
     "result_seat": "Fatehpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 25,
     "pct_margin_pct": 23,
     "pct_turnout": 54
@@ -10376,6 +11480,12 @@
     "margin": 103944.0,
     "margin_pct": 10.3,
     "result_seat": "Kaushambi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 35.31,
+    "trend_pp": 15.2,
+    "trend_party": "SP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 76,
     "pct_margin_pct": 71,
     "pct_turnout": 15
@@ -10398,6 +11508,12 @@
     "margin": 4332.0,
     "margin_pct": 0.43,
     "result_seat": "Phulpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 55.63,
+    "trend_pp": -11.03,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 23,
     "pct_margin_pct": 6,
     "pct_turnout": 0
@@ -10420,6 +11536,12 @@
     "margin": 58795.0,
     "margin_pct": 6.21,
     "result_seat": "Allahabad",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 62,
     "pct_margin_pct": 51,
     "pct_turnout": 9
@@ -10442,6 +11564,12 @@
     "margin": 215704.0,
     "margin_pct": 16.71,
     "result_seat": "Barabanki",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 94,
     "pct_margin_pct": 87,
     "pct_turnout": 100
@@ -10464,6 +11592,12 @@
     "margin": 54567.0,
     "margin_pct": 4.78,
     "result_seat": "Faizabad",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 42.63,
+    "trend_pp": 5.96,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 59,
     "pct_margin_pct": 43,
     "pct_turnout": 75
@@ -10486,6 +11620,12 @@
     "margin": 137247.0,
     "margin_pct": 11.66,
     "result_seat": "Ambedkar Nagar",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 38,
     "pct_margin_pct": 76,
     "pct_turnout": 85
@@ -10508,6 +11648,12 @@
     "margin": 64227.0,
     "margin_pct": 6.08,
     "result_seat": "Bahraich",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 53.12,
+    "trend_pp": -4.02,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 68,
     "pct_margin_pct": 49,
     "pct_turnout": 57
@@ -10530,6 +11676,12 @@
     "margin": 148843.0,
     "margin_pct": 14.02,
     "result_seat": "Kaiserganj",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 59.18,
+    "trend_pp": -5.39,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 90,
     "pct_margin_pct": 80,
     "pct_turnout": 38
@@ -10552,6 +11704,12 @@
     "margin": 76673.0,
     "margin_pct": 7.32,
     "result_seat": "Shravasti",
+    "prev_year_winner": null,
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 63,
     "pct_margin_pct": 56,
     "pct_turnout": 16
@@ -10574,6 +11732,12 @@
     "margin": 46224.0,
     "margin_pct": 4.85,
     "result_seat": "Gonda",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 54.99,
+    "trend_pp": -5.22,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 72,
     "pct_margin_pct": 44,
     "pct_turnout": 6
@@ -10596,6 +11760,12 @@
     "margin": 42728.0,
     "margin_pct": 4.2,
     "result_seat": "Domariyaganj",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 49.96,
+    "trend_pp": -4.49,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 29,
     "pct_margin_pct": 38,
     "pct_turnout": 10
@@ -10618,6 +11788,12 @@
     "margin": 100994.0,
     "margin_pct": 9.33,
     "result_seat": "Basti",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 61,
     "pct_margin_pct": 68,
     "pct_turnout": 51
@@ -10640,6 +11816,12 @@
     "margin": 92170.0,
     "margin_pct": 8.45,
     "result_seat": "Sant Kabir Nagar",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 30,
     "pct_margin_pct": 63,
     "pct_turnout": 14
@@ -10662,6 +11844,12 @@
     "margin": 35451.0,
     "margin_pct": 2.93,
     "result_seat": "Maharajganj",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 59.19,
+    "trend_pp": -10.34,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 65,
     "pct_margin_pct": 22,
     "pct_turnout": 78
@@ -10684,6 +11872,12 @@
     "margin": 103526.0,
     "margin_pct": 8.97,
     "result_seat": "Gorakhpur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 60.52,
+    "trend_pp": -9.77,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 78,
     "pct_margin_pct": 65,
     "pct_turnout": 29
@@ -10706,6 +11900,12 @@
     "margin": 81790.0,
     "margin_pct": 7.57,
     "result_seat": "Kushinagar",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.68,
+    "trend_pp": -8.89,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 52,
     "pct_margin_pct": 58,
     "pct_turnout": 61
@@ -10728,6 +11928,12 @@
     "margin": 34842.0,
     "margin_pct": 3.34,
     "result_seat": "Deoria",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 57.17,
+    "trend_pp": -8.81,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 57,
     "pct_margin_pct": 28,
     "pct_turnout": 34
@@ -10750,6 +11956,12 @@
     "margin": 3150.0,
     "margin_pct": 0.34,
     "result_seat": "Bansgaon",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 56.37,
+    "trend_pp": -10.99,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 28,
     "pct_margin_pct": 3,
     "pct_turnout": 8
@@ -10772,6 +11984,12 @@
     "margin": 115023.0,
     "margin_pct": 11.47,
     "result_seat": "Lalganj",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 15,
     "pct_margin_pct": 73,
     "pct_turnout": 27
@@ -10794,6 +12012,12 @@
     "margin": 161035.0,
     "margin_pct": 15.27,
     "result_seat": "Azamgarh",
+    "prev_year_winner": "SP",
+    "prev_winner_pct": 60.36,
+    "trend_pp": -12.16,
+    "trend_party": "SP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 54,
     "pct_margin_pct": 86,
     "pct_turnout": 43
@@ -10816,6 +12040,12 @@
     "margin": 162943.0,
     "margin_pct": 14.16,
     "result_seat": "Ghosi",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 14,
     "pct_margin_pct": 82,
     "pct_turnout": 30
@@ -10838,6 +12068,12 @@
     "margin": 3573.0,
     "margin_pct": 0.39,
     "result_seat": "Salempur",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 18,
     "pct_margin_pct": 4,
     "pct_turnout": 4
@@ -10860,6 +12096,12 @@
     "margin": 43384.0,
     "margin_pct": 4.31,
     "result_seat": "Ballia",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 45.79,
+    "trend_pp": 0.58,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 39,
     "pct_margin_pct": 39,
     "pct_turnout": 11
@@ -10882,6 +12124,12 @@
     "margin": 99335.0,
     "margin_pct": 9.02,
     "result_seat": "Jaunpur",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "marginal",
+    "band_basis": "margin only",
     "pct_winner_pct": 35,
     "pct_margin_pct": 66,
     "pct_turnout": 35
@@ -10904,6 +12152,12 @@
     "margin": 35850.0,
     "margin_pct": 3.38,
     "result_seat": "Machhlishahr",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 6,
     "pct_margin_pct": 29,
     "pct_turnout": 28
@@ -10926,6 +12180,12 @@
     "margin": 124861.0,
     "margin_pct": 10.83,
     "result_seat": "Ghazipur",
+    "prev_year_winner": "BSP",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "comfortable",
+    "band_basis": "margin only",
     "pct_winner_pct": 42,
     "pct_margin_pct": 72,
     "pct_turnout": 32
@@ -10948,6 +12208,12 @@
     "margin": 21565.0,
     "margin_pct": 1.93,
     "result_seat": "Chandauli",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 45.74,
+    "trend_pp": -3.24,
+    "trend_party": "SP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 5,
     "pct_margin_pct": 11,
     "pct_turnout": 80
@@ -10970,6 +12236,12 @@
     "margin": 152513.0,
     "margin_pct": 13.5,
     "result_seat": "Varanasi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 63.6,
+    "trend_pp": -9.36,
+    "trend_party": "BJP",
+    "band": "marginal",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 91,
     "pct_margin_pct": 78,
     "pct_turnout": 49
@@ -10992,6 +12264,12 @@
     "margin": 44072.0,
     "margin_pct": 4.06,
     "result_seat": "Bhadohi",
+    "prev_year_winner": "BJP",
+    "prev_winner_pct": 49.05,
+    "trend_pp": -6.66,
+    "trend_party": "BJP",
+    "band": "close",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 4,
     "pct_margin_pct": 33,
     "pct_turnout": 19
@@ -11014,6 +12292,12 @@
     "margin": 37810.0,
     "margin_pct": 3.42,
     "result_seat": "Mirzapur",
+    "prev_year_winner": "ADAL",
+    "prev_winner_pct": null,
+    "trend_pp": null,
+    "trend_party": null,
+    "band": "close",
+    "band_basis": "margin only",
     "pct_winner_pct": 8,
     "pct_margin_pct": 30,
     "pct_turnout": 63
@@ -11036,6 +12320,12 @@
     "margin": 129234.0,
     "margin_pct": 12.8,
     "result_seat": "Robertsganj",
+    "prev_year_winner": "ADAL",
+    "prev_winner_pct": 39.8,
+    "trend_pp": 6.34,
+    "trend_party": "SP",
+    "band": "comfortable",
+    "band_basis": "margin + trend",
     "pct_winner_pct": 34,
     "pct_margin_pct": 77,
     "pct_turnout": 52

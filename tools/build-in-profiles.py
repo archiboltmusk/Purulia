@@ -29,7 +29,8 @@ SOURCES = {
     'uttar-pradesh': {
         'ac_page': '2022 Uttar Pradesh Legislative Assembly election',
         'pc_page': '2024 Indian general election in Uttar Pradesh',
-        'ac_year': 2022, 'pc_year': 2024,
+        'pc_prev_page': '2019 Indian general election in Uttar Pradesh',
+        'ac_year': 2022, 'pc_year': 2024, 'pc_prev_year': 2019,
     },
 }
 
@@ -126,6 +127,34 @@ def norm(s):
     return re.sub(r'[^a-z]', '', s.lower())
 
 
+def trend(row, prev):
+    """Change in vote share of the same party's candidate, 2019 -> 2024 (party-level, not person)."""
+    out = {'prev_year_winner': None, 'prev_winner_pct': None, 'trend_pp': None, 'trend_party': None}
+    if not prev: return out
+    out['prev_year_winner'] = prev['winner_party']
+    party = row['winner_party']
+    if party and party == prev['winner_party']:
+        share = prev['winner_pct']
+    elif party and party == prev['runner_up_party']:
+        share = prev['runner_up_pct']
+    else:
+        return out
+    if share is None or row['winner_pct'] is None: return out
+    out.update({'trend_party': party, 'prev_winner_pct': share, 'trend_pp': round(row['winner_pct'] - share, 2)})
+    return out
+
+
+def band(row):
+    """Label from sourced results only. Thresholds are on the page."""
+    m, t = row.get('margin_pct'), row.get('trend_pp')
+    if m is None: return None, 'no result'
+    if t is None:
+        return ('close' if m < 5 else 'marginal' if m < 10 else 'comfortable'), 'margin only'
+    if m < 5: return 'close', 'margin + trend'
+    if m < 10 or t <= -5: return 'marginal', 'margin + trend'
+    return 'comfortable', 'margin + trend'
+
+
 def percentiles(rows, key):
     vals = sorted(r[key] for r in rows.values() if r.get(key) is not None)
     n = len(vals)
@@ -145,6 +174,8 @@ def main(state):
 
     ac = parse(wiki(src['ac_page']))
     pc = parse(wiki(src['pc_page']))
+    pc_prev = parse(wiki(src['pc_prev_page']))
+    prev_by_name = {norm(r['seat']): r for r in pc_prev.values()}
 
     members = {'ac': {}, 'pc': {}}
     gaps = {'ac_no_result': [], 'ac_no_holder': [], 'pc_no_result': [], 'pc_no_holder': []}
@@ -182,11 +213,17 @@ def main(state):
             gaps['pc_no_holder'].append(name)
             continue
         used.add(key)
-        members['pc'][key] = {'no': no, 'seat': key, 'holder': seats.get(key), 'holder_party': None,
-                              **{k: v for k, v in r.items() if k != 'seat'}, 'result_seat': name}
+        prev = prev_by_name.get(norm(name))
+        row = {'no': no, 'seat': key, 'holder': seats.get(key), 'holder_party': None,
+               **{k: v for k, v in r.items() if k != 'seat'}, 'result_seat': name}
+        row.update(trend(row, prev))
+        members['pc'][key] = row
     for key in seats:
         if key and key not in used:
             gaps['pc_no_result'].append(key)
+
+    for row in list(members['ac'].values()) + list(members['pc'].values()):
+        row['band'], row['band_basis'] = band(row)
 
     for house in ('ac', 'pc'):
         percentiles(members[house], 'winner_pct')
@@ -203,7 +240,12 @@ def main(state):
                    'basis': 'Wikipedia constituency results table (ECI figures)'},
         },
         'method': 'Percentile = share of same-house seats in this state with a lower value (0 = lowest, 100 = highest). '
-                  'Metrics: winner vote share, margin (winner % minus runner-up %), turnout. Results only; no chance figure.',
+                  'Metrics: winner vote share, margin (winner % minus runner-up %), turnout. '
+                  'Band (label, not a forecast): close = margin under 5 pp; marginal = margin 5 to 10 pp, or the same party '
+                  'lost 5 pp or more of vote share since the previous Lok Sabha election; comfortable = otherwise. '
+                  'Where no comparable previous share exists (MLAs: the 2017 page has no vote share), the band uses margin only. '
+                  'Trend compares the same party, so it is not a candidate record.',
+        'sources_prev': {'pc': {'year': src['pc_prev_year'], 'url': 'https://en.wikipedia.org/wiki/' + src['pc_prev_page'].replace(' ', '_')}},
         'counts': {'ac': len(members['ac']), 'pc': len(members['pc'])},
         'gaps': gaps,
         'members': members,
