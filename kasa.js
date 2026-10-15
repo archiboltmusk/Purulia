@@ -1246,7 +1246,9 @@ function initMainMapNow(){
   }
   watchMapStyleLoad(mainMap);
   document.getElementById('k-map').classList.add('k-map-loading');
-  mainMap.once('idle', () => document.getElementById('k-map').classList.remove('k-map-loading'));
+  const hideSplash = () => document.getElementById('k-splash')?.classList.add('k-splash-out');
+  mainMap.once('idle', () => { document.getElementById('k-map').classList.remove('k-map-loading'); hideSplash(); });
+  setTimeout(hideSplash, 3000);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
