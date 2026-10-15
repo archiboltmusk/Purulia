@@ -53,7 +53,8 @@ test('tapping a Kolkata ward opens its card, like a Purulia ward; a shared ward 
   await page.evaluate(() => KasaPlaces.load('kolkata'));
   await expect.poll(() => page.evaluate(() => !!mainMap.getLayer('place-kolkata-fill'))).toBe(true);
   await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [88.3510, 22.5646], zoom: 15 }); });
-  await page.waitForTimeout(800);
+  // Wait for the jump to render before tapping; a fixed sleep raced the render on slower CI runners.
+  await expect.poll(() => page.evaluate(() => !mainMap.isMoving() && mainMap.areTilesLoaded())).toBe(true);
   const box = await page.locator('#k-map').boundingBox();
   await page.mouse.click(box.x + box.width / 2, box.y + box.height / 2);
   const card = page.locator('#k-ward-card');
