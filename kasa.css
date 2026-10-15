@@ -1114,3 +1114,31 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-splash{animation:kSplashOut .25s var(--ease-in) .35s forwards;}
 @keyframes kSplashOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
 @media(prefers-reduced-motion:reduce){.k-splash{display:none;}}
+
+/* ── Home map palette (Namma Kasa look): scoped to the app layout so the other pages keep
+   their own colours. Brand red replaces amber; grey surfaces and status tints replace
+   the dark brown. --amber stays as the accent token name so the rules above still apply. ── */
+body[data-app-layout]{
+  --amber:#DD3333; --amber2:#B91C1C;
+  --green:#15803d; --red:#B91C1C; --orange:#B45309; --violet:#4b5563;
+  --ink:#ffffff; --ink2:#f3f4f6; --ink3:#e5e7eb; --ink4:#d1d5db;
+  --cream:#1f2937;
+  --border:#e5e7eb; --border2:#d1d5db;
+  --text-hi:#374151; --text-md:#4b5563; --text-lo:#6b7280;
+  background:var(--ink);color:var(--text-hi);
+}
+body[data-app-layout] .k-map-pill{background:rgba(255,255,255,.96);border-color:#e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.08);}
+body[data-app-layout] .k-pill-label,body[data-app-layout] .k-pill-sep{color:#6b7280;}
+body[data-app-layout] .k-pill-fixed{border-color:rgba(21,128,61,.5);background:#DCFCE7;}
+body[data-app-layout] .k-pill-fixed .k-pill-num,body[data-app-layout] .k-pill-fixed .k-pill-label{color:#15803d;}
+body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{background-color:#ffffff;border-color:#d1d5db;color:#374151;box-shadow:0 1px 2px rgba(0,0,0,.06);}
+body[data-app-layout] .k-filter-select{background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12'%3E%3Cpath fill='%23DD3333' d='M6 8L2 4h8z'/%3E%3C/svg%3E");}
+body[data-app-layout] .k-map-topbar,body[data-app-layout] .k-map-section{background:#ffffff;}
+body[data-app-layout] .k-map-report-btn{background:#DD3333;color:#ffffff;border:0;box-shadow:0 10px 26px rgba(221,51,51,.3);}
+body[data-app-layout] .k-map-report-btn:hover{background:#B91C1C;box-shadow:0 14px 34px rgba(221,51,51,.4);}
+body[data-app-layout] .k-reset-ctrl button,body[data-app-layout] .maplibregl-ctrl-group button{background:#ffffff;color:#374151;}
+body[data-app-layout] .k-quick-chip{background:#ffffff;border-color:#e5e7eb;color:#374151;}
+body[data-app-layout] .k-quick-chip:hover,body[data-app-layout] .k-quick-chip:focus-visible{color:#DD3333;border-color:#DD3333;}
+body[data-app-layout] .k-nav{background:#ffffff;border-bottom:1px solid #e5e7eb;}
+body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still,body[data-app-layout] .k-join{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
+body[data-app-layout] .k-join-text,body[data-app-layout] .k-still-q{color:#1f2937;}
