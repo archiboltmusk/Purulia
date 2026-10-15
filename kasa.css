@@ -1158,3 +1158,9 @@ body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!im
 /* ── Home map clutter (low-risk): frosted status card, steady digits ── */
 body[data-app-layout] .k-map-pill{background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:0 6px 18px rgba(0,0,0,.12);}
 body[data-app-layout] .k-map-pill,body[data-app-layout] .k-pill-num,body[data-app-layout] .k-stat-n{font-variant-numeric:tabular-nums;}
+
+/* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
+@media(prefers-reduced-motion:no-preference){
+  .k-splash-sub{animation:kBlink .9s steps(2,start) infinite;}
+}
+@keyframes kBlink{0%,100%{opacity:1;}50%{opacity:.15;}}
