@@ -1622,7 +1622,13 @@ function addDistrictLocal(slug, attribution){
    The level follows the zoom; the crumbs switch it. */
 let wbLeaders = null, wbAssembly = null, wbOfficials = null;
 const wbAdded = {};  // district slug -> names readers added and moderators approved (kasa_officials)
-const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => r.data || [], () => []) : Promise.resolve([]));
+// Approved officials per district, kept for the report chain too (sync read after the first load).
+const addedRows = {};
+const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => {
+  addedRows[slug] = r.data || [];
+  if (document.getElementById('k-chain')) renderChainSection();
+  return addedRows[slug];
+}, () => []) : Promise.resolve([]));
 const PANCHAYAT_ACT = 'https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf';
 const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
 const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
@@ -5209,6 +5215,9 @@ function officialsFile(){
 /* Role names outside Purulia: the same posts, without Purulia's office names. */
 function chainRole(role, sp){
   if (sp.kind === 'purulia') return { name: t('role_' + role), sub: null };
+  // A post shows only once a cited official for it has been approved (kasa_officials). A vacant post shows nothing extra.
+  const won = sp.kind === 'district' && (addedRows[sp.slug] || []).find(o => o.role === role && o.level === 'district' && !o.block && !o.gp);
+  if (won) return { name: won.name, sub: won.phone || null, src: won.source_url };
   const d = sp.kind === 'district' ? sp.p.name : sp.kind === 'town' && sp.slug === 'kolkata' ? 'Kolkata' : null;
   if (role === 'dm'){
     const dm = d && officialsFile()?.districts?.[sp.slug === 'kolkata' ? 'kolkata' : sp.slug]?.dm;
@@ -5228,6 +5237,7 @@ function renderChainSection(){
     <button type="button" class="k-chain-tab${state.chainTab === chain ? ' on' : ''}" data-chain="${chain}" role="tab" aria-selected="${state.chainTab === chain}">
       ${CATEGORIES[cat].icon} ${esc(t('chaintab_' + chain))}</button>`).join('');
   const sp = sectionPlace(), base = CHAINS[state.chainTab];
+  if (sp.kind === 'district') addedIn(sp.slug);
   const civic = base.agency === 'agency_municipality';
   let chain = base, agencyName = t(base.agency), extra = '';
   if (civic && sp.kind === 'town'){
@@ -5258,7 +5268,7 @@ function renderChainSection(){
       return `
       <div class="k-chain-arrow">${i ? esc(t('acc_escalate')) : '↓'}</div>
       <div class="k-chain-node"><div class="k-chain-icon">${esc(ROLE_ABBR[role])}</div>
-        <div class="k-chain-text"><div class="k-chain-name">${esc(r.name)}</div><div class="k-chain-role">${esc(r.sub || roleSub(role, i, n))}</div></div></div>`; }).join('')}
+        <div class="k-chain-text"><div class="k-chain-name">${esc(r.name)}</div><div class="k-chain-role">${esc(r.sub || roleSub(role, i, n))}${r.src ? ` · <a href="${esc(safeUrl(r.src) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_source'))}</a>` : ''}</div></div></div>`; }).join('')}
     ${chain.note ? `<div class="k-chain-note"><div class="k-chain-note-text">${esc(t(chain.note))}</div></div>` : ''}
     ${extra}
     ${civic && sp.kind === 'purulia' ? `<div class="k-chain-note"><div class="k-chain-note-label">${esc(t('chain_councillor_label'))}</div>
