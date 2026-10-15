@@ -1157,3 +1157,4 @@ body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn{borde
 body[data-app-layout] .k-maplibregl-ctrl-group,body[data-app-layout] .maplibregl-ctrl-group{border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.1);}
 body[data-app-layout] .maplibregl-ctrl-group button{width:40px;height:40px;}
 body[data-app-layout] .k-quick-chip{border-radius:999px;font-size:13px;}
+body[data-app-layout] .k-filter-select{padding-right:2.1rem;background-position:right .8rem center;}
