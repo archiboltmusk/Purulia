@@ -9,6 +9,6 @@
     "@playwright/test": "1.63.0",
     "@supabase/supabase-js": "2.117.2",
     "idb-keyval": "6.3.0",
-    "maplibre-gl": "6.11.2"
+    "maplibre-gl": "4.7.1"
   }
 }
