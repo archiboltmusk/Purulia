@@ -45,7 +45,7 @@
   }
 
   // Five steps of one hue: darker = more. For "own taxes" more is better, for the rest less is.
-  const RAMP = ['#f3dcae', '#e8b665', '#DD3333', '#a35f12', '#6b3a05'];
+  const RAMP = ['#f3dcae', '#e8b665', '#d4882a', '#a35f12', '#6b3a05'];
   const BG = getComputedStyle(document.body).backgroundColor || '#0a0805';
   const DARK = (() => { const m = BG.match(/\d+/g); return m ? (+m[0] + +m[1] + +m[2]) < 384 : true; })();
   const NONE = DARK ? '#2a2620' : '#d9d4ca', EDGE = DARK ? '#0a0805' : '#ffffff', ON = DARK ? '#f0e6d0' : '#1a1410';

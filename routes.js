@@ -89,7 +89,7 @@
     map.on('dragstart', () => { follow = false; });
     map.on('load', () => {
       map.addSource('rt-line', { type: 'geojson', data: line([]) });
-      map.addLayer({ id: 'rt-line', type: 'line', source: 'rt-line', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#DD3333', 'line-width': 5 } });
+      map.addLayer({ id: 'rt-line', type: 'line', source: 'rt-line', layout: { 'line-cap': 'round', 'line-join': 'round' }, paint: { 'line-color': '#d4882a', 'line-width': 5 } });
       map.addSource('rt-me', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
       map.addLayer({ id: 'rt-me', type: 'circle', source: 'rt-me', paint: { 'circle-radius': 7, 'circle-color': '#6db88a', 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 } });
       mapReady = true;

@@ -694,7 +694,7 @@ function wardsSvg(wards){
   const path = ring => ring.map((p, i) => `${i ? 'L' : 'M'}${((p[0] - x0) * k).toFixed(1)},${((y1 - p[1]) * k).toFixed(1)}`).join('') + 'Z';
   return `<svg width="190" height="190" viewBox="-5 -5 190 190" style="background:#0a0805;border-radius:6px">${wards.map(w => {
     const ring = w.polygons[0][0], cx = ring.reduce((a, p) => a + p[0], 0) / ring.length, cy = ring.reduce((a, p) => a + p[1], 0) / ring.length;
-    return `<path d="${w.polygons.map(p => p.map(path).join('')).join('')}" fill="rgba(221,51,51,.15)" stroke="#DD3333" stroke-width="1"/>`
+    return `<path d="${w.polygons.map(p => p.map(path).join('')).join('')}" fill="rgba(212,136,42,.15)" stroke="#d4882a" stroke-width="1"/>`
       + `<text x="${((cx - x0) * k).toFixed(1)}" y="${((y1 - cy) * k).toFixed(1)}" font-size="9" fill="#f0e6d0" text-anchor="middle">${esc(w.ward)}</text>`;
   }).join('')}</svg>`;
 }

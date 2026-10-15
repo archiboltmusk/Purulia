@@ -97,7 +97,7 @@
     }
     days.forEach((d, i) => {
       const x = padL + i * slot + 1, h = ih * d.n / top, yt = padT + ih - h, r = Math.min(4, bw / 2, h);
-      if (d.n) g += `<path d="M${x},${padT + ih} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + bw - r} Q${x + bw},${yt} ${x + bw},${yt + r} V${padT + ih} Z" fill="#DD3333"/>`;
+      if (d.n) g += `<path d="M${x},${padT + ih} V${yt + r} Q${x},${yt} ${x + r},${yt} H${x + bw - r} Q${x + bw},${yt} ${x + bw},${yt + r} V${padT + ih} Z" fill="#d4882a"/>`;
       g += `<rect class="an-hit" data-i="${i}" x="${padL + i * slot}" y="${padT}" width="${slot}" height="${ih}" fill="transparent"/>`;
     });
     [0, (days.length - 1) >> 1, days.length - 1].forEach(i => {

@@ -14,12 +14,12 @@
 .legal-body strong{color:var(--text-hi);font-weight:600;}
 .legal-body ul,.legal-body ol{margin:1rem 0 1.4rem 1.4rem;color:var(--text-md);}
 .legal-body li{margin-bottom:.6rem;line-height:1.7;}
-.legal-body a{color:var(--amber);border-bottom:1px solid rgba(221,51,51,.35);transition:border-color .2s;}
+.legal-body a{color:var(--amber);border-bottom:1px solid rgba(212,136,42,.35);transition:border-color .2s;}
 .legal-body a:hover{border-color:var(--amber);}
-.legal-callout{background:rgba(221,51,51,.06);border-left:3px solid var(--amber);padding:1.2rem 1.4rem;margin:1.6rem 0;border-radius:0 4px 4px 0;}
+.legal-callout{background:rgba(212,136,42,.06);border-left:3px solid var(--amber);padding:1.2rem 1.4rem;margin:1.6rem 0;border-radius:0 4px 4px 0;}
 .legal-callout p{margin-bottom:.5rem;color:var(--text-hi);}
 .legal-callout p:last-child{margin-bottom:0;}
-.legal-card{background:rgba(221,51,51,.04);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.6rem;margin:1.2rem 0;}
+.legal-card{background:rgba(212,136,42,.04);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.6rem;margin:1.2rem 0;}
 .legal-card-label{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--amber);margin-bottom:.6rem;}
 .legal-card-value{font-family:var(--serif);font-size:1.2rem;color:var(--cream);font-weight:600;}
 .legal-card-sub{font-family:var(--mono);font-size:12px;color:var(--text-md);margin-top:.5rem;}

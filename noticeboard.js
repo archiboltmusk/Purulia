@@ -460,7 +460,7 @@
       boardMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
     }
     boardMarkers.forEach(m => m.remove());
-    boardMarkers = pins.map(d => new maplibregl.Marker({ color: '#DD3333' }).setLngLat([d.lng, d.lat])
+    boardMarkers = pins.map(d => new maplibregl.Marker({ color: '#d4882a' }).setLngLat([d.lng, d.lat])
       .setPopup(new maplibregl.Popup({ offset: 24 }).setHTML(`<strong>${esc(d.title)}</strong><br>${esc(t('to'))}: ${esc(d.leader_name)}<br>
         ${esc(t('supports', { n: d.supports || 0 }))}<br><a href="#d-${esc(d.id)}" data-goto="${esc(d.id)}">${esc(t('view_list'))} →</a>`))
       .addTo(boardMap));
@@ -486,7 +486,7 @@
     document.getElementById('nb-pin-msg').textContent = state.pin ? `${t('f_pin_set')} ${state.pin.lat}, ${state.pin.lng}` : '';
     if (!pickMap) return;
     if (!state.pin){ if (pickMarker){ pickMarker.remove(); pickMarker = null; } return; }
-    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#DD3333', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
+    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#d4882a', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
       .on('dragend', () => { const p = pickMarker.getLngLat(); setPin(p.lng, p.lat); });
     else pickMarker.setLngLat([state.pin.lng, state.pin.lat]);
   }

@@ -105,8 +105,8 @@
     if (!v) return;
     const med = k => PF.rank(k, d.nfhs_district).median;
     const x = k => v[k] ? v[k][0] : null, old = k => v[k] ? v[k][1] : null;
-    const r = a => 'rgba(221,51,51,' + a + ')', rd = a => 'rgba(224,80,80,' + a + ')', gr = a => 'rgba(107,174,138,' + a + ')';
-    const F = { family: 'DM Mono, monospace', size: 10 }, TC = 'rgba(240,230,208,0.4)', GC = 'rgba(221,51,51,0.07)';
+    const r = a => 'rgba(212,136,42,' + a + ')', rd = a => 'rgba(224,80,80,' + a + ')', gr = a => 'rgba(107,174,138,' + a + ')';
+    const F = { family: 'DM Mono, monospace', size: 10 }, TC = 'rgba(240,230,208,0.4)', GC = 'rgba(212,136,42,0.07)';
     const legend = { labels: { color: 'rgba(240,230,208,.55)', font: F, boxWidth: 10, padding: 10 } };
     const tip = { callbacks: { label: c => (c.dataset.label ? c.dataset.label + ': ' : '') + c.raw + '%' } };
     const inv = y => y == null ? null : Math.round((100 - y) * 10) / 10;
@@ -118,7 +118,7 @@
         labels: ['Women literate', 'Improved sanitation', 'Children not anaemic', 'Children not underweight'],
         datasets: [
           { label: name, data: [x('women_literate'), x('sanitation'), inv(x('child_anaemia')), inv(x('underweight'))], backgroundColor: rd(.7), borderColor: '#E05050', borderWidth: 1 },
-          { label: 'Median WB district', data: [med('women_literate'), med('sanitation'), inv(med('child_anaemia')), inv(med('underweight'))], backgroundColor: r(.6), borderColor: '#DD3333', borderWidth: 1 }
+          { label: 'Median WB district', data: [med('women_literate'), med('sanitation'), inv(med('child_anaemia')), inv(med('underweight'))], backgroundColor: r(.6), borderColor: '#D4882A', borderWidth: 1 }
         ]
       },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend, tooltip: tip },
@@ -131,7 +131,7 @@
       data: {
         labels: ['Improved sanitation', 'Clean cooking fuel', 'Institutional births', 'Child marriage', 'Child anaemia', 'Child underweight'],
         datasets: [
-          { label: 'NFHS-4 (2015–16)', data: ks.map(old), backgroundColor: r(.6), borderColor: '#DD3333', borderWidth: 1 },
+          { label: 'NFHS-4 (2015–16)', data: ks.map(old), backgroundColor: r(.6), borderColor: '#D4882A', borderWidth: 1 },
           { label: 'NFHS-5 (2019–21)', data: ks.map(x), backgroundColor: gr(.6), borderColor: '#6BAE8A', borderWidth: 1 }
         ]
       },
@@ -147,7 +147,7 @@
         datasets: [{
           data: kids.flatMap(([, k]) => [x(k), med(k)]),
           backgroundColor: kids.flatMap(() => [rd(.7), r(.55)]),
-          borderColor: kids.flatMap(() => ['#E05050', '#DD3333']), borderWidth: 1
+          borderColor: kids.flatMap(() => ['#E05050', '#D4882A']), borderWidth: 1
         }]
       },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } },

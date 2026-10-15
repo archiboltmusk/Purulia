@@ -254,16 +254,16 @@
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
       paint: { 'text-color': '#9aa0a6', 'text-halo-color': '#0a0805', 'text-halo-width': 1 } });
     map.addSource('wards', { type: 'geojson', data: wardsFC() });
-    map.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#DD3333', 'fill-opacity': .15 } });
-    map.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#DD3333', 'line-width': 2 } });
+    map.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#d4882a', 'fill-opacity': .15 } });
+    map.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#d4882a', 'line-width': 2 } });
     map.addLayer({ id: 'wards-sel', type: 'line', source: 'wards', filter: ['==', ['get', 'ward'], -1], paint: { 'line-color': '#f0e6d0', 'line-width': 3 } });
     map.addLayer({ id: 'wards-label', type: 'symbol', source: 'wards',
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 13, 'text-font': ['Noto Sans Regular'] },
       paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1 } });
     map.addSource('sketch', { type: 'geojson', data: sketchFC() });
-    map.addLayer({ id: 'sketch-line', type: 'line', source: 'sketch', paint: { 'line-color': '#EF4444', 'line-width': 2, 'line-dasharray': [2, 1] } });
+    map.addLayer({ id: 'sketch-line', type: 'line', source: 'sketch', paint: { 'line-color': '#e8a34a', 'line-width': 2, 'line-dasharray': [2, 1] } });
     map.addLayer({ id: 'sketch-pts', type: 'circle', source: 'sketch', filter: ['==', ['geometry-type'], 'Point'],
-      paint: { 'circle-radius': 4, 'circle-color': '#EF4444' } });
+      paint: { 'circle-radius': 4, 'circle-color': '#e8a34a' } });
     map.on('click', e => {
       if (e.originalEvent?.target?.closest?.('.maplibregl-marker')) return;
       const at = round6([e.lngLat.lng, e.lngLat.lat]);

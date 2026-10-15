@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Parishkar Bengal — Admin</title>
 <meta name="robots" content="noindex, nofollow">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
 <script>
 // This page must never depend on a service worker (it's an internal tool, always used
 // online) and must never fail silently. Both run before anything else on the page.
@@ -48,7 +48,7 @@ if ('serviceWorker' in navigator) {
 .ad-refresh:hover{background:var(--amber2);}
 .ad-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:1rem;margin-bottom:2.4rem;}
 @media(max-width:900px){.ad-grid{grid-template-columns:repeat(2,1fr);}}
-.ad-card{background:rgba(221,51,51,.03);border:1px solid var(--border);border-radius:4px;padding:1.4rem 1.2rem;}
+.ad-card{background:rgba(212,136,42,.03);border:1px solid var(--border);border-radius:4px;padding:1.4rem 1.2rem;}
 .ad-card-label{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;color:var(--text-lo);margin-bottom:.6rem;}
 .ad-card-value{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--amber);line-height:1;letter-spacing:-.02em;}
 .ad-card-sub{font-family:var(--mono);font-size:11px;color:var(--text-md);margin-top:.5rem;}
@@ -57,8 +57,8 @@ if ('serviceWorker' in navigator) {
 .ad-section-title::before{content:"— ";color:var(--amber);}
 .ad-table{width:100%;border-collapse:collapse;font-size:.92rem;}
 .ad-table th{text-align:left;padding:.8rem 1rem;font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--text-lo);border-bottom:1px solid var(--border);font-weight:500;}
-.ad-table td{padding:.9rem 1rem;border-bottom:1px solid rgba(221,51,51,.08);color:var(--text-hi);}
-.ad-table tr:hover td{background:rgba(221,51,51,.03);}
+.ad-table td{padding:.9rem 1rem;border-bottom:1px solid rgba(212,136,42,.08);color:var(--text-hi);}
+.ad-table tr:hover td{background:rgba(212,136,42,.03);}
 .ad-table .num{font-family:var(--mono);text-align:right;}
 .ad-table .amber{color:var(--amber);font-weight:500;}
 .ad-table .green{color:var(--green);}
@@ -66,21 +66,21 @@ if ('serviceWorker' in navigator) {
 .ad-bars{display:flex;flex-direction:column;gap:.6rem;}
 .ad-bar-row{display:grid;grid-template-columns:5rem 1fr 3rem;gap:1rem;align-items:center;font-family:var(--mono);font-size:11px;}
 .ad-bar-label{color:var(--text-md);letter-spacing:.08em;}
-.ad-bar-track{height:6px;background:rgba(221,51,51,.1);border-radius:3px;overflow:hidden;}
+.ad-bar-track{height:6px;background:rgba(212,136,42,.1);border-radius:3px;overflow:hidden;}
 .ad-bar-fill{height:100%;background:var(--amber);border-radius:3px;transition:width .8s cubic-bezier(.2,.7,.3,1);}
 .ad-bar-value{color:var(--amber);text-align:right;}
 .ad-loading{padding:3rem 1rem;text-align:center;font-family:var(--mono);font-size:12px;color:var(--text-lo);letter-spacing:.14em;text-transform:uppercase;}
-.ad-empty{padding:2rem 1rem;text-align:center;color:var(--text-lo);font-size:.9rem;background:rgba(221,51,51,.02);border:1px dashed var(--border);border-radius:4px;}
+.ad-empty{padding:2rem 1rem;text-align:center;color:var(--text-lo);font-size:.9rem;background:rgba(212,136,42,.02);border:1px dashed var(--border);border-radius:4px;}
 .ad-login{max-width:400px;margin:6rem auto;padding:2.4rem 2rem;background:var(--ink2);border:1px solid var(--border2);border-radius:6px;text-align:center;}
 .ad-login-sub{font-size:.88rem;color:var(--text-md);margin-bottom:1.6rem;line-height:1.6;}
 .ad-input{width:100%;padding:.9rem 1rem;background:rgba(240,230,208,.03);border:1px solid var(--border);color:var(--cream);font-family:var(--serif);font-size:1rem;outline:none;border-radius:4px;margin-bottom:1rem;}
 .ad-input:focus{border-color:var(--amber);}
-.ad-btn{-webkit-appearance:none;appearance:none;display:block;min-height:48px;border:0;width:100%;padding:1rem;background:#DD3333;background:var(--amber,#DD3333);color:#0a0805;color:var(--ink,#0a0805);-webkit-text-fill-color:currentColor;opacity:1;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;border-radius:4px;transition:all .2s;}
+.ad-btn{-webkit-appearance:none;appearance:none;display:block;min-height:48px;border:0;width:100%;padding:1rem;background:#d4882a;background:var(--amber,#d4882a);color:#0a0805;color:var(--ink,#0a0805);-webkit-text-fill-color:currentColor;opacity:1;font-family:var(--mono);font-size:12px;letter-spacing:.18em;text-transform:uppercase;border-radius:4px;transition:all .2s;}
 .ad-btn:hover{background:var(--amber2);}
 .ad-error{color:var(--red);font-size:.82rem;margin-top:.8rem;}
 .hidden{display:none!important;}
 .ad-sub-title{font-family:var(--mono);font-size:11px;letter-spacing:.18em;text-transform:uppercase;color:var(--amber);margin:1.6rem 0 .8rem;}
-.ad-item{background:rgba(221,51,51,.03);border:1px solid var(--border);border-radius:6px;padding:1.1rem;margin-bottom:1rem;}
+.ad-item{background:rgba(212,136,42,.03);border:1px solid var(--border);border-radius:6px;padding:1.1rem;margin-bottom:1rem;}
 .ad-item-head{display:flex;justify-content:space-between;gap:1rem;flex-wrap:wrap;align-items:flex-start;}
 .ad-item-title{font-family:var(--serif);font-size:1.05rem;color:var(--cream);}
 .ad-item-meta{font-family:var(--mono);font-size:11px;color:var(--text-lo);margin-top:.3rem;line-height:1.6;}
@@ -103,7 +103,7 @@ if ('serviceWorker' in navigator) {
 .ad-photos figcaption button{color:var(--red);font-family:var(--mono);font-size:10px;}
 /* Moderation: count tiles, Waiting / Hidden / Kept tabs, thumb-sized buttons on phones */
 .ad-mod-tiles{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem;margin-bottom:1rem;}
-.ad-mod-tile{border:1px solid var(--border);border-radius:6px;padding:.8rem .9rem;background:rgba(221,51,51,.03);}
+.ad-mod-tile{border:1px solid var(--border);border-radius:6px;padding:.8rem .9rem;background:rgba(212,136,42,.03);}
 .ad-mod-tile b{display:block;font-family:var(--serif);font-size:1.7rem;line-height:1;color:var(--cream);}
 .ad-mod-tile span{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);}
 .ad-mod-tile.warn b{color:var(--amber);} .ad-mod-tile.bad b{color:var(--red);} .ad-mod-tile.good b{color:var(--green);}
