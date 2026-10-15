@@ -1071,3 +1071,17 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-ward-card{bottom:4.9rem;}
   .k-version{display:inline-flex;}
 }
+
+/* Namma Kasa feel on phones: the map fades in on load, controls ease on tap, the stats
+   pill sits at the top of the map. Reduced-motion users get none of it. */
+@media(max-width:640px){
+  body[data-app-layout] .k-map-section{animation:kFade .35s ease both;}
+  .k-map-topbar .k-filter-select,.k-nearby-btn,.k-view-btn,.k-map-report-btn{transition:transform .15s ease,background .2s ease,border-color .2s ease,box-shadow .2s ease;}
+  .k-map-topbar .k-filter-select:active,.k-nearby-btn:active,.k-view-btn:active,.k-map-report-btn:active{transform:scale(.97);}
+  .k-map-report-btn{box-shadow:0 10px 26px rgba(212,136,42,.32);}
+  .k-map-pill{top:4.6rem;bottom:auto;transition:opacity .25s ease;}
+  .k-reset-ctrl button{transition:background .2s ease;}
+}
+@media(prefers-reduced-motion:reduce){
+  body[data-app-layout] .k-map-section,.k-map-topbar *,.k-map-report-btn,.k-map-pill{animation:none!important;transition:none!important;}
+}
