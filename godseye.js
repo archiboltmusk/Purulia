@@ -86,9 +86,14 @@
   }).join('');
 
   const st = live ? live.status || {} : {};
+  const mandi = Lr.mandi;
+  if (mandi) {
+    $('ge-hero').insertAdjacentHTML('beforeend', `<div class="ge-mandi"><span class="ge-k">Mandi prices, ${esc(mandi.markets)} markets, as of ${esc(mandi.as_of || '–')}</span><ul class="ge-sources">${mandi.commodities.map(c => `<li>${esc(c.name)}: Rs ${num(c.modal_price_rs)} (modal)</li>`).join('')}</ul></div>`);
+  }
   const label = { ok: 'live', failed: 'last good reading kept', 'no key': 'not on yet (key not set)' };
+  const keyOf = x => x.id === 'nasa-firms' ? 'nasa-firms' : x.id === 'data-gov-in-mandi' ? 'data-gov-in-mandi' : 'open-meteo';
   $('ge-sources').innerHTML = live ? live.sources.map(x =>
-    `<li><a href="${esc(x.url)}">${esc(x.name)}</a> — ${esc(x.licence)}. ${esc(x.terms)}. <span class="ge-muted">${esc(label[st[x.key_required ? 'nasa-firms' : 'open-meteo']] || '')}</span></li>`
+    `<li><a href="${esc(x.url)}">${esc(x.name)}</a> — ${esc(x.licence)}. ${esc(x.terms)}. <span class="ge-muted">${esc(label[st[keyOf(x)]] || '')}</span></li>`
   ).join('') + `<li class="ge-muted">Readings refreshed ${esc(ago(live.generated))}. Refresh runs every 12 hours.</li>` : '<li class="ge-muted">Live readings not on yet.</li>';
 
   PF.picker($('ge-pick'), slug, () => location.reload());

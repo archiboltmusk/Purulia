@@ -4,6 +4,9 @@
     NASA_FIRMS_MAP_KEY=... python3 tools/build-godseye.py
 
 Sources (all free; each row carries its licence in godseye.json `sources`):
+- data.gov.in, Current Daily Price of Various Commodities from Various Markets (Mandi)
+  (resource 9ef84268-d588-465a-a308-a864a43d0070, Agmarknet): today's modal price per
+  commodity in each district's markets, West Bengal only. Needs DATA_GOV_IN_API_KEY.
 - Open-Meteo forecast API (no key; free for non-commercial use, fair-use limit): current
   temperature, humidity, rain at each district's centre.
 - Open-Meteo air-quality API (no key; same terms): PM2.5, PM10 and US AQI at each centre.
@@ -116,6 +119,51 @@ def firms_fires(districts, key):
     return counts
 
 
+MANDI_RESOURCE = '9ef84268-d588-465a-a308-a864a43d0070'
+
+
+def norm(name):
+    return ''.join(ch for ch in (name or '').lower() if ch.isalnum())
+
+
+def mandi_prices(districts, key):
+    """Agmarknet daily prices for West Bengal, grouped by district. Paged; unmatched names are counted, not guessed."""
+    by_name = {norm(d['name']): d['slug'] for d in districts}
+    rows, offset = [], 0
+    while True:
+        q = urllib.parse.urlencode({'api-key': key, 'format': 'json', 'limit': 1000, 'offset': offset,
+                                    'filters[state]': 'West Bengal'})
+        page = json.loads(get('https://api.data.gov.in/resource/%s?%s' % (MANDI_RESOURCE, q), timeout=120))
+        recs = page.get('records') or []
+        rows.extend(recs)
+        if len(recs) < 1000:
+            break
+        offset += 1000
+    out = {d['slug']: {'markets': set(), 'as_of': None, 'commodities': {}} for d in districts}
+    unmatched = set()
+    for r in rows:
+        slug = by_name.get(norm(r.get('district')))
+        if not slug:
+            unmatched.add(r.get('district'))
+            continue
+        m = out[slug]
+        m['markets'].add(r.get('market'))
+        date = r.get('arrival_date')
+        if date and (m['as_of'] is None or date > m['as_of']):
+            m['as_of'] = date
+        c = r.get('commodity')
+        if c and r.get('modal_price') not in (None, ''):
+            m['commodities'].setdefault(c, []).append(float(r['modal_price']))
+    res = {}
+    for slug, m in out.items():
+        if not m['markets']:
+            continue
+        cs = sorted(((c, round(sum(v) / len(v))) for c, v in m['commodities'].items()), key=lambda x: x[0])
+        res[slug] = {'mandi': {'markets': len(m['markets']), 'as_of': m['as_of'],
+                               'commodities': [{'name': c, 'modal_price_rs': v} for c, v in cs[:12]]}}
+    return res, sorted(x for x in unmatched if x)
+
+
 def load_previous():
     try:
         with open(OUT, encoding='utf-8') as f:
@@ -129,6 +177,8 @@ SOURCES = [
      'licence': 'Free for non-commercial use; CC BY 4.0 data', 'terms': 'Free tier, no key; fair-use limit on calls per day'},
     {'id': 'open-meteo-air', 'name': 'Open-Meteo air-quality API', 'url': 'https://open-meteo.com/en/docs/air-quality-api', 'key_required': False,
      'licence': 'Free for non-commercial use; CAMS data (Copernicus) under its own terms', 'terms': 'Free tier, no key; fair-use limit on calls per day'},
+    {'id': 'data-gov-in-mandi', 'name': 'data.gov.in: Current Daily Price of Various Commodities from Various Markets (Mandi)', 'url': 'https://www.data.gov.in/resource/' + MANDI_RESOURCE, 'key_required': True,
+     'licence': 'Government of India Open Government Data Licence (India), attribution required; Agmarknet source', 'terms': 'Free API key from data.gov.in; per-key rate limit'},
     {'id': 'nasa-firms', 'name': 'NASA FIRMS (VIIRS S-NPP near-real-time)', 'url': 'https://firms.modaps.eosdis.nasa.gov/', 'key_required': True,
      'licence': 'NASA open data, free to use with attribution', 'terms': 'Free MAP_KEY; transaction limit per 10 minutes; 7-day area window'},
 ]
@@ -161,6 +211,21 @@ def main():
         except Exception as ex:
             print('firms failed:', type(ex).__name__, file=sys.stderr)
             out['status']['nasa-firms'] = 'failed'
+
+    mkey = os.environ.get('DATA_GOV_IN_API_KEY', '').strip()
+    if not mkey:
+        out['status']['data-gov-in-mandi'] = 'no key'
+    else:
+        try:
+            res, unmatched = mandi_prices(districts, mkey)
+            for slug, v in res.items():
+                out['districts'][slug].update(v)
+            if unmatched:
+                print('mandi district names not matched:', unmatched, file=sys.stderr)
+            out['status']['data-gov-in-mandi'] = 'ok'
+        except Exception as ex:
+            print('mandi failed:', type(ex).__name__, file=sys.stderr)
+            out['status']['data-gov-in-mandi'] = 'failed'
 
     with open(OUT, 'w', encoding='utf-8') as f:
         json.dump(out, f, ensure_ascii=False, indent=1)
