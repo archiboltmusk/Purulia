@@ -115,7 +115,9 @@ def seats_of(state):
 
 
 def clean_name(s):
-    return re.sub(r'\s+', ' ', s.strip()).title()
+    s = re.sub(r'\s*\(.*?\)', '', s)  # "(18Ls)" and similar source tags
+    s = re.sub(r'^(Shri|Smt\.?|Shrimati|Dr\.?|Ms\.?|Mr\.?)\s+', '', s.strip(), flags=re.I)
+    return re.sub(r'\s+', ' ', s).strip().title()
 
 
 def _coords(c):
