@@ -18,6 +18,8 @@ concurrency:
 
 jobs:
   smoke:
+    # Main only: PRs skip browser smoke (owner's choice, keeps PR waits short).
+    if: github.event_name != 'pull_request'
     runs-on: ubuntu-latest
     timeout-minutes: 15
     strategy:
