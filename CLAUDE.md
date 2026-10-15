@@ -94,8 +94,9 @@ GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `verce
 
 # Changelog
 
-- Every user-visible change adds a line at the top of `changelog.html` (newest date first, plain words a reporter would use). Internal-only changes (CI, refactors, config) don't need one.
-- After editing `changelog.html`, run `node tools/version.mjs` and commit `version.js` (the version badge on the report map: v1.<dated sections>.<entries on the newest day>). CI fails if it is out of date.
+- Small PRs do NOT edit `changelog.html` or `version.js`. Only radical changes (a new feature area, a new page for the public, a change to how reports work) get a line, and only in the release step below. Ordinary fixes and small UI tweaks: no changelog line, no version bump. This keeps PRs from conflicting on the top of `changelog.html`.
+- Release step (one PR, done by a maintainer when cutting a release): add the dated lines at the top of "Changes so far" in `changelog.html` (newest date first, plain words a reporter would use), then run `node tools/version.mjs` and commit `version.js` (the version badge on the report map: v1.<dated sections>.<entries on the newest day>). CI fails if `version.js` is out of date with `changelog.html`, so the release PR must include both.
+- The "What's next" section at the top of `changelog.html` is edited in the same release PR, not in feature PRs.
 
 # Pull requests
 
