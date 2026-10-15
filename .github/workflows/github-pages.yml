@@ -33,7 +33,7 @@ jobs:
             --exclude '.gitignore' --exclude 'vercel.json' --exclude 'wrangler.jsonc' --exclude '.assetsignore' --exclude 'worker.js' --exclude 'WEST BENGAL*.geojson' ./ deploy/
 
       - name: Upload artifact
-        uses: actions/upload-pages-artifact@v3
+        uses: actions/upload-pages-artifact@v5
         with:
           path: 'deploy'
 
