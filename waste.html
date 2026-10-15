@@ -75,6 +75,8 @@
   .ws-plan{margin:.8rem 0 0 1.2rem;color:var(--text-md);line-height:1.6;font-size:.92rem;}
   .ws-plan li{margin:.5rem 0;}
   .ws-plan-h{margin-top:1.2rem;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+/* Touch targets: at least 48px tall on phones, for one-handed use on the street. */
+@media(max-width:640px){.ws-btn,.k-nav-cta,.k-nav-links a{min-height:48px;display:inline-flex;align-items:center;}}
 </style>
 <link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="bug-report.js"></script>

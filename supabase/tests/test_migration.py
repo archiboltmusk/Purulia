@@ -2353,7 +2353,7 @@ rpc('kasa_admin_review_place', uid=mod, p_id=fix['id'], p_action='approve', p_sl
 fw = rpc('kasa_place_wards', p_slug='sonamukhi')['features']
 check('a border fix replaces only the wards it sends', len(fw) == 2 and
       max(pt[0] for pt in fw[0]['geometry']['coordinates'][0][0]) == 87.44, fw)
-check('a pinned spot must be in West Bengal', err(send_town, ip='10.74.0.1', p_pin=[77.1, 28.6]) == 'KASA_BAD_FORM')
+check('a pinned spot must be in India', err(send_town, ip='10.74.0.1', p_pin=[-0.1, 51.5]) == 'KASA_BAD_FORM')
 check('a new town cannot be only a note', err(send_town, ip='10.74.0.1', p_geojson=None, p_note='Please add Sonamukhi') == 'KASA_BAD_MAP')
 named = ward_fc((2, (87.45, 23.29, 87.48, 23.32)))
 named['features'][0]['properties'].update(name='Lalbazar', note='Border follows the canal')

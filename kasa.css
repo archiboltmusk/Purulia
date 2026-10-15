@@ -904,7 +904,6 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 
 /* "Join N people" line at the top of the map. */
 
-/* First-visit tips. */
 
 /* The map is the whole screen below the nav: logo and More only — our three-language switch
    doesn't fit the nav row, so language stays in the menu along with the other pages. */
@@ -1049,7 +1048,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-map-topbar .k-view-toggle{margin-left:auto;}
   .k-list{position:relative;inset:auto;flex:1;min-height:0;padding:.6rem .9rem 5.5rem;}
   .k-map-pill{top:auto;bottom:4.9rem;left:50%;transform:translateX(-50%);}
-  .k-map-report-btn{left:.6rem;right:.6rem;bottom:.6rem;justify-content:center;padding:1rem 1.2rem;font-size:14px;border-radius:999px;}
+  .k-map-report-btn{left:.6rem;right:.6rem;bottom:calc(.6rem + env(safe-area-inset-bottom));justify-content:center;padding:1rem 1.2rem;font-size:14px;border-radius:999px;}
   .maplibregl-ctrl-bottom-right{bottom:4.9rem;}
   .k-ward-card{bottom:4.9rem;}
   .k-version{display:inline-flex;}
@@ -1094,8 +1093,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-splash-sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:.85;}
 @media(min-width:641px){.k-splash{display:none;}}
 @media(prefers-reduced-motion:reduce){.k-splash{transition:none;}}
-.k-splash{animation:kSplashOut .25s var(--ease-in) .35s forwards;}
-@keyframes kSplashOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
+/* The splash now leaves when the map is ready (kasa.js hideSplash), not on a timer,
+   so the map never shows a blank or dark frame before its tiles arrive. */
 @media(prefers-reduced-motion:reduce){.k-splash{display:none;}}
 
 /* ── Home map palette (Namma Kasa look): scoped to the app layout so the other pages keep
@@ -1154,6 +1153,10 @@ body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-sha
 body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
 body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
 body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
+
+/* ── Home map clutter (low-risk): frosted status card, steady digits ── */
+body[data-app-layout] .k-map-pill{background:rgba(255,255,255,.72);-webkit-backdrop-filter:blur(12px) saturate(160%);backdrop-filter:blur(12px) saturate(160%);box-shadow:0 6px 18px rgba(0,0,0,.12);}
+body[data-app-layout] .k-map-pill,body[data-app-layout] .k-pill-num,body[data-app-layout] .k-stat-n{font-variant-numeric:tabular-nums;}
 
 /* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
 @media(prefers-reduced-motion:no-preference){
