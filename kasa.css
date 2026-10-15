@@ -1108,6 +1108,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
    their own colours. Brand red replaces amber; grey surfaces and status tints replace
    the dark brown. --amber stays as the accent token name so the rules above still apply. ── */
 body[data-app-layout]{
+  --serif:'Google Sans Flex',system-ui,-apple-system,sans-serif; --mono:'Google Sans Code',ui-monospace,monospace;
   --amber:#DD3333; --amber2:#B91C1C;
   --green:#15803d; --red:#B91C1C; --orange:#B45309; --violet:#4b5563;
   --ink:#ffffff; --ink2:#f3f4f6; --ink3:#e5e7eb; --ink4:#d1d5db;
