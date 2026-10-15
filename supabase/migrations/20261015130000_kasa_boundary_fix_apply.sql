@@ -92,7 +92,6 @@ returns jsonb language plpgsql security definer set search_path = '' as $$
 declare
   s kasa_private.place_submissions;
   v_slug text;
-  v_wards integer[];
   w record;
 begin
   if not kasa_private.is_admin() then perform kasa_private.fail('KASA_NOT_ADMIN', 'Moderators only.'); end if;
@@ -157,7 +156,6 @@ begin
       perform kasa_private.fail('KASA_BAD_MAP', format('Ward %s is not a closed, valid outline.', w.ward));
     end if;
   end loop;
-  select array_agg((w ->> 'ward')::integer) into v_wards from jsonb_array_elements(s.wards) w;
   insert into kasa_private.places (slug, name, body, body_type, complaint_url, wards_mapped, wards_total, source, licence,
                                    district, status, community, incharge, incharge_source, updated_at)
   values (v_slug, s.town, s.body, s.body_type, s.complaint_url, s.ward_count, null, s.map_source,
