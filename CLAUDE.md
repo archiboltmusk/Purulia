@@ -21,6 +21,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - Static idea board: `ray.html` (five Ray-inspired ideas as Hergé-style panels, not built; mitu.js guide). Static text only: `circle.html`, `municipality.html` (use `page-lang.js` + `<page>-i18n.js`), `methodology.html`, `rules.html`, `grievance.html`, `privacy.html`, `terms.html`, `changelog.html`, `poster.html`.
 - `solutions.html` + `solutions.js` — "Find a solution": static keyword index (problem -> existing page or helpline), no server; rows added only when the page exists. Next phase: `kasa_solutions_search` RPC.
 - `blood.html` — static: blood donation facts (WHO, linked) + link to official eRaktKosh stock service. No donor data, no copied stock data. raktkhoj.org is a self-described demo: no API, no reuse licence, so not copied.
+- `escalate.html` — static: escalation steps for an open report (fix date → councillor/MLA/MP → RTI s.7(1) → first appeal s.19(1) → second appeal s.19(3) → CPGRAMS (central only) → NALSA 15100), each row cited. Linked from helplines.html.
 - `helplines.html` — static: CPGRAMS, NALSA 15100, RTI Online (central only), each row linked to its official page. Add a row only after confirming the number on its official site.
 - Redirect stubs only (don't add features): `map.html`, `audience.html`, `digest-subscribe.html`, `suggestions.html`, `app/index.html`.
 - `og-card.html` — OG image source, not published.
