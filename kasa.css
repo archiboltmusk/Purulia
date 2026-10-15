@@ -904,7 +904,6 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 
 /* "Join N people" line at the top of the map. */
 
-/* First-visit tips. */
 
 /* The map is the whole screen below the nav: logo and More only — our three-language switch
    doesn't fit the nav row, so language stays in the menu along with the other pages. */
@@ -1094,8 +1093,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-splash-sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:.85;}
 @media(min-width:641px){.k-splash{display:none;}}
 @media(prefers-reduced-motion:reduce){.k-splash{transition:none;}}
-.k-splash{animation:kSplashOut .25s var(--ease-in) .35s forwards;}
-@keyframes kSplashOut{to{opacity:0;visibility:hidden;pointer-events:none;}}
+/* The splash now leaves when the map is ready (kasa.js hideSplash), not on a timer,
+   so the map never shows a blank or dark frame before its tiles arrive. */
 @media(prefers-reduced-motion:reduce){.k-splash{display:none;}}
 
 /* ── Home map palette (Namma Kasa look): scoped to the app layout so the other pages keep
