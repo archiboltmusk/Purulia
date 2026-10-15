@@ -6667,21 +6667,42 @@ function stepLightbox(box, dir){
 
 function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
 
+/* Focus: a modal takes focus on open, Tab stays inside it, and focus returns to the
+   control that opened it on close. Esc handling stays per modal. */
+const MODAL_FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const modalReturnFocus = new Map();
 function openModal(id){
   const m = document.getElementById(id);
+  if (!modalReturnFocus.has(id)) modalReturnFocus.set(id, document.activeElement);
   m.classList.add('open');
   m.setAttribute('aria-hidden', 'false');
   document.body.classList.add('k-noscroll');
+  const first = m.querySelector(MODAL_FOCUSABLE);
+  if (first && !m.contains(document.activeElement)) first.focus({ preventScroll: true });
 }
 
 function closeModal(id){
   const m = document.getElementById(id);
   m.classList.remove('open');
   m.setAttribute('aria-hidden', 'true');
+  const back = modalReturnFocus.get(id);
+  modalReturnFocus.delete(id);
+  if (back && typeof back.focus === 'function' && document.contains(back)) back.focus({ preventScroll: true });
   if (id === 'k-sheet') closeSheet();
   if (id === 'k-ev-modal') ev = null;
   if (!document.querySelector('.k-modal.open')) document.body.classList.remove('k-noscroll');
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const m = document.querySelector('.k-modal.open');
+  if (!m) return;
+  const items = [...m.querySelectorAll(MODAL_FOCUSABLE)].filter(el => el.offsetParent !== null);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || !m.contains(document.activeElement))){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && (document.activeElement === last || !m.contains(document.activeElement))){ e.preventDefault(); first.focus(); }
+});
 
 /* ══════════════════════════════════════════════════════════
    UTILITIES
