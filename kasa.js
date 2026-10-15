@@ -6457,20 +6457,24 @@ function askStillThere(lat, lng, accuracy){
 }
 
 /* "Is it fixed?" (idea from FixMyStreet's 4-week questionnaire). A reporter whose own report has
-   been open 28 days is asked once every 28 days, on this phone: fixed means photograph it (the usual
-   cleanup claim at the spot); still there opens the report at "Filed officially" to take it further.
-   Only for phones that already have a session; nothing is asked of anyone else. */
+   been open 28 days is asked: still there / fixed / not sure. The answer is kept by kasa_report_followup
+   (owner only, changes no public status). Fixed means photograph it (the usual cleanup claim at the
+   spot); still there opens the report at "Filed officially" to take it further. A report answered
+   "still" or "fixed" is not asked again; "not sure" is asked again after 28 days. Only for phones
+   that already have a session; nothing is asked of anyone else. */
 const MINE_ASK_DAYS = 28;
 async function askReporter(){
   if (askStillThere.done) return;
   const { data: { session } } = await sb.auth.getSession();
   if (!session) return;
-  const { data, error } = await sb.rpc('kasa_my_reports');
+  const [{ data, error }, { data: fu }] = await Promise.all([sb.rpc('kasa_my_reports'), sb.rpc('kasa_my_followups')]);
   if (error || !data) return;
+  const answered = new Map((fu || []).map(f => [f.report_id, f.answer]));
   let asked = {};
   try { asked = JSON.parse(localStorage.getItem('kasa_mine_asked') || '{}'); } catch (e) {}
   const now = Date.now(), day = 86400000;
   const r = data.map(normalize).filter(x => x.status === 'open' && !x.pending && daysSince(x.createdAt) >= MINE_ASK_DAYS
+    && !['still', 'fixed'].includes(answered.get(x.id))
     && !(asked[x.id] && now - asked[x.id] < MINE_ASK_DAYS * day)).sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
   const el = document.getElementById('k-still');
   if (!r || askStillThere.done || !el.hidden) return;
@@ -6486,6 +6490,7 @@ async function askReporter(){
       <div class="k-still-a">
         <button type="button" class="k-still-gone" data-mine-ans="fixed">${esc(t('mine_fixed'))}</button>
         <button type="button" class="k-still-yes" data-mine-ans="still">${esc(t('mine_still'))}</button>
+        <button type="button" data-mine-ans="unsure">${esc(t('mine_unsure'))}</button>
         <button type="button" data-mine-ans="later">${esc(t('still_later'))}</button>
       </div>
     </div>`;
@@ -6495,6 +6500,7 @@ async function askReporter(){
     if (!b && !e.target.closest('[data-mine-open]')) return;
     el.hidden = true;
     const a = b ? b.dataset.mineAns : 'open';
+    if (a === 'still' || a === 'fixed' || a === 'unsure') sb.rpc('kasa_report_followup', { p_report_id: r.id, p_answer: a }).then(() => {}, () => {});
     if (a === 'fixed') openEvidence('claim:' + r.id);
     else if (a !== 'later'){
       openSheet(r.id);
