@@ -1148,12 +1148,12 @@ body[data-app-layout] .k-filter-select{padding-right:2.1rem;background-position:
 body[data-app-layout]{--line-ink:#1a1410;}
 body[data-app-layout] .k-nav-logo{font-weight:700;letter-spacing:-.01em;}
 body[data-app-layout] .k-nav-logo .k-wordmark-second{font-weight:700;}
-body[data-app-layout] .k-map-pill{background:#ffffff;border:2px solid var(--line-ink);box-shadow:none;border-radius:999px;}
+body[data-app-layout] .k-map-pill{background:#ffffff;border:1px solid #e5e7eb;box-shadow:0 2px 10px rgba(0,0,0,.08);border-radius:999px;}
 body[data-app-layout] .k-pill-num{font-weight:700;}
 body[data-app-layout] .k-map-report-btn{border:2px solid var(--line-ink);box-shadow:0 3px 0 var(--line-ink);font-weight:700;letter-spacing:.02em;text-transform:none;font-size:15px;}
 body[data-app-layout] .k-map-report-btn:hover{transform:none;box-shadow:0 3px 0 var(--line-ink);}
 body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-filter-toggle{border:2px solid var(--line-ink);box-shadow:none;}
-body[data-app-layout] .maplibregl-ctrl-group{border:2px solid var(--line-ink)!important;box-shadow:none!important;}
+body[data-app-layout] .maplibregl-ctrl-group{background:#ffffff!important;border:1px solid #e5e7eb!important;box-shadow:0 1px 4px rgba(0,0,0,.1)!important;}
 
 /* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
 @media(prefers-reduced-motion:no-preference){
