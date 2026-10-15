@@ -1142,3 +1142,18 @@ body[data-app-layout] .k-quick-chip:hover,body[data-app-layout] .k-quick-chip:fo
 body[data-app-layout] .k-nav{background:#ffffff;border-bottom:1px solid #e5e7eb;}
 body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still,body[data-app-layout] .k-join{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
 body[data-app-layout] .k-join-text,body[data-app-layout] .k-still-q{color:#1f2937;}
+
+/* ── Namma Kasa details on the home map (scoped to the app layout): sans-serif UI type,
+   rounded-rectangle red Report button, white rounded map controls, pill with a divider. ── */
+body[data-app-layout] .k-map-section,body[data-app-layout] .k-map-topbar,body[data-app-layout] .k-quick,body[data-app-layout] .k-map-pill,body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-map-report-btn,body[data-app-layout] .k-view-btn,body[data-app-layout] .k-quick-chip{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0;text-transform:none;}
+body[data-app-layout] .k-map-report-btn{border-radius:14px;padding:.95rem 1.2rem;font-size:17px;font-weight:700;letter-spacing:0;text-transform:none;background:#DD3333;color:#ffffff;border:0;}
+body[data-app-layout] .k-map-report-btn span[aria-hidden]{font-size:20px;line-height:1;}
+body[data-app-layout] .k-map-pill{border-radius:999px;padding:.5rem 1.1rem;gap:.55rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;}
+body[data-app-layout] .k-map-pill .k-pill-num{font-family:inherit;font-weight:700;font-size:16px;}
+body[data-app-layout] .k-map-pill .k-pill-num:first-of-type{color:#DD3333;}
+body[data-app-layout] .k-map-pill .k-pill-label{font-size:13px;letter-spacing:0;text-transform:none;}
+body[data-app-layout] .k-map-pill .k-pill-sep{width:1px;height:16px;background:#d1d5db;font-size:0;}
+body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn{border-radius:999px;font-size:14px;padding:.5rem 1rem;}
+body[data-app-layout] .k-maplibregl-ctrl-group,body[data-app-layout] .maplibregl-ctrl-group{border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.1);}
+body[data-app-layout] .maplibregl-ctrl-group button{width:40px;height:40px;}
+body[data-app-layout] .k-quick-chip{border-radius:999px;font-size:13px;}

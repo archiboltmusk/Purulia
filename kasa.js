@@ -1258,7 +1258,7 @@ function initMainMapNow(){
       boostRoadLabels(mainMap);
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': '#991b1b', 'circle-stroke-color': '#ffffff', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
@@ -1401,7 +1401,7 @@ async function addTownLayers(){
   mainMap.addLayer({ id: 'wb-towns-line', type: 'line', source: 'wb-towns', minzoom: 8, filter: ['!', pt],
     paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-dot', type: 'circle', source: 'wb-towns', minzoom: 8, filter: pt,
-    paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': amber, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
+    paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-label', type: 'symbol', source: 'wb-towns', minzoom: 9, maxzoom: 13.5,
     layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-offset': ['case', pt, ['literal', [0, 1.1]], ['literal', [0, 0]]] },
     paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
@@ -1466,7 +1466,7 @@ function addStateLocal(slug){
     mainMap.addLayer({ id: src + '-town-line', type: 'line', source: src, minzoom: 8, filter: town,
       paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-dot', type: 'circle', source: src, minzoom: 8, filter: ['all', kind('town'), pt],
-      paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': amber, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
+      paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-label', type: 'symbol', source: src, minzoom: 9, maxzoom: IN_WARD_ZOOM + 1.5, filter: kind('town'),
       layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
       paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
