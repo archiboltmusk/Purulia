@@ -2617,17 +2617,30 @@ function renderPlaceAccountability(r){
     </div>`;
 }
 
+// The approved official for this post at this report's spot (kasa_officials), or null. Vacant posts have none.
+function officialFor(role, r){
+  const d = DISTRICT_OF(r);
+  if (!d) return null;
+  if (!addedRows[d]) addedIn(d);
+  return (addedRows[d] || []).find(o => o.role === role && (
+    (o.level === 'district' && !o.block && !o.gp) ||
+    (o.level === 'block' && !!r.block && o.block === r.block) ||
+    (o.level === 'gp' && role === 'pradhan' && !!r.body && o.gp === r.body))) || null;
+}
+
 function renderAccountability(r){
   if (r.area === 'place') return renderPlaceAccountability(r);
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const town2 = otherTown(r);
   const w = state.wards[r.ward] || {};
-  const node = (role, i) => `
+  const node = (role, i) => {
+    const o = officialFor(role, r);
+    return `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
-      <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length, r))}</small></span>
-    </button>`;
+      <span class="k-node-text"><b>${esc(o ? o.name : t('role_' + role))}</b><small>${esc(o ? t('role_' + role) : roleSub(role, i, chain.nodes.length, r))}</small></span>
+    </button>`; };
   // The tree shows two people: who fixes it first, and who you elected. Everyone above
   // them, the reps and the escalation routes sit behind one tap.
   const [first, ...above] = chain.nodes;
