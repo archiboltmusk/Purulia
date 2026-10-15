@@ -1,0 +1,56 @@
+name: Refresh OpenAQ air readings
+
+# Every 6 hours: latest PM2.5 at the OpenAQ station nearest each West Bengal district
+# centre (secret OPENAQ_API_KEY) into places/air/openaq.json, so the air page never
+# calls OpenAQ per visit and the key never reaches a browser. A failed district keeps its
+# last good value; a missing key fails this run and leaves the file unchanged.
+on:
+  schedule:
+    - cron: '20 */6 * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  actions: write
+
+concurrency:
+  group: openaq-refresh
+  cancel-in-progress: false
+
+jobs:
+  refresh:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+
+      - name: Offline checks for the builder
+        run: python3 tests/test_build_openaq.py
+
+      - name: Rebuild air readings
+        env:
+          OPENAQ_API_KEY: ${{ secrets.OPENAQ_API_KEY }}
+        run: timeout 15m python3 tools/build-openaq.py
+
+      - name: Check the file
+        run: python3 -c "import json; d = json.load(open('places/air/openaq.json')); assert len(d['districts']) == 23"
+
+      - name: Commit and deploy
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name "place-data-bot"
+          git config user.email "place-data-bot@users.noreply.github.com"
+          git add places/air/openaq.json
+          if ! git diff --cached --quiet; then
+            git commit -m "Refresh air readings $(date -u +%F-%H%M)"
+            git push origin HEAD:main
+            gh workflow run github-pages.yml --ref main
+          else
+            echo "no new readings"
+          fi
