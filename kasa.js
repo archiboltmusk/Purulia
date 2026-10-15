@@ -1377,8 +1377,18 @@ let wbIndex = null;
 async function addDistrictLayers(){
   const g = await KasaPlaces.loadDistricts();
   if (!mainMap || !g?.features?.length || mainMap.getSource('wb-districts')) return;
+  // Census of India 2011 population per district (places/wb_district_facts.json, cited there via Wikidata).
+  // Districts with no census figure (Jhargram, created 2017) get no population and no fill.
+  const facts = await fetch('places/wb_district_facts.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  for (const f of g.features) {
+    const pop = facts?.districts?.[f.properties.slug]?.census2011?.population;
+    if (pop) f.properties.pop = pop;
+  }
   mainMap.addSource('wb-districts', { type: 'geojson', data: g,
-    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0)' });
+    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0). Population: Census of India 2011 (Wikidata, CC0)' });
+  mainMap.addLayer({ id: 'wb-districts-fill', type: 'fill', source: 'wb-districts',
+    filter: ['all', ['has', 'pop'], ['!=', ['get', 'slug'], 'purulia']],
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .55 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
     paint: { 'line-color': '#9ca3af', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
