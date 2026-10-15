@@ -1261,6 +1261,14 @@ function initMainMapNow(){
   // Any drag/zoom/rotate by a person carries originalEvent; programmatic moves don't.
   mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
   if (window.KasaPlaces){
+    // Outside West Bengal the header names the Indian district or state under the map.
+    KasaPlaces.setIndiaNamer(async (lat, lng) => {
+      const a = await indiaAreasAt(lat, lng).catch(() => null);
+      if (!a) return KasaPlaces.brand('in:', 'India');
+      const sk = 'in:' + a.state.properties.slug;
+      if (a.district) return KasaPlaces.brand(sk + ':' + a.district.properties.district.toLowerCase().replace(/[^a-z0-9]+/g, '-'), a.district.properties.district);
+      return KasaPlaces.brand(sk, a.state.properties.state);
+    });
     const follow = () => { const c = mainMap.getCenter(); KasaPlaces.onView(c.lat, c.lng, mainMap.getZoom()); };
     mainMap.on('moveend', follow);
     mainMap.once('load', follow);
