@@ -51,7 +51,13 @@
       "expo-localization",
       "expo-background-task",
       "expo-web-browser",
-      "@maplibre/maplibre-react-native"
+      "@maplibre/maplibre-react-native",
+      [
+        "expo-notifications",
+        {
+          "color": "#3BFFAD"
+        }
+      ]
     ]
   }
 }

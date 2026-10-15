@@ -56,7 +56,7 @@
       e_reply: 'Write what they said (at least 10 letters).', e_date: 'Add the date.', e_url: 'Add a link starting with http:// or https://.',
       leaders_h: 'Leaders', leaders_sub: 'Tap a leader to see what people asked them for, what they answered, and what they promised.',
       lc_line: '{a} asked · {r} answered · {p} promises · {d} delivered',
-      back: '← All demands', lv_asked: 'Demands to them', lv_answered: 'Answered', lv_promises: 'Promises made', lv_delivered: 'Delivered',
+      back: '← All demands', lv_asked: 'Demands to them', lv_answered: 'Answered', lv_promises: 'Promises made', lv_delivered: 'Delivered', lv_rate: 'Answer rate', lv_days: 'Typical days to answer', lv_wait: 'Longest wait for an answer (days)',
       lv_demands_h: 'What people asked them for', lv_promises_h: 'What they promised', lv_none_d: 'No demands to them yet.',
       lv_none_p: 'No promises by them on the Promises page yet.', lv_promise_more: 'On Promises',
       view_list: 'List', view_map: 'Map', map_none: 'No demands with a map pin yet.', map_err: 'The map could not load.',
@@ -110,7 +110,7 @@
       e_reply: 'কী বলেছেন লিখুন (অন্তত ১০ অক্ষর)।', e_date: 'তারিখ দিন।', e_url: 'http:// বা https:// দিয়ে শুরু লিঙ্ক দিন।',
       leaders_h: 'নেতারা', leaders_sub: 'কোনও নেতার নাম চাপুন: মানুষ তাঁর কাছে কী চেয়েছেন, তিনি কী উত্তর দিয়েছেন, কী প্রতিশ্রুতি দিয়েছেন।',
       lc_line: '{a} দাবি · {r} উত্তর · {p} প্রতিশ্রুতি · {d} পূরণ',
-      back: '← সব দাবি', lv_asked: 'তাঁর কাছে দাবি', lv_answered: 'উত্তর দিয়েছেন', lv_promises: 'প্রতিশ্রুতি', lv_delivered: 'পূরণ হয়েছে',
+      back: '← সব দাবি', lv_asked: 'তাঁর কাছে দাবি', lv_answered: 'উত্তর দিয়েছেন', lv_promises: 'প্রতিশ্রুতি', lv_delivered: 'পূরণ হয়েছে', lv_rate: 'উত্তরের হার', lv_days: 'উত্তর দিতে সাধারণত কত দিন', lv_wait: 'সবচেয়ে বেশি অপেক্ষা (দিন)',
       lv_demands_h: 'মানুষ তাঁর কাছে কী চেয়েছেন', lv_promises_h: 'তিনি কী প্রতিশ্রুতি দিয়েছেন', lv_none_d: 'এখনও তাঁর কাছে কোনও দাবি নেই।',
       lv_none_p: 'প্রতিশ্রুতি পাতায় এখনও তাঁর কোনও প্রতিশ্রুতি নেই।', lv_promise_more: 'প্রতিশ্রুতি পাতায়',
       view_list: 'তালিকা', view_map: 'ম্যাপ', map_none: 'এখনও ম্যাপে পিন দেওয়া কোনও দাবি নেই।', map_err: 'ম্যাপ লোড করা গেল না।',
@@ -164,7 +164,7 @@
       e_reply: 'उन्होंने क्या कहा लिखें (कम से कम 10 अक्षर)।', e_date: 'तारीख़ दें।', e_url: 'http:// या https:// से शुरू होने वाला लिंक दें।',
       leaders_h: 'नेता', leaders_sub: 'किसी नेता पर टैप करें: लोगों ने उनसे क्या माँगा, उन्होंने क्या जवाब दिया, क्या वादा किया।',
       lc_line: '{a} माँगें · {r} जवाब · {p} वादे · {d} पूरे',
-      back: '← सभी माँगें', lv_asked: 'उनसे माँगें', lv_answered: 'जवाब दिया', lv_promises: 'वादे किए', lv_delivered: 'पूरे हुए',
+      back: '← सभी माँगें', lv_asked: 'उनसे माँगें', lv_answered: 'जवाब दिया', lv_promises: 'वादे किए', lv_delivered: 'पूरे हुए', lv_rate: 'जवाब की दर', lv_days: 'जवाब में आम तौर पर दिन', lv_wait: 'सबसे लंबा इंतज़ार (दिन)',
       lv_demands_h: 'लोगों ने उनसे क्या माँगा', lv_promises_h: 'उन्होंने क्या वादा किया', lv_none_d: 'अभी उनसे कोई माँग नहीं।',
       lv_none_p: 'वादे पेज पर अभी उनका कोई वादा नहीं।', lv_promise_more: 'वादे पेज पर',
       view_list: 'सूची', view_map: 'मैप', map_none: 'अभी मैप पिन वाली कोई माँग नहीं।', map_err: 'मैप लोड नहीं हो सका।',
@@ -402,7 +402,16 @@
     document.getElementById('nb-lv-head').innerHTML = `
       ${ph && ph.photo ? `<img class="nb-lv-photo" src="${esc(ph.photo)}" alt="" style="object-position:${esc(ph.photoPos || '50% 30%')}">` : ''}
       <div><h2 class="an-title nb-lv-name">${esc(c.name)}</h2><p class="an-sub">${esc([c.role, c.area].filter(Boolean).join(' · '))}</p></div>`;
-    const tiles = [['lv_asked', c.asked], ['tile_supports', c.supports], ['lv_answered', c.answered], ['lv_promises', c.promises], ['lv_delivered', c.delivered]];
+    // Response record (idea from WriteToThem's response stats), counted from the demands on this page.
+    const DAY = 86400000, mine = state.demands.filter(d => norm(d.leader_name) === norm(c.name));
+    const answerDays = mine.filter(d => d.replies && d.replies.length).map(d =>
+      Math.max(0, (Math.min(...d.replies.map(r => Date.parse(r.said_on))) - Date.parse(d.published_at || d.created_at)) / DAY)).sort((a, b) => a - b);
+    const med = answerDays.length ? answerDays[answerDays.length >> 1] : null;
+    const waits = mine.filter(d => statusOf(d) === 'open').map(d => Math.floor((Date.now() - Date.parse(d.published_at || d.created_at)) / DAY));
+    const tiles = [['lv_asked', c.asked], ['tile_supports', c.supports], ['lv_answered', c.answered],
+      ['lv_rate', c.asked ? Math.round(c.answered / c.asked * 100) + '%' : '—'],
+      ['lv_days', med == null ? '—' : Math.round(med)], ['lv_wait', waits.length ? Math.max(...waits) : '—'],
+      ['lv_promises', c.promises], ['lv_delivered', c.delivered]];
     document.getElementById('nb-lv-tiles').innerHTML = tiles.map(([k, n]) =>
       `<div class="an-tile"><div class="an-tile-n">${n}</div><div class="an-tile-l">${esc(t(k))}</div></div>`).join('');
     const ps = state.promises.filter(p => norm(p.who) === norm(c.name));

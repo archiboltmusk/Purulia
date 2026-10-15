@@ -31,6 +31,7 @@ const ACCESS_TOKEN = [b64url({ alg: 'HS256', typ: 'JWT' }),
 
 const RPC = {
   kasa_rules: {},
+  kasa_ward_priorities: { voters: 0, counts: {} },
   kasa_fast_claims: [],
   kasa_report_addresses: {},
   kasa_finalize_due: 0,

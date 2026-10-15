@@ -21,6 +21,8 @@ test('promises.html lists promises with sources, filters and news', async ({ pag
   await expect(page.locator('.pr-item')).toHaveCount(2);
   await expect(page.locator('.pr-item').first().locator('a[href="https://example.com/said"]')).toBeVisible();
   await expect(page.locator('#pr-feed li')).toHaveCount(1);
+  await expect(page.locator('#pr-strip li')).toHaveCount(2);
+  await expect(page.locator('#pr-strip li').first()).toContainText('Other Person');
 
   await page.locator('#pr-status-chips [data-status="promised"]').click();
   await expect(page.locator('.pr-item')).toHaveCount(1);

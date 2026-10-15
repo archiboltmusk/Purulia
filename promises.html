@@ -44,6 +44,17 @@
   .pr-chip{background:none;border:1px solid var(--border);border-radius:999px;color:var(--text-md);padding:.35rem .8rem;font-family:var(--mono);font-size:11px;cursor:pointer;}
   .pr-chip[aria-pressed="true"]{border-color:var(--amber);color:var(--amber);background:rgba(212,136,42,.08);}
   .pr-list{list-style:none;margin-top:1rem;display:grid;gap:.8rem;}
+  .pr-strip{margin-top:1rem;}
+  .pr-strip-h{display:flex;flex-wrap:wrap;gap:.3rem .8rem;align-items:baseline;color:var(--cream);font-family:var(--serif);font-size:1.1rem;}
+  .pr-strip-film{list-style:none;margin:.6rem 0 0;padding:14px 0;display:flex;gap:6px;overflow-x:auto;scroll-snap-type:x mandatory;
+    background:#111 repeating-linear-gradient(90deg,transparent 0 8px,rgba(240,230,208,.8) 8px 14px) top/100% 6px no-repeat,
+               #111 repeating-linear-gradient(90deg,transparent 0 8px,rgba(240,230,208,.8) 8px 14px) bottom/100% 6px no-repeat;border-radius:3px;}
+  .pr-strip-film li{flex:0 0 190px;scroll-snap-align:start;}
+  .pr-strip-film a{display:flex;flex-direction:column;gap:.35rem;height:100%;padding:.7rem .75rem;background:var(--ink);border:1.5px solid rgba(240,230,208,.55);color:var(--text-hi);text-decoration:none;}
+  .pr-strip-y{font-family:var(--serif);font-size:1.6rem;font-weight:700;color:var(--cream);line-height:1;}
+  .pr-strip-who{font-family:var(--mono);font-size:10.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-md);}
+  .pr-strip-txt{font-size:.86rem;line-height:1.4;flex:1;}
+  .pr-strip-film .pr-status{align-self:flex-start;}
   .pr-item{border:1px solid var(--border);border-radius:6px;padding:1rem 1.1rem;background:rgba(240,230,208,.015);}
   .pr-who{font-family:var(--serif);font-size:1.12rem;font-weight:700;color:var(--cream);}
   .pr-role{font-size:.84rem;color:var(--text-md);}
@@ -89,6 +100,7 @@
   @media(max-width:600px){.an-card{padding:1.1rem 1rem;}.an-tile{padding:1.1rem 1rem;}}
 </style>
 <script src="bug-report.js"></script>
+<link rel="stylesheet" href="poster.css">
 </head>
 <body>
 
@@ -111,7 +123,7 @@
 <main class="an-wrap">
   <div class="an-head">
     <div>
-      <h1 class="an-title" data-t-html="title">Who promised <em>what</em>, and what was delivered</h1>
+      <h1 class="an-title" data-bn="কে কী প্রতিশ্রুতি দিয়েছিলেন, কী হয়েছে" data-t-html="title">Who promised <em>what</em>, and what was delivered</h1>
       <p class="an-sub" data-t="sub">Promises made to Purulia by its MP, MLAs, the municipality and the state government. Every promise links to where and when it was said. A promise is only marked in progress, delivered or broken with a link that shows it. News links are added automatically every morning.</p>
     </div>
   </div>
@@ -144,6 +156,7 @@
         <button type="button" class="pr-chip" data-status="promised" aria-pressed="false" data-t="st_promised">Nothing shown yet</button>
         <button type="button" class="pr-chip" data-status="broken" aria-pressed="false" data-t="st_broken">Broken</button>
       </div>
+      <div class="pr-strip" id="pr-strip" hidden></div>
       <ul class="pr-list" id="pr-list"><li class="an-empty" data-t="loading">Loading…</li></ul>
     </section>
 
