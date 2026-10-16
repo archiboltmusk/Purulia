@@ -1090,13 +1090,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 
 /* Opening loader: the same mark and wordmark as index.html (#loader), on every page.
    Transform and opacity only; the place name fills in from places.js. */
-.k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;background:var(--ink);transition:opacity .65s ease,visibility .65s ease;}
-.k-splash.k-splash-out{opacity:0;visibility:hidden;pointer-events:none;}
-.k-splash .ld-mandala{width:70px;height:70px;animation:kSpin 5s linear infinite;opacity:.65;}
-.k-splash .ld-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.55em;color:rgba(221,51,51,.85);text-transform:uppercase;animation:kLdPulse 1.8s ease-in-out infinite;}
-@keyframes kSpin{to{transform:rotate(360deg);}}
-@keyframes kLdPulse{0%,100%{opacity:.35;}50%{opacity:1;}}
-@media(prefers-reduced-motion:reduce){.k-splash .ld-mandala,.k-splash .ld-label{animation:none;}}
+/* .k-splash (opening loader) lives in kasa.html <style> so it paints before this file loads. */
 
 /* ── Home map palette (Namma Kasa look): scoped to the app layout so the other pages keep
    their own colours. Brand red replaces amber; grey surfaces and status tints replace
