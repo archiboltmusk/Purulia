@@ -1557,17 +1557,24 @@ function renderIndiaCard(el){
     <div class="k-ward-title">${esc(areaName(f))}</div>
     <div class="k-ward-sub">${esc(sub)}</div>
     <div class="k-area-leaders">
-      ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
       ${reps}
-      ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
     </div>
     <div class="k-ward-actions">
-      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
-    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
-      · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
+        ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
+      </div>
+      <div class="k-ward-actions">
+        <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      </div>
+      ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
+      <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
+        · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
+    </details>`;
 }
 
 async function loadLocalInView(){
