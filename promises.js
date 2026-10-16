@@ -160,9 +160,11 @@
     return data;
   }
 
+  // English view leaves out headlines in Bengali script; বাং view keeps them.
+  function shownNews(){ return lang === 'en' ? state.news.filter(n => !/\p{Script=Bengali}/u.test(n.title || '')) : state.news; }
   function newsFor(who){
     const w = who.toLowerCase();
-    return state.news.filter(n => (n.who && n.who === who) || (n.title || '').toLowerCase().includes(w)).slice(0, 3);
+    return shownNews().filter(n => (n.who && n.who === who) || (n.title || '').toLowerCase().includes(w)).slice(0, 3);
   }
 
   function renderTiles(){
@@ -216,8 +218,8 @@
     document.getElementById('pr-news-checked').textContent = state.checked ? t('news_checked', { d: fmtDate(state.checked) }) : '';
     if (state.failed){ el.innerHTML = `<li class="an-empty">${esc(t('load_err'))}</li>`; return; }
     if (!state.loaded) return;
-    if (!state.news.length){ el.innerHTML = `<li class="an-empty">${esc(t('news_none'))}</li>`; return; }
-    el.innerHTML = state.news.slice(0, 25).map(n => `<li><a href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener nofollow">${esc(n.title)}</a>
+    if (!shownNews().length){ el.innerHTML = `<li class="an-empty">${esc(t('news_none'))}</li>`; return; }
+    el.innerHTML = shownNews().slice(0, 25).map(n => `<li><a href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener nofollow">${esc(n.title)}</a>
       <small>${esc([n.source, fmtDate(n.published_at)].filter(Boolean).join(' · '))}</small></li>`).join('');
   }
 
