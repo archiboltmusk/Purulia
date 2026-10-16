@@ -198,6 +198,7 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-ward-close{position:absolute;top:.4rem;right:.5rem;color:var(--text-lo);padding:.3rem;}
 .k-ward-title{font-family:var(--serif);font-size:1.25rem;font-weight:700;}
 .k-ward-sub{font-family:var(--mono);font-size:11px;color:var(--text-md);margin-top:.15rem;}
+.k-ward-empty{font-size:12px;color:var(--text-md);margin-top:.35rem;}
 .k-ward-nums{display:flex;flex-wrap:wrap;gap:.3rem .9rem;margin-top:.6rem;font-family:var(--mono);font-size:12px;}
 .k-ward-actions{display:flex;flex-wrap:wrap;gap:.45rem;margin-top:.8rem;}
 .k-ward-filter{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--amber);border:1px solid var(--border2);padding:.45rem .7rem;border-radius:3px;}
