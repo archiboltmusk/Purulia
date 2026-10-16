@@ -2,6 +2,19 @@
 <html lang="en">
 <head>
 <script src="theme-init.js"></script>
+<style>
+/* Critical first paint: loader colours and loader rules, inline so the loader paints before kasa.css loads. Keep in step with kasa.css. */
+html,body{margin:0;background:#f8f6f2;}
+html[data-theme="dark"],html[data-theme="dark"] body{background:#0a0805;}
+.k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;background:#f8f6f2;transition:opacity .65s ease,visibility .65s ease;}
+html[data-theme="dark"] .k-splash{background:#0a0805;}
+.k-splash.k-splash-out{opacity:0;visibility:hidden;pointer-events:none;}
+.k-splash .ld-mandala{width:70px;height:70px;animation:kSpin 5s linear infinite;opacity:.65;}
+.k-splash .ld-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.55em;color:rgba(221,51,51,.85);text-transform:uppercase;animation:kLdPulse 1.8s ease-in-out infinite;}
+@keyframes kSpin{to{transform:rotate(360deg);}}
+@keyframes kLdPulse{0%,100%{opacity:.35;}50%{opacity:1;}}
+@media(prefers-reduced-motion:reduce){.k-splash .ld-mandala,.k-splash .ld-label{animation:none;}}
+</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Parishkar Bengal — Report a civic problem in 30 seconds</title>
@@ -24,8 +37,9 @@
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap"></noscript>
 <link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous"></noscript>
-<link rel="stylesheet" href="kasa.css">
-<link rel="stylesheet" href="digest-sheet.css">
+<link rel="preload" href="kasa.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="digest-sheet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="kasa.css"><link rel="stylesheet" href="digest-sheet.css"></noscript>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="kasa-icon-192.png">
 
@@ -33,7 +47,7 @@
 <script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js" integrity="sha384-oM43ZjLL5cj/w3ORvbvwAubendEp51/buLZ9CGEMjp5ExAxNxAC7N7GJ2X2Oreb9" crossorigin="anonymous"></script>
-<script src="config.js"></script>
+<script defer src="config.js"></script>
 <script defer src="categories.js"></script>
 <script defer src="city.js"></script>
 <script defer src="places.js"></script>
@@ -44,7 +58,6 @@
 <script defer src="boundary-live.js"></script>
 <script defer src="kasa.js"></script>
 <script defer src="digest-sheet.js"></script>
-<script src="bug-report.js"></script>
 </head>
 <body data-app-layout>
 <div class="k-splash" id="k-splash" aria-hidden="true">
@@ -56,6 +69,7 @@
   </svg>
   <div class="ld-label"><span>Parishkar</span> <span id="k-splash-place"></span></div>
 </div>
+<script src="bug-report.js"></script>
 
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
