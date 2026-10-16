@@ -19,23 +19,6 @@ const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haring
   Halisahar: 'north-24-parganas', Kachrapara: 'north-24-parganas', Madhyagram: 'north-24-parganas', Ghatal: 'paschim-medinipur',
   Jhargram: 'jhargram', Purulia: 'purulia', Dalkhola: 'uttar-dinajpur', Howrah: 'howrah', Mynaguri: 'jalpaiguri', Falkata: 'alipurduar' };
 
-// Point in a GeoJSON Polygon / MultiPolygon (places/wb_districts.geojson), ray casting.
-const inRing = (pt, ring) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
-  const [xi, yi] = ring[i], [xj, yj] = ring[j];
-  if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
-const inGeom = (pt, g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates)
-  .some(p => inRing(pt, p[0]) && !p.slice(1).some(h => inRing(pt, h)));
-
-// No place chosen yet: ask the device once for its position and take the district it is in.
-async function districtFromLocation(){
-  if (!navigator.geolocation) return null;
-  const c = await new Promise(res => navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), { timeout: 8000, maximumAge: 600000 }));
-  if (!c) return null;
-  const g = await (await fetch('places/wb_districts.geojson')).json();
-  const f = g.features.find(f => inGeom([c.longitude, c.latitude], f.geometry));
-  return f ? f.properties.slug : null;
-}
-
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const list = document.getElementById('ws-dump-list');
@@ -51,14 +34,13 @@ async function districtFromLocation(){
   if (PF){ await PF.load().catch(() => null); if (PF.data){
     let picked = false; try { picked = new URLSearchParams(location.search).has('d') || !!localStorage.getItem('parishkar_place'); } catch (e) {}
     if (!picked){
-      const k = await districtFromLocation().catch(() => null);
+      const k = await PF.districtFromLocation().catch(() => null);
       if (k){ PF.choose(k); location.reload(); return; }
     }
     slug = PF.current(); D = PF.data.districts[slug]; } }
   const NAME = D ? D.name : 'Purulia', isPurulia = slug === 'purulia';
   // A town picked on the map (its slug in parishkar_place) shows only its own dumpsites, not the district's.
-  let town = null;
-  try { const k = localStorage.getItem('parishkar_place'); if (k && k !== 'purulia' && k !== 'kolkata' && !k.startsWith('district:') && !new URLSearchParams(location.search).has('d')) town = k; } catch (e) {}
+  const town = PF ? PF.savedTownSlug() : null;
   const inPlace = town ? (r => r.place === town) : PF && PF.data ? await PF.reportFilter(slug) : () => true;
   const bodies = isPurulia || !PF ? [] : await PF.bodies(slug);
   if (!isPurulia) otherDistrict();
