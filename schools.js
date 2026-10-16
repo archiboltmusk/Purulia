@@ -18,7 +18,7 @@
                     ['boys_toilet', "boys' toilet", null], ['electricity', 'electricity', 'electricity_ok'],
                     ['boundary_wall', 'boundary wall', 'boundary_ok'], ['handwash', 'hand-wash', null],
                     ['library', 'library', null], ['playground', 'playground', null], ['ramp', 'ramp', null]];
-  // State and national figures from the UDISE+ 2024-25 report (tools/udise-benchmarks.py).
+  // State and national figures from the UDISE+ 2025-26 report (tools/udise-benchmarks.py).
   const bench = await fetch('schools-benchmarks.json').then(r => r.ok ? r.json() : null).catch(() => null);
   const bm = key => bench?.indicators.find(i => i.key === key);
   const pct = v => v == null ? '—' : `${v}%`;
@@ -322,7 +322,7 @@
     const key = b => String(b || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/II/g, '2').replace(/I/g, '1');
     const stat = {};
     for (const s of all){ const k = key(s.block_name); (stat[k] ||= { n: 0, c: 0, name: s.block_name }).n++; if (s.audits) stat[k].c++; }
-    const colour = s => !s.audits ? '#8a8272' : s.score / s.score_of >= 0.8 ? '#5fae6b' : s.score / s.score_of >= 0.5 ? '#d4882a' : '#d9594c';
+    const colour = s => !s.audits ? '#8a8272' : s.score / s.score_of >= 0.8 ? '#5fae6b' : s.score / s.score_of >= 0.5 ? '#DD3333' : '#d9594c';
     const placedSchools = all.filter(s => s.lat != null && s.lng != null);
     const placed = placedSchools.length;
     if (!placed) document.getElementById('sc-map-sub').textContent += ` No school has a known location yet — each check places its school here.`;
@@ -344,8 +344,8 @@
         }
         map.addSource('blocks', { type: 'geojson', data: geo });
         map.addLayer({ id: 'block-fill', type: 'fill', source: 'blocks', paint: {
-          'fill-color': '#d4882a', 'fill-opacity': ['interpolate', ['linear'], ['get', 'share'], 0, 0.06, 0.25, 0.3, 1, 0.6] } });
-        map.addLayer({ id: 'block-line', type: 'line', source: 'blocks', paint: { 'line-color': '#d4882a', 'line-opacity': 0.55, 'line-width': 1 } });
+          'fill-color': '#DD3333', 'fill-opacity': ['interpolate', ['linear'], ['get', 'share'], 0, 0.06, 0.25, 0.3, 1, 0.6] } });
+        map.addLayer({ id: 'block-line', type: 'line', source: 'blocks', paint: { 'line-color': '#DD3333', 'line-opacity': 0.55, 'line-width': 1 } });
         map.addLayer({ id: 'block-name', type: 'symbol', source: 'blocks', layout: {
           'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
           paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1.2 } });

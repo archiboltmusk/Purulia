@@ -67,7 +67,9 @@ window.KasaPlaces = (() => {
   const loading = {};    // slug -> Promise
   let districts = null;  // FeatureCollection of district outlines once loaded
   let districtsLoading = null;
-  let current = null;    // key of the place the page is named after ('kolkata', 'district:bankura'), or null (Purulia)
+  let current = null;    // key of the place the page is named after ('kolkata', 'district:bankura', 'in:<state>'), or null (Purulia)
+  let currentName = null; // the label shown after 'Parishkar'
+  let indiaNamer = null;  // set by kasa.js: names the place at a spot outside West Bengal
   let home = null;       // Purulia's page title and wordmark text
   let server = null;     // { places(), wards(slug) } from kasa.js
   let lastView = null;
@@ -83,7 +85,7 @@ window.KasaPlaces = (() => {
 
   /* A town, a district as 'district:<slug>' (name without "district"; body unknown), or 'bengal' (the whole state). */
   function bySlug(slug){
-    if (slug === 'bengal') return { slug, name: 'Bengal', isState: true, body: null };
+    if (slug === 'bengal') return { slug, name: 'West Bengal', isState: true, body: null };
     if (typeof slug === 'string' && slug.startsWith('district:')){
       const name = DISTRICTS[slug.slice(9)];
       return name ? { slug, name, isDistrict: true, body: null } : null;
@@ -155,21 +157,26 @@ window.KasaPlaces = (() => {
   }
 
   /* Name the page after the place (null = Purulia). */
-  function brand(key){
+  function brand(key, label){
     const p = key ? bySlug(key) : null;
-    key = p ? p.slug : null;
-    if (!home) home = { title: document.title, second: document.querySelector('.k-wordmark-second')?.textContent || 'Purulia' };
-    countVisit(key || 'purulia');
-    if (key === current) return;
-    current = key;
-    const name = p ? p.name : home.second;
+    // Indian places outside West Bengal ('in:<state>', 'in:<state>:<district>') carry their own label.
+    const k = p ? p.slug : key && key.startsWith('in:') ? key : null;
+    if (!home) home = { title: document.title };
+    countVisit(k === null ? 'purulia' : p ? k : null);
+    // Null key is Purulia (the test bed); 'bengal' is the state-wide view.
+    const name = label || (p ? p.name : key === 'bengal' ? 'Bengal' : 'Purulia');
+    if (k === current && name === currentName) return;
+    current = k;
+    currentName = name;
     document.querySelectorAll('.k-wordmark-second').forEach(el => { el.textContent = name; });
+    const splash = document.getElementById('k-splash-place');
+    if (splash){ splash.textContent = name; splash.classList.remove('k-splash-swap'); void splash.offsetWidth; splash.classList.add('k-splash-swap'); }
     document.querySelectorAll('.k-wordmark, .k-nav-logo').forEach(el => {
       if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Parishkar ' + name);
     });
     document.title = home.title.replace(/Parishkar [^—·]+?(?= —|$)/, 'Parishkar ' + name);
-    document.documentElement.dataset.place = key || 'purulia';
-    emit('brand', key);
+    document.documentElement.dataset.place = k || 'purulia';
+    emit('brand', k);
   }
 
   /* The map moved: follow the town or district in view. On Purulia the page is Purulia;
@@ -178,6 +185,10 @@ window.KasaPlaces = (() => {
     lastView = [lat, lng, zoom];
     const p = zoom >= 10 ? boxAt(lat, lng) : null;
     if (p){ load(p.slug); return brand(p.slug); }
+    // inWB is a box: at a district's zoom, a spot in the box but in no West Bengal district is another state.
+    if (!districts) loadDistricts();  // re-runs this view once the outlines are in
+    const outside = !inWB(lat, lng) || (districts && !districtAt(lat, lng) && !inBox(PURULIA, lat, lng));
+    if (outside && indiaNamer) return indiaNamer(lat, lng, zoom);
     if (zoom < 7 || !inWB(lat, lng)) return brand('bengal');
     if (inBox(PURULIA, lat, lng)) return brand(null);
     if (!districts){ loadDistricts(); return brand('bengal'); }
@@ -214,6 +225,7 @@ window.KasaPlaces = (() => {
   async function boxOf(key){
     if (key === 'bengal') return WB;
     if (!key || key === 'purulia') return PURULIA;
+    if (key.startsWith('in:')) return inBoxOf(key);
     const p = bySlug(key);
     if (!p) return null;
     if (p.bbox) return p.bbox;
@@ -226,6 +238,28 @@ window.KasaPlaces = (() => {
              min_lng: Math.min(...pts.map(q => q[0])), max_lng: Math.max(...pts.map(q => q[0])) };
   }
 
+  /* Indian states and districts outside West Bengal: places/in/index.json (tools/build-in-map.py).
+     Keys are 'in:<state-slug>' and 'in:<state-slug>:<district-slug>'. */
+  const slugify = s => s.toLowerCase().replace(/[^a-z0-9]+/g, '-');
+  let inIndex = null;
+  const loadInIndex = () => inIndex || (inIndex = fetch('places/in/index.json').then(r => r.json())
+    .catch(() => ({ states: {} })));
+  const bbox = b => ({ min_lng: b[0], min_lat: b[1], max_lng: b[2], max_lat: b[3] });
+  async function inBoxOf(key){
+    const [, st, d] = key.split(':');
+    const s = (await loadInIndex()).states[st];
+    if (!s) return null;
+    if (!d) return bbox(s.bbox);
+    const name = Object.keys(s.district_boxes || {}).find(n => slugify(n) === d);
+    return name ? bbox(s.district_boxes[name]) : null;
+  }
+  /* Every state and district outside West Bengal, for the header's place picker. */
+  async function inPlaces(){
+    const states = (await loadInIndex()).states;
+    return Object.entries(states).map(([slug, s]) => ({ slug, name: s.name,
+      districts: Object.keys(s.district_boxes || {}).map(n => ({ key: 'in:' + slug + ':' + slugify(n), name: n })) }));
+  }
+
   // The place this device last looked at, so a repeat visit opens there.
   const SAVED = 'parishkar_place';
   const saved = () => { try { return localStorage.getItem(SAVED); } catch (e) { return null; } };
@@ -234,8 +268,9 @@ window.KasaPlaces = (() => {
   };
 
   return {
-    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, saved, remember,
+    list: PLACES, districts: DISTRICTS, bySlug, at, load, loadDistricts, brand, onView, boxAt, inWB, boxOf, inPlaces, saved, remember,
     get current(){ return current; },
+    setIndiaNamer(fn){ indiaNamer = fn; },
     get geo(){ return geo; },
     on: f => listeners.push(f),
     setSender: f => { send = f; },

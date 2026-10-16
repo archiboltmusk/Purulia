@@ -31,6 +31,7 @@ const ACCESS_TOKEN = [b64url({ alg: 'HS256', typ: 'JWT' }),
 
 const RPC = {
   kasa_rules: {},
+  kasa_ward_priorities: { voters: 0, counts: {} },
   kasa_fast_claims: [],
   kasa_report_addresses: {},
   kasa_finalize_due: 0,
@@ -38,6 +39,7 @@ const RPC = {
   kasa_issue_capture_token: 'test-capture-token',
   kasa_photo_meta: null,
   kasa_create_report: 555,
+  kasa_case_dossier: { schema_version: '1.0', report: { id: 101 }, relations: {}, limitations: [] },
   kasa_vote_claim: { verify_count: 2, dispute_count: 0, claim_status: 'pending', verify_needed: 3 }
 };
 
@@ -49,12 +51,16 @@ const TABLES = {
 
 // Minimal map style: a background only, so the map loads without OpenFreeMap. Glyphs point at a
 // stub (empty) so the cluster-count symbol layer is accepted.
-const MAP_STYLE = {
+// One background per style so the screenshots show the real light/dark choice: positron is the
+// light default, dark is the Daylight-off option.
+const mapStyle = (background) => ({
   version: 8,
   glyphs: 'https://tiles.openfreemap.org/fonts/{fontstack}/{range}.pbf',
   sources: {},
-  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': '#0a0805' } }]
-};
+  layers: [{ id: 'bg', type: 'background', paint: { 'background-color': background } }]
+});
+const MAP_STYLE_DARK = mapStyle('#0a0805');
+const MAP_STYLE_LIGHT = mapStyle('#f2efe9');
 
 const json = (route, body, status = 200) =>
   route.fulfill({ status, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
@@ -89,7 +95,8 @@ export async function stubBackend(page, overrides = {}){
   });
 
   await page.route(/^https:\/\/tiles\.openfreemap\.org\//, route => {
-    if (route.request().url().includes('/styles/')) return json(route, MAP_STYLE);
+    const url = route.request().url();
+    if (url.includes('/styles/')) return json(route, url.includes('/positron') ? MAP_STYLE_LIGHT : MAP_STYLE_DARK);
     return route.fulfill({ status: 200, contentType: 'application/x-protobuf', body: Buffer.alloc(0) });
   });
   await page.route(/^https:\/\/fonts\.(googleapis|gstatic)\.com\//, route => route.fulfill({ status: 200, contentType: 'text/css', body: '' }));

@@ -81,6 +81,8 @@ ALIAS = {'joypur': 'jaipur',                     # Purulia's site spells Jaipur 
          'bhagawangola2': 'bhagabangola2',         # our outlines spell the two Bhagawangola blocks differently
          'murshidabadjiaganj': 'murshidabadjiagunj'}
 SADAR = {'jalpaiguri': 'jalpaiguri', 'paschim-medinipur': 'midnapore'}  # "Sadar" block = the one named after the town
+# DM office line checked on the official contact page; the Who's Who scrape can take the fax line instead.
+VERIFIED_DM = {'purulia': {'phone': '03252222302'}}  # purulia.gov.in/contact-us: office 03252-222302, fax 03252-222490
 
 def match(names, pieces, district):
     """The block a row names: its designation first, then its address, then the name column."""
@@ -125,6 +127,7 @@ for d, url in SITES.items():
     if 'name' not in e.get('dm', {}) and (p := get(HOME[d])) and (n := dm_on(p)):
         e['dm'] = {'name': tidy(n), 'role': 'District Magistrate', **{k: v for k, v in e.get('dm', {}).items() if k in ('phone', 'email')}}
         e['dm_source'] = HOME[d]
+    if d in VERIFIED_DM and 'dm' in e: e['dm'] = {**e['dm'], **VERIFIED_DM[d]}
     if not e:
         if d in old['districts']: res['districts'][d] = old['districts'][d]
         print(f'{d:18} unreachable or empty, kept {"old" if d in old["districts"] else "nothing"}')

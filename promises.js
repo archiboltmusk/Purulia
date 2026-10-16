@@ -26,7 +26,7 @@
       news_sub: "Headlines about Purulia and the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise's status on their own.",
       news_checked: 'Last checked {d}.', news_none: 'No headlines yet. The first daily check will add them.',
       none: 'No promises match.', none_yet: 'No promises published yet. Add one below.', load_err: 'Could not load the promises. Check your connection and reload.',
-      said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence', earlier: 'Earlier verdicts ({n})',
+      strip_h: 'Over the years', strip_sub: 'Oldest first. Each frame is one promise; tap it to read the record.', said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence', earlier: 'Earlier verdicts ({n})',
       in_news: 'In the news', suggest_update: 'Suggest an update',
       form_h: 'Add a promise, or an update',
       form_sub: 'Heard a promise in a speech, a newspaper or an official post? Add it with a link to where it was said. Seen a promise delivered, started or dropped? Use "Suggest an update" on that promise and add a link that shows it. A moderator checks every link before anything appears here.',
@@ -62,7 +62,7 @@
       news_sub: 'পুরুলিয়া ও ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। লিঙ্কগুলি মূল খবরে নিয়ে যায়। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
       news_checked: 'শেষ দেখা হয়েছে {d}।', news_none: 'এখনও কোনও শিরোনাম নেই। প্রথম দৈনিক খোঁজে যোগ হবে।',
       none: 'কোনও প্রতিশ্রুতি মেলেনি।', none_yet: 'এখনও কোনও প্রতিশ্রুতি প্রকাশ হয়নি। নিচে যোগ করুন।', load_err: 'প্রতিশ্রুতি লোড করা গেল না। সংযোগ দেখে আবার লোড করুন।',
-      said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ', earlier: 'আগের রায় ({n})',
+      strip_h: 'বছরের পর বছর', strip_sub: 'পুরনো থেকে নতুন। প্রতিটি ফ্রেম একটি প্রতিশ্রুতি; রেকর্ড পড়তে ট্যাপ করুন।', said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ', earlier: 'আগের রায় ({n})',
       in_news: 'খবরে', suggest_update: 'আপডেট জানান',
       form_h: 'প্রতিশ্রুতি বা আপডেট যোগ করুন',
       form_sub: 'ভাষণে, খবরের কাগজে বা সরকারি পোস্টে কোনও প্রতিশ্রুতি শুনেছেন? যেখানে বলা হয়েছিল তার লিঙ্ক দিয়ে যোগ করুন। কোনও প্রতিশ্রুতি পূরণ হতে, শুরু হতে বা বাদ পড়তে দেখেছেন? সেই প্রতিশ্রুতিতে "আপডেট জানান" চাপুন আর প্রমাণের লিঙ্ক দিন। কিছু প্রকাশের আগে একজন মডারেটর প্রতিটি লিঙ্ক দেখে নেন।',
@@ -98,7 +98,7 @@
       news_sub: 'पुरुलिया और ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। लिंक मूल ख़बर पर ले जाते हैं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
       news_checked: 'आख़िरी बार देखा गया {d}।', news_none: 'अभी कोई सुर्ख़ी नहीं। पहली रोज़ की जाँच में जुड़ेंगी।',
       none: 'कोई वादा नहीं मिला।', none_yet: 'अभी कोई वादा प्रकाशित नहीं हुआ। नीचे जोड़ें।', load_err: 'वादे लोड नहीं हो सके। कनेक्शन देखकर फिर लोड करें।',
-      said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत', earlier: 'पहले के फ़ैसले ({n})',
+      strip_h: 'साल दर साल', strip_sub: 'पुराने से नए। हर फ़्रेम एक वादा है; रिकॉर्ड पढ़ने के लिए टैप करें।', said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत', earlier: 'पहले के फ़ैसले ({n})',
       in_news: 'ख़बरों में', suggest_update: 'अपडेट बताएँ',
       form_h: 'वादा या अपडेट जोड़ें',
       form_sub: 'किसी भाषण, अख़बार या सरकारी पोस्ट में वादा सुना? जहाँ कहा गया उसका लिंक देकर जोड़ें। कोई वादा पूरा होते, शुरू होते या छूटते देखा? उस वादे पर "अपडेट बताएँ" दबाएँ और सबूत का लिंक दें। कुछ भी दिखने से पहले एक मॉडरेटर हर लिंक जाँचता है।',
@@ -189,6 +189,7 @@
     const q = state.q.toLowerCase();
     const rows = state.promises.filter(p => (!state.who || p.who === state.who) && (!state.status || p.status === state.status) &&
       (!q || [p.who, p.role, p.promise, p.area].join(' ').toLowerCase().includes(q)));
+    renderStrip(rows);
     if (!rows.length){ el.innerHTML = `<li class="an-empty">${esc(t('none'))}</li>`; return; }
     const today = new Date().toISOString().slice(0, 10);
     el.innerHTML = rows.map(p => {
@@ -211,6 +212,22 @@
         <button type="button" class="pr-upd" data-upd="${esc(p.id)}">${esc(t('suggest_update'))}</button>
       </li>`;
     }).join('');
+  }
+
+  // The same promises as a film strip, oldest first: one frame per promise, its verdict and date on the frame.
+  function renderStrip(rows){
+    const box = document.getElementById('pr-strip');
+    if (!box) return;
+    if (rows.length < 2){ box.hidden = true; return; }
+    const frames = rows.slice().sort((a, b) => String(a.made_on).localeCompare(String(b.made_on)));
+    box.hidden = false;
+    box.innerHTML = `<div class="pr-strip-h"><b>${esc(t('strip_h'))}</b> <span class="pr-meta">${esc(t('strip_sub'))}</span></div>
+      <ol class="pr-strip-film">${frames.map(p => `<li><a href="#p-${esc(p.id)}">
+        <span class="pr-strip-y">${esc(String(p.made_on).slice(0, 4))}</span>
+        <span class="pr-strip-who">${esc(p.who)}</span>
+        <span class="pr-strip-txt">${esc(p.promise.length > 90 ? p.promise.slice(0, 88) + '…' : p.promise)}</span>
+        <span class="pr-status pr-s-${esc(p.status)}">${esc(t('st_' + p.status))}${p.status !== 'promised' && p.status_date ? ' · ' + esc(String(p.status_date).slice(0, 4)) : ''}</span>
+      </a></li>`).join('')}</ol>`;
   }
 
   function renderNews(){

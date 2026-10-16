@@ -1,0 +1,195 @@
+{
+ "generated": "2026-10-16T04:33Z",
+ "source": "OpenAQ API v3 (api.openaq.org)",
+ "source_url": "https://openaq.org/",
+ "who_pm25_24h": 15,
+ "method": "Nearest station with a PM2.5 sensor within 25 km of each district centre (mean of its boundary points); latest reading only, not a district average.",
+ "districts": [
+  {
+   "slug": "north-24-parganas",
+   "name": "North 24 Parganas",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "south-24-parganas",
+   "name": "South 24 Parganas",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "alipurduar",
+   "name": "Alipurduar",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "bankura",
+   "name": "Bankura",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "birbhum",
+   "name": "Birbhum",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "cooch-behar",
+   "name": "Cooch Behar",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "darjeeling",
+   "name": "Darjeeling",
+   "station": {
+    "id": 5648,
+    "name": "Ward-32 Bapupara, Siliguri - WBPCB",
+    "provider": "CPCB",
+    "lat": 26.6883049,
+    "lng": 88.412668,
+    "km": 20.8,
+    "url": "https://explore.openaq.org/locations/5648"
+   },
+   "pm25": {
+    "value": 26.33,
+    "unit": "µg/m³",
+    "utc": "2026-10-13T18:00:00Z"
+   }
+  },
+  {
+   "slug": "dakshin-dinajpur",
+   "name": "Dakshin Dinajpur",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "uttar-dinajpur",
+   "name": "Uttar Dinajpur",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "hooghly",
+   "name": "Hooghly",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "howrah",
+   "name": "Howrah",
+   "station": {
+    "id": 5614,
+    "name": "Padmapukur, Howrah - WBPCB",
+    "provider": "CPCB",
+    "lat": 22.5687319,
+    "lng": 88.2797276,
+    "km": 20.8,
+    "url": "https://explore.openaq.org/locations/5614"
+   },
+   "pm25": {
+    "value": 62.7,
+    "unit": "µg/m³",
+    "utc": "2026-10-13T18:00:00Z"
+   }
+  },
+  {
+   "slug": "jalpaiguri",
+   "name": "Jalpaiguri",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "jhargram",
+   "name": "Jhargram",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "kalimpong",
+   "name": "Kalimpong",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "kolkata",
+   "name": "Kolkata",
+   "station": {
+    "id": 10904,
+    "name": "Rabindra Sarobar, Kolkata - WBPCB",
+    "provider": "CPCB",
+    "lat": 22.51106,
+    "lng": 88.35142,
+    "km": 0.4,
+    "url": "https://explore.openaq.org/locations/10904"
+   },
+   "pm25": {
+    "value": 40.88,
+    "unit": "µg/m³",
+    "utc": "2026-10-13T18:00:00Z"
+   }
+  },
+  {
+   "slug": "malda",
+   "name": "Malda",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "purba-medinipur",
+   "name": "Purba Medinipur",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "paschim-medinipur",
+   "name": "Paschim Medinipur",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "murshidabad",
+   "name": "Murshidabad",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "nadia",
+   "name": "Nadia",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "paschim-bardhaman",
+   "name": "Paschim Bardhaman",
+   "station": {
+    "id": 3409529,
+    "name": "Mahishkapur Road_B-Zone, Durgapur - WBPCB",
+    "provider": "CPCB",
+    "lat": 23.567923,
+    "lng": 87.306843,
+    "km": 7.7,
+    "url": "https://explore.openaq.org/locations/3409529"
+   },
+   "pm25": {
+    "value": 27.3,
+    "unit": "µg/m³",
+    "utc": "2026-10-13T18:00:00Z"
+   }
+  },
+  {
+   "slug": "purba-bardhaman",
+   "name": "Purba Bardhaman",
+   "station": null,
+   "pm25": null
+  },
+  {
+   "slug": "purulia",
+   "name": "Purulia",
+   "station": null,
+   "pm25": null
+  }
+ ]
+}

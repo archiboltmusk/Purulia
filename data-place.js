@@ -1,3 +1,4 @@
+const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).getPropertyValue('--cream-rgb').trim() || '240,230,208') + ',' + a + ')';
 /* data.html (Ground Truth): cards and charts for the chosen district, from
  * places/wb_district_facts.json via place-facts.js. Hand-written cards marked
  * data-only="<slug>" show only on that district. */
@@ -105,9 +106,9 @@
     if (!v) return;
     const med = k => PF.rank(k, d.nfhs_district).median;
     const x = k => v[k] ? v[k][0] : null, old = k => v[k] ? v[k][1] : null;
-    const r = a => 'rgba(212,136,42,' + a + ')', rd = a => 'rgba(224,80,80,' + a + ')', gr = a => 'rgba(107,174,138,' + a + ')';
-    const F = { family: 'DM Mono, monospace', size: 10 }, TC = 'rgba(240,230,208,0.4)', GC = 'rgba(212,136,42,0.07)';
-    const legend = { labels: { color: 'rgba(240,230,208,.55)', font: F, boxWidth: 10, padding: 10 } };
+    const r = a => 'rgba(221,51,51,' + a + ')', rd = a => 'rgba(224,80,80,' + a + ')', gr = a => 'rgba(107,174,138,' + a + ')';
+    const F = { family: 'DM Mono, monospace', size: 10 }, TC = rgbaCream(0.4), GC = 'rgba(221,51,51,0.07)';
+    const legend = { labels: { color: rgbaCream(.55), font: F, boxWidth: 10, padding: 10 } };
     const tip = { callbacks: { label: c => (c.dataset.label ? c.dataset.label + ': ' : '') + c.raw + '%' } };
     const inv = y => y == null ? null : Math.round((100 - y) * 10) / 10;
     const name = d.name;
@@ -118,11 +119,11 @@
         labels: ['Women literate', 'Improved sanitation', 'Children not anaemic', 'Children not underweight'],
         datasets: [
           { label: name, data: [x('women_literate'), x('sanitation'), inv(x('child_anaemia')), inv(x('underweight'))], backgroundColor: rd(.7), borderColor: '#E05050', borderWidth: 1 },
-          { label: 'Median WB district', data: [med('women_literate'), med('sanitation'), inv(med('child_anaemia')), inv(med('underweight'))], backgroundColor: r(.6), borderColor: '#D4882A', borderWidth: 1 }
+          { label: 'Median WB district', data: [med('women_literate'), med('sanitation'), inv(med('child_anaemia')), inv(med('underweight'))], backgroundColor: r(.6), borderColor: '#DD3333', borderWidth: 1 }
         ]
       },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend, tooltip: tip },
-        scales: { x: { grid: { color: GC }, min: 0, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: 'rgba(240,230,208,.65)', font: F } } } }
+        scales: { x: { grid: { color: GC }, min: 0, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: rgbaCream(.65), font: F } } } }
     }));
 
     const ks = ['sanitation', 'clean_fuel', 'inst_births', 'child_marriage', 'child_anaemia', 'underweight'];
@@ -131,7 +132,7 @@
       data: {
         labels: ['Improved sanitation', 'Clean cooking fuel', 'Institutional births', 'Child marriage', 'Child anaemia', 'Child underweight'],
         datasets: [
-          { label: 'NFHS-4 (2015–16)', data: ks.map(old), backgroundColor: r(.6), borderColor: '#D4882A', borderWidth: 1 },
+          { label: 'NFHS-4 (2015–16)', data: ks.map(old), backgroundColor: r(.6), borderColor: '#DD3333', borderWidth: 1 },
           { label: 'NFHS-5 (2019–21)', data: ks.map(x), backgroundColor: gr(.6), borderColor: '#6BAE8A', borderWidth: 1 }
         ]
       },
@@ -147,11 +148,11 @@
         datasets: [{
           data: kids.flatMap(([, k]) => [x(k), med(k)]),
           backgroundColor: kids.flatMap(() => [rd(.7), r(.55)]),
-          borderColor: kids.flatMap(() => ['#E05050', '#D4882A']), borderWidth: 1
+          borderColor: kids.flatMap(() => ['#E05050', '#DD3333']), borderWidth: 1
         }]
       },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } },
-        scales: { x: { grid: { color: GC }, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: 'rgba(240,230,208,.55)', font: { family: 'DM Mono, monospace', size: 9 } } } } }
+        scales: { x: { grid: { color: GC }, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: rgbaCream(.55), font: { family: 'DM Mono, monospace', size: 9 } } } } }
     }));
   }
 

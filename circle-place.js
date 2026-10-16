@@ -28,6 +28,7 @@
     };
 
     document.title = `The Circle: how ${d.name}'s problems feed each other — Parishkar Bengal`;
+    document.querySelector('meta[property="og:title"]')?.setAttribute('content', document.title);
     $('.an-sub').innerHTML = `In ${esc(d.name)}, no problem stays in its own department. A girl married young becomes an anaemic mother; her child is born small into a home without a tap; when the land gives one crop, the father leaves to find work; and the family that stays behind is poorer and more likely to marry the next daughter young. This page follows that circle through ${esc(d.name)}'s official figures, one step at a time.${part}`;
 
     step('marriage', [fact('child_marriage', 'Women aged 20–24 married before 18'), fact('teen_mothers', 'Girls aged 15–19 already mothers or pregnant'),
