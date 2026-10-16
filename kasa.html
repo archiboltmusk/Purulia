@@ -48,6 +48,9 @@
 </head>
 <body data-app-layout>
 <div class="k-splash" id="k-splash" aria-hidden="true">
+  <svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+    <filter id="k-splash-soft"><feGaussianBlur in="SourceGraphic" stdDeviation="0.6" result="b"/><feColorMatrix in="b" mode="matrix" values="1 0 0 0 0  0 1 0 0 0  0 0 1 0 0  0 0 0 18 -7"/></filter>
+  </svg>
   <div class="k-splash-mark"><span class="k-splash-first">Parishkar</span> <span class="k-splash-place" id="k-splash-place"></span></div>
   <div class="k-splash-sub">Loading…</div>
 </div>
