@@ -5,8 +5,8 @@
 :root{
   --amber:#DD3333; --amber2:#EF4444;
   --green:#6db88a; --red:#e8524a; --orange:#e88a4a; --violet:#8f7ae6;
-  --mono:'DM Mono',ui-monospace,monospace;
-  --serif:'EB Garamond',Georgia,serif;
+  --mono:'JetBrains Mono',ui-monospace,monospace;
+  --serif:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
   --civic:'Noto Sans Bengali','Noto Sans Devanagari','Noto Sans Ol Chiki','DM Mono',sans-serif;
 
   /* White by default; dark is set with data-theme="dark" (theme-init.js) */
@@ -1108,7 +1108,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
    their own colours. Brand red replaces amber; grey surfaces and status tints replace
    the dark brown. --amber stays as the accent token name so the rules above still apply. ── */
 body[data-app-layout]{
-  --serif:'Google Sans Flex',system-ui,-apple-system,sans-serif; --mono:'Google Sans Code',ui-monospace,monospace;
+  --serif:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif; --mono:'JetBrains Mono',ui-monospace,monospace;
   --amber:#DD3333; --amber2:#B91C1C;
   --green:#166534; --red:#B91C1C; --orange:#B45309; --violet:#4b5563;
   --ink:#ffffff; --ink2:#f3f4f6; --ink3:#e5e7eb; --ink4:#d1d5db;
