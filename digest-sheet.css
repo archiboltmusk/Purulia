@@ -1,5 +1,5 @@
 /* Weekly digest: top banner + sign-up sheet (digest-sheet.js). Uses kasa.css / styles.css tokens. */
-.dgs-banner,.dgs-modal,.dgs-inline{--dgs-hi:var(--text-hi,rgba(240,230,208,.92));--dgs-md:var(--text-md,rgba(240,230,208,.68));--dgs-lo:var(--text-lo,rgba(240,230,208,.46));--dgs-mono:var(--mono,'DM Mono',ui-monospace,monospace);--dgs-serif:var(--serif,'EB Garamond',Georgia,serif);font-family:var(--dgs-serif);}
+.dgs-banner,.dgs-modal,.dgs-inline{--dgs-hi:var(--text-hi,rgba(240,230,208,.92));--dgs-md:var(--text-md,rgba(240,230,208,.68));--dgs-lo:var(--text-lo,rgba(240,230,208,.46));--dgs-mono:var(--mono,'JetBrains Mono',ui-monospace,monospace);--dgs-serif:var(--serif,'Plus Jakarta Sans',system-ui,sans-serif);font-family:var(--dgs-serif);}
 .dgs-banner{display:flex;align-items:center;gap:.7rem;padding:.75rem 1rem .75rem 1.2rem;background:color-mix(in srgb,var(--amber) 11%,var(--ink));border-bottom:1px solid var(--border2);font-size:1rem;line-height:1.35;}
 .dgs-banner[hidden]{display:none;}
 .dgs-banner-open{flex:1;display:flex;align-items:center;gap:.7rem;text-align:left;color:var(--amber);font:inherit;background:none;border:0;padding:0;cursor:pointer;min-width:0;}

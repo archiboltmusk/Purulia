@@ -3237,8 +3237,8 @@ async function shareCard(r){
     }
   }
   const fixed = r.status === 'resolved', days = daysSince(r.createdAt);
-  const serif = '"EB Garamond", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
-  const mono = '"DM Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
+  const serif = '"Plus Jakarta Sans", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
+  const mono = '"JetBrains Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
   // Status badge over the photo
   const badge = fixed ? t('card_fixed') : days < 1 ? t('card_today') : t(isOverdue(r) ? 'card_overdue' : 'card_open', { d: days });
   g.font = `500 34px ${mono}`;

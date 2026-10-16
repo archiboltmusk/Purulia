@@ -188,7 +188,7 @@
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
     await document.fonts?.ready;
-    const serif = '"EB Garamond", Georgia, serif', mono = '"DM Mono", ui-monospace, monospace';
+    const serif = '"Plus Jakarta Sans", Georgia, serif', mono = '"JetBrains Mono", ui-monospace, monospace';
     g.fillStyle = '#0a0805'; g.fillRect(0, 0, W, H);
     g.fillStyle = '#EF4444'; g.font = `500 30px ${mono}`;
     g.fillText(d.kind, PAD, 130);

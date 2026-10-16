@@ -94,7 +94,7 @@ const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).get
     let g = '';
     for (let v = 0; v <= top; v += step){
       g += `<line x1="${padL}" x2="${W}" y1="${y(v)}" y2="${y(v)}" stroke="${rgbaCream(v ? .07 : .22)}" stroke-width="1"/>`
-         + `<text x="${padL - 6}" y="${y(v) + 3.5}" text-anchor="end" font-family="DM Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${v}</text>`;
+         + `<text x="${padL - 6}" y="${y(v) + 3.5}" text-anchor="end" font-family="JetBrains Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${v}</text>`;
     }
     days.forEach((d, i) => {
       const x = padL + i * slot + 1, h = ih * d.n / top, yt = padT + ih - h, r = Math.min(4, bw / 2, h);
@@ -102,7 +102,7 @@ const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).get
       g += `<rect class="an-hit" data-i="${i}" x="${padL + i * slot}" y="${padT}" width="${slot}" height="${ih}" fill="transparent"/>`;
     });
     [0, (days.length - 1) >> 1, days.length - 1].forEach(i => {
-      g += `<text x="${padL + i * slot + slot / 2}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === days.length - 1 ? 'end' : 'middle'}" font-family="DM Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${fmt(days[i].date)}</text>`;
+      g += `<text x="${padL + i * slot + slot / 2}" y="${H - 6}" text-anchor="${i === 0 ? 'start' : i === days.length - 1 ? 'end' : 'middle'}" font-family="JetBrains Mono,monospace" font-size="10" fill="${rgbaCream(.46)}">${fmt(days[i].date)}</text>`;
     });
     chart.insertAdjacentHTML('afterbegin', `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Reports filed per day over the last 30 days">${g}</svg>`);
     chart.querySelectorAll('.an-hit').forEach(el => {
