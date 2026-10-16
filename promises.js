@@ -147,6 +147,16 @@
     document.querySelectorAll('[data-t-html]').forEach(el => { el.innerHTML = t(el.dataset.tHtml); });
     document.querySelectorAll('[data-t-ph]').forEach(el => { el.placeholder = t(el.dataset.tPh); });
     document.querySelectorAll('.pr-lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    setPlaceMeta();
+  }
+
+  // Tab title and share tags follow the place, like the brand line ("— Parishkar <District>").
+  function setPlaceMeta(){
+    if (!place.name) return;
+    const title = `Promises: who promised what, and what was delivered — Parishkar ${place.name}`, desc = t('sub');
+    document.title = title;
+    [['meta[name="description"]', desc], ['meta[property="og:title"]', title], ['meta[property="og:description"]', desc]]
+      .forEach(([sel, v]) => { const el = document.querySelector(sel); if (el) el.setAttribute('content', v); });
   }
 
   async function rpc(name, body){
