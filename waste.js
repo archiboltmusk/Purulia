@@ -56,7 +56,10 @@ async function districtFromLocation(){
     }
     slug = PF.current(); D = PF.data.districts[slug]; } }
   const NAME = D ? D.name : 'Purulia', isPurulia = slug === 'purulia';
-  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+  // A town picked on the map (its slug in parishkar_place) shows only its own dumpsites, not the district's.
+  let town = null;
+  try { const k = localStorage.getItem('parishkar_place'); if (k && k !== 'purulia' && k !== 'kolkata' && !k.startsWith('district:') && !new URLSearchParams(location.search).has('d')) town = k; } catch (e) {}
+  const inPlace = town ? (r => r.place === town) : PF && PF.data ? await PF.reportFilter(slug) : () => true;
   const bodies = isPurulia || !PF ? [] : await PF.bodies(slug);
   if (!isPurulia) otherDistrict();
 
