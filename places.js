@@ -161,13 +161,16 @@ window.KasaPlaces = (() => {
     const p = key ? bySlug(key) : null;
     // Indian places outside West Bengal ('in:<state>', 'in:<state>:<district>') carry their own label.
     const k = p ? p.slug : key && key.startsWith('in:') ? key : null;
-    if (!home) home = { title: document.title, second: document.querySelector('.k-wordmark-second')?.textContent || 'Purulia' };
+    if (!home) home = { title: document.title };
     countVisit(k === null ? 'purulia' : p ? k : null);
-    const name = label || (p ? p.name : home.second);
+    // Null key is Purulia (the test bed); 'bengal' is the state-wide view.
+    const name = label || (p ? p.name : key === 'bengal' ? 'Bengal' : 'Purulia');
     if (k === current && name === currentName) return;
     current = k;
     currentName = name;
     document.querySelectorAll('.k-wordmark-second').forEach(el => { el.textContent = name; });
+    const splash = document.getElementById('k-splash-place');
+    if (splash){ splash.textContent = name; splash.classList.remove('k-splash-swap'); void splash.offsetWidth; splash.classList.add('k-splash-swap'); }
     document.querySelectorAll('.k-wordmark, .k-nav-logo').forEach(el => {
       if (el.hasAttribute('aria-label')) el.setAttribute('aria-label', 'Parishkar ' + name);
     });
