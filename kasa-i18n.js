@@ -1548,11 +1548,14 @@ Object.assign(window.KASA_I18N.hi, {
 Object.assign(window.KASA_I18N.en, { join_first_place: '👥 Be one of the first people keeping {place} clean' });
 Object.assign(window.KASA_I18N.bn, { join_first_place: '👥 {place} পরিষ্কার রাখা প্রথম মানুষদের একজন হোন' });
 Object.assign(window.KASA_I18N.hi, { join_first_place: '👥 {place} को साफ़ रखने वाले पहले लोगों में शामिल हों' });
-Object.assign(window.KASA_I18N.en, { pk_title: 'Choose a place', pk_state: 'All of West Bengal',
+Object.assign(window.KASA_I18N.en, { map_find: 'Find a town, block or district', map_find_town: 'Town', map_find_district: 'District', map_find_block: 'Block', map_find_none: 'No match on this map',
+  pk_title: 'Choose a place', pk_state: 'All of West Bengal',
   pk_note: 'This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.' });
-Object.assign(window.KASA_I18N.bn, { pk_title: 'জায়গা বেছে নিন', pk_state: 'সারা পশ্চিমবঙ্গ',
+Object.assign(window.KASA_I18N.bn, { map_find: 'শহর, ব্লক বা জেলা খুঁজুন', map_find_town: 'শহর', map_find_district: 'জেলা', map_find_block: 'ব্লক', map_find_none: 'এই মানচিত্রে মিলল না',
+  pk_title: 'জায়গা বেছে নিন', pk_state: 'সারা পশ্চিমবঙ্গ',
   pk_note: 'এতে শুধু মানচিত্র সরে। রিপোর্ট করতে আপনাকে সেই জায়গায় থাকতে হবে: ছবি সরাসরি তোলা হয় আর আপনার আসল অবস্থান লাগে।' });
-Object.assign(window.KASA_I18N.hi, { pk_title: 'जगह चुनें', pk_state: 'पूरा पश्चिम बंगाल',
+Object.assign(window.KASA_I18N.hi, { map_find: 'शहर, ब्लॉक या ज़िला खोजें', map_find_town: 'शहर', map_find_district: 'ज़िला', map_find_block: 'ब्लॉक', map_find_none: 'इस नक्शे पर कुछ नहीं मिला',
+  pk_title: 'जगह चुनें', pk_state: 'पूरा पश्चिम बंगाल',
   pk_note: 'इससे सिर्फ़ नक्शा हिलता है। रिपोर्ट के लिए आपको उसी जगह होना होगा: फ़ोटो सीधे ली जाती है और आपकी असली लोकेशन ली जाती है।' });
 /* The ward leaderboard and "Who's responsible" follow the place in view (Kolkata, a district, all of West Bengal). */
 Object.assign(window.KASA_I18N.en, {

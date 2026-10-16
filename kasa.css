@@ -1083,6 +1083,12 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-map-report-btn{box-shadow:0 10px 26px rgba(221,51,51,.32);}
   .k-map-pill{top:4.6rem;bottom:auto;transition:opacity var(--motion-settle) var(--ease-out);}
   .k-reset-ctrl button{transition:background var(--motion-change) var(--ease-out);}
+  .k-find-ctrl{width:min(16rem,62vw);margin:.6rem 0 0 .6rem;}
+  .k-find-input{box-sizing:border-box;width:100%;padding:.5rem .65rem;border:1px solid var(--border);border-radius:8px;background:#ffffff;color:#1f2937;font:inherit;font-size:.9rem;box-shadow:0 2px 8px rgba(0,0,0,.12);}
+  .k-find-list{margin:.3rem 0 0;padding:.2rem;list-style:none;max-height:50dvh;overflow:auto;border:1px solid var(--border);border-radius:8px;background:#ffffff;box-shadow:0 6px 18px rgba(0,0,0,.14);}
+  .k-find-list button{display:block;width:100%;padding:.45rem .55rem;border:0;background:none;color:#1f2937;font:inherit;font-size:.88rem;text-align:left;cursor:pointer;border-radius:6px;}
+  .k-find-list button:hover,.k-find-list button:focus-visible{background:rgba(221,51,51,.1);}
+  .k-find-list span,.k-find-none{color:#6b7280;font-size:.8rem;padding:.45rem .55rem;}
   #k-map.k-map-loading::after{content:"";position:absolute;inset:0;z-index:2;pointer-events:none;background:linear-gradient(100deg,transparent 30%,rgba(255,255,255,.55) 50%,transparent 70%) var(--ink2,#eee);background-size:200% 100%;animation:kShimmer 1.2s linear infinite;}
 }
 @media(prefers-reduced-motion:reduce){
