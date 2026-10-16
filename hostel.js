@@ -57,8 +57,13 @@
           else status = `<button class="hs-btn primary" type="button" data-site="${s.id}" data-floor="${f.id}" data-item="${item}">Submit check</button>`;
           return `<div class="hs-item"><span>${ITEMS[item]}</span>${status}</div>`;
         }).join('')}`).join('');
+      const owner = s.source_kind === 'owner_supplied';
+      const sourceLine = owner
+        ? `<span class="hs-tag hs-no">Unverified · floor list supplied by the owner, no document yet</span>
+           <button class="hs-btn" type="button" data-source-fix data-what="Floor list for ${esc(s.name)}, ${esc(s.place)}">Help verify</button>`
+        : `Source: <a href="${esc(s.source_url)}" rel="noopener">${esc(s.district || 'source')}</a>`;
       return `<h2>${esc(s.name)}, ${esc(s.place)}</h2>
-        <p class="hs-note">Today’s checks (${dayOf(today)}). Source: <a href="${esc(s.source_url)}" rel="noopener">${esc(s.district || 'source')}</a></p>${floors}`;
+        <p class="hs-note">Today’s checks (${dayOf(today)}). ${sourceLine}</p>${floors}`;
     }));
     $('hs-sites').innerHTML = blocks.join('<hr style="border:0;border-top:1px solid var(--border);margin:1.2rem 0">');
     renderFacts();
