@@ -182,7 +182,7 @@
       <h2 data-t="list_h">Demands</h2>
       <div class="pr-tools" id="nb-views">
         <button type="button" class="pr-chip" data-view="list" aria-pressed="true" data-t="view_list">List</button>
-        <button type="button" class="pr-chip" data-view="map" aria-pressed="false" data-t="view_map">Map</button>
+        <a class="pr-chip" href="kasa.html?layer=demands" data-t="view_map">Map</a>
       </div>
       <div class="pr-tools" id="nb-role-chips">
         <button type="button" class="pr-chip" data-role="" aria-pressed="true" data-t="all">All</button>
@@ -200,7 +200,6 @@
         <input id="nb-q" type="search" data-t-ph="search_ph" placeholder="Search demands">
       </div>
       <ul class="pr-list" id="nb-list"><li class="an-empty" data-t="loading">Loading…</li></ul>
-      <div id="nb-map-wrap" hidden><p class="an-card-sub" id="nb-map-note"></p><div class="nb-map" id="nb-map"></div></div>
     </section>
 
     <section class="an-card" id="nb-rules" data-overview>

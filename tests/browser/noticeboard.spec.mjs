@@ -89,11 +89,10 @@ test('a leader page shows what they were asked and what they promised', async ({
   await expect(page.locator('#nb-leaders-sec')).toBeHidden();
 });
 
-test('a demand can carry a map pin, and pinned demands show on the map', async ({ page, backend }) => {
+test('a demand can carry a map pin, and the Map view opens the report map demands layer', async ({ page, backend }) => {
   await serve(page);
   await page.goto('noticeboard.html');
-  await page.locator('#nb-views [data-view="map"]').click();
-  await expect(page.locator('#nb-map .maplibregl-marker')).toHaveCount(1);
+  await expect(page.locator('#nb-views a[href="kasa.html?layer=demands"]')).toBeVisible();
 
   const f = page.locator('#nb-form');
   await f.locator('[name="leader"]').selectOption({ index: 1 });

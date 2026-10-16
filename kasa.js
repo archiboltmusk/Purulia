@@ -1389,6 +1389,7 @@ function initMainMapNow(){
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
       addLegacyDumpsites();
+      if (window.KasaLayers) KasaLayers.mount(mainMap, { district: savedDistrict });
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
         'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': INK, 'circle-stroke-width': 1.5, 'circle-opacity': 1,
