@@ -42,7 +42,8 @@ test('map controls do not overlap each other', async ({ page, backend }) => {
   }
 });
 
-test('report form opens with the camera', async ({ page, backend }) => {
+test('report form opens with the camera', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await page.locator('.k-map-report-btn').click();
@@ -54,7 +55,8 @@ test('report form opens with the camera', async ({ page, backend }) => {
   await expect(page.locator('#k-photo-preview img')).toBeVisible();
 });
 
-test('camera preview is the square that gets saved, with nothing on top of it', async ({ page, backend }) => {
+test('camera preview is the square that gets saved, with nothing on top of it', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
@@ -72,7 +74,8 @@ test('camera preview is the square that gets saved, with nothing on top of it', 
   }
 });
 
-test('confirm flow sends a verify vote for the claim', async ({ page, backend }) => {
+test('confirm flow sends a verify vote for the claim', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html?report=102');
   await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
   await page.locator('[data-evidence="verify:102"]').click();
@@ -99,7 +102,8 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
 
-test('report form sends the picked severity and problem type', async ({ page, backend }) => {
+test('report form sends the picked severity and problem type', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await page.locator('.k-map-report-btn').click();
@@ -169,6 +173,17 @@ test.describe('inside the Instagram app on an iPhone', () => {
     await expect(page.locator('#k-iab-report-note')).not.toHaveAttribute('hidden', '');
     await expect(page.locator('#k-mini-map')).toHaveCount(0);
   });
+});
+
+test('a laptop is asked to open the report on a phone instead of using its camera', async ({ page, backend, isMobile }) => {
+  test.skip(!!isMobile, 'desktop only');
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-map-report-btn').click();
+  await expect(page.locator('#k-phone')).toBeVisible();
+  await expect(page.locator('#k-cam')).toBeHidden();
+  await page.locator('#k-phone-close').click();
+  await expect(page.locator('#k-phone')).toBeHidden();
 });
 
 test('ordinary browsers see no in-app bar', async ({ page, backend }) => {

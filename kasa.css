@@ -662,6 +662,14 @@ a.k-rep-worst-item:hover span:first-child{color:var(--amber);}
 .k-toast.show{transform:translateX(-50%) translateY(0);opacity:1;}
 
 /* Live camera (evidence photos) */
+.k-phone{position:fixed;inset:0;z-index:2100;background:rgba(0,0,0,.55);display:flex;align-items:center;justify-content:center;padding:16px;}
+.k-phone[hidden]{display:none;}
+.k-phone-card{background:#fff;color:#111;border-radius:14px;padding:24px;max-width:340px;width:100%;text-align:center;}
+.k-phone-card h2{margin:0 0 8px;font-size:1.2rem;}
+.k-phone-card p{margin:0 0 12px;font-size:.95rem;}
+.k-phone-qr svg{width:220px;height:220px;max-width:100%;height:auto;}
+.k-phone-sub{color:#555;font-size:.85rem;}
+.k-phone-close{border:0;border-radius:999px;padding:10px 24px;background:#f1f2f4;font:inherit;cursor:pointer;}
 .k-cam{position:fixed;inset:0;z-index:2000;background:#000;display:flex;flex-direction:column;}
 .k-cam-top{display:flex;align-items:flex-start;justify-content:space-between;gap:.8rem;padding:.9rem 1.1rem;padding-top:max(.9rem,env(safe-area-inset-top));font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--cream);}
 .k-cam-head{display:flex;flex-direction:column;gap:.35rem;min-width:0;}

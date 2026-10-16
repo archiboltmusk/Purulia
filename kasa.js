@@ -863,7 +863,37 @@ async function getCaptureToken(){
 }
 
 /* The in-page camera plus a token requested in parallel (issued before the shot). */
+/* Reports and claims need a phone's own live camera. A laptop gets a QR code to open the page on a phone. */
+function isPhone(){
+  return matchMedia('(pointer: coarse)').matches || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
+let qrLoading = null;
+function qrSvg(url){
+  return new Promise(resolve => {
+    const make = () => { const q = window.qrcode(0, 'M'); q.addData(url); q.make(); resolve(q.createSvgTag({ cellSize: 6, margin: 2, scalable: true })); };
+    if (window.qrcode) return make();
+    if (!qrLoading) qrLoading = new Promise((ok, fail) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+      s.integrity = 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k';
+      s.crossOrigin = 'anonymous';
+      s.onload = ok; s.onerror = fail;
+      document.head.appendChild(s);
+    });
+    qrLoading.then(make, () => resolve(''));
+  });
+}
+
+async function showPhoneRequired(){
+  const box = document.getElementById('k-phone');
+  box.hidden = false;
+  const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'kasa.html?report=new';
+  document.getElementById('k-phone-qr').innerHTML = await qrSvg(url);
+}
+
 async function openLiveCamera(){
+  if (!isPhone()) { showPhoneRequired(); return { error: 'cancelled' }; }
   if (!cameraSupported()) return { error: 'unavailable' };
   const token = getCaptureToken();
   const res = await openCamera();
