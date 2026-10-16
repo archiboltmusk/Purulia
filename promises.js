@@ -298,6 +298,31 @@
 
   function renderAll(){ applyStatic(); renderTiles(); renderReps(); renderWho(); renderList(); renderNews(); renderForm(); }
 
+  // Ray-cast: is [lng, lat] inside a Polygon or MultiPolygon (outer rings)?
+  function inside([x, y], geom){
+    const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+    return polys.some(rings => {
+      const r = rings[0]; let c = false;
+      for (let i = 0, j = r.length - 1; i < r.length; j = i++){
+        const [xi, yi] = r[i], [xj, yj] = r[j];
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+      }
+      return c;
+    });
+  }
+
+  // A town chosen on the map: only the MLA and MP of the seats that cover it. A whole district keeps all its reps.
+  async function localReps(slug, reps){
+    let k = null; try { k = localStorage.getItem('parishkar_place'); } catch (e) {}
+    const tw = k && (await window.PlaceFacts.towns()).find(p => p.slug === k && p.district === slug);
+    if (!tw || !tw.at) return reps;
+    const g = await fetch('places/wb_assembly.geojson').then(r => r.ok ? r.json() : null).catch(() => null);
+    const seats = g ? g.features.filter(f => f.properties.d === slug && inside(tw.at, f.geometry)) : [];
+    if (!seats.length) return reps;
+    const keys = new Set(seats.flatMap(f => ['ac:' + f.properties.ac, 'pc:' + f.properties.pc]));
+    return reps.filter(r => keys.has(r.key));
+  }
+
   async function load(){
     const PF = window.PlaceFacts;
     if (PF){
@@ -311,7 +336,7 @@
         pick.hidden = false;
       }
     }
-    if (place.slug !== 'purulia' && PF) state.reps = await PF.reps(place.slug);
+    if (place.slug !== 'purulia' && PF) state.reps = await localReps(place.slug, await PF.reps(place.slug));
     applyStatic(); renderReps();
     try {
       const d = await rpc('kasa_promises');

@@ -79,3 +79,17 @@ test('promises.html follows the chosen district: picker, MPs/MLAs and counts', a
   await expect(page.locator('#pr-n-all')).toHaveText('0');
   await expect(page.locator('.pr-item')).toHaveCount(0);
 });
+
+test('a town chosen on the map shows only the MP and MLA of its seats', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?d=alipurduar');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  const district = await page.locator('#pr-reps li').count();
+  await page.evaluate(() => localStorage.setItem('parishkar_place', 'alipurduar'));
+  await page.goto('promises.html');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  const town = await page.locator('#pr-reps li').count();
+  expect(town).toBeGreaterThan(0);
+  expect(town).toBeLessThan(district);
+});
