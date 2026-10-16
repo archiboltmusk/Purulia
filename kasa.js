@@ -504,6 +504,30 @@ async function loadRules(){
   renderTrust();
 }
 
+/* The first load stops at the newest 1000 reports, so on a busy site older reports in view
+   never show. When the map settles, fetch what is in view and keep it (raw rows by id). */
+const viewRows = new Map();
+let viewRequest = 0;
+let baseRows = null;
+const withViewRows = base => {
+  const seen = new Set(base.map(r => String(r.id)));
+  return [...base, ...[...viewRows.values()].filter(r => !seen.has(String(r.id)))];
+};
+
+async function loadReportsInView(){
+  if (!mainMap || !baseRows || state.mode !== 'v2') return;
+  const b = mainMap.getBounds();
+  const req = ++viewRequest;
+  const { data, error } = await sb.rpc('kasa_reports_in_bbox', { min_lng: b.getWest(), min_lat: b.getSouth(),
+    max_lng: b.getEast(), max_lat: b.getNorth(), p_limit: 1000 });
+  if (error || req !== viewRequest || !Array.isArray(data)) return;
+  const before = viewRows.size;
+  for (const r of data) viewRows.set(String(r.id), r);
+  if (viewRows.size === before) return;
+  setReports(withViewRows(baseRows));
+  renderAll();
+}
+
 async function loadReports(){
   try {
     const [rows, fast, addrs] = await Promise.all([fetchRows(), sb.rpc('kasa_fast_claims').then(r => r.data, () => null),
@@ -511,7 +535,8 @@ async function loadReports(){
     state.fast = new Map((Array.isArray(fast) ? fast : []).map(f => [String(f.claim_id), f]));
     if (addrs && typeof addrs === 'object') state.addresses = addrs;
     const pending = await getPendingReports();
-    setReports([...pending.map(pendingToRow), ...rows]);
+    baseRows = [...pending.map(pendingToRow), ...rows];
+    setReports(withViewRows(baseRows));
     writeCache(rows);
   } catch (e){
     console.error('Parishkar: reports load failed', e);
@@ -1461,6 +1486,7 @@ async function addDistrictLayers(){
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
+  mainMap.on('moveend', loadReportsInView);
   mainMap.on('click', onAreaTap);
   loadLocalInView();
   addTownLayers();
