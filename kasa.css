@@ -165,12 +165,6 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-view-toggle{display:flex;background:color-mix(in srgb, var(--ink) 94%, transparent);border:1px solid var(--border);border-radius:3px;padding:2px;flex-shrink:0;}
 .k-view-btn{padding:.42rem .8rem;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-md);border-radius:2px;}
 .k-view-active{background:var(--amber);color:var(--ink);}
-.k-quick{position:relative;z-index:6;display:flex;gap:.4rem;overflow-x:auto;scrollbar-width:none;padding:.55rem .6rem;background:var(--ink);border-bottom:1px solid var(--border);}
-.k-quick::-webkit-scrollbar{display:none;}
-.k-quick-chip{flex:0 0 auto;display:inline-flex;align-items:center;gap:.4rem;min-height:2.3rem;padding:.4rem .7rem;border:1px solid var(--border);border-radius:999px;background:rgba(var(--cream-rgb),.035);color:var(--text-md);font-family:var(--mono);font-size:11px;letter-spacing:.03em;white-space:nowrap;text-decoration:none;}
-.k-quick-ico{font-size:14px;line-height:1;}
-.k-quick-chip:hover,.k-quick-chip:focus-visible{color:var(--amber);border-color:var(--amber);}
-@media(min-width:701px){.k-quick{justify-content:center;flex-wrap:wrap;overflow:visible;}}
 /* The map sits in a box below the one-tap bar. */
 .k-map-section{width:auto;margin:.6rem;height:calc(78dvh - 1.2rem);border:1px solid var(--border);border-radius:14px;overflow:hidden;}
 @media(min-width:900px){.k-map-section{height:calc(100dvh - 72px - 1.2rem - 3.4rem);}}
@@ -845,6 +839,7 @@ a.k-drawer-item{text-decoration:none;}
 .k-drawer-more-list{display:flex;flex-direction:column;padding:0 1.2rem 1rem;gap:.5rem;}
 .k-drawer-more-list[hidden]{display:none;}
 .k-drawer-more-list a{padding:.6rem .8rem;font-family:var(--mono);font-size:.8rem;letter-spacing:.05em;text-transform:uppercase;color:var(--text-md);text-decoration:none;border-radius:4px;transition:color .2s,background-color .2s,border-color .2s,box-shadow .2s,opacity .2s,transform .2s;}
+.k-drawer-group{margin:.7rem 0 0;padding:0 .8rem;font-family:var(--mono);font-size:.7rem;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);}
 .k-drawer-more-list a:hover{color:var(--amber);background:rgba(221,51,51,.06);}
 .k-drawer-lang{margin-top:auto;padding:1rem 1.2rem;border-top:1px solid var(--border);}
 .k-lang-switch{display:flex;gap:.4rem;flex-wrap:wrap;}
@@ -1060,8 +1055,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-list{order:1;}
   .k-map-topbar{order:-1;}
   .k-map-topbar{position:relative;top:auto;left:auto;right:auto;z-index:6;flex-direction:row;flex-wrap:wrap;align-items:center;gap:.45rem;padding:.6rem .6rem .5rem;background:var(--ink);}
-  .k-map-topbar .k-filter-toggle{display:none;}
-  .k-map-topbar .k-filter-bar{display:flex;order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem;}
+  .k-map-topbar .k-filter-toggle{display:flex;}
+  .k-map-topbar .k-filter-bar{display:none;order:3;width:100%;flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;padding-bottom:.1rem;}
   .k-map-topbar .k-filter-bar::-webkit-scrollbar{display:none;}
   .k-map-topbar .k-filter-select{flex:0 0 auto;border-radius:999px;}
   .k-map-topbar .k-filter-ward{width:86px;}
@@ -1070,9 +1065,10 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-list{position:relative;inset:auto;flex:1;min-height:0;padding:.6rem .9rem 5.5rem;}
   .k-map-pill{top:auto;bottom:4.9rem;left:50%;transform:translateX(-50%);}
   .k-map-report-btn{left:.6rem;right:.6rem;bottom:calc(.6rem + env(safe-area-inset-bottom));justify-content:center;padding:1rem 1.2rem;font-size:14px;border-radius:999px;}
-  .maplibregl-ctrl-bottom-right{bottom:4.9rem;}
-  .k-ward-card{bottom:4.9rem;}
+  .maplibregl-ctrl-bottom-right{bottom:6.6rem;}
+  .k-ward-card{bottom:6.6rem;}
   .k-version{display:inline-flex;}
+  .k-reset-ctrl{display:none;}
 }
 
 /* Namma Kasa feel on phones: the map fades in on load, controls ease on tap, the stats
@@ -1083,7 +1079,7 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   .k-map-topbar .k-filter-select,.k-nearby-btn,.k-view-btn,.k-map-report-btn{transition:transform var(--motion-change) var(--ease-settle),background var(--motion-change) var(--ease-out),border-color var(--motion-change) var(--ease-out),box-shadow var(--motion-change) var(--ease-out);}
   .k-map-topbar .k-filter-select:active,.k-nearby-btn:active,.k-view-btn:active,.k-map-report-btn:active{transform:scale(.97);}
   .k-map-report-btn{box-shadow:0 10px 26px rgba(221,51,51,.32);}
-  .k-map-pill{top:4.6rem;bottom:auto;transition:opacity var(--motion-settle) var(--ease-out);}
+  .k-map-pill{top:auto;bottom:6.6rem;transition:opacity var(--motion-settle) var(--ease-out);}
   .k-reset-ctrl button{transition:background var(--motion-change) var(--ease-out);}
   .k-find-ctrl{width:min(16rem,62vw);margin:.6rem 0 0 .6rem;}
   .k-find-input{box-sizing:border-box;width:100%;padding:.5rem .65rem;border:1px solid var(--border);border-radius:8px;background:#ffffff;color:#1f2937;font:inherit;font-size:.9rem;box-shadow:0 2px 8px rgba(0,0,0,.12);}
@@ -1138,15 +1134,13 @@ body[data-app-layout] .k-map-topbar,body[data-app-layout] .k-map-section{backgro
 body[data-app-layout] .k-map-report-btn{background:#DD3333;color:#ffffff;border:0;box-shadow:0 10px 26px rgba(221,51,51,.3);}
 body[data-app-layout] .k-map-report-btn:hover{background:#B91C1C;box-shadow:0 14px 34px rgba(221,51,51,.4);}
 body[data-app-layout] .k-reset-ctrl button,body[data-app-layout] .maplibregl-ctrl-group button{background:#ffffff;color:#374151;}
-body[data-app-layout] .k-quick-chip{background:#ffffff;border-color:#e5e7eb;color:#374151;}
-body[data-app-layout] .k-quick-chip:hover,body[data-app-layout] .k-quick-chip:focus-visible{color:#DD3333;border-color:#DD3333;}
 body[data-app-layout] .k-nav{background:#ffffff;border-bottom:1px solid #e5e7eb;}
 body[data-app-layout] .k-ward-card,body[data-app-layout] .k-still{background:#ffffff;border-color:#e5e7eb;color:#374151;box-shadow:0 8px 24px rgba(0,0,0,.12);}
 body[data-app-layout] .k-still-q{color:#1f2937;}
 
 /* ── Namma Kasa details on the home map (scoped to the app layout): sans-serif UI type,
    rounded-rectangle red Report button, white rounded map controls, pill with a divider. ── */
-body[data-app-layout] .k-map-section,body[data-app-layout] .k-map-topbar,body[data-app-layout] .k-quick,body[data-app-layout] .k-map-pill,body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-map-report-btn,body[data-app-layout] .k-view-btn,body[data-app-layout] .k-quick-chip{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0;text-transform:none;}
+body[data-app-layout] .k-map-section,body[data-app-layout] .k-map-topbar,body[data-app-layout] .k-map-pill,body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn,body[data-app-layout] .k-map-report-btn,body[data-app-layout] .k-view-btn{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',Arial,sans-serif;letter-spacing:0;text-transform:none;}
 body[data-app-layout] .k-map-report-btn{border-radius:14px;padding:.95rem 1.2rem;font-size:17px;font-weight:700;letter-spacing:0;text-transform:none;background:#DD3333;color:#ffffff;border:0;}
 body[data-app-layout] .k-map-report-btn span[aria-hidden]{font-size:20px;line-height:1;}
 body[data-app-layout] .k-map-pill{border-radius:999px;padding:.5rem 1.1rem;gap:.55rem;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;font-size:15px;}
@@ -1157,7 +1151,8 @@ body[data-app-layout] .k-map-pill .k-pill-sep{width:1px;height:16px;background:#
 body[data-app-layout] .k-filter-select,body[data-app-layout] .k-nearby-btn{border-radius:999px;font-size:14px;padding:.5rem 1rem;}
 body[data-app-layout] .k-maplibregl-ctrl-group,body[data-app-layout] .maplibregl-ctrl-group{border-radius:10px;overflow:hidden;border:1px solid #e5e7eb;box-shadow:0 1px 4px rgba(0,0,0,.1);}
 body[data-app-layout] .maplibregl-ctrl-group button{width:40px;height:40px;}
-body[data-app-layout] .k-quick-chip{border-radius:999px;font-size:13px;}
+body[data-app-layout] .maplibregl-ctrl-group{background:#ffffff!important;}
+body[data-app-layout] .maplibregl-ctrl-group button span{filter:none;}
 body[data-app-layout] .k-filter-select{padding-right:2.1rem;background-position:right .8rem center;}
 
 /* ── Ligne-claire type and outlines (home map + header): flat fills, crisp dark
