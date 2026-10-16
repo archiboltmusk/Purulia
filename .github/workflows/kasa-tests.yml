@@ -51,6 +51,8 @@ jobs:
         run: python3 tests/test_build_openaq.py
       - name: Version matches the changelog
         run: node tools/version.mjs --check
+      - name: Dispatch prototype (offline, synthetic data)
+        run: node tests/dispatch.test.mjs
       - name: Photo metadata reader (three time zones)
         run: for tz in UTC Asia/Kolkata America/New_York; do TZ=$tz node tests/kasa_photo_meta.test.mjs; done
       - name: Photo fingerprint + Vision scoring
