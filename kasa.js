@@ -1903,20 +1903,24 @@ function renderWbCard(el){
       <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
     </div>` : `<div class="k-ward-empty">${esc(t('ar_no_reports'))}</div>`}
     <div class="k-area-leaders">
-      ${T ? townWards(T, district.properties.district) : ''}
-      ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
                     [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
-          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
-      ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
-                               : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${T ? townWards(T, district.properties.district) : ''}
+        ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
+        ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
+            : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+        ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+                                 : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
+      </div>
     <form class="k-area-add" hidden>
       <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
       <select name="role" aria-label="${esc(t('ar_add_role'))}">${missing.map(r => `<option value="${r}">${esc(roleName(r))}</option>`).join('')}</select>
@@ -1928,9 +1932,10 @@ function renderWbCard(el){
     ${T && !T.mapped ? '' : `<a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams(T ? { fix: T.slug } : { fix: 'area', level: a.level, district: district.properties.slug,
       ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>`}
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
-      · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
-             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
-    ${T || a.level !== 'district' ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
+        · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
+               : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    ${T || a.level !== 'district' ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}
+    </details>`;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
 }
 
@@ -6470,7 +6475,7 @@ function wireUI(){
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
-    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
+    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.closest('details').open = true; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if (d.geojson) return downloadGeoJSON(d.geojson);
