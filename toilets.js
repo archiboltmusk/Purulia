@@ -11,14 +11,23 @@
   // The chosen district (place-facts.js): its own reports, and an RTI to its municipalities.
   const PF = window.PlaceFacts;
   let slug = 'purulia', D = null;
-  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  if (PF){ await PF.load().catch(() => null); if (PF.data){
+    // No place chosen yet: ask the device once for its position and take the district it is in.
+    let picked = false; try { picked = new URLSearchParams(location.search).has('d') || !!localStorage.getItem('parishkar_place'); } catch (e) {}
+    if (!picked){
+      const k = await PF.districtFromLocation().catch(() => null);
+      if (k){ PF.choose(k); location.reload(); return; }
+    }
+    slug = PF.current(); D = PF.data.districts[slug]; } }
   const NAME = D ? D.name : 'Purulia', isPurulia = slug === 'purulia';
-  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+  // A town picked on the map shows only its own toilets, not the district's.
+  const town = PF ? PF.savedTownSlug() : null;
+  const inPlace = town ? (r => r.place === town) : PF && PF.data ? await PF.reportFilter(slug) : () => true;
   const bodies = isPurulia || !PF ? [] : await PF.bodies(slug);
   if (!isPurulia){
     document.title = `Public toilets in ${NAME} — Parishkar Bengal`;
     // The ODF finding is about Purulia town only.
-    document.querySelector('.an-sub').textContent = `A toilet with no water, broken, or kept locked is, in practice, no toilet at all. The map below shows the ones residents have reported in ${NAME}.`;
+    document.querySelector('.an-sub').textContent = `A toilet with no water, broken, or kept locked is, in practice, no toilet at all. The map below shows the ones residents have reported in ${NAME}. Whether ${NAME}'s municipalities are Open Defecation Free: not on record yet.`;
     const rti = document.getElementById('tl-rti-text');
     const letter = b => [
       'To,', 'The Public Information Officer,', `${b ? b.body : '[Name of your municipality]'}, ${NAME}, West Bengal`, '',
