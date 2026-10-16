@@ -13,7 +13,7 @@
       reps_h_d: "{d}'s MPs and MLAs", reps_sub_d: 'Everyone elected from {d}, from the 2026 Assembly and 2024 Lok Sabha results on Wikipedia, with the promises on record for each. "No promise on record" means we found none with a source; send one below if you know of one.',
       news_sub_d: 'Headlines about the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise\'s status on their own.',
       empty_d: 'No promise made to {d} is on record yet. If you have a news link or video of one, add it below.', f_role_ph_d: 'e.g. MLA, {d}',
-      reps_h: "Purulia's MPs and MLAs",
+      pick_label: 'District', reps_h: "Purulia's MPs and MLAs",
       reps_sub: 'Promises on record for each of Purulia\'s elected representatives. "No promise on record" means we found no promise with a source; send one below if you know of one.',
       reps_none: 'No promise on record', reps_n: '{n} on record', rep_mp: 'MP, {s}', rep_mla: 'MLA, {s}',
       rec_mplads: 'MP fund (MPLADS): named among Bengal MPs with "either zero completions or absolutely no spending" as on 6 Jan 2026.',
@@ -49,7 +49,7 @@
       reps_h_d: '{d}-এর সাংসদ ও বিধায়ক', reps_sub_d: '{d} থেকে নির্বাচিত সবাই (উইকিপিডিয়ায় ২০২৬ বিধানসভা ও ২০২৪ লোকসভার ফল), প্রত্যেকের নথিভুক্ত প্রতিশ্রুতি সহ। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কিছু পাইনি; জানা থাকলে নিচে পাঠান।',
       news_sub_d: 'ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
       empty_d: '{d}-কে দেওয়া কোনও প্রতিশ্রুতি এখনও নথিভুক্ত নেই। খবরের লিঙ্ক বা ভিডিও থাকলে নিচে যোগ করুন।', f_role_ph_d: 'যেমন বিধায়ক, {d}',
-      reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
+      pick_label: 'জেলা', reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
       reps_sub: 'পুরুলিয়ার প্রত্যেক নির্বাচিত প্রতিনিধির নথিভুক্ত প্রতিশ্রুতি। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কোনও প্রতিশ্রুতি আমরা পাইনি; জানা থাকলে নিচে পাঠান।',
       reps_none: 'কোনও প্রতিশ্রুতি নথিভুক্ত নেই', reps_n: '{n}টি নথিভুক্ত', rep_mp: 'সাংসদ, {s}', rep_mla: 'বিধায়ক, {s}',
       rec_mplads: 'সাংসদ তহবিল (MPLADS): ৬ জানুয়ারি ২০২৬ পর্যন্ত "একটিও কাজ শেষ হয়নি বা একেবারেই খরচ হয়নি" এমন বাংলার সাংসদদের মধ্যে নাম আছে।',
@@ -85,7 +85,7 @@
       reps_h_d: '{d} के सांसद और विधायक', reps_sub_d: '{d} से चुने गए सभी (विकिपीडिया पर 2026 विधानसभा और 2024 लोकसभा नतीजे), हर एक के दर्ज वादों के साथ। "कोई वादा दर्ज नहीं" का मतलब है कि स्रोत के साथ कुछ नहीं मिला; पता हो तो नीचे भेजें।',
       news_sub_d: 'ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
       empty_d: '{d} से किया गया कोई वादा अभी दर्ज नहीं है। ख़बर का लिंक या वीडियो हो तो नीचे जोड़ें।', f_role_ph_d: 'जैसे विधायक, {d}',
-      reps_h: 'पुरुलिया के सांसद और विधायक',
+      pick_label: 'ज़िला', reps_h: 'पुरुलिया के सांसद और विधायक',
       reps_sub: 'पुरुलिया के हर चुने हुए प्रतिनिधि के दर्ज वादे। "कोई वादा दर्ज नहीं" का मतलब है कि हमें स्रोत के साथ कोई वादा नहीं मिला; आपको पता हो तो नीचे भेजें।',
       reps_none: 'कोई वादा दर्ज नहीं', reps_n: '{n} दर्ज', rep_mp: 'सांसद, {s}', rep_mla: 'विधायक, {s}',
       rec_mplads: 'सांसद निधि (MPLADS): 6 जनवरी 2026 तक "या तो एक भी काम पूरा नहीं या बिल्कुल ख़र्च नहीं" वाले बंगाल के सांसदों में नाम है।',
@@ -305,9 +305,13 @@
       if (PF.data){
         const D = PF.data.districts[PF.current()];
         Object.assign(place, { slug: PF.current(), name: D.name, name_bn: D.name_bn || '' });
+        // Choosing a district reloads the page with ?d=<slug>, so every list and count is recalculated.
+        const pick = document.getElementById('pr-pick');
+        PF.picker(pick.querySelector('select'), place.slug, () => location.reload());
+        pick.hidden = false;
       }
     }
-    if (place.slug !== 'purulia') state.reps = await PF.reps(place.slug);
+    if (place.slug !== 'purulia' && PF) state.reps = await PF.reps(place.slug);
     applyStatic(); renderReps();
     try {
       const d = await rpc('kasa_promises');

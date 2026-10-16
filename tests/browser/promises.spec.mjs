@@ -68,3 +68,14 @@ test('promises.html?who= opens on that person', async ({ page }) => {
   await expect(page.locator('.pr-item')).toHaveCount(1);
   await expect(page.locator('.pr-item .pr-who')).toHaveText('Other Person');
 });
+
+test('promises.html follows the chosen district: picker, MPs/MLAs and counts', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?d=bankura');
+  await expect(page.locator('#pr-pick select')).toHaveValue('bankura');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  await expect(page.locator('#pr-reps')).not.toContainText('Mamoni Bauri');
+  await expect(page.locator('#pr-n-all')).toHaveText('0');
+  await expect(page.locator('.pr-item')).toHaveCount(0);
+});

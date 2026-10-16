@@ -98,6 +98,9 @@
   .pr-lang{display:flex;gap:.3rem;}
   .pr-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
   .pr-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(221,51,51,.5);}
+  .pr-pick{display:flex;align-items:center;gap:.5rem;font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-lo);margin:0 0 1rem;}
+  .pr-pick select{font:inherit;font-size:13px;letter-spacing:0;text-transform:none;color:inherit;background:none;border:1px solid var(--border);border-radius:3px;padding:.35rem .5rem;max-width:100%;}
+  .pr-pick[hidden]{display:none;}
   @media(max-width:600px){.an-card{padding:1.1rem 1rem;}.an-tile{padding:1.1rem 1rem;}}
 </style>
 <script src="bug-report.js"></script>
@@ -137,6 +140,7 @@
     <div class="an-tile"><div class="an-tile-n" id="pr-n-broken">–</div><div class="an-tile-l" data-t="st_broken">Broken</div></div>
   </div>
 
+  <label class="pr-pick" id="pr-pick" hidden><span data-t="pick_label">District</span> <select aria-label="District"></select></label>
   <div class="an-grid">
     <section class="an-card an-span" id="pr-reps-card">
       <h2 data-t="reps_h">Purulia's MPs and MLAs</h2>
