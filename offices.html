@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Offices and open reports — Parishkar</title>
+<meta name="description" content="Open civic reports grouped by the office that owns them: how many, how long open, and which reports. Counts and dates only.">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/offices.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .of-wrap{max-width:1100px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,3rem) 6rem;}
+  .of-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;line-height:1.1;}
+  .of-sub{margin:.8rem 0 2rem;max-width:680px;line-height:1.6;color:var(--text-md);}
+  .of-card{border:1px solid var(--border);border-radius:6px;padding:1.2rem 1.3rem;margin-bottom:1rem;}
+  .of-card h2{font-size:1.1rem;margin:0 0 .3rem;}
+  .of-line{font-size:.92rem;line-height:1.6;color:var(--text-md);}
+  .of-nums{display:flex;flex-wrap:wrap;gap:.4rem 1.2rem;margin:.6rem 0;font-family:var(--mono);font-size:.85rem;}
+  .of-chips{display:flex;flex-wrap:wrap;gap:.35rem;margin:.4rem 0;}
+  .of-chips span{font-size:.8rem;border:1px solid var(--border);border-radius:999px;padding:.1rem .6rem;}
+  .of-links{display:flex;flex-wrap:wrap;gap:.8rem;margin-top:.6rem;font-size:.9rem;}
+  .of-card details{margin-top:.6rem;}
+  .of-card summary{cursor:pointer;font-size:.9rem;}
+  .of-card ul{margin:.4rem 0 0;padding-left:1.1rem;font-size:.9rem;line-height:1.7;}
+  .of-empty{color:var(--text-md);}
+  .of-rules{margin-top:2rem;font-size:.9rem;line-height:1.6;color:var(--text-md);}
+  @media(max-width:600px){.of-wrap{padding:2rem 1rem 4rem;}}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="of-wrap">
+  <h1 class="of-title">Who owns the open reports</h1>
+  <p class="of-sub">Open reports from the public record, grouped by the office that owns them. Counts and dates only. Owners are set by the rules at the bottom of this page; an office with no contact on file says so.</p>
+  <p id="of-status" class="of-empty">Loading…</p>
+  <section id="of-list" aria-live="polite"></section>
+  <p class="of-rules">Owner rules: a town ward goes to the municipality. A village dry tap or broken hand pump goes to PHE (Civil). A road goes to PWD, National highway or Zilla Parishad by its OpenStreetMap road tag (IN:SH, IN:NH, IN:MDR/ODR/VR). Any other village report goes to the block BDO. Contacts and their sources: DDMP Purulia 2023-24 (pp.34, 198, 199). State grievance portal: not verified yet.</p>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="offices.js"></script>
+</body>
+</html>
