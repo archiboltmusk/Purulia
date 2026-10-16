@@ -65,7 +65,6 @@
   .mn-pick select{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.55rem .6rem;color:var(--text-hi);font:inherit;font-size:1rem;}
   .mn-pick label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
   .an-tile-s a{color:var(--amber);}
-  #mn-map{height:min(70vh,560px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
   .mn-legend{display:flex;align-items:center;gap:.4rem;margin-top:.6rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
   .mn-legend i{display:inline-block;width:26px;height:10px;}
   .mn-bar{display:grid;grid-template-columns:minmax(140px,1.2fr) 2fr auto;gap:.3rem .8rem;align-items:center;margin-top:.8rem;font-size:.9rem;color:var(--text-hi);}
@@ -85,7 +84,6 @@
   .maplibregl-popup-content a{color:var(--amber);}
   @media(max-width:600px){.mn-bar{grid-template-columns:1fr auto;}.mn-bar-t{grid-column:1/-1;grid-row:2;}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
 <script src="bug-report.js"></script>
 </head>
 <body>
@@ -131,7 +129,7 @@
       <h2>Map</h2>
       <div class="mn-pick" style="margin:.8rem 0 0;"><label for="mn-layer">Show</label><select id="mn-layer"></select></div>
       <p class="an-card-sub" id="mn-layer-note"></p>
-      <div id="mn-map"></div>
+      <p><a href="kasa.html?layer=money-selfPaid" id="mn-map-link">See these figures on the report map →</a></p>
       <div class="mn-legend">less <i style="background:#f3dcae"></i><i style="background:#e8b665"></i><i style="background:#DD3333"></i><i style="background:#a35f12"></i><i style="background:#6b3a05"></i> more · <i style="background:#d9d4ca;border:1px solid #999"></i> not on file</div>
       <p class="an-card-sub">Shades rank states against each other (fifths), they are not good or bad marks. Tap a state or seat for its figure and source.</p>
       <div class="an-table-wrap" id="mn-table"></div>
@@ -161,7 +159,7 @@
   </div>
 </main>
 
-<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
+<script defer src="money-metrics.js"></script>
 <script defer src="money.js"></script>
 </body>
 </html>

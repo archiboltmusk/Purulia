@@ -433,9 +433,9 @@
     if (d) document.getElementById('nb-reply-for').textContent = t('rf_for', { t: `${d.leader_name}: ${d.title}` });
   }
 
-  // ── Map: demands with a pin, and the pin picker in the form ──────────
+  // ── Pin picker in the form (demands on the map: kasa.html?layer=demands) ──────────
   const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-  let mapLib = null, boardMap = null, boardMarkers = [], pickMap = null, pickMarker = null;
+  let mapLib = null, pickMap = null, pickMarker = null;
   function loadMapLib(){
     if (window.maplibregl) return Promise.resolve();
     return mapLib ||= new Promise((resolve, reject) => {
@@ -451,35 +451,10 @@
   const center = () => place.at || CITY.mapCenter || [86.3654, 23.3320];
   const zoom = () => place.slug === 'purulia' ? CITY.mapZoom || 12 : 10;
 
-  async function renderMap(){
-    const note = document.getElementById('nb-map-note');
-    const pins = state.demands.filter(d => d.lat != null && d.lng != null &&
-      (!state.role || d.leader_role === state.role) && (!state.leader || norm(d.leader_name) === norm(state.leader)));
-    note.textContent = pins.length ? '' : t('map_none');
-    try { await loadMapLib(); } catch (e){ note.textContent = t('map_err'); return; }
-    if (!boardMap){
-      boardMap = new maplibregl.Map({ container: 'nb-map', style: MAP_STYLE, center: center(), zoom: zoom(), attributionControl: { compact: true } });
-      boardMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    }
-    boardMarkers.forEach(m => m.remove());
-    boardMarkers = pins.map(d => new maplibregl.Marker({ color: '#DD3333' }).setLngLat([d.lng, d.lat])
-      .setPopup(new maplibregl.Popup({ offset: 24 }).setHTML(`<strong>${esc(d.title)}</strong><br>${esc(t('to'))}: ${esc(d.leader_name)}<br>
-        ${esc(t('supports', { n: d.supports || 0 }))}<br><a href="#d-${esc(d.id)}" data-goto="${esc(d.id)}">${esc(t('view_list'))} →</a>`))
-      .addTo(boardMap));
-    if (pins.length > 1){
-      const b = new maplibregl.LngLatBounds();
-      pins.forEach(d => b.extend([d.lng, d.lat]));
-      boardMap.fitBounds(b, { padding: 50, maxZoom: 15, duration: 0 });
-    } else if (pins.length) boardMap.jumpTo({ center: [pins[0].lng, pins[0].lat], zoom: 15 });
-    boardMap.resize();
-  }
-
   function setView(v){
     state.view = v;
-    document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    document.querySelectorAll('#nb-views button.pr-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
     document.getElementById('nb-list').hidden = v !== 'list';
-    document.getElementById('nb-map-wrap').hidden = v !== 'map';
-    if (v === 'map') renderMap();
   }
 
   function setPin(lng, lat){
@@ -508,7 +483,6 @@
 
   function renderAll(){
     applyStatic(); renderTiles(); renderLeaderSelect(); renderLeaders(); renderLeaderView(); renderList(); renderReplyForm();
-    if (state.view === 'map') renderMap();
   }
 
   // The board follows the district chosen on the map (place-facts.js): its MPs and MLAs
@@ -578,15 +552,7 @@
     renderList();
   }));
   document.getElementById('nb-leader').addEventListener('change', toggleLeaderFields);
-  document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-  document.getElementById('nb-map').addEventListener('click', e => {
-    const g = e.target.closest('[data-goto]');
-    if (!g) return;
-    e.preventDefault();
-    setView('list');
-    const el = document.getElementById('d-' + g.dataset.goto);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  });
+  document.querySelectorAll('#nb-views button.pr-chip').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
   document.getElementById('nb-pin-add').addEventListener('click', openPicker);
   document.getElementById('nb-pin-clear').addEventListener('click', () => setPin(null, null));
   document.getElementById('nb-pin-me').addEventListener('click', () => {
