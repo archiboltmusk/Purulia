@@ -24,7 +24,7 @@
       rule_3: 'Name the leader and say why it helps everyone. No insults, no party slogans, no names of private people. A volunteer moderator checks every demand before it appears.',
       list_h: 'Demands', all: 'All', r_chairman: 'Chairman', r_councillor: 'Councillor', r_mla: 'MLA', r_mp: 'MP', r_other: 'Other',
       sort_top: 'Most support', sort_new: 'Newest', search_ph: 'Search demands', loading: 'Loading…',
-      none: 'No demands match.', none_yet: 'No demands published yet. Post the first one below.',
+      none: 'No demands match.', no_leaders: 'Leaders not on record yet.', none_yet: 'No demands published yet. Post the first one below.',
       load_err: 'Could not load the noticeboard. Check your connection and reload.',
       to: 'To', support: '+1 Support', supported: '✓ You support this', supports: '{n} support this', share: 'Share',
       at: 'Where: {p}', posted: 'Posted {d}',
@@ -78,7 +78,7 @@
       rule_3: 'নেতার নাম দিন আর লিখুন কেন এটা সবার কাজে লাগবে। অপমান, দলীয় স্লোগান বা সাধারণ মানুষের নাম নয়। প্রকাশের আগে একজন স্বেচ্ছাসেবী মডারেটর প্রতিটি দাবি দেখে নেন।',
       list_h: 'দাবি', all: 'সব', r_chairman: 'পুরপ্রধান', r_councillor: 'কাউন্সিলর', r_mla: 'বিধায়ক', r_mp: 'সাংসদ', r_other: 'অন্যান্য',
       sort_top: 'সবচেয়ে বেশি সমর্থন', sort_new: 'নতুন', search_ph: 'দাবি খুঁজুন', loading: 'লোড হচ্ছে…',
-      none: 'কোনও দাবি মেলেনি।', none_yet: 'এখনও কোনও দাবি প্রকাশ হয়নি। নিচে প্রথমটি লিখুন।',
+      none: 'কোনও দাবি মেলেনি।', no_leaders: 'নেতাদের তথ্য এখনও নথিতে নেই।', none_yet: 'এখনও কোনও দাবি প্রকাশ হয়নি। নিচে প্রথমটি লিখুন।',
       load_err: 'নোটিসবোর্ড লোড করা গেল না। সংযোগ দেখে আবার লোড করুন।',
       to: 'প্রতি', support: '+1 সমর্থন', supported: '✓ আপনি সমর্থন করেছেন', supports: '{n} জন সমর্থন করেছেন', share: 'শেয়ার',
       at: 'কোথায়: {p}', posted: 'লেখা হয়েছে {d}',
@@ -132,7 +132,7 @@
       rule_3: 'नेता का नाम दें और बताएँ कि इससे सबको क्या फ़ायदा है। अपमान, पार्टी के नारे या आम लोगों के नाम नहीं। प्रकाशित होने से पहले एक स्वयंसेवी मॉडरेटर हर माँग जाँचता है।',
       list_h: 'माँगें', all: 'सभी', r_chairman: 'अध्यक्ष', r_councillor: 'पार्षद', r_mla: 'विधायक', r_mp: 'सांसद', r_other: 'अन्य',
       sort_top: 'सबसे ज़्यादा समर्थन', sort_new: 'नई', search_ph: 'माँगें खोजें', loading: 'लोड हो रहा है…',
-      none: 'कोई माँग नहीं मिली।', none_yet: 'अभी कोई माँग प्रकाशित नहीं हुई। नीचे पहली लिखें।',
+      none: 'कोई माँग नहीं मिली।', no_leaders: 'नेताओं की जानकारी अभी दर्ज नहीं है।', none_yet: 'अभी कोई माँग प्रकाशित नहीं हुई। नीचे पहली लिखें।',
       load_err: 'नोटिसबोर्ड लोड नहीं हो सका। कनेक्शन देखकर फिर लोड करें।',
       to: 'किससे', support: '+1 समर्थन', supported: '✓ आपने समर्थन किया', supports: '{n} लोग समर्थन करते हैं', share: 'शेयर',
       at: 'कहाँ: {p}', posted: 'लिखा गया {d}',
@@ -381,7 +381,9 @@
 
   function renderLeaders(){
     const el = document.getElementById('nb-leaders');
-    el.innerHTML = leaderCards().map(c => `<a class="nb-lcard" href="${esc(leaderHref(c.name))}">
+    const cards = leaderCards();
+    if (!cards.length){ el.innerHTML = `<p class="an-empty">${esc(t('no_leaders'))}</p>`; return; }
+    el.innerHTML = cards.map(c => `<a class="nb-lcard" href="${esc(leaderHref(c.name))}">
       <strong>${esc(c.name)}</strong><small>${esc([c.role, c.area].filter(Boolean).join(' · '))}</small>
       <span>${esc(t('lc_line', { a: c.asked, r: c.answered, p: c.promises, d: c.delivered }))}</span></a>`).join('');
   }
@@ -528,7 +530,7 @@
     const mine = new Set(LEADERS.map(l => norm(l.name)));
     return {
       demand: d => mine.has(norm(d.leader_name)) || about([d.place, d.leader_area].filter(Boolean).join(' ')),
-      promise: p => { const x = [p.area, p.role].filter(Boolean).join(' '); return PF.statewide(x) || mine.has(norm(p.who)) || about(x); }
+      promise: p => { const x = [p.area, p.role].filter(Boolean).join(' '); return mine.has(norm(p.who)) || about(x); }
     };
   }
 
