@@ -19,6 +19,23 @@ const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haring
   Halisahar: 'north-24-parganas', Kachrapara: 'north-24-parganas', Madhyagram: 'north-24-parganas', Ghatal: 'paschim-medinipur',
   Jhargram: 'jhargram', Purulia: 'purulia', Dalkhola: 'uttar-dinajpur', Howrah: 'howrah', Mynaguri: 'jalpaiguri', Falkata: 'alipurduar' };
 
+// Point in a GeoJSON Polygon / MultiPolygon (places/wb_districts.geojson), ray casting.
+const inRing = (pt, ring) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+  const [xi, yi] = ring[i], [xj, yj] = ring[j];
+  if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+const inGeom = (pt, g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates)
+  .some(p => inRing(pt, p[0]) && !p.slice(1).some(h => inRing(pt, h)));
+
+// No place chosen yet: ask the device once for its position and take the district it is in.
+async function districtFromLocation(){
+  if (!navigator.geolocation) return null;
+  const c = await new Promise(res => navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), { timeout: 8000, maximumAge: 600000 }));
+  if (!c) return null;
+  const g = await (await fetch('places/wb_districts.geojson')).json();
+  const f = g.features.find(f => inGeom([c.longitude, c.latitude], f.geometry));
+  return f ? f.properties.slug : null;
+}
+
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const list = document.getElementById('ws-dump-list');
@@ -31,7 +48,13 @@ const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haring
   // district gets its own reports, the NGT towns named in it, and an RTI to its municipalities.
   const PF = window.PlaceFacts;
   let slug = 'purulia', D = null;
-  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  if (PF){ await PF.load().catch(() => null); if (PF.data){
+    let picked = false; try { picked = new URLSearchParams(location.search).has('d') || !!localStorage.getItem('parishkar_place'); } catch (e) {}
+    if (!picked){
+      const k = await districtFromLocation().catch(() => null);
+      if (k){ PF.choose(k); location.reload(); return; }
+    }
+    slug = PF.current(); D = PF.data.districts[slug]; } }
   const NAME = D ? D.name : 'Purulia', isPurulia = slug === 'purulia';
   const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
   const bodies = isPurulia || !PF ? [] : await PF.bodies(slug);
@@ -50,8 +73,8 @@ const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haring
     ngtSrc.innerHTML = ngtSrc.innerHTML.replace("The order does not give Purulia's own share of the 177.03 tonnes; the RTI below asks for it.",
       named.length ? `The order does not give each town's own share of the 177.03 tonnes; the RTI below asks for it.` : `None of ${n}'s municipalities is among the 14 it names.`);
     const st = document.querySelectorAll('.ws-status');
-    st.forEach(e => { e.innerHTML = `${n}: not published. ${ask}`; });
-    if (named.length) st[1].innerHTML = `${esc(named.join(', '))}: named by the <a href="#ws-ngt">National Green Tribunal</a> (July 2026) as not transporting all its waste. Other towns in ${n}: not published. ${ask}`;
+    st.forEach(e => { e.innerHTML = `${n}: not on record yet. ${ask}`; });
+    if (named.length) st[1].innerHTML = `${esc(named.join(', '))}: named by the <a href="#ws-ngt">National Green Tribunal</a> (July 2026) as not transporting all its waste. Other towns in ${n}: not on record yet. ${ask}`;
     document.querySelector('#ws-dumps h2').textContent = `Where ${NAME}'s waste is dumped: reported by residents`;
     document.querySelector('#ws-dumps .an-card-sub').innerHTML = `🚛 markers are dumping grounds residents reported, with a photo and location, confirmed by others on the spot like every report. Seen trucks or carts unloading somewhere? Stand there and report it as <strong>🚛 Dumping ground</strong>. No government list of ${n}'s legacy dumpsites is on this page yet; ${ask}.`;
     // RTI to whichever of the district's municipalities the reader picks.
