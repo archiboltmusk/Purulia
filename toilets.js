@@ -1,5 +1,5 @@
 /* "Public toilets": the ones residents have reported as locked, dry, unclean or otherwise
-   unusable, on a map and in a list. */
+   unusable, in a list. The map is the report map (kasa.html?category=toilet). */
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const list = document.getElementById('tl-list');
@@ -61,23 +61,4 @@
     ? rows.map(r => `<li><a href="kasa.html?report=${encodeURIComponent(r.id)}">${esc(where(r))}</a> · ${esc(seen(r))} · first reported ${esc(fmt(r.created_at))}${r.status === 'resolved' ? ' · fixed' : ''}</li>`).join('')
     : '<li>No public toilet reported yet. Be the first: if one near you is locked, dry or unusable, report it.</li>';
 
-  if (!window.maplibregl) return;
-  const map = new maplibregl.Map({ container: 'tl-map', style: 'https://tiles.openfreemap.org/styles/dark',
-    center: [86.36, 23.33], zoom: rows.length ? 11 : 9, attributionControl: { compact: true } });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  const bounds = new maplibregl.LngLatBounds();
-  rows.forEach(r => {
-    const el = document.createElement('div');
-    el.textContent = '🚻'; el.style.fontSize = '22px'; el.style.cursor = 'pointer';
-    new maplibregl.Marker({ element: el }).setLngLat([r.lng, r.lat])
-      .setPopup(new maplibregl.Popup({ offset: 14 }).setHTML(`<strong>${esc(where(r))}</strong><br>${esc(seen(r))}<br><a href="kasa.html?report=${encodeURIComponent(r.id)}">Open the report →</a>`))
-      .addTo(map);
-    bounds.extend([r.lng, r.lat]);
-  });
-  if (rows.length > 1) map.fitBounds(bounds, { padding: 40, maxZoom: 14 });
-  else if (rows.length === 1) map.setCenter([rows[0].lng, rows[0].lat]);
-  else {
-    bodies.forEach(b => { if (b.at) bounds.extend(b.at); });
-    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 11 });
-  }
 })();
