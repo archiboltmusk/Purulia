@@ -3340,7 +3340,7 @@ function downloadGeoJSON(scope){
     geometry: { type: 'Point', coordinates: [Number(v[12]), Number(v[11])] },
     properties: Object.fromEntries(CSV_COLUMNS.map((c, i) => [c, v[i] ?? null]).filter(([c]) => c !== 'lat' && c !== 'lng'))
   }));
-  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar Purulia (photos not covered)', features };
+  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar (photos not covered)', features };
   saveExport(scope, JSON.stringify(fc), 'application/geo+json', 'geojson', rows.length);
 }
 

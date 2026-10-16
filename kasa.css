@@ -1091,10 +1091,12 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 
 /* Opening splash on phones: brand card, then the map fades in and the card lifts away. */
 .k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:#DD3333;color:#111;transition:opacity var(--motion-settle) var(--ease-in),visibility var(--motion-settle);}
-.k-splash.k-splash-out{opacity:0;visibility:hidden;pointer-events:none;}
-.k-splash-mark{font-family:var(--serif);font-size:2.4rem;font-weight:700;letter-spacing:-.01em;}
-.k-splash-mark span{font-style:italic;}
-.k-splash-sub{font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:#fff;opacity:.85;}
+.k-splash.k-splash-out{opacity:0;transform:scale(1.04);visibility:hidden;pointer-events:none;}
+.k-splash-mark{font-family:"Google Sans Flex",var(--serif),sans-serif;display:flex;flex-direction:column;align-items:center;text-align:center;letter-spacing:-.02em;line-height:1.1;}
+.k-splash-first{font-size:2.2rem;font-weight:500;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) both;}
+.k-splash-place{font-size:2.8rem;font-weight:700;min-height:1.2em;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) .3s both;}
+.k-splash-place.k-splash-swap{animation:kSplashIn .6s cubic-bezier(.2,.7,.2,1) both;}
+@keyframes kSplashIn{from{opacity:0;transform:translateY(14px);filter:blur(8px);}to{opacity:1;transform:none;filter:blur(0);}}
 @media(min-width:641px){.k-splash{display:none;}}
 @media(prefers-reduced-motion:reduce){.k-splash{transition:none;}}
 /* The splash now leaves when the map is ready (kasa.js hideSplash), not on a timer,
@@ -1164,7 +1166,6 @@ body[data-app-layout] .k-map-pill,body[data-app-layout] .k-pill-num,body[data-ap
 
 /* Loading splash: the subtitle blinks in a slow retro cadence; none for reduced motion. */
 @media(prefers-reduced-motion:no-preference){
-  .k-splash-sub{animation:kBlink .9s steps(2,start) infinite;}
 }
 @keyframes kBlink{0%,100%{opacity:1;}50%{opacity:.15;}}
 
