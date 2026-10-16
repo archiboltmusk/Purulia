@@ -1092,9 +1092,10 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* Opening splash on phones: brand card, then the map fades in and the card lifts away. */
 .k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:#DD3333;color:#111;transition:opacity var(--motion-settle) var(--ease-in),visibility var(--motion-settle);}
 .k-splash.k-splash-out{opacity:0;transform:scale(1.04);visibility:hidden;pointer-events:none;}
-.k-splash-mark{font-family:"Google Sans Flex",var(--serif),sans-serif;display:flex;flex-direction:column;align-items:center;text-align:center;letter-spacing:-.02em;line-height:1.1;}
-.k-splash-first{font-size:2.2rem;font-weight:500;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) both;}
-.k-splash-place{font-size:2.8rem;font-weight:700;min-height:1.2em;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) .3s both;}
+.k-splash-mark{font-family:"Google Sans Flex","Helvetica Neue",Arial,sans-serif;font-size:2.6rem;font-weight:700;letter-spacing:-.04em;line-height:1.05;text-align:center;white-space:nowrap;}
+.k-splash-first{color:#3a0606;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) both;}
+.k-splash-place{color:#ff9e9e;min-width:1ch;display:inline-block;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) .3s both;}
+.k-splash-sub{font-family:"Google Sans Flex","Helvetica Neue",Arial,sans-serif;font-size:14px;font-weight:400;color:#fff;opacity:.75;}
 .k-splash-place.k-splash-swap{animation:kSplashIn .6s cubic-bezier(.2,.7,.2,1) both;}
 @keyframes kSplashIn{from{opacity:0;transform:translateY(14px);filter:blur(8px);}to{opacity:1;transform:none;filter:blur(0);}}
 @media(min-width:641px){.k-splash{display:none;}}
