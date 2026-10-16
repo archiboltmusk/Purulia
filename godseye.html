@@ -71,6 +71,8 @@
   .ge-cell-name{font-family:var(--serif);font-weight:700;color:var(--cream);}
   .ge-cell-row{display:flex;flex-wrap:wrap;gap:.3rem .8rem;font-family:var(--mono);font-size:11px;}
   .ge-sources{padding-left:1.2rem;line-height:1.7;color:var(--text-md);font-size:13px;}
+  .ge-feeds li{margin:.2rem 0;list-style:none;padding-left:0;}
+  .ge-feeds label{cursor:pointer;color:var(--text-hi);}
   @media (max-width:640px){.ge-facts{grid-template-columns:1fr;}}
 </style>
 <script src="bug-report.js"></script>
@@ -105,8 +107,14 @@
   <section class="an-card" id="ge-hero"><p class="an-empty">Loading…</p></section>
 
   <section class="an-card">
+    <h2>Live tracks</h2>
+    <p class="an-card-sub">Tick the tracks to show in each district tile. Each track names its source, refreshes on its own schedule and shows when it was read. A track with no figure for a district says so.</p>
+    <ul class="ge-feeds" id="ge-feeds"></ul>
+  </section>
+
+  <section class="an-card">
     <h2>All districts</h2>
-    <p class="an-card-sub">Temperature, US AQI, fire hotspots (7 days) and open reports for each district. Tap one to look at it.</p>
+    <p class="an-card-sub">The ticked tracks for each district. Tap one to look at it.</p>
     <div class="ge-grid" id="ge-grid"></div>
   </section>
 
