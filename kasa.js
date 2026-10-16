@@ -5505,11 +5505,16 @@ function allReps(){
    (tools/build-wb-reps.py); Lok Sabha work (PRS): places/wb_record.json
    (tools/build-wb-record.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
    so every link to a Purulia leader opens the same profile. */
-let wbMplads = null, wbMinisters = null, wbRecord = null, wbRepsLoading = null;
+let wbMplads = null, wbMinisters = null, wbRecord = null, wbPhotos = null, wbRepsLoading = null;
+// Sourced photo + credit per seat (tools/build-leader-photos.py). Empty when the leader has none on record.
+const leaderPhoto = (group, n) => {
+  const p = wbPhotos?.[group]?.[n];
+  return p ? { photo: p.photo, photoCredit: [p.author, p.licence && 'Licence: ' + p.licence, 'Wikimedia Commons'].filter(Boolean).join(' · '), photoUrl: p.page } : {};
+};
 function loadWbReps(){
   wbRepsLoading ||= Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson'),
-    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json'), getJson('places/wb_record.json')]).then(([l, a, m, mi, rc]) => {
-    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi; wbRecord = rc;
+    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json'), getJson('places/wb_record.json'), getJson('places/leader-photos.json')]).then(([l, a, m, mi, rc, ph]) => {
+    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi; wbRecord = rc; wbPhotos = ph;
     if (!l || !a) wbRepsLoading = null;
   });
   return wbRepsLoading;
@@ -5530,12 +5535,12 @@ function wbReps(){
   const out = [], src = u => ({ url: u, name: 'Wikipedia' });
   Object.entries(wbLeaders.ac).forEach(([n, v]) => {
     const f = acFeatures(+n)[0], pc = f?.properties.pc;
-    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc,
+    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc, ...leaderPhoto('ac', n),
       place: t('rep_place_ac', { s: v.name, n }), source: src(wbLeaders.sources.mla), covers: inSeat(acFeatures(+n)) });
   });
   Object.entries(wbLeaders.pc).forEach(([n, v]) => {
     if (v.vacant) return;
-    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n,
+    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n, ...leaderPhoto('pc', n),
       place: t('rep_place_ls', { s: v.name }), source: src(wbLeaders.sources.mp), covers: inSeat(pcFeatures(+n)) });
   });
   (wbMplads?.rs || []).forEach((v, i) => out.push({ key: 'rs:' + i, group: 'rs', name: v.name, initials: initialsOf(v.name),
@@ -5913,6 +5918,7 @@ async function openRepProfile(key){
       ${repAvatar(rep, 'k-rep-avatar')}
       <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc([t('rep_t_' + rep.group) + ' · ' + rep.place, rep.party].filter(Boolean).join(' · '))}</div></div>
     </div>
+    ${wbPhotos && (rep.group === 'mla' || rep.group === 'mp') ? `<p class="k-rep-credit">${rep.photo ? `<a href="${esc(rep.photoUrl)}" target="_blank" rel="noopener">${esc(rep.photoCredit)}</a>` : 'Photo not on record yet'}</p>` : ''}
     ${rep.minister ? `<div class="k-rep-worst-title">${esc(t('rep_rank_' + rep.minister.rank))} · ${esc(t('rep_depts'))}</div>
     <ul class="k-rep-depts">${rep.minister.portfolios.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
     ${areaLine}
