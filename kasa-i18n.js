@@ -121,7 +121,7 @@ window.KASA_I18N = {
     footer_left: 'Parishkar Bengal · A civic tool for West Bengal',
     footer_allegation: 'Reports are citizen allegations, not verified facts. Parishkar Bengal is a neutral platform and not affiliated with any party or government body.',
     footer_terms: 'Terms of Use', footer_privacy: 'Privacy Policy', footer_grievance: 'Grievance Officer', footer_coffee: 'Buy me a coffee', footer_bug: 'Report a bug',
-    qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Bengal', qr_sub: 'Point a phone camera at this QR code to open the report page.',
+    qr_btn: 'Scan QR to Report', qr_title: 'Share Parishkar Bengal', qr_sub: 'Point a phone camera at this QR code to open the report page.', phone_req_title: 'Phone camera required', phone_req_body: "We need a live photo from your phone's rear camera to ensure report authenticity. Desktop uploads are not allowed.", phone_req_close: 'Close',
 
     grp_clean: 'Cleanliness', grp_infra: 'Roads & utilities', grp_illegal: 'Illegal activity',
     cat_garbage: 'Garbage / dumping', cat_dumpsite: 'Dumping ground — trucks unload here', garbage_note: '🗑️ The National Green Tribunal (order of 22 July 2026, O.A. 606/2018) named Purulia among 14 West Bengal towns that do not collect and transport all their waste. Your photo adds to the public record.', dumpsite_note: '🚛 Reporting a dumping ground. Stand where the trucks or carts unload and take the photo there.', cat_toilet: 'Public toilet — locked, unusable or unclean', toilet_note: '🚻 Reporting a public toilet. Photograph the locked door, the empty water tank, or the state inside — whatever the problem is.', cat_drain: 'Blocked drain / sewage', cat_road: 'Pothole / broken road',
@@ -442,7 +442,7 @@ window.KASA_I18N = {
     footer_left: 'পরিষ্কার বাংলা · পশ্চিমবঙ্গের নাগরিক উদ্যোগ',
     footer_allegation: 'রিপোর্ট হলো নাগরিকদের অভিযোগ, প্রমাণিত তথ্য নয়। পরিষ্কার বাংলা একটি নিরপেক্ষ প্ল্যাটফর্ম; কোনো দল বা সরকারি সংস্থার সঙ্গে যুক্ত নয়।',
     footer_terms: 'ব্যবহারের শর্তাবলি', footer_privacy: 'গোপনীয়তা নীতি', footer_grievance: 'অভিযোগ আধিকারিক', footer_coffee: 'আমাকে এক কাপ কফি দিন', footer_bug: 'সমস্যা জানান',
-    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার বাংলা শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।',
+    qr_btn: 'QR স্ক্যান করে রিপোর্ট', qr_title: 'পরিষ্কার বাংলা শেয়ার করুন', qr_sub: 'ফোনের ক্যামেরা এই QR কোডের দিকে ধরুন।', phone_req_title: 'ফোনের ক্যামেরা লাগবে', phone_req_body: 'প্রতিবেদনের সত্যতা নিশ্চিত করতে ফোনের পেছনের ক্যামেরা থেকে সরাসরি ছবি লাগবে। কম্পিউটার থেকে আপলোড করা যাবে না।', phone_req_close: 'বন্ধ করুন',
 
     grp_clean: 'পরিচ্ছন্নতা', grp_infra: 'রাস্তা ও পরিষেবা', grp_illegal: 'বেআইনি কাজ',
     cat_garbage: 'আবর্জনা / ময়লা ফেলা', cat_dumpsite: 'ময়লা ফেলার মাঠ — গাড়ি এখানে ফেলে', garbage_note: '🗑️ জাতীয় পরিবেশ আদালত (NGT, ২২ জুলাই ২০২৬-এর আদেশ, O.A. 606/2018) পুরুলিয়াকে পশ্চিমবঙ্গের সেই ১৪টি পুরসভার মধ্যে রেখেছে, যারা সব আবর্জনা তুলে নিয়ে যায় না। আপনার ছবি সরকারি রেকর্ডে যোগ হয়।', dumpsite_note: '🚛 ময়লা ফেলার জায়গা জানাচ্ছেন। যেখানে গাড়ি বা ভ্যান ময়লা ফেলে সেখানে দাঁড়িয়ে ছবি তুলুন।', cat_toilet: 'সরকারি শৌচাগার — তালাবন্ধ, অকেজো বা নোংরা', toilet_note: '🚻 সরকারি শৌচাগার জানাচ্ছেন। তালাবন্ধ দরজা, খালি জলের ট্যাংক, বা ভেতরের অবস্থার ছবি তুলুন।', cat_drain: 'বন্ধ নর্দমা / নোংরা জল', cat_road: 'গর্ত / ভাঙা রাস্তা',
@@ -762,7 +762,7 @@ window.KASA_I18N = {
     footer_left: 'परिष्कार बंगाल · पश्चिम बंगाल का नागरिक टूल',
     footer_allegation: 'रिपोर्ट नागरिकों के आरोप हैं, प्रमाणित तथ्य नहीं। परिष्कार बंगाल एक तटस्थ प्लेटफ़ॉर्म है और किसी दल या सरकारी संस्था से जुड़ा नहीं है।',
     footer_terms: 'उपयोग की शर्तें', footer_privacy: 'गोपनीयता नीति', footer_grievance: 'शिकायत अधिकारी', footer_coffee: 'मुझे एक कॉफ़ी पिलाएँ', footer_bug: 'बग बताएं',
-    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार बंगाल शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।',
+    qr_btn: 'QR स्कैन करके रिपोर्ट', qr_title: 'परिष्कार बंगाल शेयर करें', qr_sub: 'फ़ोन का कैमरा इस QR कोड पर रखें।', phone_req_title: 'फ़ोन कैमरा ज़रूरी है', phone_req_body: 'रिपोर्ट की प्रामाणिकता के लिए फ़ोन के पीछे के कैमरे से सीधी फ़ोटो चाहिए। डेस्कटॉप से अपलोड की अनुमति नहीं है।', phone_req_close: 'बंद करें',
 
     grp_clean: 'सफ़ाई', grp_infra: 'सड़क और सेवाएँ', grp_illegal: 'अवैध गतिविधि',
     cat_garbage: 'कचरा / डंपिंग', cat_dumpsite: 'कूड़ा डालने की जगह — गाड़ियाँ यहाँ उतारती हैं', garbage_note: '🗑️ राष्ट्रीय हरित अधिकरण (NGT, 22 जुलाई 2026 का आदेश, O.A. 606/2018) ने पुरुलिया को पश्चिम बंगाल के उन 14 नगरों में गिना है जो अपना पूरा कचरा उठाकर नहीं ले जाते। आपकी फ़ोटो सार्वजनिक रिकॉर्ड में जुड़ती है।', dumpsite_note: '🚛 आप कूड़ा डालने की जगह बता रहे हैं। जहाँ गाड़ियाँ कूड़ा उतारती हैं वहीं खड़े होकर फ़ोटो लें।', cat_toilet: 'सार्वजनिक शौचालय — बंद, अनुपयोगी या गंदा', toilet_note: '🚻 आप सार्वजनिक शौचालय बता रहे हैं। बंद दरवाज़ा, खाली पानी की टंकी, या अंदर की हालत की फ़ोटो लें।', cat_drain: 'जाम नाली / सीवेज', cat_road: 'गड्ढा / टूटी सड़क',

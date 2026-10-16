@@ -954,6 +954,15 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 </div>
 
 <!-- Live camera for evidence photos: no gallery, no editing step -->
+<div class="k-phone" id="k-phone" hidden role="dialog" aria-modal="true" aria-labelledby="k-phone-title">
+  <div class="k-phone-card">
+    <h2 id="k-phone-title" data-i18n="phone_req_title">Phone camera required</h2>
+    <p data-i18n="phone_req_body">We need a live photo from your phone's rear camera to ensure report authenticity. Desktop uploads are not allowed.</p>
+    <div class="k-phone-qr" id="k-phone-qr"></div>
+    <p class="k-phone-sub" data-i18n="qr_sub">Point a phone camera at this QR code to open the report page.</p>
+    <button type="button" class="k-phone-close" onclick="document.getElementById('k-phone').hidden=true" data-i18n="phone_req_close">Close</button>
+  </div>
+</div>
 <div class="k-cam" id="k-cam" hidden role="dialog" aria-modal="true" aria-labelledby="k-cam-title">
   <div class="k-cam-top">
     <div class="k-cam-head">
