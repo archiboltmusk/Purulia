@@ -5763,6 +5763,14 @@ function renderRepUpdates(rep, u){
       ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
 }
 
+/* Our five indices (wealth index left out: legal gate). Formulas and weights are our method, not an
+   official figure, and no input is on record yet, so no value is computed. */
+function renderRepIndicesHTML(){
+  const ids = ['spii', 'coce', 'gcei', 'eder', 'egpf'];
+  return `<details class="k-rep-src"><summary>${esc(t('idx_h'))}</summary><ul>${ids.map(i =>
+    `<li>${esc(t('idx_' + i))} <em>${esc(t('idx_inputs'))}</em></li>`).join('')}</ul></details>`;
+}
+
 /* The record beside each MLA and MP: Lok Sabha work from PRS (MPs) and the sworn election
    affidavit on MyNeta (both). Raw figures with the averages, no grade; see methodology.html#leaders. */
 function renderRepRecordHTML(rep){
@@ -5776,7 +5784,7 @@ function renderRepRecordHTML(rep){
       ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
     </div>
     <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
-      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}`;
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${renderRepIndicesHTML()}`;
 }
 
 /* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
