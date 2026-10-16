@@ -7,7 +7,7 @@
   --green:#6db88a; --red:#e8524a; --orange:#e88a4a; --violet:#8f7ae6;
   --mono:'JetBrains Mono',ui-monospace,monospace;
   --serif:'Plus Jakarta Sans',system-ui,-apple-system,sans-serif;
-  --civic:'Noto Sans Bengali','Noto Sans Devanagari','Noto Sans Ol Chiki','DM Mono',sans-serif;
+  --civic:'Noto Sans Bengali','Noto Sans Devanagari','Noto Sans Ol Chiki','JetBrains Mono',sans-serif;
 
   /* White by default; dark is set with data-theme="dark" (theme-init.js) */
   --ink:#f8f6f2; --ink2:#f0ebe4; --ink3:#e8e1d8; --ink4:#dfd7ce;

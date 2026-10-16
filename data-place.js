@@ -107,7 +107,7 @@ const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).get
     const med = k => PF.rank(k, d.nfhs_district).median;
     const x = k => v[k] ? v[k][0] : null, old = k => v[k] ? v[k][1] : null;
     const r = a => 'rgba(221,51,51,' + a + ')', rd = a => 'rgba(224,80,80,' + a + ')', gr = a => 'rgba(107,174,138,' + a + ')';
-    const F = { family: 'DM Mono, monospace', size: 10 }, TC = rgbaCream(0.4), GC = 'rgba(221,51,51,0.07)';
+    const F = { family: 'JetBrains Mono, monospace', size: 10 }, TC = rgbaCream(0.4), GC = 'rgba(221,51,51,0.07)';
     const legend = { labels: { color: rgbaCream(.55), font: F, boxWidth: 10, padding: 10 } };
     const tip = { callbacks: { label: c => (c.dataset.label ? c.dataset.label + ': ' : '') + c.raw + '%' } };
     const inv = y => y == null ? null : Math.round((100 - y) * 10) / 10;
@@ -137,7 +137,7 @@ const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).get
         ]
       },
       options: { responsive: true, maintainAspectRatio: false, plugins: { legend, tooltip: tip },
-        scales: { x: { grid: { color: GC }, ticks: { color: TC, font: { family: 'DM Mono, monospace', size: 9 }, maxRotation: 20 } }, y: { grid: { color: GC }, min: 0, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } } } }
+        scales: { x: { grid: { color: GC }, ticks: { color: TC, font: { family: 'JetBrains Mono, monospace', size: 9 }, maxRotation: 20 } }, y: { grid: { color: GC }, min: 0, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } } } }
     }));
 
     const kids = [['Anaemic', 'child_anaemia'], ['Underweight', 'underweight'], ['Stunted', 'stunted'], ['Wasted', 'wasted']];
@@ -152,7 +152,7 @@ const rgbaCream = a => 'rgba(' + (getComputedStyle(document.documentElement).get
         }]
       },
       options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.raw + '%' } } },
-        scales: { x: { grid: { color: GC }, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: rgbaCream(.55), font: { family: 'DM Mono, monospace', size: 9 } } } } }
+        scales: { x: { grid: { color: GC }, max: 100, ticks: { callback: t => t + '%', color: TC, font: F } }, y: { grid: { display: false }, ticks: { color: rgbaCream(.55), font: { family: 'JetBrains Mono, monospace', size: 9 } } } } }
     }));
   }
 

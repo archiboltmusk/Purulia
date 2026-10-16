@@ -187,10 +187,10 @@
       x.fillStyle = paper; x.fillRect(0, 0, W, H);
       x.strokeStyle = ink; x.lineWidth = 6; x.strokeRect(30, 30, W - 60, H - 60);
       x.fillStyle = ink; x.textBaseline = 'alphabetic';
-      x.font = '500 28px "DM Mono", monospace'; x.fillText(`PARISHKAR · CASE FILE #${r.id}`, 70, 100);
-      x.fillText(fit(where || '', '500 28px "DM Mono", monospace', 940), 70, 330);
-      x.fillText(fit(catName, '700 92px "EB Garamond", Georgia, serif', 940), 70, 210);
-      x.font = 'italic 400 40px "EB Garamond", Georgia, serif'; x.fillText(`filed ${fmt(r.created_at)}`, 70, 270);
+      x.font = '500 28px "JetBrains Mono", monospace'; x.fillText(`PARISHKAR · CASE FILE #${r.id}`, 70, 100);
+      x.fillText(fit(where || '', '500 28px "JetBrains Mono", monospace', 940), 70, 330);
+      x.fillText(fit(catName, '700 92px "Plus Jakarta Sans", Georgia, serif', 940), 70, 210);
+      x.font = 'italic 400 40px "Plus Jakarta Sans", Georgia, serif'; x.fillText(`filed ${fmt(r.created_at)}`, 70, 270);
       const px = 70, py = 370, pw = W - 140, ph = 680;
       x.fillStyle = '#fbf7ee'; x.fillRect(px, py, pw, ph);
       if (photo){
@@ -198,12 +198,12 @@
         x.drawImage(photo, (photo.width - sw) / 2, (photo.height - sh) / 2, sw, sh, px, py, pw, ph);
       }
       x.lineWidth = 6; x.strokeRect(px, py, pw, ph);
-      x.fillStyle = ink; x.font = '700 120px "EB Garamond", Georgia, serif'; x.fillText(String(d), 70, 1210);
+      x.fillStyle = ink; x.font = '700 120px "Plus Jakarta Sans", Georgia, serif'; x.fillText(String(d), 70, 1210);
       const nw = x.measureText(String(d)).width;
-      x.font = '500 30px "DM Mono", monospace';
+      x.font = '500 30px "JetBrains Mono", monospace';
       x.fillText(`${d === 1 ? 'DAY' : 'DAYS'} ${status === 'resolved' ? 'TO FIX' : 'OPEN'}`, 90 + nw, 1160);
       x.fillText(status === 'resolved' ? 'FIXED, CONFIRMED ON THE SPOT' : status === 'claimed' ? 'CLEANUP CLAIMED' : `FIX TARGET ${sla} DAYS`, 90 + nw, 1205);
-      x.font = '500 24px "DM Mono", monospace'; x.textAlign = 'right';
+      x.font = '500 24px "JetBrains Mono", monospace'; x.textAlign = 'right';
       x.fillText(location.host + location.pathname.replace(/[^/]*$/, '') + 'case.html?id=' + r.id, W - 70, 1270);
       x.textAlign = 'left';
     };
