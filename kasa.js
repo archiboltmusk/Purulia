@@ -404,6 +404,9 @@ async function init(){
   renderCategoryGrid();
   renderChainSection();
   renderReps();
+  // Statewide leaders load only when someone opens the representatives section. Wired before the
+  // report and ward fetches below, so a slow or failed network can't keep the section from opening.
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   setupOfflineDetection();
   setupInAppBrowser();
 
@@ -450,8 +453,6 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
-  // Statewide leaders load only when someone opens the representatives section.
-  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
   if (!location.hash && !location.search) mapReady.then(openOnHomePlace);
   initPlacePicker();
