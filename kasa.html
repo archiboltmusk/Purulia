@@ -56,6 +56,8 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 <script defer src="translate-fix.js"></script>
 <script defer src="kasa-photo-meta.js"></script>
 <script defer src="boundary-live.js"></script>
+<script defer src="money-metrics.js"></script>
+<script defer src="map-layers.js"></script>
 <script defer src="kasa.js"></script>
 <script defer src="digest-sheet.js"></script>
 </head>
@@ -129,10 +131,6 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 </nav>
 
 
-<nav class="k-quick" aria-label="Sections">
-  <a href="promises.html" class="k-quick-chip" data-i18n="nav_promises"><span class="k-quick-ico" aria-hidden="true">📜</span>Promises</a>
-  <a href="noticeboard.html" class="k-quick-chip" data-i18n="nav_noticeboard"><span class="k-quick-ico" aria-hidden="true">📣</span>Ask your leaders</a>
-</nav>
 <section class="k-map-section" aria-label="Report map">
   <div id="k-map" role="application" aria-label="Map of reports"></div>
   <div class="k-list" id="k-list" hidden>
@@ -158,6 +156,16 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <button type="button" class="k-nearby-btn" id="k-nearby-btn" aria-pressed="false" data-i18n="nearby_btn">Near me</button>
     <div class="k-filter-bar" id="k-filter-bar">
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
+      <select id="k-layer-select" class="k-filter-select" aria-label="Map layer">
+        <option value="reports">Reports</option>
+        <option value="demands">Demands to leaders</option>
+        <option value="schools">Schools: checked by residents</option>
+        <option value="money-selfPaid">Money: own taxes as % of spending</option>
+        <option value="money-unspent">Money: budget left unspent</option>
+        <option value="money-ucs">Money: grants with no proof of use</option>
+        <option value="money-mplads">Money: MP fund spent (Lok Sabha)</option>
+        <option value="money-seats">Money: MP fund by seat (West Bengal)</option>
+      </select>
       <select id="k-filter-status" class="k-filter-select" aria-label="Status">
         <option value="" data-i18n="filter_all_status">All Status</option>
         <option value="open" data-i18n="status_open">Unresolved</option>
@@ -265,23 +273,28 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
       <span aria-hidden="true">›</span>
     </button>
     <div class="k-drawer-more-list" id="k-drawer-more-list" hidden>
-      <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
-      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
-      <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
-      <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
-      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
-        <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
+      <p class="k-drawer-group" data-i18n="drawer_grp_act">Act here</p>
+      <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
       <a href="works.html" class="k-drawer-link" data-i18n="nav_works">Public works warranty</a>
       <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
       <a href="pandals.html" class="k-drawer-link" data-i18n="nav_pandal">Swachh Pandal</a>
-      <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
-      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
+      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
+      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
+      <p class="k-drawer-group" data-i18n="drawer_grp_records">Records and money</p>
+      <a href="promises.html" class="k-drawer-link" data-i18n="nav_promises">Promises: who promised what</a>
+      <a href="noticeboard.html" class="k-drawer-link" data-i18n="nav_noticeboard">Ask your leaders: public demands</a>
+      <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
+      <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
       <a href="municipality.html" class="k-drawer-link" data-i18n="nav_money">Who runs the municipality</a>
-      <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
+      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="compare.html" class="k-drawer-link" data-i18n="nav_compare">Compare districts</a>
       <a href="record.html" class="k-drawer-link" data-i18n="nav_record">The record: evidence and remedies</a>
-    </div>
+      <p class="k-drawer-group" data-i18n="drawer_grp_tools">Tools</p>
+      <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
+      <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">Walk, run, cycle</a>
+      <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
+</div>
   </nav>
 
 

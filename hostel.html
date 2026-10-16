@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Hostel sanitation — Parishkar</title>
+<meta name="description" content="Daily floor checks for hostel washrooms, dustbins and corridors: live before and after photos with GPS, verified by a floor representative. Facts only.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .hs-wrap{max-width:1100px;margin:0 auto;padding:2.5rem clamp(1rem,4vw,3rem) 6rem;}
+  .hs-title{font-family:var(--serif);font-size:clamp(2rem,4vw,3rem);font-weight:700;color:var(--cream);line-height:1.1;}
+  .hs-sub{margin-top:.7rem;color:var(--text-md);line-height:1.6;max-width:720px;}
+  .hs-card{border:1px solid var(--border);border-radius:6px;padding:1.2rem 1.3rem;margin-top:1.2rem;min-width:0;}
+  .hs-card h2{font-family:var(--serif);font-size:1.25rem;color:var(--cream);}
+  .hs-row{display:flex;flex-wrap:wrap;gap:.6rem;align-items:center;margin-top:.7rem;}
+  .hs-item{display:flex;flex-wrap:wrap;justify-content:space-between;gap:.5rem;align-items:center;padding:.6rem 0;border-top:1px solid var(--border);}
+  .hs-tag{font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:.15rem .5rem;border:1px solid var(--border);border-radius:3px;}
+  .hs-ok{color:#6db88a;} .hs-no{color:var(--text-md);} .hs-flag{color:#DD3333;}
+  .hs-btn{font:inherit;padding:.5rem .9rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--cream);cursor:pointer;}
+  .hs-btn:disabled{opacity:.45;cursor:default;}
+  .hs-btn.primary{background:#DD3333;border-color:#DD3333;color:#fff;}
+  .hs-input{font:inherit;padding:.5rem .6rem;border-radius:4px;border:1px solid var(--border);background:transparent;color:var(--cream);min-width:0;}
+  .hs-video{width:100%;max-height:360px;background:#000;border-radius:4px;}
+  .hs-thumbs{display:flex;gap:.6rem;margin-top:.6rem;}
+  .hs-thumbs img{width:110px;height:82px;object-fit:cover;border-radius:4px;}
+  .hs-msg{margin-top:.6rem;font-size:.9rem;color:var(--text-md);min-height:1.2em;}
+  .hs-msg.bad{color:#DD3333;}
+  .hs-note{font-size:.82rem;color:var(--text-lo);margin-top:.5rem;line-height:1.5;}
+  .hs-table{width:100%;border-collapse:collapse;font-size:.88rem;margin-top:.6rem;}
+  .hs-table th,.hs-table td{text-align:left;padding:.45rem .4rem;border-top:1px solid var(--border);vertical-align:top;}
+  [hidden]{display:none !important;}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="kasa.html">Map</a>
+    <a href="analytics.html">Analytics</a>
+  </div>
+</nav>
+
+<main class="hs-wrap">
+  <h1 class="hs-title">Hostel sanitation</h1>
+  <p class="hs-sub">Each floor has three daily checks: washroom, dustbin and corridor. The on-duty supervisor submits a check with a before and an after photo taken live with the camera, plus GPS. A floor representative then marks it verified or flagged. Public entries show only the facts, labelled Verified or Unverified, with date and source.</p>
+  <p class="hs-note">Problems found during a check can also be filed as reports on the <a href="kasa.html">map</a> under “Hostel sanitation”.</p>
+
+  <section class="hs-card" id="hs-sites" aria-live="polite"><p class="hs-msg">Loading sites…</p></section>
+
+  <section class="hs-card" id="hs-capture" hidden>
+    <h2 id="hs-cap-title">Submit check</h2>
+    <p class="hs-note" id="hs-cap-loc">Waiting for GPS…</p>
+    <video id="hs-video" class="hs-video" playsinline muted hidden></video>
+    <canvas id="hs-canvas" hidden></canvas>
+    <div class="hs-thumbs" id="hs-thumbs"></div>
+    <div class="hs-row">
+      <button class="hs-btn primary" id="hs-shoot" type="button" disabled>Take before photo</button>
+      <button class="hs-btn" id="hs-submit" type="button" disabled>Submit check</button>
+      <button class="hs-btn" id="hs-cancel" type="button">Cancel</button>
+    </div>
+    <p class="hs-msg" id="hs-cap-msg"></p>
+  </section>
+
+  <section class="hs-card">
+    <h2>Floor representative</h2>
+    <p class="hs-note">Enter the one-time code from a moderator to claim your floor. You can then verify checks made by others on that floor.</p>
+    <div class="hs-row">
+      <input class="hs-input" id="hs-code" placeholder="Code" autocomplete="off" maxlength="12" aria-label="Floor code">
+      <button class="hs-btn" id="hs-claim" type="button">Claim floor</button>
+    </div>
+    <p class="hs-msg" id="hs-rep-msg"></p>
+    <div id="hs-pending"></div>
+  </section>
+
+  <section class="hs-card">
+    <h2>Public record, last 31 days</h2>
+    <div id="hs-facts"><p class="hs-msg">Choose a site above.</p></div>
+  </section>
+
+  <section class="hs-card">
+    <h2>Monthly export (moderators)</h2>
+    <p class="hs-note">One row per floor, item and day up to today. A day with no check is listed as not_submitted.</p>
+    <div class="hs-row">
+      <select class="hs-input" id="hs-exp-site" aria-label="Site"></select>
+      <input class="hs-input" type="month" id="hs-exp-month" aria-label="Month">
+      <button class="hs-btn" id="hs-export" type="button">Download CSV</button>
+    </div>
+    <p class="hs-msg" id="hs-exp-msg"></p>
+  </section>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="hostel.js"></script>
+</body>
+</html>

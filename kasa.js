@@ -99,6 +99,10 @@ const ISSUE_GROUPS = [
     ['toilet_locked', '🔒', 'toilet', 'closed shut public toilet'],
     ['open_defecation', '💩', 'toilet', 'od toilet field'],
     ['yellow_spot', '🟡', 'toilet', 'urination urinating peeing wall']]],
+  ['hostel', '🏨', [
+    ['hostel_washroom', '🚽', 'toilet', 'hostel washroom toilet bathroom hostel sanitation cleaning not done'],
+    ['hostel_dustbin', '🗑️', 'garbage', 'hostel dustbin bin not cleared emptied'],
+    ['hostel_corridor', '🧹', 'garbage', 'hostel corridor floor sweeping not cleaned']]],
   ['drain', '🌊', [
     ['drain_blocked', '🌊', 'drain', 'nala nali clogged choked'],
     ['sewer_overflow', '🌧️', 'drain', 'sewerage sewage storm water overflow'],
@@ -1302,6 +1306,42 @@ function boostRoadLabels(map){
   }
 }
 
+// iOS Safari zooms the whole page on pinch; keep that to the map (CSS touch-action covers the rest).
+['gesturestart', 'gesturechange'].forEach(type => document.addEventListener(type, e => {
+  if (!e.target.closest?.('#k-map')) e.preventDefault();
+}, { passive: false }));
+
+/* Purulia's three legacy dumpsites are NOT citizen reports (no photo, no on-site confirmation), so they
+   never enter kasa_public_reports. They get their own labelled layer, shown only with the dumpsite issue filter.
+   Source: the state's NGT-monitored biomining progress report to the National Mission for Clean Ganga, Feb 2026. */
+const LEGACY_DUMPSITES = [
+  { name: 'Bongabari (Banga Bari Samsan)', lat: 23.35781, lng: 86.38736 },
+  { name: 'Chharma', lat: 23.32917, lng: 86.37292 },
+  { name: 'Hutmura — site A', lat: 23.3753, lng: 86.42805 },
+  { name: 'Hutmura — site B', lat: 23.34977, lng: 86.38601 },
+  { name: 'Hutmura — site C', lat: 23.3495, lng: 86.4992 }
+];
+const LEGACY_DUMPSITE_SOURCE = 'NGT-monitored biomining progress report to the National Mission for Clean Ganga, February 2026';
+function legacyVisibility(){ return state.filters.category === 'dumpsite' ? 'visible' : 'none'; }
+function addLegacyDumpsites(){
+  mainMap.addSource('legacy-dumpsites', { type: 'geojson', data: { type: 'FeatureCollection', features: LEGACY_DUMPSITES.map(s => ({
+    type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { name: s.name } })) } });
+  mainMap.addLayer({ id: 'legacy-dumpsites', type: 'circle', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility() },
+    paint: { 'circle-radius': 9, 'circle-color': '#14100b', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 2.5 } });
+  mainMap.addLayer({ id: 'legacy-dumpsites-label', type: 'symbol', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility(), 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, 1.3], 'text-anchor': 'top' },
+    paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#14100b', 'text-halo-width': 1.2 } });
+  mainMap.on('click', 'legacy-dumpsites', e => {
+    const name = e.features[0].properties.name;
+    new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(`<strong>${esc(name)}</strong><br>Documented legacy dumpsite — not a citizen report.<br><span style="font-size:11px;color:#888">Source: ${esc(LEGACY_DUMPSITE_SOURCE)}</span>`).addTo(mainMap);
+  });
+  mainMap.on('mouseenter', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = 'pointer'; });
+  mainMap.on('mouseleave', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = ''; });
+}
+function syncLegacyDumpsites(){
+  if (!mainMap || !mainMap.getLayer('legacy-dumpsites')) return;
+  ['legacy-dumpsites', 'legacy-dumpsites-label'].forEach(id => mainMap.setLayoutProperty(id, 'visibility', legacyVisibility()));
+}
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, transformStyle: inkStyle, center: MAP_CENTER, zoom: MAP_ZOOM,
@@ -1340,6 +1380,7 @@ function initMainMapNow(){
   setTimeout(hideSplash, 2500);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  mainMap.addControl(new PlaceFindControl(), 'top-left');
   const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
   mainMap.addControl(locate, 'bottom-right');
   locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
@@ -1347,6 +1388,8 @@ function initMainMapNow(){
   return new Promise(resolve => {
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
+      addLegacyDumpsites();
+      if (window.KasaLayers) KasaLayers.mount(mainMap, { district: savedDistrict });
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
         'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': INK, 'circle-stroke-width': 1.5, 'circle-opacity': 1,
@@ -1470,7 +1513,7 @@ async function addDistrictLayers(){
     attribution: 'District outlines: Local Government Directory, via india-geodata (CC0). Population: Census of India 2011 (Wikidata, CC0)' });
   mainMap.addLayer({ id: 'wb-districts-fill', type: 'fill', source: 'wb-districts',
     filter: ['has', 'pop'],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .55 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .3 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
     paint: { 'line-color': '#9ca3af', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
@@ -1534,7 +1577,7 @@ async function addIndiaLayers(){
   mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution + (sp ? ' Population: Census of India 2011 (Basic Statistics, Andaman & Nicobar DES, Table 32).' : '') });
   mainMap.addLayer({ id: 'in-states-fill', type: 'fill', source: 'in-states',
     filter: ['all', ['has', 'pop'], ['!=', ['get', 'code'], 19]],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .45 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .25 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
@@ -1689,17 +1732,24 @@ function renderIndiaCard(el){
     <div class="k-ward-title">${esc(areaName(f))}</div>
     <div class="k-ward-sub">${esc(sub)}</div>
     <div class="k-area-leaders">
-      ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
       ${reps}
-      ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
     </div>
     <div class="k-ward-actions">
-      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
-    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
-      · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
+        ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
+      </div>
+      <div class="k-ward-actions">
+        <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      </div>
+      ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
+      <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
+        · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
+    </details>`;
 }
 
 async function loadLocalInView(){
@@ -1893,20 +1943,24 @@ function renderWbCard(el){
       <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
     </div>` : `<div class="k-ward-empty">${esc(t('ar_no_reports'))}</div>`}
     <div class="k-area-leaders">
-      ${T ? townWards(T, district.properties.district) : ''}
-      ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
                     [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
-          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
-      ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
-                               : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
     <div class="k-ward-actions">
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${T ? townWards(T, district.properties.district) : ''}
+        ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
+        ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
+            : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+        ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+                                 : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
+      </div>
     <form class="k-area-add" hidden>
       <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
       <select name="role" aria-label="${esc(t('ar_add_role'))}">${missing.map(r => `<option value="${r}">${esc(roleName(r))}</option>`).join('')}</select>
@@ -1918,9 +1972,10 @@ function renderWbCard(el){
     ${T && !T.mapped ? '' : `<a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams(T ? { fix: T.slug } : { fix: 'area', level: a.level, district: district.properties.slug,
       ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>`}
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
-      · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
-             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
-    ${T || a.level !== 'district' ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
+        · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
+               : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    ${T || a.level !== 'district' ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}
+    </details>`;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
 }
 
@@ -1965,6 +2020,74 @@ class ResetViewControl {
     return this._box;
   }
   onRemove(){ this._box.remove(); }
+}
+
+/* Map control: find a West Bengal town, block or district by name and move the map there.
+   Local files only (places.js towns and districts, places/wb_blocks.geojson loaded on first use). */
+let findIndexPromise = null;
+function bboxOfGeometry(geom){
+  const pts = geom.type === 'Polygon' ? geom.coordinates.flat(1) : geom.coordinates.flat(2);
+  return { min_lng: Math.min(...pts.map(q => q[0])), min_lat: Math.min(...pts.map(q => q[1])),
+           max_lng: Math.max(...pts.map(q => q[0])), max_lat: Math.max(...pts.map(q => q[1])) };
+}
+function loadFindIndex(){
+  if (findIndexPromise) return findIndexPromise;
+  const towns = KasaPlaces.list.filter(p => p.bbox).map(p => ({ key: p.slug, name: p.name, kind: 'town' }));
+  const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia')
+    .map(([k, v]) => ({ key: 'district:' + k, name: v, kind: 'district' }));
+  findIndexPromise = fetch('places/wb_blocks.geojson').then(r => r.ok ? r.json() : { features: [] }).catch(() => ({ features: [] }))
+    .then(g => towns.concat(districts, g.features.map(f => ({
+      name: f.properties.block, kind: 'block', district: KasaPlaces.districts[f.properties.d] || f.properties.d,
+      box: bboxOfGeometry(f.geometry)
+    }))));
+  return findIndexPromise;
+}
+
+class PlaceFindControl {
+  onAdd(){
+    this._box = document.createElement('div');
+    this._box.className = 'maplibregl-ctrl k-find-ctrl';
+    this._box.innerHTML = '<input type="search" class="k-find-input" autocomplete="off" spellcheck="false"><ul class="k-find-list" hidden></ul>';
+    this._input = this._box.querySelector('.k-find-input');
+    this._list = this._box.querySelector('.k-find-list');
+    this._input.placeholder = t('map_find');
+    this._input.setAttribute('aria-label', t('map_find'));
+    this._input.addEventListener('focus', () => loadFindIndex());
+    this._input.addEventListener('input', () => this._render());
+    this._input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && this._found?.length) this._go(this._found[0]);
+      if (e.key === 'Escape') { this._input.value = ''; this._render(); }
+    });
+    this._list.addEventListener('click', e => {
+      const b = e.target.closest('button[data-i]');
+      if (b) this._go(this._found[Number(b.dataset.i)]);
+    });
+    return this._box;
+  }
+  onRemove(){ this._box.remove(); }
+  async _render(){
+    const q = this._input.value.trim().toLowerCase();
+    if (!q){ this._list.hidden = true; this._found = []; return; }
+    const seq = this._seq = (this._seq || 0) + 1;
+    const index = await loadFindIndex();
+    if (seq !== this._seq) return;
+    this._found = index.filter(x => x.name.toLowerCase().includes(q)).slice(0, 12);
+    const label = { town: 'map_find_town', district: 'map_find_district', block: 'map_find_block' };
+    this._list.innerHTML = this._found.length
+      ? this._found.map((x, i) => `<li><button type="button" data-i="${i}"><b>${esc(x.name)}</b> <span>${esc(x.kind === 'block' ? x.district : t(label[x.kind]))}</span></button></li>`).join('')
+      : `<li class="k-find-none">${esc(t('map_find_none'))}</li>`;
+    this._list.hidden = false;
+  }
+  async _go(x){
+    this._input.value = '';
+    this._list.hidden = true;
+    this._found = [];
+    const b = x.box || await KasaPlaces.boxOf(x.key);
+    if (!b || !mainMap) return;
+    userMovedMap = true;
+    if (x.kind !== 'block') KasaPlaces.remember(x.key);
+    mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+  }
 }
 
 function shareArea(){
@@ -5807,6 +5930,7 @@ function renderRepRecordHTML(rep){
   const p = rep.record?.prs, avg = wbRecord?.avg;
   const gaps = [rep.group === 'mla' && 'rep_gap_fund', 'rep_gap_office', 'rep_gap_disaster', 'rep_gap_disha', 'rep_gap_grievance', 'rep_gap_rti'].filter(Boolean);
   const gapLine = `<p class="k-rep-src">${esc(t('rep_gaps', { g: gaps.map(k => t(k)).join(', ') }))}</p>`;
+  const dishaLine = `<p class="k-rep-src">${esc(t('rep_disha_state'))} <a href="https://sansad.in/getFile/loksabhaquestions/annex/185/AU2596_lFjO3F.pdf?source=pqals" target="_blank" rel="noopener nofollow">Lok Sabha 2596 ↗</a></p>`;
   const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const stat = (n, l) => `<div class="k-rep-stat"><div class="k-rep-stat-n">${esc(n ?? '—')}</div><div class="k-rep-stat-l">${esc(t(l))}</div></div>`;
   return `${p ? `<div class="k-rep-worst-title">${esc(t('rep_ls_work'))}</div>
@@ -5814,7 +5938,7 @@ function renderRepRecordHTML(rep){
       ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
     </div>
     <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
-      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${renderRepIndicesHTML()}`;
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${rep.group === 'mp' || rep.group === 'mla' ? dishaLine : ''}${renderRepIndicesHTML()}`;
 }
 
 /* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
@@ -6009,6 +6133,9 @@ function populateCategoryFilter(){
   const sel = document.getElementById('k-filter-category');
   sel.innerHTML = `<option value="">${esc(t('filter_all_cat'))}</option>` +
     Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('');
+  // kasa.html?category=toilet — the issue filter from another page (toilets, waste); not with a report deep link.
+  const qc = new URLSearchParams(location.search);
+  if (!qc.has('report') && CATEGORIES[qc.get('category')]) state.filters.category = qc.get('category');
   sel.value = state.filters.category;
 }
 
@@ -6392,7 +6519,7 @@ function wireUI(){
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
-    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
+    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.closest('details').open = true; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if (d.geojson) return downloadGeoJSON(d.geojson);
@@ -6482,7 +6609,7 @@ function wireUI(){
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
-  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
+  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; syncLegacyDumpsites(); renderAll(); });
   document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {

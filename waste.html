@@ -79,7 +79,6 @@
 /* Touch targets: at least 48px tall on phones, for one-handed use on the street. */
 @media(max-width:640px){.ws-btn,.k-nav-cta,.k-nav-links a{min-height:48px;display:inline-flex;align-items:center;}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
 <script src="bug-report.js"></script>
 </head>
 <body>
@@ -153,7 +152,7 @@
     <section class="an-card an-span" id="ws-dumps">
       <h2>Where the waste is dumped: reported by residents, and three known legacy sites</h2>
       <p class="an-card-sub">🚛 markers are dumping grounds residents reported, with a photo and location, confirmed by others on the spot like every report. ⚠️ markers are Bongabari, Chharma and Hutmura — legacy dumpsites named in a government bio-mining progress report, not a citizen report. Seen trucks or carts unloading somewhere else? Stand there and report it as <strong>🚛 Dumping ground</strong>.</p>
-      <div id="ws-map" class="ws-map" role="region" aria-label="Map of reported dumping grounds and known legacy dumpsites"></div>
+      <p><a href="kasa.html?category=dumpsite">See the dumping grounds and legacy dumpsites on the report map →</a></p>
       <ul class="ws-dumps" id="ws-dump-list"><li>Loading…</li></ul>
       <a class="ws-btn" href="kasa.html?report=new&amp;category=dumpsite" id="ws-report">🚛 Report a dumping ground</a>
     </section>
@@ -241,7 +240,6 @@ Date:</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
-<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script defer src="place-facts.js"></script>
 <script defer src="waste.js"></script>
 <script>
