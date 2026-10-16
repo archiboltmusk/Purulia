@@ -1072,7 +1072,6 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 }
 @media(prefers-reduced-motion:reduce){
   body[data-app-layout] .k-map-section,.k-map-topbar *,.k-map-report-btn,.k-map-pill{animation:none!important;transition:none!important;}
-  .k-splash{display:none!important;}
 }
 
 /* Motion tokens for the phone map: one easing family, 0.18–0.42 s, transform and opacity only. */
@@ -1089,20 +1088,15 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
   #k-map.k-map-loading::after{animation:none;}
 }
 
-/* Opening splash on phones: brand card, then the map fades in and the card lifts away. */
-.k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:.6rem;background:#DD3333;color:#111;transition:opacity var(--motion-settle) var(--ease-in),visibility var(--motion-settle);}
-.k-splash.k-splash-out{opacity:0;transform:scale(1.04);visibility:hidden;pointer-events:none;}
-.k-splash-mark{filter:url(#k-splash-soft);font-family:Rubik,sans-serif;font-size:2.25rem;font-weight:800;letter-spacing:-.02em;line-height:1.1;text-align:center;white-space:nowrap;}
-.k-splash-first{color:#1a0b0b;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) both;}
-.k-splash-place{color:rgba(255,255,255,.85);min-width:1ch;display:inline-block;animation:kSplashIn .9s cubic-bezier(.2,.7,.2,1) .3s both;}
-.k-splash-sub{font-family:Rubik,sans-serif;font-weight:400;color:rgba(255,255,255,.7);font-size:.875rem;margin-top:.6rem;}
-.k-splash-place.k-splash-swap{animation:kSplashIn .6s cubic-bezier(.2,.7,.2,1) both;}
-@keyframes kSplashIn{from{opacity:0;transform:translateY(14px);filter:blur(8px);}to{opacity:1;transform:none;filter:blur(0);}}
-@media(min-width:641px){.k-splash{display:none;}}
-@media(prefers-reduced-motion:reduce){.k-splash{transition:none;}}
-/* The splash now leaves when the map is ready (kasa.js hideSplash), not on a timer,
-   so the map never shows a blank or dark frame before its tiles arrive. */
-@media(prefers-reduced-motion:reduce){.k-splash{display:none;}}
+/* Opening loader: the same mark and wordmark as index.html (#loader), on every page.
+   Transform and opacity only; the place name fills in from places.js. */
+.k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;background:var(--ink);transition:opacity .65s ease,visibility .65s ease;}
+.k-splash.k-splash-out{opacity:0;visibility:hidden;pointer-events:none;}
+.k-splash .ld-mandala{width:70px;height:70px;animation:kSpin 5s linear infinite;opacity:.65;}
+.k-splash .ld-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.55em;color:rgba(221,51,51,.85);text-transform:uppercase;animation:kLdPulse 1.8s ease-in-out infinite;}
+@keyframes kSpin{to{transform:rotate(360deg);}}
+@keyframes kLdPulse{0%,100%{opacity:.35;}50%{opacity:1;}}
+@media(prefers-reduced-motion:reduce){.k-splash .ld-mandala,.k-splash .ld-label{animation:none;}}
 
 /* ── Home map palette (Namma Kasa look): scoped to the app layout so the other pages keep
    their own colours. Brand red replaces amber; grey surfaces and status tints replace
