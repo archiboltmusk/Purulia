@@ -4,7 +4,7 @@
 Source chain (all public, no key):
   1. en.wikipedia REST summary for the person's article (checked: politician + West Bengal in the lead).
   2. The article's lead image, accepted only when hosted on Wikimedia Commons.
-  3. Commons file page: licence (licensetpl_short) and author. Only CC BY / CC BY-SA / CC0 / public domain pass.
+  3. Commons file page: licence (licensetpl_short) and author. Only CC BY / CC BY-SA / CC0 / public domain / GODL-India pass.
 Anything else is left out and counted in `missing` with the reason. Nothing is guessed or hotlinked from
 third-party sites. Requests are throttled and cached (--cache) so a rerun resumes.
 
@@ -17,7 +17,7 @@ ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 LEADERS = os.path.join(ROOT, 'places', 'wb_leaders.json')
 OUT = os.path.join(ROOT, 'places', 'leader-photos.json')
 UA = 'ParishkarBot/1.0 (https://github.com/archiboltmusk/Purulia; civic data, contact via repo issues)'
-OK_LICENCE = re.compile(r'\b(CC BY(-SA)?\s?[0-9.]*|CC0|Public domain|PD-[A-Za-z-]+)\b', re.I)
+OK_LICENCE = re.compile(r'\b(CC BY(-SA)?\s?[0-9.]*|CC0|Public domain|PD-[A-Za-z-]+|GODL-India)\b', re.I)
 BAD_LICENCE = re.compile(r'fair use|non-free|copyrighted|all rights reserved', re.I)
 DELAY = 2.0
 
@@ -127,7 +127,7 @@ def main():
         leaders = json.load(f)
     out = {'checked': datetime.date.today().isoformat(),
            'sources': {'articles': 'https://en.wikipedia.org', 'photos': 'https://commons.wikimedia.org'},
-           'licences': 'CC BY, CC BY-SA, CC0 or public domain only, as stated on the Commons file page. Credit and licence are shown on the leader profile.',
+           'licences': 'CC BY, CC BY-SA, CC0, public domain or GODL-India (Government Open Data Licence, attribution required), as stated on the Commons file page. Credit and licence are shown on the leader profile.',
            'ac': {}, 'pc': {}, 'missing': {'ac': {}, 'pc': {}}}
     for group in ('ac', 'pc'):
         if args.only and args.only != group:
