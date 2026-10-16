@@ -82,6 +82,7 @@ window.KASA_I18N = {
     rep_mplads: 'MP’s local area fund (this term)', rep_mp_alloc: 'Allocated', rep_mp_spent: 'Spent', rep_mp_works: 'Works done',
     rep_mp_note: 'Works worth {r} recommended. Official MPLADS figures as of {d}, via', rep_crore: 'cr', rep_lakh: 'lakh',
     rep_mp_pct: '{p}% of allocation spent', rep_gaps: 'Not on record yet: {g}. No estimate is shown.',
+    rep_disha_state: 'Not this leader alone. State-wide, as per records, no DISHA meeting has been convened in any West Bengal district since 2019-20 (Lok Sabha question 2596, answered 5 Aug 2025, Ministry of Rural Development).',
     rep_gap_fund: 'MLA fund (BEUP / MLALADS)', rep_gap_office: 'office hours', rep_gap_disaster: 'disaster visits',
     idx_h: 'Our indices (our method, not official figures)', idx_inputs: 'Inputs: not on record yet',
     idx_spii: 'Substantive policy intervention: (3 × starred questions + 1 × unstarred + 4 × substantive debates + 8 × private bills) ÷ sittings attended. Weights 3, 1, 4, 8 are our method.',

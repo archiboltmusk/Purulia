@@ -5897,6 +5897,7 @@ function renderRepRecordHTML(rep){
   const p = rep.record?.prs, avg = wbRecord?.avg;
   const gaps = [rep.group === 'mla' && 'rep_gap_fund', 'rep_gap_office', 'rep_gap_disaster', 'rep_gap_disha', 'rep_gap_grievance', 'rep_gap_rti'].filter(Boolean);
   const gapLine = `<p class="k-rep-src">${esc(t('rep_gaps', { g: gaps.map(k => t(k)).join(', ') }))}</p>`;
+  const dishaLine = `<p class="k-rep-src">${esc(t('rep_disha_state'))} <a href="https://sansad.in/getFile/loksabhaquestions/annex/185/AU2596_lFjO3F.pdf?source=pqals" target="_blank" rel="noopener nofollow">Lok Sabha 2596 ↗</a></p>`;
   const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const stat = (n, l) => `<div class="k-rep-stat"><div class="k-rep-stat-n">${esc(n ?? '—')}</div><div class="k-rep-stat-l">${esc(t(l))}</div></div>`;
   return `${p ? `<div class="k-rep-worst-title">${esc(t('rep_ls_work'))}</div>
@@ -5904,7 +5905,7 @@ function renderRepRecordHTML(rep){
       ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
     </div>
     <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
-      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${renderRepIndicesHTML()}`;
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${rep.group === 'mp' || rep.group === 'mla' ? dishaLine : ''}${renderRepIndicesHTML()}`;
 }
 
 /* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
