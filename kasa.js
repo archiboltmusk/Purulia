@@ -1835,7 +1835,7 @@ function renderWbCard(el){
       <span>${esc(t('wc_reported', { n: inside.length }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
-    </div>` : `<div class="k-ward-sub">${esc(t('ar_no_reports'))}</div>`}
+    </div>` : `<div class="k-ward-empty">${esc(t('ar_no_reports'))}</div>`}
     <div class="k-area-leaders">
       ${T ? townWards(T, district.properties.district) : ''}
       ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
@@ -1844,7 +1844,7 @@ function renderWbCard(el){
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
       ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
-          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level])}
+          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
       ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
                                : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
