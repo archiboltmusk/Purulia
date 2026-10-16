@@ -24,6 +24,12 @@
     { title: 'Money lost to online or cyber fraud', words: 'fraud cyber online scam upi otp money lost hacked bank 1930 phishing', href: 'helplines.html#cyber', text: 'Call 1930 straight away, then file on cybercrime.gov.in.' },
     { title: 'Worker registration and payment status (e-Shram)', words: 'labour worker e-shram eshram registration payment migrant card 14434 gig', href: 'helplines.html#labour', text: 'e-Shram helpline 14434 and the official helpdesk page.' },
     { title: 'Information under the RTI Act', words: 'rti information right law officer file', href: 'rti.html', text: 'Track an RTI: the 30-day reply date, the first-appeal deadline and a refusal checklist.' },
+    { title: 'A report or RTI that is still not fixed or answered', words: 'late overdue escalate escalation still unresolved pending appeal', href: 'escalate.html', text: 'The steps in order, each with its legal basis.' },
+    { title: 'Court cases pending', words: 'court case pending cases judiciary njdg delay disposed', href: 'njdg.html', text: 'All-India court case figures from the NJDG portal.' },
+    { title: 'Rural road tenders', words: 'road rural village pmgsy tender contractor sadak closing', href: 'pmgsy.html', text: 'PMGSY rural road tenders and their closing dates.' },
+    { title: 'Government audit reports', words: 'cag audit auditor comptroller report finance state spending', href: 'cag.html', text: 'CAG audit reports, for India and West Bengal.' },
+    { title: 'Air quality', words: 'air pollution pm2.5 smoke aqi breathe dust', href: 'air.html', text: 'Latest PM2.5 reading near each district, against the WHO guideline.' },
+    { title: 'Every district on one screen', words: 'district all overview state compare weather fire heat', href: 'godseye.html', text: 'Figures, leaders and open reports for all 23 districts.' },
     { title: 'Ask a question about this site', words: 'help question how use ask assistant', href: 'assistant.html', text: 'Ask the help assistant.' }
   ];
 
