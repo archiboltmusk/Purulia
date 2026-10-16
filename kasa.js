@@ -1339,7 +1339,8 @@ function initMainMapNow(){
   mainMap.once('idle', () => document.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show'));
   setTimeout(hideSplash, 2500);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
-  mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
+  mainMap.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+  mainMap.addControl(new PlaceFindControl(), 'top-left');
   const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
   mainMap.addControl(locate, 'bottom-right');
   locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
@@ -1965,6 +1966,74 @@ class ResetViewControl {
     return this._box;
   }
   onRemove(){ this._box.remove(); }
+}
+
+/* Map control: find a West Bengal town, block or district by name and move the map there.
+   Local files only (places.js towns and districts, places/wb_blocks.geojson loaded on first use). */
+let findIndexPromise = null;
+function bboxOfGeometry(geom){
+  const pts = geom.type === 'Polygon' ? geom.coordinates.flat(1) : geom.coordinates.flat(2);
+  return { min_lng: Math.min(...pts.map(q => q[0])), min_lat: Math.min(...pts.map(q => q[1])),
+           max_lng: Math.max(...pts.map(q => q[0])), max_lat: Math.max(...pts.map(q => q[1])) };
+}
+function loadFindIndex(){
+  if (findIndexPromise) return findIndexPromise;
+  const towns = KasaPlaces.list.filter(p => p.bbox).map(p => ({ key: p.slug, name: p.name, kind: 'town' }));
+  const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia')
+    .map(([k, v]) => ({ key: 'district:' + k, name: v, kind: 'district' }));
+  findIndexPromise = fetch('places/wb_blocks.geojson').then(r => r.ok ? r.json() : { features: [] }).catch(() => ({ features: [] }))
+    .then(g => towns.concat(districts, g.features.map(f => ({
+      name: f.properties.block, kind: 'block', district: KasaPlaces.districts[f.properties.d] || f.properties.d,
+      box: bboxOfGeometry(f.geometry)
+    }))));
+  return findIndexPromise;
+}
+
+class PlaceFindControl {
+  onAdd(){
+    this._box = document.createElement('div');
+    this._box.className = 'maplibregl-ctrl k-find-ctrl';
+    this._box.innerHTML = '<input type="search" class="k-find-input" autocomplete="off" spellcheck="false"><ul class="k-find-list" hidden></ul>';
+    this._input = this._box.querySelector('.k-find-input');
+    this._list = this._box.querySelector('.k-find-list');
+    this._input.placeholder = t('map_find');
+    this._input.setAttribute('aria-label', t('map_find'));
+    this._input.addEventListener('focus', () => loadFindIndex());
+    this._input.addEventListener('input', () => this._render());
+    this._input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && this._found?.length) this._go(this._found[0]);
+      if (e.key === 'Escape') { this._input.value = ''; this._render(); }
+    });
+    this._list.addEventListener('click', e => {
+      const b = e.target.closest('button[data-i]');
+      if (b) this._go(this._found[Number(b.dataset.i)]);
+    });
+    return this._box;
+  }
+  onRemove(){ this._box.remove(); }
+  async _render(){
+    const q = this._input.value.trim().toLowerCase();
+    if (!q){ this._list.hidden = true; this._found = []; return; }
+    const seq = this._seq = (this._seq || 0) + 1;
+    const index = await loadFindIndex();
+    if (seq !== this._seq) return;
+    this._found = index.filter(x => x.name.toLowerCase().includes(q)).slice(0, 12);
+    const label = { town: 'map_find_town', district: 'map_find_district', block: 'map_find_block' };
+    this._list.innerHTML = this._found.length
+      ? this._found.map((x, i) => `<li><button type="button" data-i="${i}"><b>${esc(x.name)}</b> <span>${esc(x.kind === 'block' ? x.district : t(label[x.kind]))}</span></button></li>`).join('')
+      : `<li class="k-find-none">${esc(t('map_find_none'))}</li>`;
+    this._list.hidden = false;
+  }
+  async _go(x){
+    this._input.value = '';
+    this._list.hidden = true;
+    this._found = [];
+    const b = x.box || await KasaPlaces.boxOf(x.key);
+    if (!b || !mainMap) return;
+    userMovedMap = true;
+    if (x.kind !== 'block') KasaPlaces.remember(x.key);
+    mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+  }
 }
 
 function shareArea(){
