@@ -1330,7 +1330,7 @@ function addBlockLayers(){
   const below = mainMap.getLayer('wards-fill') ? 'wards-fill' : 'clusters';
   mainMap.addLayer({ id: 'blocks-line', type: 'line', source: 'blocks',
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, below);
-  mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', maxzoom: 12,
+  mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', minzoom: WB_LOCAL_ZOOM, maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, below);
 }
@@ -1427,7 +1427,7 @@ async function addDistrictLayers(){
   mainMap.addSource('wb-blocks', { type: 'geojson', data: 'places/wb_blocks.geojson' });
   mainMap.addLayer({ id: 'wb-blocks-line', type: 'line', source: 'wb-blocks', maxzoom: WB_LOCAL_ZOOM,
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
-  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', maxzoom: 12,
+  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', minzoom: WB_LOCAL_ZOOM, maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
