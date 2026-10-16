@@ -975,6 +975,11 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 .k-area-add{display:grid;gap:.45rem;margin-top:.7rem;}
 .k-area-addname{font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--amber);border:1px solid var(--border2);border-radius:3px;padding:.15rem .45rem;margin-left:.3rem;vertical-align:middle;}
 .k-area-add[hidden]{display:none;}
+.k-area-more{margin-top:.6rem;}
+.k-area-more>summary{cursor:pointer;font-family:var(--mono);font-size:10px;letter-spacing:.06em;color:var(--text-lo);list-style:none;}
+.k-area-more>summary::-webkit-details-marker{display:none;}
+.k-area-more>summary::after{content:' +';}
+.k-area-more[open]>summary::after{content:' −';}
 .k-area-add-note{font-size:.8rem;color:var(--text-lo);margin:0;}
 .k-area-add input,.k-area-add select{font:inherit;font-size:.9rem;padding:.5rem .6rem;border:1px solid var(--border2);border-radius:3px;background:var(--ink);color:var(--text-hi);}
 .k-area-none{color:var(--text-lo);font-style:italic;}
