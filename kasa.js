@@ -1306,6 +1306,11 @@ function boostRoadLabels(map){
   }
 }
 
+// iOS Safari zooms the whole page on pinch; keep that to the map (CSS touch-action covers the rest).
+['gesturestart', 'gesturechange'].forEach(type => document.addEventListener(type, e => {
+  if (!e.target.closest?.('#k-map')) e.preventDefault();
+}, { passive: false }));
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, transformStyle: inkStyle, center: MAP_CENTER, zoom: MAP_ZOOM,
