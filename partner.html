@@ -26,6 +26,9 @@ input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6p
 .err{color:var(--red);font-weight:700}
 .note{border-left:4px solid var(--red);padding:6px 10px;background:var(--soft);margin:12px 0}
 .hidden{display:none}
+.tl{list-style:none;margin:8px 0 0;padding:0 0 0 6px;border-left:3px solid var(--ok)}
+.tl li{position:relative;padding:0 0 10px 18px}
+.tl .dot{position:absolute;left:-9px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--ok);border:2px solid var(--paper)}
 </style>
 </head>
 <body>
@@ -43,8 +46,15 @@ input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6p
     </div>
   </section>
 
+  <section id="worker" class="hidden">
+    <div class="row"><h2>My jobs</h2><button id="wout">Sign out</button></div>
+    <p class="muted">Start a job when you begin. Mark it complete when done; the officer then signs off. Work photos (live camera and GPS, upload later when online) come in the next release.</p>
+    <div id="myjobs"></div>
+    <p class="err" id="werr"></p>
+  </section>
+
   <section id="app" class="hidden">
-    <div class="row"><span class="muted" id="counts"></span><button id="out">Sign out</button></div>
+    <div class="row"><span class="muted" id="counts"></span><span><button id="addWorker">Add worker</button><button id="out">Sign out</button></span></div>
 
     <h2>Open problems (today's queue)</h2>
     <p class="muted">Open reports not yet on a work order. Approve for work by an office, with an SLA.</p>

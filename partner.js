@@ -13,7 +13,7 @@
   };
 
   const show = (id, on) => $(id).classList.toggle('hidden', !on);
-  const fail = msg => { $('err').textContent = msg || ''; };
+  const fail = msg => { $('err').textContent = msg || ''; $('werr').textContent = msg || ''; };
 
   function showSignIn(msg) {
     show('app', false); show('signin', true);
@@ -25,12 +25,47 @@
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return showSignIn('');
     const { error } = await sb.rpc('kasa_admin_queue');
-    if (error) {
-      await sb.auth.signOut();
-      return showSignIn('This account is not a moderator. Sign in with a moderator account.');
-    }
-    show('signin', false); show('app', true);
-    await load();
+    if (!error) { show('signin', false); show('app', true); show('worker', false); return load(); }
+    const mine = await sb.rpc('kasa_partner_my_orders');
+    if (!mine.error) { show('signin', false); show('app', false); show('worker', true); return loadWorker(); }
+    await sb.auth.signOut();
+    return showSignIn('This account is neither a moderator nor a registered partner worker.');
+  }
+
+  async function loadWorker() {
+    const { data, error } = await sb.rpc('kasa_partner_my_orders');
+    if (error) return fail('Could not load your jobs. Please try again later.');
+    $('myjobs').innerHTML = !data || !data.length
+      ? '<p class="muted">No jobs assigned to you right now.</p>'
+      : data.map(o => `
+        <div class="card"><div class="row">
+          <div><strong>${esc(o.office)}</strong> <span class="pill">${esc(STATE_LABEL[o.state] || o.state)}</span>
+            <div class="muted">Order ${esc(o.order_no || '')} · due ${esc(fmt(o.sla_due))} · ${esc(o.firm || '')}</div></div>
+          <div>${workerActions(o)}</div>
+        </div></div>`).join('');
+    $('myjobs').querySelectorAll('[data-wstep]').forEach(b => b.addEventListener('click', () => workerStep(b.dataset.order, b.dataset.wstep)));
+  }
+
+  function workerActions(o) {
+    if (o.state === 'assigned') return `<button class="primary" data-order="${o.order_id}" data-wstep="start">Start job</button>`;
+    if (o.state === 'in_progress') return `<button class="primary" data-order="${o.order_id}" data-wstep="complete">Mark complete</button>`;
+    return '';
+  }
+
+  async function workerStep(orderId, action) {
+    const note = action === 'complete' ? ((prompt('Completion note (optional)') || '').trim() || null) : null;
+    const { error } = await sb.rpc('kasa_partner_worker_step', { p_order: Number(orderId), p_action: action, p_note: note });
+    if (error) return fail(error.message);
+    await loadWorker();
+  }
+
+  // Timeline in the tracking style of a delivery status: a green dot per step, state, time, note.
+  function timelineHTML(events) {
+    if (!events || !events.length) return '<p class="muted">No steps yet.</p>';
+    return '<ol class="tl">' + events.map(e => `
+      <li><span class="dot"></span><div><strong>${esc(STATE_LABEL[e.to] || e.to)}</strong>
+        <span class="muted"> ${esc(new Date(e.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }))}</span>
+        ${e.note ? `<div class="muted">${esc(e.note)}</div>` : ''}</div></li>`).join('') + '</ol>';
   }
 
   async function load() {
@@ -94,6 +129,7 @@
           </div>
           <div>${actions(o)}</div>
         </div>
+        ${timelineHTML(o.timeline)}
       </div>`).join('');
     el.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => step(b.dataset.order, b.dataset.step)));
   }
@@ -113,9 +149,12 @@
   async function step(orderId, action) {
     const args = { p_order: Number(orderId), p_action: action, p_firm: null, p_order_no: null, p_note: null };
     if (action === 'assign') {
-      args.p_firm = (prompt('Firm or worker name (shown publicly as the firm)') || '').trim();
+      const worker = (prompt('Worker account id (added with "Add worker")') || '').trim();
       args.p_order_no = (prompt('Municipality work order number') || '').trim();
-      if (!args.p_firm || !args.p_order_no) return;
+      if (!worker || !args.p_order_no) return;
+      const { error } = await sb.rpc('kasa_admin_partner_assign', { p_order: Number(orderId), p_worker: worker, p_order_no: args.p_order_no });
+      if (error) return fail(error.message);
+      return load();
     } else if (action === 'reject' || action === 'send_back') {
       args.p_note = (prompt('Reason (shown publicly)') || '').trim();
       if (!args.p_note) return;
@@ -137,6 +176,17 @@
     await boot();
   });
   $('out').addEventListener('click', async () => { await sb.auth.signOut(); await boot(); });
+  $('wout').addEventListener('click', async () => { await sb.auth.signOut(); await boot(); });
+  $('addWorker').addEventListener('click', async () => {
+    const user = (prompt('Worker account id (from the sign-up email)') || '').trim();
+    if (!user) return;
+    const firm = (prompt('Firm or worker name, as on the municipality order') || '').trim();
+    if (!firm) return;
+    const phone = (prompt('Phone (kept private, optional)') || '').trim() || null;
+    const { error } = await sb.rpc('kasa_admin_partner_add_worker', { p_user: user, p_firm: firm, p_phone: phone });
+    if (error) return fail(error.message);
+    fail('Worker added.');
+  });
 
   boot();
 })();
