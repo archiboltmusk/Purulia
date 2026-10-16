@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="bn">
+<html lang="en">
 <head>
 <script src="theme-init.js"></script>
 <meta charset="UTF-8">
@@ -37,17 +37,17 @@
   <a href="ward.html" id="pb">← Back</a>
 </div>
 <main class="sheet">
-  <h1>আবর্জনা, ভাঙা রাস্তা, বন্ধ নালা, নিভে থাকা আলো?<br>ছবি তুলুন, জানিয়ে দিন।</h1>
-  <p class="en">Garbage, broken road, blocked drain, dead streetlight? Take a photo and report it. No login, about 30 seconds.</p>
+  <h1>Garbage, broken road, blocked drain, dead streetlight?<br>Take a photo and report it.</h1>
+  <p class="en">No login, about 30 seconds. No name or phone number needed.</p>
   <div class="place" id="pp"></div>
   <div class="qrs">
-    <div class="qr"><div id="q1"></div><b>রিপোর্ট করুন · Report</b><small id="u1"></small></div>
-    <div class="qr"><div id="q2"></div><b>এলাকার হিসাব · Your area's record</b><small id="u2"></small></div>
+    <div class="qr"><div id="q1"></div><b>Report</b><small id="u1"></small></div>
+    <div class="qr"><div id="q2"></div><b>Your area's record</b><small id="u2"></small></div>
   </div>
   <ol>
-    <li>QR স্ক্যান করুন, ক্যামেরা আর লোকেশন চালু করুন।</li>
-    <li>সমস্যার জায়গায় দাঁড়িয়ে ছবি তুলুন। নাম বা ফোন নম্বর লাগে না।</li>
-    <li>রিপোর্ট সবার জন্য খোলা থাকে, কে দায়িত্বে তা নাম সহ দেখানো হয়। ঠিক হলে কেউ ঠিক হওয়া জায়গার ছবি তুললে তবেই সমাধান ধরা হয়।</li>
+    <li>Scan the QR code. Allow the camera and location.</li>
+    <li>Stand at the problem and take a photo. No name or phone number needed.</li>
+    <li>Reports are open to everyone, and the person in charge is named. A problem counts as solved only after someone photographs the fixed spot.</li>
   </ol>
   <div class="foot">Parishkar · archiboltmusk.github.io/Purulia · A citizens' public record, not a government service.</div>
 </main>
@@ -72,7 +72,7 @@
     const { kind, id } = areas[sel.selectedIndex] || areas[0];
     const qs = new URLSearchParams({ [kind]: id }).toString();
     const report = SITE + 'kasa.html?report=new', page = SITE + 'ward.html?' + qs;
-    document.getElementById('pp').textContent = kind === 'ward' ? `ওয়ার্ড ${id}, পুরুলিয়া পৌরসভা · Ward ${id}, Purulia town` : `${id} ব্লক · ${id} block`;
+    document.getElementById('pp').textContent = kind === 'ward' ? `Ward ${id}, Purulia town` : `${id} block`;
     qr('q1', report); qr('q2', page);
     document.getElementById('u1').textContent = report.replace('https://', '');
     document.getElementById('u2').textContent = page.replace('https://', '');
