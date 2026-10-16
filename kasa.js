@@ -99,6 +99,10 @@ const ISSUE_GROUPS = [
     ['toilet_locked', '🔒', 'toilet', 'closed shut public toilet'],
     ['open_defecation', '💩', 'toilet', 'od toilet field'],
     ['yellow_spot', '🟡', 'toilet', 'urination urinating peeing wall']]],
+  ['hostel', '🏨', [
+    ['hostel_washroom', '🚽', 'toilet', 'hostel washroom toilet bathroom hostel sanitation cleaning not done'],
+    ['hostel_dustbin', '🗑️', 'garbage', 'hostel dustbin bin not cleared emptied'],
+    ['hostel_corridor', '🧹', 'garbage', 'hostel corridor floor sweeping not cleaned']]],
   ['drain', '🌊', [
     ['drain_blocked', '🌊', 'drain', 'nala nali clogged choked'],
     ['sewer_overflow', '🌧️', 'drain', 'sewerage sewage storm water overflow'],
