@@ -52,6 +52,18 @@ CI (`.github/workflows/kasa-tests.yml`, `browser-tests.yml`) runs the same check
 5. Changelog: don't edit `changelog.html` or `version.js` in a normal pull request. Only radical changes get a line, added in the release PR (see `CLAUDE.md` > Changelog), so PRs don't conflict on the changelog.
 6. Open a pull request and fill in the template. A maintainer applies migrations to the live project after merge.
 
+### Branches and commits
+
+- Branch names: `claude/<short-slug>` for work made in Claude sessions; otherwise `<type>/<short-slug>` (for example `fix/ward-popup-overflow`, `feat/office-board`). Lower case, hyphens only.
+- Commit and pull request titles: short, imperative, sentence case, no prefix (`Add RTI letter maker (MPLADS, MLALADS/BEUP, DISHA)`). Pull requests are squash-merged, so the PR title becomes the commit on `main` and carries the `(#NNN)` suffix.
+- Keep one topic per commit where practical; the squash makes the PR title the record, so the commit body only needs the why.
+
+## Before you open a pull request
+
+- Run the checks for the files you touched (see [Tests](#tests)); CI runs the same ones.
+- Read your diff once for stray debugging code, secrets, or a changed `config.js` value.
+- Write the Summary and Test plan sections of the template with what you actually ran.
+
 ## Things not to touch
 
 - `record/` is an append-only public record written only by `public-record.yml`. Never edit, reorder or delete files in it.
