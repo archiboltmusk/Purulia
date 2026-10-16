@@ -93,7 +93,8 @@
 
   function paint() {
     $('mn-layer-note').textContent = LAYERS[layer].note;
-    $('mn-map-link').href = 'kasa.html?layer=money-' + layer;
+    const q = new URLSearchParams({ layer: 'money-' + (Object.hasOwn(LAYERS, layer) ? layer : 'selfPaid') });
+    $('mn-map-link').href = 'kasa.html?' + q.toString();
     renderTable();
   }
 
