@@ -21,15 +21,15 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
 <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap"></noscript>
-<link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"></noscript>
+<link rel="preload" href="https://unpkg.com/maplibre-gl@6.14.0/dist/maplibre-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@6.14.0/dist/maplibre-gl.css"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <link rel="stylesheet" href="digest-sheet.css">
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="kasa-icon-192.png">
 
 <!-- async, not defer: the page runs without waiting for the 800 KB map library; kasa.js waits for it only to draw the map. -->
-<script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script async fetchpriority="low" id="k-maplibre" type="module" src="maplibre-global.mjs"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
 <script src="config.js"></script>

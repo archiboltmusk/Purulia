@@ -354,7 +354,7 @@ test('district outlines show statewide; a district\'s blocks and panchayats load
   await page.evaluate(() => { userMovedMap = true; mainMap.jumpTo({ center: [87.07, 23.23], zoom: 10 }); });
   await expect.poll(() => page.evaluate(() => !!mainMap.getSource('wb-bankura'))).toBe(true);
   expect(fetched).not.toContain('malda');
-  const kinds = await page.evaluate(() => [...new Set(mainMap.getSource('wb-bankura')._data.features.map(f => f.properties.kind))].sort());
+  const kinds = await page.evaluate(() => [...new Set(mainMap.getSource('wb-bankura').serialize().data.features.map(f => f.properties.kind))].sort());
   expect(kinds).toEqual(['block', 'gp']);
 });
 
@@ -467,7 +467,7 @@ test('the MP named on an area card opens their profile with the MP fund works, a
   await expect(aff.locator('a', { hasText: 'MyNeta' })).toHaveAttribute('href', /myneta\.info\/LokSabha2024\/candidate\.php\?candidate_id=\d+/);
   await sheet.locator('[data-rep-map]').click();
   await expect(sheet).not.toHaveClass(/open/);
-  expect(await page.evaluate(() => mainMap.getSource('area-sel')._data.features.length)).toBeGreaterThan(1);
+  expect(await page.evaluate(() => mainMap.getSource('area-sel').serialize().data.features.length)).toBeGreaterThan(1);
 });
 
 test("an MP's profile shows their Lok Sabha work, and takes a reply only with a link", async ({ page }) => {

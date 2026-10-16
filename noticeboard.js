@@ -429,10 +429,10 @@
     if (window.maplibregl) return Promise.resolve();
     return mapLib ||= new Promise((resolve, reject) => {
       const css = document.createElement('link');
-      css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css';
+      css.rel = 'stylesheet'; css.href = 'https://unpkg.com/maplibre-gl@6.14.0/dist/maplibre-gl.css';
       document.head.appendChild(css);
       const sc = document.createElement('script');
-      sc.src = 'https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js';
+      sc.type = 'module'; sc.src = 'maplibre-global.mjs';
       sc.onload = resolve; sc.onerror = () => { mapLib = null; reject(new Error('map')); };
       document.head.appendChild(sc);
     });
@@ -477,8 +477,10 @@
     document.getElementById('nb-pin-msg').textContent = state.pin ? `${t('f_pin_set')} ${state.pin.lat}, ${state.pin.lng}` : '';
     if (!pickMap) return;
     if (!state.pin){ if (pickMarker){ pickMarker.remove(); pickMarker = null; } return; }
-    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#d4882a', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
-      .on('dragend', () => { const p = pickMarker.getLngLat(); setPin(p.lng, p.lat); });
+    if (!pickMarker){
+      pickMarker = new maplibregl.Marker({ color: '#d4882a', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap);
+      pickMarker.on('dragend', () => { const p = pickMarker.getLngLat(); setPin(p.lng, p.lat); });
+    }
     else pickMarker.setLngLat([state.pin.lng, state.pin.lat]);
   }
 
