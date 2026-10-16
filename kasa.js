@@ -1348,7 +1348,7 @@ function initMainMapNow(){
   mainMap.once('idle', () => document.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show'));
   setTimeout(hideSplash, 2500);
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
-  mainMap.addControl(new maplibregl.NavigationControl({ showCompass: true }), 'bottom-right');
+  mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new PlaceFindControl(), 'top-left');
   const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
   mainMap.addControl(locate, 'bottom-right');
@@ -1480,7 +1480,7 @@ async function addDistrictLayers(){
     attribution: 'District outlines: Local Government Directory, via india-geodata (CC0). Population: Census of India 2011 (Wikidata, CC0)' });
   mainMap.addLayer({ id: 'wb-districts-fill', type: 'fill', source: 'wb-districts',
     filter: ['has', 'pop'],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .55 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .3 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
     paint: { 'line-color': '#9ca3af', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
@@ -1544,7 +1544,7 @@ async function addIndiaLayers(){
   mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution + (sp ? ' Population: Census of India 2011 (Basic Statistics, Andaman & Nicobar DES, Table 32).' : '') });
   mainMap.addLayer({ id: 'in-states-fill', type: 'fill', source: 'in-states',
     filter: ['all', ['has', 'pop'], ['!=', ['get', 'code'], 19]],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .45 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .25 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
