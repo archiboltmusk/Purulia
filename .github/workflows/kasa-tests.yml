@@ -45,6 +45,7 @@ jobs:
         run: for f in theme-init.js kasa.js boundary-live.js kasa-i18n.js solutions.js rti.js rti-letter.js rti-letter-i18n.js digest-sheet.js kasa-photo-meta.js admin.js sw.js config.js schools.js adopt.js dogs.js works.js snakes.js pandals.js waste.js toilets.js promises.js noticeboard.js bug-report.js source-fix.js translate-fix.js assistant.js page-lang.js version.js places.js add-town.js districts.js place-facts.js data-place.js home-place.js circle-place.js municipality-place.js godseye.js air.js analytics.js digest.js routes.js money.js case.js stories.js calendar.js compare.js record.js admin-evidence.js mp.js offices.js; do node --check "$f"; done
       - name: RTI due dates and appeal windows
         run: node tests/rti.test.mjs
+      - name: RTI letter builder
         run: node tests/rti-letter.test.mjs
       - name: OpenAQ builder (offline)
         run: python3 tests/test_build_openaq.py
