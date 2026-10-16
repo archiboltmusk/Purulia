@@ -1,18 +1,5 @@
-/* "Where the waste goes": the dumping grounds residents have reported, on a map and in a list.
-
-   KNOWN_LEGACY_SITES are not citizen reports — no photo, no on-site confirmation, so they
-   never go in kasa_public_reports. They are Purulia's three NGT-monitored legacy dumpsites,
-   named in the state's monthly bio-mining progress report to the National Mission for Clean
-   Ganga. Shown as a separate, clearly labelled marker layer so they're never mistaken for
-   something a neighbour witnessed and photographed. */
-const KNOWN_LEGACY_SITES = [
-  { name: 'Bongabari (Banga Bari Samsan)', lat: 23.35781, lng: 86.38736 },
-  { name: 'Chharma', lat: 23.32917, lng: 86.37292 },
-  { name: 'Hutmura — site A', lat: 23.3753, lng: 86.42805 },
-  { name: 'Hutmura — site B', lat: 23.34977, lng: 86.38601 },
-  { name: 'Hutmura — site C', lat: 23.3495, lng: 86.4992 }
-];
-const LEGACY_SITE_SOURCE = 'NGT-monitored biomining progress report to the National Mission for Clean Ganga, February 2026';
+/* "Where the waste goes": the dumping grounds residents have reported, in a list. The map is the
+   report map with the dumpsite filter (kasa.html?category=dumpsite), which also shows the legacy sites. */
 // The 14 municipalities the NGT order of 22.07.2026 (O.A. 606/2018, para 6[A](iii)) names as not
 // transporting all their waste, by district.
 const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haringhata: 'nadia', Baduria: 'north-24-parganas',
@@ -99,28 +86,4 @@ const NGT_TOWNS = { Asansol: 'paschim-bardhaman', Dhupgiri: 'jalpaiguri', Haring
     ? rows.map(r => `<li><a href="kasa.html?report=${encodeURIComponent(r.id)}">${esc(where(r))}</a> · ${esc(seen(r))} · first reported ${esc(fmt(r.created_at))}${r.status === 'resolved' ? ' · cleared' : ''}</li>`).join('')
     : '<li>No dumping ground reported yet. Be the first: stand where the trucks unload and report it.</li>';
 
-  if (!window.maplibregl) return;
-  const map = new maplibregl.Map({ container: 'ws-map', style: 'https://tiles.openfreemap.org/styles/dark',
-    center: [86.36, 23.33], zoom: rows.length ? 11 : 9, attributionControl: { compact: true } });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  const bounds = new maplibregl.LngLatBounds();
-  rows.forEach(r => {
-    const el = document.createElement('div');
-    el.textContent = '🚛'; el.style.fontSize = '22px'; el.style.cursor = 'pointer';
-    new maplibregl.Marker({ element: el }).setLngLat([r.lng, r.lat])
-      .setPopup(new maplibregl.Popup({ offset: 14 }).setHTML(`<strong>${esc(where(r))}</strong><br>${esc(seen(r))}<br><a href="kasa.html?report=${encodeURIComponent(r.id)}">Open the report →</a>`))
-      .addTo(map);
-    bounds.extend([r.lng, r.lat]);
-  });
-  if (isPurulia) KNOWN_LEGACY_SITES.forEach(s => {
-    const el = document.createElement('div');
-    el.textContent = '⚠️'; el.style.fontSize = '20px'; el.style.cursor = 'pointer'; el.style.opacity = '.85';
-    new maplibregl.Marker({ element: el }).setLngLat([s.lng, s.lat])
-      .setPopup(new maplibregl.Popup({ offset: 14 }).setHTML(
-        `<strong>${esc(s.name)}</strong><br>Documented legacy dumpsite — not a citizen report.<br><span style="font-size:11px;color:#888">Source: ${esc(LEGACY_SITE_SOURCE)}</span>`))
-      .addTo(map);
-    bounds.extend([s.lng, s.lat]);
-  });
-  bodies.forEach(b => { if (!rows.length && b.at) bounds.extend(b.at); });
-  if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: rows.length ? 14 : 10 });
 })();

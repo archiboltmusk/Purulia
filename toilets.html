@@ -52,7 +52,6 @@
   .maplibregl-popup-content a{color:#DD3333;}
   .maplibregl-popup-tip{display:none;}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
 <script src="bug-report.js"></script>
 </head>
 <body>
@@ -81,7 +80,7 @@
     <section class="an-card an-span" id="tl-toilets">
       <h2>Reported by residents</h2>
       <p class="an-card-sub">Found a public toilet that's locked, dry, unclean or otherwise unusable? Report it as <strong>🚻 Public toilet</strong>: a live photo and your location, confirmed by others on the spot like every report. Once it's genuinely fixed, anyone can confirm that too.</p>
-      <div id="tl-map" class="ws-map" role="region" aria-label="Map of reported public toilets"></div>
+      <p><a href="kasa.html?category=toilet">See the reported toilets on the report map →</a></p>
       <ul class="ws-dumps" id="tl-list"><li>Loading…</li></ul>
       <a class="ws-btn" href="kasa.html?report=new&amp;category=toilet" id="tl-report">🚻 Report a public toilet</a>
     </section>
@@ -132,7 +131,6 @@ Date:</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
-<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script defer src="place-facts.js"></script>
 <script defer src="toilets.js"></script>
 <script>

@@ -1311,6 +1311,37 @@ function boostRoadLabels(map){
   if (!e.target.closest?.('#k-map')) e.preventDefault();
 }, { passive: false }));
 
+/* Purulia's three legacy dumpsites are NOT citizen reports (no photo, no on-site confirmation), so they
+   never enter kasa_public_reports. They get their own labelled layer, shown only with the dumpsite issue filter.
+   Source: the state's NGT-monitored biomining progress report to the National Mission for Clean Ganga, Feb 2026. */
+const LEGACY_DUMPSITES = [
+  { name: 'Bongabari (Banga Bari Samsan)', lat: 23.35781, lng: 86.38736 },
+  { name: 'Chharma', lat: 23.32917, lng: 86.37292 },
+  { name: 'Hutmura — site A', lat: 23.3753, lng: 86.42805 },
+  { name: 'Hutmura — site B', lat: 23.34977, lng: 86.38601 },
+  { name: 'Hutmura — site C', lat: 23.3495, lng: 86.4992 }
+];
+const LEGACY_DUMPSITE_SOURCE = 'NGT-monitored biomining progress report to the National Mission for Clean Ganga, February 2026';
+function legacyVisibility(){ return state.filters.category === 'dumpsite' ? 'visible' : 'none'; }
+function addLegacyDumpsites(){
+  mainMap.addSource('legacy-dumpsites', { type: 'geojson', data: { type: 'FeatureCollection', features: LEGACY_DUMPSITES.map(s => ({
+    type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { name: s.name } })) } });
+  mainMap.addLayer({ id: 'legacy-dumpsites', type: 'circle', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility() },
+    paint: { 'circle-radius': 9, 'circle-color': '#14100b', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 2.5 } });
+  mainMap.addLayer({ id: 'legacy-dumpsites-label', type: 'symbol', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility(), 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, 1.3], 'text-anchor': 'top' },
+    paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#14100b', 'text-halo-width': 1.2 } });
+  mainMap.on('click', 'legacy-dumpsites', e => {
+    const name = e.features[0].properties.name;
+    new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(`<strong>${esc(name)}</strong><br>Documented legacy dumpsite — not a citizen report.<br><span style="font-size:11px;color:#888">Source: ${esc(LEGACY_DUMPSITE_SOURCE)}</span>`).addTo(mainMap);
+  });
+  mainMap.on('mouseenter', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = 'pointer'; });
+  mainMap.on('mouseleave', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = ''; });
+}
+function syncLegacyDumpsites(){
+  if (!mainMap || !mainMap.getLayer('legacy-dumpsites')) return;
+  ['legacy-dumpsites', 'legacy-dumpsites-label'].forEach(id => mainMap.setLayoutProperty(id, 'visibility', legacyVisibility()));
+}
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
     container: 'k-map', style: MAP_STYLE, transformStyle: inkStyle, center: MAP_CENTER, zoom: MAP_ZOOM,
@@ -1357,6 +1388,7 @@ function initMainMapNow(){
   return new Promise(resolve => {
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
+      addLegacyDumpsites();
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
         'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': INK, 'circle-stroke-width': 1.5, 'circle-opacity': 1,
@@ -6100,6 +6132,9 @@ function populateCategoryFilter(){
   const sel = document.getElementById('k-filter-category');
   sel.innerHTML = `<option value="">${esc(t('filter_all_cat'))}</option>` +
     Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('');
+  // kasa.html?category=toilet — the issue filter from another page (toilets, waste); not with a report deep link.
+  const qc = new URLSearchParams(location.search);
+  if (!qc.has('report') && CATEGORIES[qc.get('category')]) state.filters.category = qc.get('category');
   sel.value = state.filters.category;
 }
 
@@ -6573,7 +6608,7 @@ function wireUI(){
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
-  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
+  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; syncLegacyDumpsites(); renderAll(); });
   document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {
