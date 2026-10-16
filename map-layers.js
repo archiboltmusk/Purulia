@@ -1,9 +1,11 @@
-/* Layers on the report map (kasa.html): the noticeboard's demands that have a pin, and the tax
- * and spending figures from money.html (states, then West Bengal seats). Reports stay the default.
- * Chosen in the filter bar (#k-layer-select) or by kasa.html?layer=reports|demands|money-<key>.
+/* Layers on the report map (kasa.html): the noticeboard's demands that have a pin, the tax and
+ * spending figures from money.html (states, then West Bengal seats), and the schools list dots from
+ * schools.html (coloured by the latest residents' check). Reports stay the default.
+ * Chosen in the filter bar (#k-layer-select) or by kasa.html?layer=reports|demands|schools|money-<key>.
  * Sources: places/money.json + places/in_states.geojson + places/wb_mplads.json (money-metrics.js
  * holds the definitions); places/wb_assembly.geojson (loaded on first use of the seat layer);
- * kasa_demands (public RPC, same as noticeboard.html). Nothing here is sent or stored.
+ * kasa_demands (public RPC, same as noticeboard.html); kasa_school_coverage(district) for schools.
+ * Nothing here is sent or stored.
  */
 (() => {
   const CFG = window.KASA_CONFIG || {};
@@ -16,7 +18,7 @@
   const REPORT_LAYERS = ['clusters', 'cluster-count', 'report-halo', 'report-points'];
   const MONEY_KEYS = ['selfPaid', 'unspent', 'ucs', 'mplads', 'seats'];
 
-  let map = null, current = 'reports', fetched = {}, money = null, mp = null, seats = null, demands = null, note = null;
+  let map = null, current = 'reports', fetched = {}, money = null, mp = null, seats = null, demands = null, note = null, schoolDistrict = () => 'purulia', schools = {};
 
   const get = (key, url) => fetched[key] ||= fetch(url).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
 
@@ -25,6 +27,34 @@
   }
 
   function showReports(on) { REPORT_LAYERS.forEach(id => setVisible(id, on)); }
+
+  // Schools for one district, 1,000 rows a request (same RPC and paging as schools.html).
+  async function loadSchools(district) {
+    if (schools[district]) return schools[district];
+    const all = [];
+    for (let from = 0; ; from += 1000) {
+      const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/rpc/kasa_school_coverage`, { method: 'POST',
+        headers: { apikey: CFG.SUPABASE_ANON_KEY, Authorization: `Bearer ${CFG.SUPABASE_ANON_KEY}`, 'Content-Type': 'application/json',
+          'Range-Unit': 'items', Range: `${from}-${from + 999}` }, body: JSON.stringify({ p_district: district }) });
+      if (!res.ok) throw new Error('schools ' + res.status);
+      const rows = await res.json();
+      all.push(...rows);
+      if (rows.length < 1000) break;
+    }
+    return (schools[district] = all);
+  }
+
+  async function paintSchools() {
+    const district = schoolDistrict();
+    const all = await loadSchools(district);
+    const colour = s => !s.audits ? '#8a8272' : s.score / s.score_of >= 0.8 ? '#5fae6b' : s.score / s.score_of >= 0.5 ? '#DD3333' : '#d9594c';
+    const placed = all.filter(s => s.lat != null && s.lng != null);
+    map.getSource('schools').setData({ type: 'FeatureCollection', features: placed.map(s => ({
+      type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
+      properties: { code: s.udise_code, name: s.name, place: [s.village, s.block_name].filter(Boolean).join(', '),
+        colour: colour(s), checked: s.audits ? 1 : 0, score: s.score, of: s.score_of } })) });
+    note && (note.textContent = `${placed.length.toLocaleString('en-IN')} schools with a known location in this district. Coloured by the latest residents' check; grey = not checked yet.`);
+  }
 
   // Shade states (or seats) by the chosen money figure. Same colours and rules as money.html used.
   async function paintMoney(key) {
@@ -66,7 +96,7 @@
 
   function choose(key) {
     if (!map) return;
-    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : key === 'demands' ? 'demands' : 'reports';
+    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : key === 'demands' || key === 'schools' ? key : 'reports';
     current = k;
     const sel = document.getElementById('k-layer-select');
     if (sel && sel.value !== k) sel.value = k;
@@ -74,6 +104,8 @@
     showReports(k === 'reports');
     setVisible('demand-points', k === 'demands');
     if (k === 'demands') paintDemands().catch(() => {});
+    setVisible('school-dots', k === 'schools');
+    if (k === 'schools') paintSchools().catch(() => {});
     if (k.startsWith('money-')) {
       paintMoney(k).catch(() => {});
       setVisible('money-states-fill', k !== 'money-seats'); setVisible('money-states-line', k !== 'money-seats');
@@ -84,8 +116,13 @@
   }
 
   // Called once from kasa.js, after the base map loads and before the report layers are added.
-  function mount(m) {
+  function mount(m, opts = {}) {
     map = m;
+    if (opts.district) schoolDistrict = opts.district;
+    map.addSource('schools', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({ id: 'school-dots', type: 'circle', source: 'schools', layout: { visibility: 'none' }, paint: {
+      'circle-color': ['get', 'colour'], 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1,
+      'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, ['+', 2.5, ['*', 2, ['get', 'checked']]], 13, ['+', 6, ['*', 2, ['get', 'checked']]]] } });
     map.addSource('demands', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({ id: 'demand-points', type: 'circle', source: 'demands', layout: { visibility: 'none' }, paint: {
       'circle-radius': ['+', 6, ['min', 8, ['sqrt', ['get', 'supports']]]], 'circle-color': '#d4882a', 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1.5 } });
@@ -114,7 +151,14 @@
       new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(`<strong>Seat ${esc(pc)}</strong><br>` + (r ? `Spent ${cr(r.spent / 1e7)} of ${cr(r.allocated / 1e7)} (${pct(MM.seatPct(mp, pc))})` : 'Not on file (seat vacant or no MPLADS figures)') +
         `<br><a href="kasa.html?rep=pc:${esc(pc)}">MP's page</a>`).addTo(map);
     });
-    ['demand-points', 'money-states-fill', 'money-seats-fill'].forEach(id => {
+    map.on('click', 'school-dots', e => {
+      const p = e.features[0].properties;
+      const code = encodeURIComponent(p.code);
+      new maplibregl.Popup({ offset: 8 }).setLngLat(e.lngLat).setHTML(`<strong>${esc(p.name)}</strong><br>${esc(p.place)}<br>` +
+        (p.checked ? `Score ${esc(p.score)}/${esc(p.of)}` : 'Not checked yet') +
+        `<br><a href="kasa.html?school=${code}">${p.checked ? 'Check again' : 'Check this school'}</a> · <a href="kasa.html?fix=${code}">Wrong place? Fix it</a>`).addTo(map);
+    });
+    ['demand-points', 'school-dots', 'money-states-fill', 'money-seats-fill'].forEach(id => {
       map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; });
     });
