@@ -1792,3 +1792,6 @@ Object.assign(window.KASA_I18N.hi, {
 Object.assign(window.KASA_I18N.en, { near_line: 'Someone near you: is it still there? ›' });
 Object.assign(window.KASA_I18N.bn, { near_line: 'আপনার কাছে কেউ: এটা কি এখনও আছে? ›' });
 Object.assign(window.KASA_I18N.hi, { near_line: 'आपके पास किसी ने: क्या यह अब भी है? ›' });
+Object.assign(window.KASA_I18N.en, { loc_ask: 'Show reports near where you are?', loc_ask_yes: 'Use my location', loc_ask_no: 'Not now', loc_denied: 'Location is off, so the map shows the default area. Turn location on in your browser settings to start where you are.' });
+Object.assign(window.KASA_I18N.bn, { loc_ask: 'আপনার কাছের রিপোর্ট দেখাব?', loc_ask_yes: 'আমার অবস্থান ব্যবহার করুন', loc_ask_no: 'এখন না', loc_denied: 'লোকেশন বন্ধ আছে, তাই মানচিত্রে ডিফল্ট এলাকা দেখাচ্ছে। ব্রাউজারের সেটিংসে লোকেশন চালু করুন।' });
+Object.assign(window.KASA_I18N.hi, { loc_ask: 'आपके आसपास की रिपोर्ट दिखाएँ?', loc_ask_yes: 'मेरी लोकेशन इस्तेमाल करें', loc_ask_no: 'अभी नहीं', loc_denied: 'लोकेशन बंद है, इसलिए नक्शे पर डिफ़ॉल्ट इलाका दिख रहा है। ब्राउज़र सेटिंग्स में लोकेशन चालू करें।' });
