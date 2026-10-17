@@ -458,7 +458,7 @@ async function init(){
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(openOnHomePlace);
+  startAtUserLocation();
   initPlacePicker();
   syncOfflineQueue();
   startLiveRefresh();
@@ -6699,6 +6699,43 @@ async function openOnHomePlace(){
   const b = await KasaPlaces.boxOf(KasaPlaces.saved() || 'bengal') || await KasaPlaces.boxOf('bengal');
   if (userMovedMap) return;
   mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 0 });
+}
+
+/* Visitors start where they are. Permission already given: fly to them. Not decided yet: ask first, and
+   only "Not now", a refusal or a missing fix falls back to the saved place. Links that name a place stay put. */
+function startAtUserLocation(){
+  const q = new URLSearchParams(location.search);
+  if (location.hash || ['at', 'place', 'report', 'rep'].some(k => q.has(k))) return;
+  if (!navigator.geolocation) return mapReady.then(openOnHomePlace);
+  const query = navigator.permissions?.query({ name: 'geolocation' }).catch(() => null) ?? Promise.resolve(null);
+  query.then(p => mapReady.then(() => {
+    if (p?.state === 'granted') return locateAtStart();
+    if (p?.state === 'denied'){ openOnHomePlace(); return showToast(t('loc_denied')); }
+    showLocationAsk();
+  }));
+}
+
+function locateAtStart(){
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    if (!userMovedMap) mainMap.flyTo({ center: [lng, lat], zoom: 14, duration: 800 });
+    onLocated(lat, lng, accuracy);
+  }, () => { openOnHomePlace(); showToast(t('loc_denied')); }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+}
+
+function showLocationAsk(){
+  const el = document.createElement('div');
+  el.id = 'k-loc-ask';
+  el.className = 'k-loc-ask';
+  el.innerHTML = `<p>${esc(t('loc_ask'))}</p><button type="button" data-yes>${esc(t('loc_ask_yes'))}</button><button type="button" data-no>${esc(t('loc_ask_no'))}</button>`;
+  el.addEventListener('click', e => {
+    const yes = e.target.closest('[data-yes]'), no = e.target.closest('[data-no]');
+    if (!yes && !no) return;
+    el.remove();
+    if (yes) return locateAtStart();
+    openOnHomePlace();
+  });
+  document.getElementById('k-map').appendChild(el);
 }
 
 /* "Parishkar Bankura ▾": pick any place to look at. Reporting still needs the live photo and real GPS. */
