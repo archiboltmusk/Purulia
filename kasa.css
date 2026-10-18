@@ -881,11 +881,6 @@ body.k-drawer-open{overflow:hidden;}
 @media(max-width:640px){.k-still{bottom:3.6rem;}}
 .k-near{position:absolute;left:.9rem;bottom:6rem;z-index:5;padding:.45rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border2);border-radius:3px;color:var(--cream);font-family:var(--mono);font-size:11px;letter-spacing:.04em;}
 @media(max-width:640px){.k-near{bottom:3.6rem;}}
-.k-loc-ask{position:absolute;left:.9rem;right:.9rem;bottom:6rem;z-index:6;display:flex;flex-wrap:wrap;align-items:center;gap:.5rem;padding:.6rem .8rem;background:rgba(10,8,5,.92);border:1px solid var(--border2);border-radius:3px;color:var(--cream);font-family:var(--mono);font-size:12px;}
-.k-loc-ask p{margin:0;flex:1 1 100%;}
-.k-loc-ask button{font:inherit;padding:.4rem .7rem;border:1px solid var(--border2);background:none;color:inherit;cursor:pointer;}
-.k-loc-ask [data-yes]{background:#DD3333;border-color:#DD3333;}
-@media(max-width:640px){.k-loc-ask{bottom:3.6rem;}}
 
 /* Extra report photos (up to 2 more) */
 .k-photo-extras{display:flex;gap:.5rem;margin-top:.5rem;}
