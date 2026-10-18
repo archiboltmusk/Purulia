@@ -9,20 +9,17 @@ const stubGeo = page => page.addInitScript(() => {
   navigator.geolocation.watchPosition = count;
 });
 
-test('first visit with no location decided: asks before moving the map, no tour, join line or nearby card', async ({ page, backend, context }) => {
+test('first visit with no location decided: asks for GPS on load, no card, no tour, join line or nearby card', async ({ page, backend, context }) => {
   await context.clearPermissions();
   await stubGeo(page);
   await page.goto('kasa.html');
   await expect.poll(() => backend.calls.some(c => c.name === 'kasa_place_visit')).toBe(true);
-  await expect(page.locator('#k-loc-ask')).toBeVisible();
-  expect(await page.evaluate(() => window.__geoCalls)).toBe(0);
+  await expect.poll(() => page.evaluate(() => window.__geoCalls)).toBe(1);
+  await expect(page.locator('#k-loc-ask')).toHaveCount(0);
   await expect(page.locator('#k-tip')).toHaveCount(0);
   await expect(page.locator('#k-join')).toHaveCount(0);
   await expect(page.locator('#k-still')).toBeHidden();
   await expect(page.locator('#k-near')).toBeHidden();
-  await page.locator('#k-loc-ask [data-no]').click();
-  await expect(page.locator('#k-loc-ask')).toHaveCount(0);
-  expect(await page.evaluate(() => window.__geoCalls)).toBe(0);
   await expect(page.locator('.k-map-report-btn')).toBeVisible();
 });
 
