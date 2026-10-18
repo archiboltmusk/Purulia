@@ -12,7 +12,7 @@
   const PF = window.PlaceFacts;
   let slug = 'purulia', D = null;
   if (PF){ await PF.load().catch(() => null); if (PF.data){
-    // No place chosen yet: ask the device once for its position and take the district it is in.
+    // No place chosen yet: take the district the device is in, if location is already allowed.
     let picked = false; try { picked = new URLSearchParams(location.search).has('d') || !!localStorage.getItem('parishkar_place'); } catch (e) {}
     if (!picked){
       const k = await PF.districtFromLocation().catch(() => null);
