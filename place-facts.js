@@ -156,9 +156,12 @@ window.PlaceFacts = (() => {
   const inGeom = (pt, g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates)
     .some(p => inRing(pt, p[0]) && !p.slice(1).some(h => inRing(pt, h)));
 
-  // The district the device is in (places/wb_districts.geojson), asked once; null if denied or outside WB.
+  // The district the device is in (places/wb_districts.geojson). Only when location is already allowed:
+  // a page load must never raise the system prompt. Null if not allowed, denied or outside WB.
   async function districtFromLocation() {
     if (!navigator.geolocation) return null;
+    const perm = await navigator.permissions?.query({ name: 'geolocation' }).catch(() => null);
+    if (perm?.state !== 'granted') return null;
     const c = await new Promise(res => navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), { timeout: 8000, maximumAge: 600000 }));
     if (!c) return null;
     const g = await (await fetch('places/wb_districts.geojson')).json();
