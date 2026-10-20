@@ -91,7 +91,6 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span>
   </a>
   <button type="button" class="k-place-pick" id="k-place-pick" aria-haspopup="dialog" aria-label="Choose a place">▾</button>
-  <a href="changelog.html#done" class="k-version" id="k-version" hidden></a>
 <dialog class="k-place-dialog" id="k-place-dialog" aria-labelledby="k-place-title">
   <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
     <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
@@ -187,13 +186,17 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   </div>
 
   <div class="k-map-pill" aria-live="polite">
-    <span class="k-pill-num" id="k-pill-active">—</span>
-    <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    <button type="button" class="k-pill-seg" data-pill="open" aria-pressed="false">
+      <span class="k-pill-num" id="k-pill-active">—</span>
+      <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    </button>
     <span class="k-pill-sep">·</span>
-    <span class="k-pill-num" id="k-pill-total">—</span>
-    <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
-    <span class="k-pill-sep" id="k-fixed-chip-sep" hidden>·</span>
-    <button type="button" class="k-pill-fixed" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+    <button type="button" class="k-pill-seg" data-pill="" aria-pressed="true">
+      <span class="k-pill-num" id="k-pill-total">—</span>
+      <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
+    </button>
+    <span class="k-pill-sep">·</span>
+    <button type="button" class="k-pill-fixed" id="k-fixed-chip" data-pill="resolved" aria-pressed="false" aria-controls="k-fixed-strip" aria-expanded="false">
       ✓ <span class="k-pill-num" id="k-fixed-chip-n"></span> <span class="k-pill-label" data-i18n="fixed_chip">fixed</span>
     </button>
   </div>
@@ -410,6 +413,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <a href="#" data-bug-report data-i18n="footer_bug">Report a bug</a>
     <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener" data-i18n="footer_coffee">Buy me a coffee</a>
   </nav>
+  <a href="changelog.html#done" class="k-drawer-version" id="k-drawer-version" hidden></a>
 </footer>
 </aside>
 
