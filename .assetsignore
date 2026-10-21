@@ -4,6 +4,7 @@
 .wrangler
 node_modules
 mobile
+desktop
 supabase
 tests
 tools
