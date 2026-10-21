@@ -334,3 +334,17 @@ test('Map | List toggle shows report cards and returns to the map', async ({ pag
   await expect(page.locator('#k-list')).toBeHidden();
   await expect(page.locator('#k-map')).toBeVisible();
 });
+
+test('a report sheet closes when swiped down from the top', async ({ page, backend }) => {
+  await page.goto('kasa.html?report=102');
+  await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
+  await page.evaluate(() => {
+    const el = document.querySelector('#k-sheet .k-sheet-head');
+    const touch = y => [new Touch({ identifier: 1, target: el, clientX: 200, clientY: y })];
+    el.dispatchEvent(new TouchEvent('touchstart', { bubbles: true, touches: touch(200) }));
+    el.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, touches: touch(320) }));
+    el.dispatchEvent(new TouchEvent('touchmove', { bubbles: true, touches: touch(520) }));
+    el.dispatchEvent(new TouchEvent('touchend', { bubbles: true, touches: [] }));
+  });
+  await expect(page.locator('#k-sheet')).not.toHaveClass(/\bopen\b/);
+});
