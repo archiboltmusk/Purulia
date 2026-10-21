@@ -193,6 +193,29 @@ Answers to §6 (Anupam, 2026-10-21, second reply):
 
 Phase 1 is now: batch dispatch + Google Maps link + driver page + triage gate + out-of-jurisdiction state. Not in phase 1: road distance, clustering, scoring (kept for phase 2 if batch counts need them).
 
+Row 10 is superseded (Anupam, 2026-10-21, later message): every migration is applied and verified on live by hand (Supabase CLI or migration script) before its PR merges. Nothing applies on push or merge.
+
+## 6d. Pilot brief, draft digest, signed clearance link (Anupam, 2026-10-21) — phase 2
+
+Anupam sent four pieces: a pilot brief, a draft-only morning digest, a blank rectification memo, and a signed, geofenced "Mark Cleared" link. They land in phase 2 with the changes below.
+
+| Piece | Kept | Changed | Out |
+|---|---|---|---|
+| Signed clearance link | HMAC-SHA256 over `id:exp`, server secret, 24 h expiry; zero-login page in a normal mobile browser | Geofence **40 m** (§6c #3), not the snippet's 50 m. Check runs on the device and again on the server against the posted GPS fix and accuracy. Every use logs device GPS (lat, lng, accuracy) and **server** time, whether it passes or fails | — |
+| Field tap result | One tap + live after-photo | Sets **`cleared_pending_check`**, never `RECTIFIED_OFFICIALLY`. A moderator checks photo, GPS and time, then sets the cleared state. The citizen 8 h window (§6c #2) starts only after that check | Any state change straight from a field tap |
+| Photo | Live camera only, no gallery upload | On the device: read EXIF time/GPS first (`kasa-photo-meta.js`), then blur faces and number plates, then upload. The EXIF result travels with the upload because blurring re-encodes the image | — |
+| Morning digest | Template and reviewer checklist | **Draft only.** Built for a moderator at 07:15 IST; nothing goes to any official until a person copies and sends it. No send button, no scheduled send | Automatic delivery to "the Inspector's preferred channel" |
+| Vat IDs and landmarks | — | `W7-04`, `W8-02` and landmarks are placeholders. Live vats come only from a sourced vat list (municipality letter or official page, cited like transfer sites, §6c #9). No vat list on record yet = no vat rows | Made-up vat IDs or fill levels in live data |
+| Pilot brief | Structure, "what this is not" safeguards | Every factual claim is **to-verify** before the page is published: "resident open-source developers and civic volunteers", "verified local ward volunteers", "Wards 7 & 8", "14-day pilot", "self-funded", contact line. Each needs Anupam's confirmation or a source | Publishing the brief with unchecked claims |
+| Blank rectification memo | — | — | **Out of the app.** It is an office's own template. Parishkar does not generate, fill or send notices to firms |
+
+Phase 2 schema sketch (not built):
+- `kasa_private.vats` (id, office_key, lat, lng, label, source_url or letter ref required).
+- `kasa_private.clearance_links` (vat or order id, exp, sig hash, issued_by, issued_at).
+- `kasa_private.clearance_uses` (link id, device lat/lng/accuracy, server_time, distance_m, outcome pass/fail_far/fail_expired/fail_sig, photo id) — append-only.
+- State `cleared_pending_check` on the order or vat ticket; moderator RPC to accept or send back.
+- Signing secret lives in an edge function secret, never in the page or the DB.
+
 ## 7. Prototype: what it does and does not do
 
 Does: dedupe, ward-scoped DBSCAN, capacity split, open-path route (NN + 2-opt), weighted score, gated greedy assignment (triage, vehicle type, deadhead, capacity), seeded synthetic demo.
