@@ -252,3 +252,22 @@ Sources and tools:
 - Read: existing migrations for reports, photo_meta, photo_checks, assets, works, work_assets, jurisdictions, evidence tables, public_works, road_tags, categories, legal gate.
 - Not run: the §3 SQL. No PostGIS available here. Nothing applied to any database.
 - CI: `kasa-tests.yml` is unaffected (no `migrations/` or JS change). This file is under `research/`, not published (`*.md` not deployed).
+
+## 11. Zero-cost infrastructure review (2026-10-21)
+
+Source: Anupam's zero-cost plan, relayed 2026-10-21. Vendor prices and free-tier limits in that plan are **unverified**. None are relied on here. Check each vendor's current pricing page before any decision that depends on a limit.
+
+Added (as requirements or design notes, nothing built):
+- Scheduled ingestion in GitHub Actions: cron only, portal terms and robots respected, no CAPTCHA bypass, no proxies. Matches §6.
+- Image compression after the EXIF check: run `kasa_private.photo_meta` (live capture, EXIF vs GPS) on the original first, then compress. Keep the original's sha256 and dHash in `kasa_private.photo_checks`, so reuse checks still match. The existing `kasa-photo-shrink` function already shrinks after checks; no new compression path.
+- Backups: `db-backup.yml` already runs weekly. Any nightly export to a private repo must exclude personal data and reporter identities. Hashed IDs only. Parked until a specific need.
+- Open data: public GeoJSON of published records only, after the §4 gate. Phase 2d.
+- Local-first MCP runner: phase 2c option. Read-only tools run on a moderator's own machine against the database under moderator auth. No new cloud service.
+
+Parked (not in scope now):
+- Telegram ward channels and bot alerts. Declined earlier by Anupam; not built. Naming contractors there would also need the counsel gate (D8).
+- X or WhatsApp auto-posts. Declined earlier.
+- PMTiles on R2 for map tiles. Revisit when live map traffic is a real cost.
+- Cloudflare R2 for photos. Deferred until the R2 memory threshold (about 700 MB of photos).
+- Third-party LLM extraction (for example Gemini free tier) on any document with personal data. Needs a decision from Anupam first.
+- Client-side compression before upload, until the EXIF-first flow above is specified and tested.
