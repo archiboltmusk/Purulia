@@ -251,6 +251,7 @@ Sources and tools:
 
 - No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
 - No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+- No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
 
 ## 10. Verification done in this PR
 
