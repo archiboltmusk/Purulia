@@ -292,3 +292,47 @@ Requirements only. Nothing here is built.
 - Community boundary confirmation (phase 3): design only. Residents confirm start and end points of a vaguely described stretch. No build until designed and reviewed.
 - Confidence display: show independent signals with dates and counts (for example "4 reports, 4 reporters, 3 Mar to 11 Mar"). No single percentage. Every signal keeps the "Unverified signal" label and the contractor response window (rule in §4).
 - Signed community feeds (Ed25519 manifests, source-hash links): parked with the add-on non-goal.
+
+## 13. Phase 2d: counsel-gated, read-only publication (design only, approved in principle 2026-10-21)
+
+Anupam approved a counsel-gated pipeline. Nothing below is built. No public output exists today.
+
+**Staged table.** `kasa_private.reality_signals` is the staged record. No `audit_records` or `official_assets` table (both replaced, §1).
+
+**One status set** (replaces today's `candidate/approved/rejected/published/withdrawn` check in a later migration):
+
+| Status | Meaning | Who moves it |
+|---|---|---|
+| `STAGED` | Raised by the run function (today `candidate`) | run function only |
+| `INTERNAL_REVIEW` | Moderator checks photos, links, counts, noise | moderator |
+| `NOTICE_ISSUED` | Inquiry, grievance or RTI sent to the responsible office; reply window open | moderator, with docket ref |
+| `UNDER_COUNSEL_REVIEW` | Evidence brief with counsel | moderator |
+| `APPROVED_PUBLIC` | Counsel signed off the public wording and cleared photos | counsel role only |
+| `REJECTED_EVIDENCE` | Not enough proof; kept internal | moderator or counsel |
+| `RECTIFIED_OFFICIALLY` | Office repaired or explained during review; never published as a failure | moderator |
+
+Transitions are enforced by a trigger, the same way `work_assets` confirmation is guarded. `APPROVED_PUBLIC` needs a counsel role (new, separate from moderator) and every counsel field below. Every change goes to the append-only audit log.
+
+**Counsel fields, stored separately from the investigative row** (new private table `kasa_private.reality_signal_publication`, one row per signal):
+- `public_title`, `public_summary`: counsel-written, factual, no commentary. The only text the public sees.
+- `counsel_signoff_by`, `signed_off_at`, `counsel_notes` (private).
+- `notice_sent_on`, `notice_docket_id` (links `report_dockets`), `notice_window_days`, `agency_response_summary`.
+- `cleared_photo_paths[]` and `photos_checked_faces_plates` (boolean, required true before `APPROVED_PUBLIC`). Counsel checks every photo for faces and vehicle plates before it is cleared.
+- `contractor_named` (boolean, default false). The contractor's firm name appears publicly only if counsel sets this and the public wording includes it.
+
+**Public read.** A `security definer` RPC or view (`kasa_public_reality_signals`) returns only `APPROVED_PUBLIC` rows and only these fields: public title and summary, work title, tender ref, source URL, dates, report count, cleared photos, notice date, agency response, and the firm name only when `contractor_named`. No direct table access and no RLS on private tables for anon. Any static GeoJSON is generated from this RPC only (not built; see Non-goals for what is excluded).
+
+**Notice period.** The reply window before counsel review (proposed 14 days) is a **project policy**, not a legal requirement. Label it that way on any page. Where the notice is an RTI request, the RTI Act's own clock applies (reply due 30 days, s.7(1)), and the two are tracked separately.
+
+**Defamation.** Design note only: criminal defamation is now under the Bharatiya Nyaya Sanhita, 2023 (s.356, replacing IPC ss.499/500). Counsel confirms the applicable provisions and exceptions before the gate opens.
+
+**Relation to the existing gate.** `legal_gate_open` stays false until counsel signs off the whole model. Until then no row can reach `APPROVED_PUBLIC`.
+
+**Open items for counsel**
+1. Confirm BNS s.356 and the exceptions (truth for public good, fair comment on public conduct) that apply to the public wording.
+2. Approve the notice policy: window length, who it goes to (Executive Engineer, PIO, ULB), and what counts as a reply.
+3. Rule on naming: firm name only (no individuals), and on which facts it can be tied to (tender record, DLP clause, report counts).
+4. Photo clearance standard: faces, plates, house numbers, children; blur or exclude.
+5. Wording template for `public_summary` and the "Unverified signal" label after counsel approval: does the label stay, or change to "Reviewed record"?
+6. Correction and takedown process for a published record, and the response time to commit to.
+7. Retention of `REJECTED_EVIDENCE` and `RECTIFIED_OFFICIALLY` rows, and of citizen photos, under DPDP.
