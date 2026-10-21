@@ -6695,10 +6695,34 @@ function wireUI(){
 
 /* Runs only when someone taps the locate button: the phone asks for location then, not on load.
    The map flies to them (GeolocateControl); the position stays on the phone until they file a report. */
+/* "You're outside Purulia": the district is the union of its CD blocks (purulia_blocks.geojson, OSM, ODbL).
+   Only runs on a fix the visitor already gave, so it adds no location prompt. Hidden for the session once closed. */
+let outsideHidden = false;
+async function checkOutsideArea(lat, lng){
+  const pill = document.getElementById('k-outside');
+  if (!pill || outsideHidden) return;
+  await loadBlockGeo();
+  const blocks = state.blockGeo?.features;
+  if (!blocks?.length) return;
+  const inside = blocks.some(f => pointInPolygon([lng, lat], f.geometry));
+  if (inside) return pill.hidden = true;
+  document.getElementById('k-outside-msg').textContent = t('outside_msg', { place: CITY_NAME });
+  const fly = document.getElementById('k-outside-fly');
+  fly.textContent = t('outside_fly', { place: CITY_NAME });
+  fly.onclick = () => {
+    userMovedMap = true;
+    mainMap.flyTo({ center: MAP_CENTER, zoom: MAP_ZOOM, duration: 1200 });
+    pill.hidden = true;
+  };
+  document.getElementById('k-outside-x').onclick = () => { outsideHidden = true; pill.hidden = true; };
+  pill.hidden = false;
+}
+
 function onLocated(lat, lng, accuracy){
   const b = state.rules.bbox;
   const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
   if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return; }
+  checkOutsideArea(lat, lng);
   askStillThere(lat, lng, accuracy);
   // Where they are becomes their home place for next time (once the page has been renamed after it).
   mainMap.once('moveend', () => setTimeout(() => {

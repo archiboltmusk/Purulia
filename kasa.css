@@ -181,6 +181,13 @@ body[data-app-layout] .maplibregl-ctrl-attrib a{color:#374151!important;}
 .k-dot-claimed{background:var(--violet);} .k-dot-resolved{background:var(--green);}
 .k-map-report-btn{position:absolute;bottom:.9rem;right:.9rem;z-index:5;display:flex;align-items:center;gap:.65rem;padding:1.1rem 1.6rem;background:var(--amber);color:var(--ink);font-family:var(--mono);font-size:13px;font-weight:600;letter-spacing:.1em;white-space:nowrap;text-transform:uppercase;border-radius:4px;box-shadow:0 12px 32px rgba(221,51,51,.36);transition:color .2s,background-color .2s,border-color .2s,box-shadow .2s,opacity .2s,transform .2s;}
 .k-map-report-btn:hover{background:var(--amber2);box-shadow:0 14px 40px rgba(221,51,51,.44);transform:translateY(-1px);}
+/* "You're outside Purulia": floats above the bottom action bar; only after a fix the visitor already gave. */
+.k-outside{position:absolute;left:50%;transform:translateX(-50%);bottom:4.6rem;z-index:6;display:flex;align-items:center;gap:.5rem;max-width:calc(100% - 1.2rem);padding:.4rem .4rem .4rem .8rem;background:#fff;color:#111;border:2px solid #111;border-radius:999px;box-shadow:3px 3px 0 #111;font-family:var(--mono);font-size:12px;white-space:nowrap;animation:kFade .2s ease;}
+.k-outside[hidden]{display:none;}
+.k-outside-msg{overflow:hidden;text-overflow:ellipsis;}
+.k-outside-fly{min-height:44px;padding:0 .9rem;background:#DD3333;color:#fff;border:2px solid #111;border-radius:999px;box-shadow:2px 2px 0 #111;font:inherit;font-weight:700;letter-spacing:.04em;}
+.k-outside-x{min-width:44px;min-height:44px;background:none;border:0;color:#111;font-size:14px;}
+@media(max-width:640px){.k-outside{bottom:6.4rem;}}
 @media(max-width:640px){
   .k-map-topbar{flex-direction:column-reverse;align-items:stretch;}
   .k-view-toggle{align-self:flex-end;}
