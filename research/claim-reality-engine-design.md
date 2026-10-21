@@ -251,6 +251,8 @@ Sources and tools:
 
 - No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
 - No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+- No "distinct carrier network signature" or similar device/network checks for reporter independence (2026-10-21 legal-risk proposal). That is the passive network collection already declined. Independence comes from reporter hashes, per-device and per-network limits, and photo checks.
+- No single-source clearing: a satellite reading, a reporter count or any one signal never clears a record for publication on its own.
 - No passive Wi-Fi BSSID, cell-tower or other RF environment collection, and no device fingerprinting, unless a DPDP privacy review approves it first. It collects location data on citizens who have not consented.
 - No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
 
@@ -336,3 +338,18 @@ Transitions are enforced by a trigger, the same way `work_assets` confirmation i
 5. Wording template for `public_summary` and the "Unverified signal" label after counsel approval: does the label stay, or change to "Reviewed record"?
 6. Correction and takedown process for a published record, and the response time to commit to.
 7. Retention of `REJECTED_EVIDENCE` and `RECTIFIED_OFFICIALLY` rows, and of citizen photos, under DPDP.
+
+### §13 additions (legal-risk redesign, 2026-10-21)
+
+Adopted:
+- **No personal names.** Public records identify the asset, tender ref and sanction code only. No officials, engineers or contractors' staff by name. Firm names stay behind `contractor_named` and counsel (above).
+- **Variance framing.** Public text states the documented spec against what was observed, with sources and dates (for example "Tender ref X specifies 40 mm premix carpet; reports from 3 Mar to 11 Mar show surface damage at this stretch"). No words of intent such as bribe, theft or corruption.
+- **`DISPUTED_PAUSED` state.** Added between `NOTICE_ISSUED`/`UNDER_COUNSEL_REVIEW` and publication, and also reachable from `APPROVED_PUBLIC`. The office or firm uploads a rebuttal (document plus note). The record is hidden from the public view while a moderator and counsel check it. Rebuttals are kept with the record.
+- **No open comments.** Public input is structured only: report, confirm, rebuttal upload, correction form. No free-text public thread on a record.
+- **Grievance officer contact** published on every record page, and the takedown and correction route linked (existing RUNBOOK entry; response time is counsel item 6).
+- **Response window: 21 business days, project policy.** Shown as policy, never as a statutory deadline. The IT Rules timelines for intermediaries are separate; counsel confirms them, they are not cited here from memory.
+- **Face and plate blurring before upload.** Required step in the capture flow, done on the phone. The EXIF and live-capture check and the sha256/dHash run on the original first, as in §11. Open point for review: the server only sees the blurred file, so it cannot recompute the original's hash. Decide whether the client-sent original hash is accepted as is or replaced by a server-side check on the blurred file.
+- **Satellite check** (Sentinel-2): supporting signal only, never a gate that clears a record (see Non-goals).
+- **Sourced tender rows.** `kasa_private.works` stays the ledger (no new `public_assets` table). Every row keeps `source_url`. Add `source_kind` (`official` | `press`); a row sourced only from a press report shows as Unverified and cannot feed an `APPROVED_PUBLIC` record until an official source is linked.
+
+Not adopted: carrier/network signatures (Non-goals), and the proposal's new `public_assets` table and enum names (the §13 status set above is used, with `DISPUTED_PAUSED` added).
