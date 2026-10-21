@@ -103,6 +103,9 @@ const ISSUE_GROUPS = [
     ['hostel_washroom', '🚽', 'toilet', 'hostel washroom toilet bathroom hostel sanitation cleaning not done'],
     ['hostel_dustbin', '🗑️', 'garbage', 'hostel dustbin bin not cleared emptied'],
     ['hostel_corridor', '🧹', 'garbage', 'hostel corridor floor sweeping not cleaned']]],
+  ['puja', '🪔', [
+    ['puja_floral', '🌼', 'garbage', 'saheb bandh puja flower marigold nirmalya ghat immersion visarjan shore'],
+    ['puja_debris', '🎈', 'garbage', 'saheb bandh puja thermocol polythene plastic metal armature visarjan lake shore water']]],
   ['drain', '🌊', [
     ['drain_blocked', '🌊', 'drain', 'nala nali clogged choked'],
     ['sewer_overflow', '🌧️', 'drain', 'sewerage sewage storm water overflow'],
@@ -1149,7 +1152,7 @@ function distanceMeters(aLat, aLng, bLat, bLng){
 function filtered(){
   const f = state.filters;
   return state.reports.filter(r =>
-    (!f.category || r.category === f.category) &&
+    (!f.category || (f.category === 'puja' ? /^puja_/.test(r.wasteType || '') : r.category === f.category)) &&
     (!f.status || r.status === f.status) &&
     (!f.severity || r.severity === f.severity) &&
     (!f.ward || (f.place ? r.place === f.place && r.placeWard === f.ward : r.ward === f.ward)) &&
@@ -6167,7 +6170,8 @@ async function openRepProfile(key){
 function populateCategoryFilter(){
   const sel = document.getElementById('k-filter-category');
   sel.innerHTML = `<option value="">${esc(t('filter_all_cat'))}</option>` +
-    Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('');
+    Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('') +
+    `<option value="puja">🪔 ${esc(t('filter_puja'))}</option>`;
   // kasa.html?category=toilet — the issue filter from another page (toilets, waste); not with a report deep link.
   const qc = new URLSearchParams(location.search);
   if (!qc.has('report') && CATEGORIES[qc.get('category')]) state.filters.category = qc.get('category');

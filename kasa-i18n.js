@@ -1273,6 +1273,7 @@ Object.assign(window.KASA_I18N.en, {
   waste_dirty_spot: 'Dirty spot / litter', waste_garbage_dump: 'Garbage dump', waste_bin_full: 'Dustbin full, not cleaned',
   waste_vehicle_missed: "Garbage van didn't come", waste_not_swept: 'Street not swept', waste_burning: 'Garbage being burnt',
   waste_dead_animal: 'Dead animal to remove',
+  filter_puja: 'Saheb Bandh puja waste', igrp_puja: 'Saheb Bandh puja (festival)', waste_puja_floral: 'Puja flowers dumped at the ghat or in the water', waste_puja_debris: 'Non-biodegradable puja debris in the water (thermocol, polythene, metal armature)',
   igrp_hostel: 'Hostel sanitation', waste_hostel_washroom: 'Hostel washroom not cleaned', waste_hostel_dustbin: 'Hostel dustbin not cleared', waste_hostel_corridor: 'Hostel corridor not swept',
   waste_toilet_dirty: 'Public toilet dirty', waste_toilet_no_water: 'Public toilet: no water', waste_toilet_no_power: 'Public toilet: no electricity',
   waste_toilet_blocked: 'Public toilet blocked', waste_toilet_locked: 'Public toilet locked in the day',
@@ -1300,6 +1301,7 @@ Object.assign(window.KASA_I18N.bn, {
   waste_dirty_spot: 'নোংরা জায়গা / ছড়ানো আবর্জনা', waste_garbage_dump: 'আবর্জনার স্তূপ', waste_bin_full: 'ডাস্টবিন ভর্তি, পরিষ্কার হয়নি',
   waste_vehicle_missed: 'ময়লার গাড়ি আসেনি', waste_not_swept: 'রাস্তা ঝাঁট দেওয়া হয়নি', waste_burning: 'আবর্জনা পোড়ানো হচ্ছে',
   waste_dead_animal: 'মৃত পশু সরাতে হবে',
+  filter_puja: 'সাহেব বাঁধ পুজোর বর্জ্য', igrp_puja: 'সাহেব বাঁধ পুজো (উৎসব)', waste_puja_floral: 'ঘাটে বা জলে ফেলা পুজোর ফুল', waste_puja_debris: 'জলে ফেলা অ-জৈব পুজোর বর্জ্য (থার্মোকল, পলিথিন, লোহার কাঠামো)',
   igrp_hostel: 'হস্টেলের পরিচ্ছন্নতা', waste_hostel_washroom: 'হস্টেলের শৌচাগার পরিষ্কার হয়নি', waste_hostel_dustbin: 'হস্টেলের ডাস্টবিন খালি হয়নি', waste_hostel_corridor: 'হস্টেলের করিডর ঝাঁট দেওয়া হয়নি',
 
   waste_toilet_dirty: 'সরকারি শৌচাগার নোংরা', waste_toilet_no_water: 'সরকারি শৌচাগারে জল নেই', waste_toilet_no_power: 'সরকারি শৌচাগারে বিদ্যুৎ নেই',
@@ -1328,6 +1330,7 @@ Object.assign(window.KASA_I18N.hi, {
   waste_dirty_spot: 'गंदी जगह / बिखरा कचरा', waste_garbage_dump: 'कचरे का ढेर', waste_bin_full: 'कूड़ेदान भरा, साफ़ नहीं हुआ',
   waste_vehicle_missed: 'कचरा गाड़ी नहीं आई', waste_not_swept: 'सड़क पर झाड़ू नहीं लगी', waste_burning: 'कचरा जलाया जा रहा है',
   waste_dead_animal: 'मरा जानवर हटाना है',
+  filter_puja: 'साहेब बांध पूजा का कचरा', igrp_puja: 'साहेब बांध पूजा (त्योहार)', waste_puja_floral: 'घाट या पानी में फेंके गए पूजा के फूल', waste_puja_debris: 'पानी में फेंका गया गैर-जैविक पूजा कचरा (थर्मोकोल, पॉलीथिन, धातु का ढांचा)',
   igrp_hostel: 'छात्रावास की सफ़ाई', waste_hostel_washroom: 'छात्रावास का शौचालय साफ़ नहीं हुआ', waste_hostel_dustbin: 'छात्रावास का डस्टबिन खाली नहीं हुआ', waste_hostel_corridor: 'छात्रावास का गलियारा नहीं बुहारा गया',
 
   waste_toilet_dirty: 'सार्वजनिक शौचालय गंदा', waste_toilet_no_water: 'सार्वजनिक शौचालय में पानी नहीं', waste_toilet_no_power: 'सार्वजनिक शौचालय में बिजली नहीं',
