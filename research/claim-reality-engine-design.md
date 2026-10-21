@@ -263,6 +263,8 @@ Sources and tools:
 - No dashcam, auto-rickshaw, bus or vehicle trajectory data. It tracks drivers.
 - No step that captures or stores people's movement, even briefly or "erased in RAM" later.
 - No published measurement from a 3D reconstruction (for example "18 mm against a billed 50 mm"). A splat or depth model needs calibration against a surveyed reference first. Until then, no measurement leaves the phone or the moderator queue, and none is shown as proof.
+- No zero-knowledge location proof (verifiable-evidence plan, 2026-10-21). It adds nothing over the existing live GPS check and the 50 m EXIF rule (A4), and it would add a cryptographic system to maintain and explain.
+- No public "audit capsules" or downloadable evidence bundles, and no "VERIFICATION PASSED" or similar output. A public bundle would publish citizen photos and records that counsel has not approved, and a pass/fail line reads as a verdict. Any future evidence bundle goes through the §13 counsel gate first and states sources and dates, not a verdict.
 
 ## 10. Verification done in this PR
 
@@ -404,6 +406,10 @@ From the 3D/4D twin plan. None of this is scheduled or built.
 - **Sentinel-1 InSAR** for subsidence on assets already flagged, using free Copernicus data. Calibration step first, as for Sentinel-2. Supporting signal only.
 - **Dated passes over the same asset.** Comparing dated satellite passes or dated citizen photos of one asset over time, with the dates shown.
 - **Citizen 3D video passes: parked** until the on-device blurring spec (§13) is done. Allowed only if every person and plate is erased on the phone before upload, the scan covers only the flagged asset, and no trajectory or movement data is kept. Measurements from it fall under the calibration rule in Non-goals.
+- **Signed capture (C2PA, hardware-backed keys).** Not feasible in the browser PWA: a web page cannot reach the camera's hardware signing key. Revisit only in the native app (`mobile/`, which already has a device-attestation proposal in `mobile/README.md`), and only as an added signal, never replacing the live-photo and GPS rules.
+- **Zero-knowledge redaction proofs** (proving a blurred photo derives from a signed original). Research only. Relevant to the §13 open point on hashing the original before blurring.
+- **Metric depth from citizen video** (Metric3D, Depth Anything style models). Research only, same rule as the 3D plan: no measurement leaves the phone or the moderator queue until calibrated against a surveyed reference.
+- **Geospatial foundation models** (for example Prithvi, Clay). Research only. Heavy compute; not for GitHub Actions free minutes.
 
 ### §13 rules confirmed (Anupam, 2026-10-21)
 
