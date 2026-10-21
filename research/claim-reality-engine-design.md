@@ -251,8 +251,14 @@ Sources and tools:
 
 - No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
 - No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+- No "distinct carrier network signature" or similar device/network checks for reporter independence (2026-10-21 legal-risk proposal). That is the passive network collection already declined. Independence comes from reporter hashes, per-device and per-network limits, and photo checks.
+- No single-source clearing: a satellite reading, a reporter count or any one signal never clears a record for publication on its own.
 - No passive Wi-Fi BSSID, cell-tower or other RF environment collection, and no device fingerprinting, unless a DPDP privacy review approves it first. It collects location data on citizens who have not consented.
 - No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
+- No cell-tower or OpenCelliD location check, and no collection of cell IDs (MCC, MNC, LAC, Cell ID) from citizens' phones (Multi-INT plan, 2026-10-21). This is the same passive network collection declined above.
+- No accelerometer or gyroscope buffer captured before the shutter. That is sensor monitoring of citizens with no consent basis.
+- No fused percentage score (`P_truth` or Bayesian weights). Confidence is shown as counts and dates (§12). No "indestructible in court" or "no rebuttal can dismiss" wording anywhere, internal or public.
+- No `CARTEL_BIDDING_SUSPECT` flag from shared PAN roots, addresses or phone numbers. It turns linked identifiers into an allegation. It stays out of the staging and public data. Parked until counsel review. If it is ever designed, it uses MCA public company records only, never personal phone numbers or PAN, and it is never shown as a finding.
 
 ## 10. Verification done in this PR
 
@@ -292,3 +298,99 @@ Requirements only. Nothing here is built.
 - Community boundary confirmation (phase 3): design only. Residents confirm start and end points of a vaguely described stretch. No build until designed and reviewed.
 - Confidence display: show independent signals with dates and counts (for example "4 reports, 4 reporters, 3 Mar to 11 Mar"). No single percentage. Every signal keeps the "Unverified signal" label and the contractor response window (rule in §4).
 - Signed community feeds (Ed25519 manifests, source-hash links): parked with the add-on non-goal.
+
+## 13. Phase 2d: counsel-gated, read-only publication (design only, approved in principle 2026-10-21)
+
+Anupam approved a counsel-gated pipeline. Nothing below is built. No public output exists today.
+
+**Staged table.** `kasa_private.reality_signals` is the staged record. No `audit_records` or `official_assets` table (both replaced, §1).
+
+**One status set** (replaces today's `candidate/approved/rejected/published/withdrawn` check in a later migration):
+
+| Status | Meaning | Who moves it |
+|---|---|---|
+| `STAGED` | Raised by the run function (today `candidate`) | run function only |
+| `INTERNAL_REVIEW` | Moderator checks photos, links, counts, noise | moderator |
+| `NOTICE_ISSUED` | Inquiry, grievance or RTI sent to the responsible office; reply window open | moderator, with docket ref |
+| `UNDER_COUNSEL_REVIEW` | Evidence brief with counsel | moderator |
+| `APPROVED_PUBLIC` | Counsel signed off the public wording and cleared photos | counsel role only |
+| `REJECTED_EVIDENCE` | Not enough proof; kept internal | moderator or counsel |
+| `RECTIFIED_OFFICIALLY` | Office repaired or explained during review; never published as a failure | moderator |
+
+Transitions are enforced by a trigger, the same way `work_assets` confirmation is guarded. `APPROVED_PUBLIC` needs a counsel role (new, separate from moderator) and every counsel field below. Every change goes to the append-only audit log.
+
+**Counsel fields, stored separately from the investigative row** (new private table `kasa_private.reality_signal_publication`, one row per signal):
+- `public_title`, `public_summary`: counsel-written, factual, no commentary. The only text the public sees.
+- `counsel_signoff_by`, `signed_off_at`, `counsel_notes` (private).
+- `notice_sent_on`, `notice_docket_id` (links `report_dockets`), `notice_window_days`, `agency_response_summary`.
+- `cleared_photo_paths[]` and `photos_checked_faces_plates` (boolean, required true before `APPROVED_PUBLIC`). Counsel checks every photo for faces and vehicle plates before it is cleared.
+- `contractor_named` (boolean, default false). The contractor's firm name appears publicly only if counsel sets this and the public wording includes it.
+
+**Public read.** A `security definer` RPC or view (`kasa_public_reality_signals`) returns only `APPROVED_PUBLIC` rows and only these fields: public title and summary, work title, tender ref, source URL, dates, report count, cleared photos, notice date, agency response, and the firm name only when `contractor_named`. No direct table access and no RLS on private tables for anon. Any static GeoJSON is generated from this RPC only (not built; see Non-goals for what is excluded).
+
+**Notice period.** The reply window before counsel review (proposed 14 days) is a **project policy**, not a legal requirement. Label it that way on any page. Where the notice is an RTI request, the RTI Act's own clock applies (reply due 30 days, s.7(1)), and the two are tracked separately.
+
+**Defamation.** Design note only: criminal defamation is now under the Bharatiya Nyaya Sanhita, 2023 (s.356, replacing IPC ss.499/500). Counsel confirms the applicable provisions and exceptions before the gate opens.
+
+**Relation to the existing gate.** `legal_gate_open` stays false until counsel signs off the whole model. Until then no row can reach `APPROVED_PUBLIC`.
+
+**Open items for counsel**
+1. Confirm BNS s.356 and the exceptions (truth for public good, fair comment on public conduct) that apply to the public wording.
+2. Approve the notice policy: window length, who it goes to (Executive Engineer, PIO, ULB), and what counts as a reply.
+3. Rule on naming: firm name only (no individuals), and on which facts it can be tied to (tender record, DLP clause, report counts).
+4. Photo clearance standard: faces, plates, house numbers, children; blur or exclude.
+5. Wording template for `public_summary` and the "Unverified signal" label after counsel approval: does the label stay, or change to "Reviewed record"?
+6. Correction and takedown process for a published record, and the response time to commit to.
+7. Retention of `REJECTED_EVIDENCE` and `RECTIFIED_OFFICIALLY` rows, and of citizen photos, under DPDP.
+
+### §13 additions (legal-risk redesign, 2026-10-21)
+
+Adopted:
+- **No personal names.** Public records identify the asset, tender ref and sanction code only. No officials, engineers or contractors' staff by name. Firm names stay behind `contractor_named` and counsel (above).
+- **Variance framing.** Public text states the documented spec against what was observed, with sources and dates (for example "Tender ref X specifies 40 mm premix carpet; reports from 3 Mar to 11 Mar show surface damage at this stretch"). No words of intent such as bribe, theft or corruption.
+- **`DISPUTED_PAUSED` state.** Added between `NOTICE_ISSUED`/`UNDER_COUNSEL_REVIEW` and publication, and also reachable from `APPROVED_PUBLIC`. The office or firm uploads a rebuttal (document plus note). The record is hidden from the public view while a moderator and counsel check it. Rebuttals are kept with the record.
+- **No open comments.** Public input is structured only: report, confirm, rebuttal upload, correction form. No free-text public thread on a record.
+- **Grievance officer contact** published on every record page, and the takedown and correction route linked (existing RUNBOOK entry; response time is counsel item 6).
+- **Response window: 21 business days, project policy.** Shown as policy, never as a statutory deadline. The IT Rules timelines for intermediaries are separate; counsel confirms them, they are not cited here from memory.
+- **Face and plate blurring before upload.** Required step in the capture flow, done on the phone. The EXIF and live-capture check and the sha256/dHash run on the original first, as in §11. Open point for review: the server only sees the blurred file, so it cannot recompute the original's hash. Decide whether the client-sent original hash is accepted as is or replaced by a server-side check on the blurred file.
+- **Satellite check** (Sentinel-2): supporting signal only, never a gate that clears a record (see Non-goals).
+- **Sourced tender rows.** `kasa_private.works` stays the ledger (no new `public_assets` table). Every row keeps `source_url`. Add `source_kind` (`official` | `press`); a row sourced only from a press report shows as Unverified and cannot feed an `APPROVED_PUBLIC` record until an official source is linked.
+
+Not adopted: carrier/network signatures (Non-goals), and the proposal's new `public_assets` table and enum names (the §13 status set above is used, with `DISPUTED_PAUSED` added).
+
+### §13 workers (five-agent plan, 2026-10-21)
+
+Anupam's five-worker plan, adopted with these limits. Every worker drafts or flags; every outward or publishing step is a human click. Workers never email an official, file an RTI, or set `APPROVED_PUBLIC`.
+
+| Worker | Runs on | Does automatically | Never does automatically |
+|---|---|---|---|
+| 1. Redaction (on the phone) | kasa.js / mobile, before upload | Blurs every detected face and vehicle plate after the EXIF, live-capture and hash checks on the original (§11) | Age estimation or rejecting an upload because a child may be in it. Blurring covers children; anything further is counsel item 4 |
+| 2. DLP run | `pg_cron`, nightly | `reality_signals_dlp_run()` raises `STAGED` rows (rules §5, consensus D2) | Any status beyond `STAGED` |
+| 3. Notice drafter | `pg_cron`, daily | Writes a draft inquiry (neutral variance wording, tender ref, coordinates, DLP clause) to a moderator queue, with the office address from the cited `works`/`jurisdictions` row | Sending email, filing an RTI, or moving a row to `NOTICE_ISSUED`. A moderator reviews, sends, and records the docket ref; that click sets `notice_sent_on`. No 48-hour auto-advance |
+| 4. Counsel brief | Admin page or local script, on demand | Assembles the brief: tender spec vs reports, notice docket and date, cleared photos, counsel's checklist | Sign-off. `APPROVED_PUBLIC` is a separate deliberate action by the counsel role, filling every counsel field above. No one-click link from the brief |
+| 5. Dispute watchdog | Edge function (claims work in the DB first, per CLAUDE.md) | On a rebuttal or correction request citing a record: sets `DISPUTED_PAUSED` (hidden from the public RPC at once), sends a receipt to the filer, alerts moderators and counsel | Unpausing. Only moderator plus counsel return a record to review or publication |
+
+**Scheduling.** Database work (workers 2 and 3) runs on `pg_cron` inside Supabase. GitHub Actions are used only for scrapers that fetch public tender pages (rules §6: robots and terms respected, no CAPTCHA bypass). No paid queue or VPS.
+
+**Retention janitor: not built.** No automatic deletion of rejected reports or clearing of `reporter_hash` until counsel answers item 7. The proposed SQL targeted tables that don't exist (`citizen_reports`, `public_audit_records`). When counsel answers, the janitor is a `pg_cron` job over `kasa_private.reality_signals` and `kasa_private.reality_signal_publication`, plus whatever counsel rules for `public.reports` photos. The existing `wipe_old_ip_hashes(180)` is unchanged.
+
+**Grievance receipt timing.** The receipt is immediate. The IT Rules acknowledgement and disposal timelines are for counsel to confirm (item 6); they are not cited here from memory.
+
+### §13 supporting signals (Multi-INT plan, 2026-10-21)
+
+Adopted, as internal supporting signals only. Each is logged with its inputs and date. None rejects an upload or clears a record on its own (Non-goals: no single-source clearing).
+- **Solar-shadow check.** Compute the expected sun azimuth and elevation for the report's GPS point and claimed time with SunCalc (open source, MIT). Store it in `photo_checks` as an internal flag for a moderator to compare against the visible shadow. Shadow direction read from a photo is noisy: overcast skies, no clear caster, lens distortion. The check never rejects an upload or quarantines it automatically. The tolerance (proposed 15°) is an assumption to test on real reports first.
+- **Sentinel-2 comparison.** As above: supporting evidence only. 10 m pixels and cloud cover limit what a single road stretch shows.
+
+**Sentinel-2 worker (CDSE Statistical API, proposed 2026-10-21; not built).** Anupam's `sentinel_road_verifier.py` design, adopted with these limits:
+- **Prerequisite: calibration.** The 25% and 6% cutoffs and the 0.04 to 0.09 and 0.20 to 0.40 reflectance ranges in the proposal are unsourced. Before any cutoff is used, run the worker on roads with known surfacing dates (official completion records plus dated photos) and record the observed change per surface type. Until that is done the output is a number, not a verdict: no `VERIFIED_SURFACING`, `GHOST_WORK_SUSPECT` or `INCONCLUSIVE` labels.
+- **No auto-escalation.** The output goes to the moderator queue as a supporting signal, never as a status move (no automatic `TECHNICAL_AUDIT`). Stored with the work id, corridor geometry source, both windows, each clear pass date, its cloud cover and the clear-pixel count.
+- **Same-season windows.** Compare before and after windows in the same season (for example post-monsoon against post-monsoon). Monsoon moisture and dry-season dust change reflectance on their own. The proposal's Nov 2025 against Feb 2026 example is not used.
+- **Minimum clear passes.** Report clear passes per window. Below a minimum (to set during calibration), store "too few clear passes" and no figure.
+- **Corridor size.** A 10 m pixel is wider than many village roads, so a narrow corridor mixes in roadside land. Record the corridor's pixel count; calibration sets the minimum.
+- **Kept:** the evalscript on `sentinel-2-l2a` with the SCL mask (drops cloud shadow 3, cloud 8 to 10, snow 11) and `dataMask`. The band order in the response (`B0` = B04, `B1` = B08) is checked against a real API reply before use.
+- **Credentials and runner:** GitHub Actions only (per the scheduling rule above). `CDSE_CLIENT_ID` and `CDSE_CLIENT_SECRET` live in GitHub secrets, never in the repo, logs or the database. No sample Purulia polygon in any shipped file; corridors come only from `kasa_private.assets` rows with an OSM or official source.
+- **Terms:** CDSE quotas and terms of use are checked on dataspace.copernicus.eu before the first scheduled run. They are not quoted here from memory.
+
+Rejected: cell-tower checks, motion-sensor buffers, the fused score and the cartel flag (Non-goals).
+
