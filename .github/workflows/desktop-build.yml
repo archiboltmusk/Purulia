@@ -89,7 +89,9 @@ jobs:
           GH_TOKEN: ${{ github.token }}
           TAG: desktop-build-${{ github.run_number }}
         run: |
-          gh release create "$TAG" out/* \
+          # Artifacts keep their folder layout (appimage/, deb/), so list files, not out/*.
+          mapfile -t files < <(find out -type f)
+          gh release create "$TAG" "${files[@]}" \
             --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
             --title "Parishkar desktop build ${{ github.run_number }}" \
             --notes "macOS: open the .dmg and drag Parishkar to Applications. It is not signed yet, so the first time right-click the app and choose Open. Linux: make the .AppImage executable and run it, or install the .deb. Built from ${GITHUB_SHA::7}."
