@@ -247,8 +247,48 @@ Sources and tools:
 - **D7.** Python MCP workers (new infra) vs Supabase-only (Deno + pg_cron)? Recommend Supabase-only for 2a–2b, revisit for OCR.
 - **D8.** Counsel review date before any contractor or official is named on a public page. Owner: Anupam.
 
+## Non-goals
+
+- No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
+- No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+- No passive Wi-Fi BSSID, cell-tower or other RF environment collection, and no device fingerprinting, unless a DPDP privacy review approves it first. It collects location data on citizens who have not consented.
+- No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
+
 ## 10. Verification done in this PR
 
 - Read: existing migrations for reports, photo_meta, photo_checks, assets, works, work_assets, jurisdictions, evidence tables, public_works, road_tags, categories, legal gate.
 - Not run: the §3 SQL. No PostGIS available here. Nothing applied to any database.
 - CI: `kasa-tests.yml` is unaffected (no `migrations/` or JS change). This file is under `research/`, not published (`*.md` not deployed).
+
+## 11. Zero-cost infrastructure review (2026-10-21)
+
+Source: Anupam's zero-cost plan, relayed 2026-10-21. Vendor prices and free-tier limits in that plan are **unverified**. None are relied on here. Check each vendor's current pricing page before any decision that depends on a limit.
+
+Added (as requirements or design notes, nothing built):
+- Scheduled ingestion in GitHub Actions: cron only, portal terms and robots respected, no CAPTCHA bypass, no proxies. Matches §6.
+- Image compression after the EXIF check: run `kasa_private.photo_meta` (live capture, EXIF vs GPS) on the original first, then compress. Keep the original's sha256 and dHash in `kasa_private.photo_checks`, so reuse checks still match. The existing `kasa-photo-shrink` function already shrinks after checks; no new compression path.
+- Backups: `db-backup.yml` already runs weekly. Any nightly export to a private repo must exclude personal data and reporter identities. Hashed IDs only. Parked until a specific need.
+- Open data: public GeoJSON of published records only, after the §4 gate. Phase 2d.
+- Local-first MCP runner: phase 2c option. Read-only tools run on a moderator's own machine against the database under moderator auth. No new cloud service.
+
+Parked (not in scope now):
+- Telegram ward channels and bot alerts. Declined earlier by Anupam; not built. Naming contractors there would also need the counsel gate (D8).
+- X or WhatsApp auto-posts. Declined earlier.
+- PMTiles on R2 for map tiles. Revisit when live map traffic is a real cost.
+- Cloudflare R2 for photos. Deferred until the R2 memory threshold (about 700 MB of photos).
+- Third-party LLM extraction (for example Gemini free tier) on any document with personal data. Needs a decision from Anupam first.
+- Client-side compression before upload, until the EXIF-first flow above is specified and tested.
+
+## 12. Fraud countermeasures (phase 2c / 3 requirements, 2026-10-21)
+
+Requirements only. Nothing here is built.
+
+- Camera-only capture: existing rule. Gallery upload stays off.
+- Duplicate photos: sha256 and dHash already in `photo_checks`. Reuse detection flags a repeat for moderation. Public output never shows a perceptual-hash match as proof.
+- Velocity check (phase 2c): an account that files 5 or more reports 5 km apart within 10 minutes has that batch isolated for moderation.
+- Disjoint witness consensus (phase 2c): a signal needs independent reporters. Weights come from corroboration across unrelated accounts. Raw report count alone never flags. Replaces the flat "≥ 3 distinct hashes" rule once weights are approved (assumption A8).
+- Liveness micro-video (phase 3, high-stakes reports only, for example a claim that a road was never built): short capture with the live camera, reviewed by a moderator. No automatic verdict.
+- Satellite NDBI (Sentinel-2, phase 3): supporting evidence only. Show it as one signal with its image date and cloud cover. Never describe it as proof, and never write "statistically impossible" on any page.
+- Community boundary confirmation (phase 3): design only. Residents confirm start and end points of a vaguely described stretch. No build until designed and reviewed.
+- Confidence display: show independent signals with dates and counts (for example "4 reports, 4 reporters, 3 Mar to 11 Mar"). No single percentage. Every signal keeps the "Unverified signal" label and the contractor response window (rule in §4).
+- Signed community feeds (Ed25519 manifests, source-hash links): parked with the add-on non-goal.

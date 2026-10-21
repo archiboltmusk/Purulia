@@ -207,6 +207,7 @@ categories:
         hi: नुकसान क्या है?
         options:
           - { key: pothole, en: Pothole, bn: গর্ত, hi: गड्ढा }
+          - { key: work_not_visible, en: Repair work not visible, bn: মেরামতের কাজ দেখা যাচ্ছে না, hi: मरम्मत का काम दिखाई नहीं दे रहा }
           - { key: broken_edge, en: Broken edge, bn: ভাঙা প্রান্ত, hi: टूटा हुआ किनारा }
           - { key: missing_drain, en: Missing drain cover, bn: নালার ঢাকনা নেই, hi: नाली का कवर नहीं }
           - { key: waterlogged, en: Waterlogged, bn: জলাবদ্ধ, hi: जलभराव }
