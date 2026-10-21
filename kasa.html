@@ -96,7 +96,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
     <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
   <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
-  <input type="search" class="k-place-search" id="k-place-search" placeholder="Search a state or district" aria-label="Search a state or district" autocomplete="off">
+  <input type="search" class="k-place-search" id="k-place-search" data-i18n-placeholder="pk_search" placeholder="Find a town, block or district" aria-label="Search a state or district" autocomplete="off">
   <div class="k-place-list" id="k-place-list"></div>
 </dialog>
   <div class="k-nav-links">
@@ -221,6 +221,11 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   <button type="button" class="k-fab-menu" id="k-fab-menu" aria-controls="k-drawer" data-i18n-title="nav_more" title="Menu">
     <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
+  <div class="k-outside" id="k-outside" role="status" hidden>
+    <span class="k-outside-msg" id="k-outside-msg"></span>
+    <button type="button" class="k-outside-fly" id="k-outside-fly"></button>
+    <button type="button" class="k-outside-x" id="k-outside-x" data-i18n-title="outside_close" title="Hide" aria-label="Hide"><span aria-hidden="true">✕</span></button>
+  </div>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
     <svg class="k-map-report-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> <span data-i18n="map_report">Report a problem</span>
   </button>
