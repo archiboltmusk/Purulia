@@ -85,6 +85,8 @@ img{display:block;max-width:100%;}
 .k-lang-btn{padding:.35rem .55rem;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);transition:color .2s,background-color .2s,border-color .2s,box-shadow .2s,opacity .2s,transform .2s;border-radius:2px;}
 .k-lang-btn:hover{color:var(--amber);}
 .k-lang-active{background:var(--amber);color:var(--ink)!important;}
+.k-lang-toggle{min-height:44px;min-width:44px;padding:.4rem .7rem;font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--cream);background:rgba(221,51,51,.08);border-radius:2px;transition:color .2s,background-color .2s;}
+.k-lang-toggle:hover{color:var(--amber);}
 .k-theme-toggle{padding:.4rem .5rem;font-size:14px;color:var(--text-md);transition:color .2s,background-color .2s,border-color .2s,box-shadow .2s,opacity .2s,transform .2s;border-radius:2px;opacity:.7;}
 .k-theme-toggle:hover{color:var(--amber);opacity:1;}
 .k-social-menu{position:relative;}
@@ -921,9 +923,8 @@ body[data-app-layout] .k-nav-right > .k-nav-mine,body[data-app-layout] .k-nav-ri
 /* "Join N people" line at the top of the map. */
 
 
-/* The map is the whole screen below the nav: logo and More only — our three-language switch
-   doesn't fit the nav row, so language stays in the menu along with the other pages. */
-body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-switch{display:none;}
+/* The map is the whole screen below the nav: logo and More only. Hindi and Santali stay in the menu. */
+body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-toggle{display:none;}
 /* "Near me" narrows the list; on the map the ⌖ button already centres on you. */
 .k-map-section:has(#k-list[hidden]) .k-nearby-btn{display:none;}
 /* In the menu: no second "Report" pitch and no ticker — the map's own Report button is enough. */
@@ -1048,7 +1049,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
    Filters sits top-left, the six tiles under it, the counter floats above the Report button. ── */
 @media(max-width:640px){
   .k-nav{padding:.45rem .7rem;}
-  .k-nav .k-nav-cta,.k-nav .k-social-menu,.k-nav .k-nav-mine,.k-nav .k-lang-switch{display:none;}
+  .k-nav .k-nav-cta,.k-nav .k-social-menu,.k-nav .k-nav-mine{display:none;}
+  .k-nav .k-lang-toggle{min-width:44px;padding:.4rem .5rem;}
   .k-map-pill{top:auto;bottom:5.1rem;transform:translateX(-50%);font-size:10.5px;padding:.4rem .8rem;}
 }
 

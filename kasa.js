@@ -342,6 +342,13 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); el.setAttribute('aria-label', el.title); });
   document.querySelectorAll('.k-lang-btn').forEach(b => b.classList.toggle('k-lang-active', b.dataset.lang === state.lang));
+  // Navbar toggle names the other language: বাংলা while English, EN while Bengali.
+  document.querySelectorAll('.k-lang-toggle').forEach(b => {
+    const bn = state.lang === 'bn';
+    b.dataset.lang = bn ? 'en' : 'bn';
+    b.textContent = bn ? 'EN' : 'বাংলা';
+    b.setAttribute('aria-label', bn ? 'Switch to English' : 'Switch to Bengali');
+  });
   showVersion();
 }
 
