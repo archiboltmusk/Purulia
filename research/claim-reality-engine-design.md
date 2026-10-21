@@ -251,6 +251,7 @@ Sources and tools:
 
 - No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
 - No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+- No passive Wi-Fi BSSID, cell-tower or other RF environment collection, and no device fingerprinting, unless a DPDP privacy review approves it first. It collects location data on citizens who have not consented.
 - No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
 
 ## 10. Verification done in this PR
@@ -277,3 +278,17 @@ Parked (not in scope now):
 - Cloudflare R2 for photos. Deferred until the R2 memory threshold (about 700 MB of photos).
 - Third-party LLM extraction (for example Gemini free tier) on any document with personal data. Needs a decision from Anupam first.
 - Client-side compression before upload, until the EXIF-first flow above is specified and tested.
+
+## 12. Fraud countermeasures (phase 2c / 3 requirements, 2026-10-21)
+
+Requirements only. Nothing here is built.
+
+- Camera-only capture: existing rule. Gallery upload stays off.
+- Duplicate photos: sha256 and dHash already in `photo_checks`. Reuse detection flags a repeat for moderation. Public output never shows a perceptual-hash match as proof.
+- Velocity check (phase 2c): an account that files 5 or more reports 5 km apart within 10 minutes has that batch isolated for moderation.
+- Disjoint witness consensus (phase 2c): a signal needs independent reporters. Weights come from corroboration across unrelated accounts. Raw report count alone never flags. Replaces the flat "≥ 3 distinct hashes" rule once weights are approved (assumption A8).
+- Liveness micro-video (phase 3, high-stakes reports only, for example a claim that a road was never built): short capture with the live camera, reviewed by a moderator. No automatic verdict.
+- Satellite NDBI (Sentinel-2, phase 3): supporting evidence only. Show it as one signal with its image date and cloud cover. Never describe it as proof, and never write "statistically impossible" on any page.
+- Community boundary confirmation (phase 3): design only. Residents confirm start and end points of a vaguely described stretch. No build until designed and reviewed.
+- Confidence display: show independent signals with dates and counts (for example "4 reports, 4 reporters, 3 Mar to 11 Mar"). No single percentage. Every signal keeps the "Unverified signal" label and the contractor response window (rule in §4).
+- Signed community feeds (Ed25519 manifests, source-hash links): parked with the add-on non-goal.
