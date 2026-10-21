@@ -2690,7 +2690,7 @@ function renderSheet(){
       <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block || r.place) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
-        <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        <a class="k-directions-btn" href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
         ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
