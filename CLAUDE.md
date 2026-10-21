@@ -85,6 +85,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - Pages call RPCs named `kasa_*` (`kasa_admin_*` = moderator-only, checked server-side). Find callers: `grep -n "rpc('kasa_x'" *.js`; definition: `grep -ln 'function public.kasa_x' supabase/migrations`, newest file wins.
 - Edge functions `supabase/functions/<name>/index.ts` (first line says what it does): photo check/token/shrink/cleanup, geocode, road tag (OSM IN:NH/SH/MDR/ODR/VR authority per report), notify + notify-watch, flag/bug alerts, queue alert (72 h backlog), weekly digest/pattern, office letters, promise news, team invite, unsubscribe, p2040 signup alert.
 - Abuse limits: `kasa_private.net_limit(kind, per_hour, per_day, msg)` counts actions per network (`kasa_private.net_actions`, hashed /24 or /48) on top of per-device limits; reports need `p_accuracy` ≤ setting `report_max_accuracy_m`. `kasa-weekly-pattern` sends once a week via `kasa_weekly_pattern_claim`/`_done` (`kasa_private.weekly_pattern_log`). Edge functions take the public anon key, so any that send email or delete must claim work in the DB first.
+- Claim vs reality engine (design only, no tables live): `research/claim-reality-engine-design.md`. Reuses `works`/`assets`/`work_assets`/`reports`/`photo_meta`; flags will be `kasa_private.reality_signals` (not built).
 - New migration: `supabase/migrations/<YYYYMMDDHHMMSS>_kasa_<what>.sql`, idempotent (`create or replace`, `if not exists`); tests run every migration twice.
 
 ## Tests (CI: `kasa-tests.yml`, `browser-tests.yml`)
