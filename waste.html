@@ -1,22 +1,23 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Where the waste goes — Parishkar Bengal</title>
+<title>Where the waste goes — Parishkar</title>
 <meta name="description" content="The five links every town's waste needs, from homes to a safe landfill, what the rules say, what Purulia has published about each, and an RTI to ask for the rest.">
-<meta property="og:title" content="Where the waste goes — Parishkar Bengal">
+<meta property="og:title" content="Where the waste goes — Parishkar">
 <meta property="og:description" content="From your home to the dump: what Purulia has, and what nobody has published.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/waste.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/waste.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <style>
   .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
@@ -33,7 +34,7 @@
   .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
   .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
   @media(min-width:1100px){.an-grid{grid-template-columns:1fr 1fr;}.an-span{grid-column:1 / -1;}}
-  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
   .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
   .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
   .an-chart{position:relative;margin-top:1.2rem;height:220px;}
@@ -53,14 +54,15 @@
   .an-table td:first-child,.an-table td.n{white-space:nowrap;}
   @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
   .ws-chain{display:grid;gap:1rem;margin-top:1.4rem;}
-  .ws-link{display:grid;grid-template-columns:2.6rem 1fr;gap:1rem;border:1px solid var(--border);border-radius:6px;padding:1.1rem 1.2rem;background:rgba(240,230,208,.02);}
+  .ws-link{display:grid;grid-template-columns:2.6rem 1fr;gap:1rem;border:1px solid var(--border);border-radius:6px;padding:1.1rem 1.2rem;background:rgba(var(--cream-rgb),.02);}
   .ws-n{font-family:var(--serif);font-size:2rem;font-weight:700;color:var(--amber);line-height:1;}
   .ws-link h2{font-family:var(--serif);font-size:1.25rem;color:var(--cream);}
   .ws-link p{margin-top:.4rem;color:var(--text-md);font-size:.92rem;line-height:1.6;}
   .ws-link p b{color:var(--text-hi);}
-  .ws-status{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:.2rem .5rem;border-radius:3px;border:1px solid rgba(212,136,42,.45);color:var(--amber);}
-  .ws-rti{margin-top:.8rem;white-space:pre-wrap;font-size:.86rem;line-height:1.6;background:rgba(240,230,208,.03);border:1px solid var(--border);border-radius:4px;padding:1rem;color:var(--text-hi);}
+  .ws-status{display:inline-block;margin-top:.6rem;font-family:var(--mono);font-size:11px;letter-spacing:.06em;padding:.2rem .5rem;border-radius:3px;border:1px solid rgba(221,51,51,.45);color:var(--amber);}
+  .ws-rti{margin-top:.8rem;white-space:pre-wrap;font-size:.86rem;line-height:1.6;background:rgba(var(--cream-rgb),.03);border:1px solid var(--border);border-radius:4px;padding:1rem;color:var(--text-hi);}
   .ws-btn{margin-top:.8rem;background:var(--amber);color:#0a0805;border:0;border-radius:4px;padding:.6rem 1rem;font:inherit;font-weight:600;cursor:pointer;}
+  .an-card a.ws-btn,.ws-src a.ws-btn,.ws-dumps a.ws-btn{color:#0a0805;}
   .ws-src{margin-top:.5rem;font-size:.8rem;color:var(--text-lo);}
   .ws-src a,.an-card a,.ws-link a{color:var(--amber);}
   .ws-map{margin-top:1rem;height:340px;border-radius:6px;overflow:hidden;border:1px solid var(--border);}
@@ -68,20 +70,21 @@
   .ws-dumps li{padding:.55rem 0;border-bottom:1px solid var(--border);color:var(--text-md);font-size:.9rem;}
   .ws-dumps a{color:var(--amber);}
   a.ws-btn{display:inline-block;text-decoration:none;}
-  .maplibregl-popup-content{background:#14100b;color:#f0e6d0;border:1px solid rgba(240,230,208,.15);}
-  .maplibregl-popup-content a{color:#d4882a;}
+  .maplibregl-popup-content{background:#14100b;color:#f0e6d0;border:1px solid rgba(var(--cream-rgb),.15);}
+  .maplibregl-popup-content a{color:#DD3333;}
   .maplibregl-popup-tip{display:none;}
   .ws-plan{margin:.8rem 0 0 1.2rem;color:var(--text-md);line-height:1.6;font-size:.92rem;}
   .ws-plan li{margin:.5rem 0;}
   .ws-plan-h{margin-top:1.2rem;font-family:var(--serif);font-size:1.1rem;color:var(--cream);}
+/* Touch targets: at least 48px tall on phones, for one-handed use on the street. */
+@media(max-width:640px){.ws-btn,.k-nav-cta,.k-nav-links a{min-height:48px;display:inline-flex;align-items:center;}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="bug-report.js"></script>
 </head>
 <body>
 
 <nav class="k-nav">
-  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
   <div class="k-nav-links">
     <a href="index.html">Home</a>
     <a href="analytics.html">Analytics</a>
@@ -149,7 +152,7 @@
     <section class="an-card an-span" id="ws-dumps">
       <h2>Where the waste is dumped: reported by residents, and three known legacy sites</h2>
       <p class="an-card-sub">🚛 markers are dumping grounds residents reported, with a photo and location, confirmed by others on the spot like every report. ⚠️ markers are Bongabari, Chharma and Hutmura — legacy dumpsites named in a government bio-mining progress report, not a citizen report. Seen trucks or carts unloading somewhere else? Stand there and report it as <strong>🚛 Dumping ground</strong>.</p>
-      <div id="ws-map" class="ws-map" role="region" aria-label="Map of reported dumping grounds and known legacy dumpsites"></div>
+      <p><a href="kasa.html?category=dumpsite">See the dumping grounds and legacy dumpsites on the report map →</a></p>
       <ul class="ws-dumps" id="ws-dump-list"><li>Loading…</li></ul>
       <a class="ws-btn" href="kasa.html?report=new&amp;category=dumpsite" id="ws-report">🚛 Report a dumping ground</a>
     </section>
@@ -237,7 +240,6 @@ Date:</div>
 
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script defer src="config.js"></script>
-<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
 <script defer src="place-facts.js"></script>
 <script defer src="waste.js"></script>
 <script>

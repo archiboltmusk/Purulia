@@ -1,0 +1,240 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Partner demo · Parishkar</title>
+<style>
+:root{--red:#c8102e;--ink:#1d1d1b;--muted:#5b5b57;--line:#1d1d1b;--paper:#fff;--soft:#f6f4f1;--ok:#1e6b3a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#f2f0ec;--muted:#b9b6b0;--line:#f2f0ec;--paper:#161616;--soft:#222;--ok:#7fd29a}}
+:root[data-theme="dark"]{--ink:#f2f0ec;--muted:#b9b6b0;--line:#f2f0ec;--paper:#161616;--soft:#222;--ok:#7fd29a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0;border-bottom:3px solid var(--red);padding-bottom:.2em}
+h2{font-size:1.1rem;margin:1.2em 0 .4em}
+.demo{background:var(--red);color:#fff;padding:8px 12px;font-weight:700;letter-spacing:.02em}
+.sub{color:var(--muted);margin:.3em 0 1em}
+.roles{display:flex;flex-wrap:wrap;gap:8px;margin:12px 0}
+button{font:inherit;border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:6px 12px;border-radius:6px;cursor:pointer}
+button[aria-pressed="true"]{background:var(--ink);color:var(--paper)}
+button.primary{background:var(--red);border-color:var(--red);color:#fff}
+button:disabled{opacity:.4;cursor:default}
+.steps{list-style:none;padding:0;margin:0;border:2px solid var(--line);border-radius:8px;overflow:hidden}
+.step{display:grid;grid-template-columns:34px 1fr auto;gap:10px;align-items:center;padding:10px 12px;border-top:1px solid var(--line)}
+.step:first-child{border-top:0}
+.num{width:28px;height:28px;border-radius:50%;border:2px solid var(--line);display:grid;place-items:center;font-weight:700}
+.done .num{background:var(--ok);border-color:var(--ok);color:#fff}
+.cur{background:var(--soft)}
+.step small{color:var(--muted);display:block}
+.pill{font-size:.8rem;border:1px solid var(--line);border-radius:99px;padding:1px 8px;white-space:nowrap}
+.note{border-left:4px solid var(--red);padding:6px 10px;background:var(--soft);margin:12px 0}
+.grid{display:grid;grid-template-columns:1fr;gap:16px}
+@media (min-width:720px){.grid{grid-template-columns:1.3fr 1fr}}
+.card{border:2px solid var(--line);border-radius:8px;padding:12px}
+.photo{aspect-ratio:4/3;border:2px dashed var(--line);border-radius:6px;display:grid;place-items:center;color:var(--muted);text-align:center;padding:12px;background:var(--soft)}
+.photo.got{background:var(--paper);border-style:solid}
+ol.log{margin:0;padding-left:1.2em;font-size:.92rem}
+ol.log li{margin:.3em 0}
+.public{font-size:.95rem}
+.reasons{display:flex;flex-wrap:wrap;gap:6px;margin:6px 0}
+</style>
+</head>
+<body>
+<div class="demo" role="note">DEMO · sample data · not a real report, worker, firm or municipality · nothing is sent or stored</div>
+<main class="wrap">
+  <h1>Street problem to paid fix: partner demo</h1>
+  <p class="sub">One report, four roles. Click through the steps. The demo municipality is fictional.</p>
+
+  <div class="roles" role="group" aria-label="Role">
+    <button data-role="citizen" aria-pressed="true">Citizen</button>
+    <button data-role="officer" aria-pressed="false">Municipal officer</button>
+    <button data-role="worker" aria-pressed="false">Worker</button>
+    <button id="reset" style="margin-left:auto">Restart demo</button>
+  </div>
+
+  <div class="grid">
+    <section>
+      <h2>Work order · sample</h2>
+      <ol class="steps" id="steps"></ol>
+      <div class="note" id="hint"></div>
+    </section>
+
+    <section>
+      <h2 id="panelTitle">Action</h2>
+      <div class="card" id="panel"></div>
+
+      <h2>Public line (what a citizen sees)</h2>
+      <div class="card public" id="public"></div>
+    </section>
+  </div>
+
+  <h2>Record log (append-only, sample)</h2>
+  <div class="card"><ol class="log" id="log"></ol></div>
+</main>
+
+<script>
+(function () {
+  "use strict";
+  var STATES = [
+    { key: "reported",    label: "Reported",         who: "citizen",  by: "Citizen" },
+    { key: "approved",    label: "Approved",         who: "officer",  by: "Municipal officer" },
+    { key: "assigned",    label: "Assigned",         who: "officer",  by: "Municipal officer" },
+    { key: "in_progress", label: "In progress",      who: "worker",   by: "Worker" },
+    { key: "work_photo",  label: "Work photo",       who: "worker",   by: "Worker" },
+    { key: "completed",   label: "Officer sign-off", who: "officer",  by: "Worker done, officer signs off" },
+    { key: "verified",    label: "Verified",         who: "citizen",  by: "Citizen confirms (needed with officer sign-off)" },
+    { key: "paid",        label: "Paid (recorded)",  who: "officer",  by: "Municipal officer" }
+  ];
+  var REJECT_REASONS = [
+    "Not on our road or drain: forwarded to the road owner",
+    "Duplicate of an open report"
+  ];
+  var WORKER = "Sample Worker A (demo)";
+  var FIRM = "Sample Firm 1 (demo)";
+
+  var state = { idx: 0, log: [], photo: false, rejected: null, role: "citizen", ref: "" };
+  var now = 0;
+
+  function stamp() { now++; return "09:" + String(10 + now).padStart(2, "0"); }
+  function log(text) { state.log.push(stamp() + "  " + text); }
+  function cur() { return STATES[state.idx]; }
+  function done() { return state.idx >= STATES.length; }
+
+  function advance(text) { log(text); state.idx++; render(); }
+
+  function act(kind) {
+    if (kind === "report") advance("Citizen reported a problem (sample), live camera and GPS required in the real app");
+    if (kind === "approve") advance("Officer approved for work. SLA 7 days (sample)");
+    if (kind === "assign") { log("Officer assigned " + FIRM + ", order DEMO-WO-0001"); state.idx++; render(); }
+    if (kind === "start") advance(WORKER + " accepted and started");
+    if (kind === "photo") { state.photo = true; log("Work photo captured (demo placeholder, real app needs live camera + GPS within the site radius)"); state.idx++; render(); }
+    if (kind === "complete") advance(WORKER + " marked complete with 1 work photo");
+    if (kind === "reject_completion") { state.idx = 3; state.photo = false; log("Officer sent back: photo does not show the defect"); render(); }
+    if (kind === "verify") advance("Citizen confirmed fixed on site (sample). Verified: officer sign-off and citizen confirmation both on record");
+    if (kind === "dispute") { state.idx = 3; state.photo = false; log("Citizen disputed the fix; order back to in progress"); render(); }
+    if (kind === "pay") { state.ref = "DEMO-PAY-0001"; advance("Officer recorded municipal payment reference " + state.ref + " (Parishkar moves no money)"); }
+    if (kind === "reject_report") { state.rejected = REJECT_REASONS[0]; log("Officer rejected: " + state.rejected); render(); }
+  }
+
+  function actionFor() {
+    var c = cur();
+    var r = state.role;
+    if (done()) return { html: "<p>Order closed. Payment reference recorded.</p>", btns: [] };
+    if (state.rejected) return { html: "<p>Report rejected: " + esc(state.rejected) + ". The citizen sees the forward route.</p>", btns: [] };
+    if (!c) return { html: "", btns: [] };
+    var step = c.key;
+
+    if (step === "reported") return r === "citizen" ? btn("Report this problem (sample)", "report", true, "Real app: live camera + GPS only, no gallery upload.") : waitFor("citizen");
+    if (step === "approved" || step === "assigned") {
+      if (r !== "officer") return waitFor("municipal officer");
+      if (step === "approved") return {
+        html: "<p>Approve the report for work, or reject with a reason.</p>",
+        btns: [btnDef("Approve for work", "approve", "primary"), btnDef("Reject report", "reject_report")]
+      };
+      return { html: "<p>Assign a firm or worker and issue the order number.</p>", btns: [btnDef("Assign " + FIRM, "assign", "primary")] };
+    }
+    if (step === "in_progress") return r === "worker" ? btn("Accept and start the job", "start", true, "") : waitFor("worker");
+    if (step === "work_photo") {
+      if (r !== "worker") return waitFor("worker");
+      return {
+        html: "<p>Take a live photo at the site. Camera and GPS are captured on the device. With no signal the photo waits in the queue and uploads when online. Gallery uploads are not allowed. The server rejects a photo whose capture time or GPS is missing or does not fit the upload time.</p>" +
+          "<div class='photo " + (state.photo ? "got" : "") + "'>Demo placeholder: no real camera in this demo</div>",
+        btns: [btnDef("Simulate live capture", "photo", "primary")]
+      };
+    }
+    if (step === "completed") {
+      if (r === "worker") return waitFor("municipal officer");
+      if (r === "officer") return { html: "<p>Officer sign-off: confirm the completion, or send it back. Citizen confirmation comes next.</p>", btns: [btnDef("Confirm completed", "complete", "primary"), btnDef("Send back", "reject_completion")] };
+      return waitFor("municipal officer");
+    }
+    if (step === "verified") return r === "citizen" ? { html: "<p>Citizen confirmation: confirm the fix on site, or dispute it. Verified needs both sign-off and this.</p>", btns: [btnDef("Confirm fixed", "verify", "primary"), btnDef("Dispute", "dispute")] } : waitFor("citizen");
+    if (step === "paid") return r === "officer" ? { html: "<p>Record the municipality's own payment reference. Parishkar stores the reference only.</p>", btns: [btnDef("Record payment reference", "pay", "primary")] } : waitFor("municipal officer");
+    return { html: "", btns: [] };
+  }
+
+  function btn(label, kind, primary, extra) {
+    return { html: extra ? "<p>" + esc(extra) + "</p>" : "", btns: [btnDef(label, kind, primary ? "primary" : "")] };
+  }
+  function btnDef(label, kind, cls) { return { label: label, kind: kind, cls: cls || "" }; }
+  function waitFor(who) { return { html: "<p>Waiting for the " + esc(who) + ".</p>", btns: [] }; }
+  function esc(s) { return String(s).replace(/[&<>"']/g, function (c) { return { "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]; }); }
+
+  function renderSteps() {
+    var ol = document.getElementById("steps");
+    ol.innerHTML = STATES.map(function (s, i) {
+      var cls = i < state.idx ? "done" : (i === state.idx && !state.rejected ? "cur" : "");
+      if (state.rejected && i === 1) cls = "cur";
+      return "<li class='step " + cls + "'><span class='num'>" + (i < state.idx ? "✓" : i + 1) + "</span>" +
+        "<span>" + esc(s.label) + "<small>" + esc(s.by) + "</small></span>" +
+        "<span class='pill'>" + (i < state.idx ? "done" : "") + "</span></li>";
+    }).join("");
+  }
+
+  function renderPanel() {
+    var a = actionFor();
+    document.getElementById("panelTitle").textContent = done() ? "Done" : "Action: " + roleName(state.role);
+    var panel = document.getElementById("panel");
+    var reasons = "";
+    panel.innerHTML = a.html + (a.btns.length ? "<div class='reasons'></div>" : "");
+    var box = panel.querySelector(".reasons");
+    a.btns.forEach(function (b) {
+      var el = document.createElement("button");
+      el.textContent = b.label;
+      el.className = b.cls;
+      el.addEventListener("click", function () { act(b.kind); });
+      if (box) box.appendChild(el); else panel.appendChild(el);
+    });
+  }
+
+  function roleName(r) { return { citizen: "citizen", officer: "municipal officer", worker: "worker" }[r]; }
+
+  function renderPublic() {
+    var line;
+    if (state.rejected) line = "Not actionable by this body. Forwarded: " + state.rejected + ".";
+    else if (state.idx === 0) line = "Reported. Waiting for the municipality to respond.";
+    else if (state.idx === 1) line = "Approved for work by the municipality. SLA 7 days (sample).";
+    else if (state.idx === 2) line = "Assigned to " + FIRM + ". Order DEMO-WO-0001 (sample).";
+    else if (state.idx === 3) line = "Work starts soon.";
+    else if (state.idx === 4) line = "Work in progress.";
+    else if (state.idx === 5) line = "Completed by the firm. Waiting for municipal sign-off.";
+    else if (state.idx === 6) line = "Municipal sign-off given. Waiting for citizen confirmation.";
+    else if (state.idx === 7) line = "Verified on site by a citizen. Waiting for payment record.";
+    else line = "Payment reference recorded: " + state.ref + " (sample). Amount and firm shown only when the municipality states them.";
+    document.getElementById("public").textContent = line;
+  }
+
+  function renderLog() {
+    document.getElementById("log").innerHTML = state.log.map(function (l) { return "<li>" + esc(l) + "</li>"; }).join("") || "<li>No events yet.</li>";
+  }
+
+  function renderHint() {
+    var h = {
+      citizen: "Citizens report with a live photo and GPS. The worker never sees the report's verify button.",
+      officer: "The officer approves and pays. The officer never verifies the work.",
+      worker: "Work photos use the same live camera and GPS rule as citizen reports."
+    }[state.role];
+    document.getElementById("hint").textContent = h;
+  }
+
+  function render() {
+    renderSteps(); renderPanel(); renderPublic(); renderLog(); renderHint();
+    document.querySelectorAll("[data-role]").forEach(function (b) {
+      b.setAttribute("aria-pressed", String(b.getAttribute("data-role") === state.role));
+    });
+  }
+
+  document.querySelectorAll("[data-role]").forEach(function (b) {
+    b.addEventListener("click", function () { state.role = b.getAttribute("data-role"); render(); });
+  });
+  document.getElementById("reset").addEventListener("click", function () {
+    state = { idx: 0, log: [], photo: false, rejected: null, role: state.role, ref: "" };
+    now = 0; render();
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

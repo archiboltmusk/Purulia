@@ -42,7 +42,8 @@ test('map controls do not overlap each other', async ({ page, backend }) => {
   }
 });
 
-test('report form opens with the camera', async ({ page, backend }) => {
+test('report form opens with the camera', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await page.locator('.k-map-report-btn').click();
@@ -54,7 +55,8 @@ test('report form opens with the camera', async ({ page, backend }) => {
   await expect(page.locator('#k-photo-preview img')).toBeVisible();
 });
 
-test('camera preview is the square that gets saved, with nothing on top of it', async ({ page, backend }) => {
+test('camera preview is the square that gets saved, with nothing on top of it', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.setViewportSize({ width: 390, height: 844 });
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
@@ -72,7 +74,8 @@ test('camera preview is the square that gets saved, with nothing on top of it', 
   }
 });
 
-test('confirm flow sends a verify vote for the claim', async ({ page, backend }) => {
+test('confirm flow sends a verify vote for the claim', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html?report=102');
   await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
   await page.locator('[data-evidence="verify:102"]').click();
@@ -99,7 +102,8 @@ test('Santali shows the page in Ol Chiki', async ({ page, backend }) => {
   await expect(page.locator('[data-i18n="footer_privacy"]').first()).not.toHaveText('footer_privacy');
 });
 
-test('report form sends the picked severity and problem type', async ({ page, backend }) => {
+test('report form sends the picked severity and problem type', async ({ page, backend, isMobile }) => {
+  test.skip(!isMobile, 'camera needs a phone');
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
   await page.locator('.k-map-report-btn').click();
@@ -171,6 +175,17 @@ test.describe('inside the Instagram app on an iPhone', () => {
   });
 });
 
+test('a laptop is asked to open the report on a phone instead of using its camera', async ({ page, backend, isMobile }) => {
+  test.skip(!!isMobile, 'desktop only');
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-map-report-btn').click();
+  await expect(page.locator('#k-phone')).toBeVisible();
+  await expect(page.locator('#k-cam')).toBeHidden();
+  await page.locator('#k-phone-close').click();
+  await expect(page.locator('#k-phone')).toBeHidden();
+});
+
 test('ordinary browsers see no in-app bar', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
@@ -193,7 +208,7 @@ test('representatives: every MP, MLA, chairperson and the Zilla Parishad, with a
   const ok = body => route => route.fulfill({ status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(body) });
   await page.route('**/rest/v1/rpc/kasa_promises', ok({ promises: [{ id: 'p1', who: 'Jyotirmay Singh Mahato', promise: 'A rail overbridge at the station', made_on: '2026-06-01', status: 'promised' }], news: [] }));
   await page.route('**/rest/v1/rpc/kasa_demands', ok([{ id: 'd1', leader_name: 'Jyotirmay Singh Mahato', title: 'Fix the district hospital lifts', supports: 4, replies: [] }]));
-  await page.goto('kasa.html');
+  await page.goto('kasa.html?place=purulia');
   await page.locator('#k-more-btn').click();
   await page.locator('#k-auth-sec summary').click();
   const cards = page.locator('#k-auth-grid .k-auth-card');
@@ -254,15 +269,15 @@ test('the report map knows gram panchayats and the other towns', async ({ page, 
   expect(labels).toEqual(['Jhalda Municipality', 'Sirkabad gram panchayat, Arsha block', 'agency_municipality', 'agency_panchayat']);
 });
 
-test('the Daylight map switch in the menu swaps to a light map', async ({ page, backend }) => {
+test('the map opens light, and the Daylight map switch in the menu goes back to dark', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
-  expect(await page.evaluate(() => MAP_STYLE)).toContain('/dark');
-  await page.locator('#k-more-btn').click();
-  await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'false');
-  await Promise.all([page.waitForEvent('load'), page.locator('#k-daylight').click()]);
   expect(await page.evaluate(() => MAP_STYLE)).toContain('/positron');
+  await page.locator('#k-more-btn').click();
   await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'true');
+  await Promise.all([page.waitForEvent('load'), page.locator('#k-daylight').click()]);
+  expect(await page.evaluate(() => MAP_STYLE)).toContain('/dark');
+  await expect(page.locator('#k-daylight')).toHaveAttribute('aria-pressed', 'false');
 });
 
 test('a report shows its official grievance numbers, and anyone can add one', async ({ page, backend }) => {
@@ -282,6 +297,15 @@ test('a report shows its official grievance numbers, and anyone can add one', as
     .toMatchObject({ p_report_id: '102', p_portal: 'rti', p_number: 'PRLDM/R/2026/00042' });
 });
 
+test('a report has a letter to the office that answers first', async ({ page, backend }) => {
+  await page.goto('kasa.html?report=102');
+  await expect(page.locator('#k-sheet')).toHaveClass(/\bopen\b/);
+  const letter = page.locator('.k-letter-text');
+  await expect(letter).toHaveCount(1);
+  await expect(letter).toHaveValue(/Respected Sir\/Madam[\s\S]*Name:/);
+  await expect(page.locator('[data-copy-letter]')).toHaveCount(1);
+});
+
 test('all reports download as a GeoJSON map file with the CSV columns', async ({ page, backend }) => {
   await page.goto('kasa.html');
   await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
@@ -294,4 +318,17 @@ test('all reports download as a GeoJSON map file with the CSV columns', async ({
   expect(f.geometry.type).toBe('Point');
   expect(f.properties).toHaveProperty('link');
   expect(f.properties).not.toHaveProperty('lat');
+});
+
+test('Map | List toggle shows report cards and returns to the map', async ({ page, backend, isMobile }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-view-btn[data-view="list"]').click();
+  await expect(page.locator('#k-list')).toBeVisible();
+  await expect(page.locator('#k-list-items .k-list-item')).toHaveCount(REPORTS.length);
+  await expect(page.locator('#k-list-items .k-list-item').first().locator('.k-chip')).toHaveText(/Unresolved|Fixed|Resolved|Verifying/);
+  await expect(page.locator('#k-sort option[value="nearest"]')).toHaveCount(1);
+  await page.locator('.k-view-btn[data-view="map"]').click();
+  await expect(page.locator('#k-list')).toBeHidden();
+  await expect(page.locator('#k-map')).toBeVisible();
 });

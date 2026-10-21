@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Open data — Parishkar</title>
+<meta name="description" content="Every data file behind Parishkar, where each one comes from, and a read-only Open311 feed of the public reports.">
+<meta property="og:title" content="Open data — Parishkar">
+<meta property="og:description" content="Every data file behind Parishkar, where it comes from, and a read-only Open311 feed of the public reports.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/open-data.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/open-data.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .od-wrap{max-width:980px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,3rem) 6rem;color:var(--text-hi);}
+  .od-wrap h1{font-family:var(--serif);font-size:clamp(2rem,4.5vw,3.2rem);color:var(--cream);line-height:1.1;}
+  .od-wrap h1 em{color:var(--amber);}
+  .od-wrap h2{font-family:var(--serif);font-size:1.4rem;color:var(--cream);margin:2.4rem 0 .6rem;}
+  .od-wrap p,.od-wrap li{line-height:1.6;color:var(--text-md);}
+  .od-wrap a{color:var(--amber);}
+  .od-wrap code{font-family:var(--mono);font-size:.85em;overflow-wrap:anywhere;}
+  .od-table{width:100%;border-collapse:collapse;font-size:.9rem;margin-top:.6rem;}
+  .od-table th,.od-table td{padding:.55rem .5rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;}
+  .od-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);font-weight:500;}
+  .od-scroll{overflow-x:auto;}
+  .od-api li{margin:.3rem 0;}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Numbers</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right"><a href="kasa.html" class="k-nav-cta">Report →</a></div>
+</nav>
+
+<main class="od-wrap">
+  <h1>Open <em>data</em></h1>
+  <p>Everything on the map is built from the files below. Each one names its source; take it, check it against the source, and reuse it on the source's own terms. Reports are residents' allegations with a live photo and GPS, not verified facts.</p>
+
+  <h2>Reports: Open311 feed</h2>
+  <p>The public reports are available read-only in the <a href="https://wiki.open311.org/GeoReport_v2/" target="_blank" rel="noopener">Open311 GeoReport v2</a> format, so other civic apps, newsrooms and offices can pull them without scraping. JSON only. New reports can't be sent this way: a report needs a live camera photo and real GPS, which only the report map checks.</p>
+  <ul class="od-api">
+    <li>Problem types: <code><span class="od-base"></span>/open311/v2/services.json</code></li>
+    <li>Reports: <code><span class="od-base"></span>/open311/v2/requests.json</code>, with <code>start_date</code>, <code>end_date</code>, <code>status=open|closed</code>, <code>service_code</code> (comma-separated). Without dates: the last 90 days, up to 1000.</li>
+    <li>One report: <code><span class="od-base"></span>/open311/v2/requests/&lt;id&gt;.json</code></li>
+  </ul>
+  <p>The same numbers as tables, one CSV per table, are on <a href="analytics.html">the numbers page</a>.</p>
+
+  <h2>Maps and people</h2>
+  <div class="od-scroll"><table class="od-table">
+    <thead><tr><th>File</th><th>What it is</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><a href="places/wb_districts.geojson">wb_districts.geojson</a></td><td>West Bengal district outlines</td><td>Local Government Directory district boundaries (CC0), via india-geodata (<code>tools/build-districts.py</code>)</td></tr>
+      <tr><td><a href="places/wb_blocks.geojson">wb_blocks.geojson</a>, <a href="places/wb/index.json">wb/</a></td><td>Blocks and gram panchayats of every West Bengal district</td><td>West Bengal village boundaries, built by <code>tools/build-wb-local.py</code></td></tr>
+      <tr><td><a href="places/wb_towns.geojson">wb_towns.geojson</a></td><td>Municipalities and corporations, with 2022 ward counts</td><td>AMRUT GIS town limits, Wikipedia coordinates, State Election Commission 2022 (<code>tools/build-wb-towns.py</code>)</td></tr>
+      <tr><td><a href="places/councillors/asansol.json">councillors/</a></td><td>Ward councillors per town</td><td>State Election Commission results portal, portal.wbme.org (<code>tools/build-wb-councillors.py</code>)</td></tr>
+      <tr><td><a href="places/wb_assembly.geojson">wb_assembly.geojson</a>, <a href="places/wb_leaders.json">wb_leaders.json</a></td><td>294 assembly seats with each MLA and MP</td><td>Wikipedia election results (<code>tools/build-wb-leaders.py</code>)</td></tr>
+      <tr><td><a href="places/wb_ministers.json">wb_ministers.json</a></td><td>State ministers and departments</td><td>Wikipedia (<code>tools/build-wb-reps.py</code>)</td></tr>
+      <tr><td><a href="places/wb_mplads.json">wb_mplads.json</a>, <a href="places/mplads/pc-1.json">mplads/</a></td><td>MP local-area fund summaries and works lists</td><td>Official MPLADS portal figures as published by Empowered Indian (<code>tools/build-wb-reps.py</code>)</td></tr>
+      <tr><td><a href="places/wb_affidavits.json">wb_affidavits.json</a></td><td>Assets, liabilities, cases and education from election affidavits</td><td>ADR / MyNeta (<code>tools/build-wb-affidavits.py</code>)</td></tr>
+      <tr><td><a href="places/wb_record.json">wb_record.json</a></td><td>Each West Bengal MP's 18th Lok Sabha attendance, debates and questions</td><td>PRS Legislative Research MP Track (<code>tools/build-wb-record.py</code>)</td></tr>
+      <tr><td><a href="places/wb_officials.json">wb_officials.json</a></td><td>District Magistrates, Zilla Parishad ADMs and BDOs</td><td>Each district website's Who's Who (<code>tools/build-wb-officials.py</code>)</td></tr>
+      <tr><td><a href="places/in_states.geojson">in_states.geojson</a>, <a href="places/in/index.json">in/</a></td><td>All-India state, district and assembly-seat outlines with MLAs and MPs</td><td>Local Government Directory outlines (CC0), Wikipedia member lists (<code>tools/build-in-map.py</code>)</td></tr>
+      <tr><td><a href="places/in/towns.json">in/towns.json</a></td><td>Town ward maps outside West Bengal</td><td>Swachh Bharat Mission (Urban) GIS, DataMeet, INDIAN-SHAPEFILES (<code>tools/build-in-wards.py</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <h2>Places and money</h2>
+  <div class="od-scroll"><table class="od-table">
+    <thead><tr><th>File</th><th>What it is</th><th>Source</th></tr></thead>
+    <tbody>
+      <tr><td><a href="places/wb_district_facts.json">wb_district_facts.json</a></td><td>Per-district facts: population, health, tap water</td><td>Wikidata / Census 2011, NFHS-5 and 4, Jal Jeevan Mission, NITI Aayog (<code>tools/build-wb-district-facts.py</code>)</td></tr>
+      <tr><td><a href="places/money.json">money.json</a></td><td>State finances, MPLADS per state, audit figures</td><td>RBI Handbook of State Finances, Empowered Indian, CAG State Finances Audit Reports (<code>tools/build-money.py</code>)</td></tr>
+    </tbody>
+  </table></div>
+
+  <p style="margin-top:2rem">Found a wrong figure? Every page has "Suggest a correction" at the foot. The scripts that build these files are in the <a href="https://github.com/archiboltmusk/Purulia/tree/main/tools" target="_blank" rel="noopener">tools folder</a>.</p>
+</main>
+<script src="config.js"></script>
+<script>
+  document.querySelectorAll('.od-base').forEach(el => { el.textContent = ((window.KASA_CONFIG || {}).SHARE_URL || location.origin).replace(/\/$/, ''); });
+</script>
+</body>
+</html>

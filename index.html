@@ -1,35 +1,36 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<title>Parishkar Bengal — A Civic Accountability Platform for West Bengal</title>
-<meta name="description" content="Parishkar Bengal is a public map of civic problems across West Bengal. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
-<meta property="og:title" content="Parishkar Bengal — The Public Record of West Bengal">
+<title>Parishkar — A Civic Accountability Platform for West Bengal</title>
+<meta name="description" content="Parishkar is a public map of civic problems across West Bengal. Every report is visible. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it.">
+<meta property="og:title" content="Parishkar — The Public Record of West Bengal">
 <meta property="og:description" content="A public map of civic problems across West Bengal. Every report is visible. Every ward is ranked.">
 <meta property="og:type" content="website">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/">
 <meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="Parishkar Bengal — The Public Record of West Bengal">
+<meta name="twitter:title" content="Parishkar — The Public Record of West Bengal">
 <meta name="twitter:description" content="A public map of civic problems across West Bengal.">
 <meta name="twitter:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta name="theme-color" content="#0C0A05">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="apple-touch-icon" sizes="180x180" href="kasa-icon-192.png">
 <link rel="icon" type="image/png" sizes="192x192" href="kasa-icon-192.png">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;0,700;0,800;1,400;1,500;1,700&family=DM+Mono:ital,wght@0,300;0,400;0,500;1,300&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/">
 <link rel="stylesheet" href="styles.css">
 <link rel="stylesheet" href="digest-sheet.css">
 
-<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://archiboltmusk.github.io/Purulia/#website","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Bengal","description":"A civic accountability platform for Purulia, West Bengal."},{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/#webpage","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar Bengal — The Public Record of Purulia","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"}}]}</script>
+<script type="application/ld+json">{"@context":"https://schema.org","@graph":[{"@type":"WebSite","@id":"https://archiboltmusk.github.io/Purulia/#website","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar","description":"A civic accountability platform for Purulia, West Bengal."},{"@type":"WebPage","@id":"https://archiboltmusk.github.io/Purulia/#webpage","url":"https://archiboltmusk.github.io/Purulia/","name":"Parishkar — The Public Record of Purulia","isPartOf":{"@id":"https://archiboltmusk.github.io/Purulia/#website"}}]}</script>
 
 <script>
 if (sessionStorage.getItem("pgt")) {
@@ -47,12 +48,12 @@ if (sessionStorage.getItem("pgt")) {
 
 <div id="loader" aria-hidden="true">
   <svg class="ld-mandala" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="50" cy="50" r="44" stroke="#D4882A" stroke-width=".5" opacity=".5"/>
-    <circle cx="50" cy="50" r="30" stroke="#D4882A" stroke-width=".3" stroke-dasharray="3 6" opacity=".6"/>
-    <circle cx="50" cy="50" r="16" stroke="#D4882A" stroke-width=".5" opacity=".7"/>
-    <circle cx="50" cy="50" r="4" fill="#D4882A" opacity=".5"/>
+    <circle cx="50" cy="50" r="44" stroke="#DD3333" stroke-width=".5" opacity=".5"/>
+    <circle cx="50" cy="50" r="30" stroke="#DD3333" stroke-width=".3" stroke-dasharray="3 6" opacity=".6"/>
+    <circle cx="50" cy="50" r="16" stroke="#DD3333" stroke-width=".5" opacity=".7"/>
+    <circle cx="50" cy="50" r="4" fill="#DD3333" opacity=".5"/>
   </svg>
-  <div class="ld-label">Parishkar Bengal</div>
+  <div class="ld-label">Parishkar</div>
 </div>
 
 <div id="cur"></div>
@@ -61,10 +62,10 @@ if (sessionStorage.getItem("pgt")) {
 <div id="toast"></div>
 
 <nav>
-  <a href="index.html" class="nav-logo k-wordmark" aria-label="Parishkar Bengal home">
+  <a href="index.html" class="nav-logo k-wordmark" aria-label="Parishkar home">
     <span class="k-mark" aria-hidden="true"></span>
     <span class="k-wordmark-first">Parishkar</span>
-    <span class="k-wordmark-second">Purulia</span>
+    
   </a>
   <div class="nav-links">
     <a href="index.html" class="nl-item nl-active">Home</a>
@@ -86,7 +87,7 @@ if (sessionStorage.getItem("pgt")) {
       </button>
       <div class="nav-dropdown" id="navDropdown">
         <a href="index.html" class="nd-item nd-active">Home <span class="nd-arrow">→</span></a>
-        <a href="kasa.html" class="nd-item">Parishkar Bengal <span class="nd-arrow">→</span></a>
+        <a href="kasa.html" class="nd-item">Parishkar <span class="nd-arrow">→</span></a>
         <a href="blueprint.html" class="nd-item">Blueprint <span class="nd-arrow">→</span></a>
         <a href="data.html" class="nd-item">Data <span class="nd-arrow">→</span></a>
         <a href="join.html" class="nd-item">Join <span class="nd-arrow">→</span></a>
@@ -103,20 +104,20 @@ if (sessionStorage.getItem("pgt")) {
   <canvas id="heroCanvas" aria-hidden="true"></canvas>
   <div class="h-mandala">
     <svg viewBox="0 0 500 500" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="250" cy="250" r="240" stroke="#D4882A" stroke-width=".5"/>
-      <circle cx="250" cy="250" r="195" stroke="#D4882A" stroke-width=".3" stroke-dasharray="3 9"/>
-      <circle cx="250" cy="250" r="155" stroke="#D4882A" stroke-width=".5"/>
-      <circle cx="250" cy="250" r="115" stroke="#D4882A" stroke-width=".3" stroke-dasharray="2 7"/>
-      <circle cx="250" cy="250" r="75" stroke="#D4882A" stroke-width=".5"/>
-      <circle cx="250" cy="250" r="35" stroke="#D4882A" stroke-width="1"/>
-      <circle cx="250" cy="250" r="8" fill="#D4882A" opacity=".4"/>
-      <g stroke="#D4882A" stroke-width=".35" opacity=".7">
+      <circle cx="250" cy="250" r="240" stroke="#DD3333" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="195" stroke="#DD3333" stroke-width=".3" stroke-dasharray="3 9"/>
+      <circle cx="250" cy="250" r="155" stroke="#DD3333" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="115" stroke="#DD3333" stroke-width=".3" stroke-dasharray="2 7"/>
+      <circle cx="250" cy="250" r="75" stroke="#DD3333" stroke-width=".5"/>
+      <circle cx="250" cy="250" r="35" stroke="#DD3333" stroke-width="1"/>
+      <circle cx="250" cy="250" r="8" fill="#DD3333" opacity=".4"/>
+      <g stroke="#DD3333" stroke-width=".35" opacity=".7">
         <line x1="250" y1="10" x2="250" y2="490"/>
         <line x1="10" y1="250" x2="490" y2="250"/>
         <line x1="74" y1="74" x2="426" y2="426"/>
         <line x1="426" y1="74" x2="74" y2="426"/>
       </g>
-      <polygon points="250,215 285,250 250,285 215,250" stroke="#D4882A" stroke-width="1.2" fill="none"/>
+      <polygon points="250,215 285,250 250,285 215,250" stroke="#DD3333" stroke-width="1.2" fill="none"/>
     </svg>
   </div>
   <div class="h-main">
@@ -128,7 +129,7 @@ if (sessionStorage.getItem("pgt")) {
     <h1 class="hero-h">
       <span class="l1">The Public Record</span>
       <span class="l2">of Purulia.</span>
-      <span class="l3">Parishkar Bengal</span>
+      <span class="l3">Parishkar</span>
     </h1>
     <p class="h-lead">Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
     <label class="gt-pick" hidden>District <select id="homePick" aria-label="Choose a district"></select></label>
@@ -161,14 +162,14 @@ if (sessionStorage.getItem("pgt")) {
     <span class="ti">Improved sanitation 29.2% — up from 12.1% (NFHS-4 to NFHS-5)</span>
     <span class="ti">Purulia not among NITI Aayog's 112 Aspirational Districts</span>
     <span class="ti">Chhau dance on UNESCO's Intangible Heritage list — 2010</span>
-    <span class="ti">Parishkar Bengal · West Bengal · India</span>
+    <span class="ti">Parishkar · West Bengal · India</span>
     <span class="ti">77.9% of young children anaemic — NFHS-5 (2019–21)</span>
     <span class="ti">46.3% of children under 5 underweight — NFHS-5</span>
     <span class="ti">Women's literacy 61% — lowest in West Bengal (NFHS-5)</span>
     <span class="ti">Improved sanitation 29.2% — up from 12.1% (NFHS-4 to NFHS-5)</span>
     <span class="ti">Purulia not among NITI Aayog's 112 Aspirational Districts</span>
     <span class="ti">Chhau dance on UNESCO's Intangible Heritage list — 2010</span>
-    <span class="ti">Parishkar Bengal · West Bengal · India</span>
+    <span class="ti">Parishkar · West Bengal · India</span>
   </div>
 </div>
 
@@ -227,24 +228,24 @@ if (sessionStorage.getItem("pgt")) {
 <section id="reframe" data-only="purulia">
   <div class="rf-map-wrap rv">
     <svg viewBox="0 0 400 400" fill="none" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="200" cy="200" r="185" stroke="rgba(212,136,42,.14)" stroke-width="1"/>
-      <circle cx="200" cy="200" r="145" stroke="rgba(212,136,42,.09)" stroke-width="1" stroke-dasharray="4 9"/>
-      <circle cx="200" cy="200" r="105" stroke="rgba(212,136,42,.11)" stroke-width="1"/>
-      <line x1="200" y1="200" x2="328" y2="48" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
-      <line x1="200" y1="200" x2="58" y2="125" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
-      <line x1="200" y1="200" x2="275" y2="358" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
-      <line x1="200" y1="200" x2="95" y2="338" stroke="rgba(212,136,42,.28)" stroke-width="1" stroke-dasharray="5 4"/>
-      <circle cx="328" cy="48" r="5" fill="rgba(212,136,42,.6)"/>
-      <circle cx="58" cy="125" r="5" fill="rgba(212,136,42,.6)"/>
-      <circle cx="275" cy="358" r="5" fill="rgba(212,136,42,.6)"/>
-      <circle cx="95" cy="338" r="5" fill="rgba(212,136,42,.6)"/>
-      <text x="334" y="44" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Kolkata</text>
-      <text x="14" y="123" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Dhanbad</text>
-      <text x="280" y="372" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Bhubaneswar</text>
-      <text x="26" y="354" font-family="'DM Mono',monospace" font-size="10.5" fill="rgba(240,230,208,.5)">Ranchi</text>
-      <circle cx="200" cy="200" r="22" fill="rgba(212,136,42,.12)" stroke="var(--amber)" stroke-width="1.5"/>
+      <circle cx="200" cy="200" r="185" stroke="rgba(221,51,51,.14)" stroke-width="1"/>
+      <circle cx="200" cy="200" r="145" stroke="rgba(221,51,51,.09)" stroke-width="1" stroke-dasharray="4 9"/>
+      <circle cx="200" cy="200" r="105" stroke="rgba(221,51,51,.11)" stroke-width="1"/>
+      <line x1="200" y1="200" x2="328" y2="48" stroke="rgba(221,51,51,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="58" y2="125" stroke="rgba(221,51,51,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="275" y2="358" stroke="rgba(221,51,51,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <line x1="200" y1="200" x2="95" y2="338" stroke="rgba(221,51,51,.28)" stroke-width="1" stroke-dasharray="5 4"/>
+      <circle cx="328" cy="48" r="5" fill="rgba(221,51,51,.6)"/>
+      <circle cx="58" cy="125" r="5" fill="rgba(221,51,51,.6)"/>
+      <circle cx="275" cy="358" r="5" fill="rgba(221,51,51,.6)"/>
+      <circle cx="95" cy="338" r="5" fill="rgba(221,51,51,.6)"/>
+      <text x="334" y="44" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10.5" fill="rgba(var(--cream-rgb),.5)">Kolkata</text>
+      <text x="14" y="123" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10.5" fill="rgba(var(--cream-rgb),.5)">Dhanbad</text>
+      <text x="280" y="372" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10.5" fill="rgba(var(--cream-rgb),.5)">Bhubaneswar</text>
+      <text x="26" y="354" font-family="'JetBrains Mono',ui-monospace,monospace" font-size="10.5" fill="rgba(var(--cream-rgb),.5)">Ranchi</text>
+      <circle cx="200" cy="200" r="22" fill="rgba(221,51,51,.12)" stroke="var(--amber)" stroke-width="1.5"/>
       <circle cx="200" cy="200" r="7" fill="var(--amber)"/>
-      <text x="160" y="240" font-family="'EB Garamond',serif" font-size="13.5" font-weight="bold" fill="rgba(240,230,208,.9)">PURULIA</text>
+      <text x="160" y="240" font-family="'Plus Jakarta Sans',system-ui,sans-serif" font-size="13.5" font-weight="bold" fill="rgba(var(--cream-rgb),.9)">PURULIA</text>
     </svg>
   </div>
   <div class="rf-text rv">
@@ -252,10 +253,10 @@ if (sessionStorage.getItem("pgt")) {
     <h2>The map has been read <span>upside down.</span></h2>
     <p>Purulia sits in the western corner of West Bengal, adjacent to Jharkhand's industrial belt and within reach of three state capitals. The problem has never been location. It has been the absence of infrastructure to activate it.</p>
     <ul class="insights">
-      <li><span class="ic">💧</span><span><strong>Drought is engineering, not fate.</strong> Purulia is officially drought-prone, yet receives well over 1,000 mm of rain per year, mostly in the monsoon, on hard-rock ground that stores little of it. The fix is storage — check dams, farm ponds, restored pukurs — block by block.</span></li>
+      <li><span class="ic">💧</span><span><strong>Drought is engineering, not fate.</strong> Purulia is officially drought-prone, yet gets its rain mostly in the monsoon, on hard-rock ground that stores little of it. The fix is storage — check dams, farm ponds, restored pukurs — block by block.</span></li>
       <li><span class="ic">🎭</span><span><strong>World heritage, village incomes.</strong> Chhau dance has been on UNESCO's Intangible Cultural Heritage list since 2010. Charida's mask-makers and the district's Dokra metalworkers are known far beyond Purulia.</span></li>
       <li><span class="ic">🌿</span><span><strong>The forest is the economy.</strong> Forest produce — firewood, sal leaves, sabai grass, mahua — supports a significant share of tribal household income in Purulia. Processing these in the village would keep the margin here.</span></li>
-      <li><span class="ic">☀️</span><span><strong>Power from the plateau.</strong> Dry laterite uplands suit solar. The Ayodhya hills already host the Purulia Pumped Storage Project, running since 2007.</span></li>
+      <li><span class="ic">☀️</span><span><strong>Power from the plateau.</strong> Dry laterite uplands suit solar.</span></li>
     </ul>
   </div>
 </section>
@@ -383,12 +384,12 @@ if (sessionStorage.getItem("pgt")) {
         <div class="mom-tag">Platform</div>
         <div class="mom-date"><span class="mlb-dot" aria-hidden="true"></span> Now</div>
       </div>
-      <div class="mom-title">Parishkar Bengal is live. The map is open.</div>
+      <div class="mom-title">Parishkar is live. The map is open.</div>
       <div class="mom-body">Every report is public. Every ward is ranked. Nothing is marked fixed until people on the spot confirm it. Be the first to file a report — the record begins with you.</div>
     </div>
   </div>
   <div class="rv" style="margin-top:2rem;">
-    <a href="data.html#livefeed" class="btn btn-a">Full live feed →</a>
+    <a href="kasa.html" class="btn btn-a">Full live feed →</a>
   </div>
 
   <div class="voices-block rv">
@@ -423,7 +424,7 @@ if (sessionStorage.getItem("pgt")) {
     <div class="ft-wordmark">
       <span class="k-mark" aria-hidden="true"></span>
       <span class="k-wordmark-first">Parishkar</span>
-      <span class="k-wordmark-second">Purulia</span>
+      
     </div>
     <span>The public record of Purulia</span>
   </div>

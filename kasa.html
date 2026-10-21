@@ -1,17 +1,31 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
+<style>
+/* Critical first paint: loader colours and loader rules, inline so the loader paints before kasa.css loads. Keep in step with kasa.css. */
+html,body{margin:0;background:#f8f6f2;}
+html[data-theme="dark"],html[data-theme="dark"] body{background:#0a0805;}
+.k-splash{position:fixed;inset:0;z-index:999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:1.8rem;background:#f8f6f2;transition:opacity .65s ease,visibility .65s ease;}
+html[data-theme="dark"] .k-splash{background:#0a0805;}
+.k-splash.k-splash-out{opacity:0;visibility:hidden;pointer-events:none;}
+.k-splash .ld-mandala{width:70px;height:70px;animation:kSpin 5s linear infinite;opacity:.65;}
+.k-splash .ld-label{font-family:'JetBrains Mono',ui-monospace,monospace;font-size:.75rem;letter-spacing:.55em;color:rgba(221,51,51,.85);text-transform:uppercase;animation:kLdPulse 1.8s ease-in-out infinite;}
+@keyframes kSpin{to{transform:rotate(360deg);}}
+@keyframes kLdPulse{0%,100%{opacity:.35;}50%{opacity:1;}}
+@media(prefers-reduced-motion:reduce){.k-splash .ld-mandala,.k-splash .ld-label{animation:none;}}
+</style>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Parishkar Bengal — Report a civic problem in 30 seconds</title>
 <meta name="description" content="A public map of civic problems across West Bengal: garbage, drains, roads, streetlights, hand pumps, anganwadis, health centres, schools and illegal activity. Every report is public, every ward, block and district is counted, and nothing is marked fixed until people on the spot confirm it.">
-<meta name="theme-color" content="#0a0805">
+<meta name="theme-color" content="#ffffff">
 <meta property="og:title" content="Parishkar Bengal — Report a civic problem in 30 seconds">
 <meta property="og:description" content="West Bengal's civic problem map. Live photo and GPS. Every report public. Nothing marked fixed until people on the spot confirm it.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/kasa.html">
 
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
 <link rel="preconnect" href="https://unpkg.com" crossorigin>
@@ -19,20 +33,21 @@
 <link rel="preconnect" href="https://tiles.openfreemap.org" crossorigin>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;0,800;1,600;1,700&family=DM+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&display=swap"></noscript>
-<link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"></noscript>
-<link rel="stylesheet" href="kasa.css">
-<link rel="stylesheet" href="digest-sheet.css">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&family=Noto+Sans+Bengali:wght@400;600;700&family=Noto+Sans+Devanagari:wght@400;600;700&family=Noto+Sans+Ol+Chiki:wght@400;600;700&family=Google+Sans+Flex:wght@400;500;600;700&family=Google+Sans+Code:wght@400;500&display=swap"></noscript>
+<link rel="preload" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous"></noscript>
+<link rel="preload" href="kasa.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="preload" href="digest-sheet.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="kasa.css"><link rel="stylesheet" href="digest-sheet.css"></noscript>
 <link rel="manifest" href="manifest.webmanifest">
 <link rel="apple-touch-icon" href="kasa-icon-192.png">
 
 <!-- async, not defer: the page runs without waiting for the 800 KB map library; kasa.js waits for it only to draw the map. -->
-<script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script async fetchpriority="low" id="k-maplibre" src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
-<script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js"></script>
-<script src="config.js"></script>
+<script defer src="https://cdn.jsdelivr.net/npm/idb-keyval@6.2.1/dist/umd.js" integrity="sha384-oM43ZjLL5cj/w3ORvbvwAubendEp51/buLZ9CGEMjp5ExAxNxAC7N7GJ2X2Oreb9" crossorigin="anonymous"></script>
+<script defer src="config.js"></script>
 <script defer src="categories.js"></script>
 <script defer src="city.js"></script>
 <script defer src="places.js"></script>
@@ -40,11 +55,23 @@
 <script defer src="kasa-i18n.js"></script>
 <script defer src="translate-fix.js"></script>
 <script defer src="kasa-photo-meta.js"></script>
+<script defer src="boundary-live.js"></script>
+<script defer src="money-metrics.js"></script>
+<script defer src="map-layers.js"></script>
 <script defer src="kasa.js"></script>
 <script defer src="digest-sheet.js"></script>
-<script src="bug-report.js"></script>
 </head>
 <body data-app-layout>
+<div class="k-splash" id="k-splash" aria-hidden="true">
+  <svg class="ld-mandala" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="50" cy="50" r="44" stroke="#DD3333" stroke-width=".5" opacity=".5"/>
+    <circle cx="50" cy="50" r="30" stroke="#DD3333" stroke-width=".3" stroke-dasharray="3 6" opacity=".6"/>
+    <circle cx="50" cy="50" r="16" stroke="#DD3333" stroke-width=".5" opacity=".7"/>
+    <circle cx="50" cy="50" r="4" fill="#DD3333" opacity=".5"/>
+  </svg>
+  <div class="ld-label"><span>Parishkar</span> <span id="k-splash-place"></span></div>
+</div>
+<script src="bug-report.js"></script>
 
 <div class="k-offline" id="k-offline" hidden>
   <span class="k-offline-dot"></span>
@@ -61,14 +88,14 @@
 <nav class="k-nav">
   <a href="kasa.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal">
     <span class="k-mark" aria-hidden="true"></span>
-    <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Purulia</span>
+    <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span>
   </a>
   <button type="button" class="k-place-pick" id="k-place-pick" aria-haspopup="dialog" aria-label="Choose a place">▾</button>
-  <a href="changelog.html#done" class="k-version" id="k-version" hidden></a>
 <dialog class="k-place-dialog" id="k-place-dialog" aria-labelledby="k-place-title">
   <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
     <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
   <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
+  <input type="search" class="k-place-search" id="k-place-search" data-i18n-placeholder="pk_search" placeholder="Find a town, block or district" aria-label="Search a state or district" autocomplete="off">
   <div class="k-place-list" id="k-place-list"></div>
 </dialog>
   <div class="k-nav-links">
@@ -78,12 +105,7 @@
   </div>
   <div class="k-nav-right">
     <button type="button" class="k-nav-mine" data-mine data-i18n="nav_mine">Your reports</button>
-    <div class="k-lang-switch" role="group" aria-label="Language">
-      <button type="button" class="k-lang-btn k-lang-active" data-lang="en">EN</button>
-      <button type="button" class="k-lang-btn" data-lang="bn">বাং</button>
-      <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
-      <button type="button" class="k-lang-btn" data-lang="sat" title="ᱥᱟᱱᱛᱟᱲᱤ (Santali)">ᱥᱟᱱ</button>
-    </div>
+    <button type="button" class="k-lang-toggle" data-lang="bn" lang="bn">বাংলা</button>
     <button type="button" class="k-theme-toggle" id="k-theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode"><span aria-hidden="true">☀️</span></button>
     <div class="k-social-menu">
       <button type="button" class="k-social-toggle" id="k-social-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="k-social-dropdown" data-i18n-title="social_follow" title="Follow us"><span aria-hidden="true">🔗</span></button>
@@ -112,6 +134,7 @@
       <button type="button" class="k-csv-btn" data-csv="filtered" data-i18n="csv_btn">⬇ CSV</button>
       <select id="k-sort" class="k-filter-select" aria-label="Sort">
         <option value="urgent" data-i18n="sort_urgent">Most urgent</option>
+        <option value="nearest" data-i18n="sort_nearest">Nearest</option>
         <option value="newest" data-i18n="sort_newest">Newest</option>
         <option value="seen" data-i18n="sort_seen">Most seen</option>
         <option value="oldest" data-i18n="sort_oldest">Longest unresolved</option>
@@ -128,6 +151,17 @@
     <button type="button" class="k-nearby-btn" id="k-nearby-btn" aria-pressed="false" data-i18n="nearby_btn">Near me</button>
     <div class="k-filter-bar" id="k-filter-bar">
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
+      <select id="k-layer-select" class="k-filter-select" aria-label="Map layer">
+        <option value="reports">Reports</option>
+        <option value="demands">Demands to leaders</option>
+        <option value="schools">Schools: checked by residents</option>
+        <option value="nirmalya">Saheb Bandh: Nirmalya collection points</option>
+        <option value="money-selfPaid">Money: own taxes as % of spending</option>
+        <option value="money-unspent">Money: budget left unspent</option>
+        <option value="money-ucs">Money: grants with no proof of use</option>
+        <option value="money-mplads">Money: MP fund spent (Lok Sabha)</option>
+        <option value="money-seats">Money: MP fund by seat (West Bengal)</option>
+      </select>
       <select id="k-filter-status" class="k-filter-select" aria-label="Status">
         <option value="" data-i18n="filter_all_status">All Status</option>
         <option value="open" data-i18n="status_open">Unresolved</option>
@@ -149,13 +183,17 @@
   </div>
 
   <div class="k-map-pill" aria-live="polite">
-    <span class="k-pill-num" id="k-pill-active">—</span>
-    <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    <button type="button" class="k-pill-seg" data-pill="open" aria-pressed="false">
+      <span class="k-pill-num" id="k-pill-active">—</span>
+      <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    </button>
     <span class="k-pill-sep">·</span>
-    <span class="k-pill-num" id="k-pill-total">—</span>
-    <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
-    <span class="k-pill-sep" id="k-fixed-chip-sep" hidden>·</span>
-    <button type="button" class="k-pill-fixed" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+    <button type="button" class="k-pill-seg" data-pill="" aria-pressed="true">
+      <span class="k-pill-num" id="k-pill-total">—</span>
+      <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
+    </button>
+    <span class="k-pill-sep">·</span>
+    <button type="button" class="k-pill-fixed" id="k-fixed-chip" data-pill="resolved" aria-pressed="false" aria-controls="k-fixed-strip" aria-expanded="false">
       ✓ <span class="k-pill-num" id="k-fixed-chip-n"></span> <span class="k-pill-label" data-i18n="fixed_chip">fixed</span>
     </button>
   </div>
@@ -163,18 +201,7 @@
   <div class="k-ward-card" id="k-ward-card" hidden></div>
   <div class="k-still" id="k-still" hidden role="dialog" aria-live="polite"></div>
 
-  <div class="k-join" id="k-join" hidden>
-    <button type="button" class="k-join-text" id="k-join-text" data-action="report"></button>
-    <button type="button" class="k-join-x" id="k-join-x" aria-label="Close">✕</button>
-  </div>
-
-  <div class="k-tip" id="k-tip" hidden role="dialog" aria-live="polite">
-    <div class="k-tip-text" id="k-tip-text"></div>
-    <div class="k-tip-actions">
-      <button type="button" class="k-tip-skip" id="k-tip-skip" data-i18n="tip_skip">Skip</button>
-      <button type="button" class="k-tip-next" id="k-tip-next"></button>
-    </div>
-  </div>
+  <button type="button" class="k-near" id="k-near" hidden></button>
 
   <div class="k-fixed-strip" id="k-fixed-strip" hidden>
     <div class="k-fixed-strip-head">
@@ -194,8 +221,13 @@
   <button type="button" class="k-fab-menu" id="k-fab-menu" aria-controls="k-drawer" data-i18n-title="nav_more" title="Menu">
     <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
+  <div class="k-outside" id="k-outside" role="status" hidden>
+    <span class="k-outside-msg" id="k-outside-msg"></span>
+    <button type="button" class="k-outside-fly" id="k-outside-fly"></button>
+    <button type="button" class="k-outside-x" id="k-outside-x" data-i18n-title="outside_close" title="Hide" aria-label="Hide"><span aria-hidden="true">✕</span></button>
+  </div>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
-    <span aria-hidden="true">📷</span> <span data-i18n="map_report">Report a problem</span>
+    <svg class="k-map-report-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> <span data-i18n="map_report">Report a problem</span>
   </button>
 </section>
 
@@ -222,6 +254,11 @@
       <span class="k-drawer-text">Ward Accountability</span>
       <span class="k-drawer-sub" data-i18n="drawer_ward_sub">See who's responsible</span>
     </button>
+    <button type="button" class="k-drawer-item" data-checkq>
+      <span class="k-drawer-icon" aria-hidden="true">👆</span>
+      <span class="k-drawer-text" data-i18n="drawer_check">Check reports near you</span>
+      <span class="k-drawer-sub" data-i18n="drawer_check_sub">Swipe through open problems around you</span>
+    </button>
     <a class="k-drawer-item" href="communities.html">
       <span class="k-drawer-icon" aria-hidden="true">🤝</span>
       <span class="k-drawer-text" data-i18n="drawer_groups">Volunteer communities</span>
@@ -241,22 +278,28 @@
       <span aria-hidden="true">›</span>
     </button>
     <div class="k-drawer-more-list" id="k-drawer-more-list" hidden>
-      <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
-      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
+      <p class="k-drawer-group" data-i18n="drawer_grp_act">Act here</p>
       <a href="adopt.html" class="k-drawer-link" data-i18n="nav_adopt_page">Adopt a spot</a>
       <a href="dogs.html" class="k-drawer-link" data-i18n="nav_dogs">Community dogs</a>
       <a href="works.html" class="k-drawer-link" data-i18n="nav_works">Public works warranty</a>
       <a href="snakes.html" class="k-drawer-link" data-i18n="nav_snakes">Snakes</a>
       <a href="pandals.html" class="k-drawer-link" data-i18n="nav_pandal">Swachh Pandal</a>
-      <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">🏃 Walk, run, cycle</a>
-      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
+      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
+      <a href="schools.html" class="k-drawer-link" data-i18n="nav_schools">Schools</a>
+      <p class="k-drawer-group" data-i18n="drawer_grp_records">Records and money</p>
+      <a href="promises.html" class="k-drawer-link" data-i18n="nav_promises">Promises: who promised what</a>
+      <a href="noticeboard.html" class="k-drawer-link" data-i18n="nav_noticeboard">Ask your leaders: public demands</a>
+      <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
       <a href="waste.html" class="k-drawer-link" data-i18n="nav_waste">Where the waste goes</a>
       <a href="municipality.html" class="k-drawer-link" data-i18n="nav_money">Who runs the municipality</a>
-      <a href="money.html" class="k-drawer-link" data-i18n="nav_tax">Tax and spending</a>
-      <a href="toilets.html" class="k-drawer-link" data-i18n="nav_toilets">Public toilets</a>
-      <a href="promises.html" class="k-drawer-link" data-i18n="nav_promises">Promises: who promised what</a>
-      <a href="noticeboard.html" class="k-drawer-link" data-i18n="nav_noticeboard">Ask your leaders</a>
-    </div>
+      <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
+      <a href="compare.html" class="k-drawer-link" data-i18n="nav_compare">Compare districts</a>
+      <a href="record.html" class="k-drawer-link" data-i18n="nav_record">The record: evidence and remedies</a>
+      <p class="k-drawer-group" data-i18n="drawer_grp_tools">Tools</p>
+      <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
+      <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">Walk, run, cycle</a>
+      <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
+</div>
   </nav>
 
 
@@ -372,6 +415,7 @@
     <a href="#" data-bug-report data-i18n="footer_bug">Report a bug</a>
     <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener" data-i18n="footer_coffee">Buy me a coffee</a>
   </nav>
+  <a href="changelog.html#done" class="k-drawer-version" id="k-drawer-version" hidden></a>
 </footer>
 </aside>
 
@@ -865,6 +909,13 @@
       <h4 data-i18n="notify_near_h">Problems near you</h4>
       <p data-i18n="notify_near_p">A notification when someone reports a problem within 500 m of where you are now.</p>
       <button type="button" class="k-btn k-btn-secondary k-alerts-btn" data-alerts hidden>🔔 Alert me about reports near me</button>
+      <div class="k-nt-filter" id="k-nt-filter" hidden>
+        <label class="k-nt-radius"><span data-i18n="notify_radius">How far from you</span>
+          <select id="k-nt-radius"><option value="250">250 m</option><option value="500">500 m</option><option value="1000">1 km</option><option value="2000">2 km</option></select></label>
+        <p class="k-nt-kinds-h" data-i18n="notify_kinds">Only these kinds of problem (tick none for all):</p>
+        <div class="k-nt-kinds" id="k-nt-kinds"></div>
+        <button type="button" class="k-btn k-btn-secondary" id="k-nt-save" data-i18n="notify_save">Save alert choices</button>
+      </div>
     </section>
     <section class="k-nt-item">
       <h4 data-i18n="notify_watch_h">Reports you watch</h4>
@@ -876,6 +927,17 @@
       <p data-i18n="notify_digest_p">One email every Monday with what was reported and fixed in each ward.</p>
       <button type="button" class="k-btn k-btn-secondary" data-close data-digest-open data-i18n="notify_digest_btn">✉ Get it by email</button>
     </section>
+  </div>
+</div>
+
+<div class="k-modal" id="k-cq-modal" aria-hidden="true">
+  <div class="k-modal-backdrop" data-close></div>
+  <div class="k-modal-sheet" role="dialog" aria-modal="true" aria-labelledby="k-cq-title">
+    <div class="k-modal-handle"></div>
+    <button type="button" class="k-modal-close" data-close aria-label="Close">✕</button>
+    <h3 class="k-modal-title" id="k-cq-title" data-i18n="cq_title">Check reports near you</h3>
+    <p class="k-modal-sub" data-i18n="cq_sub">Open problems close to you, nearest first. Swipe right if it is still there, left to skip. If it looks fixed, say so with a live photo.</p>
+    <div id="k-cq-body"></div>
   </div>
 </div>
 
@@ -911,6 +973,15 @@
 </div>
 
 <!-- Live camera for evidence photos: no gallery, no editing step -->
+<div class="k-phone" id="k-phone" hidden role="dialog" aria-modal="true" aria-labelledby="k-phone-title">
+  <div class="k-phone-card">
+    <h2 id="k-phone-title" data-i18n="phone_req_title">Phone camera required</h2>
+    <p data-i18n="phone_req_body">We need a live photo from your phone's rear camera to ensure report authenticity. Desktop uploads are not allowed.</p>
+    <div class="k-phone-qr" id="k-phone-qr"></div>
+    <p class="k-phone-sub" data-i18n="qr_sub">Point a phone camera at this QR code to open the report page.</p>
+    <button type="button" class="k-phone-close" onclick="document.getElementById('k-phone').hidden=true" data-i18n="phone_req_close">Close</button>
+  </div>
+</div>
 <div class="k-cam" id="k-cam" hidden role="dialog" aria-modal="true" aria-labelledby="k-cam-title">
   <div class="k-cam-top">
     <div class="k-cam-head">

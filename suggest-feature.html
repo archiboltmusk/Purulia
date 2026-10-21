@@ -1,34 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Feature suggestions — Parishkar Bengal</title>
-<meta name="description" content="Share ideas to improve Parishkar Bengal. Suggest new features, improvements, and help shape the future of civic reporting.">
-<meta property="og:title" content="Feature suggestions — Parishkar Bengal">
-<meta property="og:description" content="Help improve Parishkar Bengal by sharing your feature ideas and suggestions.">
+<title>Feature suggestions — Parishkar</title>
+<meta name="description" content="Share ideas to improve Parishkar. Suggest new features, improvements, and help shape the future of civic reporting.">
+<meta property="og:title" content="Feature suggestions — Parishkar">
+<meta property="og:description" content="Help improve Parishkar by sharing your feature ideas and suggestions.">
 <meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/suggest-feature.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/suggest-feature.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <style>
   .sg-wrap{max-width:900px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
   .sg-head{margin-bottom:2.4rem;}
   .sg-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
   .sg-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
-  .sg-form{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:2rem 1.8rem;margin-bottom:2.4rem;}
+  .sg-form{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:2rem 1.8rem;margin-bottom:2.4rem;}
   .sg-form-group{margin-bottom:1.4rem;}
   .sg-form-group:last-child{margin-bottom:0;}
   .sg-label{display:block;margin-bottom:.5rem;font-weight:500;color:var(--cream);font-size:.95rem;}
   .sg-input,.sg-select,.sg-textarea{width:100%;padding:.6rem .8rem;background:var(--ink);border:1px solid var(--border);border-radius:4px;color:var(--text-hi);font-family:var(--sans);font-size:.95rem;}
-  .sg-input:focus,.sg-select:focus,.sg-textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(212,136,42,.1);}
+  .sg-input:focus,.sg-select:focus,.sg-textarea:focus{outline:none;border-color:var(--amber);box-shadow:0 0 0 2px rgba(221,51,51,.1);}
   .sg-textarea{resize:vertical;min-height:120px;font-family:var(--sans);}
   .sg-char-count{margin-top:.3rem;font-size:.8rem;color:var(--text-lo);}
   .sg-submit{background:var(--amber);color:var(--ink);padding:.8rem 2rem;border:none;border-radius:4px;font-weight:600;cursor:pointer;font-size:.95rem;transition:background .2s;}
@@ -44,7 +45,7 @@
   .sg-filter-btn:hover{border-color:var(--amber);}
   .sg-filter-btn.active{background:var(--amber);color:var(--ink);}
   .sg-list{display:flex;flex-direction:column;gap:1rem;}
-  .sg-item{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;transition:all .2s;}
+  .sg-item{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;transition:all .2s;}
   .sg-item:hover{border-color:var(--amber);}
   .sg-item-head{display:flex;justify-content:space-between;align-items:flex-start;gap:1rem;margin-bottom:.6rem;}
   .sg-item-title{font-size:1.1rem;font-weight:600;color:var(--cream);}
@@ -69,7 +70,7 @@
 <body>
 
 <nav class="k-nav">
-  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
   <div class="k-nav-links">
     <a href="index.html">Home</a>
     <a href="blueprint.html">Blueprint</a>
@@ -83,7 +84,7 @@
 <main class="sg-wrap">
   <div class="sg-head">
     <h1 class="sg-title" data-i18n="suggestions_title">Suggest a feature</h1>
-    <p class="sg-sub" data-i18n="suggestions_sub">Help shape the future of Parishkar Bengal. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.</p>
+    <p class="sg-sub" data-i18n="suggestions_sub">Help shape the future of Parishkar. Share ideas for new features, improvements to reporting, and ways to make civic accountability easier for your community.</p>
   </div>
 
   <!-- Submit Form -->

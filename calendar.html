@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Civic calendar — Parishkar</title>
+<meta name="description" content="Every date already on record for your district on one calendar: report fix targets, works warranty ends, promise deadlines and the Swachh Pandal window.">
+<meta property="og:title" content="Civic calendar — Parishkar">
+<meta property="og:description" content="Report fix targets, works warranty ends and promise deadlines, by day.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/calendar.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/calendar.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.6rem 1.4rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-table a{color:var(--amber);}
+  .an-table tr:target td{background:rgba(221,51,51,.08);}
+  .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-empty a{color:var(--amber);}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+  .cl-bar{display:flex;flex-wrap:wrap;gap:.6rem 1rem;align-items:center;margin-bottom:1rem;}
+  .cl-bar h2{font-family:var(--serif);font-size:1.5rem;color:var(--cream);min-width:11ch;text-align:center;}
+  .cl-btn{background:none;border:1px solid var(--border2);border-radius:4px;padding:.4rem .8rem;color:var(--cream);font-family:var(--mono);font-size:12px;cursor:pointer;}
+  .cl-pick{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.4rem .5rem;color:var(--text-hi);font:inherit;}
+  .cl-pills{display:flex;flex-wrap:wrap;gap:.4rem;margin-bottom:1rem;}
+  .cl-pill{display:inline-flex;gap:.4rem;align-items:center;background:none;border:1px solid var(--border2);border-radius:999px;padding:.35rem .75rem;color:var(--text-md);font-size:.86rem;cursor:pointer;}
+  .cl-pill[aria-pressed="true"]{color:var(--cream);border-color:var(--cream);}
+  .cl-pill b{font-family:var(--mono);font-weight:500;}
+  .cl-pill i,.cl-dots i,.cl-list i{display:inline-block;width:9px;height:9px;border-radius:50%;flex:none;}
+  .cl-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:4px;}
+  .cl-dow{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);text-align:center;padding:.3rem 0;}
+  .cl-cell{min-height:74px;background:none;border:1px solid var(--border);border-radius:4px;padding:.35rem;text-align:left;color:var(--text-hi);cursor:pointer;display:flex;flex-direction:column;gap:.3rem;font:inherit;}
+  .cl-blank{border:0;cursor:default;}
+  .cl-today .cl-n{color:var(--amber);font-weight:700;}
+  .cl-picked{border-color:var(--cream);}
+  .cl-n{font-family:var(--mono);font-size:12px;}
+  .cl-dots{display:flex;flex-wrap:wrap;gap:.2rem .45rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
+  .cl-dots span{display:inline-flex;align-items:center;gap:.15rem;}
+  .cl-list{list-style:none;padding:0;margin:.8rem 0 0;display:grid;gap:.6rem;}
+  .cl-list li{display:flex;gap:.6rem;align-items:baseline;}
+  .cl-list a{color:var(--cream);}
+  .cl-list small{display:block;color:var(--text-md);font-size:.82rem;margin-top:.15rem;}
+  .cl-list .cl-late{color:#e07a5f;}
+  @media(max-width:600px){.cl-cell{min-height:54px;padding:.25rem;}.cl-dots{font-size:9.5px;}}
+
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report a problem →</a>
+  </div>
+</nav>
+
+<main class="an-wrap">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">Civic calendar: <em id="cl-place">your district</em></h1>
+      <p class="an-sub">The dates already on record, on one calendar. When each open report should have been fixed, when a public work's contractor stops being liable for its defects, when a leader said a promise would be kept, and the days the Swachh Pandal list counts. Tap a day to see what falls on it and open the record behind it.</p>
+    </div>
+    <div class="an-meta"><select class="cl-pick" id="cl-pick" aria-label="District"></select><br><span id="cl-updated">Loading…</span></div>
+  </div>
+
+  <section class="an-card">
+    <div class="cl-bar">
+      <button type="button" class="cl-btn" id="cl-prev" aria-label="Previous month">←</button>
+      <h2 id="cl-month"></h2>
+      <button type="button" class="cl-btn" id="cl-next" aria-label="Next month">→</button>
+      <button type="button" class="cl-btn" id="cl-ics">Add this month to my phone calendar</button>
+    </div>
+    <div class="cl-pills" id="cl-pills"></div>
+    <div class="cl-grid" id="cl-grid"></div>
+  </section>
+
+  <div class="an-grid">
+    <section class="an-card">
+      <h2 id="cl-day-h"></h2>
+      <div id="cl-day"></div>
+    </section>
+    <section class="an-card">
+      <h2>Where each date comes from</h2>
+      <p class="an-card-sub">Fix target: the day a report was filed plus 1, 3 or 7 days by how bad the reporter said it is (<a href="methodology.html">how it works</a>). Warranty end: the completion date on a works board plus the defect liability period on the same board (<a href="works.html">public works</a>). Promise deadline: the date a leader gave, from the source linked on <a href="promises.html">promises</a>. Swachh Pandal window: the puja days set for the <a href="pandals.html">Swachh Pandal</a> list.</p>
+    </section>
+  </div>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="adopt.html">Adopted spots</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="changelog.html">What's new</a>
+    <a href="terms.html">Terms</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="grievance.html">Grievance Officer</a>
+    <a href="methodology.html">How it works</a>
+  </div>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="kasa-i18n.js"></script>
+<script defer src="place-facts.js"></script>
+<script defer src="calendar.js"></script>
+</body>
+</html>

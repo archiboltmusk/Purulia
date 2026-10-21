@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTI tracker — Parishkar</title>
+<meta name="description" content="Track your Right to Information applications: the 30-day reply date, the first-appeal deadline and a refusal checklist citing the RTI Act. Stored in your browser only.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/rti.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="legal.css">
+<style>
+  .rti-form{display:grid;gap:.8rem;margin:1.2rem 0 2rem;}
+  .rti-form label,.rti-row label{display:grid;gap:.3rem;font-size:.95rem;}
+  .rti-form input,.rti-form textarea,.rti-row select,.rti-row input{font:inherit;padding:.5rem .6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface-1,transparent);color:inherit;}
+  .rti-card{border:1px solid var(--border);border-radius:10px;padding:1.1rem 1.2rem;margin-bottom:1rem;}
+  .rti-card h3{margin:0 0 .3rem;font-size:1.15rem;}
+  .rti-card p{margin:.3rem 0;}
+  .rti-meta{font-family:var(--mono);font-size:12px;color:var(--text-lo);}
+  .rti-due{font-weight:600;}
+  .rti-overdue,.rti-appeal_open{color:var(--amber);}
+  .rti-appeal_closed{color:var(--text-lo);}
+  .rti-row{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;margin:.8rem 0;}
+  .rti-checks{list-style:none;padding:0;margin:.6rem 0 0;display:grid;gap:.6rem;}
+  .rti-checks label{display:flex;gap:.5rem;}
+  .rti-checks small{color:var(--text-lo);}
+  .rti-del{margin-top:.6rem;background:none;border:0;color:var(--text-lo);text-decoration:underline;cursor:pointer;font:inherit;padding:0;}
+  .rti-empty{color:var(--text-lo);}
+  @media(max-width:600px){.rti-row{grid-template-columns:1fr;}}
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="legal-wrap" id="rti-app">
+
+  <a href="helplines.html" class="legal-back">← Helplines and your rights</a>
+
+  <h1 class="legal-title">RTI <em>tracker</em></h1>
+  <div class="legal-meta">Stored only in this browser. Nothing you type here is sent to Parishkar.</div>
+
+  <p>Log each Right to Information application. The Public Information Officer (PIO) must reply within 30 days of receiving it (RTI Act 2005, s.7(1)). If there is no reply, or the reply is a refusal, you can file a first appeal within 30 days (s.19(1)).</p>
+  <p><a class="k-nav-cta" href="rti-letter.html">Make RTI letter →</a></p>
+  <p class="legal-meta">Public holidays are not yet taken out of the 30 days. No official holiday list is linked, so dates may move once one is.</p>
+
+  <form class="rti-form" id="rti-form" autocomplete="off">
+    <label>Office you applied to (PIO's office)
+      <input name="authority" required maxlength="200" placeholder="e.g. Purulia Municipality">
+    </label>
+    <label>What you asked for
+      <input name="subject" maxlength="300" placeholder="Short description">
+    </label>
+    <label>Application or reference number (optional)
+      <input name="ref" maxlength="60">
+    </label>
+    <label>Date you filed or posted it
+      <input name="filed" type="date" required>
+    </label>
+    <div><button type="submit" class="k-nav-cta">Add application</button></div>
+  </form>
+
+  <h2>Your applications</h2>
+  <div id="rti-list"></div>
+
+  <h2>About the checklist</h2>
+  <p>Each item is a common reply and what the Act lets you do about it. Section numbers are from the Right to Information Act, 2005; check the text at indiacode.gov.in before you rely on one. This is information, not legal advice.</p>
+  <p class="legal-meta">Status of these citations: taken from a breakdown of the Act, not yet checked against the Act's own text, which was unreachable when this page was written. Unverified against the Act text: ss.6(2), 6(3), 7(1) with its 48-hour proviso, 7(8), 7(9), 8(1)(a), 8(1)(d), 8(1)(h), 8(1)(j), 8(2), 9, 11, 18, 19(1), 19(3), 20(1).</p>
+
+</main>
+
+<script src="bug-report.js"></script>
+<script src="rti.js"></script>
+</body>
+</html>

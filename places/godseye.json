@@ -1,0 +1,483 @@
+{
+ "generated": "2026-10-21T05:19:13Z",
+ "sources": [
+  {
+   "id": "open-meteo-forecast",
+   "name": "Open-Meteo forecast API",
+   "url": "https://open-meteo.com/",
+   "key_required": false,
+   "licence": "Free for non-commercial use; CC BY 4.0 data",
+   "terms": "Free tier, no key; fair-use limit on calls per day"
+  },
+  {
+   "id": "open-meteo-air",
+   "name": "Open-Meteo air-quality API",
+   "url": "https://open-meteo.com/en/docs/air-quality-api",
+   "key_required": false,
+   "licence": "Free for non-commercial use; CAMS data (Copernicus) under its own terms",
+   "terms": "Free tier, no key; fair-use limit on calls per day"
+  },
+  {
+   "id": "data-gov-in-mandi",
+   "name": "data.gov.in: Current Daily Price of Various Commodities from Various Markets (Mandi)",
+   "url": "https://www.data.gov.in/resource/9ef84268-d588-465a-a308-a864a43d0070",
+   "key_required": true,
+   "licence": "Government of India Open Government Data Licence (India), attribution required; Agmarknet source",
+   "terms": "Free API key from data.gov.in; per-key rate limit"
+  },
+  {
+   "id": "nasa-firms",
+   "name": "NASA FIRMS (VIIRS S-NPP near-real-time)",
+   "url": "https://firms.modaps.eosdis.nasa.gov/",
+   "key_required": true,
+   "licence": "NASA open data, free to use with attribution",
+   "terms": "Free MAP_KEY; transaction limit per 10 minutes; 7-day area window"
+  }
+ ],
+ "districts": {
+  "north-24-parganas": {
+   "name": "North 24 Parganas",
+   "at": [
+    88.7824,
+    22.7893
+   ],
+   "weather": {
+    "temp_c": 30.1,
+    "humidity_pct": 60,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 33.3,
+    "pm10": 37.3,
+    "us_aqi": 153,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "south-24-parganas": {
+   "name": "South 24 Parganas",
+   "at": [
+    88.5705,
+    22.0807
+   ],
+   "weather": {
+    "temp_c": 29.7,
+    "humidity_pct": 64,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 38.9,
+    "pm10": 43.1,
+    "us_aqi": 154,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "alipurduar": {
+   "name": "Alipurduar",
+   "at": [
+    89.4999,
+    26.5815
+   ],
+   "weather": {
+    "temp_c": 30.1,
+    "humidity_pct": 52,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 26.1,
+    "pm10": 30.3,
+    "us_aqi": 140,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "bankura": {
+   "name": "Bankura",
+   "at": [
+    87.1501,
+    23.0877
+   ],
+   "weather": {
+    "temp_c": 28.5,
+    "humidity_pct": 61,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 47.5,
+    "pm10": 53.1,
+    "us_aqi": 144,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "birbhum": {
+   "name": "Birbhum",
+   "at": [
+    87.6728,
+    24.0533
+   ],
+   "weather": {
+    "temp_c": 28.5,
+    "humidity_pct": 61,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 38.0,
+    "pm10": 43.8,
+    "us_aqi": 126,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "cooch-behar": {
+   "name": "Cooch Behar",
+   "at": [
+    89.3227,
+    26.2814
+   ],
+   "weather": {
+    "temp_c": 29.5,
+    "humidity_pct": 61,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 32.2,
+    "pm10": 40.0,
+    "us_aqi": 161,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "darjeeling": {
+   "name": "Darjeeling",
+   "at": [
+    88.2546,
+    26.8104
+   ],
+   "weather": {
+    "temp_c": 27.3,
+    "humidity_pct": 51,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 22.8,
+    "pm10": 32.1,
+    "us_aqi": 119,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "dakshin-dinajpur": {
+   "name": "Dakshin Dinajpur",
+   "at": [
+    88.6063,
+    25.3649
+   ],
+   "weather": {
+    "temp_c": 29.8,
+    "humidity_pct": 59,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 36.9,
+    "pm10": 42.7,
+    "us_aqi": 151,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "uttar-dinajpur": {
+   "name": "Uttar Dinajpur",
+   "at": [
+    88.171,
+    25.9239
+   ],
+   "weather": {
+    "temp_c": 29.3,
+    "humidity_pct": 63,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 44.2,
+    "pm10": 51.1,
+    "us_aqi": 162,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "hooghly": {
+   "name": "Hooghly",
+   "at": [
+    87.99,
+    22.8811
+   ],
+   "weather": {
+    "temp_c": 29.1,
+    "humidity_pct": 64,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 41.9,
+    "pm10": 46.3,
+    "us_aqi": 165,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "howrah": {
+   "name": "Howrah",
+   "at": [
+    88.0788,
+    22.5954
+   ],
+   "weather": {
+    "temp_c": 29.4,
+    "humidity_pct": 61,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 42.5,
+    "pm10": 46.7,
+    "us_aqi": 166,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "jalpaiguri": {
+   "name": "Jalpaiguri",
+   "at": [
+    88.7539,
+    26.5682
+   ],
+   "weather": {
+    "temp_c": 29.6,
+    "humidity_pct": 59,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 38.2,
+    "pm10": 46.0,
+    "us_aqi": 162,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "jhargram": {
+   "name": "Jhargram",
+   "at": [
+    86.9665,
+    22.3527
+   ],
+   "weather": {
+    "temp_c": 29.0,
+    "humidity_pct": 59,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 40.0,
+    "pm10": 47.0,
+    "us_aqi": 148,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "kalimpong": {
+   "name": "Kalimpong",
+   "at": [
+    88.6203,
+    27.0471
+   ],
+   "weather": {
+    "temp_c": 20.6,
+    "humidity_pct": 54,
+    "rain_mm": 0.1,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 9.8,
+    "pm10": 17.7,
+    "us_aqi": 69,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "kolkata": {
+   "name": "Kolkata",
+   "at": [
+    88.3483,
+    22.5086
+   ],
+   "weather": {
+    "temp_c": 30.0,
+    "humidity_pct": 58,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 42.3,
+    "pm10": 46.4,
+    "us_aqi": 166,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "malda": {
+   "name": "Malda",
+   "at": [
+    88.1557,
+    25.1647
+   ],
+   "weather": {
+    "temp_c": 29.0,
+    "humidity_pct": 64,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 39.1,
+    "pm10": 44.5,
+    "us_aqi": 152,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "purba-medinipur": {
+   "name": "Purba Medinipur",
+   "at": [
+    87.7225,
+    22.0469
+   ],
+   "weather": {
+    "temp_c": 29.8,
+    "humidity_pct": 57,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 42.1,
+    "pm10": 45.5,
+    "us_aqi": 163,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "paschim-medinipur": {
+   "name": "Paschim Medinipur",
+   "at": [
+    87.4266,
+    22.3898
+   ],
+   "weather": {
+    "temp_c": 29.0,
+    "humidity_pct": 62,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 41.0,
+    "pm10": 45.1,
+    "us_aqi": 165,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "murshidabad": {
+   "name": "Murshidabad",
+   "at": [
+    88.0996,
+    24.2184
+   ],
+   "weather": {
+    "temp_c": 29.0,
+    "humidity_pct": 63,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 37.3,
+    "pm10": 42.5,
+    "us_aqi": 138,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "nadia": {
+   "name": "Nadia",
+   "at": [
+    88.5608,
+    23.5344
+   ],
+   "weather": {
+    "temp_c": 29.7,
+    "humidity_pct": 61,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 35.4,
+    "pm10": 39.9,
+    "us_aqi": 152,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "paschim-bardhaman": {
+   "name": "Paschim Bardhaman",
+   "at": [
+    87.2581,
+    23.6207
+   ],
+   "weather": {
+    "temp_c": 28.8,
+    "humidity_pct": 56,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 44.5,
+    "pm10": 50.4,
+    "us_aqi": 122,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "purba-bardhaman": {
+   "name": "Purba Bardhaman",
+   "at": [
+    87.9531,
+    23.3787
+   ],
+   "weather": {
+    "temp_c": 28.5,
+    "humidity_pct": 66,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 40.9,
+    "pm10": 45.4,
+    "us_aqi": 163,
+    "at": "2026-10-21T10:30"
+   }
+  },
+  "purulia": {
+   "name": "Purulia",
+   "at": [
+    86.434,
+    23.2635
+   ],
+   "weather": {
+    "temp_c": 27.3,
+    "humidity_pct": 58,
+    "rain_mm": 0.0,
+    "at": "2026-10-21T10:45"
+   },
+   "air": {
+    "pm2_5": 49.6,
+    "pm10": 65.7,
+    "us_aqi": 163,
+    "at": "2026-10-21T10:30"
+   }
+  }
+ },
+ "status": {
+  "open-meteo": "ok",
+  "nasa-firms": "failed",
+  "data-gov-in-gst": "failed",
+  "data-gov-in-mandi": "failed"
+ },
+ "national": {}
+}

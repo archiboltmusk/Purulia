@@ -13,7 +13,7 @@
       reps_h_d: "{d}'s MPs and MLAs", reps_sub_d: 'Everyone elected from {d}, from the 2026 Assembly and 2024 Lok Sabha results on Wikipedia, with the promises on record for each. "No promise on record" means we found none with a source; send one below if you know of one.',
       news_sub_d: 'Headlines about the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise\'s status on their own.',
       empty_d: 'No promise made to {d} is on record yet. If you have a news link or video of one, add it below.', f_role_ph_d: 'e.g. MLA, {d}',
-      reps_h: "Purulia's MPs and MLAs",
+      pick_label: 'District', reps_h: "Purulia's MPs and MLAs",
       reps_sub: 'Promises on record for each of Purulia\'s elected representatives. "No promise on record" means we found no promise with a source; send one below if you know of one.',
       reps_none: 'No promise on record', reps_n: '{n} on record', rep_mp: 'MP, {s}', rep_mla: 'MLA, {s}',
       rec_mplads: 'MP fund (MPLADS): named among Bengal MPs with "either zero completions or absolutely no spending" as on 6 Jan 2026.',
@@ -26,7 +26,7 @@
       news_sub: "Headlines about Purulia and the people above, collected automatically every morning from Google News. They link to the original reports. They are not checked by us and never change a promise's status on their own.",
       news_checked: 'Last checked {d}.', news_none: 'No headlines yet. The first daily check will add them.',
       none: 'No promises match.', none_yet: 'No promises published yet. Add one below.', load_err: 'Could not load the promises. Check your connection and reload.',
-      said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence', earlier: 'Earlier verdicts ({n})',
+      strip_h: 'Over the years', strip_sub: 'Oldest first. Each frame is one promise; tap it to read the record.', said_on: 'Said on {d}', source: 'source', due: 'promised by {d}', overdue: 'past its date', status_on: '{s} on {d}', evidence: 'evidence', earlier: 'Earlier verdicts ({n})',
       in_news: 'In the news', suggest_update: 'Suggest an update',
       form_h: 'Add a promise, or an update',
       form_sub: 'Heard a promise in a speech, a newspaper or an official post? Add it with a link to where it was said. Seen a promise delivered, started or dropped? Use "Suggest an update" on that promise and add a link that shows it. A moderator checks every link before anything appears here.',
@@ -49,7 +49,7 @@
       reps_h_d: '{d}-এর সাংসদ ও বিধায়ক', reps_sub_d: '{d} থেকে নির্বাচিত সবাই (উইকিপিডিয়ায় ২০২৬ বিধানসভা ও ২০২৪ লোকসভার ফল), প্রত্যেকের নথিভুক্ত প্রতিশ্রুতি সহ। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কিছু পাইনি; জানা থাকলে নিচে পাঠান।',
       news_sub_d: 'ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
       empty_d: '{d}-কে দেওয়া কোনও প্রতিশ্রুতি এখনও নথিভুক্ত নেই। খবরের লিঙ্ক বা ভিডিও থাকলে নিচে যোগ করুন।', f_role_ph_d: 'যেমন বিধায়ক, {d}',
-      reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
+      pick_label: 'জেলা', reps_h: 'পুরুলিয়ার সাংসদ ও বিধায়ক',
       reps_sub: 'পুরুলিয়ার প্রত্যেক নির্বাচিত প্রতিনিধির নথিভুক্ত প্রতিশ্রুতি। "কোনও প্রতিশ্রুতি নথিভুক্ত নেই" মানে সূত্রসহ কোনও প্রতিশ্রুতি আমরা পাইনি; জানা থাকলে নিচে পাঠান।',
       reps_none: 'কোনও প্রতিশ্রুতি নথিভুক্ত নেই', reps_n: '{n}টি নথিভুক্ত', rep_mp: 'সাংসদ, {s}', rep_mla: 'বিধায়ক, {s}',
       rec_mplads: 'সাংসদ তহবিল (MPLADS): ৬ জানুয়ারি ২০২৬ পর্যন্ত "একটিও কাজ শেষ হয়নি বা একেবারেই খরচ হয়নি" এমন বাংলার সাংসদদের মধ্যে নাম আছে।',
@@ -62,7 +62,7 @@
       news_sub: 'পুরুলিয়া ও ওপরের মানুষদের নিয়ে খবরের শিরোনাম, প্রতিদিন সকালে Google News থেকে নিজে থেকে সংগ্রহ করা। লিঙ্কগুলি মূল খবরে নিয়ে যায়। আমরা এগুলি যাচাই করি না, আর এগুলি নিজে থেকে কোনও প্রতিশ্রুতির অবস্থা বদলায় না।',
       news_checked: 'শেষ দেখা হয়েছে {d}।', news_none: 'এখনও কোনও শিরোনাম নেই। প্রথম দৈনিক খোঁজে যোগ হবে।',
       none: 'কোনও প্রতিশ্রুতি মেলেনি।', none_yet: 'এখনও কোনও প্রতিশ্রুতি প্রকাশ হয়নি। নিচে যোগ করুন।', load_err: 'প্রতিশ্রুতি লোড করা গেল না। সংযোগ দেখে আবার লোড করুন।',
-      said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ', earlier: 'আগের রায় ({n})',
+      strip_h: 'বছরের পর বছর', strip_sub: 'পুরনো থেকে নতুন। প্রতিটি ফ্রেম একটি প্রতিশ্রুতি; রেকর্ড পড়তে ট্যাপ করুন।', said_on: 'বলা হয়েছিল {d}', source: 'সূত্র', due: '{d}-এর মধ্যে', overdue: 'সময় পেরিয়ে গেছে', status_on: '{s}, {d}', evidence: 'প্রমাণ', earlier: 'আগের রায় ({n})',
       in_news: 'খবরে', suggest_update: 'আপডেট জানান',
       form_h: 'প্রতিশ্রুতি বা আপডেট যোগ করুন',
       form_sub: 'ভাষণে, খবরের কাগজে বা সরকারি পোস্টে কোনও প্রতিশ্রুতি শুনেছেন? যেখানে বলা হয়েছিল তার লিঙ্ক দিয়ে যোগ করুন। কোনও প্রতিশ্রুতি পূরণ হতে, শুরু হতে বা বাদ পড়তে দেখেছেন? সেই প্রতিশ্রুতিতে "আপডেট জানান" চাপুন আর প্রমাণের লিঙ্ক দিন। কিছু প্রকাশের আগে একজন মডারেটর প্রতিটি লিঙ্ক দেখে নেন।',
@@ -85,7 +85,7 @@
       reps_h_d: '{d} के सांसद और विधायक', reps_sub_d: '{d} से चुने गए सभी (विकिपीडिया पर 2026 विधानसभा और 2024 लोकसभा नतीजे), हर एक के दर्ज वादों के साथ। "कोई वादा दर्ज नहीं" का मतलब है कि स्रोत के साथ कुछ नहीं मिला; पता हो तो नीचे भेजें।',
       news_sub_d: 'ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
       empty_d: '{d} से किया गया कोई वादा अभी दर्ज नहीं है। ख़बर का लिंक या वीडियो हो तो नीचे जोड़ें।', f_role_ph_d: 'जैसे विधायक, {d}',
-      reps_h: 'पुरुलिया के सांसद और विधायक',
+      pick_label: 'ज़िला', reps_h: 'पुरुलिया के सांसद और विधायक',
       reps_sub: 'पुरुलिया के हर चुने हुए प्रतिनिधि के दर्ज वादे। "कोई वादा दर्ज नहीं" का मतलब है कि हमें स्रोत के साथ कोई वादा नहीं मिला; आपको पता हो तो नीचे भेजें।',
       reps_none: 'कोई वादा दर्ज नहीं', reps_n: '{n} दर्ज', rep_mp: 'सांसद, {s}', rep_mla: 'विधायक, {s}',
       rec_mplads: 'सांसद निधि (MPLADS): 6 जनवरी 2026 तक "या तो एक भी काम पूरा नहीं या बिल्कुल ख़र्च नहीं" वाले बंगाल के सांसदों में नाम है।',
@@ -98,7 +98,7 @@
       news_sub: 'पुरुलिया और ऊपर के लोगों से जुड़ी सुर्ख़ियाँ, हर सुबह Google News से अपने-आप जुटाई गईं। लिंक मूल ख़बर पर ले जाते हैं। हम इन्हें नहीं जाँचते, और ये अपने-आप किसी वादे की स्थिति नहीं बदलतीं।',
       news_checked: 'आख़िरी बार देखा गया {d}।', news_none: 'अभी कोई सुर्ख़ी नहीं। पहली रोज़ की जाँच में जुड़ेंगी।',
       none: 'कोई वादा नहीं मिला।', none_yet: 'अभी कोई वादा प्रकाशित नहीं हुआ। नीचे जोड़ें।', load_err: 'वादे लोड नहीं हो सके। कनेक्शन देखकर फिर लोड करें।',
-      said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत', earlier: 'पहले के फ़ैसले ({n})',
+      strip_h: 'साल दर साल', strip_sub: 'पुराने से नए। हर फ़्रेम एक वादा है; रिकॉर्ड पढ़ने के लिए टैप करें।', said_on: 'कहा गया {d}', source: 'स्रोत', due: '{d} तक', overdue: 'समय निकल गया', status_on: '{s}, {d}', evidence: 'सबूत', earlier: 'पहले के फ़ैसले ({n})',
       in_news: 'ख़बरों में', suggest_update: 'अपडेट बताएँ',
       form_h: 'वादा या अपडेट जोड़ें',
       form_sub: 'किसी भाषण, अख़बार या सरकारी पोस्ट में वादा सुना? जहाँ कहा गया उसका लिंक देकर जोड़ें। कोई वादा पूरा होते, शुरू होते या छूटते देखा? उस वादे पर "अपडेट बताएँ" दबाएँ और सबूत का लिंक दें। कुछ भी दिखने से पहले एक मॉडरेटर हर लिंक जाँचता है।',
@@ -147,6 +147,16 @@
     document.querySelectorAll('[data-t-html]').forEach(el => { el.innerHTML = t(el.dataset.tHtml); });
     document.querySelectorAll('[data-t-ph]').forEach(el => { el.placeholder = t(el.dataset.tPh); });
     document.querySelectorAll('.pr-lang button').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.lang === lang)));
+    setPlaceMeta();
+  }
+
+  // Tab title and share tags follow the place, like the brand line ("— Parishkar <District>").
+  function setPlaceMeta(){
+    if (!place.name) return;
+    const title = `Promises: who promised what, and what was delivered — Parishkar ${place.name}`, desc = t('sub');
+    document.title = title;
+    [['meta[name="description"]', desc], ['meta[property="og:title"]', title], ['meta[property="og:description"]', desc]]
+      .forEach(([sel, v]) => { const el = document.querySelector(sel); if (el) el.setAttribute('content', v); });
   }
 
   async function rpc(name, body){
@@ -160,9 +170,11 @@
     return data;
   }
 
+  // English view leaves out headlines in Bengali script; বাং view keeps them.
+  function shownNews(){ return lang === 'en' ? state.news.filter(n => !/\p{Script=Bengali}/u.test(n.title || '')) : state.news; }
   function newsFor(who){
     const w = who.toLowerCase();
-    return state.news.filter(n => (n.who && n.who === who) || (n.title || '').toLowerCase().includes(w)).slice(0, 3);
+    return shownNews().filter(n => (n.who && n.who === who) || (n.title || '').toLowerCase().includes(w)).slice(0, 3);
   }
 
   function renderTiles(){
@@ -187,6 +199,7 @@
     const q = state.q.toLowerCase();
     const rows = state.promises.filter(p => (!state.who || p.who === state.who) && (!state.status || p.status === state.status) &&
       (!q || [p.who, p.role, p.promise, p.area].join(' ').toLowerCase().includes(q)));
+    renderStrip(rows);
     if (!rows.length){ el.innerHTML = `<li class="an-empty">${esc(t('none'))}</li>`; return; }
     const today = new Date().toISOString().slice(0, 10);
     el.innerHTML = rows.map(p => {
@@ -211,13 +224,29 @@
     }).join('');
   }
 
+  // The same promises as a film strip, oldest first: one frame per promise, its verdict and date on the frame.
+  function renderStrip(rows){
+    const box = document.getElementById('pr-strip');
+    if (!box) return;
+    if (rows.length < 2){ box.hidden = true; return; }
+    const frames = rows.slice().sort((a, b) => String(a.made_on).localeCompare(String(b.made_on)));
+    box.hidden = false;
+    box.innerHTML = `<div class="pr-strip-h"><b>${esc(t('strip_h'))}</b> <span class="pr-meta">${esc(t('strip_sub'))}</span></div>
+      <ol class="pr-strip-film">${frames.map(p => `<li><a href="#p-${esc(p.id)}">
+        <span class="pr-strip-y">${esc(String(p.made_on).slice(0, 4))}</span>
+        <span class="pr-strip-who">${esc(p.who)}</span>
+        <span class="pr-strip-txt">${esc(p.promise.length > 90 ? p.promise.slice(0, 88) + '…' : p.promise)}</span>
+        <span class="pr-status pr-s-${esc(p.status)}">${esc(t('st_' + p.status))}${p.status !== 'promised' && p.status_date ? ' · ' + esc(String(p.status_date).slice(0, 4)) : ''}</span>
+      </a></li>`).join('')}</ol>`;
+  }
+
   function renderNews(){
     const el = document.getElementById('pr-feed');
     document.getElementById('pr-news-checked').textContent = state.checked ? t('news_checked', { d: fmtDate(state.checked) }) : '';
     if (state.failed){ el.innerHTML = `<li class="an-empty">${esc(t('load_err'))}</li>`; return; }
     if (!state.loaded) return;
-    if (!state.news.length){ el.innerHTML = `<li class="an-empty">${esc(t('news_none'))}</li>`; return; }
-    el.innerHTML = state.news.slice(0, 25).map(n => `<li><a href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener nofollow">${esc(n.title)}</a>
+    if (!shownNews().length){ el.innerHTML = `<li class="an-empty">${esc(t('news_none'))}</li>`; return; }
+    el.innerHTML = shownNews().slice(0, 25).map(n => `<li><a href="${esc(safeUrl(n.url))}" target="_blank" rel="noopener nofollow">${esc(n.title)}</a>
       <small>${esc([n.source, fmtDate(n.published_at)].filter(Boolean).join(' · '))}</small></li>`).join('');
   }
 
@@ -279,6 +308,31 @@
 
   function renderAll(){ applyStatic(); renderTiles(); renderReps(); renderWho(); renderList(); renderNews(); renderForm(); }
 
+  // Ray-cast: is [lng, lat] inside a Polygon or MultiPolygon (outer rings)?
+  function inside([x, y], geom){
+    const polys = geom.type === 'Polygon' ? [geom.coordinates] : geom.coordinates;
+    return polys.some(rings => {
+      const r = rings[0]; let c = false;
+      for (let i = 0, j = r.length - 1; i < r.length; j = i++){
+        const [xi, yi] = r[i], [xj, yj] = r[j];
+        if ((yi > y) !== (yj > y) && x < (xj - xi) * (y - yi) / (yj - yi) + xi) c = !c;
+      }
+      return c;
+    });
+  }
+
+  // A town chosen on the map: only the MLA and MP of the seats that cover it. A whole district keeps all its reps.
+  async function localReps(slug, reps){
+    let k = null; try { k = localStorage.getItem('parishkar_place'); } catch (e) {}
+    const tw = k && (await window.PlaceFacts.towns()).find(p => p.slug === k && p.district === slug);
+    if (!tw || !tw.at) return reps;
+    const g = await fetch('places/wb_assembly.geojson').then(r => r.ok ? r.json() : null).catch(() => null);
+    const seats = g ? g.features.filter(f => f.properties.d === slug && inside(tw.at, f.geometry)) : [];
+    if (!seats.length) return reps;
+    const keys = new Set(seats.flatMap(f => ['ac:' + f.properties.ac, 'pc:' + f.properties.pc]));
+    return reps.filter(r => keys.has(r.key));
+  }
+
   async function load(){
     const PF = window.PlaceFacts;
     if (PF){
@@ -286,9 +340,13 @@
       if (PF.data){
         const D = PF.data.districts[PF.current()];
         Object.assign(place, { slug: PF.current(), name: D.name, name_bn: D.name_bn || '' });
+        // Choosing a district reloads the page with ?d=<slug>, so every list and count is recalculated.
+        const pick = document.getElementById('pr-pick');
+        PF.picker(pick.querySelector('select'), place.slug, () => location.reload());
+        pick.hidden = false;
       }
     }
-    if (place.slug !== 'purulia') state.reps = await PF.reps(place.slug);
+    if (place.slug !== 'purulia' && PF) state.reps = await localReps(place.slug, await PF.reps(place.slug));
     applyStatic(); renderReps();
     try {
       const d = await rpc('kasa_promises');

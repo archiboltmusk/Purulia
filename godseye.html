@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>God's-eye view — Parishkar</title>
+<meta name="description" content="Every West Bengal district on one screen: live weather, air quality and fire hotspots, who answers for it, and its sourced figures.">
+<meta property="og:title" content="God's-eye view — Parishkar">
+<meta property="og:description" content="Every West Bengal district on one screen, every figure sourced.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta property="og:url" content="https://archiboltmusk.github.io/Purulia/godseye.html">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/godseye.html">
+<meta name="theme-color" content="#0a0805">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
+  .an-head{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:flex-end;gap:1rem 2rem;margin-bottom:2.4rem;}
+  .an-title{font-family:var(--serif);font-size:clamp(2.2rem,4.5vw,3.6rem);font-weight:700;color:var(--cream);letter-spacing:-.02em;line-height:1.05;}
+  .an-title em{font-style:italic;color:var(--amber);}
+  .an-sub{margin-top:.8rem;color:var(--text-md);max-width:680px;line-height:1.6;}
+  .an-meta{font-family:var(--mono);font-size:11px;letter-spacing:.08em;color:var(--text-lo);}
+  .an-tiles{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .an-tile{background:var(--ink);padding:1.6rem 1.4rem;}
+  .an-tile-n{font-family:var(--serif);font-size:clamp(2rem,3.4vw,2.8rem);font-weight:700;color:var(--cream);line-height:1;}
+  .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
+  .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
+  .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
+  .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
+  .an-table-wrap{margin-top:1rem;overflow-x:auto;}
+  .an-table{width:100%;border-collapse:collapse;font-size:.9rem;}
+  .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
+  .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
+  .an-table a{color:var(--amber);}
+  .an-table tr:target td{background:rgba(221,51,51,.08);}
+  .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
+  .an-empty a{color:var(--amber);}
+  .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
+  .an-footer a{color:var(--amber);}
+  @media(max-width:600px){.an-tiles{grid-template-columns:1fr 1fr;}.an-tile{padding:1.2rem 1rem;}.an-card{padding:1.1rem 1rem;}.an-table{font-size:.84rem;}.an-table th,.an-table td{padding:.5rem .4rem;}}
+  .cp-table th[scope=row]{font-family:inherit;font-size:.9rem;letter-spacing:0;text-transform:none;color:var(--text-hi);white-space:normal;min-width:180px;}
+  .cp-table small{display:block;font-size:.76rem;color:var(--text-lo);margin-top:.15rem;}
+  .cp-table select{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.3rem .4rem;color:var(--text-hi);font:inherit;font-size:.85rem;text-transform:none;letter-spacing:0;}
+  .cp-x{background:none;border:0;color:var(--text-lo);cursor:pointer;margin-left:.2rem;}
+  .cp-best{color:#7fbf7f;font-weight:600;} .cp-worst{color:#e07a5f;font-weight:600;}
+  .cp-none{color:var(--text-lo);font-size:.8rem;}
+  .cp-state{color:var(--text-md);}
+  .cl-btn{background:none;border:1px solid var(--border2);border-radius:4px;padding:.4rem .8rem;color:var(--cream);font-family:var(--mono);font-size:12px;cursor:pointer;margin-top:1rem;}
+  .ge-muted{color:var(--text-lo);}
+  .ge-live{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;margin-bottom:1.4rem;}
+  .ge-tile{background:var(--ink);padding:1.3rem 1.2rem;display:flex;flex-direction:column;gap:.35rem;}
+  .ge-k{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-lo);}
+  .ge-v{font-family:var(--serif);font-size:2.2rem;font-weight:700;color:var(--cream);line-height:1;}
+  .ge-s{font-size:12px;color:var(--text-md);}
+  .ge-facts{display:grid;grid-template-columns:max-content 1fr;gap:.6rem 1.4rem;margin:0;}
+  .ge-facts dt{font-family:var(--mono);font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--text-lo);}
+  .ge-facts dd{margin:0;color:var(--text-md);line-height:1.5;}
+  .ge-src{margin-top:1.2rem;}
+  .ge-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:1px;background:var(--border);border:1px solid var(--border);border-radius:6px;overflow:hidden;}
+  .ge-cell{background:var(--ink);padding:1rem 1.1rem;text-decoration:none;color:var(--text-md);display:flex;flex-direction:column;gap:.5rem;}
+  .ge-cell:hover,.ge-cell:focus-visible{background:var(--surface-1,var(--ink));color:var(--cream);}
+  .ge-cell.on{outline:2px solid var(--amber);outline-offset:-2px;}
+  .ge-cell-name{font-family:var(--serif);font-weight:700;color:var(--cream);}
+  .ge-cell-row{display:flex;flex-wrap:wrap;gap:.3rem .8rem;font-family:var(--mono);font-size:11px;}
+  .ge-sources{padding-left:1.2rem;line-height:1.7;color:var(--text-md);font-size:13px;}
+  .ge-feeds li{margin:.2rem 0;list-style:none;padding-left:0;}
+  .ge-feeds label{cursor:pointer;color:var(--text-hi);}
+  @media (max-width:640px){.ge-facts{grid-template-columns:1fr;}}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html">Home</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report a problem →</a>
+  </div>
+</nav>
+
+<main class="an-wrap" id="ge-main">
+  <div class="an-head">
+    <div>
+      <h1 class="an-title">God's-eye <em>view</em></h1>
+      <p class="an-sub">One screen per district: live weather and air, satellite fire hotspots, open reports, who answers for the place, and its figures on record. Every number names its source and when it was read. The air readings alone, against the WHO guideline, are on <a href="air.html">Air in each district</a>. To compare districts, see <a href="compare.html">Compare districts</a>.</p>
+    </div>
+    <div>
+      <div class="an-meta">Showing</div>
+      <h2 id="ge-name" class="an-title" style="font-size:1.6rem"></h2>
+      <select id="ge-pick" aria-label="Choose a district" class="cl-btn" style="margin-top:.5rem"></select>
+    </div>
+  </div>
+
+  <section class="an-card" id="ge-hero"><p class="an-empty">Loading…</p></section>
+
+  <section class="an-card">
+    <h2>Live tracks</h2>
+    <p class="an-card-sub">Tick the tracks to show in each district tile. Each track names its source, refreshes on its own schedule and shows when it was read. A track with no figure for a district says so.</p>
+    <ul class="ge-feeds" id="ge-feeds"></ul>
+  </section>
+
+  <section class="an-card">
+    <h2>All districts</h2>
+    <p class="an-card-sub">The ticked tracks for each district. Tap one to look at it.</p>
+    <div class="ge-grid" id="ge-grid"></div>
+  </section>
+
+  <section class="an-card">
+    <h2>Sources and freshness</h2>
+    <ul class="ge-sources" id="ge-sources"></ul>
+  </section>
+
+  <div class="an-footer">
+    <a href="kasa.html">Report map</a>
+    <a href="data.html">District data</a>
+    <a href="compare.html">Compare districts</a>
+    <a href="calendar.html">Civic calendar</a>
+    <a href="analytics.html">Analytics</a>
+    <a href="methodology.html">How it works</a>
+  </div>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js" integrity="sha384-GFr3yTh5lJznCbZfpTtXnwboFsxqtTQoeTZCRHhE0579KrRmlCzen5AA8ohaB5ug" crossorigin="anonymous"></script>
+<script defer src="config.js"></script>
+<script defer src="place-facts.js"></script>
+<script defer src="godseye.js"></script>
+</body>
+</html>

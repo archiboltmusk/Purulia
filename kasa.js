@@ -24,10 +24,39 @@ const MUNICIPALITY_EMAIL = CITY.municipalityEmail || '';
 const MLA_TWITTER_HANDLE = CITY.mlaTwitterHandle || '';
 const MAP_CENTER = CITY.mapCenter || [86.3654, 23.3320];
 const MAP_ZOOM = CITY.mapZoom || 13;
-// "Daylight map" (menu) swaps the dark basemap for a light one that stays readable in bright sun.
+// Light basemap by default (Namma Kasa look). "Daylight map" (menu) switches back to the dark one.
 let daylightMap = false;
-try { daylightMap = localStorage.getItem('kasa_daylight') === '1'; } catch (e) {}
+try { daylightMap = localStorage.getItem('kasa_daylight') !== '0'; } catch (e) {}
 const MAP_STYLE = 'https://tiles.openfreemap.org/styles/' + (daylightMap ? 'positron' : 'dark');
+// Ligne-claire paper for the light basemap: cream paper, flat water, road casings in ink with sand
+// fills, no hillshade. Runs on the OpenFreeMap positron style; dark style is left alone.
+const INK = '#1a1410';
+// Label halo and label ink: cream on the light basemap, the old dark halo on the dark one.
+const HALO = daylightMap ? '#F7F2E8' : '#0a0805';
+const TXT_GREEN = daylightMap ? '#1f4d33' : '#6db88a';
+const TXT_DISTRICT = daylightMap ? '#3a3129' : '#9ca3af';
+const TXT_STATE = daylightMap ? INK : '#e8d9b8';
+// Full-strength labels on the light basemap; the dim opacity was lost on pale fills.
+const LABEL_OP = v => (daylightMap ? 1 : v);
+const HALO_W = daylightMap ? 2.5 : 1.5;
+function inkStyle(prev, next) {
+  if (!daylightMap) return next;
+  const layers = next.layers.filter(l => !(l.source === 'ne2_shaded' || l.type === 'hillshade'));
+  for (const l of layers) {
+    const id = l.id;
+    if (id === 'background') l.paint = { ...l.paint, 'background-color': '#EEECE7' };
+    else if (/^(water|waterway|water_)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#A9CFCB' };
+    else if (/^(landuse|landcover|park|building)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#E4E1DA' };
+    else if (/^highway_.*casing$/.test(id) || /^tunnel_.*casing$/.test(id)) l.paint = { ...l.paint, 'line-color': INK };
+    else if (/^highway_(minor|major_inner|motorway_inner|path|major_subtle)/.test(id)) l.paint = { ...l.paint, 'line-color': '#F3EAD6' };
+    // Basemap names: Latin script first (name:latin, then name_en), ink on a cream halo, so they read on the paper.
+    if (l.type === 'symbol' && l.layout?.['text-field']) {
+      l.layout = { ...l.layout, 'text-field': ['coalesce', ['get', 'name:latin'], ['get', 'name_en'], ['get', 'name']] };
+      l.paint = { ...l.paint, 'text-color': '#3a322a', 'text-halo-color': '#F7F2E8', 'text-halo-width': HALO_W };
+    }
+  }
+  return { ...next, layers };
+}
 const PAGE_URL = location.origin + location.pathname;
 // Links people share. With SHARE_URL set (the Cloudflare worker, worker.js), /r/<id> shows the
 // report's photo in WhatsApp/X/Facebook previews and then opens the report here.
@@ -40,7 +69,7 @@ const PUBLIC_REPORT_COLUMNS = 'id,created_at,lat,lng,ward_no,category,severity,s
 const CACHE_KEY = 'kasa_reports_cache_v2';
 const MAP_HIDE_RESOLVED_DAYS = 90;   // resolved reports leave the map (not the record) after this
 const DEFAULT_RULES = {
-  verify_quorum: 3, dispute_quorum: 2, challenge_hours: 12, claim_expiry_days: 14,
+  verify_quorum: 1, dispute_quorum: 2, challenge_hours: 12, claim_expiry_days: 14,
   claim_radius_m: 50, vote_radius_m: 100, max_gps_accuracy_m: 60,
   max_photo_age_minutes: 120, photo_gps_far_m: 500, require_live_capture: 0
 };
@@ -70,6 +99,13 @@ const ISSUE_GROUPS = [
     ['toilet_locked', '🔒', 'toilet', 'closed shut public toilet'],
     ['open_defecation', '💩', 'toilet', 'od toilet field'],
     ['yellow_spot', '🟡', 'toilet', 'urination urinating peeing wall']]],
+  ['hostel', '🏨', [
+    ['hostel_washroom', '🚽', 'toilet', 'hostel washroom toilet bathroom hostel sanitation cleaning not done'],
+    ['hostel_dustbin', '🗑️', 'garbage', 'hostel dustbin bin not cleared emptied'],
+    ['hostel_corridor', '🧹', 'garbage', 'hostel corridor floor sweeping not cleaned']]],
+  ['puja', '🪔', [
+    ['puja_floral', '🌼', 'garbage', 'saheb bandh puja flower marigold nirmalya ghat immersion visarjan shore'],
+    ['puja_debris', '🎈', 'garbage', 'saheb bandh puja thermocol polythene plastic metal armature visarjan lake shore water']]],
   ['drain', '🌊', [
     ['drain_blocked', '🌊', 'drain', 'nala nali clogged choked'],
     ['sewer_overflow', '🌧️', 'drain', 'sewerage sewage storm water overflow'],
@@ -96,7 +132,7 @@ const ISSUE_GROUPS = [
 ];
 const ISSUES = Object.fromEntries(ISSUE_GROUPS.flatMap(([g, , list]) =>
   list.map(([key, icon, cat, kw]) => [key, { icon, cat, kw, group: g }])));
-const COLORS = { minor: '#d4882a', severe: '#e88a4a', critical: '#e8524a', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
+const COLORS = { minor: '#f4a6a6', severe: '#DD3333', critical: '#7a2428', claimed: '#8f7ae6', resolved: '#6db88a', pending: '#9a8f7c' };
 
 /* Issue types. `chain` picks who is responsible; `review` means a moderator
    approves it before it is public (enforced on the server). */
@@ -256,6 +292,7 @@ const state = {
   filters: { category: '', status: '', severity: '', ward: null, place: null },
   nearbyOnly: false,
   userLocation: null,
+  listScroll: 0,
   view: 'map',
   sort: 'urgent',
   lang: 'en',
@@ -309,6 +346,13 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); el.setAttribute('aria-label', el.title); });
   document.querySelectorAll('.k-lang-btn').forEach(b => b.classList.toggle('k-lang-active', b.dataset.lang === state.lang));
+  // Navbar toggle names the other language: বাংলা while English, EN while Bengali.
+  document.querySelectorAll('.k-lang-toggle').forEach(b => {
+    const bn = state.lang === 'bn';
+    b.dataset.lang = bn ? 'en' : 'bn';
+    b.textContent = bn ? 'EN' : 'বাংলা';
+    b.setAttribute('aria-label', bn ? 'Switch to English' : 'Switch to Bengali');
+  });
   showVersion();
 }
 
@@ -330,13 +374,8 @@ function setLang(lang){
 }
 
 function loadTheme(){
-  try { state.theme = localStorage.getItem('kasa_theme'); } catch (e) {}
-  if (state.theme && ['light', 'dark'].includes(state.theme)){
-    document.documentElement.setAttribute('data-theme', state.theme);
-  } else {
-    document.documentElement.removeAttribute('data-theme');
-    state.theme = null;
-  }
+  // theme-init.js sets data-theme before first paint; white unless dark was chosen
+  state.theme = document.documentElement.getAttribute('data-theme') === 'dark' ? 'dark' : 'light';
   const btn = document.getElementById('k-theme-toggle');
   if (btn) btn.innerHTML = '<span aria-hidden="true">' + (state.theme === 'light' ? '🌙' : '☀️') + '</span>';
 }
@@ -345,7 +384,7 @@ function setTheme(theme){
   if (!['light', 'dark'].includes(theme)) return;
   state.theme = theme;
   document.documentElement.setAttribute('data-theme', theme);
-  try { localStorage.setItem('kasa_theme', theme); } catch (e) {}
+  try { localStorage.setItem('parishkar_theme', theme); } catch (e) {}
   const btn = document.getElementById('k-theme-toggle');
   if (btn) btn.textContent = theme === 'light' ? '🌙' : '☀️';
 }
@@ -380,6 +419,9 @@ async function init(){
   renderCategoryGrid();
   renderChainSection();
   renderReps();
+  // Statewide leaders load only when someone opens the representatives section. Wired before the
+  // report and ward fetches below, so a slow or failed network can't keep the section from opening.
+  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   setupOfflineDetection();
   setupInAppBrowser();
 
@@ -396,7 +438,7 @@ async function init(){
     KasaPlaces.on((what, slug) => {
       if (what === 'geo'){ mapReady.then(() => addPlaceLayers(slug)); councillorsOf(slug); }
       // The counts, the "fixed" chip, the ticker, the join line, the representatives, the leaderboard and "Who's responsible" follow the place in view.
-      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderJoin(); renderReps(); renderLeaderboard(); renderChainSection(); }
+      if (what === 'brand'){ updateStats(); renderFixed(); renderTicker(); renderReps(); renderLeaderboard(); renderChainSection(); }
     });
     for (const slug of Object.keys(KasaPlaces.geo)) mapReady.then(() => addPlaceLayers(slug));
     // ?at=lat,lng,zoom (a shared area card) opens the map there with the card.
@@ -426,14 +468,9 @@ async function init(){
   Promise.all([mapReady, loadBlockGeo()]).then(addBlockLayers);
   Promise.all([mapReady, loadLocalGeo()]).then(addLocalLayers);
   if (window.KasaPlaces) mapReady.then(addDistrictLayers);
-  // Statewide leaders load only when someone opens the representatives section.
-  document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   openDeepLink();
-  if (!location.hash && !location.search) mapReady.then(openOnHomePlace).then(locateOnOpen);
+  startAtUserLocation();
   initPlacePicker();
-  if (state.mode === 'v2') showJoin();
-  // Tips also start on their own if the location question didn't run (a shared link, for example).
-  setTimeout(startTips, 5000);
   syncOfflineQueue();
   startLiveRefresh();
 
@@ -443,6 +480,8 @@ async function init(){
   renderAlertsButtons();
   renderInstallButton();
   registerServiceWorker();
+  setTimeout(() => askReporter().catch(() => {}), 8000);
+  setTimeout(() => sb.rpc('kasa_retention_tick').then(() => {}, () => {}), 15000);
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -480,6 +519,30 @@ async function loadRules(){
   renderTrust();
 }
 
+/* The first load stops at the newest 1000 reports, so on a busy site older reports in view
+   never show. When the map settles, fetch what is in view and keep it (raw rows by id). */
+const viewRows = new Map();
+let viewRequest = 0;
+let baseRows = null;
+const withViewRows = base => {
+  const seen = new Set(base.map(r => String(r.id)));
+  return [...base, ...[...viewRows.values()].filter(r => !seen.has(String(r.id)))];
+};
+
+async function loadReportsInView(){
+  if (!mainMap || !baseRows || state.mode !== 'v2') return;
+  const b = mainMap.getBounds();
+  const req = ++viewRequest;
+  const { data, error } = await sb.rpc('kasa_reports_in_bbox', { min_lng: b.getWest(), min_lat: b.getSouth(),
+    max_lng: b.getEast(), max_lat: b.getNorth(), p_limit: 1000 });
+  if (error || req !== viewRequest || !Array.isArray(data)) return;
+  const before = viewRows.size;
+  for (const r of data) viewRows.set(String(r.id), r);
+  if (viewRows.size === before) return;
+  setReports(withViewRows(baseRows));
+  renderAll();
+}
+
 async function loadReports(){
   try {
     const [rows, fast, addrs] = await Promise.all([fetchRows(), sb.rpc('kasa_fast_claims').then(r => r.data, () => null),
@@ -487,7 +550,8 @@ async function loadReports(){
     state.fast = new Map((Array.isArray(fast) ? fast : []).map(f => [String(f.claim_id), f]));
     if (addrs && typeof addrs === 'object') state.addresses = addrs;
     const pending = await getPendingReports();
-    setReports([...pending.map(pendingToRow), ...rows]);
+    baseRows = [...pending.map(pendingToRow), ...rows];
+    setReports(withViewRows(baseRows));
     writeCache(rows);
   } catch (e){
     console.error('Parishkar: reports load failed', e);
@@ -614,7 +678,7 @@ async function loadCommunities(){
 async function loadWardGeo(){
   try {
     const res = await fetch(CITY.wardsGeojson || 'purulia_wards.geojson');
-    if (res.ok) state.wardGeo = await res.json();
+    if (res.ok) state.wardGeo = window.BoundaryLive.apply(await res.json(), await window.BoundaryLive.rows('purulia', sb));
   } catch (e) { console.info('Parishkar: no ward boundaries'); }
 }
 
@@ -642,7 +706,7 @@ async function loadBlockGeo(){
 
 /* Version badge beside the logo; it opens that day's entry on the What's new page. */
 function showVersion(){
-  const el = document.getElementById('k-version');
+  const el = document.getElementById('k-drawer-version');
   const v = window.PARISHKAR_VERSION?.version;
   if (!el || !v) return;
   el.textContent = 'v' + v;
@@ -789,7 +853,9 @@ function errorText(err){
     const key = 'err_' + code;
     const hasOwn = I18N[state.lang]?.[key] || I18N.en[key];
     const taken = data.taken_minutes_ago != null ? ago(new Date(Date.now() - data.taken_minutes_ago * 60000).toISOString()) : '';
-    return hasOwn ? t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m, ago: taken }) : (err.details || t('err_generic'));
+    if (!hasOwn) return err.details || t('err_generic');
+    const msg = t(key, { d: data.distance_m, limit: data.limit_m, a: data.accuracy_m, ago: taken });
+    return code === 'KASA_RATE_LIMIT' ? msg + ' ' + t('rate_upvote') : msg;
   }
   return t('err_generic');
 }
@@ -837,7 +903,37 @@ async function getCaptureToken(){
 }
 
 /* The in-page camera plus a token requested in parallel (issued before the shot). */
+/* Reports and claims need a phone's own live camera. A laptop gets a QR code to open the page on a phone. */
+function isPhone(){
+  return matchMedia('(pointer: coarse)').matches || /Mobi|Android|iPhone|iPad/i.test(navigator.userAgent);
+}
+
+let qrLoading = null;
+function qrSvg(url){
+  return new Promise(resolve => {
+    const make = () => { const q = window.qrcode(0, 'M'); q.addData(url); q.make(); resolve(q.createSvgTag({ cellSize: 6, margin: 2, scalable: true })); };
+    if (window.qrcode) return make();
+    if (!qrLoading) qrLoading = new Promise((ok, fail) => {
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js';
+      s.integrity = 'sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k';
+      s.crossOrigin = 'anonymous';
+      s.onload = ok; s.onerror = fail;
+      document.head.appendChild(s);
+    });
+    qrLoading.then(make, () => resolve(''));
+  });
+}
+
+async function showPhoneRequired(){
+  const box = document.getElementById('k-phone');
+  box.hidden = false;
+  const url = location.origin + location.pathname.replace(/[^/]*$/, '') + 'kasa.html?report=new';
+  document.getElementById('k-phone-qr').innerHTML = await qrSvg(url);
+}
+
 async function openLiveCamera(){
+  if (!isPhone()) { showPhoneRequired(); return { error: 'cancelled' }; }
   if (!cameraSupported()) return { error: 'unavailable' };
   const token = getCaptureToken();
   const res = await openCamera();
@@ -973,8 +1069,16 @@ const api = {
     return error ? null : (data || null);
   },
 
-  async addDocket(id, portal, number){
-    const { error } = await sb.rpc('kasa_add_docket', { p_report_id: String(id), p_portal: portal, p_number: number });
+  async addDocket(id, portal, number, filedOn){
+    const args = { p_report_id: String(id), p_portal: portal, p_number: number };
+    if (portal === 'rti' && filedOn) args.p_filed_on = filedOn;
+    const { data, error } = await sb.rpc('kasa_add_docket', args);
+    if (error) throw rpcError(error);
+    return data || {};
+  },
+
+  async setRtiStatus(docketId, key, status){
+    const { error } = await sb.rpc('kasa_set_rti_status', { p_id: Number(docketId), p_key: key, p_status: status });
     if (error) throw rpcError(error);
   },
 
@@ -1048,7 +1152,7 @@ function distanceMeters(aLat, aLng, bLat, bLng){
 function filtered(){
   const f = state.filters;
   return state.reports.filter(r =>
-    (!f.category || r.category === f.category) &&
+    (!f.category || (f.category === 'puja' ? /^puja_/.test(r.wasteType || '') : r.category === f.category)) &&
     (!f.status || r.status === f.status) &&
     (!f.severity || r.severity === f.severity) &&
     (!f.ward || (f.place ? r.place === f.place && r.placeWard === f.ward : r.ward === f.ward)) &&
@@ -1213,9 +1317,45 @@ function boostRoadLabels(map){
   }
 }
 
+// iOS Safari zooms the whole page on pinch; keep that to the map (CSS touch-action covers the rest).
+['gesturestart', 'gesturechange'].forEach(type => document.addEventListener(type, e => {
+  if (!e.target.closest?.('#k-map')) e.preventDefault();
+}, { passive: false }));
+
+/* Purulia's three legacy dumpsites are NOT citizen reports (no photo, no on-site confirmation), so they
+   never enter kasa_public_reports. They get their own labelled layer, shown only with the dumpsite issue filter.
+   Source: the state's NGT-monitored biomining progress report to the National Mission for Clean Ganga, Feb 2026. */
+const LEGACY_DUMPSITES = [
+  { name: 'Bongabari (Banga Bari Samsan)', lat: 23.35781, lng: 86.38736 },
+  { name: 'Chharma', lat: 23.32917, lng: 86.37292 },
+  { name: 'Hutmura — site A', lat: 23.3753, lng: 86.42805 },
+  { name: 'Hutmura — site B', lat: 23.34977, lng: 86.38601 },
+  { name: 'Hutmura — site C', lat: 23.3495, lng: 86.4992 }
+];
+const LEGACY_DUMPSITE_SOURCE = 'NGT-monitored biomining progress report to the National Mission for Clean Ganga, February 2026';
+function legacyVisibility(){ return state.filters.category === 'dumpsite' ? 'visible' : 'none'; }
+function addLegacyDumpsites(){
+  mainMap.addSource('legacy-dumpsites', { type: 'geojson', data: { type: 'FeatureCollection', features: LEGACY_DUMPSITES.map(s => ({
+    type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { name: s.name } })) } });
+  mainMap.addLayer({ id: 'legacy-dumpsites', type: 'circle', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility() },
+    paint: { 'circle-radius': 9, 'circle-color': '#14100b', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 2.5 } });
+  mainMap.addLayer({ id: 'legacy-dumpsites-label', type: 'symbol', source: 'legacy-dumpsites', layout: { visibility: legacyVisibility(), 'text-field': ['get', 'name'], 'text-size': 11, 'text-offset': [0, 1.3], 'text-anchor': 'top' },
+    paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#14100b', 'text-halo-width': 1.2 } });
+  mainMap.on('click', 'legacy-dumpsites', e => {
+    const name = e.features[0].properties.name;
+    new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(`<strong>${esc(name)}</strong><br>Documented legacy dumpsite — not a citizen report.<br><span style="font-size:11px;color:#888">Source: ${esc(LEGACY_DUMPSITE_SOURCE)}</span>`).addTo(mainMap);
+  });
+  mainMap.on('mouseenter', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = 'pointer'; });
+  mainMap.on('mouseleave', 'legacy-dumpsites', () => { mainMap.getCanvas().style.cursor = ''; });
+}
+function syncLegacyDumpsites(){
+  if (!mainMap || !mainMap.getLayer('legacy-dumpsites')) return;
+  ['legacy-dumpsites', 'legacy-dumpsites-label'].forEach(id => mainMap.setLayoutProperty(id, 'visibility', legacyVisibility()));
+}
+
 function initMainMapNow(){
   mainMap = new maplibregl.Map({
-    container: 'k-map', style: MAP_STYLE, center: MAP_CENTER, zoom: MAP_ZOOM,
+    container: 'k-map', style: MAP_STYLE, transformStyle: inkStyle, center: MAP_CENTER, zoom: MAP_ZOOM,
     minZoom: 3.5, maxZoom: 19,
     attributionControl: { compact: true }, cooperativeGestures: false
   });
@@ -1230,25 +1370,47 @@ function initMainMapNow(){
   // Any drag/zoom/rotate by a person carries originalEvent; programmatic moves don't.
   mainMap.on('movestart', e => { if (e.originalEvent) userMovedMap = true; });
   if (window.KasaPlaces){
+    // Outside West Bengal the header names the Indian district or state under the map.
+    KasaPlaces.setIndiaNamer(async (lat, lng, zoom) => {
+      const a = await indiaAreasAt(lat, lng).catch(() => null);
+      if (!a) return KasaPlaces.inWB(lat, lng) ? KasaPlaces.brand('bengal') : KasaPlaces.brand('in:', 'India');
+      const sk = 'in:' + a.state.properties.slug;
+      if (a.district && zoom >= 7) return KasaPlaces.brand(sk + ':' + a.district.properties.district.toLowerCase().replace(/[^a-z0-9]+/g, '-'), a.district.properties.district);
+      return KasaPlaces.brand(sk, a.state.properties.state);
+    });
     const follow = () => { const c = mainMap.getCenter(); KasaPlaces.onView(c.lat, c.lng, mainMap.getZoom()); };
     mainMap.on('moveend', follow);
     mainMap.once('load', follow);
   }
   watchMapStyleLoad(mainMap);
+  document.getElementById('k-map').classList.add('k-map-loading');
+  const hideSplash = () => document.getElementById('k-splash')?.classList.add('k-splash-out');
+  mainMap.once('idle', () => { document.getElementById('k-map').classList.remove('k-map-loading'); hideSplash(); });
+  // Credits sit behind the info button: start collapsed so nothing is on the map face
+  mainMap.once('idle', () => document.querySelector('.maplibregl-ctrl-attrib')?.classList.remove('maplibregl-compact-show'));
+  setTimeout(hideSplash, 2500);
+  mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-  mainMap.addControl(new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false }), 'bottom-right');
+  mainMap.addControl(new PlaceFindControl(), 'top-left');
+  // Search joins Filters in the one floating row over the map.
+  document.querySelector('.k-map-topbar').prepend(document.querySelector('.k-find-ctrl'));
+  const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
+  mainMap.addControl(locate, 'bottom-right');
+  locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
 
   return new Promise(resolve => {
     mainMap.on('load', () => {
       boostRoadLabels(mainMap);
+      addLegacyDumpsites();
+      if (window.KasaLayers) KasaLayers.mount(mainMap, { district: savedDistrict });
       mainMap.addSource('reports', { type: 'geojson', data: reportGeoJSON(), cluster: true, clusterMaxZoom: 15, clusterRadius: 42 });
       mainMap.addLayer({ id: 'clusters', type: 'circle', source: 'reports', filter: ['has', 'point_count'], paint: {
-        'circle-color': '#7a3f16', 'circle-stroke-color': '#d4882a', 'circle-stroke-width': 1.5, 'circle-opacity': .92,
+        'circle-color': ['step', ['get', 'point_count'], '#DD3333', 20, '#7a2428'], 'circle-stroke-color': INK, 'circle-stroke-width': 1.5, 'circle-opacity': 1,
         'circle-radius': ['step', ['get', 'point_count'], 16, 10, 21, 30, 27]
       }});
       mainMap.addLayer({ id: 'cluster-count', type: 'symbol', source: 'reports', filter: ['has', 'point_count'],
         layout: { 'text-field': '{point_count_abbreviated}', 'text-font': ['Noto Sans Regular'], 'text-size': 12 },
-        paint: { 'text-color': '#f0e6d0' } });
+        paint: { 'text-color': '#ffffff' } });
       mainMap.addLayer({ id: 'report-halo', type: 'circle', source: 'reports', filter: ['all', ['!', ['has', 'point_count']], ['==', ['get', 'halo'], 1]], paint: {
         'circle-color': COLORS.critical, 'circle-opacity': .18, 'circle-radius': ['*', ['get', 'radius'], 2.3]
       }});
@@ -1279,9 +1441,9 @@ function addBlockLayers(){
   const below = mainMap.getLayer('wards-fill') ? 'wards-fill' : 'clusters';
   mainMap.addLayer({ id: 'blocks-line', type: 'line', source: 'blocks',
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, below);
-  mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', maxzoom: 12,
+  mainMap.addLayer({ id: 'blocks-label', type: 'symbol', source: 'blocks', minzoom: WB_LOCAL_ZOOM, maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, below);
 }
 
 /* Gram panchayat outlines show from district zoom in; the two other towns are shaded like Purulia's wards. */
@@ -1294,21 +1456,21 @@ function addLocalLayers(){
     paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, below);
   mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
     layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
-  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#d4882a', 'fill-opacity': .05 } }, below);
-  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, below);
+    paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.6), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, below);
+  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#8A8178', 'fill-opacity': .05 } }, below);
+  mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
     layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, below);
+    paint: { 'text-color': '#DD3333', 'text-opacity': LABEL_OP(.8), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, below);
 }
 
 function addWardLayers(){
   if (!mainMap || !state.wardGeo || mainMap.getSource('wards')) return;
   mainMap.addSource('wards', { type: 'geojson', data: state.wardGeo });
-  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#8A8178', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'wards-selected', type: 'fill', source: 'wards', filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
-  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .14 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
   mainMap.on('click', 'wards-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward));
@@ -1328,18 +1490,18 @@ function addPlaceLayers(slug){
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
   // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
   mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .035 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#d4882a', 'fill-opacity': .14 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .14 } }, 'clusters');
   mainMap.on('click', 'place-' + slug + '-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward), slug);
   });
   mainMap.addLayer({ id: 'place-' + slug + '-line', type: 'line', source: 'place-' + slug,
-    paint: { 'line-color': '#d4882a', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
+    paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1, ...(provisional ? { 'line-dasharray': [3, 2] } : {}) } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-label', type: 'symbol', source: 'place-' + slug, minzoom: 13,
     layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#d4882a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': '#DD3333', 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
 }
 
 /* All West Bengal: district outlines always; each district's blocks and gram panchayats
@@ -1350,23 +1512,37 @@ let wbIndex = null;
 async function addDistrictLayers(){
   const g = await KasaPlaces.loadDistricts();
   if (!mainMap || !g?.features?.length || mainMap.getSource('wb-districts')) return;
+  // Census of India 2011 population per district (places/wb_district_facts.json, cited there via Wikidata).
+  // Districts with no census figure (Jhargram, created 2017) get no population and no fill.
+  const facts = await fetch('places/wb_district_facts.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  // Jhargram (district from 2017, in Paschim Medinipur in 2011) has no figure in that file: its own site
+  // states the 2011 census total for the former subdivision (jhargram.gov.in, "About District").
+  const JHARGRAM_2011 = 1136548;
+  for (const f of g.features) {
+    const pop = facts?.districts?.[f.properties.slug]?.census2011?.population ?? (f.properties.slug === 'jhargram' ? JHARGRAM_2011 : null);
+    if (pop) f.properties.pop = pop;
+  }
   mainMap.addSource('wb-districts', { type: 'geojson', data: g,
-    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0)' });
+    attribution: 'District outlines: Local Government Directory, via india-geodata (CC0). Population: Census of India 2011 (Wikidata, CC0)' });
+  mainMap.addLayer({ id: 'wb-districts-fill', type: 'fill', source: 'wb-districts',
+    filter: ['has', 'pop'],
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#ebe8e2', 2500000, '#d3cec5', 3500000, '#b5ada1', 5000000, '#8c8377', 7000000, '#5b5249'], 'fill-opacity': .3 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
-    paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
+    paint: { 'line-color': '#9ca3af', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
     filter: ['!=', ['get', 'slug'], 'purulia'],
     layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
-    paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': TXT_DISTRICT, 'text-opacity': LABEL_OP(.9), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
   // Every district's blocks from the first screen, drawn and named like Purulia's (coarse file;
   // each district's detailed outlines take over from zoom 8).
   mainMap.addSource('wb-blocks', { type: 'geojson', data: 'places/wb_blocks.geojson' });
   mainMap.addLayer({ id: 'wb-blocks-line', type: 'line', source: 'wb-blocks', maxzoom: WB_LOCAL_ZOOM,
     paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
-  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', maxzoom: 12,
+  mainMap.addLayer({ id: 'wb-blocks-label', type: 'symbol', source: 'wb-blocks', minzoom: WB_LOCAL_ZOOM, maxzoom: 12,
     layout: { 'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-    paint: { 'text-color': '#6db88a', 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
   mainMap.on('moveend', loadLocalInView);
+  mainMap.on('moveend', loadReportsInView);
   mainMap.on('click', onAreaTap);
   loadLocalInView();
   addTownLayers();
@@ -1382,14 +1558,14 @@ async function addTownLayers(){
   const g = await loadTowns();
   if (!mainMap || !g?.features?.length || mainMap.getSource('wb-towns')) return;
   mainMap.addSource('wb-towns', { type: 'geojson', data: g, attribution: g.attribution });
-  const pt = ['==', ['geometry-type'], 'Point'], amber = '#d4882a';
+  const pt = ['==', ['geometry-type'], 'Point'], amber = '#DD3333';
   mainMap.addLayer({ id: 'wb-towns-line', type: 'line', source: 'wb-towns', minzoom: 8, filter: ['!', pt],
     paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-dot', type: 'circle', source: 'wb-towns', minzoom: 8, filter: pt,
-    paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': amber, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
+    paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-towns-label', type: 'symbol', source: 'wb-towns', minzoom: 9, maxzoom: 13.5,
     layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-offset': ['case', pt, ['literal', [0, 1.1]], ['literal', [0, 0]]] },
-    paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    paint: { 'text-color': amber, 'text-opacity': LABEL_OP(.8), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
 }
 
 /* All India outside West Bengal (tools/build-in-map.py): state outlines always; each state's districts
@@ -1404,12 +1580,22 @@ const loadInStates = () => inStates || (inStates = getJson('places/in_states.geo
 async function addIndiaLayers(){
   const [g, idx] = await Promise.all([loadInStates(), loadInIndex()]);
   if (!mainMap || !g?.features?.length || mainMap.getSource('in-states')) return;
-  mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution });
+  // Census of India 2011 state population (places/in_state_population.json, cited there). West Bengal is
+  // shaded by district instead; Telangana and Ladakh had no separate 2011 figure and stay unshaded.
+  const sp = await fetch('places/in_state_population.json').then(r => r.ok ? r.json() : null).catch(() => null);
+  for (const f of g.features) {
+    const pop = sp?.population?.[String(f.properties.code)];
+    if (pop) f.properties.pop = pop;
+  }
+  mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution + (sp ? ' Population: Census of India 2011 (Basic Statistics, Andaman & Nicobar DES, Table 32).' : '') });
+  mainMap.addLayer({ id: 'in-states-fill', type: 'fill', source: 'in-states',
+    filter: ['all', ['has', 'pop'], ['!=', ['get', 'code'], 19]],
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#ebe8e2', 5000000, '#d3cec5', 20000000, '#b5ada1', 50000000, '#8c8377', 100000000, '#5b5249'], 'fill-opacity': .25 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
-    layout: { 'text-field': ['get', 'state'], 'text-size': 11, 'text-font': ['Noto Sans Regular'], 'text-letter-spacing': .05 },
-    paint: { 'text-color': '#e8d9b8', 'text-opacity': .65, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+    layout: { 'text-field': ['get', 'state'], 'text-size': 13, 'text-font': ['Noto Sans Bold'], 'text-letter-spacing': .15, 'text-transform': 'uppercase' },
+    paint: { 'text-color': TXT_STATE, 'text-opacity': 1, 'text-halo-color': HALO, 'text-halo-width': 2 } }, 'clusters');
   mainMap.on('moveend', loadIndiaInView);
   mainMap.on('moveend', loadWardsInView);
   loadIndiaInView();
@@ -1440,21 +1626,21 @@ function addStateLocal(slug){
       paint: { 'line-color': '#e8d9b8', 'line-opacity': .25, 'line-width': 1 } }, 'clusters');
     mainMap.addLayer({ id: src + '-district-label', type: 'symbol', source: src, minzoom: 6.5, maxzoom: 9, filter: kind('district'),
       layout: { 'text-field': ['get', 'district'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': '#e8d9b8', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': TXT_DISTRICT, 'text-opacity': LABEL_OP(.9), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
     mainMap.addLayer({ id: src + '-ac-line', type: 'line', source: src, minzoom: 8, filter: kind('ac'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .3, 'line-width': .8, 'line-dasharray': [3, 2] } }, 'clusters');
     mainMap.addLayer({ id: src + '-ac-label', type: 'symbol', source: src, minzoom: 9.5, filter: kind('ac'),
       layout: { 'text-field': ['get', 'name'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': '#6db88a', 'text-opacity': .6, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.6), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
     // Towns with a ward map (Swachh Bharat Mission GIS): limits, or a dot; wards load from zoom 11.
-    const pt = ['==', ['geometry-type'], 'Point'], amber = '#d4882a', town = ['all', kind('town'), ['!', pt]];
+    const pt = ['==', ['geometry-type'], 'Point'], amber = '#DD3333', town = ['all', kind('town'), ['!', pt]];
     mainMap.addLayer({ id: src + '-town-line', type: 'line', source: src, minzoom: 8, filter: town,
       paint: { 'line-color': amber, 'line-opacity': .55, 'line-width': 1.2 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-dot', type: 'circle', source: src, minzoom: 8, filter: ['all', kind('town'), pt],
-      paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': amber, 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
+      paint: { 'circle-radius': 5, 'circle-color': 'rgba(0,0,0,0)', 'circle-stroke-color': '#DD3333', 'circle-stroke-width': 1.5, 'circle-stroke-opacity': .7 } }, 'clusters');
     mainMap.addLayer({ id: src + '-town-label', type: 'symbol', source: src, minzoom: 9, maxzoom: IN_WARD_ZOOM + 1.5, filter: kind('town'),
       layout: { 'text-field': ['get', 'name'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': amber, 'text-opacity': .8, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': amber, 'text-opacity': LABEL_OP(.8), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
     loadWardsInView();
   }).catch(() => { delete inLoading[slug]; });
 }
@@ -1478,13 +1664,13 @@ function addTownWards(ulb){
     if (!g) { delete inWardLoading[ulb]; return; }
     inWardGeo[ulb] = g;
     if (!mainMap || mainMap.getSource('inw-' + ulb)) return;
-    const src = 'inw-' + ulb, amber = '#d4882a';
+    const src = 'inw-' + ulb, amber = '#DD3333';
     mainMap.addSource(src, { type: 'geojson', data: g });
     mainMap.addLayer({ id: src + '-line', type: 'line', source: src, minzoom: IN_WARD_ZOOM,
       paint: { 'line-color': amber, 'line-opacity': .4, 'line-width': .8 } }, 'clusters');
     mainMap.addLayer({ id: src + '-label', type: 'symbol', source: src, minzoom: 13,
       layout: { 'text-field': ['to-string', ['get', 'ward']], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-      paint: { 'text-color': amber, 'text-opacity': .7, 'text-halo-color': '#0a0805', 'text-halo-width': 1 } }, 'clusters');
+      paint: { 'text-color': amber, 'text-opacity': LABEL_OP(.7), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, 'clusters');
   }).catch(() => { delete inWardLoading[ulb]; });
 }
 
@@ -1525,6 +1711,7 @@ function indiaMp(info, district){
   return mps.length === 1 ? mps[0] : mps.find(m => d && m.name.toLowerCase().includes(d)) || null;
 }
 
+function slugOf(s){ return String(s || '').normalize('NFKD').toLowerCase().replace(/&/g, ' and ').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
 function renderIndiaCard(el){
   const a = state.area, { india: I, state: S, district, ac, town, ward } = a.areas, f = areaFeature();
   const atTown = town && ['town', 'ward'].includes(a.level);
@@ -1544,6 +1731,7 @@ function renderIndiaCard(el){
   if (ac){
     reps += row(t('ar_mla', { c: P.name }), P.mla ? esc(P.mla) : P.mla_vacant ? esc(t('in_vacant')) : none, P.mla_party);
     reps += row(t('ar_mp', { c: P.pc }), P.mp ? esc(P.mp) : P.mp_vacant ? esc(t('in_vacant')) : none, P.mp ? t('ar_elected', { p: P.mp_party, y: 2024 }) : '');
+    if (P.mp && S.properties.slug) reps += row('', link(`mp.html?state=${S.properties.slug}&seat=${slugOf(P.pc)}`, t('ar_mp_record')));
   } else {
     if (I.note) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_seat_old'))}</span> ${link(I.mla_list, t('in_mla_list', { s: sname }))}`);
     else if (!I.seats && !I.mla_list) reps += row(t('in_mlas'), `<span class="k-area-none">${esc(t('in_no_assembly'))}</span>`);
@@ -1557,17 +1745,24 @@ function renderIndiaCard(el){
     <div class="k-ward-title">${esc(areaName(f))}</div>
     <div class="k-ward-sub">${esc(sub)}</div>
     <div class="k-area-leaders">
-      ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
       ${reps}
-      ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
     </div>
     <div class="k-ward-actions">
-      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
-    ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
-    <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
-      · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>`;
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${ward ? row(t('in_councillor', { n: ward.properties.ward }), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`) : ''}
+        ${town ? row(t('ar_wards'), esc(wg?.label ? t('in_town_wards_src', { n: wg.features.length, src: wg.label }) : t('in_town_wards', { n: town.properties.wards }))) : ''}
+      </div>
+      <div class="k-ward-actions">
+        <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
+      </div>
+      ${district ? `<div class="k-ward-note"><a href="add-town.html?${esc(new URLSearchParams({ district: district.properties.district + ', ' + I.name, ...(atTown ? { town: town.properties.name } : {}) }).toString())}">${esc(t(atTown ? 'pl_fix_border' : 'ar_add_town'))}</a></div>` : ''}
+      <div class="k-ward-note">${esc(t('ar_note'))} ${link(inIndexCache?.sources.boundaries || '', t('in_src_bounds'))}${town ? ' · ' + link(wg?.source || inTownsSrc, t(wg?.source ? 'in_src_wards_city' : 'in_src_wards')) : ''}${I.mla_list ? ' · ' + link(I.mla_list, t('in_src_mla')) : ''} · ${link(inIndexCache?.sources.mp || '', t('in_src_mp'))}
+        · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
+    </details>`;
 }
 
 async function loadLocalInView(){
@@ -1592,14 +1787,14 @@ function addDistrictLocal(slug, attribution){
     attribution ||= g.attribution;
     const src = 'wb-' + slug, kind = k => ['==', ['get', 'kind'], k];
     mainMap.addSource(src, { type: 'geojson', data: g, attribution });
-    const green = { 'text-color': '#6db88a', 'text-halo-color': '#0a0805', 'text-halo-width': 1 };
+    const green = { 'text-color': TXT_GREEN, 'text-halo-color': HALO, 'text-halo-width': HALO_W };
     mainMap.addLayer({ id: src + '-gp-line', type: 'line', source: src, minzoom: 10, filter: kind('gp'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .22, 'line-width': .6 } }, 'clusters');
     mainMap.addLayer({ id: src + '-block-line', type: 'line', source: src, minzoom: WB_LOCAL_ZOOM, filter: kind('block'),
       paint: { 'line-color': '#6db88a', 'line-opacity': .35, 'line-width': 1, 'line-dasharray': [3, 2] } }, 'clusters');
     mainMap.addLayer({ id: src + '-gp-label', type: 'symbol', source: src, minzoom: 11.5, filter: kind('gp'),
       layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
-      paint: { ...green, 'text-opacity': .6 } }, 'clusters');
+      paint: { ...green, 'text-opacity': LABEL_OP(.6) } }, 'clusters');
   }).catch(() => { delete wbLocalLoading[slug]; });
 }
 
@@ -1612,7 +1807,13 @@ function addDistrictLocal(slug, attribution){
    The level follows the zoom; the crumbs switch it. */
 let wbLeaders = null, wbAssembly = null, wbOfficials = null;
 const wbAdded = {};  // district slug -> names readers added and moderators approved (kasa_officials)
-const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => r.data || [], () => []) : Promise.resolve([]));
+// Approved officials per district, kept for the report chain too (sync read after the first load).
+const addedRows = {};
+const addedIn = slug => wbAdded[slug] ||= (sb ? sb.rpc('kasa_officials', { p_district: slug }).then(r => {
+  addedRows[slug] = r.data || [];
+  if (document.getElementById('k-chain')) renderChainSection();
+  return addedRows[slug];
+}, () => []) : Promise.resolve([]));
 const PANCHAYAT_ACT = 'https://prsindia.org/files/bills_acts/acts_states/west-bengal/1973/ActNo-41of1973-WB.pdf';
 const getJson = url => fetch(url).then(r => r.ok ? r.json() : null).catch(() => null);
 const inBbox = (b, [x, y]) => !b || (x >= b[0] && x <= b[2] && y >= b[1] && y <= b[3]);
@@ -1710,8 +1911,8 @@ function renderAreaCard(){
   const f = areaFeature();
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data: f });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
-    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#8A8178', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#DD3333', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(f);
 }
 
@@ -1749,27 +1950,30 @@ function renderWbCard(el){
     <div class="k-area-crumbs">${(town ? [crumb('district', district), crumb('town', town)] : [crumb('district', district), crumb('block', block), crumb('gp', gp)]).filter(Boolean).join('<span aria-hidden="true">›</span>')}</div>
     <div class="k-ward-title">${esc(areaName(f))}</div>
     <div class="k-ward-sub">${esc(sub)}</div>
-    ${isDot(f) ? '' : `<div class="k-ward-nums">
+    ${isDot(f) ? '' : inside.length ? `<div class="k-ward-nums">
       <span>${esc(t('wc_reported', { n: inside.length }))}</span>
       <span class="k-red">${esc(t('wc_open', { n: open }))}</span>
       <span class="k-green">${esc(t('wc_fixed', { n: fixed }))}</span>
-    </div>`}
+    </div>` : `<div class="k-ward-empty">${esc(t('ar_no_reports'))}</div>`}
     <div class="k-area-leaders">
-      ${T ? townWards(T, district.properties.district) : ''}
-      ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
       ${L?.ac ? row(t('ar_mla', { c: L.ac.name }), `<button type="button" class="k-area-rep" data-profile="${esc(acKey(L.acNo))}">${esc(L.ac.person)} →</button>`,
                     [L.ac.party, ministerOf(L.acNo) && t('rep_rank_' + ministerOf(L.acNo).rank)].filter(Boolean).join(' · ')) : ''}
       ${L?.pc ? (L.pc.vacant ? row(t('ar_mp', { c: L.pc.name }), `<a href="${esc(L.pc.vacant.source)}" target="_blank" rel="noopener">${esc(t('ar_vacant', { d: L.pc.vacant.since }))}</a>`)
                             : row(t('ar_mp', { c: L.pc.name }), `<button type="button" class="k-area-rep" data-profile="${esc(pcKey(L.pcNo))}">${esc(L.pc.person)} →</button>`, t('ar_elected', { p: L.pc.party, y: 2024 }))) : ''}
-      ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
-          : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
-      ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
-                               : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
     </div>
     <div class="k-ward-actions">
-      <button type="button" class="k-ward-filter" data-area-zoom>${esc(t('ar_zoom'))}</button>
       <button type="button" class="k-ward-filter" data-area-share>${esc(t('ar_share'))}</button>
     </div>
+    <details class="k-area-more">
+      <summary>${esc(t('ar_more'))}</summary>
+      <div class="k-area-leaders">
+        ${T ? townWards(T, district.properties.district) : ''}
+        ${seats.length ? row(t('ar_mlas', { n: seats.reduce((s, x) => s + x[1], 0) }), esc(seats.map(([p, n]) => `${p} ${n}`).join(' · '))) : ''}
+        ${T ? row(t('ar_head_town'), `<span class="k-area-none">${esc(t('ar_not_on_record'))}</span>`)
+            : !rural ? '' : head ? officer(t('ar_head_' + a.level), head, t('ar_duty_' + a.level)) : none(t('ar_head_' + a.level), heads[a.level], t('ar_duty_' + a.level))}
+        ${T ? '' : a.level === 'district' ? (officer(t('ar_dm'), dm) || none(t('ar_dm'), 'dm')) + (officer(t('ar_zp'), zp) || none(t('ar_zp'), 'zp'))
+                                 : officer(t('ar_bdo', { b: bname }), bdoRow) || none(t('ar_bdo', { b: bname }), 'bdo')}
+      </div>
     <form class="k-area-add" hidden>
       <p class="k-area-add-note">${esc(t('ar_add_note'))}</p>
       <select name="role" aria-label="${esc(t('ar_add_role'))}">${missing.map(r => `<option value="${r}">${esc(roleName(r))}</option>`).join('')}</select>
@@ -1781,9 +1985,10 @@ function renderWbCard(el){
     ${T && !T.mapped ? '' : `<a class="k-ward-money" href="add-town.html?${esc(new URLSearchParams(T ? { fix: T.slug } : { fix: 'area', level: a.level, district: district.properties.slug,
       ...(a.level !== 'district' && bname ? { block: bname } : {}), ...(a.level === 'gp' && gname ? { gp: gname } : {}) }))}">${esc(t('wc_fix_border'))}</a>`}
     <div class="k-ward-note">${esc(t('ar_note'))} ${wbLeaders ? `<a href="${esc(wbLeaders.sources.mla)}" target="_blank" rel="noopener">${esc(t('ar_src_mla'))}</a> · <a href="${esc(wbLeaders.sources.mp)}" target="_blank" rel="noopener">${esc(t('ar_src_mp'))}</a>` : ''}
-      · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
-             : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''} · <a href="#" data-source-fix data-what="${esc(t('ar_fix_what', { place: areaName(f) }))}">${esc(t('ar_fix_data'))}</a></div>
-    ${T ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}`;
+        · ${T ? `<a href="${esc(T.src === 'amrut' ? townsGeo?.sources.amrut : T.article)}" target="_blank" rel="noopener">${esc(t(T.src === 'amrut' ? 'ar_src_amrut' : 'ar_src_dot'))}</a> · <a href="${esc(townsGeo?.sources.sec)}" target="_blank" rel="noopener">${esc(t('ar_src_sec'))}</a>`
+               : `<a href="${PANCHAYAT_ACT}" target="_blank" rel="noopener">${esc(t('ar_src_act'))}</a>`}${off ? ` · <a href="${esc((a.level === 'district' && off.dm_source) || off.source || off.dm_source)}" target="_blank" rel="noopener">${esc(t('ar_src_off'))}</a>` : ''}</div>
+    ${T || a.level !== 'district' ? '' : `<div class="k-ward-note"><a href="add-town.html?district=${encodeURIComponent(district.properties.district)}">${esc(t('ar_add_town'))}</a></div>`}
+    </details>`;
   el.querySelector('.k-area-add').onsubmit = e => { e.preventDefault(); sendOfficial(e.target); };
 }
 
@@ -1811,6 +2016,91 @@ function areaBounds(f){
 function zoomToArea(){
   userMovedMap = true;
   mainMap.fitBounds(areaBounds(areaFeature()), { padding: { top: 90, bottom: 260, left: 40, right: 40 }, duration: 900, essential: true });
+}
+
+/* Map control: zoom back out to the whole area after the user has zoomed or panned in. */
+class ResetViewControl {
+  onAdd(){
+    this._box = document.createElement('div');
+    this._box.className = 'maplibregl-ctrl maplibregl-ctrl-group k-reset-ctrl';
+    this._btn = document.createElement('button');
+    this._btn.type = 'button';
+    this._btn.textContent = '⌂';
+    this._btn.title = t('reset_view');
+    this._btn.setAttribute('aria-label', t('reset_view'));
+    this._btn.addEventListener('click', zoomToArea);
+    this._box.appendChild(this._btn);
+    return this._box;
+  }
+  onRemove(){ this._box.remove(); }
+}
+
+/* Map control: find a West Bengal town, block or district by name and move the map there.
+   Local files only (places.js towns and districts, places/wb_blocks.geojson loaded on first use). */
+let findIndexPromise = null;
+function bboxOfGeometry(geom){
+  const pts = geom.type === 'Polygon' ? geom.coordinates.flat(1) : geom.coordinates.flat(2);
+  return { min_lng: Math.min(...pts.map(q => q[0])), min_lat: Math.min(...pts.map(q => q[1])),
+           max_lng: Math.max(...pts.map(q => q[0])), max_lat: Math.max(...pts.map(q => q[1])) };
+}
+function loadFindIndex(){
+  if (findIndexPromise) return findIndexPromise;
+  const towns = KasaPlaces.list.filter(p => p.bbox).map(p => ({ key: p.slug, name: p.name, kind: 'town' }));
+  const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia')
+    .map(([k, v]) => ({ key: 'district:' + k, name: v, kind: 'district' }));
+  findIndexPromise = fetch('places/wb_blocks.geojson').then(r => r.ok ? r.json() : { features: [] }).catch(() => ({ features: [] }))
+    .then(g => towns.concat(districts, g.features.map(f => ({
+      name: f.properties.block, kind: 'block', district: KasaPlaces.districts[f.properties.d] || f.properties.d,
+      box: bboxOfGeometry(f.geometry)
+    }))));
+  return findIndexPromise;
+}
+
+class PlaceFindControl {
+  onAdd(){
+    this._box = document.createElement('div');
+    this._box.className = 'maplibregl-ctrl k-find-ctrl';
+    this._box.innerHTML = '<input type="search" class="k-find-input" autocomplete="off" spellcheck="false"><ul class="k-find-list" hidden></ul>';
+    this._input = this._box.querySelector('.k-find-input');
+    this._list = this._box.querySelector('.k-find-list');
+    this._input.placeholder = t('map_find');
+    this._input.setAttribute('aria-label', t('map_find'));
+    this._input.addEventListener('focus', () => loadFindIndex());
+    this._input.addEventListener('input', () => this._render());
+    this._input.addEventListener('keydown', e => {
+      if (e.key === 'Enter' && this._found?.length) this._go(this._found[0]);
+      if (e.key === 'Escape') { this._input.value = ''; this._render(); }
+    });
+    this._list.addEventListener('click', e => {
+      const b = e.target.closest('button[data-i]');
+      if (b) this._go(this._found[Number(b.dataset.i)]);
+    });
+    return this._box;
+  }
+  onRemove(){ this._box.remove(); }
+  async _render(){
+    const q = this._input.value.trim().toLowerCase();
+    if (!q){ this._list.hidden = true; this._found = []; return; }
+    const seq = this._seq = (this._seq || 0) + 1;
+    const index = await loadFindIndex();
+    if (seq !== this._seq) return;
+    this._found = index.filter(x => x.name.toLowerCase().includes(q)).slice(0, 12);
+    const label = { town: 'map_find_town', district: 'map_find_district', block: 'map_find_block' };
+    this._list.innerHTML = this._found.length
+      ? this._found.map((x, i) => `<li><button type="button" data-i="${i}"><b>${esc(x.name)}</b> <span>${esc(x.kind === 'block' ? x.district : t(label[x.kind]))}</span></button></li>`).join('')
+      : `<li class="k-find-none">${esc(t('map_find_none'))}</li>`;
+    this._list.hidden = false;
+  }
+  async _go(x){
+    this._input.value = '';
+    this._list.hidden = true;
+    this._found = [];
+    const b = x.box || await KasaPlaces.boxOf(x.key);
+    if (!b || !mainMap) return;
+    userMovedMap = true;
+    if (x.kind !== 'block') KasaPlaces.remember(x.key);
+    mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+  }
 }
 
 function shareArea(){
@@ -1953,19 +2243,39 @@ function setView(view){
     b.classList.toggle('k-view-active', on);
     b.setAttribute('aria-selected', String(on));
   });
-  document.getElementById('k-list').hidden = view !== 'list';
-  if (view === 'list') renderList();
-  else if (mainMap) requestAnimationFrame(() => mainMap.resize());
+  const list = document.getElementById('k-list');
+  // Hiding the list resets its scroll, so keep the place for the next time it opens.
+  if (!list.hidden) state.listScroll = list.scrollTop;
+  list.hidden = view !== 'list';
+  if (view === 'list'){
+    renderList();
+    list.scrollTop = state.listScroll;
+  } else if (mainMap) requestAnimationFrame(() => mainMap.resize());
+}
+
+/* One GPS fix for "Near me" and the nearest sort; onFail runs if the visitor says no or the fix times out. */
+function locateUser(onOk, onFail){
+  const fail = () => { showToast(t('nearby_permission')); if (onFail) onFail(); };
+  if (!navigator.geolocation) return fail();
+  navigator.geolocation.getCurrentPosition(pos => {
+    state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    onOk();
+  }, fail, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
 }
 
 const SEV_RANK = { critical: 3, severe: 2, minor: 1 }, STATUS_RANK = { open: 2, claimed: 1, resolved: 0 };
 const urgentFirst = (a, b) => STATUS_RANK[b.status] - STATUS_RANK[a.status] || SEV_RANK[b.severity] - SEV_RANK[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt);
+
+function distanceFromUser(r){
+  return state.userLocation ? distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) : 0;
+}
 
 function sortReports(list){
   const sevRank = SEV_RANK, statusRank = STATUS_RANK;
   const by = {
     urgent: (a, b) => statusRank[b.status] - statusRank[a.status] || sevRank[b.severity] - sevRank[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt),
     newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    nearest: (a, b) => distanceFromUser(a) - distanceFromUser(b),
     seen: (a, b) => b.seen - a.seen,
     oldest: (a, b) => statusRank[b.status] - statusRank[a.status] || new Date(a.createdAt) - new Date(b.createdAt)
   }[state.sort] || urgentFirst;
@@ -2013,10 +2323,17 @@ function renderList(){
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
         <span class="k-list-where">${esc(placeText(r))}${(r.landmark || r.address) && (r.ward || r.block) ? ' · ' + esc(placeLabel(r)) : ''}</span>
-        <span class="k-list-meta">${statusChip(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
+        <span class="k-list-meta">${listStatusPill(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
   }).join('');
+}
+
+// The list card shows only Unresolved / Fixed; the sheet keeps the detailed chip.
+function listStatusPill(r){
+  if (r.pending || (r.status === 'resolved' && r.resolution === 'legacy_unverified')) return statusChip(r);
+  if (r.status === 'resolved') return `<span class="k-chip k-chip-resolved">${esc(t('pill_fixed'))}</span>`;
+  return `<span class="k-chip k-chip-critical">${esc(t('status_open'))}</span>`;
 }
 
 function statusChip(r){
@@ -2032,12 +2349,13 @@ function updateStats(){
   const open = all.filter(r => r.status !== 'resolved').length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
-  setText('k-pill-active', open);
-  setText('k-pill-total', all.length);
+  countUp('k-pill-active', open);
+  countUp('k-pill-total', all.length);
   setText('k-stat-total', all.length);
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
   setText('k-fixed-chip-n', verified);
+  document.querySelectorAll('[data-pill]').forEach(b => b.setAttribute('aria-pressed', String((state.filters.status || '') === b.dataset.pill)));
   setText('k-stat-fake', fake);
 }
 
@@ -2204,11 +2522,8 @@ function renderFixed(){
   const el = document.getElementById('k-fixed-list');
   if (!el) return;
   const fixes = recentFixes();
-  // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
-  const chip = document.getElementById('k-fixed-chip');
-  chip.hidden = !fixes.length;
-  document.getElementById('k-fixed-chip-sep').hidden = !fixes.length;
-  if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
+  // Same cards as the "✓ N fixed" pill filter; the strip opens while that filter is on.
+  if (!fixes.length) setFixedStrip(false);
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
     const c = CATEGORIES[r.category];
@@ -2413,7 +2728,8 @@ function renderSheet(){
       <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block || r.place) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
-        <a href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        <a class="k-directions-btn" href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
     </div>
@@ -2551,12 +2867,19 @@ function renderRepliesHTML(r){
 
 function beforeAfter(before, after){
   if (!after) return '';
+  // Same spot, then and now: drag across one frame instead of comparing two thumbnails.
   return `
-    <div class="k-ba">
-      <figure><img src="${esc(before)}" alt="" loading="lazy"><figcaption>${esc(t('pn_before'))}</figcaption></figure>
-      <figure><img src="${esc(after)}" alt="" loading="lazy"><figcaption class="k-green">${esc(t('pn_after'))}</figcaption></figure>
+    <div class="k-ba k-ba-slider" style="--cut:50%">
+      <img src="${esc(before)}" alt="${esc(t('pn_before'))}" loading="lazy">
+      <img class="k-ba-after" src="${esc(after)}" alt="${esc(t('pn_after'))}" loading="lazy">
+      <input type="range" min="0" max="100" value="50" aria-label="${esc(t('pn_before'))} / ${esc(t('pn_after'))}">
+      <span class="k-ba-tag k-ba-tag-l">${esc(t('pn_before'))}</span><span class="k-ba-tag k-ba-tag-r k-green">${esc(t('pn_after'))}</span>
     </div>`;
 }
+document.addEventListener('input', e => {
+  const s = e.target.closest?.('.k-ba-slider');
+  if (s) s.style.setProperty('--cut', e.target.value + '%');
+});
 
 /* Another West Bengal place: only its municipal body and its own complaint form are named.
    Its officers and representatives are not on record here, so none are shown. */
@@ -2593,17 +2916,30 @@ function renderPlaceAccountability(r){
     </div>`;
 }
 
+// The approved official for this post at this report's spot (kasa_officials), or null. Vacant posts have none.
+function officialFor(role, r){
+  const d = DISTRICT_OF(r);
+  if (!d) return null;
+  if (!addedRows[d]) addedIn(d);
+  return (addedRows[d] || []).find(o => o.role === role && (
+    (o.level === 'district' && !o.block && !o.gp) ||
+    (o.level === 'block' && !!r.block && o.block === r.block) ||
+    (o.level === 'gp' && role === 'pradhan' && !!r.body && o.gp === r.body))) || null;
+}
+
 function renderAccountability(r){
   if (r.area === 'place') return renderPlaceAccountability(r);
   const chain = chainFor(r);
   const rural = r.area === 'rural';
   const town2 = otherTown(r);
   const w = state.wards[r.ward] || {};
-  const node = (role, i) => `
+  const node = (role, i) => {
+    const o = officialFor(role, r);
+    return `
     <button type="button" class="k-node" data-contact="role:${role}:${esc(r.id)}">
       <span class="k-node-abbr">${esc(ROLE_ABBR[role])}</span>
-      <span class="k-node-text"><b>${esc(t('role_' + role))}</b><small>${esc(roleSub(role, i, chain.nodes.length, r))}</small></span>
-    </button>`;
+      <span class="k-node-text"><b>${esc(o ? o.name : t('role_' + role))}</b><small>${esc(o ? t('role_' + role) : roleSub(role, i, chain.nodes.length, r))}</small></span>
+    </button>`; };
   // The tree shows two people: who fixes it first, and who you elected. Everyone above
   // them, the reps and the escalation routes sit behind one tap.
   const [first, ...above] = chain.nodes;
@@ -2665,24 +3001,103 @@ function renderEscalate(r){
       <p class="k-esc-note">${esc(t('esc_note'))}</p>
       ${items.map(([href, label, sub]) => `<a class="k-esc-item" href="${esc(href)}" ${href.startsWith('http') ? 'target="_blank" rel="noopener"' : ''}><b>${esc(label)}</b><small>${esc(sub)}</small></a>`).join('')}
       ${isOverdue(r) && r.area !== 'place' ? `<button type="button" class="k-esc-item k-esc-rti-gen" data-rti="${esc(r.id)}"><b>${esc(t('esc_rti_gen'))}</b><small>${esc(t('esc_rti_gen_s'))}</small></button>` : ''}
+      ${renderLetter(r)}
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-msg="${esc(r.id)}">📋 ${esc(t('esc_copy_msg'))}</button>
       <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
+    </div>`;
+}
+
+/* Letter to the office that answers first for this report. The contact is shown only when a cited
+   official file names it (places/wb_officials.json: DM, BDO); otherwise the letter goes without one. */
+function letterOffice(r){
+  const role = chainFor(r).nodes?.[0];
+  if (!role) return null;
+  const dslug = r.place === 'purulia' ? 'purulia' : r.place?.startsWith('district:') ? r.place.slice(9) : null;
+  const off = dslug ? officialsFile()?.districts?.[dslug] : null;
+  let who = null, src = null;
+  if (role === 'dm' && off?.dm) { who = off.dm; src = off.source || off.dm_source; }
+  if (role === 'bdo' && off?.bdo && r.block) {
+    const k = Object.keys(off.bdo).find(b => b.toLowerCase() === r.block.toLowerCase());
+    if (k) { who = off.bdo[k]; src = off.source; }
+  }
+  const phone = who?.phone || '', email = who?.email || '';
+  const contact = src && (phone || email) ? { name: who.name || '', phone, email, src } : null;
+  // The DM's post name is per district; Purulia keeps its own wording.
+  const dname = dslug && dslug !== 'purulia' ? (window.KasaPlaces?.bySlug(r.place)?.name || r.district || null) : null;
+  const key = role === 'dm' ? (dslug === 'purulia' ? 'role_dm' : dname ? 'role_dm_of' : 'role_dm_any') : 'role_' + role;
+  const vars = key === 'role_dm_of' ? { d: dname } : undefined;
+  return { role, label: t(key, vars), toEN: tEN(key, vars), contact };
+}
+function letterText(r, o){
+  return [
+    'To: ' + o.toEN + (o.contact?.name ? ' (' + o.contact.name + ')' : '') + ', ' + CITY_NAME,
+    '',
+    'Respected Sir/Madam,',
+    '',
+    'I am writing about this problem, reported on Parishkar:',
+    '',
+    reportMessage(r),
+    '',
+    'Please inspect the spot, tell me what action will be taken and by when, and give me a reference number.',
+    '',
+    'Name:',
+    'Phone:',
+    'Date:'
+  ].join('\n');
+}
+function renderLetter(r){
+  const o = letterOffice(r);
+  if (!o) return '';
+  const c = o.contact;
+  const contact = c
+    ? [c.name && esc(c.name), c.phone && `<a href="tel:${esc(c.phone.replace(/[^\d+]/g, ''))}">${esc(c.phone)}</a>`,
+       c.email && `<a href="mailto:${esc(c.email)}">${esc(c.email)}</a>`,
+       `<a href="${esc(c.src)}" target="_blank" rel="noopener">${esc(t('letter_src'))}</a>`].filter(Boolean).join(' · ')
+    : esc(t('letter_no_contact'));
+  return `
+    <div class="k-letter">
+      <div class="k-acc-reps-label">${esc(t('letter_title'))}</div>
+      <div class="k-esc-item"><b>${esc(t('letter_to', { who: o.label }))}</b><small>${contact}</small></div>
+      <textarea class="k-letter-text" readonly rows="9">${esc(letterText(r, o))}</textarea>
+      <button type="button" class="k-btn k-btn-ghost k-esc-copy" data-copy-letter="${esc(r.id)}">📋 ${esc(t('letter_copy'))}</button>
     </div>`;
 }
 
 /* Official reference numbers people got when they filed this report on a grievance portal,
    so the next person follows up the same complaint. Public; who added them is not. */
 const DOCKET_PORTALS = ['cpgrams', 'state', 'rti', 'other'];
+/* RTI tracker (idea from Alaveteli): the PIO must answer within 30 days of filing (RTI Act 2005,
+   s.7(1)); a first appeal lies within 30 days after that (s.19(1)). Whoever added the number holds
+   a key on this phone to mark what happened. */
+const RTI_STATUSES = ['waiting', 'answered', 'refused', 'appealed', 'no_reply'];
+const rtiKeys = () => { try { return JSON.parse(localStorage.getItem('parishkar_rti_keys') || '{}'); } catch (e) { return {}; } };
+function saveRtiKey(id, key){ const k = rtiKeys(); k[id] = key; try { localStorage.setItem('parishkar_rti_keys', JSON.stringify(k)); } catch (e) {} }
+function rtiLineHTML(d, fmt){
+  if (!d.filed_on) return '';
+  const today = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' }));
+  const left = Math.round((new Date(d.reply_due) - today) / 86400000);
+  const appealLeft = Math.round((new Date(d.appeal_by) - today) / 86400000);
+  let line;
+  if (d.status === 'waiting' || d.status === 'no_reply'){
+    line = left >= 0 ? t('rti_due', { d: fmt(d.reply_due), n: left })
+      : appealLeft >= 0 ? t('rti_late', { n: -left, d: fmt(d.appeal_by) }) : t('rti_late_appeal', { n: -left });
+  } else line = t('rti_st_' + d.status) + (d.status_at ? ' · ' + fmt(d.status_at) : '');
+  const key = rtiKeys()[d.id];
+  return `<div class="k-rti"><small>${esc(t('rti_filed', { d: fmt(d.filed_on) }))} · ${esc(line)}</small>${key ? `
+    <select data-rti-status="${esc(d.id)}" aria-label="${esc(t('rti_change'))}">${RTI_STATUSES.map(x =>
+      `<option value="${x}"${x === d.status ? ' selected' : ''}>${esc(t('rti_st_' + x))}</option>`).join('')}</select>` : ''}</div>`;
+}
 function renderDocketsHTML(r){
   const list = state.dockets.get(r.id) || [];
   const fmt = d => new Date(d).toLocaleDateString(state.lang === 'en' ? 'en-IN' : state.lang, { day: 'numeric', month: 'short', year: 'numeric' });
   const w = state.warranty.get(r.id);
   return `${w ? `<p class="k-warranty">🛠 ${esc(t('wk_under', { d: fmt(w.warranty_until) }))} <a href="works.html#work-${esc(w.id)}">${esc(t('wk_see'))}</a></p>` : ''}${list.length ? `<div class="k-acc-reps-label">${esc(t('dk_title'))}</div><ul class="k-dockets">${list.map(d =>
-      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small></li>`).join('')}</ul>` : ''}
+      `<li><b>${esc(t('dk_' + d.portal))}</b> <code>${esc(d.number)}</code> <small>${esc(t('dk_added', { d: fmt(d.added) }))}</small>${d.portal === 'rti' ? rtiLineHTML(d, fmt) : ''}</li>`).join('')}</ul>` : ''}
     <details class="k-docket-add"><summary>${esc(t('dk_add'))}</summary>
       <form id="k-docket-form" data-report="${esc(r.id)}">
         <select id="k-docket-portal" aria-label="${esc(t('dk_where'))}">${DOCKET_PORTALS.map(p => `<option value="${p}">${esc(t('dk_' + p))}</option>`).join('')}</select>
         <input id="k-docket-number" maxlength="40" autocomplete="off" placeholder="${esc(t('dk_number'))}" aria-label="${esc(t('dk_number'))}" required>
+        <label id="k-docket-filed" hidden><small>${esc(t('rti_filed_on'))}</small> <input type="date" id="k-docket-date" max="${new Date().toLocaleDateString('en-CA', { timeZone: 'Asia/Kolkata' })}"></label>
         <button type="submit" class="k-btn k-btn-ghost">${esc(t('dk_save'))}</button>
       </form>
     </details>`;
@@ -2695,11 +3110,24 @@ document.addEventListener('submit', async e => {
   const id = form.dataset.report, number = document.getElementById('k-docket-number').value.trim();
   if (!number) return;
   try {
-    await api.addDocket(id, document.getElementById('k-docket-portal').value, number);
+    const res = await api.addDocket(id, document.getElementById('k-docket-portal').value, number, document.getElementById('k-docket-date')?.value || null);
+    if (res.key) saveRtiKey(res.id, res.key);
     state.dockets.set(id, await api.dockets(id));
     const r = state.byId.get(String(id)), el = document.getElementById('k-dockets');
     if (r && el) el.innerHTML = renderDocketsHTML(r);
     showToast(t('dk_saved'));
+  } catch (err){ showToast(errorText(err), 6000); }
+});
+
+document.addEventListener('change', async e => {
+  if (e.target.id === 'k-docket-portal'){ const f = document.getElementById('k-docket-filed'); if (f) f.hidden = e.target.value !== 'rti'; return; }
+  const sel = e.target.closest?.('[data-rti-status]');
+  if (!sel) return;
+  const r = state.byId.get(state.sheetId);
+  try {
+    await api.setRtiStatus(sel.dataset.rtiStatus, rtiKeys()[sel.dataset.rtiStatus], sel.value);
+    if (r){ state.dockets.set(r.id, await api.dockets(r.id)); const el = document.getElementById('k-dockets'); if (el) el.innerHTML = renderDocketsHTML(r); }
+    showToast(t('rti_saved'));
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
@@ -3026,8 +3454,8 @@ async function shareCard(r){
     }
   }
   const fixed = r.status === 'resolved', days = daysSince(r.createdAt);
-  const serif = '"EB Garamond", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
-  const mono = '"DM Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
+  const serif = '"Plus Jakarta Sans", "Noto Sans Bengali", "Noto Sans Devanagari", Georgia, serif';
+  const mono = '"JetBrains Mono", "Noto Sans Bengali", "Noto Sans Devanagari", ui-monospace, monospace';
   // Status badge over the photo
   const badge = fixed ? t('card_fixed') : days < 1 ? t('card_today') : t(isOverdue(r) ? 'card_overdue' : 'card_open', { d: days });
   g.font = `500 34px ${mono}`;
@@ -3054,12 +3482,12 @@ async function shareCard(r){
   g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `400 40px ${serif}`;
   y = wrap(r.landmark || r.address ? `${placeText(r)} · ${placeLabel(r)}` : placeLabel(r), PAD, y, W - 2 * PAD, 50, 2) + 16;
   const chain = chainFor(r), seat = seatFor(r), mla = seat && (typeof seat.mla === 'string' ? REPS[seat.mla] : seat.mla);
-  g.font = `500 32px ${mono}`; g.fillStyle = '#e8a34a';
+  g.font = `500 32px ${mono}`; g.fillStyle = '#EF4444';
   const otherBody = r.area === 'place' && (window.KasaPlaces?.bySlug(r.place)?.body || t('pl_incharge_unknown'));
   y = wrap(`${t('card_responsible')}: ${otherBody || t('role_' + chain.nodes[0])}`, PAD, y, W - 2 * PAD, 44, 2);
   if (mla) y = wrap(`MLA: ${mla.name}${mla.party ? ' (' + mla.party + ')' : ''}`, PAD, y, W - 2 * PAD, 44, 1);
   // Footer
-  g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+  g.fillStyle = '#DD3333'; g.fillRect(0, H - 120, W, 120);
   g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`;
   g.fillText(brandName(r), PAD, H - 68);
   g.font = `500 28px ${mono}`;
@@ -3129,7 +3557,7 @@ function downloadGeoJSON(scope){
     geometry: { type: 'Point', coordinates: [Number(v[12]), Number(v[11])] },
     properties: Object.fromEntries(CSV_COLUMNS.map((c, i) => [c, v[i] ?? null]).filter(([c]) => c !== 'lat' && c !== 'lng'))
   }));
-  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar Purulia (photos not covered)', features };
+  const fc = { type: 'FeatureCollection', license: 'CC BY 4.0, credit Parishkar (photos not covered)', features };
   saveExport(scope, JSON.stringify(fc), 'application/geo+json', 'geojson', rows.length);
 }
 
@@ -3190,6 +3618,87 @@ function openContact(spec){
       <button type="button" class="k-btn k-btn-ghost" data-copy-link="${esc(r.id)}">🔗 ${esc(t('ct_copy'))}</button>
     </div>`;
   openModal('k-contact-modal');
+}
+
+/* ══════════════════════════════════════════════════════════
+   CHECK NEARBY — open reports around you, one card at a time
+   ══════════════════════════════════════════════════════════ */
+const CQ_RADIUS = 1500;
+let cq = null;
+
+async function openCheckQueue(){
+  openModal('k-cq-modal');
+  const body = document.getElementById('k-cq-body');
+  body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_locating'))}</p>`;
+  const pos = await getPosition({ want: 200, timeout: 12000 }).catch(() => null);
+  if (!pos){ body.innerHTML = `<p class="k-cq-empty">${esc(t('cq_need_location'))}</p>`; return; }
+  const list = primaries().filter(r => r.status !== 'resolved' && !r.pending && !state.seen.has(r.id))
+    .map(r => ({ r, d: distanceM(pos.lat, pos.lng, r.lat, r.lng) }))
+    .filter(x => x.d <= CQ_RADIUS).sort((a, b) => a.d - b.d).slice(0, 30);
+  cq = { pos, list, i: 0, done: 0 };
+  renderCheckCard();
+}
+
+function renderCheckCard(){
+  const body = document.getElementById('k-cq-body');
+  const x = cq && cq.list[cq.i];
+  if (!x){
+    body.innerHTML = `<p class="k-cq-empty">${esc(t(cq.list.length ? 'cq_done' : 'cq_none', { n: cq.done, km: CQ_RADIUS / 1000 }))}</p>`;
+    return;
+  }
+  const r = x.r, c = CATEGORIES[r.category];
+  const days = Math.max(0, Math.floor((Date.now() - new Date(r.createdAt)) / 86400000));
+  const claimed = r.status === 'claimed' && r.claim && state.mode === 'v2';
+  body.innerHTML = `<div class="k-cq-card" id="k-cq-card">
+      ${r.photo ? `<img src="${esc(r.photo)}" alt="" draggable="false">` : `<div class="k-cq-noimg">${c.icon}</div>`}
+      <div class="k-cq-info"><b>${c.icon} ${esc(t('cat_' + r.category))}</b>
+        ${r.landmark || r.address ? `<span>${esc(r.landmark || r.address)}</span>` : ''}
+        <span>${esc(t('cq_meta', { m: Math.round(x.d), d: days }))}${claimed ? ' · ' + esc(t('cq_claimed')) : ''}</span></div>
+      <div class="k-cq-count">${cq.i + 1} / ${cq.list.length}</div>
+    </div>
+    <div class="k-cq-actions">
+      <button type="button" class="k-act" data-cq="skip">← ${esc(t('cq_skip'))}</button>
+      <button type="button" class="k-act" data-cq="open">${esc(t('cq_open'))}</button>
+      <button type="button" class="k-act k-act-verify" data-cq="fixed">${ICON_CHECK} ${esc(t(claimed ? 'cq_confirm' : 'cq_fixed'))}</button>
+      <button type="button" class="k-act k-act-again" data-cq="there">${esc(t('cq_there'))} →</button>
+    </div>`;
+  // Swipe right = still there, left = skip. Buttons do the same for keyboards and screen readers.
+  const card = document.getElementById('k-cq-card');
+  let x0 = null;
+  card.addEventListener('pointerdown', e => { x0 = e.clientX; card.setPointerCapture(e.pointerId); });
+  card.addEventListener('pointermove', e => { if (x0 != null) card.style.transform = `translateX(${e.clientX - x0}px) rotate(${(e.clientX - x0) / 30}deg)`; });
+  const end = e => {
+    if (x0 == null) return;
+    const dx = e.clientX - x0; x0 = null; card.style.transform = '';
+    if (dx > 80) checkQueueAction('there'); else if (dx < -80) checkQueueAction('skip');
+  };
+  card.addEventListener('pointerup', end);
+  card.addEventListener('pointercancel', () => { x0 = null; card.style.transform = ''; });
+}
+
+async function checkQueueAction(kind){
+  const x = cq && cq.list[cq.i];
+  if (!x) return;
+  const r = x.r;
+  if (kind === 'skip'){ cq.i++; return renderCheckCard(); }
+  if (kind === 'open'){ closeModal('k-cq-modal'); return openSheet(r.id); }
+  if (kind === 'fixed'){
+    closeModal('k-cq-modal');
+    return openEvidence((r.status === 'claimed' && r.claim ? 'verify:' : 'claim:') + r.id);
+  }
+  if (kind !== 'there') return;
+  document.querySelectorAll('#k-cq-body button').forEach(b => { b.disabled = true; });
+  try {
+    const res = await api.markSeen(r, cq.pos);
+    state.seen.add(r.id);
+    try { localStorage.setItem('kasa_seen', JSON.stringify([...state.seen])); } catch (e) {}
+    if (res.counted){ r.seen += 1; cq.done++; }
+    showToast(t(res.counted ? 'seen_done' : res.reason === 'own_report' ? 'seen_own' : 'seen_dup'));
+  } catch (e){
+    showToast(errorText(e));
+  }
+  cq.i++;
+  renderCheckCard();
 }
 
 /* ══════════════════════════════════════════════════════════
@@ -3318,6 +3827,12 @@ function openCamera(){
   return new Promise(resolve => {
     camera.resolve = resolve;
     camera.blob = null;
+    // After dark (before 06:00 or from 18:00) the phone's camera struggles, so say how to light the spot.
+    const hour = new Date().getHours();
+    if (hour < 6 || hour >= 18) {
+      const hint = document.querySelector('#k-cam .k-cam-hint');
+      if (hint && !hint.dataset.dark) { hint.dataset.dark = '1'; hint.textContent += ' ' + t('cam_dark_tip'); }
+    }
     const shutter = document.getElementById('k-cam-shutter');
     shutter.disabled = true;
     shutter.setAttribute('aria-label', t('cam_capture'));
@@ -3605,6 +4120,11 @@ function selectCategory(key, advance = true){
 async function captureReportPhoto(){
   if (!draft) return;
   const note = document.getElementById('k-photo-note');
+  // In-app browsers (Facebook, Instagram, and so on) usually block GPS; say so before the camera opens.
+  if (/FBAN|FBAV|Instagram|Line\/|MicroMessenger|LinkedInApp|Twitter/i.test(navigator.userAgent)) {
+    note.hidden = false;
+    note.textContent = t('inapp_warn');
+  }
   const res = await openLiveCamera();
   if (!draft) return;
   if (!res.blob){
@@ -3687,8 +4207,10 @@ function setLocation(lat, lng, accuracy){
     add.textContent = ' ' + t('pl_add_town');
     note.append(add);
   }
+  // Above 30 m the ward can flip to the neighbour, so say so before filing.
+  const rough = accuracy > 30 ? ' · ' + t('step3_loc_rough', { acc: Math.round(accuracy) }) : '';
   document.getElementById('k-coords').textContent =
-    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` +
+    `${lat.toFixed(5)}, ${lng.toFixed(5)} · ${t('step3_loc_gps', { acc: Math.round(accuracy) })}` + rough +
     (['town', 'rural', 'outside', 'place', 'india'].includes(place.kind) || draft.ward ? '' : ' · ' + t('step3_pick_ward'));
   if (draft.wasteType) renderIssues();
   updateSubmitState();
@@ -5075,6 +5597,9 @@ function officialsFile(){
 /* Role names outside Purulia: the same posts, without Purulia's office names. */
 function chainRole(role, sp){
   if (sp.kind === 'purulia') return { name: t('role_' + role), sub: null };
+  // A post shows only once a cited official for it has been approved (kasa_officials). A vacant post shows nothing extra.
+  const won = sp.kind === 'district' && (addedRows[sp.slug] || []).find(o => o.role === role && o.level === 'district' && !o.block && !o.gp);
+  if (won) return { name: won.name, sub: won.phone || null, src: won.source_url };
   const d = sp.kind === 'district' ? sp.p.name : sp.kind === 'town' && sp.slug === 'kolkata' ? 'Kolkata' : null;
   if (role === 'dm'){
     const dm = d && officialsFile()?.districts?.[sp.slug === 'kolkata' ? 'kolkata' : sp.slug]?.dm;
@@ -5094,6 +5619,7 @@ function renderChainSection(){
     <button type="button" class="k-chain-tab${state.chainTab === chain ? ' on' : ''}" data-chain="${chain}" role="tab" aria-selected="${state.chainTab === chain}">
       ${CATEGORIES[cat].icon} ${esc(t('chaintab_' + chain))}</button>`).join('');
   const sp = sectionPlace(), base = CHAINS[state.chainTab];
+  if (sp.kind === 'district') addedIn(sp.slug);
   const civic = base.agency === 'agency_municipality';
   let chain = base, agencyName = t(base.agency), extra = '';
   if (civic && sp.kind === 'town'){
@@ -5124,7 +5650,7 @@ function renderChainSection(){
       return `
       <div class="k-chain-arrow">${i ? esc(t('acc_escalate')) : '↓'}</div>
       <div class="k-chain-node"><div class="k-chain-icon">${esc(ROLE_ABBR[role])}</div>
-        <div class="k-chain-text"><div class="k-chain-name">${esc(r.name)}</div><div class="k-chain-role">${esc(r.sub || roleSub(role, i, n))}</div></div></div>`; }).join('')}
+        <div class="k-chain-text"><div class="k-chain-name">${esc(r.name)}</div><div class="k-chain-role">${esc(r.sub || roleSub(role, i, n))}${r.src ? ` · <a href="${esc(safeUrl(r.src) || '#')}" target="_blank" rel="noopener nofollow">${esc(t('rep_source'))}</a>` : ''}</div></div></div>`; }).join('')}
     ${chain.note ? `<div class="k-chain-note"><div class="k-chain-note-text">${esc(t(chain.note))}</div></div>` : ''}
     ${extra}
     ${civic && sp.kind === 'purulia' ? `<div class="k-chain-note"><div class="k-chain-note-label">${esc(t('chain_councillor_label'))}</div>
@@ -5165,11 +5691,16 @@ function allReps(){
    (tools/build-wb-reps.py); Lok Sabha work (PRS): places/wb_record.json
    (tools/build-wb-record.py). Purulia's own seats keep their city.js keys (mla:<no>, mp:<name>),
    so every link to a Purulia leader opens the same profile. */
-let wbMplads = null, wbMinisters = null, wbRecord = null, wbRepsLoading = null;
+let wbMplads = null, wbMinisters = null, wbRecord = null, wbPhotos = null, wbRepsLoading = null;
+// Sourced photo + credit per seat (tools/build-leader-photos.py). Empty when the leader has none on record.
+const leaderPhoto = (group, n) => {
+  const p = wbPhotos?.[group]?.[n];
+  return p ? { photo: p.photo, photoCredit: [p.author, p.licence && 'Licence: ' + p.licence, 'Wikimedia Commons'].filter(Boolean).join(' · '), photoUrl: p.page } : {};
+};
 function loadWbReps(){
   wbRepsLoading ||= Promise.all([wbLeaders || getJson('places/wb_leaders.json'), wbAssembly || getJson('places/wb_assembly.geojson'),
-    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json'), getJson('places/wb_record.json')]).then(([l, a, m, mi, rc]) => {
-    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi; wbRecord = rc;
+    getJson('places/wb_mplads.json'), getJson('places/wb_ministers.json'), getJson('places/wb_record.json'), getJson('places/leader-photos.json')]).then(([l, a, m, mi, rc, ph]) => {
+    wbLeaders = l; wbAssembly = a; wbMplads = m; wbMinisters = mi; wbRecord = rc; wbPhotos = ph;
     if (!l || !a) wbRepsLoading = null;
   });
   return wbRepsLoading;
@@ -5190,12 +5721,12 @@ function wbReps(){
   const out = [], src = u => ({ url: u, name: 'Wikipedia' });
   Object.entries(wbLeaders.ac).forEach(([n, v]) => {
     const f = acFeatures(+n)[0], pc = f?.properties.pc;
-    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc,
+    out.push({ key: 'ac:' + n, group: 'mla', name: v.person, party: v.party, initials: initialsOf(v.person), ac: +n, pc, ...leaderPhoto('ac', n),
       place: t('rep_place_ac', { s: v.name, n }), source: src(wbLeaders.sources.mla), covers: inSeat(acFeatures(+n)) });
   });
   Object.entries(wbLeaders.pc).forEach(([n, v]) => {
     if (v.vacant) return;
-    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n,
+    out.push({ key: 'pc:' + n, group: 'mp', name: v.person, party: v.party, initials: initialsOf(v.person), pc: +n, ...leaderPhoto('pc', n),
       place: t('rep_place_ls', { s: v.name }), source: src(wbLeaders.sources.mp), covers: inSeat(pcFeatures(+n)) });
   });
   (wbMplads?.rs || []).forEach((v, i) => out.push({ key: 'rs:' + i, group: 'rs', name: v.name, initials: initialsOf(v.name),
@@ -5231,8 +5762,8 @@ function showSeatOnMap(kind, n){
   const data = { type: 'FeatureCollection', features: fs };
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#d4882a', 'fill-opacity': .12 } }, 'clusters');
-    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#d4882a', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#DD3333', 'fill-opacity': .12 } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#DD3333', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(data);
   const b = fs.map(f => f.bbox);
   userMovedMap = true;
@@ -5423,11 +5954,21 @@ function renderRepUpdates(rep, u){
       ${news.map(n => `<a class="k-rep-upd-item" href="${esc(safeUrl(n.url) || '#')}" target="_blank" rel="noopener nofollow">${esc(n.title)}<small>${esc([n.source, date(n.published_at)].filter(Boolean).join(' · '))} ↗</small></a>`).join('')}</div>` : ''}`;
 }
 
+/* Our five indices (wealth index left out: legal gate). Formulas and weights are our method, not an
+   official figure, and no input is on record yet, so no value is computed. */
+function renderRepIndicesHTML(){
+  const ids = ['spii', 'coce', 'gcei', 'eder', 'egpf'];
+  return `<details class="k-rep-src"><summary>${esc(t('idx_h'))}</summary><ul>${ids.map(i =>
+    `<li>${esc(t('idx_' + i))} <em>${esc(t('idx_inputs'))}</em></li>`).join('')}</ul></details>`;
+}
+
 /* The record beside each MLA and MP: Lok Sabha work from PRS (MPs) and the sworn election
    affidavit on MyNeta (both). Raw figures with the averages, no grade; see methodology.html#leaders. */
 function renderRepRecordHTML(rep){
   const p = rep.record?.prs, avg = wbRecord?.avg;
-  if (!p) return '';
+  const gaps = [rep.group === 'mla' && 'rep_gap_fund', 'rep_gap_office', 'rep_gap_disaster', 'rep_gap_disha', 'rep_gap_grievance', 'rep_gap_rti'].filter(Boolean);
+  const gapLine = `<p class="k-rep-src">${esc(t('rep_gaps', { g: gaps.map(k => t(k)).join(', ') }))}</p>`;
+  const dishaLine = `<p class="k-rep-src">${esc(t('rep_disha_state'))} <a href="https://sansad.in/getFile/loksabhaquestions/annex/185/AU2596_lFjO3F.pdf?source=pqals" target="_blank" rel="noopener nofollow">Lok Sabha 2596 ↗</a></p>`;
   const day = d => d ? new Date(d).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) : '';
   const stat = (n, l) => `<div class="k-rep-stat"><div class="k-rep-stat-n">${esc(n ?? '—')}</div><div class="k-rep-stat-l">${esc(t(l))}</div></div>`;
   return `${p ? `<div class="k-rep-worst-title">${esc(t('rep_ls_work'))}</div>
@@ -5435,7 +5976,7 @@ function renderRepRecordHTML(rep){
       ${stat(p.attendance == null ? null : p.attendance + '%', 'rep_att')}${stat(p.debates, 'rep_debates')}${stat(p.questions, 'rep_questions')}${stat(p.bills, 'rep_bills')}
     </div>
     <p class="k-rep-src">${esc(t('rep_ls_note', { s: avg?.state?.attendance ?? '—', n: avg?.national?.attendance ?? '—', f: day(avg?.from), t: day(avg?.to) }))}
-      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}`;
+      <a href="${esc(safeUrl(p.url) || '#')}" target="_blank" rel="noopener nofollow">PRS Legislative Research ↗</a></p>` : ''}${gapLine}${rep.group === 'mp' || rep.group === 'mla' ? dishaLine : ''}${renderRepIndicesHTML()}`;
 }
 
 /* "Reply from this leader": anyone (often the leader's office) sends what they said with a link to
@@ -5483,6 +6024,56 @@ document.addEventListener('submit', async e => {
   } catch (err){ showToast(errorText(err), 6000); }
 });
 
+/* Response rate: of the reports addressed to this leader, the share with a reply from them on record
+   (kasa_public_replies, matched by name). Nothing is shown below RATE_MIN reports. */
+const RATE_MIN = 10;
+async function renderRepRate(rep, all){
+  const el = document.getElementById('k-rep-rate');
+  if (!el || !sb || all.length < RATE_MIN) return;
+  const ids = all.filter(r => r.replyCount > 0).map(r => r.id);
+  const { data, error } = ids.length ? await sb.from('kasa_public_replies').select('report_id,responder_name').in('report_id', ids).limit(5000) : { data: [] };
+  if (el.dataset.key !== rep.key || error) return;
+  const norm = s => String(s || '').toLowerCase().replace(/\s+/g, ' ').trim();
+  const mine = new Set((data || []).filter(x => norm(x.responder_name) === norm(rep.name)).map(x => String(x.report_id)));
+  const answered = all.filter(r => mine.has(String(r.id))).length;
+  const times = all.map(r => Date.parse(r.createdAt)).filter(Number.isFinite);
+  const day = ms => new Date(ms).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' });
+  el.innerHTML = `<div class="k-rep-worst-title">${esc(t('rep_rate_h'))}</div>
+    <p class="k-rep-src"><b>${Math.round(answered / all.length * 100)}%</b> · ${esc(t('rep_rate_note', { a: answered, n: all.length, f: day(Math.min(...times)), t: day(Math.max(...times)) }))}</p>`;
+}
+
+// Photos of the reports a leader answers for: filter and sort in place. A tap opens that report's sheet.
+function renderRepPhotos(all){
+  const bar = document.getElementById('k-rep-ph-bar'), grid = document.getElementById('k-rep-ph-grid');
+  if (!bar || !grid) return;
+  const st = { f: 'all', s: 'new' };
+  const pool = all.filter(r => r.photo);
+  const FILTERS = { all: () => true, open: r => r.status !== 'resolved', fixed: r => r.status === 'resolved' && r.resolution !== 'legacy_unverified' };
+  const SORTS = { new: (a, b) => Date.parse(b.createdAt) - Date.parse(a.createdAt), sev: (a, b) => SEVERITIES.indexOf(b.severity) - SEVERITIES.indexOf(a.severity) };
+  const btn = (attr, k, label) => `<button type="button" class="k-rep-ph-btn${st[attr] === k ? ' on' : ''}" data-${attr}="${k}" aria-pressed="${st[attr] === k}">${esc(t(label))}</button>`;
+  const draw = () => {
+    bar.innerHTML = btn('f', 'all', 'rep_ph_all') + btn('f', 'open', 'rep_ph_open') + btn('f', 'fixed', 'rep_ph_fixed')
+      + '<span class="k-rep-ph-sep"></span>' + btn('s', 'new', 'rep_ph_new') + btn('s', 'sev', 'rep_ph_sev');
+    const list = pool.filter(FILTERS[st.f]).sort(SORTS[st.s]);
+    grid.innerHTML = list.length ? list.map(r => `<button type="button" class="k-rep-ph" data-rep-ph="${esc(r.id)}">
+        <img src="${esc(r.photo)}" alt="" loading="lazy"><span>${esc(t('sev_' + r.severity))} · ${esc(new Date(r.createdAt).toLocaleDateString('en-IN', { day: 'numeric', month: 'short' }))}</span></button>`).join('')
+      : `<div class="k-rep-worst-item">${esc(t('rep_ph_none'))}</div>`;
+  };
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('[data-f],[data-s]');
+    if (!b) return;
+    if (b.dataset.f) st.f = b.dataset.f; else st.s = b.dataset.s;
+    draw();
+  });
+  grid.addEventListener('click', e => {
+    const b = e.target.closest('[data-rep-ph]');
+    if (!b) return;
+    closeModal('k-rep-modal');
+    openSheet(b.dataset.repPh);
+  });
+  draw();
+}
+
 async function openRepProfile(key){
   await loadWbReps();
   const rep = findRep(key);
@@ -5523,6 +6114,7 @@ async function openRepProfile(key){
       ${repAvatar(rep, 'k-rep-avatar')}
       <div><div class="k-rep-name">${esc(rep.name)}</div><div class="k-rep-role">${esc([t('rep_t_' + rep.group) + ' · ' + rep.place, rep.party].filter(Boolean).join(' · '))}</div></div>
     </div>
+    ${wbPhotos && (rep.group === 'mla' || rep.group === 'mp') ? `<p class="k-rep-credit">${rep.photo ? `<a href="${esc(rep.photoUrl)}" target="_blank" rel="noopener">${esc(rep.photoCredit)}</a>` : 'Photo not on record yet'}</p>` : ''}
     ${rep.minister ? `<div class="k-rep-worst-title">${esc(t('rep_rank_' + rep.minister.rank))} · ${esc(t('rep_depts'))}</div>
     <ul class="k-rep-depts">${rep.minister.portfolios.map(d => `<li>${esc(d)}</li>`).join('')}</ul>` : ''}
     ${areaLine}
@@ -5534,9 +6126,15 @@ async function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${verified.length}</div><div class="k-rep-stat-l">${esc(t('rep_resolved'))}</div></div>
       <div class="k-rep-stat"><div class="k-rep-stat-n">${byPlace.size}</div><div class="k-rep-stat-l">${esc(t('rep_places'))}</div></div>
     </div>
+    <div id="k-rep-rate" data-key="${esc(rep.key)}"></div>
     <div class="k-rep-worst-title">${esc(t('rep_worst_places'))}</div>
     ${worst.length ? worst.map(p => `<a class="k-rep-worst-item" href="${esc(p.href)}"><span>${esc(p.label)}</span><span class="k-rep-worst-count">${p.n}</span></a>`).join('')
-      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}`
+      : `<div class="k-rep-worst-item">${esc(t('rep_none'))}</div>`}
+    <div class="k-rep-worst-title">${esc(t('rep_by_sev'))}</div>
+    <div class="k-rep-stats">${SEVERITIES.map(s => `<div class="k-rep-stat"><div class="k-rep-stat-n">${open.filter(r => r.severity === s).length}</div><div class="k-rep-stat-l">${esc(t('sev_' + s))}</div></div>`).join('')}</div>
+    <div class="k-rep-worst-title">${esc(t('rep_photos'))}</div>
+    <div class="k-rep-ph-bar" id="k-rep-ph-bar"></div>
+    <div class="k-rep-ph-grid" id="k-rep-ph-grid"></div>`
     : ''}
     ${m ? `<div class="k-rep-worst-title">${esc(t('rep_mplads'))}</div>
     <div class="k-rep-stats">
@@ -5544,6 +6142,7 @@ async function openRepProfile(key){
       <div class="k-rep-stat"><div class="k-rep-stat-n">${esc(inr(m.spent))}</div><div class="k-rep-stat-l">${esc(t('rep_mp_spent'))}</div></div>
       <div class="k-rep-stat"><div class="k-rep-stat-n">${m.worksCompleted}/${m.worksRecommended}</div><div class="k-rep-stat-l">${esc(t('rep_mp_works'))}</div></div>
     </div>
+    ${m.allocated ? `<p class="k-rep-src">${esc(t('rep_mp_pct', { p: Math.round(m.spent / m.allocated * 100) }))}</p>` : ''}
     <p class="k-rep-src">${esc(t('rep_mp_note', { r: inr(m.recommended), d: new Date(m.asOf).toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }) }))}
       <a href="${esc(safeUrl(m.url) || '#')}" target="_blank" rel="noopener nofollow">Empowered Indian ↗</a></p>
     ${m.works ? `<div id="k-rep-works" data-key="${esc(rep.key)}"></div>` : ''}` : ''}
@@ -5558,6 +6157,7 @@ async function openRepProfile(key){
   openModal('k-rep-modal');
   document.querySelector('#k-rep-modal .k-modal-sheet')?.scrollTo?.(0, 0);
   renderRepWorks(rep);
+  if (rep.covers) { renderRepPhotos(all); renderRepRate(rep, all); }
   loadRepReplies(rep);
   renderRepAffidavit(rep);
   loadRepUpdates().then(u => renderRepUpdates(rep, u), () => {
@@ -5570,7 +6170,11 @@ async function openRepProfile(key){
 function populateCategoryFilter(){
   const sel = document.getElementById('k-filter-category');
   sel.innerHTML = `<option value="">${esc(t('filter_all_cat'))}</option>` +
-    Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('');
+    Object.entries(CATEGORIES).map(([k, c]) => `<option value="${k}">${c.icon} ${esc(t('cat_' + k))}</option>`).join('') +
+    `<option value="puja">🪔 ${esc(t('filter_puja'))}</option>`;
+  // kasa.html?category=toilet — the issue filter from another page (toilets, waste); not with a report deep link.
+  const qc = new URLSearchParams(location.search);
+  if (!qc.has('report') && CATEGORIES[qc.get('category')]) state.filters.category = qc.get('category');
   sel.value = state.filters.category;
 }
 
@@ -5657,6 +6261,45 @@ function renderNotify(){
   const c = document.getElementById('k-nt-count');
   c.hidden = !watching;
   c.textContent = t('notify_watching', { n: watching });
+  renderAlertFilter();
+}
+
+/* Narrow nearby alerts to some kinds of problem and a distance (kasa_push_prefs).
+   The last choice is kept on this device so the sheet shows it again. */
+function alertPrefs(){
+  try { return JSON.parse(localStorage.getItem('kasa_alert_prefs') || 'null') || { radius: 500, cats: [] }; } catch (e) { return { radius: 500, cats: [] }; }
+}
+
+function renderAlertFilter(){
+  const box = document.getElementById('k-nt-filter');
+  if (!box) return;
+  box.hidden = !alertsOn();
+  if (box.hidden) return;
+  const p = alertPrefs();
+  document.getElementById('k-nt-radius').value = String(p.radius || 500);
+  document.getElementById('k-nt-kinds').innerHTML = Object.keys(CATEGORIES).map(k =>
+    `<label class="k-nt-kind"><input type="checkbox" value="${esc(k)}"${p.cats.includes(k) ? ' checked' : ''}> ${CATEGORIES[k].icon} ${esc(t('cat_' + k))}</label>`).join('');
+  document.getElementById('k-nt-save').onclick = saveAlertPrefs;
+}
+
+async function saveAlertPrefs(){
+  const btn = document.getElementById('k-nt-save');
+  const p = { radius: Number(document.getElementById('k-nt-radius').value) || 500,
+    cats: [...document.querySelectorAll('#k-nt-kinds input:checked')].map(i => i.value) };
+  btn.disabled = true;
+  try {
+    const reg = await navigator.serviceWorker.ready;
+    const sub = await reg.pushManager.getSubscription();
+    if (!sub) throw new KasaError('alerts_need_location');
+    await ensureSession();
+    const { error } = await sb.rpc('kasa_push_prefs', { p_endpoint: sub.endpoint, p_categories: p.cats, p_radius: p.radius });
+    if (error) throw rpcError(error);
+    try { localStorage.setItem('kasa_alert_prefs', JSON.stringify(p)); } catch (e) {}
+    showToast(t('notify_saved'));
+  } catch (e){
+    showToast(errorText(e), 6000);
+  }
+  btn.disabled = false;
 }
 
 function openNotify(){
@@ -5694,10 +6337,12 @@ async function toggleAlerts(btn){
       const j = sub.toJSON();
       const { error } = await sb.rpc('kasa_push_subscribe', {
         p_endpoint: j.endpoint, p_p256dh: j.keys.p256dh, p_auth: j.keys.auth,
-        p_lat: pos.lat, p_lng: pos.lng, p_radius: 500, p_lang: state.lang
+        p_lat: pos.lat, p_lng: pos.lng, p_radius: alertPrefs().radius || 500, p_lang: state.lang
       });
       if (error) throw rpcError(error);
       try { localStorage.setItem('kasa_alerts', '1'); } catch (e) {}
+      const prefs = alertPrefs();
+      if (prefs.cats.length) await sb.rpc('kasa_push_prefs', { p_endpoint: j.endpoint, p_categories: prefs.cats, p_radius: prefs.radius });
       showToast(t('alerts_on'), 5000);
     }
   } catch (e){
@@ -5860,7 +6505,7 @@ function wireUI(){
     if (target && target.tagName === 'DETAILS') target.open = true;
   });
   document.addEventListener('click', (e) => {
-    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify]');
+    const el = e.target.closest('[data-action],[data-close],[data-open],[data-seen],[data-rate],[data-alerts],[data-watch],[data-mine],[data-mine-open],[data-flag],[data-share],[data-evidence],[data-again],[data-contact],[data-copy-link],[data-copy-msg],[data-copy-letter],[data-cat],[data-goto],[data-lang],[data-view],[data-ward-select],[data-lb-area],[data-lb-place],[data-ward-filter],[data-ward-share],[data-ward-close],[data-area-close],[data-area-level],[data-area-zoom],[data-area-share],[data-area-add],[data-profile],[data-rep-map],[data-rep-share],[data-chain],[data-sev],[data-waste],[data-csv],[data-geojson],[data-install],[data-rti],[data-notify],[data-checkq],[data-cq]');
     if (!el) return;
     const d = el.dataset;
     if (d.action === 'report') return openReport();
@@ -5879,6 +6524,7 @@ function wireUI(){
     if (d.again){ const r = state.byId.get(d.again); closeModal('k-sheet'); return openReport({ category: r.category, lat: r.lat, lng: r.lng, landmark: r.landmark }); }
     if (d.contact) return openContact(d.contact);
     if (d.copyMsg){ const r = state.byId.get(d.copyMsg); return r && copyText(reportMessage(r), 'esc_copied_msg'); }
+    if (d.copyLetter){ const r = state.byId.get(d.copyLetter); const o = r && letterOffice(r); return o && copyText(letterText(r, o), 'letter_copied'); }
     if (d.copyLink) return copyText(reportLink(d.copyLink));
     if (d.cat) return selectCategory(d.cat);
     if (d.goto) return goToStep(Number(d.goto));
@@ -5912,12 +6558,14 @@ function wireUI(){
     if (d.areaLevel){ state.area.level = d.areaLevel; renderAreaCard(); return; }
     if ('areaZoom' in d) return zoomToArea();
     if ('areaShare' in d) return shareArea();
-    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
+    if (d.areaAdd){ const f = document.querySelector('#k-area-card .k-area-add'); f.role.value = d.areaAdd; f.hidden = false; f.closest('details').open = true; f.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); f.name.focus(); return; }
     if ('wardClose' in d){ state.selectedWard = state.selectedPlace = null; renderWardCard(); return updateMap(); }
     if (d.csv) return downloadCSV(d.csv);
     if (d.geojson) return downloadGeoJSON(d.geojson);
     if ('install' in d) return installApp();
     if ('notify' in d){ setDrawer(false); return openNotify(); }
+    if ('checkq' in d){ setDrawer(false); return openCheckQueue(); }
+    if (d.cq) return checkQueueAction(d.cq);
     if (d.profile) return openRepProfile(d.profile);
     if (d.repMap){ e.preventDefault(); const [k, n] = d.repMap.split(':'); return showSeatOnMap(k, n); }
     if (d.repShare){
@@ -5937,7 +6585,14 @@ function wireUI(){
     try { localStorage.setItem('kasa_daylight', daylightMap ? '0' : '1'); } catch (e) {}
     location.reload();
   });
-  document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
+  // Stats pill = status filter (Unresolved, Reports, fixed). Tapping the active part again goes back to all.
+  document.querySelectorAll('[data-pill]').forEach(btn => btn.addEventListener('click', () => {
+    const want = btn.dataset.pill;
+    state.filters.status = (state.filters.status || '') === want ? '' : want;
+    document.getElementById('k-filter-status').value = state.filters.status;
+    setFixedStrip(state.filters.status === 'resolved');
+    renderAll();
+  }));
   document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
@@ -5986,21 +6641,19 @@ function wireUI(){
       showToast(t('nearby_off'));
       return renderAll();
     }
-    if (!navigator.geolocation) return showToast(t('nearby_permission'));
-    navigator.geolocation.getCurrentPosition(pos => {
-      state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    locateUser(() => {
       state.nearbyOnly = true;
       document.getElementById('k-nearby-btn').setAttribute('aria-pressed', 'true');
       showToast(t('nearby_on'));
       renderAll();
-    }, () => showToast(t('nearby_permission')), { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
+    });
   });
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {
     if (e.target.closest('[data-action="report"],[data-mine],[data-adopt],[data-school-check],[data-view]')) setDrawer(false);
   });
 
-  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; renderAll(); });
+  document.getElementById('k-filter-category').addEventListener('change', e => { state.filters.category = e.target.value; syncLegacyDumpsites(); renderAll(); });
   document.getElementById('k-filter-status').addEventListener('change', e => { state.filters.status = e.target.value; renderAll(); });
   document.getElementById('k-filter-severity').addEventListener('change', e => { state.filters.severity = e.target.value; renderAll(); });
   document.getElementById('k-search-ward').addEventListener('input', e => {
@@ -6009,7 +6662,14 @@ function wireUI(){
     state.filters.place = null;
     renderAll();
   });
-  document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
+  document.getElementById('k-sort').addEventListener('change', e => {
+    state.sort = e.target.value;
+    // Nearest needs a fix first; if the visitor says no, fall back to newest.
+    if (state.sort === 'nearest' && !state.userLocation) {
+      return locateUser(renderList, () => { state.sort = 'newest'; e.target.value = 'newest'; renderList(); });
+    }
+    renderList();
+  });
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
   document.getElementById('k-issue-search').addEventListener('input', renderIssues);
@@ -6070,30 +6730,41 @@ function wireUI(){
   });
 }
 
-/* Every plain visit asks for location (the phone shows its own prompt until allowed) and flies
-   the map to street level where the person stands; the place picker follows. Denied or failed
-   keeps the home-place view. The position stays on the phone; nothing is sent until they file a report. */
-async function locateOnOpen(){
-  try {
-    if (!navigator.geolocation) return;
-    const st = navigator.permissions?.query ? (await navigator.permissions.query({ name: 'geolocation' })).state : 'prompt';
-    if (st === 'denied') return startTips();
-    showToast(t('locating_you'));
-    navigator.geolocation.getCurrentPosition(p => {
-      const { latitude: lat, longitude: lng } = p.coords;
-      const b = state.rules.bbox;
-      const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
-      if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return startTips(); }
-      askStillThere(lat, lng, p.coords.accuracy);
-      startTips();
-      if (userMovedMap) return; // they're already panning/zooming — don't fly the map out from under them
-      mainMap.flyTo({ center: [lng, lat], zoom: Math.max(mainMap.getZoom(), 16), duration: 1200 });
-      // Where they are becomes their home place for next time (once the page has been renamed after it).
-      mainMap.once('moveend', () => setTimeout(() => {
-        if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
-      }, 300));
-    }, () => startTips(), { enableHighAccuracy: false, maximumAge: 300000, timeout: 8000 });
-  } catch (e) { startTips(); }
+/* Runs only when someone taps the locate button: the phone asks for location then, not on load.
+   The map flies to them (GeolocateControl); the position stays on the phone until they file a report. */
+/* "You're outside Purulia": the district is the union of its CD blocks (purulia_blocks.geojson, OSM, ODbL).
+   Only runs on a fix the visitor already gave, so it adds no location prompt. Hidden for the session once closed. */
+let outsideHidden = false;
+async function checkOutsideArea(lat, lng){
+  const pill = document.getElementById('k-outside');
+  if (!pill || outsideHidden) return;
+  await loadBlockGeo();
+  const blocks = state.blockGeo?.features;
+  if (!blocks?.length) return;
+  const inside = blocks.some(f => pointInPolygon([lng, lat], f.geometry));
+  if (inside) return pill.hidden = true;
+  document.getElementById('k-outside-msg').textContent = t('outside_msg', { place: CITY_NAME });
+  const fly = document.getElementById('k-outside-fly');
+  fly.textContent = t('outside_fly', { place: CITY_NAME });
+  fly.onclick = () => {
+    userMovedMap = true;
+    mainMap.flyTo({ center: MAP_CENTER, zoom: MAP_ZOOM, duration: 1200 });
+    pill.hidden = true;
+  };
+  document.getElementById('k-outside-x').onclick = () => { outsideHidden = true; pill.hidden = true; };
+  pill.hidden = false;
+}
+
+function onLocated(lat, lng, accuracy){
+  const b = state.rules.bbox;
+  const other = window.KasaPlaces?.inWB(lat, lng) || inIndiaBox(lat, lng);
+  if (!other && b && (lat < b.min_lat || lat > b.max_lat || lng < b.min_lng || lng > b.max_lng)){ showToast(t('loc_outside')); return; }
+  checkOutsideArea(lat, lng);
+  askStillThere(lat, lng, accuracy);
+  // Where they are becomes their home place for next time (once the page has been renamed after it).
+  mainMap.once('moveend', () => setTimeout(() => {
+    if (window.KasaPlaces && KasaPlaces.current !== 'bengal') KasaPlaces.remember(KasaPlaces.current);
+  }, 300));
 }
 
 /* A plain visit opens on the place this device last chose or was found in, else all of West Bengal
@@ -6105,87 +6776,69 @@ async function openOnHomePlace(){
   mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 0 });
 }
 
+/* Visitors start where they are: GPS is requested on load (the system prompt is the question). A refusal or
+   a missing fix falls back to the saved place. Links that name a place stay put. */
+function startAtUserLocation(){
+  const q = new URLSearchParams(location.search);
+  if (location.hash || ['at', 'place', 'report', 'rep'].some(k => q.has(k))) return;
+  if (!navigator.geolocation) return mapReady.then(openOnHomePlace);
+  const query = navigator.permissions?.query({ name: 'geolocation' }).catch(() => null) ?? Promise.resolve(null);
+  query.then(p => mapReady.then(() => {
+    if (p?.state === 'denied'){ openOnHomePlace(); return showToast(t('loc_denied')); }
+    locateAtStart();
+  }));
+}
+
+function locateAtStart(){
+  navigator.geolocation.getCurrentPosition(pos => {
+    const { latitude: lat, longitude: lng, accuracy } = pos.coords;
+    if (!userMovedMap) mainMap.flyTo({ center: [lng, lat], zoom: 14, duration: 800 });
+    onLocated(lat, lng, accuracy);
+  }, () => { openOnHomePlace(); showToast(t('loc_denied')); }, { enableHighAccuracy: false, timeout: 10000, maximumAge: 300000 });
+}
+
 /* "Parishkar Bankura ▾": pick any place to look at. Reporting still needs the live photo and real GPS. */
 function initPlacePicker(){
   const btn = document.getElementById('k-place-pick'), dlg = document.getElementById('k-place-dialog');
   if (!btn || !dlg || !window.KasaPlaces) { if (btn) btn.hidden = true; return; }
-  const pick = async key => {
+  const pick = async (key, label) => {
     dlg.close();
     const b = await KasaPlaces.boxOf(key);
     if (!b || !mainMap) return;
     userMovedMap = true;
     KasaPlaces.remember(key);
     mainMap.fitBounds([[b.min_lng, b.min_lat], [b.max_lng, b.max_lat]], { padding: 20, duration: 800 });
+    // A state or district outside West Bengal is named as picked, once its move ends (the map's own follow runs first).
+    if (key.startsWith('in:')) mainMap.once('moveend', () => KasaPlaces.brand(key, label));
   };
-  btn.addEventListener('click', () => {
+  const search = document.getElementById('k-place-search'), list = document.getElementById('k-place-list');
+  btn.addEventListener('click', async () => {
     const cur = KasaPlaces.current || 'purulia';
     const towns = KasaPlaces.list.filter(p => p.bbox).map(p => [p.slug, p.name]);
     const districts = Object.entries(KasaPlaces.districts).filter(([k]) => k !== 'purulia').map(([k, v]) => ['district:' + k, t('pl_district', { d: v })]);
     const items = [['bengal', t('pk_state'), 'k-place-wide'], ['purulia', 'Purulia'], ...towns,
       ...districts.sort((a, b) => a[1].localeCompare(b[1]))];
-    document.getElementById('k-place-list').innerHTML = items.map(([k, name, cls]) =>
-      `<button type="button" data-place="${esc(k)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    // Every other state and district in India (places/in/index.json), after West Bengal's.
+    const india = (await KasaPlaces.inPlaces().catch(() => [])).sort((a, b) => a.name.localeCompare(b.name));
+    for (const st of india){
+      items.push(['in:' + st.slug, st.name, 'k-place-wide']);
+      st.districts.sort((a, b) => a.name.localeCompare(b.name)).forEach(d => items.push([d.key, `${d.name}, ${st.name}`, '', d.name]));
+    }
+    list.innerHTML = items.map(([k, name, cls, label]) =>
+      `<button type="button" data-place="${esc(k)}" data-name="${esc(name.toLowerCase())}" data-label="${esc(label || name)}" class="${cls || ''}" aria-current="${k === cur}">${esc(name)}</button>`).join('');
+    if (search){ search.value = ''; }
     dlg.showModal();
+    search?.focus();
+  });
+  search?.addEventListener('input', () => {
+    const q = search.value.trim().toLowerCase();
+    list.querySelectorAll('[data-place]').forEach(b => { b.hidden = !!q && !b.dataset.name.includes(q); });
   });
   dlg.addEventListener('click', e => {
     if (e.target === dlg || e.target.closest('[data-close]')) return dlg.close();
     const b = e.target.closest('[data-place]');
-    if (b) pick(b.dataset.place);
+    if (b) pick(b.dataset.place, b.dataset.label);
   });
-}
-
-/* First-visit tips: a few small bubbles that point at a feature and say what it does.
-   Shown once per device, after the location question, and never while a form is open. */
-const TIPS = [
-  { key: 'tip_lang_menu', target: () => visible('#k-more-btn'), when: () => state.lang === 'en' },
-  { key: 'tip_report', target: () => visible('.k-map-report-btn') },
-];
-function visible(sel){ const el = document.querySelector(sel); return el && el.offsetParent !== null ? el : null; }
-function startTips(){
-  if (startTips.started) return;
-  startTips.started = true;
-  try { if (localStorage.getItem('kasa_tips_done') === '1') return; } catch (e) { return; }
-  const list = TIPS.filter(x => (!x.when || x.when()) && x.target());
-  const box = document.getElementById('k-tip'), next = document.getElementById('k-tip-next');
-  let i = 0;
-  const finish = () => { box.hidden = true; try { localStorage.setItem('kasa_tips_done', '1'); } catch (e) {} };
-  const show = () => {
-    if (i >= list.length) return finish();
-    const el = list[i].target();
-    if (!el || document.querySelector('.k-modal.open')) return finish();
-    const k = list[i].key;
-    document.getElementById('k-tip-text').textContent = t(typeof k === 'function' ? k() : k);
-    next.textContent = t(i === list.length - 1 ? 'tip_done' : 'tip_next');
-    box.hidden = false;
-    const r = el.getBoundingClientRect(), w = box.offsetWidth, h = box.offsetHeight;
-    const below = r.top < window.innerHeight / 2;
-    box.style.left = Math.max(8, Math.min(window.innerWidth - w - 8, r.left + r.width / 2 - w / 2)) + 'px';
-    box.style.top = (below ? r.bottom + 10 : r.top - h - 10) + 'px';
-    box.dataset.dir = below ? 'down' : 'up';
-  };
-  next.onclick = () => { i++; show(); };
-  document.getElementById('k-tip-skip').onclick = finish;
-  setTimeout(show, 600);
-}
-
-/* The count is Purulia's; elsewhere the line names the town or district in view. */
-function renderJoin(){
-  const el = document.getElementById('k-join-text');
-  if (!el) return;
-  const p = window.KasaPlaces?.current && KasaPlaces.bySlug(KasaPlaces.current);
-  const n = state.peopleCount;
-  el.textContent = p ? t('join_first_place', { place: p.name }) : n >= 20 ? t('join_n', { n }) : t('join_first');
-}
-
-/* "Join N people keeping Purulia clean" — a small, closable line on the map. */
-async function showJoin(){
-  try { if (localStorage.getItem('kasa_join_closed') === '1') return; } catch (e) {}
-  const { data: n } = await sb.rpc('kasa_people_count');
-  state.peopleCount = n;
-  const el = document.getElementById('k-join');
-  renderJoin();
-  el.hidden = false;
-  document.getElementById('k-join-x').onclick = () => { el.hidden = true; try { localStorage.setItem('kasa_join_closed', '1'); } catch (e) {} };
 }
 
 /* "Still there?" Someone who already shares their location, standing within 100 m of an
@@ -6220,14 +6873,74 @@ function askStillThere(lat, lng, accuracy){
         <button type="button" data-still="no">${esc(t('still_later'))}</button>
       </div>
     </div>`;
+  // Off the map until asked: a small "near you" line opens the card.
+  const near = document.getElementById('k-near');
+  near.textContent = t('near_line');
+  near.hidden = false;
+  near.onclick = () => {
+    near.hidden = true;
+    el.hidden = false;
+    el.onclick = e => {
+      const b = e.target.closest('[data-still]');
+      if (e.target.closest('[data-open]')) el.hidden = true;
+      if (!b) return;
+      el.hidden = true;
+      if (b.dataset.still === 'yes') handleSeen(r.id, b);
+      else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+    };
+  };
+}
+
+/* "Is it fixed?" (idea from FixMyStreet's 4-week questionnaire). A reporter whose own report has
+   been open 28 days is asked: still there / fixed / not sure. The answer is kept by kasa_report_followup
+   (owner only, changes no public status). Fixed means photograph it (the usual cleanup claim at the
+   spot); still there opens the report at "Filed officially" to take it further. A report answered
+   "still" or "fixed" is not asked again; "not sure" is asked again after 28 days. Only for phones
+   that already have a session; nothing is asked of anyone else. */
+const MINE_ASK_DAYS = 28;
+async function askReporter(){
+  if (askStillThere.done) return;
+  const { data: { session } } = await sb.auth.getSession();
+  if (!session) return;
+  const [{ data, error }, { data: fu }] = await Promise.all([sb.rpc('kasa_my_reports'), sb.rpc('kasa_my_followups')]);
+  if (error || !data) return;
+  const answered = new Map((fu || []).map(f => [f.report_id, f.answer]));
+  let asked = {};
+  try { asked = JSON.parse(localStorage.getItem('kasa_mine_asked') || '{}'); } catch (e) {}
+  const now = Date.now(), day = 86400000;
+  const r = data.map(normalize).filter(x => x.status === 'open' && !x.pending && daysSince(x.createdAt) >= MINE_ASK_DAYS
+    && !['still', 'fixed'].includes(answered.get(x.id))
+    && !(asked[x.id] && now - asked[x.id] < MINE_ASK_DAYS * day)).sort((a, b) => Date.parse(a.createdAt) - Date.parse(b.createdAt))[0];
+  const el = document.getElementById('k-still');
+  if (!r || askStillThere.done || !el.hidden) return;
+  askStillThere.done = true;
+  asked[r.id] = now;
+  try { localStorage.setItem('kasa_mine_asked', JSON.stringify(asked)); } catch (e) {}
+  if (!state.byId.has(r.id)) state.byId.set(r.id, r);
+  el.innerHTML = `
+    ${r.photo ? `<img src="${esc(r.photo)}" alt="" data-mine-open="${esc(r.id)}">` : ''}
+    <div>
+      <div class="k-still-q">${esc(t('mine_q', { cat: t('cat_' + r.category), d: daysSince(r.createdAt) }))}</div>
+      <div class="k-still-m">${esc(placeText(r))}</div>
+      <div class="k-still-a">
+        <button type="button" class="k-still-gone" data-mine-ans="fixed">${esc(t('mine_fixed'))}</button>
+        <button type="button" class="k-still-yes" data-mine-ans="still">${esc(t('mine_still'))}</button>
+        <button type="button" data-mine-ans="unsure">${esc(t('mine_unsure'))}</button>
+        <button type="button" data-mine-ans="later">${esc(t('still_later'))}</button>
+      </div>
+    </div>`;
   el.hidden = false;
   el.onclick = e => {
-    const b = e.target.closest('[data-still]');
-    if (e.target.closest('[data-open]')) el.hidden = true;
-    if (!b) return;
+    const b = e.target.closest('[data-mine-ans]');
+    if (!b && !e.target.closest('[data-mine-open]')) return;
     el.hidden = true;
-    if (b.dataset.still === 'yes') handleSeen(r.id, b);
-    else if (b.dataset.still === 'gone') openEvidence('claim:' + r.id);
+    const a = b ? b.dataset.mineAns : 'open';
+    if (a === 'still' || a === 'fixed' || a === 'unsure') sb.rpc('kasa_report_followup', { p_report_id: r.id, p_answer: a }).then(() => {}, () => {});
+    if (a === 'fixed') openEvidence('claim:' + r.id);
+    else if (a !== 'later'){
+      openSheet(r.id);
+      if (a === 'still') setTimeout(() => { const d = document.getElementById('k-dockets'); if (d){ d.scrollIntoView({ block: 'center' }); const det = d.querySelector('details'); if (det) det.open = true; } }, 400);
+    }
   };
 }
 
@@ -6266,21 +6979,42 @@ function stepLightbox(box, dir){
 
 function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
 
+/* Focus: a modal takes focus on open, Tab stays inside it, and focus returns to the
+   control that opened it on close. Esc handling stays per modal. */
+const MODAL_FOCUSABLE = 'a[href],button:not([disabled]),input:not([disabled]),select:not([disabled]),textarea:not([disabled]),[tabindex]:not([tabindex="-1"])';
+const modalReturnFocus = new Map();
 function openModal(id){
   const m = document.getElementById(id);
+  if (!modalReturnFocus.has(id)) modalReturnFocus.set(id, document.activeElement);
   m.classList.add('open');
   m.setAttribute('aria-hidden', 'false');
   document.body.classList.add('k-noscroll');
+  const first = m.querySelector(MODAL_FOCUSABLE);
+  if (first && !m.contains(document.activeElement)) first.focus({ preventScroll: true });
 }
 
 function closeModal(id){
   const m = document.getElementById(id);
   m.classList.remove('open');
   m.setAttribute('aria-hidden', 'true');
+  const back = modalReturnFocus.get(id);
+  modalReturnFocus.delete(id);
+  if (back && typeof back.focus === 'function' && document.contains(back)) back.focus({ preventScroll: true });
   if (id === 'k-sheet') closeSheet();
   if (id === 'k-ev-modal') ev = null;
   if (!document.querySelector('.k-modal.open')) document.body.classList.remove('k-noscroll');
 }
+
+document.addEventListener('keydown', (e) => {
+  if (e.key !== 'Tab') return;
+  const m = document.querySelector('.k-modal.open');
+  if (!m) return;
+  const items = [...m.querySelectorAll(MODAL_FOCUSABLE)].filter(el => el.offsetParent !== null);
+  if (!items.length) return;
+  const first = items[0], last = items[items.length - 1];
+  if (e.shiftKey && (document.activeElement === first || !m.contains(document.activeElement))){ e.preventDefault(); last.focus(); }
+  else if (!e.shiftKey && (document.activeElement === last || !m.contains(document.activeElement))){ e.preventDefault(); first.focus(); }
+});
 
 /* ══════════════════════════════════════════════════════════
    UTILITIES
@@ -6301,6 +7035,23 @@ function safeUrl(u){
 }
 
 function setText(id, v){ const el = document.getElementById(id); if (el) el.textContent = v; }
+
+/* Counts roll up to the real number once data arrives. Reduced motion gets the number at once. */
+const countShown = new Map();
+function countUp(id, target){
+  const el = document.getElementById(id); if (!el) return;
+  const from = countShown.has(id) ? countShown.get(id) : 0;
+  countShown.set(id, target);
+  const reduce = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || from === target){ el.textContent = target; return; }
+  const t0 = performance.now(), dur = 900;
+  const frame = now => {
+    const p = Math.min((now - t0) / dur, 1), e = p === 1 ? 1 : 1 - Math.pow(2, -10 * p);
+    el.textContent = Math.round(from + (target - from) * e);
+    if (p < 1) requestAnimationFrame(frame);
+  };
+  requestAnimationFrame(frame);
+}
 
 function randomName(n){
   const a = new Uint8Array(n);

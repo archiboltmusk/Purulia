@@ -21,6 +21,8 @@ test('promises.html lists promises with sources, filters and news', async ({ pag
   await expect(page.locator('.pr-item')).toHaveCount(2);
   await expect(page.locator('.pr-item').first().locator('a[href="https://example.com/said"]')).toBeVisible();
   await expect(page.locator('#pr-feed li')).toHaveCount(1);
+  await expect(page.locator('#pr-strip li')).toHaveCount(2);
+  await expect(page.locator('#pr-strip li').first()).toContainText('Other Person');
 
   await page.locator('#pr-status-chips [data-status="promised"]').click();
   await expect(page.locator('.pr-item')).toHaveCount(1);
@@ -65,4 +67,38 @@ test('promises.html?who= opens on that person', async ({ page }) => {
   await page.goto('promises.html?who=Other%20Person');
   await expect(page.locator('.pr-item')).toHaveCount(1);
   await expect(page.locator('.pr-item .pr-who')).toHaveText('Other Person');
+});
+
+test('promises.html follows the chosen district: picker, MPs/MLAs and counts', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?d=bankura');
+  await expect(page.locator('#pr-pick select')).toHaveValue('bankura');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  await expect(page.locator('#pr-reps')).not.toContainText('Mamoni Bauri');
+  await expect(page.locator('#pr-n-all')).toHaveText('0');
+  await expect(page.locator('.pr-item')).toHaveCount(0);
+});
+
+test('a town chosen on the map shows only the MP and MLA of its seats', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?d=alipurduar');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  const district = await page.locator('#pr-reps li').count();
+  await page.evaluate(() => localStorage.setItem('parishkar_place', 'alipurduar'));
+  await page.goto('promises.html');
+  await expect(page.locator('#pr-reps li').first()).toBeVisible();
+  const town = await page.locator('#pr-reps li').count();
+  expect(town).toBeGreaterThan(0);
+  expect(town).toBeLessThan(district);
+});
+
+test('promises.html title and description name the chosen district', async ({ page }) => {
+  await page.route('**/rest/v1/rpc/kasa_promises', route => route.fulfill({
+    status: 200, contentType: 'application/json', headers: { 'access-control-allow-origin': '*' }, body: JSON.stringify(DATA) }));
+  await page.goto('promises.html?d=bankura');
+  await expect(page).toHaveTitle(/Parishkar Bankura$/);
+  await expect(page.locator('meta[property="og:title"]')).toHaveAttribute('content', /Parishkar Bankura$/);
+  await expect(page.locator('meta[name="description"]')).toHaveAttribute('content', /Bankura/);
 });

@@ -1,5 +1,5 @@
 /* "Public toilets": the ones residents have reported as locked, dry, unclean or otherwise
-   unusable, on a map and in a list. */
+   unusable, in a list. The map is the report map (kasa.html?category=toilet). */
 (async function(){
   const cfg = window.KASA_CONFIG || {};
   const list = document.getElementById('tl-list');
@@ -11,14 +11,23 @@
   // The chosen district (place-facts.js): its own reports, and an RTI to its municipalities.
   const PF = window.PlaceFacts;
   let slug = 'purulia', D = null;
-  if (PF){ await PF.load().catch(() => null); if (PF.data){ slug = PF.current(); D = PF.data.districts[slug]; } }
+  if (PF){ await PF.load().catch(() => null); if (PF.data){
+    // No place chosen yet: take the district the device is in, if location is already allowed.
+    let picked = false; try { picked = new URLSearchParams(location.search).has('d') || !!localStorage.getItem('parishkar_place'); } catch (e) {}
+    if (!picked){
+      const k = await PF.districtFromLocation().catch(() => null);
+      if (k){ PF.choose(k); location.reload(); return; }
+    }
+    slug = PF.current(); D = PF.data.districts[slug]; } }
   const NAME = D ? D.name : 'Purulia', isPurulia = slug === 'purulia';
-  const inPlace = PF && PF.data ? await PF.reportFilter(slug) : () => true;
+  // A town picked on the map shows only its own toilets, not the district's.
+  const town = PF ? PF.savedTownSlug() : null;
+  const inPlace = town ? (r => r.place === town) : PF && PF.data ? await PF.reportFilter(slug) : () => true;
   const bodies = isPurulia || !PF ? [] : await PF.bodies(slug);
   if (!isPurulia){
     document.title = `Public toilets in ${NAME} — Parishkar Bengal`;
     // The ODF finding is about Purulia town only.
-    document.querySelector('.an-sub').textContent = `A toilet with no water, broken, or kept locked is, in practice, no toilet at all. The map below shows the ones residents have reported in ${NAME}.`;
+    document.querySelector('.an-sub').textContent = `A toilet with no water, broken, or kept locked is, in practice, no toilet at all. The map below shows the ones residents have reported in ${NAME}. Whether ${NAME}'s municipalities are Open Defecation Free: not on record yet.`;
     const rti = document.getElementById('tl-rti-text');
     const letter = b => [
       'To,', 'The Public Information Officer,', `${b ? b.body : '[Name of your municipality]'}, ${NAME}, West Bengal`, '',
@@ -52,23 +61,4 @@
     ? rows.map(r => `<li><a href="kasa.html?report=${encodeURIComponent(r.id)}">${esc(where(r))}</a> · ${esc(seen(r))} · first reported ${esc(fmt(r.created_at))}${r.status === 'resolved' ? ' · fixed' : ''}</li>`).join('')
     : '<li>No public toilet reported yet. Be the first: if one near you is locked, dry or unusable, report it.</li>';
 
-  if (!window.maplibregl) return;
-  const map = new maplibregl.Map({ container: 'tl-map', style: 'https://tiles.openfreemap.org/styles/dark',
-    center: [86.36, 23.33], zoom: rows.length ? 11 : 9, attributionControl: { compact: true } });
-  map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'top-right');
-  const bounds = new maplibregl.LngLatBounds();
-  rows.forEach(r => {
-    const el = document.createElement('div');
-    el.textContent = '🚻'; el.style.fontSize = '22px'; el.style.cursor = 'pointer';
-    new maplibregl.Marker({ element: el }).setLngLat([r.lng, r.lat])
-      .setPopup(new maplibregl.Popup({ offset: 14 }).setHTML(`<strong>${esc(where(r))}</strong><br>${esc(seen(r))}<br><a href="kasa.html?report=${encodeURIComponent(r.id)}">Open the report →</a>`))
-      .addTo(map);
-    bounds.extend([r.lng, r.lat]);
-  });
-  if (rows.length > 1) map.fitBounds(bounds, { padding: 40, maxZoom: 14 });
-  else if (rows.length === 1) map.setCenter([rows[0].lng, rows[0].lat]);
-  else {
-    bodies.forEach(b => { if (b.at) bounds.extend(b.at); });
-    if (!bounds.isEmpty()) map.fitBounds(bounds, { padding: 40, maxZoom: 11 });
-  }
 })();

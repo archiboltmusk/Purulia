@@ -1,0 +1,76 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Partner queue · Parishkar</title>
+<meta name="description" content="Officer queue for municipal work orders: approve reports, assign, sign off, record payment reference.">
+<style>
+:root{--red:#c8102e;--ink:#1d1d1b;--muted:#5b5b57;--line:#1d1d1b;--paper:#fff;--soft:#f6f4f1;--ok:#1e6b3a}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--ink:#f2f0ec;--muted:#b9b6b0;--line:#f2f0ec;--paper:#161616;--soft:#222;--ok:#7fd29a}}
+:root[data-theme="dark"]{--ink:#f2f0ec;--muted:#b9b6b0;--line:#f2f0ec;--paper:#161616;--soft:#222;--ok:#7fd29a}
+*{box-sizing:border-box}
+body{margin:0;background:var(--paper);color:var(--ink);font:16px/1.5 system-ui,-apple-system,"Segoe UI",sans-serif}
+.wrap{max-width:960px;margin:0 auto;padding:16px}
+h1{font-size:1.6rem;margin:.2em 0;border-bottom:3px solid var(--red);padding-bottom:.2em}
+h2{font-size:1.1rem;margin:1.4em 0 .5em}
+.sub{color:var(--muted);margin:.3em 0 1em}
+button{font:inherit;border:2px solid var(--line);background:var(--paper);color:var(--ink);padding:5px 10px;border-radius:6px;cursor:pointer;margin:2px}
+button.primary{background:var(--red);border-color:var(--red);color:#fff}
+input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);margin:2px 0;width:100%}
+.card{border:2px solid var(--line);border-radius:8px;padding:10px 12px;margin:8px 0}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:space-between}
+.pill{font-size:.8rem;border:1px solid var(--line);border-radius:99px;padding:1px 8px;white-space:nowrap}
+.late{color:var(--red);font-weight:700}
+.muted{color:var(--muted);font-size:.92rem}
+.err{color:var(--red);font-weight:700}
+.note{border-left:4px solid var(--red);padding:6px 10px;background:var(--soft);margin:12px 0}
+.hidden{display:none}
+.tl{list-style:none;margin:8px 0 0;padding:0 0 0 6px;border-left:3px solid var(--ok)}
+.tl li{position:relative;padding:0 0 10px 18px}
+.tl .dot{position:absolute;left:-9px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--ok);border:2px solid var(--paper)}
+</style>
+</head>
+<body>
+<main class="wrap">
+  <h1>Partner queue</h1>
+  <p class="sub">For a municipal officer. Until partner accounts exist, moderators act as the officer. Payment is recorded as a reference only; Parishkar moves no money.</p>
+
+  <section id="signin" class="hidden">
+    <h2>Sign in</h2>
+    <div class="card">
+      <input id="em" type="email" placeholder="Email" autocomplete="username">
+      <input id="pw" type="password" placeholder="Password" autocomplete="current-password">
+      <button class="primary" id="go">Sign in</button>
+      <p class="err" id="signErr"></p>
+    </div>
+  </section>
+
+  <section id="worker" class="hidden">
+    <div class="row"><h2>My jobs</h2><button id="wout">Sign out</button></div>
+    <p class="muted">Start a job when you begin. Mark it complete when done; the officer then signs off. Work photos (live camera and GPS, upload later when online) come in the next release.</p>
+    <div id="myjobs"></div>
+    <p class="err" id="werr"></p>
+  </section>
+
+  <section id="app" class="hidden">
+    <div class="row"><span class="muted" id="counts"></span><span><button id="addWorker">Add worker</button><button id="out">Sign out</button></span></div>
+
+    <h2>Open problems (today's queue)</h2>
+    <p class="muted">Open reports not yet on a work order. Approve for work by an office, with an SLA.</p>
+    <div id="queue"></div>
+
+    <h2>Work orders</h2>
+    <div id="orders"></div>
+
+    <p class="err" id="err"></p>
+  </section>
+
+  <div class="note">Worker photos (live camera and GPS, offline upload) and partner accounts are not built yet.</div>
+</main>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script src="config.js"></script>
+<script src="partner.js"></script>
+</body>
+</html>

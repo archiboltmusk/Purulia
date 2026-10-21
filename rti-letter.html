@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RTI letter — Parishkar</title>
+<meta name="description" content="Make a printable RTI letter for MPLADS, MLALADS/BEUP and DISHA records. Nothing you type is stored or sent.">
+<meta name="robots" content="index, follow">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/rti-letter.html">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="legal.css">
+<style>
+  .rl-form{display:grid;gap:.8rem;margin:1.2rem 0;}
+  .rl-form .rl-two{display:grid;grid-template-columns:1fr 1fr;gap:.8rem;}
+  .rl-form label{display:grid;gap:.3rem;font-size:.95rem;}
+  .rl-form input{font:inherit;padding:.5rem .6rem;border:1px solid var(--border);border-radius:6px;background:var(--surface-1,transparent);color:inherit;}
+  .rl-note{border:1px solid var(--border);border-radius:10px;padding:.9rem 1.1rem;margin:1rem 0;}
+  .rl-note p{margin:.3rem 0;}
+  .rl-paper{background:#fff;color:#111;border:1px solid #ccc;border-radius:4px;padding:2rem 2.2rem;margin:1rem 0 2rem;font-family:Georgia,"Times New Roman",serif;font-size:14px;line-height:1.55;max-width:760px;}
+  .rl-paper p,.rl-paper h3{margin:.45rem 0;}
+  .rl-paper h3{font-size:14px;font-weight:700;margin-top:.9rem;}
+  .rl-sub{padding-left:1.6rem;}
+  .rl-print{font:inherit;padding:.55rem 1rem;border-radius:6px;border:1px solid var(--border);background:transparent;color:inherit;cursor:pointer;}
+  @media(max-width:600px){.rl-form .rl-two{grid-template-columns:1fr;}.rl-paper{padding:1.2rem;}}
+  @media print{
+    body *{visibility:hidden;}
+    #rl-letter,#rl-letter *{visibility:visible;}
+    #rl-letter{position:absolute;left:0;top:0;width:100%;max-width:none;border:0;margin:0;padding:0;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links" data-t="n1">
+    <a href="index.html">Home</a>
+    <a href="kasa.html">Parishkar</a>
+  </div>
+  <div class="k-nav-right">
+    <a href="kasa.html" class="k-nav-cta">Report →</a>
+  </div>
+</nav>
+
+<main class="legal-wrap">
+
+  <a href="helplines.html" class="legal-back" data-t="b1">← Helplines and your rights</a>
+
+  <h1 class="legal-title" data-t="t1">RTI <em>letter</em></h1>
+  <p class="legal-meta" data-t="t2">Type your details; the letter builds on this page. Nothing is sent, stored or filed.</p>
+
+  <form class="rl-form" id="rl-form" autocomplete="off" onsubmit="return false">
+    <label><span data-t="f_name">Applicant's full name</span>
+      <input name="name" maxlength="120">
+    </label>
+    <label><span data-t="f_address">Postal address</span>
+      <input name="address" maxlength="300">
+    </label>
+    <div class="rl-two">
+      <label><span data-t="f_district">District</span><input name="district" maxlength="80"></label>
+      <label><span data-t="f_state">State</span><input name="state" maxlength="80"></label>
+    </div>
+    <div class="rl-two">
+      <label><span data-t="f_pin">PIN code</span><input name="pin" inputmode="numeric" maxlength="6"></label>
+      <label><span data-t="f_from">Period from (financial year or date, e.g. 2021-22)</span><input name="from" maxlength="30"></label>
+    </div>
+    <div class="rl-two">
+      <label><span data-t="f_ls">Lok Sabha constituency (MP)</span><input name="ls" maxlength="80"></label>
+      <label><span data-t="f_ac">Assembly constituency (MLA)</span><input name="ac" maxlength="80"></label>
+    </div>
+    <div class="rl-two">
+      <label><span data-t="f_mobile">Mobile (optional)</span><input name="mobile" inputmode="tel" maxlength="15"></label>
+      <label><span data-t="f_email">Email (optional)</span><input name="email" type="email" maxlength="120"></label>
+    </div>
+    <div class="rl-two">
+      <label><span data-t="f_place">Place</span><input name="place" maxlength="80"></label>
+      <label><span data-t="f_date">Letter date</span><input name="date" type="date"></label>
+    </div>
+  </form>
+
+  <div class="rl-note">
+    <p data-t="p_fee"><strong>Fee:</strong> ₹10 is the central rate (RTI Rules, 2012). States may set a different fee or method. Check your state's RTI rules before you pay. If you are below the poverty line, strike out the fee line and attach an attested BPL ration card under s.7(5).</p>
+  </div>
+
+  <div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;">
+    <h2 data-t="h_letter" style="margin:0;">Your letter</h2>
+    <button type="button" class="rl-print" id="rl-print" data-t="btn_print">Print / save as PDF</button>
+  </div>
+
+  <section class="rl-paper" id="rl-letter" aria-live="polite"></section>
+
+  <h2 data-t="h_filing">Sending it</h2>
+  <ul>
+    <li data-t="fi1">Fee: ₹10 Indian Postal Order payable to the Accounts Officer, Office of the District Magistrate, or a ₹10 court fee stamp on page 1. State practice may differ.</li>
+    <li data-t="fi2">Send by Speed Post or Registered Post AD, or hand it in at the District Collectorate's RTI cell and get a stamped acknowledgement with a diary number.</li>
+    <li data-t="fi3">The Public Information Officer must reply within 30 days (s.7(1)). If there is no reply, note the first-appeal date in the <a href="rti.html">RTI tracker</a>.</li>
+  </ul>
+  <p class="legal-meta" data-t="p_privacy">Nothing you type here is sent or stored. Check the whole letter yourself before you print it.</p>
+
+</main>
+
+<script src="bug-report.js"></script>
+<script src="rti-letter-i18n.js"></script>
+<script src="page-lang.js"></script>
+<script src="rti-letter.js"></script>
+</body>
+</html>

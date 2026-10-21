@@ -3,6 +3,7 @@
  * Empowered Indian, CAG State Finances Audit Reports copied with page and quote).
  * Every figure links to its source; a state or seat with no figure shows "not on file".
  * The state follows ?s=<state slug>, else the place last opened on the map, else West Bengal.
+ * The map of these figures is a layer on the report map (kasa.html?layer=money-…, map-layers.js).
  */
 (() => {
   const $ = id => document.getElementById(id);
@@ -11,6 +12,7 @@
   const cr = v => v == null ? '—' : '₹' + Math.round(v).toLocaleString('en-IN') + ' cr';
   const pct = v => v == null ? '—' : (Math.round(v * 10) / 10).toLocaleString('en-IN') + '%';
   const link = (u, t) => `<a href="${esc(u)}" target="_blank" rel="noopener">${esc(t)}</a>`;
+  const { LAYERS, fig: figOf, metric: metricOf } = window.MoneyMetrics;
 
   // What the auditor's figures mean, in plain words. Order = order on the page.
   const FLAGS = {
@@ -24,37 +26,11 @@
     misclassified: ['Running costs shown as building costs', 'Day-to-day spending booked as capital (asset-building) spending, which makes capital spending look bigger.'],
     ac_bills: ['Advances drawn, bills not settled', 'Money drawn in advance on abstract contingent bills, with the detailed bill showing what it bought still not filed.'],
   };
-  const LAYERS = {
-    selfPaid: { label: 'Own taxes as % of spending', unit: '%', note: 'RBI, 2022-23 accounts: the state’s own tax revenue ÷ (revenue + capital expenditure).' },
-    unspent: { label: 'Budget left unspent', unit: '%', note: 'CAG State Finances Audit Report: savings as a share of the budget provision.' },
-    ucs: { label: 'Grants with no proof of use', unit: 'cr', note: 'CAG State Finances Audit Report: utilisation certificates not received, ₹ crore, as of the date in the report.' },
-    mplads: { label: 'MP fund spent (Lok Sabha)', unit: '%', note: 'MPLADS, sitting Lok Sabha MPs: amount spent ÷ amount allocated so far this term.' },
-    seats: { label: 'MP fund spent by seat (West Bengal)', unit: '%', note: 'MPLADS per Lok Sabha seat, drawn on its assembly segments: spent ÷ allocated so far.' },
-  };
 
-  let D, MP, LEAD, states = [], cur = null, layer = 'selfPaid', map = null, geo = null, seats = null;
+  let D, MP, states = [], cur = null, layer = 'selfPaid';
 
-  const fig = (s, k) => ((D.audit[s] || {}).figures || []).find(f => f.k === k);
-  function metric(s, k) {
-    const r = D.rbi.states[s], a = D.audit[s];
-    if (k === 'selfPaid') return r && r.ownTax != null && r.revExp && r.capExp != null ? 100 * r.ownTax / (r.revExp + r.capExp) : null;
-    if (k === 'unspent') { const f = fig(s, 'budget_unspent'); return f ? f.pct : null; }
-    if (k === 'ucs') { const f = fig(s, 'ucs_pending'); return f ? f.crore : null; }
-    if (k === 'mplads') { const m = (D.mplads.states[s] || {}).ls; return m && m.allocated ? 100 * m.spent / m.allocated : null; }
-    return a ? null : null;
-  }
-
-  // Five steps of one hue: darker = more. For "own taxes" more is better, for the rest less is.
-  const RAMP = ['#f3dcae', '#e8b665', '#d4882a', '#a35f12', '#6b3a05'];
-  const BG = getComputedStyle(document.body).backgroundColor || '#0a0805';
-  const DARK = (() => { const m = BG.match(/\d+/g); return m ? (+m[0] + +m[1] + +m[2]) < 384 : true; })();
-  const NONE = DARK ? '#2a2620' : '#d9d4ca', EDGE = DARK ? '#0a0805' : '#ffffff', ON = DARK ? '#f0e6d0' : '#1a1410';
-  function color(v, vals) {
-    if (v == null) return NONE;
-    const s = vals.filter(x => x != null).sort((a, b) => a - b);
-    const i = s.length < 2 ? 4 : Math.min(4, Math.floor(5 * s.indexOf(v) / s.length));
-    return RAMP[i];
-  }
+  const fig = (s, k) => figOf(D, s, k);
+  const metric = (s, k) => metricOf(D, s, k);
 
   function pickState() {
     const q = new URLSearchParams(location.search).get('s');
@@ -115,56 +91,11 @@
       rows.map(([s, v]) => `<tr><td><a href="?s=${slug(s)}" data-s="${esc(s)}">${esc(s)}</a></td><td>${v == null ? '<span class="ad-over">not on file</span>' : (L.unit === 'cr' ? cr(v) : pct(v))}</td></tr>`).join('') + '</tbody></table>';
   }
 
-  function seatPct(pc) { const r = MP.pc[pc]; return r && r.allocated ? 100 * r.spent / r.allocated : null; }
-
   function paint() {
     $('mn-layer-note').textContent = LAYERS[layer].note;
-    if (!map || !map.getSource('st')) return;
-    const isSeats = layer === 'seats';
-    map.setLayoutProperty('st-fill', 'visibility', isSeats ? 'none' : 'visible');
-    if (map.getLayer('seat-fill')) map.setLayoutProperty('seat-fill', 'visibility', isSeats ? 'visible' : 'none');
-    if (isSeats && !seats) return;
-    if (isSeats) {
-      const vals = Object.keys(MP.pc).map(seatPct);
-      seats.features.forEach(f => { f.properties.c = color(seatPct(String(f.properties.pc)), vals); });
-      map.getSource('seats').setData(seats);
-      map.fitBounds([[85.8, 21.5], [89.9, 27.3]], { padding: 20, duration: 0 });
-    } else {
-      const vals = states.map(s => metric(s, layer));
-      geo.features.forEach(f => { f.properties.c = color(metric(f.properties.state, layer), vals); f.properties.on = f.properties.state === cur ? 1 : 0; });
-      map.getSource('st').setData(geo);
-      map.fitBounds([[68, 6.5], [97.5, 37.2]], { padding: 10, duration: 0 });
-    }
+    const q = new URLSearchParams({ layer: 'money-' + (Object.hasOwn(LAYERS, layer) ? layer : 'selfPaid') });
+    $('mn-map-link').href = 'kasa.html?' + q.toString();
     renderTable();
-  }
-
-  function popup(lngLat, html) {
-    new maplibregl.Popup({ closeButton: true, maxWidth: '280px' }).setLngLat(lngLat).setHTML(html).addTo(map);
-  }
-
-  function initMap() {
-    if (!window.maplibregl) { $('mn-map').innerHTML = '<p class="an-empty">The map did not load. The table below has the same figures.</p>'; return; }
-    map = new maplibregl.Map({ container: 'mn-map', style: { version: 8, sources: {}, layers: [{ id: 'bg', type: 'background', paint: { 'background-color': BG } }] },
-      bounds: [[68, 6.5], [97.5, 37.2]], attributionControl: false, dragRotate: false });
-    map.addControl(new maplibregl.AttributionControl({ customAttribution: 'Outlines: LGD (CC0), ECI segments' }));
-    map.on('load', () => {
-      map.addSource('st', { type: 'geojson', data: geo });
-      map.addLayer({ id: 'st-fill', type: 'fill', source: 'st', paint: { 'fill-color': ['get', 'c'], 'fill-opacity': 0.92 } });
-      map.addLayer({ id: 'st-line', type: 'line', source: 'st', paint: { 'line-color': ['case', ['==', ['get', 'on'], 1], ON, EDGE], 'line-width': ['case', ['==', ['get', 'on'], 1], 2, 0.6] } });
-      map.addSource('seats', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
-      map.addLayer({ id: 'seat-fill', type: 'fill', source: 'seats', layout: { visibility: 'none' }, paint: { 'fill-color': ['get', 'c'], 'fill-opacity': 0.92, 'fill-outline-color': EDGE } });
-      map.on('click', 'st-fill', e => {
-        if (layer === 'seats') return;
-        const s = e.features[0].properties.state, v = metric(s, layer), L = LAYERS[layer];
-        popup(e.lngLat, `<b>${esc(s)}</b><br>${esc(L.label)}: ${v == null ? 'not on file' : (L.unit === 'cr' ? cr(v) : pct(v))}<br><a href="#" data-s="${esc(s)}">Open this state ↓</a>`);
-      });
-      map.on('click', 'seat-fill', e => {
-        const pc = String(e.features[0].properties.pc), r = MP.pc[pc], l = (LEAD.pc || {})[pc] || {};
-        popup(e.lngLat, `<b>${esc(l.name || 'Seat ' + pc)}</b>${l.person ? ` · ${esc(l.person)}` : ''}<br>` + (r ? `Spent ${cr(r.spent / 1e7)} of ${cr(r.allocated / 1e7)} (${pct(seatPct(pc))})<br>${r.worksCompleted} of ${r.worksRecommended} works completed<br>${link(r.url, 'MPLADS record')} · <a href="kasa.html?rep=pc:${esc(pc)}">MP's page</a>` : 'Not on file (seat vacant or no MPLADS figures)'));
-      });
-      ['st-fill', 'seat-fill'].forEach(id => { map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; }); map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; }); });
-      paint();
-    });
   }
 
   function choose(s) { if (!s || !D) return; cur = s; $('mn-pick').value = s; renderState(); paint(); }
@@ -177,16 +108,16 @@
     $('mn-state').scrollIntoView({ behavior: 'smooth', block: 'start' });
   });
 
-  Promise.all(['places/money.json', 'places/in_states.geojson', 'places/wb_mplads.json', 'places/wb_leaders.json']
+  Promise.all(['places/money.json', 'places/in_states.geojson', 'places/wb_mplads.json']
     .map(u => fetch(u).then(r => { if (!r.ok) throw new Error(u + ' ' + r.status); return r.json(); })))
-    .then(([d, g, mp, lead]) => {
-      D = d; geo = g; MP = mp; LEAD = lead;
+    .then(([d, g, mp]) => {
+      D = d; MP = mp;
       states = g.features.map(f => f.properties.state).sort();
       $('mn-updated').textContent = 'Figures checked ' + d.checked;
       $('mn-pick').innerHTML = states.map(s => `<option>${esc(s)}</option>`).join('');
       $('mn-pick').addEventListener('change', e => choose(e.target.value));
       $('mn-layer').innerHTML = Object.entries(LAYERS).map(([k, v]) => `<option value="${k}">${esc(v.label)}</option>`).join('');
-      $('mn-layer').addEventListener('change', e => { layer = e.target.value; paint(); if (layer === 'seats' && !seats) loadSeats(); });
+      $('mn-layer').addEventListener('change', e => { layer = e.target.value; paint(); });
       $('mn-missing').innerHTML = d.missing.map(m => `<tr><td>${esc(m.what)}</td><td>${esc(m.where)}</td><td>${esc(m.why)}</td></tr>`).join('');
       $('mn-src').innerHTML = [
         link(d.rbi.page, d.rbi.title) + ` (${esc(d.rbi.year)}; ` + Object.values(d.rbi.tables).map(t => link(t.url, t.title.split(':')[0])).join(', ') + ')',
@@ -194,11 +125,6 @@
         'CAG State Finances Audit Reports: ' + Object.entries(d.audit).map(([s, a]) => link(a.page, `${s} ${a.year}`)).join(', '),
       ].map(x => `<li>${x}</li>`).join('');
       choose(pickState());
-      initMap();
     })
     .catch(err => { $('mn-updated').textContent = 'Could not load the figures (' + err.message + ').'; });
-
-  function loadSeats() {
-    fetch('places/wb_assembly.geojson').then(r => r.json()).then(g => { seats = g; paint(); });
-  }
 })();

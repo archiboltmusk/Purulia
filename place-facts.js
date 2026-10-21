@@ -140,5 +140,34 @@ window.PlaceFacts = (() => {
     el.onchange = () => { choose(el.value); onChange(el.value); };
   }
 
-  return { load, current, choose, rank, rankText, picker, towns, bodies, reportFilter, reps, textFilter, statewide, esc, n, get data() { return data; } };
+  // A town picked on the map (its slug in SAVED), when no ?d= overrides it; else null.
+  function savedTownSlug() {
+    try {
+      const k = localStorage.getItem(SAVED);
+      if (!k || k === 'purulia' || k === 'kolkata' || k.startsWith('district:') || new URLSearchParams(location.search).has('d')) return null;
+      return k;
+    } catch (e) { return null; }
+  }
+
+  // Point in a GeoJSON Polygon / MultiPolygon, ray casting.
+  const inRing = (pt, ring) => { let c = false; for (let i = 0, j = ring.length - 1; i < ring.length; j = i++) {
+    const [xi, yi] = ring[i], [xj, yj] = ring[j];
+    if ((yi > pt[1]) !== (yj > pt[1]) && pt[0] < (xj - xi) * (pt[1] - yi) / (yj - yi) + xi) c = !c; } return c; };
+  const inGeom = (pt, g) => (g.type === 'Polygon' ? [g.coordinates] : g.coordinates)
+    .some(p => inRing(pt, p[0]) && !p.slice(1).some(h => inRing(pt, h)));
+
+  // The district the device is in (places/wb_districts.geojson). Only when location is already allowed:
+  // a page load must never raise the system prompt. Null if not allowed, denied or outside WB.
+  async function districtFromLocation() {
+    if (!navigator.geolocation) return null;
+    const perm = await navigator.permissions?.query({ name: 'geolocation' }).catch(() => null);
+    if (perm?.state !== 'granted') return null;
+    const c = await new Promise(res => navigator.geolocation.getCurrentPosition(p => res(p.coords), () => res(null), { timeout: 8000, maximumAge: 600000 }));
+    if (!c) return null;
+    const g = await (await fetch('places/wb_districts.geojson')).json();
+    const f = g.features.find(f => inGeom([c.longitude, c.latitude], f.geometry));
+    return f ? f.properties.slug : null;
+  }
+
+  return { load, current, choose, rank, rankText, picker, towns, bodies, reportFilter, reps, textFilter, statewide, savedTownSlug, districtFromLocation, esc, n, get data() { return data; } };
 })();

@@ -14,6 +14,8 @@ import { MapScreen } from './src/components/MapScreen';
 import { MoreSheet } from './src/components/MoreSheet';
 import { NearbySheet } from './src/components/NearbySheet';
 import { ReportSheet } from './src/components/ReportSheet';
+import { FeedbackForm, type FeedbackKind } from './src/components/FeedbackForm';
+import { SchoolCheck } from './src/components/SchoolCheck';
 import { SpotForm, type SpotFormId } from './src/components/SpotForm';
 import { ResultCard } from './src/components/ResultCard';
 import { ReviewSheet } from './src/components/ReviewSheet';
@@ -24,6 +26,7 @@ import { errorText, loadLang, onLang, st, t } from './src/i18n';
 import { fixUsable, watchFix } from './src/location';
 import { drain, enqueue, onQueue, onRefused, pendingCount, startQueue } from './src/queue';
 import { swr } from './src/cache';
+import { onAlertTap } from './src/push';
 import { snap } from './src/shot';
 import { AppError } from './src/supabase';
 
@@ -99,10 +102,13 @@ function Reporter() {
   const [sheetId, setSheetId] = useState<string | null>(null);
   const [sheetRefresh, setSheetRefresh] = useState(0);
   const [spotForm, setSpotForm] = useState<SpotFormId | null>(null);
+  const [school, setSchool] = useState(false);
+  const [feedback, setFeedback] = useState<FeedbackKind | null>(null);
   const [evidence, setEvidence] = useState<{ mode: EvidenceMode; report: Report; rules: Rules } | null>(null);
 
   // GPS and a camera token warm up with the viewfinder, so the shutter waits on neither.
   useEffect(() => watchFix(setFix), []);
+  useEffect(() => onAlertTap(openReport), []);
 
   // Warm what the next taps need while the camera is on screen: rules, and the lists
   // (cached on the phone) so Map and Recent open filled in.
@@ -248,11 +254,13 @@ function Reporter() {
         setEvidence(null);
         if (changed) setSheetRefresh((n) => n + 1);
       }} />}
-      <MoreSheet visible={more} onClose={() => setMore(false)} onForm={(id) => {
+      <MoreSheet fix={fix} visible={more} onClose={() => setMore(false)} onForm={(id) => {
         setMore(false);
-        setTimeout(() => setSpotForm(id), Platform.OS === 'ios' ? 450 : 0);
+        setTimeout(() => (id === 'bug' || id === 'fix' ? setFeedback(id) : id === 'school' ? setSchool(true) : setSpotForm(id)), Platform.OS === 'ios' ? 450 : 0);
       }} />
       {spotForm && <SpotForm id={spotForm} onClose={() => setSpotForm(null)} />}
+      {school && <SchoolCheck onClose={() => setSchool(false)} />}
+      {feedback && <FeedbackForm kind={feedback} onClose={() => setFeedback(null)} />}
     </View>
   );
 }

@@ -24,7 +24,7 @@
       rule_3: 'Name the leader and say why it helps everyone. No insults, no party slogans, no names of private people. A volunteer moderator checks every demand before it appears.',
       list_h: 'Demands', all: 'All', r_chairman: 'Chairman', r_councillor: 'Councillor', r_mla: 'MLA', r_mp: 'MP', r_other: 'Other',
       sort_top: 'Most support', sort_new: 'Newest', search_ph: 'Search demands', loading: 'Loading…',
-      none: 'No demands match.', none_yet: 'No demands published yet. Post the first one below.',
+      none: 'No demands match.', no_leaders: 'Leaders not on record yet.', none_yet: 'No demands published yet. Post the first one below.',
       load_err: 'Could not load the noticeboard. Check your connection and reload.',
       to: 'To', support: '+1 Support', supported: '✓ You support this', supports: '{n} support this', share: 'Share',
       at: 'Where: {p}', posted: 'Posted {d}',
@@ -56,7 +56,7 @@
       e_reply: 'Write what they said (at least 10 letters).', e_date: 'Add the date.', e_url: 'Add a link starting with http:// or https://.',
       leaders_h: 'Leaders', leaders_sub: 'Tap a leader to see what people asked them for, what they answered, and what they promised.',
       lc_line: '{a} asked · {r} answered · {p} promises · {d} delivered',
-      back: '← All demands', lv_asked: 'Demands to them', lv_answered: 'Answered', lv_promises: 'Promises made', lv_delivered: 'Delivered',
+      back: '← All demands', lv_asked: 'Demands to them', lv_answered: 'Answered', lv_promises: 'Promises made', lv_delivered: 'Delivered', lv_rate: 'Answer rate', lv_days: 'Typical days to answer', lv_wait: 'Longest wait for an answer (days)',
       lv_demands_h: 'What people asked them for', lv_promises_h: 'What they promised', lv_none_d: 'No demands to them yet.',
       lv_none_p: 'No promises by them on the Promises page yet.', lv_promise_more: 'On Promises',
       view_list: 'List', view_map: 'Map', map_none: 'No demands with a map pin yet.', map_err: 'The map could not load.',
@@ -78,7 +78,7 @@
       rule_3: 'নেতার নাম দিন আর লিখুন কেন এটা সবার কাজে লাগবে। অপমান, দলীয় স্লোগান বা সাধারণ মানুষের নাম নয়। প্রকাশের আগে একজন স্বেচ্ছাসেবী মডারেটর প্রতিটি দাবি দেখে নেন।',
       list_h: 'দাবি', all: 'সব', r_chairman: 'পুরপ্রধান', r_councillor: 'কাউন্সিলর', r_mla: 'বিধায়ক', r_mp: 'সাংসদ', r_other: 'অন্যান্য',
       sort_top: 'সবচেয়ে বেশি সমর্থন', sort_new: 'নতুন', search_ph: 'দাবি খুঁজুন', loading: 'লোড হচ্ছে…',
-      none: 'কোনও দাবি মেলেনি।', none_yet: 'এখনও কোনও দাবি প্রকাশ হয়নি। নিচে প্রথমটি লিখুন।',
+      none: 'কোনও দাবি মেলেনি।', no_leaders: 'নেতাদের তথ্য এখনও নথিতে নেই।', none_yet: 'এখনও কোনও দাবি প্রকাশ হয়নি। নিচে প্রথমটি লিখুন।',
       load_err: 'নোটিসবোর্ড লোড করা গেল না। সংযোগ দেখে আবার লোড করুন।',
       to: 'প্রতি', support: '+1 সমর্থন', supported: '✓ আপনি সমর্থন করেছেন', supports: '{n} জন সমর্থন করেছেন', share: 'শেয়ার',
       at: 'কোথায়: {p}', posted: 'লেখা হয়েছে {d}',
@@ -110,7 +110,7 @@
       e_reply: 'কী বলেছেন লিখুন (অন্তত ১০ অক্ষর)।', e_date: 'তারিখ দিন।', e_url: 'http:// বা https:// দিয়ে শুরু লিঙ্ক দিন।',
       leaders_h: 'নেতারা', leaders_sub: 'কোনও নেতার নাম চাপুন: মানুষ তাঁর কাছে কী চেয়েছেন, তিনি কী উত্তর দিয়েছেন, কী প্রতিশ্রুতি দিয়েছেন।',
       lc_line: '{a} দাবি · {r} উত্তর · {p} প্রতিশ্রুতি · {d} পূরণ',
-      back: '← সব দাবি', lv_asked: 'তাঁর কাছে দাবি', lv_answered: 'উত্তর দিয়েছেন', lv_promises: 'প্রতিশ্রুতি', lv_delivered: 'পূরণ হয়েছে',
+      back: '← সব দাবি', lv_asked: 'তাঁর কাছে দাবি', lv_answered: 'উত্তর দিয়েছেন', lv_promises: 'প্রতিশ্রুতি', lv_delivered: 'পূরণ হয়েছে', lv_rate: 'উত্তরের হার', lv_days: 'উত্তর দিতে সাধারণত কত দিন', lv_wait: 'সবচেয়ে বেশি অপেক্ষা (দিন)',
       lv_demands_h: 'মানুষ তাঁর কাছে কী চেয়েছেন', lv_promises_h: 'তিনি কী প্রতিশ্রুতি দিয়েছেন', lv_none_d: 'এখনও তাঁর কাছে কোনও দাবি নেই।',
       lv_none_p: 'প্রতিশ্রুতি পাতায় এখনও তাঁর কোনও প্রতিশ্রুতি নেই।', lv_promise_more: 'প্রতিশ্রুতি পাতায়',
       view_list: 'তালিকা', view_map: 'ম্যাপ', map_none: 'এখনও ম্যাপে পিন দেওয়া কোনও দাবি নেই।', map_err: 'ম্যাপ লোড করা গেল না।',
@@ -132,7 +132,7 @@
       rule_3: 'नेता का नाम दें और बताएँ कि इससे सबको क्या फ़ायदा है। अपमान, पार्टी के नारे या आम लोगों के नाम नहीं। प्रकाशित होने से पहले एक स्वयंसेवी मॉडरेटर हर माँग जाँचता है।',
       list_h: 'माँगें', all: 'सभी', r_chairman: 'अध्यक्ष', r_councillor: 'पार्षद', r_mla: 'विधायक', r_mp: 'सांसद', r_other: 'अन्य',
       sort_top: 'सबसे ज़्यादा समर्थन', sort_new: 'नई', search_ph: 'माँगें खोजें', loading: 'लोड हो रहा है…',
-      none: 'कोई माँग नहीं मिली।', none_yet: 'अभी कोई माँग प्रकाशित नहीं हुई। नीचे पहली लिखें।',
+      none: 'कोई माँग नहीं मिली।', no_leaders: 'नेताओं की जानकारी अभी दर्ज नहीं है।', none_yet: 'अभी कोई माँग प्रकाशित नहीं हुई। नीचे पहली लिखें।',
       load_err: 'नोटिसबोर्ड लोड नहीं हो सका। कनेक्शन देखकर फिर लोड करें।',
       to: 'किससे', support: '+1 समर्थन', supported: '✓ आपने समर्थन किया', supports: '{n} लोग समर्थन करते हैं', share: 'शेयर',
       at: 'कहाँ: {p}', posted: 'लिखा गया {d}',
@@ -164,7 +164,7 @@
       e_reply: 'उन्होंने क्या कहा लिखें (कम से कम 10 अक्षर)।', e_date: 'तारीख़ दें।', e_url: 'http:// या https:// से शुरू होने वाला लिंक दें।',
       leaders_h: 'नेता', leaders_sub: 'किसी नेता पर टैप करें: लोगों ने उनसे क्या माँगा, उन्होंने क्या जवाब दिया, क्या वादा किया।',
       lc_line: '{a} माँगें · {r} जवाब · {p} वादे · {d} पूरे',
-      back: '← सभी माँगें', lv_asked: 'उनसे माँगें', lv_answered: 'जवाब दिया', lv_promises: 'वादे किए', lv_delivered: 'पूरे हुए',
+      back: '← सभी माँगें', lv_asked: 'उनसे माँगें', lv_answered: 'जवाब दिया', lv_promises: 'वादे किए', lv_delivered: 'पूरे हुए', lv_rate: 'जवाब की दर', lv_days: 'जवाब में आम तौर पर दिन', lv_wait: 'सबसे लंबा इंतज़ार (दिन)',
       lv_demands_h: 'लोगों ने उनसे क्या माँगा', lv_promises_h: 'उन्होंने क्या वादा किया', lv_none_d: 'अभी उनसे कोई माँग नहीं।',
       lv_none_p: 'वादे पेज पर अभी उनका कोई वादा नहीं।', lv_promise_more: 'वादे पेज पर',
       view_list: 'सूची', view_map: 'मैप', map_none: 'अभी मैप पिन वाली कोई माँग नहीं।', map_err: 'मैप लोड नहीं हो सका।',
@@ -381,7 +381,9 @@
 
   function renderLeaders(){
     const el = document.getElementById('nb-leaders');
-    el.innerHTML = leaderCards().map(c => `<a class="nb-lcard" href="${esc(leaderHref(c.name))}">
+    const cards = leaderCards();
+    if (!cards.length){ el.innerHTML = `<p class="an-empty">${esc(t('no_leaders'))}</p>`; return; }
+    el.innerHTML = cards.map(c => `<a class="nb-lcard" href="${esc(leaderHref(c.name))}">
       <strong>${esc(c.name)}</strong><small>${esc([c.role, c.area].filter(Boolean).join(' · '))}</small>
       <span>${esc(t('lc_line', { a: c.asked, r: c.answered, p: c.promises, d: c.delivered }))}</span></a>`).join('');
   }
@@ -402,7 +404,16 @@
     document.getElementById('nb-lv-head').innerHTML = `
       ${ph && ph.photo ? `<img class="nb-lv-photo" src="${esc(ph.photo)}" alt="" style="object-position:${esc(ph.photoPos || '50% 30%')}">` : ''}
       <div><h2 class="an-title nb-lv-name">${esc(c.name)}</h2><p class="an-sub">${esc([c.role, c.area].filter(Boolean).join(' · '))}</p></div>`;
-    const tiles = [['lv_asked', c.asked], ['tile_supports', c.supports], ['lv_answered', c.answered], ['lv_promises', c.promises], ['lv_delivered', c.delivered]];
+    // Response record (idea from WriteToThem's response stats), counted from the demands on this page.
+    const DAY = 86400000, mine = state.demands.filter(d => norm(d.leader_name) === norm(c.name));
+    const answerDays = mine.filter(d => d.replies && d.replies.length).map(d =>
+      Math.max(0, (Math.min(...d.replies.map(r => Date.parse(r.said_on))) - Date.parse(d.published_at || d.created_at)) / DAY)).sort((a, b) => a - b);
+    const med = answerDays.length ? answerDays[answerDays.length >> 1] : null;
+    const waits = mine.filter(d => statusOf(d) === 'open').map(d => Math.floor((Date.now() - Date.parse(d.published_at || d.created_at)) / DAY));
+    const tiles = [['lv_asked', c.asked], ['tile_supports', c.supports], ['lv_answered', c.answered],
+      ['lv_rate', c.asked ? Math.round(c.answered / c.asked * 100) + '%' : '—'],
+      ['lv_days', med == null ? '—' : Math.round(med)], ['lv_wait', waits.length ? Math.max(...waits) : '—'],
+      ['lv_promises', c.promises], ['lv_delivered', c.delivered]];
     document.getElementById('nb-lv-tiles').innerHTML = tiles.map(([k, n]) =>
       `<div class="an-tile"><div class="an-tile-n">${n}</div><div class="an-tile-l">${esc(t(k))}</div></div>`).join('');
     const ps = state.promises.filter(p => norm(p.who) === norm(c.name));
@@ -412,7 +423,7 @@
         <div class="pr-meta">${esc(t('said_on', { d: fmtDate(p.made_on) }))} · <a href="${esc(safeUrl(p.source_url))}" target="_blank" rel="noopener nofollow">${esc(p.source_name || t('source'))} ↗</a>
           · <a href="promises.html#p-${esc(p.id)}">${esc(t('lv_promise_more'))} ↗</a></div></li>`).join('')
       : `<li class="an-empty">${esc(t('lv_none_p'))}</li>`;
-    document.title = `${c.name} — Ask your leaders — Parishkar ${place.slug === 'purulia' ? 'Purulia' : 'Bengal'}`;
+    document.title = `${c.name} — Ask your leaders — Parishkar ${place.slug === 'purulia' ? 'Purulia' : place.name}`;
   }
 
   function renderReplyForm(){
@@ -422,9 +433,9 @@
     if (d) document.getElementById('nb-reply-for').textContent = t('rf_for', { t: `${d.leader_name}: ${d.title}` });
   }
 
-  // ── Map: demands with a pin, and the pin picker in the form ──────────
+  // ── Pin picker in the form (demands on the map: kasa.html?layer=demands) ──────────
   const MAP_STYLE = 'https://tiles.openfreemap.org/styles/liberty';
-  let mapLib = null, boardMap = null, boardMarkers = [], pickMap = null, pickMarker = null;
+  let mapLib = null, pickMap = null, pickMarker = null;
   function loadMapLib(){
     if (window.maplibregl) return Promise.resolve();
     return mapLib ||= new Promise((resolve, reject) => {
@@ -440,35 +451,10 @@
   const center = () => place.at || CITY.mapCenter || [86.3654, 23.3320];
   const zoom = () => place.slug === 'purulia' ? CITY.mapZoom || 12 : 10;
 
-  async function renderMap(){
-    const note = document.getElementById('nb-map-note');
-    const pins = state.demands.filter(d => d.lat != null && d.lng != null &&
-      (!state.role || d.leader_role === state.role) && (!state.leader || norm(d.leader_name) === norm(state.leader)));
-    note.textContent = pins.length ? '' : t('map_none');
-    try { await loadMapLib(); } catch (e){ note.textContent = t('map_err'); return; }
-    if (!boardMap){
-      boardMap = new maplibregl.Map({ container: 'nb-map', style: MAP_STYLE, center: center(), zoom: zoom(), attributionControl: { compact: true } });
-      boardMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    }
-    boardMarkers.forEach(m => m.remove());
-    boardMarkers = pins.map(d => new maplibregl.Marker({ color: '#d4882a' }).setLngLat([d.lng, d.lat])
-      .setPopup(new maplibregl.Popup({ offset: 24 }).setHTML(`<strong>${esc(d.title)}</strong><br>${esc(t('to'))}: ${esc(d.leader_name)}<br>
-        ${esc(t('supports', { n: d.supports || 0 }))}<br><a href="#d-${esc(d.id)}" data-goto="${esc(d.id)}">${esc(t('view_list'))} →</a>`))
-      .addTo(boardMap));
-    if (pins.length > 1){
-      const b = new maplibregl.LngLatBounds();
-      pins.forEach(d => b.extend([d.lng, d.lat]));
-      boardMap.fitBounds(b, { padding: 50, maxZoom: 15, duration: 0 });
-    } else if (pins.length) boardMap.jumpTo({ center: [pins[0].lng, pins[0].lat], zoom: 15 });
-    boardMap.resize();
-  }
-
   function setView(v){
     state.view = v;
-    document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
+    document.querySelectorAll('#nb-views button.pr-chip').forEach(b => b.setAttribute('aria-pressed', String(b.dataset.view === v)));
     document.getElementById('nb-list').hidden = v !== 'list';
-    document.getElementById('nb-map-wrap').hidden = v !== 'map';
-    if (v === 'map') renderMap();
   }
 
   function setPin(lng, lat){
@@ -477,7 +463,7 @@
     document.getElementById('nb-pin-msg').textContent = state.pin ? `${t('f_pin_set')} ${state.pin.lat}, ${state.pin.lng}` : '';
     if (!pickMap) return;
     if (!state.pin){ if (pickMarker){ pickMarker.remove(); pickMarker = null; } return; }
-    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#d4882a', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
+    if (!pickMarker) pickMarker = new maplibregl.Marker({ color: '#DD3333', draggable: true }).setLngLat([state.pin.lng, state.pin.lat]).addTo(pickMap)
       .on('dragend', () => { const p = pickMarker.getLngLat(); setPin(p.lng, p.lat); });
     else pickMarker.setLngLat([state.pin.lng, state.pin.lat]);
   }
@@ -497,7 +483,6 @@
 
   function renderAll(){
     applyStatic(); renderTiles(); renderLeaderSelect(); renderLeaders(); renderLeaderView(); renderList(); renderReplyForm();
-    if (state.view === 'map') renderMap();
   }
 
   // The board follows the district chosen on the map (place-facts.js): its MPs and MLAs
@@ -519,7 +504,7 @@
     const mine = new Set(LEADERS.map(l => norm(l.name)));
     return {
       demand: d => mine.has(norm(d.leader_name)) || about([d.place, d.leader_area].filter(Boolean).join(' ')),
-      promise: p => { const x = [p.area, p.role].filter(Boolean).join(' '); return PF.statewide(x) || mine.has(norm(p.who)) || about(x); }
+      promise: p => { const x = [p.area, p.role].filter(Boolean).join(' '); return mine.has(norm(p.who)) || about(x); }
     };
   }
 
@@ -567,15 +552,7 @@
     renderList();
   }));
   document.getElementById('nb-leader').addEventListener('change', toggleLeaderFields);
-  document.querySelectorAll('#nb-views .pr-chip').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
-  document.getElementById('nb-map').addEventListener('click', e => {
-    const g = e.target.closest('[data-goto]');
-    if (!g) return;
-    e.preventDefault();
-    setView('list');
-    const el = document.getElementById('d-' + g.dataset.goto);
-    if (el) el.scrollIntoView({ behavior: 'smooth' });
-  });
+  document.querySelectorAll('#nb-views button.pr-chip').forEach(b => b.addEventListener('click', () => setView(b.dataset.view)));
   document.getElementById('nb-pin-add').addEventListener('click', openPicker);
   document.getElementById('nb-pin-clear').addEventListener('click', () => setPin(null, null));
   document.getElementById('nb-pin-me').addEventListener('click', () => {

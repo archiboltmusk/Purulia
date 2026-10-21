@@ -126,8 +126,10 @@
     document.getElementById('dg-empty').hidden = !quiet;
     document.getElementById('dg-tiles').hidden = quiet;
     document.getElementById('dg-grid').hidden = quiet;
-    if (quiet) document.getElementById('dg-empty').innerHTML =
-      `Nothing was reported in ${esc(place)} this ${U}. See a problem there? <a href="kasa.html">Report it — it takes 30 seconds.</a>`;
+    if (quiet){
+      const say = `A quiet ${U} in ${esc(place)}: nothing was reported. See a problem there? <a href="kasa.html">Report it, it takes 30 seconds.</a>`;
+      document.getElementById('dg-empty').innerHTML = window.MITU ? window.MITU.guide(say) : say;
+    }
 
     document.getElementById('dg-next').disabled = start >= (monthly ? thisMonth : thisWeek);
     // Promises (whole district; they belong to named leaders, not a ward). Month view only.
@@ -186,16 +188,16 @@
     const c = document.createElement('canvas'); c.width = W; c.height = H;
     const g = c.getContext('2d');
     await document.fonts?.ready;
-    const serif = '"EB Garamond", Georgia, serif', mono = '"DM Mono", ui-monospace, monospace';
+    const serif = '"Plus Jakarta Sans", Georgia, serif', mono = '"JetBrains Mono", ui-monospace, monospace';
     g.fillStyle = '#0a0805'; g.fillRect(0, 0, W, H);
-    g.fillStyle = '#e8a34a'; g.font = `500 30px ${mono}`;
+    g.fillStyle = '#EF4444'; g.font = `500 30px ${mono}`;
     g.fillText(d.kind, PAD, 130);
     g.fillStyle = '#f0e6d0'; g.font = `700 84px ${serif}`;
     g.fillText(d.place, PAD, 230, W - 2 * PAD);
     g.fillStyle = 'rgba(240,230,208,.72)'; g.font = `italic 400 44px ${serif}`;
     g.fillText(d.week, PAD, 295, W - 2 * PAD);
     const tiles = [['New reports', d.opened, '#f0e6d0'], ['Verified fixed', d.fixed, '#7fb069'],
-                   ['Still unresolved', d.open, '#e8a34a'], ['Overdue', d.overdue, '#d9534f']];
+                   ['Still unresolved', d.open, '#EF4444'], ['Overdue', d.overdue, '#d9534f']];
     const tw = (W - 2 * PAD - 40) / 2, th = 250;
     tiles.forEach(([label, n, color], i) => {
       const x = PAD + (i % 2) * (tw + 40), y = 370 + Math.floor(i / 2) * (th + 40);
@@ -204,12 +206,12 @@
       g.fillStyle = 'rgba(240,230,208,.8)'; g.font = `500 32px ${mono}`; g.fillText(label, x + 36, y + 210);
     });
     if (d.fastest){
-      g.fillStyle = '#e8a34a'; g.font = `500 30px ${mono}`; g.fillText('FASTEST FIX', PAD, 1010);
+      g.fillStyle = '#EF4444'; g.font = `500 30px ${mono}`; g.fillText('FASTEST FIX', PAD, 1010);
       g.fillStyle = '#f0e6d0'; g.font = `400 44px ${serif}`; g.fillText(d.fastest, PAD, 1070, W - 2 * PAD);
     }
     g.fillStyle = 'rgba(240,230,208,.6)'; g.font = `400 30px ${serif}`;
     g.fillText('Fixed means neighbours confirmed it on the spot.', PAD, 1150, W - 2 * PAD);
-    g.fillStyle = '#d4882a'; g.fillRect(0, H - 120, W, 120);
+    g.fillStyle = '#DD3333'; g.fillRect(0, H - 120, W, 120);
     g.fillStyle = '#0a0805'; g.font = `700 40px ${serif}`; g.fillText(isPurulia ? 'Parishkar Purulia' : 'Parishkar Bengal', PAD, H - 68);
     g.font = `500 28px ${mono}`; g.fillText('Report a problem in 30 seconds · archiboltmusk.github.io/Purulia', PAD, H - 28, W - 2 * PAD);
     return new Promise((resolve, reject) => c.toBlob(b => (b ? resolve(b) : reject(new Error('card'))), 'image/png'));

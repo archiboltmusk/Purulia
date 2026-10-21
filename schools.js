@@ -18,7 +18,7 @@
                     ['boys_toilet', "boys' toilet", null], ['electricity', 'electricity', 'electricity_ok'],
                     ['boundary_wall', 'boundary wall', 'boundary_ok'], ['handwash', 'hand-wash', null],
                     ['library', 'library', null], ['playground', 'playground', null], ['ramp', 'ramp', null]];
-  // State and national figures from the UDISE+ 2024-25 report (tools/udise-benchmarks.py).
+  // State and national figures from the UDISE+ 2025-26 report (tools/udise-benchmarks.py).
   const bench = await fetch('schools-benchmarks.json').then(r => r.ok ? r.json() : null).catch(() => null);
   const bm = key => bench?.indicators.find(i => i.key === key);
   const pct = v => v == null ? '—' : `${v}%`;
@@ -273,7 +273,6 @@
   }
   render();
   drawCompare();
-  drawMap();
 
   /* How the district compares: residents' checks and official records here, beside West Bengal, India and the best and worst state. */
   function drawCompare(){
@@ -316,76 +315,4 @@
       </details>`;
   }
 
-  /* Map: blocks shaded by the share of schools checked; pins for schools with a known location. */
-  function drawMap(){
-    if (!window.maplibregl){ document.getElementById('sc-map').hidden = true; return; }
-    const key = b => String(b || '').toUpperCase().replace(/[^A-Z0-9]/g, '').replace(/II/g, '2').replace(/I/g, '1');
-    const stat = {};
-    for (const s of all){ const k = key(s.block_name); (stat[k] ||= { n: 0, c: 0, name: s.block_name }).n++; if (s.audits) stat[k].c++; }
-    const colour = s => !s.audits ? '#8a8272' : s.score / s.score_of >= 0.8 ? '#5fae6b' : s.score / s.score_of >= 0.5 ? '#d4882a' : '#d9594c';
-    const placedSchools = all.filter(s => s.lat != null && s.lng != null);
-    const placed = placedSchools.length;
-    if (!placed) document.getElementById('sc-map-sub').textContent += ` No school has a known location yet — each check places its school here.`;
-    const map = new maplibregl.Map({
-      container: 'sc-map', style: 'https://tiles.openfreemap.org/styles/dark',
-      center: [86.35, 23.25], zoom: 8.6, attributionControl: { compact: true }
-    });
-    map.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
-    map.on('load', async () => {
-      try {
-        // Purulia's own block outlines; another district's from places/wb/<district>.geojson (Kolkata has none).
-        const geo = await (await fetch(slug === 'purulia' ? CITY.blocksGeojson || 'purulia_blocks.geojson' : `places/wb/${slug}.geojson`)).json();
-        geo.features = geo.features.filter(f => !f.properties.kind || f.properties.kind === 'block');
-        for (const f of geo.features){
-          const st = stat[key(f.properties.block)] || { n: 0, c: 0 };
-          f.properties.share = st.n ? st.c / st.n : 0;
-          f.properties.label = `${f.properties.block}: ${st.c} of ${st.n} checked`;
-          f.properties.listName = st.name || '';
-        }
-        map.addSource('blocks', { type: 'geojson', data: geo });
-        map.addLayer({ id: 'block-fill', type: 'fill', source: 'blocks', paint: {
-          'fill-color': '#d4882a', 'fill-opacity': ['interpolate', ['linear'], ['get', 'share'], 0, 0.06, 0.25, 0.3, 1, 0.6] } });
-        map.addLayer({ id: 'block-line', type: 'line', source: 'blocks', paint: { 'line-color': '#d4882a', 'line-opacity': 0.55, 'line-width': 1 } });
-        map.addLayer({ id: 'block-name', type: 'symbol', source: 'blocks', layout: {
-          'text-field': ['get', 'block'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
-          paint: { 'text-color': '#f0e6d0', 'text-halo-color': '#0a0805', 'text-halo-width': 1.2 } });
-        map.on('click', 'block-fill', e => {
-          if (map.getLayer('school-dot') && map.queryRenderedFeatures(e.point, { layers: ['school-dot'] }).length) return;
-          const f = e.features[0];
-          new maplibregl.Popup({ closeButton: false }).setLngLat(e.lngLat)
-            .setHTML(`<strong>${esc(f.properties.label)}</strong><br><a href="#sc-list" data-block="${esc(f.properties.listName)}">List its schools ↓</a>`).addTo(map);
-        });
-        map.on('mouseenter', 'block-fill', () => { map.getCanvas().style.cursor = 'pointer'; });
-        map.on('mouseleave', 'block-fill', () => { map.getCanvas().style.cursor = ''; });
-      } catch (err) { console.warn('block outlines unavailable', err); }
-      // One layer of dots (thousands of schools), coloured by the latest check.
-      const bounds = new maplibregl.LngLatBounds();
-      placedSchools.forEach(s => bounds.extend([s.lng, s.lat]));
-      map.addSource('schools', { type: 'geojson', data: { type: 'FeatureCollection', features: placedSchools.map(s => ({
-        type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] }, properties: { code: s.udise_code, colour: colour(s), checked: s.audits ? 1 : 0 } })) } });
-      map.addLayer({ id: 'school-dot', type: 'circle', source: 'schools', paint: {
-        'circle-color': ['get', 'colour'], 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1,
-        'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, ['+', 2.5, ['*', 2, ['get', 'checked']]], 13, ['+', 6, ['*', 2, ['get', 'checked']]]] } });
-      const byCode = Object.fromEntries(placedSchools.map(s => [s.udise_code, s]));
-      map.on('click', 'school-dot', e => {
-        const s = byCode[e.features[0].properties.code];
-        if (!s) return;
-        new maplibregl.Popup({ closeButton: false }).setLngLat([s.lng, s.lat]).setHTML(
-            `<strong>${esc(s.name)}</strong><br>${esc([s.village, s.block_name].filter(Boolean).join(', '))}<br>` +
-            (s.audits ? `Score ${s.score}/${s.score_of} · checked ${esc(fmt(s.last_audit_at))}` : 'Not checked yet') +
-            (s.located === 'checks' ? '<br><small>Location from residents’ checks</small>' : '') +
-            `<br><a href="${checkUrl(s.udise_code)}">${s.audits ? 'Check again' : 'Check this school'}</a>` +
-            ` · <a href="kasa.html?fix=${encodeURIComponent(s.udise_code)}">Wrong place? Fix it</a>`).addTo(map);
-      });
-      map.on('mouseenter', 'school-dot', () => { map.getCanvas().style.cursor = 'pointer'; });
-      map.on('mouseleave', 'school-dot', () => { map.getCanvas().style.cursor = ''; });
-      if (placed > 1) map.fitBounds(bounds, { padding: 50, maxZoom: 12 });
-    });
-    document.getElementById('sc-map').addEventListener('click', e => {
-      const a = e.target.closest('[data-block]');
-      if (!a) return;
-      sel.value = a.dataset.block;
-      render();
-    });
-  }
 })();

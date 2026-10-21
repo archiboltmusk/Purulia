@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<script src="theme-init.js"></script>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Case file — Parishkar</title>
+<meta name="description" content="One civic problem traced end to end: the live photo, what happened since, who answers for the spot, any tender and money linked to it, and where it stands. Every panel names its source.">
+<meta property="og:title" content="Case file — Parishkar">
+<meta property="og:description" content="One problem, end to end: the photo, who answers for the spot, the tender, the money, and how many days it has been open.">
+<meta property="og:image" content="https://archiboltmusk.github.io/Purulia/og-bengal.jpg">
+<meta name="theme-color" content="#0a0805">
+<meta name="robots" content="noindex">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
+<link rel="stylesheet" href="kasa.css">
+<style>
+  /* Ligne claire: flat fills, one even ink line, no shadows or gradients, panels read left to right like a strip. */
+  .cf-wrap{max-width:980px;margin:0 auto;padding:2.4rem clamp(1rem,4vw,2.5rem) 6rem;}
+  .cf-no{font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);}
+  .cf-head{display:grid;grid-template-columns:1fr auto;gap:1.2rem 2rem;align-items:end;padding-bottom:1.4rem;border-bottom:2px solid var(--cream);}
+  .cf-title{margin-top:.4rem;font-family:var(--serif);font-size:clamp(2rem,5vw,3.2rem);font-weight:700;color:var(--cream);line-height:1.05;letter-spacing:-.01em;}
+  .cf-where{margin-top:.4rem;color:var(--text-md);}
+  .cf-state{display:inline-block;margin-top:.8rem;padding:.3rem .65rem;border:2px solid currentColor;border-radius:3px;font-family:var(--mono);font-size:11px;letter-spacing:.06em;text-transform:uppercase;}
+  .cf-state-open{color:#e0a14a;} .cf-state-claimed{color:#8fb5ff;} .cf-state-resolved{color:#7fbf7f;}
+  .cf-counter{min-width:150px;text-align:center;padding:1rem 1.2rem;border:2px solid var(--cream);border-radius:4px;background:var(--ink);}
+  .cf-counter b{display:block;font-family:var(--serif);font-size:3.4rem;line-height:1;color:var(--cream);}
+  .cf-counter small{display:block;margin-top:.3rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);}
+  .cf-counter.cf-over{border-color:#e07a5f;} .cf-counter.cf-over b{color:#e07a5f;}
+  .cf-sla{margin-top:.4rem;font-size:.82rem;color:var(--text-md);}
+  .cf-top-links{margin-top:1rem;display:flex;flex-wrap:wrap;gap:.6rem 1.2rem;font-family:var(--mono);font-size:12px;}
+  .cf-top-links a{color:var(--amber);}
+  .cf-panel{display:grid;grid-template-columns:44px 1fr;gap:1rem;padding:1.6rem 0;border-bottom:2px solid var(--border2);}
+  .cf-panel-n{width:40px;height:40px;display:grid;place-items:center;border:2px solid var(--cream);border-radius:50%;font-family:var(--serif);font-weight:700;font-size:1.2rem;color:var(--cream);}
+  .cf-panel-body{min-width:0;}
+  .cf-panel h2{font-family:var(--serif);font-size:1.45rem;font-weight:700;color:var(--cream);margin-bottom:.7rem;}
+  .cf-panel h3{margin:1rem 0 .4rem;font-family:var(--mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;}
+  .cf-panel p{color:var(--text-hi);line-height:1.6;margin:.4rem 0;}
+  .cf-panel a{color:var(--amber);}
+  .cf-photo{display:block;width:100%;max-height:440px;object-fit:cover;border:2px solid var(--cream);border-radius:4px;}
+  .cf-quote{font-family:var(--serif);font-size:1.2rem;font-style:italic;color:var(--cream);}
+  .cf-facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:.6rem 1rem;margin:.9rem 0;}
+  .cf-facts dt{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-lo);}
+  .cf-facts dd{margin:.15rem 0 0;color:var(--text-hi);}
+  .cf-src{font-size:.8rem;color:var(--text-lo) !important;border-top:1px dashed var(--border2);padding-top:.5rem;margin-top:.9rem !important;}
+  .cf-none{color:var(--text-md) !important;}
+  .cf-list{list-style:none;padding:0;margin:0;display:grid;gap:.6rem;}
+  .cf-list li{color:var(--text-hi);line-height:1.5;}
+  .cf-list small,.cf-panel blockquote small{color:var(--text-md);}
+  .cf-panel blockquote{margin:.5rem 0;padding:.35rem .8rem;border-left:3px solid var(--cream);color:var(--text-hi);font-family:var(--serif);font-size:1.05rem;}
+  .cf-tl{list-style:none;padding:0;margin:0;border-left:2px solid var(--cream);}
+  .cf-tl li{position:relative;padding:.35rem 0 .35rem 1.1rem;display:flex;flex-wrap:wrap;gap:.2rem .8rem;color:var(--text-hi);}
+  .cf-tl li::before{content:'';position:absolute;left:-7px;top:.7rem;width:10px;height:10px;border:2px solid var(--cream);border-radius:50%;background:var(--ink);}
+  .cf-tl time{font-family:var(--mono);font-size:11px;color:var(--text-md);min-width:96px;}
+  .cf-work{border:2px solid var(--border2);border-radius:4px;padding:.9rem 1rem;margin:.7rem 0;}
+  .cf-work b{color:var(--cream);}
+  .cf-big{font-family:var(--serif);font-size:1.3rem;color:var(--cream) !important;}
+  .cf-thumbs{display:flex;gap:.5rem;flex-wrap:wrap;margin-top:.6rem;}
+  .cf-thumbs img{width:92px;height:70px;object-fit:cover;border:2px solid var(--border2);border-radius:3px;}
+  .cf-slider{position:relative;margin-top:.8rem;aspect-ratio:4/3;max-height:440px;border:2px solid var(--cream);border-radius:4px;overflow:hidden;}
+  .cf-slider img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;}
+  .cf-slider .cf-after{clip-path:inset(0 0 0 var(--cut));}
+  .cf-slider::after{content:'';position:absolute;top:0;bottom:0;left:var(--cut);width:2px;background:var(--cream);pointer-events:none;}
+  .cf-slider input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:ew-resize;margin:0;}
+  .cf-tag{position:absolute;bottom:.5rem;padding:.2rem .45rem;background:var(--ink);border:1px solid var(--cream);font-family:var(--mono);font-size:10.5px;color:var(--cream);pointer-events:none;}
+  .cf-tag-l{left:.5rem;} .cf-tag-r{right:.5rem;}
+  .cf-follow-btn{background:none;border:2px solid var(--cream);border-radius:3px;padding:.25rem .6rem;color:var(--cream);font:inherit;cursor:pointer;}
+  .cf-follow-btn[aria-pressed="true"]{background:var(--cream);color:var(--ink);}
+  .cf-follow{list-style:none;padding:0;margin:1.4rem 0 0;display:grid;gap:.8rem;}
+  .cf-follow li{display:grid;grid-template-columns:auto 1fr auto;gap:1rem;align-items:center;padding:.8rem;border:2px solid var(--border2);border-radius:4px;}
+  .cf-follow li.cf-over{border-color:#e07a5f;}
+  .cf-follow a{color:var(--cream);text-decoration:none;}
+  .cf-follow-days{min-width:70px;text-align:center;border:2px solid var(--cream);border-radius:4px;padding:.4rem;}
+  .cf-follow-days b{display:block;font-family:var(--serif);font-size:1.8rem;line-height:1;}
+  .cf-follow-days small{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
+  .cf-follow .cf-state{margin:0 0 0 .4rem;}
+  .cf-move{margin-top:1.2rem;color:var(--text-md);font-size:.92rem;}
+  .cf-unfollow{background:none;border:0;color:var(--text-md);font:inherit;font-size:.8rem;text-decoration:underline;cursor:pointer;}
+  /* Speech balloons: only for words someone actually said or wrote (the report text, a leader's reply, an office reply), shown unedited. */
+  .cf-quote,.cf-panel blockquote{position:relative;margin:.6rem 0 1.1rem;padding:.7rem 1rem;background:#f3ead6;color:#1a1410 !important;border:2px solid #1a1410;border-radius:18px;font-family:var(--serif);font-style:normal;font-size:1.08rem;line-height:1.45;}
+  .cf-quote::after,.cf-panel blockquote::after{content:'';position:absolute;left:22px;bottom:-11px;width:16px;height:16px;background:#f3ead6;border-right:2px solid #1a1410;border-bottom:2px solid #1a1410;transform:skewX(-30deg) rotate(45deg) scale(.8);}
+  .cf-panel blockquote small{display:block;margin-top:.3rem;font-family:var(--mono);font-size:11px;color:#5a4a3a !important;}
+  .cf-panel blockquote a{color:#8a4b0f;}
+  .cf-foot{margin-top:2.4rem;font-size:.85rem;color:var(--text-md);line-height:1.6;}
+  .cf-foot a{color:var(--amber);}
+  @media(max-width:600px){.cf-head{grid-template-columns:1fr;}.cf-counter{justify-self:start;}.cf-panel{grid-template-columns:1fr;gap:.5rem;}}
+</style>
+<script src="bug-report.js"></script>
+</head>
+<body>
+
+<nav class="k-nav">
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
+  <div class="k-nav-links">
+    <a href="index.html" data-t="cf_nav_home">Home</a>
+    <a href="kasa.html" data-t="cf_nav_map">Map</a>
+  </div>
+</nav>
+
+<main class="cf-wrap">
+  <header class="cf-head">
+    <div>
+      <div class="cf-no" id="cf-no" data-t="cf_case_file">Case file</div>
+      <h1 class="cf-title" id="cf-title" data-t="cf_loading">Loading…</h1>
+      <div class="cf-where" id="cf-where"></div>
+      <span class="cf-state" id="cf-state"></span>
+      <div class="cf-top-links"><a id="cf-map" href="kasa.html" data-t="cf_open_on_map">Open on the map →</a><button type="button" id="cf-follow" class="cf-follow-btn" aria-pressed="false" hidden>Follow this case</button><button type="button" id="cf-cover" class="cf-follow-btn" hidden>Save the cover</button><button type="button" id="cf-export" class="cf-follow-btn" hidden>Download record</button><a href="case.html" data-t="cf_follow_title">Cases you follow</a></div>
+    </div>
+    <div>
+      <div class="cf-counter" id="cf-counter"><b id="cf-days">—</b><small id="cf-days-l" data-t="cf_days_open">days open</small><small id="cf-hours"></small></div>
+      <div class="cf-sla" id="cf-sla"></div>
+    </div>
+  </header>
+
+  <div id="cf-main"></div>
+
+  <p class="cf-foot" data-t-html="cf_foot">A case file puts what is already on the public record about one report in one place. It is evidence, not a verdict: a report is a resident's account, and a name here means only that the record links that person or office to the spot. Something wrong? Use "Suggest a correction" below. <a href="methodology.html">How it works</a></p>
+</main>
+
+<script defer src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
+<script defer src="config.js"></script>
+<script defer src="city.js"></script>
+<script defer src="kasa-i18n.js"></script>
+<script defer src="mitu.js"></script>
+<script defer src="case.js"></script>
+</body>
+</html>

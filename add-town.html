@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Put your town on the map — Parishkar</title>
@@ -11,10 +12,10 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/add-town.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/add-town.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://cnmikcyvyamplbldiivp.supabase.co" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" integrity="sha384-MinO0mNliZ3vwppuPOUnGa+iq619pfMhLVUXfC4LHwSCvF9H+6P/KO4Q7qBOYV5V" crossorigin="anonymous">
 <link rel="stylesheet" href="kasa.css">
 <style>
   .at-wrap{max-width:880px;margin:0 auto;padding:3rem clamp(1rem,4vw,2rem) 5rem;}
@@ -36,7 +37,7 @@
   .at-h2{margin-top:2.2rem;font-family:var(--serif);font-size:1.6rem;color:var(--cream);}
   .at-tabs{display:flex;gap:.5rem;margin-top:.8rem;}
   .at-tabs button{flex:1;padding:.7rem;border:1px solid var(--border2);border-radius:8px;background:none;color:var(--text-hi);font-family:inherit;font-size:.95rem;cursor:pointer;}
-  .at-tabs button[aria-pressed="true"]{border-color:var(--amber);background:rgba(212,136,42,.12);}
+  .at-tabs button[aria-pressed="true"]{border-color:var(--amber);background:rgba(221,51,51,.12);}
   .at-map{height:min(60vh,460px);margin-top:.8rem;border:1px solid var(--border);border-radius:10px;overflow:hidden;}
   .at-map.drawing{cursor:crosshair;}
   .at-tools{display:flex;flex-wrap:wrap;gap:.5rem;margin-top:.6rem;align-items:center;}
@@ -45,7 +46,7 @@
   .at-btn:disabled{opacity:.45;cursor:default;}
   .at-btn.primary{background:var(--amber);border-color:var(--amber);color:var(--ink);font-weight:600;}
   .at-wards{display:flex;flex-wrap:wrap;gap:.4rem;margin-top:.7rem;}
-  .at-wards button{padding:.3rem .7rem;border:1px solid var(--amber);border-radius:999px;background:rgba(212,136,42,.12);color:var(--text-hi);font-size:.84rem;cursor:pointer;}
+  .at-wards button{padding:.3rem .7rem;border:1px solid var(--amber);border-radius:999px;background:rgba(221,51,51,.12);color:var(--text-hi);font-size:.84rem;cursor:pointer;}
   .at-status{margin-top:.5rem;font-size:.88rem;color:var(--text-md);line-height:1.5;}
   .at-submit{width:100%;margin-top:1.8rem;padding:1rem;border-radius:10px;border:1px solid var(--amber);background:var(--amber);color:var(--ink);font-family:inherit;font-size:1.05rem;font-weight:600;cursor:pointer;}
   .at-submit:disabled{opacity:.5;cursor:default;}
@@ -54,16 +55,16 @@
   .at-review{margin-top:1rem;font-size:.86rem;color:var(--text-md);line-height:1.5;}
   .at-lang{display:flex;gap:.3rem;}
   .at-lang button{background:none;border:1px solid var(--border);border-radius:3px;color:var(--text-lo);font-family:var(--mono);font-size:11px;padding:.3rem .5rem;cursor:pointer;}
-  .at-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(212,136,42,.5);}
+  .at-lang button[aria-pressed="true"]{color:var(--amber);border-color:rgba(221,51,51,.5);}
   .at-bg{margin-top:.8rem;padding:.7rem .8rem;border:1px dashed var(--border2);border-radius:10px;}
   .at-bg .at-tools{margin-top:.4rem;}
   .at-bg input[type=range]{flex:1;min-width:6rem;accent-color:var(--amber);}
   .at-wards button[aria-pressed="true"]{background:var(--amber);color:var(--ink);}
   .at-edit{margin-top:.8rem;padding:.8rem;border:1px solid var(--amber);border-radius:10px;}
   .at-edit .at-tools .at-input{width:auto;flex:1;min-width:8rem;}
-  .at-vx{width:14px;height:14px;border-radius:50%;background:#f0e6d0;border:2px solid #d4882a;cursor:move;touch-action:none;}
+  .at-vx{width:14px;height:14px;border-radius:50%;background:#f0e6d0;border:2px solid #DD3333;cursor:move;touch-action:none;}
   .at-vx::before{content:'';position:absolute;inset:-10px;}
-  .at-vx.mid{width:10px;height:10px;background:#d4882a;border-color:#f0e6d0;opacity:.7;}
+  .at-vx.mid{width:10px;height:10px;background:#DD3333;border-color:#f0e6d0;opacity:.7;}
   .at-vx.sel{background:#e5484d;border-color:#fff;}
   .at-corner{width:18px;height:18px;border-radius:3px;background:#1e90ff;border:2px solid #fff;cursor:move;touch-action:none;}
   .at-corner.move{border-radius:50%;width:22px;height:22px;}
@@ -78,7 +79,7 @@
 <body>
 
 <nav class="k-nav">
-  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar Bengal home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
   <div class="k-nav-links">
     <a href="kasa.html">Parishkar</a>
   </div>
@@ -214,7 +215,7 @@
 
 <script src="config.js"></script>
 <script src="places.js"></script>
-<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js" integrity="sha384-SYKAG6cglRMN0RVvhNeBY0r3FYKNOJtznwA0v7B5Vp9tr31xAHsZC0DqkQ/pZDmj" crossorigin="anonymous"></script>
 <script src="add-town.js"></script>
 </body>
 </html>

@@ -1,6 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+<script src="theme-init.js"></script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Tax and spending — Parishkar</title>
@@ -11,11 +12,11 @@
 <meta property="og:url" content="https://archiboltmusk.github.io/Purulia/money.html">
 <link rel="canonical" href="https://archiboltmusk.github.io/Purulia/money.html">
 <meta name="theme-color" content="#0a0805">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23D4882A' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23D4882A' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23D4882A'/%3E%3C/svg%3E">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Ccircle cx='16' cy='16' r='13' fill='none' stroke='%23DD3333' stroke-width='1.5'/%3E%3Ccircle cx='16' cy='16' r='5' fill='none' stroke='%23DD3333' stroke-width='1'/%3E%3Ccircle cx='16' cy='16' r='2.5' fill='%23DD3333'/%3E%3C/svg%3E">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="preload" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
-<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;0,700;1,400;1,600&family=DM+Mono:wght@400;500&display=swap"></noscript>
+<link rel="preload" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap" as="style" onload="this.onload=null;this.rel='stylesheet'">
+<noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&family=JetBrains+Mono:wght@400;500&display=swap"></noscript>
 <link rel="stylesheet" href="kasa.css">
 <style>
   .an-wrap{max-width:1480px;margin:0 auto;padding:3rem clamp(1.2rem,4vw,4rem) 7rem;}
@@ -30,7 +31,7 @@
   .an-tile-l{margin-top:.6rem;font-family:var(--mono);font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--text-md);}
   .an-tile-s{margin-top:.35rem;font-size:.82rem;color:var(--text-lo);}
   .an-grid{display:grid;grid-template-columns:1fr;gap:1.4rem;margin-top:1.4rem;}
-  .an-card{background:rgba(240,230,208,.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
+  .an-card{background:rgba(var(--cream-rgb),.02);border:1px solid var(--border);border-radius:6px;padding:1.4rem 1.5rem;min-width:0;}
   .an-card h2{font-family:var(--serif);font-size:1.35rem;font-weight:700;color:var(--cream);}
   .an-card-sub{margin-top:.3rem;font-size:.86rem;color:var(--text-md);}
   .an-table-wrap{margin-top:1rem;overflow-x:auto;}
@@ -38,7 +39,7 @@
   .an-table th,.an-table td{padding:.6rem .55rem;border-bottom:1px solid var(--border);text-align:left;vertical-align:top;color:var(--text-hi);}
   .an-table th{font-family:var(--mono);font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-md);font-weight:500;white-space:nowrap;}
   .an-table a{color:var(--amber);}
-  .an-table tr:target td{background:rgba(212,136,42,.08);}
+  .an-table tr:target td{background:rgba(221,51,51,.08);}
   .an-empty{padding:1.6rem 0 .4rem;color:var(--text-lo);font-family:var(--mono);font-size:12px;}
   .an-empty a{color:var(--amber);}
   .an-footer{margin-top:3rem;padding-top:1.6rem;border-top:1px solid var(--border);display:flex;flex-wrap:wrap;gap:1.2rem;font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;}
@@ -64,11 +65,10 @@
   .mn-pick select{background:var(--ink);border:1px solid var(--border2);border-radius:4px;padding:.55rem .6rem;color:var(--text-hi);font:inherit;font-size:1rem;}
   .mn-pick label{font-family:var(--mono);font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-md);}
   .an-tile-s a{color:var(--amber);}
-  #mn-map{height:min(70vh,560px);margin-top:1rem;border:1px solid var(--border);border-radius:6px;overflow:hidden;}
   .mn-legend{display:flex;align-items:center;gap:.4rem;margin-top:.6rem;font-family:var(--mono);font-size:10.5px;color:var(--text-md);}
   .mn-legend i{display:inline-block;width:26px;height:10px;}
   .mn-bar{display:grid;grid-template-columns:minmax(140px,1.2fr) 2fr auto;gap:.3rem .8rem;align-items:center;margin-top:.8rem;font-size:.9rem;color:var(--text-hi);}
-  .mn-bar-t{height:10px;background:rgba(240,230,208,.06);border-radius:3px;overflow:hidden;}
+  .mn-bar-t{height:10px;background:rgba(var(--cream-rgb),.06);border-radius:3px;overflow:hidden;}
   .mn-bar-t span{display:block;height:100%;background:var(--amber);}
   .mn-bar-n{font-family:var(--mono);font-size:12px;white-space:nowrap;}
   .mn-bar-s{grid-column:1/-1;font-size:.78rem;color:var(--text-lo);} .mn-bar-s a{color:var(--amber);}
@@ -84,13 +84,12 @@
   .maplibregl-popup-content a{color:var(--amber);}
   @media(max-width:600px){.mn-bar{grid-template-columns:1fr auto;}.mn-bar-t{grid-column:1/-1;grid-row:2;}}
 </style>
-<link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css">
 <script src="bug-report.js"></script>
 </head>
 <body>
 
 <nav class="k-nav">
-  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span></a>
+  <a href="index.html" class="k-nav-logo k-wordmark" aria-label="Parishkar home"><span class="k-mark" aria-hidden="true"></span><span class="k-wordmark-first">Parishkar</span></a>
   <div class="k-nav-links">
     <a href="index.html">Home</a>
     <a href="analytics.html">Analytics</a>
@@ -130,8 +129,8 @@
       <h2>Map</h2>
       <div class="mn-pick" style="margin:.8rem 0 0;"><label for="mn-layer">Show</label><select id="mn-layer"></select></div>
       <p class="an-card-sub" id="mn-layer-note"></p>
-      <div id="mn-map"></div>
-      <div class="mn-legend">less <i style="background:#f3dcae"></i><i style="background:#e8b665"></i><i style="background:#d4882a"></i><i style="background:#a35f12"></i><i style="background:#6b3a05"></i> more · <i style="background:#d9d4ca;border:1px solid #999"></i> not on file</div>
+      <p><a href="kasa.html?layer=money-selfPaid" id="mn-map-link">See these figures on the report map →</a></p>
+      <div class="mn-legend">less <i style="background:#f3dcae"></i><i style="background:#e8b665"></i><i style="background:#DD3333"></i><i style="background:#a35f12"></i><i style="background:#6b3a05"></i> more · <i style="background:#d9d4ca;border:1px solid #999"></i> not on file</div>
       <p class="an-card-sub">Shades rank states against each other (fifths), they are not good or bad marks. Tap a state or seat for its figure and source.</p>
       <div class="an-table-wrap" id="mn-table"></div>
     </section>
@@ -160,7 +159,7 @@
   </div>
 </main>
 
-<script defer src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script>
+<script defer src="money-metrics.js"></script>
 <script defer src="money.js"></script>
 </body>
 </html>
