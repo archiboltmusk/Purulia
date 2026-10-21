@@ -428,6 +428,7 @@ async function init(){
   document.getElementById('k-auth-sec')?.addEventListener('toggle', e => { if (e.target.open) loadWbReps().then(() => renderReps()); });
   setupOfflineDetection();
   setupInAppBrowser();
+  setupSheetSwipe();
 
   const cached = readCache();
   if (cached){
@@ -6997,6 +6998,48 @@ function stepLightbox(box, dir){
 }
 
 function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
+
+/* Swipe a bottom sheet down to close it, like the X. Starts only from the handle/head or
+   when the sheet is scrolled to the top, so reading a long sheet never closes it. Sheets
+   with a camera or a text box stay put: a stray swipe must not lose a photo or a draft. */
+function setupSheetSwipe(){
+  let drag = null;
+  const reset = sheet => { sheet.style.transition = ''; sheet.style.transform = ''; };
+  document.addEventListener('touchstart', e => {
+    const sheet = e.target.closest('.k-modal.open .k-modal-sheet');
+    if (!sheet || e.touches.length !== 1) return;
+    if (sheet.querySelector('video, textarea, input[type="text"], input[type="search"], input:not([type])')) return;
+    const scroller = sheet.querySelector('.k-sheet-body') || sheet;
+    if (scroller.scrollTop > 0 && !e.target.closest('.k-modal-handle, .k-sheet-head')) return;
+    drag = { sheet, scroller, y0: e.touches[0].clientY, dy: 0 };
+  }, { passive: true });
+  document.addEventListener('touchmove', e => {
+    if (!drag) return;
+    const dy = e.touches[0].clientY - drag.y0;
+    if (dy <= 0 || drag.scroller.scrollTop > 0){ if (drag.dy) reset(drag.sheet); drag.dy = 0; return; }
+    drag.dy = dy;
+    drag.sheet.style.transition = 'none';
+    drag.sheet.style.transform = `translateY(${dy}px)`;
+  }, { passive: true });
+  const end = () => {
+    if (!drag) return;
+    const { sheet, dy } = drag;
+    drag = null;
+    if (!dy) return;
+    if (dy > Math.max(90, sheet.offsetHeight * 0.25)){
+      const m = sheet.closest('.k-modal');
+      if (m) closeModal(m.id);
+      reset(sheet);
+      return;
+    }
+    if (!matchMedia('(prefers-reduced-motion: reduce)').matches) sheet.style.transition = 'transform var(--motion-settle) var(--ease-settle)';
+    else sheet.style.transition = '';
+    sheet.style.transform = '';
+    setTimeout(() => reset(sheet), 400);
+  };
+  document.addEventListener('touchend', end, { passive: true });
+  document.addEventListener('touchcancel', end, { passive: true });
+}
 
 /* Focus: a modal takes focus on open, Tab stays inside it, and focus returns to the
    control that opened it on close. Esc handling stays per modal. */
