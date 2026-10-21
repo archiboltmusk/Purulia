@@ -1,7 +1,8 @@
 /* Layers on the report map (kasa.html): the noticeboard's demands that have a pin, the tax and
  * spending figures from money.html (states, then West Bengal seats), and the schools list dots from
  * schools.html (coloured by the latest residents' check). Reports stay the default.
- * Chosen in the filter bar (#k-layer-select) or by kasa.html?layer=reports|demands|schools|money-<key>.
+ * Saheb Bandh Nirmalya collection points (places/nirmalya.json; empty until each point has a source link).
+ * Chosen in the filter bar (#k-layer-select) or by kasa.html?layer=reports|demands|schools|nirmalya|money-<key>.
  * Sources: places/money.json + places/in_states.geojson + places/wb_mplads.json (money-metrics.js
  * holds the definitions); places/wb_assembly.geojson (loaded on first use of the seat layer);
  * kasa_demands (public RPC, same as noticeboard.html); kasa_school_coverage(district) for schools.
@@ -81,6 +82,18 @@
     note && (note.textContent = MM.LAYERS[k].note);
   }
 
+  // Only points with a lat/lng and a source link are drawn. The file ships empty until one is sourced.
+  async function paintNirmalya() {
+    const d = await get('nirmalya', 'places/nirmalya.json');
+    const pts = (d.points || []).filter(p => p.lat != null && p.lng != null && p.source_url);
+    map.getSource('nirmalya').setData({ type: 'FeatureCollection', features: pts.map(p => ({
+      type: 'Feature', geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
+      properties: { name: p.name, place: p.place || '', source: p.source_url, sourced: p.source_note || '' } })) });
+    note && (note.textContent = pts.length
+      ? `${pts.length} Nirmalya collection point${pts.length === 1 ? '' : 's'} from a named source. Tap one to see where it comes from.`
+      : d.note || 'No Nirmalya collection point is on record yet.');
+  }
+
   async function paintDemands() {
     if (!demands) {
       const res = await fetch(`${CFG.SUPABASE_URL}/rest/v1/rpc/kasa_demands`, { method: 'POST',
@@ -96,7 +109,7 @@
 
   function choose(key) {
     if (!map) return;
-    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : key === 'demands' || key === 'schools' ? key : 'reports';
+    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : ['demands', 'schools', 'nirmalya'].includes(key) ? key : 'reports';
     current = k;
     const sel = document.getElementById('k-layer-select');
     if (sel && sel.value !== k) sel.value = k;
@@ -106,6 +119,8 @@
     if (k === 'demands') paintDemands().catch(() => {});
     setVisible('school-dots', k === 'schools');
     if (k === 'schools') paintSchools().catch(() => {});
+    setVisible('nirmalya-points', k === 'nirmalya');
+    if (k === 'nirmalya') paintNirmalya().catch(() => {});
     if (k.startsWith('money-')) {
       paintMoney(k).catch(() => {});
       setVisible('money-states-fill', k !== 'money-seats'); setVisible('money-states-line', k !== 'money-seats');
@@ -123,6 +138,9 @@
     map.addLayer({ id: 'school-dots', type: 'circle', source: 'schools', layout: { visibility: 'none' }, paint: {
       'circle-color': ['get', 'colour'], 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1,
       'circle-radius': ['interpolate', ['linear'], ['zoom'], 8, ['+', 2.5, ['*', 2, ['get', 'checked']]], 13, ['+', 6, ['*', 2, ['get', 'checked']]]] } });
+    map.addSource('nirmalya', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
+    map.addLayer({ id: 'nirmalya-points', type: 'circle', source: 'nirmalya', layout: { visibility: 'none' }, paint: {
+      'circle-radius': 7, 'circle-color': '#f2c14e', 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1.5 } });
     map.addSource('demands', { type: 'geojson', data: { type: 'FeatureCollection', features: [] } });
     map.addLayer({ id: 'demand-points', type: 'circle', source: 'demands', layout: { visibility: 'none' }, paint: {
       'circle-radius': ['+', 6, ['min', 8, ['sqrt', ['get', 'supports']]]], 'circle-color': '#d4882a', 'circle-stroke-color': '#0a0805', 'circle-stroke-width': 1.5 } });
@@ -151,6 +169,11 @@
       new maplibregl.Popup({ offset: 12 }).setLngLat(e.lngLat).setHTML(`<strong>Seat ${esc(pc)}</strong><br>` + (r ? `Spent ${cr(r.spent / 1e7)} of ${cr(r.allocated / 1e7)} (${pct(MM.seatPct(mp, pc))})` : 'Not on file (seat vacant or no MPLADS figures)') +
         `<br><a href="kasa.html?rep=pc:${esc(pc)}">MP's page</a>`).addTo(map);
     });
+    map.on('click', 'nirmalya-points', e => {
+      const p = e.features[0].properties;
+      new maplibregl.Popup({ offset: 8 }).setLngLat(e.lngLat).setHTML(`<strong>${esc(p.name)}</strong><br>${esc(p.place)}` +
+        `<br><a href="${esc(p.source)}" target="_blank" rel="noopener">Source →</a>${p.sourced ? `<br>${esc(p.sourced)}` : ''}`).addTo(map);
+    });
     map.on('click', 'school-dots', e => {
       const p = e.features[0].properties;
       const code = encodeURIComponent(p.code);
@@ -158,7 +181,7 @@
         (p.checked ? `Score ${esc(p.score)}/${esc(p.of)}` : 'Not checked yet') +
         `<br><a href="kasa.html?school=${code}">${p.checked ? 'Check again' : 'Check this school'}</a> · <a href="kasa.html?fix=${code}">Wrong place? Fix it</a>`).addTo(map);
     });
-    ['demand-points', 'school-dots', 'money-states-fill', 'money-seats-fill'].forEach(id => {
+    ['demand-points', 'school-dots', 'nirmalya-points', 'money-states-fill', 'money-seats-fill'].forEach(id => {
       map.on('mouseenter', id, () => { map.getCanvas().style.cursor = 'pointer'; });
       map.on('mouseleave', id, () => { map.getCanvas().style.cursor = ''; });
     });
