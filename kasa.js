@@ -123,6 +123,7 @@ const ISSUE_GROUPS = [
     ['centre_closed', '🏥', 'health_centre', 'health centre closed shut'],
     ['pothole', '🚧', 'road', 'road broken pothole'],
     ['work_not_visible', '🚧', 'road', 'road work not visible repair not done no work earthwork'],
+    ['tree_fallen', '🌳', 'road', 'fallen tree branch uprooted blocking road storm gach'],
     ['light_out', '💡', 'streetlight', 'streetlight lamp dark'],
     ['work_missing', '⛏', 'rural_jobs', 'mgnrega nrega 100 days job card work rural jobs'],
     ['no_signboard', '🪧', 'rural_jobs', 'mgnrega nrega citizen information board signboard rural jobs'],
