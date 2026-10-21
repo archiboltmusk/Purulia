@@ -383,7 +383,7 @@ Anupam's five-worker plan, adopted with these limits. Every worker drafts or fla
 ### §13 supporting signals (Multi-INT plan, 2026-10-21)
 
 Adopted, as internal supporting signals only. Each is logged with its inputs and date. None rejects an upload or clears a record on its own (Non-goals: no single-source clearing).
-- **Solar-shadow check.** Compute the expected sun azimuth and elevation for the report's GPS point and claimed time with SunCalc (open source, MIT). Store it in `photo_checks` as an internal flag for a moderator to compare against the visible shadow. Shadow direction read from a photo is noisy: overcast skies, no clear caster, lens distortion. The check never rejects an upload or quarantines it automatically. The tolerance (proposed 15°) is an assumption to test on real reports first.
+- **Solar-shadow check.** Compute the expected sun azimuth and elevation for the report's GPS point and claimed time with SunCalc (github.com/mourner/suncalc, BSD-2-Clause; formulas from Meeus, *Astronomical Algorithms*; software documentation, not an official source). Store it in `photo_checks` as an internal flag for a moderator to compare against the visible shadow. Shadow direction read from a photo is noisy: overcast skies, no clear caster, lens distortion. The check never rejects an upload or quarantines it automatically. The tolerance (proposed 15°) is an assumption to test on real reports first.
 - **Sentinel-2 comparison.** As above: supporting evidence only. 10 m pixels and cloud cover limit what a single road stretch shows.
 
 **Sentinel-2 worker (CDSE Statistical API, proposed 2026-10-21; not built).** Anupam's `sentinel_road_verifier.py` design, adopted with these limits:
@@ -404,3 +404,12 @@ From the 3D/4D twin plan. None of this is scheduled or built.
 - **Sentinel-1 InSAR** for subsidence on assets already flagged, using free Copernicus data. Calibration step first, as for Sentinel-2. Supporting signal only.
 - **Dated passes over the same asset.** Comparing dated satellite passes or dated citizen photos of one asset over time, with the dates shown.
 - **Citizen 3D video passes: parked** until the on-device blurring spec (§13) is done. Allowed only if every person and plate is erased on the phone before upload, the scan covers only the flagged asset, and no trajectory or movement data is kept. Measurements from it fall under the calibration rule in Non-goals.
+
+### §13 rules confirmed (Anupam, 2026-10-21)
+
+- **Migrations.** A migration is applied to the live Supabase project by hand and verified there (functions, grants, a test call) **before** its PR merges. Merging never applies anything, and no workflow applies migrations on push or merge. Each live apply still needs Anupam's go-ahead naming that migration.
+- **No seed data.** No sample corridors, tender refs, dates or collection points go into `kasa_private.works`, `assets` or the Nirmalya layer. The DLP run stays empty until sourced tenders with a cited DLP and moderator-confirmed links exist. End-to-end tests use local fixtures only (`supabase/tests/reality_signals_dlp.sql`), never the live database.
+- **Moderator queue.** `admin.html` section "Claim vs reality signals" (`admin-signals.js`): run, list by status, approve or reject with a private note. Each decision is one atomic RPC call (`kasa_admin_review_reality_signal`). The extra actions in the 2026-10-21 plan ("Mark duplicate", "Reject: personal data / child in photo") and the proposed `transition_cluster_state` RPC need the §13 status set in a new migration; that waits for the live-apply go-ahead above. Until then a moderator rejects with the reason in the note.
+- **Second moderator.** Added through the existing team invite in `admin.html` (`kasa-team-invite`), never by hand-inserting a role row.
+- **EXIF vs GPS distance: conflict, 50 m kept.** A4 (above) uses 50 m between the photo's EXIF location and the report's GPS for the DLP run. The 2026-10-21 plan says 500 m for flagging a mismatch at upload. Until Anupam decides, the design uses 50 m for counting a report as evidence; the upload-time flag (if built) does not reject, it only flags.
+
