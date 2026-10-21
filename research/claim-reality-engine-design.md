@@ -255,6 +255,10 @@ Sources and tools:
 - No single-source clearing: a satellite reading, a reporter count or any one signal never clears a record for publication on its own.
 - No passive Wi-Fi BSSID, cell-tower or other RF environment collection, and no device fingerprinting, unless a DPDP privacy review approves it first. It collects location data on citizens who have not consented.
 - No community add-on or plugin feeds (manifest-based third-party data sources, shared repository links, on-device flagging of their contractor or violation data, 2026-10-21 proposal). Third-party feeds would put unverified allegations under our name. On-device flagging and the takedown-resistance design both conflict with D8 and with the counsel process. Not built, not designed further.
+- No cell-tower or OpenCelliD location check, and no collection of cell IDs (MCC, MNC, LAC, Cell ID) from citizens' phones (Multi-INT plan, 2026-10-21). This is the same passive network collection declined above.
+- No accelerometer or gyroscope buffer captured before the shutter. That is sensor monitoring of citizens with no consent basis.
+- No fused percentage score (`P_truth` or Bayesian weights). Confidence is shown as counts and dates (§12). No "indestructible in court" or "no rebuttal can dismiss" wording anywhere, internal or public.
+- No `CARTEL_BIDDING_SUSPECT` flag from shared PAN roots, addresses or phone numbers. It turns linked identifiers into an allegation. It stays out of the staging and public data. Parked until counsel review. If it is ever designed, it uses MCA public company records only, never personal phone numbers or PAN, and it is never shown as a finding.
 
 ## 10. Verification done in this PR
 
@@ -371,3 +375,12 @@ Anupam's five-worker plan, adopted with these limits. Every worker drafts or fla
 **Retention janitor: not built.** No automatic deletion of rejected reports or clearing of `reporter_hash` until counsel answers item 7. The proposed SQL targeted tables that don't exist (`citizen_reports`, `public_audit_records`). When counsel answers, the janitor is a `pg_cron` job over `kasa_private.reality_signals` and `kasa_private.reality_signal_publication`, plus whatever counsel rules for `public.reports` photos. The existing `wipe_old_ip_hashes(180)` is unchanged.
 
 **Grievance receipt timing.** The receipt is immediate. The IT Rules acknowledgement and disposal timelines are for counsel to confirm (item 6); they are not cited here from memory.
+
+### §13 supporting signals (Multi-INT plan, 2026-10-21)
+
+Adopted, as internal supporting signals only. Each is logged with its inputs and date. None rejects an upload or clears a record on its own (Non-goals: no single-source clearing).
+- **Solar-shadow check.** Compute the expected sun azimuth and elevation for the report's GPS point and claimed time with SunCalc (open source, MIT). Store it in `photo_checks` as an internal flag for a moderator to compare against the visible shadow. Shadow direction read from a photo is noisy: overcast skies, no clear caster, lens distortion. The check never rejects an upload or quarantines it automatically. The tolerance (proposed 15°) is an assumption to test on real reports first.
+- **Sentinel-2 comparison.** As above: supporting evidence only. 10 m pixels and cloud cover limit what a single road stretch shows.
+
+Rejected: cell-tower checks, motion-sensor buffers, the fused score and the cartel flag (Non-goals).
+
