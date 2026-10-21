@@ -181,7 +181,15 @@ Recommendation: adopt 6b as phase 1 (batch dispatch + link + driver page + triag
 | 4 | Batch times (08:30 / 14:30) and 10-waypoint cap | Yes | Two batches per ward; a batch over 10 stops splits into two links |
 | 5 | Out-of-jurisdiction routing | Grievance | Parishkar does not send notices to plot owners or authorities. The ticket is routed to the grievance route (`grievance.html`, `escalate.html`, CPGRAMS links) and marked out of jurisdiction |
 
-Still open from §6: 6 (per-firm closure counts), 7 (hotspot thresholds, CCTV), 8 (triage band), 9 (transfer site source), 10 (migration apply).
+Answers to §6 (Anupam, 2026-10-21, second reply):
+
+| # | Question | Answer | Design effect |
+|---|---|---|---|
+| 6 | Publish per-firm closure counts | Yes (counts only, no ranking) | `kasa_partner_board` / `offices.html` may show firm closure counts and dates. No league table |
+| 7 | Hotspot thresholds (>4 tickets, 25 m, 14 days); CCTV | Yes: thresholds OK, CCTV out of scope | Hotspot flag in phase 2 with those values. No camera in any phase |
+| 8 | Triage band (small/medium/large), no public kg | Keep it | Supervisor enters a band at triage; public side shows bands or counts, never kg |
+| 9 | Transfer site source | Official (municipality-named, cited to an official source) | `kasa_private.transfer_sites` rows need an official source URL or letter reference; no crowd-sourced sites |
+| 10 | Migration apply | Automatic, no approval needed | Phase-1 migrations written in this thread that pass local tests apply to live after merge, without a per-migration ask. Still verify live signatures and report the result in the thread. Migrations outside this thread still need a name from Anupam |
 
 Phase 1 is now: batch dispatch + Google Maps link + driver page + triage gate + out-of-jurisdiction state. Not in phase 1: road distance, clustering, scoring (kept for phase 2 if batch counts need them).
 
