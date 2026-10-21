@@ -240,7 +240,9 @@ test('representatives: every MP, MLA, chairperson and the Zilla Parishad, with a
 
 test('the version badge opens that version on the What\'s new page', async ({ page, backend }) => {
   await page.goto('kasa.html');
-  const badge = page.locator('#k-version');
+  // The version lives in the More menu drawer (#396), not beside the logo.
+  await page.locator('#k-more-btn').click();
+  const badge = page.locator('#k-drawer-version');
   await expect(badge).toBeVisible();
   const text = await badge.textContent();
   expect(text).toMatch(/^v1\.\d+\.\d+$/);
