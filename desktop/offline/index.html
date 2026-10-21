@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Parishkar</title>
+<style>
+  :root { --red:#b8322b; --ink:#1a1a1a; --bg:#fff; }
+  @media (prefers-color-scheme: dark) { :root { --red:#e8524a; --ink:#f2f2f2; --bg:#141414; } }
+  body { margin:0; min-height:100vh; display:grid; place-items:center; background:var(--bg); color:var(--ink);
+         font:16px/1.5 system-ui, -apple-system, "Segoe UI", sans-serif; }
+  main { max-width:26rem; padding:24px; text-align:center; }
+  h1 { color:var(--red); font-size:1.6rem; margin:0 0 .4rem; }
+  button { font:inherit; padding:.6rem 1.4rem; border:2px solid var(--red); background:var(--red); color:#fff; cursor:pointer; }
+  #off { display:none; }
+</style>
+</head>
+<body>
+<main>
+  <h1>Parishkar</h1>
+  <p id="on">Opening the map…</p>
+  <div id="off">
+    <p>No internet connection. Parishkar needs the network to load reports and the map.</p>
+    <button id="retry" type="button">Try again</button>
+  </div>
+</main>
+<script>
+  // The app is the live site; this page only waits for a connection.
+  const SITE = 'https://archiboltmusk.github.io/Purulia/kasa.html';
+  async function go() {
+    document.getElementById('on').style.display = '';
+    document.getElementById('off').style.display = 'none';
+    try {
+      await fetch(SITE, { method: 'HEAD', mode: 'no-cors', cache: 'no-store' });
+      location.replace(SITE);
+    } catch (_) {
+      document.getElementById('on').style.display = 'none';
+      document.getElementById('off').style.display = '';
+    }
+  }
+  document.getElementById('retry').addEventListener('click', go);
+  addEventListener('online', go);
+  go();
+</script>
+</body>
+</html>
