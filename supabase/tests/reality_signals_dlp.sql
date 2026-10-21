@@ -1,7 +1,7 @@
 -- Local PostGIS check for kasa_private.reality_signals_dlp_run (phase 2a). Not run by supabase/tests/run.sh:
 -- CI has no PostGIS. Run against a database with the migrations applied and PostGIS installed:
 --   psql -d <db> -v ON_ERROR_STOP=1 -f supabase/tests/reality_signals_dlp.sql
--- Synthetic fixtures only (example.invalid URLs). Expects: 1 candidate with 4 reporters; re-run keeps a rejected status;
+-- Synthetic fixtures only (example.invalid URLs). Expects: 1 staged signal with 4 reporters; re-run keeps a rejected status;
 -- the 2-reporter cluster and the out-of-window report are excluded.
 set session_replication_role = replica;  -- fixtures only: skip the probable-link guard
 do $$
@@ -32,6 +32,6 @@ insert into public.reports (id, lat, lng, category, waste_type, moderation_statu
 insert into kasa_private.photo_meta (photo_path, user_id, capture, taken_at, exif_distance_m) values ('photos/o1.jpg', '00000000-0000-0000-0000-000000000099', 'live', '2027-06-01T10:00:00+05:30', 4);
 select kasa_private.reality_signals_dlp_run();
 select status, report_count, distinct_reporters from kasa_private.reality_signals;
-update kasa_private.reality_signals set status='rejected', reviewed_at=now();
+update kasa_private.reality_signals set status='rejected_evidence', reject_reason='other', reviewed_at=now();
 select kasa_private.reality_signals_dlp_run();
 select status, report_count from kasa_private.reality_signals;
