@@ -44,9 +44,9 @@ function inkStyle(prev, next) {
   const layers = next.layers.filter(l => !(l.source === 'ne2_shaded' || l.type === 'hillshade'));
   for (const l of layers) {
     const id = l.id;
-    if (id === 'background') l.paint = { ...l.paint, 'background-color': '#F7F2E8' };
+    if (id === 'background') l.paint = { ...l.paint, 'background-color': '#EEECE7' };
     else if (/^(water|waterway|water_)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#A9CFCB' };
-    else if (/^(landuse|landcover|park|building)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#EFE6CF' };
+    else if (/^(landuse|landcover|park|building)/.test(id) && l.type === 'fill') l.paint = { ...l.paint, 'fill-color': '#E4E1DA' };
     else if (/^highway_.*casing$/.test(id) || /^tunnel_.*casing$/.test(id)) l.paint = { ...l.paint, 'line-color': INK };
     else if (/^highway_(minor|major_inner|motorway_inner|path|major_subtle)/.test(id)) l.paint = { ...l.paint, 'line-color': '#F3EAD6' };
     // Basemap names: Latin script first (name:latin, then name_en), ink on a cream halo, so they read on the paper.
@@ -342,6 +342,13 @@ function applyLang(){
   document.querySelectorAll('[data-i18n-placeholder]').forEach(el => { el.placeholder = t(el.dataset.i18nPlaceholder); });
   document.querySelectorAll('[data-i18n-title]').forEach(el => { el.title = t(el.dataset.i18nTitle); el.setAttribute('aria-label', el.title); });
   document.querySelectorAll('.k-lang-btn').forEach(b => b.classList.toggle('k-lang-active', b.dataset.lang === state.lang));
+  // Navbar toggle names the other language: বাংলা while English, EN while Bengali.
+  document.querySelectorAll('.k-lang-toggle').forEach(b => {
+    const bn = state.lang === 'bn';
+    b.dataset.lang = bn ? 'en' : 'bn';
+    b.textContent = bn ? 'EN' : 'বাংলা';
+    b.setAttribute('aria-label', bn ? 'Switch to English' : 'Switch to Bengali');
+  });
   showVersion();
 }
 
@@ -695,7 +702,7 @@ async function loadBlockGeo(){
 
 /* Version badge beside the logo; it opens that day's entry on the What's new page. */
 function showVersion(){
-  const el = document.getElementById('k-version');
+  const el = document.getElementById('k-drawer-version');
   const v = window.PARISHKAR_VERSION?.version;
   if (!el || !v) return;
   el.textContent = 'v' + v;
@@ -1381,6 +1388,8 @@ function initMainMapNow(){
   mainMap.addControl(new ResetViewControl(), 'bottom-right');
   mainMap.addControl(new maplibregl.NavigationControl({ showCompass: false }), 'bottom-right');
   mainMap.addControl(new PlaceFindControl(), 'top-left');
+  // Search joins Filters in the one floating row over the map.
+  document.querySelector('.k-map-topbar').prepend(document.querySelector('.k-find-ctrl'));
   const locate = new maplibregl.GeolocateControl({ positionOptions: { enableHighAccuracy: true }, trackUserLocation: false });
   mainMap.addControl(locate, 'bottom-right');
   locate.on('geolocate', e => onLocated(e.coords.latitude, e.coords.longitude, e.coords.accuracy));
@@ -1444,7 +1453,7 @@ function addLocalLayers(){
   mainMap.addLayer({ id: 'gps-label', type: 'symbol', source: 'gps', minzoom: 11.5,
     layout: { 'text-field': ['get', 'gp'], 'text-size': 10, 'text-font': ['Noto Sans Regular'] },
     paint: { 'text-color': TXT_GREEN, 'text-opacity': LABEL_OP(.6), 'text-halo-color': HALO, 'text-halo-width': HALO_W } }, below);
-  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#DD3333', 'fill-opacity': .05 } }, below);
+  mainMap.addLayer({ id: 'towns-fill', type: 'fill', source: 'towns', paint: { 'fill-color': '#8A8178', 'fill-opacity': .05 } }, below);
   mainMap.addLayer({ id: 'towns-line', type: 'line', source: 'towns', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, below);
   mainMap.addLayer({ id: 'towns-label', type: 'symbol', source: 'towns', minzoom: 10,
     layout: { 'text-field': ['get', 'town'], 'text-size': 11, 'text-font': ['Noto Sans Regular'] },
@@ -1454,9 +1463,9 @@ function addLocalLayers(){
 function addWardLayers(){
   if (!mainMap || !state.wardGeo || mainMap.getSource('wards')) return;
   mainMap.addSource('wards', { type: 'geojson', data: state.wardGeo });
-  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
+  mainMap.addLayer({ id: 'wards-fill', type: 'fill', source: 'wards', paint: { 'fill-color': '#8A8178', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'wards-selected', type: 'fill', source: 'wards', filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .14 } }, 'clusters');
   mainMap.addLayer({ id: 'wards-line', type: 'line', source: 'wards', paint: { 'line-color': '#DD3333', 'line-opacity': .45, 'line-width': 1 } }, 'clusters');
   mainMap.on('click', 'wards-fill', e => {
     if (e.defaultPrevented) return;
@@ -1477,9 +1486,9 @@ function addPlaceLayers(slug){
       : `${esc(p.name)} wards: ${esc(provisional ? t('pl_border_note') : p.licence || p.source || '')}` });
   // A near-invisible fill makes each ward tappable; the selected one is shaded like Purulia's.
   mainMap.addLayer({ id: 'place-' + slug + '-fill', type: 'fill', source: 'place-' + slug,
-    paint: { 'fill-color': '#DD3333', 'fill-opacity': .035 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .035 } }, 'clusters');
   mainMap.addLayer({ id: 'place-' + slug + '-selected', type: 'fill', source: 'place-' + slug, filter: ['==', ['get', 'ward'], -1],
-    paint: { 'fill-color': '#DD3333', 'fill-opacity': .14 } }, 'clusters');
+    paint: { 'fill-color': '#8A8178', 'fill-opacity': .14 } }, 'clusters');
   mainMap.on('click', 'place-' + slug + '-fill', e => {
     if (e.defaultPrevented) return;
     selectWard(Number(e.features[0].properties.ward), slug);
@@ -1513,7 +1522,7 @@ async function addDistrictLayers(){
     attribution: 'District outlines: Local Government Directory, via india-geodata (CC0). Population: Census of India 2011 (Wikidata, CC0)' });
   mainMap.addLayer({ id: 'wb-districts-fill', type: 'fill', source: 'wb-districts',
     filter: ['has', 'pop'],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 2500000, '#f4a6a6', 3500000, '#e86a6a', 5000000, '#DD3333', 7000000, '#7a2428'], 'fill-opacity': .3 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#ebe8e2', 2500000, '#d3cec5', 3500000, '#b5ada1', 5000000, '#8c8377', 7000000, '#5b5249'], 'fill-opacity': .3 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-line', type: 'line', source: 'wb-districts',
     paint: { 'line-color': '#9ca3af', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 5, .35, 10, .2], 'line-width': 1.1 } }, 'clusters');
   mainMap.addLayer({ id: 'wb-districts-label', type: 'symbol', source: 'wb-districts', minzoom: 6, maxzoom: 9,
@@ -1577,7 +1586,7 @@ async function addIndiaLayers(){
   mainMap.addSource('in-states', { type: 'geojson', data: g, attribution: idx?.attribution + (sp ? ' Population: Census of India 2011 (Basic Statistics, Andaman & Nicobar DES, Table 32).' : '') });
   mainMap.addLayer({ id: 'in-states-fill', type: 'fill', source: 'in-states',
     filter: ['all', ['has', 'pop'], ['!=', ['get', 'code'], 19]],
-    paint: { 'fill-color': ['step', ['get', 'pop'], '#fbe3e3', 5000000, '#f4a6a6', 20000000, '#e86a6a', 50000000, '#DD3333', 100000000, '#7a2428'], 'fill-opacity': .25 } }, 'clusters');
+    paint: { 'fill-color': ['step', ['get', 'pop'], '#ebe8e2', 5000000, '#d3cec5', 20000000, '#b5ada1', 50000000, '#8c8377', 100000000, '#5b5249'], 'fill-opacity': .25 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-line', type: 'line', source: 'in-states',
     paint: { 'line-color': '#e8d9b8', 'line-opacity': ['interpolate', ['linear'], ['zoom'], 3.5, .5, 8, .3], 'line-width': 1.3 } }, 'clusters');
   mainMap.addLayer({ id: 'in-states-label', type: 'symbol', source: 'in-states', minzoom: 3.5, maxzoom: 6.5,
@@ -1898,7 +1907,7 @@ function renderAreaCard(){
   const f = areaFeature();
   if (!mainMap.getSource('area-sel')){
     mainMap.addSource('area-sel', { type: 'geojson', data: f });
-    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#DD3333', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
+    mainMap.addLayer({ id: 'area-sel-fill', type: 'fill', source: 'area-sel', paint: { 'fill-color': '#8A8178', 'fill-opacity': .12, 'fill-opacity-transition': { duration: 300 } } }, 'clusters');
     mainMap.addLayer({ id: 'area-sel-line', type: 'line', source: 'area-sel', paint: { 'line-color': '#DD3333', 'line-opacity': .8, 'line-width': 1.6 } }, 'clusters');
   } else mainMap.getSource('area-sel').setData(f);
 }
@@ -2315,6 +2324,7 @@ function updateStats(){
   setText('k-stat-open', open);
   setText('k-stat-resolved', verified);
   setText('k-fixed-chip-n', verified);
+  document.querySelectorAll('[data-pill]').forEach(b => b.setAttribute('aria-pressed', String((state.filters.status || '') === b.dataset.pill)));
   setText('k-stat-fake', fake);
 }
 
@@ -2481,11 +2491,8 @@ function renderFixed(){
   const el = document.getElementById('k-fixed-list');
   if (!el) return;
   const fixes = recentFixes();
-  // Same cards on the map screen, behind a "✓ N fixed" chip so the map stays clear.
-  const chip = document.getElementById('k-fixed-chip');
-  chip.hidden = !fixes.length;
-  document.getElementById('k-fixed-chip-sep').hidden = !fixes.length;
-  if (!fixes.length) document.getElementById('k-fixed-strip').hidden = true;
+  // Same cards as the "✓ N fixed" pill filter; the strip opens while that filter is on.
+  if (!fixes.length) setFixedStrip(false);
   if (!fixes.length){ el.innerHTML = `<div class="k-lb-empty">${esc(t('fixed_empty'))}</div>`; return; }
   el.innerHTML = fixes.map(r => {
     const c = CATEGORIES[r.category];
@@ -2690,7 +2697,7 @@ function renderSheet(){
       <div class="k-sheet-wardline">${esc([(r.landmark || r.address) && (r.ward || r.block || r.place) ? placeLabel(r) : '', r.area === 'rural' ? '' : w.councillor_name || ''].filter(Boolean).join(' · '))}</div>
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
-        <a class="k-directions" href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
+        <a class="k-directions-btn" href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
         ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
@@ -6546,7 +6553,14 @@ function wireUI(){
     try { localStorage.setItem('kasa_daylight', daylightMap ? '0' : '1'); } catch (e) {}
     location.reload();
   });
-  document.getElementById('k-fixed-chip').addEventListener('click', () => setFixedStrip(document.getElementById('k-fixed-strip').hidden));
+  // Stats pill = status filter (Unresolved, Reports, fixed). Tapping the active part again goes back to all.
+  document.querySelectorAll('[data-pill]').forEach(btn => btn.addEventListener('click', () => {
+    const want = btn.dataset.pill;
+    state.filters.status = (state.filters.status || '') === want ? '' : want;
+    document.getElementById('k-filter-status').value = state.filters.status;
+    setFixedStrip(state.filters.status === 'resolved');
+    renderAll();
+  }));
   document.getElementById('k-fixed-strip-close').addEventListener('click', () => setFixedStrip(false));
   document.getElementById('k-fixed-strip').addEventListener('click', e => { if (e.target.closest('[data-open]')) setFixedStrip(false); });
   document.getElementById('k-more-btn').addEventListener('click', () => setDrawer(true));
