@@ -91,12 +91,11 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <span class="k-wordmark-first">Parishkar</span>&nbsp;<span class="k-wordmark-second">Bengal</span>
   </a>
   <button type="button" class="k-place-pick" id="k-place-pick" aria-haspopup="dialog" aria-label="Choose a place">▾</button>
-  <a href="changelog.html#done" class="k-version" id="k-version" hidden></a>
 <dialog class="k-place-dialog" id="k-place-dialog" aria-labelledby="k-place-title">
   <div class="k-place-head"><b id="k-place-title" data-i18n="pk_title">Choose a place</b>
     <button type="button" class="k-place-x" data-close aria-label="Close">✕</button></div>
   <p class="k-place-note" data-i18n="pk_note">This only moves the map. To report, you still need to be at the spot: the photo is taken live and your real location is used.</p>
-  <input type="search" class="k-place-search" id="k-place-search" placeholder="Search a state or district" aria-label="Search a state or district" autocomplete="off">
+  <input type="search" class="k-place-search" id="k-place-search" data-i18n-placeholder="pk_search" placeholder="Find a town, block or district" aria-label="Search a state or district" autocomplete="off">
   <div class="k-place-list" id="k-place-list"></div>
 </dialog>
   <div class="k-nav-links">
@@ -106,12 +105,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   </div>
   <div class="k-nav-right">
     <button type="button" class="k-nav-mine" data-mine data-i18n="nav_mine">Your reports</button>
-    <div class="k-lang-switch" role="group" aria-label="Language">
-      <button type="button" class="k-lang-btn k-lang-active" data-lang="en">EN</button>
-      <button type="button" class="k-lang-btn" data-lang="bn">বাং</button>
-      <button type="button" class="k-lang-btn" data-lang="hi">हिं</button>
-      <button type="button" class="k-lang-btn" data-lang="sat" title="ᱥᱟᱱᱛᱟᱲᱤ (Santali)">ᱥᱟᱱ</button>
-    </div>
+    <button type="button" class="k-lang-toggle" data-lang="bn" lang="bn">বাংলা</button>
     <button type="button" class="k-theme-toggle" id="k-theme-toggle" aria-label="Toggle dark/light mode" title="Toggle dark/light mode"><span aria-hidden="true">☀️</span></button>
     <div class="k-social-menu">
       <button type="button" class="k-social-toggle" id="k-social-toggle" aria-haspopup="true" aria-expanded="false" aria-controls="k-social-dropdown" data-i18n-title="social_follow" title="Follow us"><span aria-hidden="true">🔗</span></button>
@@ -188,13 +182,17 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   </div>
 
   <div class="k-map-pill" aria-live="polite">
-    <span class="k-pill-num" id="k-pill-active">—</span>
-    <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    <button type="button" class="k-pill-seg" data-pill="open" aria-pressed="false">
+      <span class="k-pill-num" id="k-pill-active">—</span>
+      <span class="k-pill-label" data-i18n="pill_active">Unresolved</span>
+    </button>
     <span class="k-pill-sep">·</span>
-    <span class="k-pill-num" id="k-pill-total">—</span>
-    <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
-    <span class="k-pill-sep" id="k-fixed-chip-sep" hidden>·</span>
-    <button type="button" class="k-pill-fixed" id="k-fixed-chip" hidden aria-controls="k-fixed-strip" aria-expanded="false">
+    <button type="button" class="k-pill-seg" data-pill="" aria-pressed="true">
+      <span class="k-pill-num" id="k-pill-total">—</span>
+      <span class="k-pill-label" data-i18n="pill_reports">Reports</span>
+    </button>
+    <span class="k-pill-sep">·</span>
+    <button type="button" class="k-pill-fixed" id="k-fixed-chip" data-pill="resolved" aria-pressed="false" aria-controls="k-fixed-strip" aria-expanded="false">
       ✓ <span class="k-pill-num" id="k-fixed-chip-n"></span> <span class="k-pill-label" data-i18n="fixed_chip">fixed</span>
     </button>
   </div>
@@ -222,6 +220,11 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   <button type="button" class="k-fab-menu" id="k-fab-menu" aria-controls="k-drawer" data-i18n-title="nav_more" title="Menu">
     <span class="k-menu-icon" aria-hidden="true"><i></i><i></i><i></i></span>
   </button>
+  <div class="k-outside" id="k-outside" role="status" hidden>
+    <span class="k-outside-msg" id="k-outside-msg"></span>
+    <button type="button" class="k-outside-fly" id="k-outside-fly"></button>
+    <button type="button" class="k-outside-x" id="k-outside-x" data-i18n-title="outside_close" title="Hide" aria-label="Hide"><span aria-hidden="true">✕</span></button>
+  </div>
   <button type="button" class="k-map-report-btn" data-action="report" aria-label="Report a problem">
     <svg class="k-map-report-icon" viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 8h3l2-3h6l2 3h3v11H4z"/><circle cx="12" cy="13" r="3.5"/></svg> <span data-i18n="map_report">Report a problem</span>
   </button>
@@ -411,6 +414,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <a href="#" data-bug-report data-i18n="footer_bug">Report a bug</a>
     <a href="https://buymeacoffee.com/anupamstorm" target="_blank" rel="noopener" data-i18n="footer_coffee">Buy me a coffee</a>
   </nav>
+  <a href="changelog.html#done" class="k-drawer-version" id="k-drawer-version" hidden></a>
 </footer>
 </aside>
 
