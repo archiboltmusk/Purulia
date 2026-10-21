@@ -296,6 +296,8 @@ const state = {
   listScroll: 0,
   view: 'map',
   sort: 'urgent',
+  sortAsked: false,   // the list tried nearest-first once this page load
+  sortPicked: false,  // the visitor chose a sort, so nothing overrides it
   lang: 'en',
   sheetId: null,
   events: new Map(),
@@ -1150,11 +1152,15 @@ function distanceMeters(aLat, aLng, bLat, bLng){
   return 6371000 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
 }
 
+/* Unresolved = not fixed yet. A report waiting for verification ("Verifying", claimed) is still unresolved.
+   The stats pill count and the Unresolved filter both use this one rule, so they match the markers. */
+const isUnresolved = r => r.status !== 'resolved';
+
 function filtered(){
   const f = state.filters;
   return state.reports.filter(r =>
     (!f.category || (f.category === 'puja' ? /^puja_/.test(r.wasteType || '') : r.category === f.category)) &&
-    (!f.status || r.status === f.status) &&
+    (!f.status || (f.status === 'open' ? isUnresolved(r) : r.status === f.status)) &&
     (!f.severity || r.severity === f.severity) &&
     (!f.ward || (f.place ? r.place === f.place && r.placeWard === f.ward : r.ward === f.ward)) &&
     (!state.nearbyOnly || (state.userLocation && distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) <= 5000)));
@@ -2251,7 +2257,17 @@ function setView(view){
   if (view === 'list'){
     renderList();
     list.scrollTop = state.listScroll;
+    autoSortList();
   } else if (mainMap) requestAnimationFrame(() => mainMap.resize());
+}
+
+/* First time the list opens: nearest when GPS is on (or the visitor allows it), newest when refused. */
+function autoSortList(){
+  if (state.sortAsked) return;
+  state.sortAsked = true;
+  const apply = s => { if (state.sortPicked) return; state.sort = s; document.getElementById('k-sort').value = s; renderList(); };
+  if (state.userLocation) return apply('nearest');
+  locateUser(() => apply('nearest'), () => apply('newest'));
 }
 
 /* One GPS fix for "Near me" and the nearest sort; onFail runs if the visitor says no or the fix times out. */
@@ -2347,7 +2363,7 @@ function statusChip(r){
 
 function updateStats(){
   const all = scopedPrimaries();
-  const open = all.filter(r => r.status !== 'resolved').length;
+  const open = all.filter(isUnresolved).length;
   const verified = all.filter(r => r.status === 'resolved' && r.resolution !== 'legacy_unverified').length;
   const fake = all.reduce((n, r) => n + r.rejectedClaims, 0);
   countUp('k-pill-active', open);
@@ -6664,6 +6680,7 @@ function wireUI(){
     renderAll();
   });
   document.getElementById('k-sort').addEventListener('change', e => {
+    state.sortPicked = true;
     state.sort = e.target.value;
     // Nearest needs a fix first; if the visitor says no, fall back to newest.
     if (state.sort === 'nearest' && !state.userLocation) {
