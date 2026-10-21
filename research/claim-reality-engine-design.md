@@ -382,5 +382,15 @@ Adopted, as internal supporting signals only. Each is logged with its inputs and
 - **Solar-shadow check.** Compute the expected sun azimuth and elevation for the report's GPS point and claimed time with SunCalc (open source, MIT). Store it in `photo_checks` as an internal flag for a moderator to compare against the visible shadow. Shadow direction read from a photo is noisy: overcast skies, no clear caster, lens distortion. The check never rejects an upload or quarantines it automatically. The tolerance (proposed 15°) is an assumption to test on real reports first.
 - **Sentinel-2 comparison.** As above: supporting evidence only. 10 m pixels and cloud cover limit what a single road stretch shows.
 
+**Sentinel-2 worker (CDSE Statistical API, proposed 2026-10-21; not built).** Anupam's `sentinel_road_verifier.py` design, adopted with these limits:
+- **Prerequisite: calibration.** The 25% and 6% cutoffs and the 0.04 to 0.09 and 0.20 to 0.40 reflectance ranges in the proposal are unsourced. Before any cutoff is used, run the worker on roads with known surfacing dates (official completion records plus dated photos) and record the observed change per surface type. Until that is done the output is a number, not a verdict: no `VERIFIED_SURFACING`, `GHOST_WORK_SUSPECT` or `INCONCLUSIVE` labels.
+- **No auto-escalation.** The output goes to the moderator queue as a supporting signal, never as a status move (no automatic `TECHNICAL_AUDIT`). Stored with the work id, corridor geometry source, both windows, each clear pass date, its cloud cover and the clear-pixel count.
+- **Same-season windows.** Compare before and after windows in the same season (for example post-monsoon against post-monsoon). Monsoon moisture and dry-season dust change reflectance on their own. The proposal's Nov 2025 against Feb 2026 example is not used.
+- **Minimum clear passes.** Report clear passes per window. Below a minimum (to set during calibration), store "too few clear passes" and no figure.
+- **Corridor size.** A 10 m pixel is wider than many village roads, so a narrow corridor mixes in roadside land. Record the corridor's pixel count; calibration sets the minimum.
+- **Kept:** the evalscript on `sentinel-2-l2a` with the SCL mask (drops cloud shadow 3, cloud 8 to 10, snow 11) and `dataMask`. The band order in the response (`B0` = B04, `B1` = B08) is checked against a real API reply before use.
+- **Credentials and runner:** GitHub Actions only (per the scheduling rule above). `CDSE_CLIENT_ID` and `CDSE_CLIENT_SECRET` live in GitHub secrets, never in the repo, logs or the database. No sample Purulia polygon in any shipped file; corridors come only from `kasa_private.assets` rows with an OSM or official source.
+- **Terms:** CDSE quotas and terms of use are checked on dataspace.copernicus.eu before the first scheduled run. They are not quoted here from memory.
+
 Rejected: cell-tower checks, motion-sensor buffers, the fused score and the cartel flag (Non-goals).
 
