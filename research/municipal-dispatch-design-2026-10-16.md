@@ -171,6 +171,20 @@ Assessment:
 
 Recommendation: adopt 6b as phase 1 (batch dispatch + link + driver page + triage gate). Keep clustering and scoring for phase 2 only if batch counts show a need. Add to §4: phase 1 becomes smaller (no optimizer). Decisions: batch times per ward; 10-waypoint cap per batch (split into two links if needed); driver page auth (vehicle number only: low security, acceptable only if the page shows no citizen identity and no moderator action).
 
+## 6c. Decisions received (Anupam, 2026-10-21)
+
+| # | Question | Answer | Design effect |
+|---|---|---|---|
+| 1 | Citizen messages (SMS/WhatsApp) | Push notifications on the app | No SMS or WhatsApp. Use existing app push (`kasa_push_subscribe`, Expo via `mobile/`) for opted-in users; web users see the case-file line. Push is still outbound: keep to the existing alert kinds in `kasa_push_prefs` |
+| 2 | Closure window; auto-resolve on silence | Yes | Silence auto-resolves after the window with a visible "resolved by no reply" label and a moderator audit sample. Window: 8 h (Anupam's later figure); 4 h dropped |
+| 3 | Geofence | 40 m only | No accuracy-aware allowance. Cheap-phone drift is handled by offline capture and a retry on the device, not by widening the radius |
+| 4 | Batch times (08:30 / 14:30) and 10-waypoint cap | Yes | Two batches per ward; a batch over 10 stops splits into two links |
+| 5 | Out-of-jurisdiction routing | Grievance | Parishkar does not send notices to plot owners or authorities. The ticket is routed to the grievance route (`grievance.html`, `escalate.html`, CPGRAMS links) and marked out of jurisdiction |
+
+Still open from §6: 6 (per-firm closure counts), 7 (hotspot thresholds, CCTV), 8 (triage band), 9 (transfer site source), 10 (migration apply).
+
+Phase 1 is now: batch dispatch + Google Maps link + driver page + triage gate + out-of-jurisdiction state. Not in phase 1: road distance, clustering, scoring (kept for phase 2 if batch counts need them).
+
 ## 7. Prototype: what it does and does not do
 
 Does: dedupe, ward-scoped DBSCAN, capacity split, open-path route (NN + 2-opt), weighted score, gated greedy assignment (triage, vehicle type, deadhead, capacity), seeded synthetic demo.
