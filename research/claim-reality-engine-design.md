@@ -353,3 +353,21 @@ Adopted:
 - **Sourced tender rows.** `kasa_private.works` stays the ledger (no new `public_assets` table). Every row keeps `source_url`. Add `source_kind` (`official` | `press`); a row sourced only from a press report shows as Unverified and cannot feed an `APPROVED_PUBLIC` record until an official source is linked.
 
 Not adopted: carrier/network signatures (Non-goals), and the proposal's new `public_assets` table and enum names (the §13 status set above is used, with `DISPUTED_PAUSED` added).
+
+### §13 workers (five-agent plan, 2026-10-21)
+
+Anupam's five-worker plan, adopted with these limits. Every worker drafts or flags; every outward or publishing step is a human click. Workers never email an official, file an RTI, or set `APPROVED_PUBLIC`.
+
+| Worker | Runs on | Does automatically | Never does automatically |
+|---|---|---|---|
+| 1. Redaction (on the phone) | kasa.js / mobile, before upload | Blurs every detected face and vehicle plate after the EXIF, live-capture and hash checks on the original (§11) | Age estimation or rejecting an upload because a child may be in it. Blurring covers children; anything further is counsel item 4 |
+| 2. DLP run | `pg_cron`, nightly | `reality_signals_dlp_run()` raises `STAGED` rows (rules §5, consensus D2) | Any status beyond `STAGED` |
+| 3. Notice drafter | `pg_cron`, daily | Writes a draft inquiry (neutral variance wording, tender ref, coordinates, DLP clause) to a moderator queue, with the office address from the cited `works`/`jurisdictions` row | Sending email, filing an RTI, or moving a row to `NOTICE_ISSUED`. A moderator reviews, sends, and records the docket ref; that click sets `notice_sent_on`. No 48-hour auto-advance |
+| 4. Counsel brief | Admin page or local script, on demand | Assembles the brief: tender spec vs reports, notice docket and date, cleared photos, counsel's checklist | Sign-off. `APPROVED_PUBLIC` is a separate deliberate action by the counsel role, filling every counsel field above. No one-click link from the brief |
+| 5. Dispute watchdog | Edge function (claims work in the DB first, per CLAUDE.md) | On a rebuttal or correction request citing a record: sets `DISPUTED_PAUSED` (hidden from the public RPC at once), sends a receipt to the filer, alerts moderators and counsel | Unpausing. Only moderator plus counsel return a record to review or publication |
+
+**Scheduling.** Database work (workers 2 and 3) runs on `pg_cron` inside Supabase. GitHub Actions are used only for scrapers that fetch public tender pages (rules §6: robots and terms respected, no CAPTCHA bypass). No paid queue or VPS.
+
+**Retention janitor: not built.** No automatic deletion of rejected reports or clearing of `reporter_hash` until counsel answers item 7. The proposed SQL targeted tables that don't exist (`citizen_reports`, `public_audit_records`). When counsel answers, the janitor is a `pg_cron` job over `kasa_private.reality_signals` and `kasa_private.reality_signal_publication`, plus whatever counsel rules for `public.reports` photos. The existing `wipe_old_ip_hashes(180)` is unchanged.
+
+**Grievance receipt timing.** The receipt is immediate. The IT Rules acknowledgement and disposal timelines are for counsel to confirm (item 6); they are not cited here from memory.
