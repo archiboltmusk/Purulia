@@ -933,9 +933,8 @@ body[data-app-layout] .k-nav-links,body[data-app-layout] .k-nav-right > .k-lang-
 /* ── Map screen: the nav stays (logo, language, More) — no floating ☰ menu duplicating it.
    Filters stays reachable top-left (its Status option includes Resolved — no separate button
    needed), the live counts float centred over the map, the Report button stays bottom-right.
-   Map/List only shows once you're already in the list (opened from the menu). ── */
+   Map | List is always visible in the top bar; the menu's list link opens the same list. ── */
 .k-fab-menu{display:none;}
-.k-map-section:has(#k-list[hidden]) .k-view-toggle{display:none;}
 .k-map-pill{top:4.4rem;bottom:auto;left:50%;right:auto;transform:translateX(-50%);white-space:nowrap;}
 .k-map-section:has(#k-list:not([hidden])) .k-map-pill{display:none;}
 /* The open filter bar can wrap to reach the middle of the screen on narrow screens; step aside while it's open. */

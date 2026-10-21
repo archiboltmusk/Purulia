@@ -289,6 +289,7 @@ const state = {
   filters: { category: '', status: '', severity: '', ward: null, place: null },
   nearbyOnly: false,
   userLocation: null,
+  listScroll: 0,
   view: 'map',
   sort: 'urgent',
   lang: 'en',
@@ -2230,19 +2231,39 @@ function setView(view){
     b.classList.toggle('k-view-active', on);
     b.setAttribute('aria-selected', String(on));
   });
-  document.getElementById('k-list').hidden = view !== 'list';
-  if (view === 'list') renderList();
-  else if (mainMap) requestAnimationFrame(() => mainMap.resize());
+  const list = document.getElementById('k-list');
+  // Hiding the list resets its scroll, so keep the place for the next time it opens.
+  if (!list.hidden) state.listScroll = list.scrollTop;
+  list.hidden = view !== 'list';
+  if (view === 'list'){
+    renderList();
+    list.scrollTop = state.listScroll;
+  } else if (mainMap) requestAnimationFrame(() => mainMap.resize());
+}
+
+/* One GPS fix for "Near me" and the nearest sort; onFail runs if the visitor says no or the fix times out. */
+function locateUser(onOk, onFail){
+  const fail = () => { showToast(t('nearby_permission')); if (onFail) onFail(); };
+  if (!navigator.geolocation) return fail();
+  navigator.geolocation.getCurrentPosition(pos => {
+    state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    onOk();
+  }, fail, { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
 }
 
 const SEV_RANK = { critical: 3, severe: 2, minor: 1 }, STATUS_RANK = { open: 2, claimed: 1, resolved: 0 };
 const urgentFirst = (a, b) => STATUS_RANK[b.status] - STATUS_RANK[a.status] || SEV_RANK[b.severity] - SEV_RANK[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt);
+
+function distanceFromUser(r){
+  return state.userLocation ? distanceMeters(state.userLocation.lat, state.userLocation.lng, r.lat, r.lng) : 0;
+}
 
 function sortReports(list){
   const sevRank = SEV_RANK, statusRank = STATUS_RANK;
   const by = {
     urgent: (a, b) => statusRank[b.status] - statusRank[a.status] || sevRank[b.severity] - sevRank[a.severity] || daysSince(b.createdAt) - daysSince(a.createdAt),
     newest: (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+    nearest: (a, b) => distanceFromUser(a) - distanceFromUser(b),
     seen: (a, b) => b.seen - a.seen,
     oldest: (a, b) => statusRank[b.status] - statusRank[a.status] || new Date(a.createdAt) - new Date(b.createdAt)
   }[state.sort] || urgentFirst;
@@ -2290,10 +2311,17 @@ function renderList(){
       <span class="k-list-main">
         <span class="k-list-title">${c.icon} ${esc(t('cat_' + r.category))}</span>
         <span class="k-list-where">${esc(placeText(r))}${(r.landmark || r.address) && (r.ward || r.block) ? ' · ' + esc(placeLabel(r)) : ''}</span>
-        <span class="k-list-meta">${statusChip(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
+        <span class="k-list-meta">${listStatusPill(r)} <span>${esc(peopleSaw(r) > 1 ? t('list_seen', { n: peopleSaw(r) }) : t('list_seen_one'))}</span> <span>${esc(ago(r.createdAt))}</span></span>
       </span>
     </button>`;
   }).join('');
+}
+
+// The list card shows only Unresolved / Fixed; the sheet keeps the detailed chip.
+function listStatusPill(r){
+  if (r.pending || (r.status === 'resolved' && r.resolution === 'legacy_unverified')) return statusChip(r);
+  if (r.status === 'resolved') return `<span class="k-chip k-chip-resolved">${esc(t('pill_fixed'))}</span>`;
+  return `<span class="k-chip k-chip-critical">${esc(t('status_open'))}</span>`;
 }
 
 function statusChip(r){
@@ -6595,14 +6623,12 @@ function wireUI(){
       showToast(t('nearby_off'));
       return renderAll();
     }
-    if (!navigator.geolocation) return showToast(t('nearby_permission'));
-    navigator.geolocation.getCurrentPosition(pos => {
-      state.userLocation = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+    locateUser(() => {
       state.nearbyOnly = true;
       document.getElementById('k-nearby-btn').setAttribute('aria-pressed', 'true');
       showToast(t('nearby_on'));
       renderAll();
-    }, () => showToast(t('nearby_permission')), { enableHighAccuracy: false, timeout: 8000, maximumAge: 300000 });
+    });
   });
   // "Report" and "Your reports" inside the drawer open their own dialogs; drop the drawer behind them.
   document.getElementById('k-drawer').addEventListener('click', e => {
@@ -6618,7 +6644,14 @@ function wireUI(){
     state.filters.place = null;
     renderAll();
   });
-  document.getElementById('k-sort').addEventListener('change', e => { state.sort = e.target.value; renderList(); });
+  document.getElementById('k-sort').addEventListener('change', e => {
+    state.sort = e.target.value;
+    // Nearest needs a fix first; if the visitor says no, fall back to newest.
+    if (state.sort === 'nearest' && !state.userLocation) {
+      return locateUser(renderList, () => { state.sort = 'newest'; e.target.value = 'newest'; renderList(); });
+    }
+    renderList();
+  });
 
   document.getElementById('k-photo-btn').addEventListener('click', captureReportPhoto);
   document.getElementById('k-issue-search').addEventListener('input', renderIssues);

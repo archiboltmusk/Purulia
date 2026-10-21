@@ -319,3 +319,16 @@ test('all reports download as a GeoJSON map file with the CSV columns', async ({
   expect(f.properties).toHaveProperty('link');
   expect(f.properties).not.toHaveProperty('lat');
 });
+
+test('Map | List toggle shows report cards and returns to the map', async ({ page, backend, isMobile }) => {
+  await page.goto('kasa.html');
+  await expect(page.locator('#k-pill-total')).toHaveText(String(REPORTS.length));
+  await page.locator('.k-view-btn[data-view="list"]').click();
+  await expect(page.locator('#k-list')).toBeVisible();
+  await expect(page.locator('#k-list-items .k-list-item')).toHaveCount(REPORTS.length);
+  await expect(page.locator('#k-list-items .k-list-item').first().locator('.k-chip')).toHaveText(/Unresolved|Fixed|Resolved|Verifying/);
+  await expect(page.locator('#k-sort option[value="nearest"]')).toHaveCount(1);
+  await page.locator('.k-view-btn[data-view="map"]').click();
+  await expect(page.locator('#k-list')).toBeHidden();
+  await expect(page.locator('#k-map')).toBeVisible();
+});
