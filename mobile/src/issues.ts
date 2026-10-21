@@ -42,6 +42,7 @@ export const ISSUE_GROUPS: [group: string, icon: string, issues: Issue[]][] = [
     ["no_medicine", "💊", "health_centre"],
     ["centre_closed", "🏥", "health_centre"],
     ["pothole", "🚧", "road"],
+    ["tree_fallen", "🌳", "road"],
     ["light_out", "💡", "streetlight"],
     ["work_missing", "⛏", "rural_jobs"],
     ["no_signboard", "🪧", "rural_jobs"],

@@ -1,0 +1,14 @@
+{
+  "name": "parishkar-desktop",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Parishkar desktop app (macOS + Linux): a Tauri window over the live site.",
+  "scripts": {
+    "dev": "tauri dev",
+    "build": "tauri build",
+    "icons": "tauri icon ../kasa-icon-512.png"
+  },
+  "devDependencies": {
+    "@tauri-apps/cli": "^2.11.4"
+  }
+}

@@ -1,0 +1,97 @@
+name: Desktop app builds
+
+# Builds the Tauri desktop app in desktop/: macOS (universal .dmg) and Linux
+# (.AppImage + .deb). Pull requests: files kept as workflow artifacts. main /
+# manual run: also published on a GitHub Release (tag desktop-build-<run number>).
+# Unsigned until the owner adds signing secrets (see desktop/README.md).
+on:
+  push:
+    branches: [main]
+    paths: ['desktop/**', '.github/workflows/desktop-build.yml']
+  pull_request:
+    paths: ['desktop/**', '.github/workflows/desktop-build.yml']
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: desktop-build-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            args: --target universal-apple-darwin --bundles dmg
+            rust_targets: aarch64-apple-darwin,x86_64-apple-darwin
+            files: desktop/src-tauri/target/universal-apple-darwin/release/bundle/dmg/*.dmg
+            name: parishkar-macos
+          - os: ubuntu-22.04
+            args: --bundles appimage,deb
+            rust_targets: ''
+            files: |
+              desktop/src-tauri/target/release/bundle/appimage/*.AppImage
+              desktop/src-tauri/target/release/bundle/deb/*.deb
+            name: parishkar-linux
+    runs-on: ${{ matrix.os }}
+    timeout-minutes: 60
+    defaults:
+      run:
+        working-directory: desktop
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: desktop/package-lock.json
+      - uses: dtolnay/rust-toolchain@stable
+        with:
+          targets: ${{ matrix.rust_targets }}
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: desktop/src-tauri
+      - name: Linux build libraries
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libwebkit2gtk-4.1-dev librsvg2-dev libxdo-dev libssl-dev patchelf
+      - run: npm ci
+      - name: Unit tests (which links stay in the app, permissions)
+        if: runner.os == 'Linux'
+        working-directory: desktop/src-tauri
+        run: cargo test --locked
+      - name: Build
+        run: npx tauri build ${{ matrix.args }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.name }}
+          path: ${{ matrix.files }}
+          if-no-files-found: error
+
+  release:
+    if: github.event_name != 'pull_request'
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+      - name: Publish release
+        env:
+          GH_TOKEN: ${{ github.token }}
+          TAG: desktop-build-${{ github.run_number }}
+        run: |
+          # Artifacts keep their folder layout (appimage/, deb/), so list files, not out/*.
+          mapfile -t files < <(find out -type f)
+          gh release create "$TAG" "${files[@]}" \
+            --repo "$GITHUB_REPOSITORY" --target "$GITHUB_SHA" --prerelease \
+            --title "Parishkar desktop build ${{ github.run_number }}" \
+            --notes "macOS: open the .dmg and drag Parishkar to Applications. It is not signed yet, so the first time right-click the app and choose Open. Linux: make the .AppImage executable and run it, or install the .deb. Built from ${GITHUB_SHA::7}."
