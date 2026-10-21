@@ -7001,14 +7001,14 @@ function closeLightbox(){ document.getElementById('k-lightbox')?.remove(); }
 
 /* Swipe a bottom sheet down to close it, like the X. Starts only from the handle/head or
    when the sheet is scrolled to the top, so reading a long sheet never closes it. Sheets
-   with a camera or a text box stay put: a stray swipe must not lose a photo or a draft. */
+   with a camera or typed text stay put: a stray swipe must not lose a photo or a draft. */
 function setupSheetSwipe(){
   let drag = null;
   const reset = sheet => { sheet.style.transition = ''; sheet.style.transform = ''; };
   document.addEventListener('touchstart', e => {
     const sheet = e.target.closest('.k-modal.open .k-modal-sheet');
     if (!sheet || e.touches.length !== 1) return;
-    if (sheet.querySelector('video, textarea, input[type="text"], input[type="search"], input:not([type])')) return;
+    if (sheet.querySelector('video') || [...sheet.querySelectorAll('textarea, input[type="text"], input:not([type])')].some(el => el.value.trim() && el.value !== el.defaultValue)) return;
     const scroller = sheet.querySelector('.k-sheet-body') || sheet;
     if (scroller.scrollTop > 0 && !e.target.closest('.k-modal-handle, .k-sheet-head')) return;
     drag = { sheet, scroller, y0: e.touches[0].clientY, dy: 0 };
