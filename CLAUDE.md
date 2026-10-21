@@ -56,6 +56,7 @@ Static HTML/JS site, no build step, no framework. Backend = Supabase (Postgres R
 - `page-lang.js` — bn/hi for static pages via `data-t` keys. `digest-sheet.js`/`.css` — digest sign-up banner.
 - `kasa-photo-meta.js` — EXIF time/GPS/AI-marker reader. `version.js` — generated, see Changelog.
 - Saheb Bandh puja waste (temporary festival): `puja` group in kasa.js `ISSUE_GROUPS` (`puja_floral`, `puja_debris`; category garbage via migration `20261021100000_kasa_puja_subtypes.sql`); filter option `puja` in `filtered()`. Nirmalya collection points: `places/nirmalya.json` (empty until each point has a source link), layer `nirmalya` in map-layers.js.
+- MapLibre GL JS 6.14.0 is self-hosted in `vendor/maplibre-gl-6.14.0/` (copied from the npm tarball, checked against its sha512); v6 is ESM-only, so pages load `maplibre-global.mjs` (`<script type="module">`), which sets `window.maplibregl`. Users: kasa.html (`#k-maplibre`), add-town.html, routes.html, noticeboard.js (lazy). Upgrade = new vendor folder + the path in the shim, the CSS links and noticeboard.js.
 - `map-layers.js` — layers on the report map (`KasaLayers.mount(map)` from kasa.js; `#k-layer-select`): Nirmalya collection points (above), demands with a pin (`kasa_demands`) and money-by-state/seat shading. `money-metrics.js` — `window.MoneyMetrics` (LAYERS, metric, seatPct, color) shared by money.js and map-layers.js.
 - `sw.js` — service worker (offline queue, push). Bump `VERSION` when cached files change.
 - `worker.js` + `wrangler.jsonc` — Cloudflare worker: `/r/<id>` share previews.
