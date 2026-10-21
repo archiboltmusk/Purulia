@@ -247,6 +247,11 @@ Sources and tools:
 - **D7.** Python MCP workers (new infra) vs Supabase-only (Deno + pg_cron)? Recommend Supabase-only for 2a–2b, revisit for OCR.
 - **D8.** Counsel review date before any contractor or official is named on a public page. Owner: Anupam.
 
+## Non-goals
+
+- No public mirror of records: no Git-hosted GeoJSON of reports or contractor IDs, no torrent or magnet snapshots of the database or map, no IPFS or Arweave pinning of citizen photos. Reasons: publishes contractor IDs and DLP findings before counsel sign-off (D8), makes citizen photos permanent and impossible to remove on request (privacy and DPDP risk), and is built to survive lawful takedown orders. The encrypted weekly backup stays the only copy outside the live database.
+- No daily Git export of flagged records or contractor names (scripts/export_audit_records.py and a scheduled commit workflow, as proposed 2026-10-21), and no mirroring to other Git hosts for takedown resistance. It would publish flags and names before counsel sign-off (D8) and reads the old official_assets schema. If a gated export is wanted later, it is a separate design after counsel review, reading only moderator-approved records shown with the unverified label.
+
 ## 10. Verification done in this PR
 
 - Read: existing migrations for reports, photo_meta, photo_checks, assets, works, work_assets, jurisdictions, evidence tables, public_works, road_tags, categories, legal gate.
