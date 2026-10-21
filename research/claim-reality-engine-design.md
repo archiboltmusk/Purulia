@@ -259,6 +259,10 @@ Sources and tools:
 - No accelerometer or gyroscope buffer captured before the shutter. That is sensor monitoring of citizens with no consent basis.
 - No fused percentage score (`P_truth` or Bayesian weights). Confidence is shown as counts and dates (§12). No "indestructible in court" or "no rebuttal can dismiss" wording anywhere, internal or public.
 - No `CARTEL_BIDDING_SUSPECT` flag from shared PAN roots, addresses or phone numbers. It turns linked identifiers into an allegation. It stays out of the staging and public data. Parked until counsel review. If it is ever designed, it uses MCA public company records only, never personal phone numbers or PAN, and it is never shown as a finding.
+- No CCTV, RTSP or HLS feeds of any kind, including "open or weakly secured" municipal or traffic cameras (3D/4D twin plan, 2026-10-21). Reaching feeds not offered to us risks IT Act s.43 and s.66 exposure, and those feeds are surveillance of people, not asset data. No object tracking (YOLO, ByteTrack or similar) on any feed.
+- No dashcam, auto-rickshaw, bus or vehicle trajectory data. It tracks drivers.
+- No step that captures or stores people's movement, even briefly or "erased in RAM" later.
+- No published measurement from a 3D reconstruction (for example "18 mm against a billed 50 mm"). A splat or depth model needs calibration against a surveyed reference first. Until then, no measurement leaves the phone or the moderator queue, and none is shown as proof.
 
 ## 10. Verification done in this PR
 
@@ -394,3 +398,9 @@ Adopted, as internal supporting signals only. Each is logged with its inputs and
 
 Rejected: cell-tower checks, motion-sensor buffers, the fused score and the cartel flag (Non-goals).
 
+### Later research (not planned, 2026-10-21)
+
+From the 3D/4D twin plan. None of this is scheduled or built.
+- **Sentinel-1 InSAR** for subsidence on assets already flagged, using free Copernicus data. Calibration step first, as for Sentinel-2. Supporting signal only.
+- **Dated passes over the same asset.** Comparing dated satellite passes or dated citizen photos of one asset over time, with the dates shown.
+- **Citizen 3D video passes: parked** until the on-device blurring spec (§13) is done. Allowed only if every person and plate is erased on the phone before upload, the scan covers only the flagged asset, and no trajectory or movement data is kept. Measurements from it fall under the calibration rule in Non-goals.
