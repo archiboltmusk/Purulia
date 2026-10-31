@@ -2,8 +2,8 @@
    - keeps the page usable offline (reports queue and upload later)
    - shows "new report near you" alerts and opens the report when tapped */
 
-const VERSION = 'kasa-v2-186';
-const SHELL = ['kasa.html', 'theme-init.js', 'kasa.css', 'kasa.js', 'digest-sheet.css', 'digest-sheet.js', 'kasa-i18n.js', 'translate-fix.js', 'kasa-photo-meta.js', 'boundary-live.js', 'map-layers.js', 'money-metrics.js', 'config.js', 'bug-report.js', 'source-fix.js', 'city.js', 'places.js', 'purulia_wards.geojson', 'purulia_blocks.geojson', 'purulia_towns.geojson', 'purulia_gps.geojson', 'version.js', 'maplibre-global.mjs',
+const VERSION = 'kasa-v2-187';
+const SHELL = ['kasa.html', 'antivenom.html', 'antivenom.js', 'theme-init.js', 'kasa.css', 'kasa.js', 'digest-sheet.css', 'digest-sheet.js', 'kasa-i18n.js', 'translate-fix.js', 'kasa-photo-meta.js', 'boundary-live.js', 'map-layers.js', 'money-metrics.js', 'config.js', 'bug-report.js', 'source-fix.js', 'city.js', 'places.js', 'purulia_wards.geojson', 'purulia_blocks.geojson', 'purulia_towns.geojson', 'purulia_gps.geojson', 'version.js', 'maplibre-global.mjs',
   'manifest.webmanifest', 'kasa-icon-192.png'];
 // Versioned CDN files never change, so they can be served straight from cache.
 const IMMUTABLE_CDN = /^https:\/\/(unpkg\.com|cdn\.jsdelivr\.net)\/.+@\d+\.\d+\.\d+\//;
