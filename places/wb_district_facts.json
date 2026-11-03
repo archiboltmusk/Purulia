@@ -13,12 +13,12 @@
    "hq": "Alipurduar",
    "jjm": {
     "homes": 365004,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 58.5,
-    "rank_india": 677,
+    "pct": 58.53,
+    "rank_india": 678,
     "rank_wb": 9,
-    "tap": 213536
+    "tap": 213652
    },
    "lgd": 664,
    "name": "Alipurduar",
@@ -47,10 +47,10 @@
    "hq": "Bankura",
    "jjm": {
     "homes": 742508,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
     "pct": 58.42,
-    "rank_india": 678,
+    "rank_india": 680,
     "rank_wb": 10,
     "tap": 433783
    },
@@ -64,7 +64,7 @@
   },
   "birbhum": {
    "about": {
-    "revid": 1377102687,
+    "revid": 1382427293,
     "text": "Birbhum district is an administrative unit in the Indian state of West Bengal. It is the northernmost district of Burdwan division—one of the five administrative divisions of West Bengal. The district headquarters is in Suri. Other important cities are Rampurhat, Bolpur and Sainthia."
    },
    "area_km2": 4545.0,
@@ -80,12 +80,12 @@
    "hq": "Suri",
    "jjm": {
     "homes": 854370,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
     "pct": 44.27,
-    "rank_india": 719,
+    "rank_india": 720,
     "rank_wb": 17,
-    "tap": 378215
+    "tap": 378226
    },
    "lgd": 307,
    "name": "Birbhum",
@@ -113,12 +113,12 @@
    "hq": "Cooch Behar",
    "jjm": {
     "homes": 696553,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
     "pct": 67.05,
-    "rank_india": 635,
+    "rank_india": 638,
     "rank_wb": 5,
-    "tap": 467021
+    "tap": 467036
    },
    "lgd": 308,
    "name": "Cooch Behar",
@@ -146,12 +146,12 @@
    "hq": "Balurghat",
    "jjm": {
     "homes": 338391,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 54.45,
-    "rank_india": 690,
+    "pct": 54.47,
+    "rank_india": 691,
     "rank_wb": 13,
-    "tap": 184254
+    "tap": 184321
    },
    "lgd": 310,
    "name": "Dakshin Dinajpur",
@@ -163,7 +163,7 @@
   },
   "darjeeling": {
    "about": {
-    "revid": 1375733436,
+    "revid": 1380152676,
     "text": "Darjeeling district is the northernmost district of the state of West Bengal in eastern India in the foothills of the Himalayas, in the eastern Sivalik Hills.The district is famous for its hill station and Darjeeling tea. Darjeeling is the district headquarters. Kurseong, Siliguri and Mirik, three major towns in the district, are the subdivisional headquarters of the district."
    },
    "area_km2": 3149.0,
@@ -179,12 +179,12 @@
    "hq": "Darjeeling",
    "jjm": {
     "homes": 340994,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 49.69,
-    "rank_india": 704,
+    "pct": 49.74,
+    "rank_india": 705,
     "rank_wb": 16,
-    "tap": 169431
+    "tap": 169599
    },
    "lgd": 309,
    "name": "Darjeeling",
@@ -196,8 +196,8 @@
   },
   "hooghly": {
    "about": {
-    "revid": 1373980308,
-    "text": "Hooghly district is one of the 23 districts in the Indian state of West Bengal. It can alternatively be spelt Hoogli. The headquarters of the district is Hugli-Chuchura. The district is named after the Hooghly River and is located in the Burdwan division. There are four subdivisions of the district: Chinsurah Sadar, Serampore, Chandannagore, and Arambagh."
+    "revid": 1382427671,
+    "text": "Hooghly district is one of the 23 districts in the Indian state of West Bengal. The headquarters of the district is Hugli-Chuchura. The district is named after the Hooghly River and is located in the Burdwan division. There are four subdivisions of the district: Chinsurah Sadar, Serampore, Chandannagore, and Arambagh."
    },
    "area_km2": 3149.0,
    "aspirational": false,
@@ -212,12 +212,12 @@
    "hq": "Chinsurah",
    "jjm": {
     "homes": 975515,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 68.11,
-    "rank_india": 630,
+    "pct": 68.14,
+    "rank_india": 631,
     "rank_wb": 4,
-    "tap": 664424
+    "tap": 664741
    },
    "lgd": 312,
    "name": "Hooghly",
@@ -229,7 +229,7 @@
   },
   "howrah": {
    "about": {
-    "revid": 1376110460,
+    "revid": 1381553731,
     "text": "Howrah district is a district of the West Bengal state in eastern India. Howrah district is one of the most highly urbanized areas in West Bengal. It has thousands of years of rich heritage in the form of the great Bengali kingdom of Bhurshut. The district is named after its headquarters, the city of Howrah."
    },
    "area_km2": 1467.0,
@@ -245,12 +245,12 @@
    "hq": "Howrah",
    "jjm": {
     "homes": 677705,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 61.66,
+    "pct": 61.72,
     "rank_india": 664,
     "rank_wb": 7,
-    "tap": 417877
+    "tap": 418285
    },
    "lgd": 313,
    "name": "Howrah",
@@ -262,7 +262,7 @@
   },
   "jalpaiguri": {
    "about": {
-    "revid": 1377515982,
+    "revid": 1380889679,
     "text": "Jalpaiguri district is a district of the Indian state of West Bengal. The district was established in 1869 during British Raj. The headquarters of the district are in the city of Jalpaiguri, which is also the divisional headquarters of Jalpaiguri division."
    },
    "area_km2": 3044.0,
@@ -278,10 +278,10 @@
    "hq": "Jalpaiguri",
    "jjm": {
     "homes": 438180,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
     "pct": 53.49,
-    "rank_india": 693,
+    "rank_india": 694,
     "rank_wb": 14,
     "tap": 234362
    },
@@ -295,7 +295,7 @@
   },
   "jhargram": {
    "about": {
-    "revid": 1376369081,
+    "revid": 1382003418,
     "text": "Jhargram is a district in the state of West Bengal, India.The district lies between the Kangsabati River in the north and the Subarnarekha in the south. Jhargram has one of the lowest population densities among the districts of West Bengal, with almost all its population living in rural areas. It is a popular tourist destination known for its sal forests, elephants, ancient temples and royal palaces."
    },
    "area_km2": 3037.64,
@@ -304,12 +304,12 @@
    "hq": "Jhargram",
    "jjm": {
     "homes": 255391,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 61.03,
+    "pct": 61.09,
     "rank_india": 667,
     "rank_wb": 8,
-    "tap": 155859
+    "tap": 156018
    },
    "lgd": 703,
    "name": "Jhargram",
@@ -333,12 +333,12 @@
    "hq": "Kalimpong",
    "jjm": {
     "homes": 64555,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 55.59,
-    "rank_india": 687,
+    "pct": 55.61,
+    "rank_india": 688,
     "rank_wb": 12,
-    "tap": 35889
+    "tap": 35900
    },
    "lgd": 702,
    "name": "Kalimpong",
@@ -351,7 +351,7 @@
   },
   "kolkata": {
    "about": {
-    "revid": 1377013660,
+    "revid": 1383188147,
     "text": "Kolkata district is a district in the Indian state of West Bengal. It only contains the entire city proper of Kolkata, the capital city of the state and therefore it is a city district. It is the smallest district in the state and also the most densely populated district."
    },
    "area_km2": 206.08,
@@ -375,7 +375,7 @@
   },
   "malda": {
    "about": {
-    "revid": 1377518341,
+    "revid": 1379087554,
     "text": "Malda district, also spelt Maldah or Maldaha, is a district in West Bengal, India. The capital of the Bengal Sultanate, Gauda and Pandua, was situated in this district. Mango, jute and silk are the most notable products of this district. The special variety of mango, Fazli, produced in this region is popularly known by the name of the district and is exported across the world and is internationally acclaimed."
    },
    "area_km2": 3733.0,
@@ -391,12 +391,12 @@
    "hq": "Malda",
    "jjm": {
     "homes": 870236,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 38.31,
-    "rank_india": 732,
+    "pct": 38.55,
+    "rank_india": 731,
     "rank_wb": 21,
-    "tap": 333415
+    "tap": 335506
    },
    "lgd": 316,
    "name": "Malda",
@@ -408,7 +408,7 @@
   },
   "murshidabad": {
    "about": {
-    "revid": 1376867430,
+    "revid": 1379411953,
     "text": "Murshidabad district is a district in the Indian state of West Bengal. Situated on the left bank of the river Ganges, the district is very fertile. Covering an area of 5,341 km2 and having a population 7.103 million, it is a densely populated district and the ninth most populous in India . Berhampore city is the headquarters of the district."
    },
    "area_km2": 5324.0,
@@ -424,12 +424,12 @@
    "hq": "Berhampore",
    "jjm": {
     "homes": 1678382,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 43.76,
-    "rank_india": 720,
+    "pct": 43.8,
+    "rank_india": 721,
     "rank_wb": 18,
-    "tap": 734504
+    "tap": 735079
    },
    "lgd": 319,
    "name": "Murshidabad",
@@ -441,7 +441,7 @@
   },
   "nadia": {
    "about": {
-    "revid": 1376879676,
+    "revid": 1379927209,
     "text": "Nadia district is a district in the Indian state of West Bengal. It lies in the Presidency division. It borders Bangladesh to the east, North 24 Parganas and Hooghly districts to the south, Purba Bardhaman to the west, and Murshidabad to the north. Nadia district is highly influential in the cultural history of Bengal."
    },
    "area_km2": 3927.0,
@@ -457,12 +457,12 @@
    "hq": "Krishnanagar",
    "jjm": {
     "homes": 1193370,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 89.0,
-    "rank_india": 435,
+    "pct": 89.02,
+    "rank_india": 439,
     "rank_wb": 1,
-    "tap": 1062123
+    "tap": 1062305
    },
    "lgd": 320,
    "name": "Nadia",
@@ -474,7 +474,7 @@
   },
   "north-24-parganas": {
    "about": {
-    "revid": 1376937210,
+    "revid": 1383544303,
     "text": "North 24 Parganas (abv. 24 PGS ) or sometimes North Twenty Four Parganas is a district in southern West Bengal, of eastern India. North 24 Parganas extends in the tropical zone from latitude 22°11′6″ N to 23°15′2″ N and from longitude 88°20′ E to 89°5′ E. Barasat is the district headquarters of North 24 Parganas."
    },
    "area_km2": 4094.0,
@@ -490,12 +490,12 @@
    "hq": "Barasat",
    "jjm": {
     "homes": 1433870,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 66.83,
-    "rank_india": 639,
+    "pct": 66.85,
+    "rank_india": 641,
     "rank_wb": 6,
-    "tap": 958256
+    "tap": 958577
    },
    "lgd": 303,
    "name": "North 24 Parganas",
@@ -518,12 +518,12 @@
    "hq": "Asansol",
    "jjm": {
     "homes": 255243,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 72.24,
-    "rank_india": 600,
+    "pct": 72.78,
+    "rank_india": 599,
     "rank_wb": 3,
-    "tap": 184387
+    "tap": 185763
    },
    "lgd": 704,
    "name": "Paschim Bardhaman",
@@ -551,12 +551,12 @@
    "hq": "Medinipur",
    "jjm": {
     "homes": 1042708,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 40.35,
-    "rank_india": 729,
+    "pct": 40.36,
+    "rank_india": 730,
     "rank_wb": 20,
-    "tap": 420742
+    "tap": 420791
    },
    "lgd": 318,
    "name": "Paschim Medinipur",
@@ -568,7 +568,7 @@
   },
   "purba-bardhaman": {
    "about": {
-    "revid": 1377113100,
+    "revid": 1382427491,
     "text": "Purba Bardhaman district is in the Indian state of West Bengal. Its headquarters is in Bardhaman. It was formed on 7 April 2017 after the division of the previous Bardhaman district."
    },
    "area_km2": 5432.69,
@@ -579,12 +579,12 @@
    "hq": "Bardhaman",
    "jjm": {
     "homes": 1120030,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 76.76,
-    "rank_india": 571,
+    "pct": 76.78,
+    "rank_india": 573,
     "rank_wb": 2,
-    "tap": 859763
+    "tap": 859944
    },
    "lgd": 306,
    "name": "Purba Bardhaman",
@@ -596,7 +596,7 @@
   },
   "purba-medinipur": {
    "about": {
-    "revid": 1377113115,
+    "revid": 1378379222,
     "text": "Purba Medinipur district is an administrative unit in the Indian state of West Bengal. It is the southernmost district of Medinipur division – one of the five administrative divisions of West Bengal. The headquarters is Tamluk. It was formed on 1 January 2002 after the Partition of Medinipur into East Midnapore and West Midnapore which lies at the northern and western border of it."
    },
    "area_km2": 4736.0,
@@ -612,12 +612,12 @@
    "hq": "Tamluk",
    "jjm": {
     "homes": 1163833,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 56.04,
-    "rank_india": 686,
+    "pct": 56.1,
+    "rank_india": 687,
     "rank_wb": 11,
-    "tap": 652151
+    "tap": 652851
    },
    "lgd": 317,
    "name": "Purba Medinipur",
@@ -629,7 +629,7 @@
   },
   "purulia": {
    "about": {
-    "revid": 1377113419,
+    "revid": 1383006500,
     "text": "Purulia district is one of the twenty-three districts of West Bengal state in Eastern India. Purulia is the administrative headquarters of the district. Some of the other important towns of Purulia district are Raghunathpur-Adra, Manbazar, Jhalda, Anara and Balarampur."
    },
    "area_km2": 6259.0,
@@ -645,10 +645,10 @@
    "hq": "Purulia",
    "jjm": {
     "homes": 547724,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
     "pct": 32.45,
-    "rank_india": 749,
+    "rank_india": 750,
     "rank_wb": 22,
     "tap": 177745
    },
@@ -662,7 +662,7 @@
   },
   "south-24-parganas": {
    "about": {
-    "revid": 1376882460,
+    "revid": 1378826019,
     "text": "South 24 Parganas (abbr. 24 PGS ), or sometimes South Twenty Four Parganas and Dakshin 24 Parganas, is a district in the Indian state of West Bengal, headquartered in Alipore, with its Zilla Parishad in Baruipur. It is the largest district of West Bengal by area and second largest by population. It is the sixth most populous district in India ."
    },
    "area_km2": 9960.0,
@@ -678,12 +678,12 @@
    "hq": "Alipore",
    "jjm": {
     "homes": 1914544,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 52.7,
-    "rank_india": 696,
+    "pct": 52.71,
+    "rank_india": 697,
     "rank_wb": 15,
-    "tap": 1008950
+    "tap": 1009081
    },
    "lgd": 304,
    "name": "South 24 Parganas",
@@ -711,12 +711,12 @@
    "hq": "Raiganj",
    "jjm": {
     "homes": 581492,
-    "of_india": 754,
+    "of_india": 755,
     "of_wb": 22,
-    "pct": 41.3,
-    "rank_india": 727,
+    "pct": 41.39,
+    "rank_india": 728,
     "rank_wb": 19,
-    "tap": 240125
+    "tap": 240667
    },
    "lgd": 311,
    "name": "Uttar Dinajpur",
@@ -727,7 +727,7 @@
    "wikipedia": "https://en.wikipedia.org/wiki/Uttar_Dinajpur_district"
   }
  },
- "generated": "2026-10-03",
+ "generated": "2026-11-03",
  "nfhs": {
   "districts": {
    "Bankura": {
@@ -2243,12 +2243,12 @@
  "sources": {
   "jjm": {
    "name": "Jal Jeevan Mission dashboard, Ministry of Jal Shakti",
-   "read": "2026-10-03",
+   "read": "2026-11-03",
    "url": "https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx"
   },
   "nfhs": {
    "name": "NFHS-5 (2019-21) and NFHS-4 (2015-16) district fact sheets, IIPS / MoHFW",
-   "read": "2026-10-03",
+   "read": "2026-11-03",
    "url": "https://rchiips.org/nfhs/districtfactsheet_NFHS-5.shtml"
   },
   "niti": {
@@ -2258,12 +2258,12 @@
   "wikidata": {
    "licence": "CC0",
    "name": "Wikidata (Census of India 2011 figures)",
-   "read": "2026-10-03"
+   "read": "2026-11-03"
   },
   "wikipedia": {
    "licence": "CC BY-SA 4.0",
    "name": "Wikipedia",
-   "read": "2026-10-03"
+   "read": "2026-11-03"
   }
  }
 }

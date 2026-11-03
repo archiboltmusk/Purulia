@@ -1,5 +1,5 @@
 {
- "checked": "2026-09-30",
+ "checked": "2026-11-03",
  "districts": {
   "alipurduar": {
    "source": "https://alipurduar.gov.in/about-district/whos-who/",
@@ -37,11 +37,19 @@
    }
   },
   "bankura": {
+   "source": "https://bankura.gov.in/whos-who/",
    "dm": {
     "name": "Shri Aneesh Dasgupta",
-    "role": "District Magistrate"
+    "role": "District Magistrate & Collector",
+    "phone": "03242-250304",
+    "email": "dm-bank@nic.in"
    },
-   "dm_source": "https://bankura.gov.in/"
+   "zp": {
+    "name": "Shri Soumen Maity",
+    "role": "Additional District Magistrate - Zilla Parishad, & Addl. Exe. Officer, Bankura",
+    "phone": "03242-255450",
+    "email": "aeozp-bnk@nic.in"
+   }
   },
   "birbhum": {
    "source": "https://birbhum.gov.in/whos-who/",
@@ -189,29 +197,24 @@
     "phone": "033-2641-2024",
     "email": "dm-how-wb@nic.in"
    },
-   "zp": {
-    "name": "Sri Abhra Adhikary",
-    "role": "Additional District Magistrate (Zilla Parishad)",
-    "phone": "033-2638-6474",
-    "email": "aeohwhzp@gmail.com"
-   },
    "bdo": {
     "Udaynarayanpur": {
-     "name": "Shri Prabir Kumar Shit",
-     "phone": "03214257334"
+     "name": "Sri Manik Karmakar",
+     "phone": "03214257334",
+     "email": "bdounpur@gmail.com"
     },
     "Shyampur-II": {
-     "name": "Ms. Farhanaz Khanam",
+     "name": "Md. Asif Iqbal",
      "phone": "8509458243",
      "email": "bdoshyampur2@gmail.com"
     },
     "Shyampur-I": {
-     "name": "Sri Tanmay Karjee",
+     "name": "Sri Manoj Kumar Pahari",
      "phone": "9504832627",
      "email": "bdoshyampur1@gmail.com"
     },
     "Bagnan-II": {
-     "name": "Sri Jayanta Chattopadhyay",
+     "name": "Sri Nirmalya Ghosh",
      "phone": "03368342447",
      "email": "bagnan.bdo2@gmail.com"
     },
@@ -552,7 +555,9 @@
    "source": "https://paschimbardhaman.gov.in/about-district/whos-who/",
    "dm": {
     "name": "Shri Ponnambalam S.",
-    "role": "District Magistrate & District Collector"
+    "role": "District Magistrate & District Collector",
+    "phone": "0341-2254545",
+    "email": "dmpaschimbardhaman@gmail.com"
    }
   },
   "paschim-medinipur": {
@@ -689,7 +694,7 @@
      "email": "bdoegra2-purb-wb@nic.in"
     },
     "Egra-I": {
-     "name": "Shri Durga Prasad Ghosh",
+     "name": "Shrimati Debalina Sen",
      "phone": "8373063056",
      "email": "bdoegra1-purb-wb@nic.in"
     },
