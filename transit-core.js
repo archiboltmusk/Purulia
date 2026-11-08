@@ -100,5 +100,23 @@
     }
     return rows;
   }
-  return { MODES, validate, plan, position, sourceCurrent, liveVehicles };
+  // Pages snapshots are historical observations, never a continuous/live tracking promise.
+  function snapshotVehicles(data, now = Date.now()) {
+    if (!data || data.schema_version !== 1 || data.source_id !== 'delhi-otd' || data.source_url !== 'https://otd.delhi.gov.in/documentation/' || data.delivery !== 'github-pages-snapshot' || !Array.isArray(data.positions) || data.positions.length > 20000) throw new Error('Invalid snapshot.');
+    const statuses = ['ok', 'not_configured', 'access_denied', 'rate_limited', 'upstream_unavailable', 'invalid_feed', 'unsupported_feed', 'stale_feed', 'oversized_feed'];
+    if (!statuses.includes(data.status)) throw new Error('Invalid snapshot status.');
+    if (data.status !== 'ok') {
+      if (data.positions.length) throw new Error('Failed snapshot contains positions.');
+      return [];
+    }
+    const current = x => instant(x) && Date.parse(x) <= now && now - Date.parse(x) <= 15 * 60000;
+    if (!current(data.generated_at) || !current(data.fetched_at) || !current(data.feed_observed_at)) return [];
+    if (Date.parse(data.feed_observed_at) > Date.parse(data.fetched_at) || Date.parse(data.fetched_at) > Date.parse(data.generated_at)) throw new Error('Invalid snapshot timestamp order.');
+    const seen = new Set();
+    return data.positions.filter(p => {
+      if (!p || !text(p.vehicle_id) || seen.has(p.vehicle_id) || !current(p.observed_at) || Date.parse(p.observed_at) > Date.parse(data.feed_observed_at) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon) || Math.abs(p.lat) > 90 || Math.abs(p.lon) > 180 || (p.lat === 0 && p.lon === 0) || (p.route_id !== null && !text(p.route_id))) return false;
+      seen.add(p.vehicle_id); return true;
+    });
+  }
+  return { MODES, validate, plan, position, sourceCurrent, liveVehicles, snapshotVehicles };
 });

@@ -56,6 +56,10 @@ Every dataset below is produced by a script in `tools/`. Do not edit the output 
 
 ---
 
+## Travel
+
+`travel.html` combines source-labelled timetable planning, Delhi OTD location snapshots, opt-in device GPS moving-time estimates and optional passenger reports. Setup uses repository secret `DELHI_OTD_API_KEY` and the existing GitHub Pages workflow; no Vercel runtime is required. See [TRANSIT.md](TRANSIT.md) for activation, data-age limits and the optional Supabase reporting migration. Snapshots are not continuous live tracking; passenger reports are unverified.
+
 ## Running it
 
 A static site: plain HTML, CSS and JavaScript, no build step. The backend is Supabase (Postgres RPCs and edge functions).

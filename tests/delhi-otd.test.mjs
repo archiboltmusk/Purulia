@@ -2,9 +2,8 @@ import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import Bindings from 'gtfs-realtime-bindings';
 import Protobuf from 'protobufjs/minimal.js';
-import { createDelhiHandler, decodePositions } from '../server/delhi-otd.mjs';
+import { createDelhiHandler, decodePositions } from '../tools/transit/delhi-otd.mjs';
 import Transit from '../transit-core.js';
-import delhiFunction from '../api/transit/delhi.js';
 const Feed = Bindings.transit_realtime.FeedMessage;
 const now = Date.parse('2026-11-08T18:00:00+05:30'), seconds = now / 1000;
 const key = 'synthetic-secret-not-a-real-key';
@@ -96,12 +95,6 @@ test('rejects methods and query keys before touching upstream', async () => {
   const handle = adapter(() => { throw new Error('Must not fetch'); });
   assert.equal((await handle(new Request(req().url, { method: 'POST' }), { DELHI_OTD_API_KEY: key })).status, 405);
   assert.equal((await handle(new Request(req().url + '?key=secret'), { DELHI_OTD_API_KEY: key })).status, 400);
-});
-test('Vercel entry point fails safely with no configured secret', async () => {
-  const previous = process.env.DELHI_OTD_API_KEY; delete process.env.DELHI_OTD_API_KEY;
-  const res = { headers: {}, setHeader(k, v) { this.headers[k.toLowerCase()] = v; }, end(body) { this.body = JSON.parse(body); } };
-  try { await delhiFunction({ method: 'GET', url: '/api/transit/delhi' }, res); assert.equal(res.statusCode, 503); assert.equal(res.body.status, 'not_configured'); }
-  finally { if (previous !== undefined) process.env.DELHI_OTD_API_KEY = previous; }
 });
 test('timeout returns no cached positions', async () => {
   const handle = createDelhiHandler({ clock: () => now, timeoutMs: 5, fetchImpl: (_, options) => new Promise((_, reject) => options.signal.addEventListener('abort', () => reject(new Error('aborted ' + key)))) });

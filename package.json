@@ -1,8 +1,8 @@
 {
-  "name": "parishkar-transit-server",
+  "name": "parishkar-transit-tools",
   "private": true,
-  "description": "Server-only Delhi OTD GTFS-Realtime adapter for Vercel; the site remains static.",
-  "scripts": { "test:transit": "node --test tests/delhi-otd.test.mjs && node tests/transit.test.cjs && python3 tests/test_build_transit.py" },
+  "description": "GitHub Actions collector for Delhi OTD; GitHub Pages serves sanitised snapshots.",
+  "scripts": { "test:transit": "node --test tests/delhi-otd.test.mjs tests/delhi-snapshot.test.mjs && node --test tests/journey.test.cjs tests/journey-ui.test.cjs && node tests/transit.test.cjs && python3 tests/test_build_transit.py" },
   "dependencies": { "gtfs-realtime-bindings": "2.2.0" },
   "engines": { "node": ">=22" }
 }

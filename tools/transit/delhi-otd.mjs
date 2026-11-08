@@ -1,4 +1,4 @@
-// Server-only. The private key is sent solely to the fixed, documented OTD host.
+// Actions-only. The private key is sent solely to the fixed, documented OTD host.
 import Bindings from 'gtfs-realtime-bindings';
 
 export const SOURCE_URL = 'https://otd.delhi.gov.in/documentation/';

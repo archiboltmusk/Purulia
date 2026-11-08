@@ -85,6 +85,8 @@
       network = Transit.validate(JSON.parse(raw));
       const now = Date.now(), active = network.sources.filter(s => Transit.sourceCurrent(s, now));
       const ids = new Set(active.map(s => s.id)), stops = network.stops.filter(s => ids.has(s.source_id)).sort((a, b) => a.name.localeCompare(b.name));
+      const destinations = document.getElementById('journey-destinations');
+      if (destinations) { destinations.replaceChildren(); stops.forEach(s => destinations.append(new Option(s.name, s.name))); }
       for (const field of ['from', 'to']) {
         const previous = $(field).value;
         $(field).replaceChildren(new Option(stops.length ? 'Choose a stop' : 'No stops connected', ''));

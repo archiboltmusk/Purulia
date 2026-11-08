@@ -17,6 +17,7 @@ for db in kasa_legacy kasa_fresh; do
     $P -d $db -c "insert into public.reports (lat, lng, status) values (23.3321, 86.3655, 'resolved')" \
               -c "update public.reports set resolution_method = 'legacy_unverified'" >/dev/null
   fi
+  $P -d "$db" -f tests/transit_passengers.sql >/dev/null
   echo "== $db"
   python3 tests/test_migration.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
   python3 tests/test_dispatch.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"

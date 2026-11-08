@@ -1,0 +1,8 @@
+{
+  "schema_version": 1,
+  "source_id": "delhi-otd",
+  "source_url": "https://otd.delhi.gov.in/documentation/",
+  "status": "not_configured",
+  "delivery": "github-pages-snapshot",
+  "positions": []
+}
