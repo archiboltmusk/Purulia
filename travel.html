@@ -1,0 +1,29 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Travel together — Parishkar</title>
+<meta name="description" content="One place for bus, train, tram, metro and ferry journeys. Published schedules and fresh vehicle observations are clearly separated.">
+<meta name="theme-color" content="#101d26">
+<link rel="canonical" href="https://archiboltmusk.github.io/Purulia/travel.html">
+<link rel="stylesheet" href="travel.css">
+<script defer src="transit-core.js"></script><script defer src="travel.js"></script>
+</head>
+<body>
+<a class="skip" href="#planner">Skip to journey planner</a>
+<header><a class="brand" href="index.html"><span class="mark" aria-hidden="true">↗</span> Parishkar <span class="brand-sub">/ travel</span></a><nav aria-label="Main"><a href="#coverage">Data coverage</a><a href="solutions.html">Civic services ↗</a></nav></header>
+<main>
+<section class="hero"><div><p class="eyebrow">ONE JOURNEY. EVERY CONNECTION.</p><h1>Your city moves.<br><span>Move with it.</span></h1><p class="intro">Bus to station. Train across town. Metro to your door.<br>Find your connections in one place, with the source behind every service.</p><div class="mode-line" aria-label="Supported transport formats"><span>▰ Bus</span><span>▥ Train</span><span>▤ Metro</span><span>▱ Tram</span><span>≈ Ferry</span></div></div><div class="network-art" aria-hidden="true"><div class="rail rail-a"></div><div class="rail rail-b"></div><div class="rail rail-c"></div><span class="station s1"></span><span class="station s2"></span><span class="station s3"></span><span class="station s4"></span><span class="art-label">EVERY MODE.<br>ONE CLEAR PICTURE.</span><small>Network illustration · not a live map</small></div></section>
+<section class="planner" id="planner" aria-labelledby="planner-title"><div class="section-top"><h2 id="planner-title">Where are you going?</h2><span class="chip">Timetable planner · India Standard Time</span></div>
+<p id="feed-status" role="status">Loading transport coverage…</p>
+<form id="journey-form"><div class="fields"><label>From<select id="from" required disabled><option value="">No stops connected</option></select></label><button class="swap" id="swap" type="button" aria-label="Swap origin and destination" disabled>⇄</button><label>To<select id="to" required disabled><option value="">No stops connected</option></select></label><label>Leave at · IST<input id="departure" type="datetime-local" required></label><button class="primary" id="search" disabled>Find a journey ↗</button></div>
+<fieldset id="mode-filters"><legend>Travel by</legend><label><input type="checkbox" value="bus" checked> Bus</label><label><input type="checkbox" value="train" checked> Train</label><label><input type="checkbox" value="metro" checked> Metro</label><label><input type="checkbox" value="tram" checked> Tram</label><label><input type="checkbox" value="ferry" checked> Ferry</label><label><input type="checkbox" value="cable" checked> Cable</label></fieldset>
+<label class="access"><input id="accessible" type="checkbox"> Only services with confirmed wheelchair access <span>(station access is not verified)</span></label></form>
+<p class="planner-note">Direct journeys or one change at the same stop. A 10-minute connection buffer is a planning rule, not a guaranteed connection. No fare, walking time or platform is guessed.</p>
+<div id="results" aria-live="polite" aria-atomic="true"></div>
+<noscript><p>Enable JavaScript to search connected schedules. Official service links below work without it.</p></noscript>
+</section>
+<section class="lower"><div class="official"><p class="eyebrow">CHECK WITH THE OPERATOR</p><h2>Until the feed is connected,<br>go straight to the source.</h2><p>These services open separately. Parishkar does not read their live data or issue tickets.</p><a href="https://enquiry.indianrail.gov.in/ntes/" target="_blank" rel="noopener noreferrer"><span><b>Indian Railways · NTES</b><small>Train running information</small></span><span aria-hidden="true">↗</span></a><a href="https://mtp.indianrailways.gov.in/" target="_blank" rel="noopener noreferrer"><span><b>Metro Railway Kolkata</b><small>Operator information and service notices</small></span><span aria-hidden="true">↗</span></a><p class="small">Bus, tram and ferry coverage appears only when a reusable operator feed is connected. A supported mode does not imply an operating service in your city.</p></div>
+<div class="coverage" id="coverage"><p class="eyebrow">THE DATA BEHIND YOUR JOURNEY</p><h2>Trust starts with visibility.</h2><div id="coverage-list"></div><div class="legend"><p><span class="dot live"></span><b>Live position</b> — an observation no older than 90 seconds. It is not an arrival prediction.</p><p><span class="dot schedule"></span><b>Scheduled</b> — published timetable; actual running may differ.</p><p><span class="dot missing"></span><b>Not connected</b> — no usable feed. No moving dots or made-up countdowns.</p></div><p class="small">Locations are never requested or collected on this page. Route queries stay in this browser. Data is rechecked every minute while the page is open.</p><button id="refresh" class="secondary" type="button">Refresh coverage ↻</button></div></section>
+<footer><span>Parishkar / Travel</span><span>Public transport. Public evidence.</span><a href="index.html">Back to Parishkar ↗</a></footer>
+</main></body></html>
