@@ -16,6 +16,8 @@
     const sources = new Map(), stops = new Map(), trips = new Map();
     for (const s of data.sources) {
       if (!text(s.id) || sources.has(s.id) || !text(s.name) || !https(s.url) || !https(s.license_url) || !instant(s.retrieved_at) || !instant(s.valid_from) || !instant(s.valid_until) || Date.parse(s.valid_until) <= Date.parse(s.valid_from)) fail('Invalid source metadata.');
+      if (s.timing_quality !== undefined && !['published', 'estimated'].includes(s.timing_quality)) fail('Invalid timing quality.');
+      if ((s.id === 'delhi-otd' || new URL(s.url).hostname === 'otd.delhi.gov.in') && s.timing_quality !== 'estimated') fail('Delhi OTD times must be marked estimated.');
       sources.set(s.id, s);
     }
     for (const s of data.stops) {
@@ -55,7 +57,7 @@
     const now = options.now === undefined ? Date.now() : options.now;
     const start = Date.parse(at), end = start + 24 * 3600000;
     if (!Number.isFinite(start) || start < now - 60000 || from === to) return [];
-    const valid = new Set(data.sources.filter(s => sourceCurrent(s, now) && start >= Date.parse(s.valid_from) && start < Date.parse(s.valid_until)).map(s => s.id));
+    const valid = new Set(data.sources.filter(s => s.timing_quality !== 'estimated' && sourceCurrent(s, now) && start >= Date.parse(s.valid_from) && start < Date.parse(s.valid_until)).map(s => s.id));
     const trips = data.trips.filter(t => valid.has(t.source_id) && modes.includes(t.mode) && (!accessible || t.wheelchair === 'yes'));
     const results = [], first = [];
     function leg(t, i, j) { return { trip_id: t.id, source_id: t.source_id, name: t.name, operator: t.operator, mode: t.mode, wheelchair: t.wheelchair, from: t.calls[i].stop_id, to: t.calls[j].stop_id, departure: t.calls[i].departure, arrival: t.calls[j].arrival, calls: t.calls.slice(i, j + 1) }; }
@@ -86,5 +88,17 @@
     for (const r of results) unique.set(r.legs.map(l => [l.trip_id, l.from, l.to, l.departure].join('|')).join('>'), r);
     return [...unique.values()].sort((a, b) => Date.parse(a.arrival) - Date.parse(b.arrival) || a.legs.length - b.legs.length || Date.parse(a.departure) - Date.parse(b.departure)).slice(0, 12);
   }
-  return { MODES, validate, plan, position, sourceCurrent };
+  // The server endpoint provides native vehicle identities even without a static timetable.
+  function liveVehicles(data, now = Date.now()) {
+    if (!data || data.schema_version !== 1 || data.source_id !== 'delhi-otd' || data.source_url !== 'https://otd.delhi.gov.in/documentation/' || !instant(data.feed_observed_at) || !instant(data.fetched_at) || !Array.isArray(data.positions) || data.positions.length > 20000) throw new Error('Invalid vehicle feed.');
+    const valid = x => instant(x) && Date.parse(x) <= now && now - Date.parse(x) <= 90000;
+    if (!valid(data.feed_observed_at) || Date.parse(data.fetched_at) > now) return [];
+    const seen = new Set(), rows = [];
+    for (const p of data.positions) {
+      if (!p || !text(p.vehicle_id) || seen.has(p.vehicle_id) || !valid(p.observed_at) || Date.parse(p.observed_at) > Date.parse(data.feed_observed_at) || !Number.isFinite(p.lat) || !Number.isFinite(p.lon) || Math.abs(p.lat) > 90 || Math.abs(p.lon) > 180 || (p.lat === 0 && p.lon === 0) || (p.route_id !== null && !text(p.route_id)) || (p.trip_id !== null && !text(p.trip_id))) continue;
+      seen.add(p.vehicle_id); rows.push(p);
+    }
+    return rows;
+  }
+  return { MODES, validate, plan, position, sourceCurrent, liveVehicles };
 });

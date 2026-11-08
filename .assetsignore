@@ -18,3 +18,11 @@ wrangler.jsonc
 worker.js
 # Raw West Bengal source layers (the villages file is ~99 MB, over the 25 MiB Workers asset limit); no page loads them
 WEST BENGAL*.geojson
+
+# Server-only transit adapter and local secrets
+api
+server
+package.json
+package-lock.json
+.env*
+.dev.vars*

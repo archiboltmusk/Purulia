@@ -14,11 +14,11 @@
     for (const mode of Transit.MODES) {
       const active = network.trips.filter(t => t.mode === mode && Transit.sourceCurrent(network.sources.find(s => s.id === t.source_id), Date.now()));
       const row = node('div', undefined, 'coverage-row');
-      row.append(node('b', mode[0].toUpperCase() + mode.slice(1)), node('span', active.length ? active.length + ' scheduled trips' : 'Not connected'));
+      row.append(node('b', mode[0].toUpperCase() + mode.slice(1)), node('span', active.length ? active.length + (network.sources.some(s => s.timing_quality === 'estimated' && active.some(t => t.source_id === s.id)) ? ' trips (includes estimates)' : ' scheduled trips') : 'Not connected'));
       wrap.append(row);
     }
     for (const s of network.sources) {
-      const detail = node('details'), summary = node('summary', s.name + ' · ' + (Transit.sourceCurrent(s, Date.now()) ? 'within validity window' : 'not current'));
+      const detail = node('details'), summary = node('summary', s.name + (s.timing_quality === 'estimated' ? ' · estimated times; excluded from journey planning' : '') + ' · ' + (Transit.sourceCurrent(s, Date.now()) ? 'within validity window' : 'not current'));
       detail.append(summary, node('p', 'Retrieved ' + clock.format(new Date(s.retrieved_at)) + '. Valid until ' + clock.format(new Date(s.valid_until)) + ' IST.'), link('Publisher source ↗', s.url), document.createTextNode(' · '), link('Reuse terms ↗', s.license_url));
       wrap.append(detail);
     }
@@ -93,7 +93,7 @@
         $(field).disabled = stops.length === 0;
       }
       $('search').disabled = $('swap').disabled = stops.length === 0;
-      $('feed-status').textContent = stops.length ? active.length + ' current source(s) · schedules are not live running information. Times shown in IST.' : 'No operator feed is connected for travel planning. Live tracking and journey results are unavailable. Use the official services below.';
+      $('feed-status').textContent = stops.length ? active.length + ' current source(s) · estimated source times are excluded from journey search. Times shown in IST.' : 'No operator feed is connected for travel planning. Live tracking and journey results are unavailable. Use the official services below.';
       coverage();
       if (searched) render();
     } catch (_) {

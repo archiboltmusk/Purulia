@@ -25,3 +25,5 @@ test('freshness boundary, future telemetry, and expiry fail closed', () => {
 });
 test('empty production network validates without invented routes', () => { const d = require('../places/transit/network.json'); T.validate(d); assert.deepEqual(plan(d), []); });
 test('overnight calls use absolute instants and ignore device timezone', () => { const d = fixture(); const shift = 14 * 3600000; d.trips.forEach(t => t.calls.forEach(c => { c.arrival = new Date(Date.parse(c.arrival) + shift).toISOString(); c.departure = c.arrival; })); assert.equal(plan(d, { at: new Date(now + shift).toISOString() }).length, 1); });
+test('estimated timing sources never produce exact departure or transfer recommendations', () => { const d = fixture(); d.sources[0].timing_quality = 'estimated'; assert.deepEqual(plan(d), []); });
+test('Delhi OTD source cannot be mislabeled as a published exact timetable', () => { const d = fixture(); d.sources[0].url = 'https://otd.delhi.gov.in/data/static/'; assert.throws(() => T.validate(d)); d.sources[0].timing_quality = 'estimated'; T.validate(d); assert.deepEqual(plan(d), []); });

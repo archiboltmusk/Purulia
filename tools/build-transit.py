@@ -40,7 +40,10 @@ def unique(rows, key):
     return out
 
 
-def build(path, source_id, source_url, license_url, start, days, retrieved_at):
+def build(path, source_id, source_url, license_url, start, days, retrieved_at, timing_quality="published"):
+    require(timing_quality in ["published", "estimated"], "Unsupported timing quality")
+    if source_id == "delhi-otd" or urlparse(source_url).hostname == "otd.delhi.gov.in":
+        timing_quality = "estimated"
     require(retrieved_at.tzinfo is not None and retrieved_at <= dt.datetime.now(dt.timezone.utc), "Retrieval timestamp must have a timezone and not be in the future")
     require(bool(re.fullmatch(r'[a-z0-9-]{1,60}', source_id)), 'Use a stable lowercase source ID')
     require(1 <= days <= 7, 'Export 1 to 7 service days')
@@ -83,7 +86,7 @@ def build(path, source_id, source_url, license_url, start, days, retrieved_at):
             require(row.get('pickup_type', '0') in ['', '0', '1'] and row.get('drop_off_type', '0') in ['', '0', '1'], 'On-demand boarding is not supported')
             require(not any(row.get(k) for k in ['start_pickup_drop_off_window', 'end_pickup_drop_off_window', 'location_group_id', 'location_id']), 'Flexible services are not supported')
             require(row.get('continuous_pickup', '1') in ['', '1'] and row.get('continuous_drop_off', '1') in ['', '1'], 'Continuous boarding is not supported')
-            require(row.get('timepoint', '1') in ['', '1'], 'Estimated stop times are not supported')
+            require(timing_quality == 'estimated' or row.get('timepoint', '1') in ['', '1'], 'Estimated stop times require --timing-quality estimated')
             calls.setdefault(row['trip_id'], []).append(row)
         output, used = [], set()
         for tid, trip in trips.items():
@@ -123,7 +126,7 @@ def build(path, source_id, source_url, license_url, start, days, retrieved_at):
             lat, lon = float(s['stop_lat']), float(s['stop_lon'])
             require(-90 <= lat <= 90 and -180 <= lon <= 180, 'Invalid stop coordinates')
             normalized_stops.append({'id': source_id + ':' + sid, 'source_id': source_id, 'name': s['stop_name'], 'lat': lat, 'lon': lon})
-        return {'schema_version': 1, 'timezone': 'Asia/Kolkata', 'sources': [{'id': source_id, 'name': ' / '.join(a['agency_name'] for a in agencies.values()), 'url': source_url, 'license_url': license_url, 'retrieved_at': retrieved_at.isoformat(), 'valid_from': dt.datetime.combine(start, dt.time(), IST).isoformat(), 'valid_until': dt.datetime.combine(start + dt.timedelta(days=days + 1), dt.time(), IST).isoformat(), 'sha256': digest}], 'stops': normalized_stops, 'trips': output, 'positions': []}
+        return {'schema_version': 1, 'timezone': 'Asia/Kolkata', 'sources': [{'id': source_id, 'name': ' / '.join(a['agency_name'] for a in agencies.values()), 'url': source_url, 'license_url': license_url, 'retrieved_at': retrieved_at.isoformat(), 'valid_from': dt.datetime.combine(start, dt.time(), IST).isoformat(), 'valid_until': dt.datetime.combine(start + dt.timedelta(days=days + 1), dt.time(), IST).isoformat(), 'sha256': digest, 'timing_quality': timing_quality}], 'stops': normalized_stops, 'trips': output, 'positions': []}
 
 
 def main():
@@ -134,11 +137,12 @@ def main():
     p.add_argument('--license-url', required=True)
     p.add_argument('--start', type=dt.date.fromisoformat, required=True)
     p.add_argument('--retrieved-at', type=dt.datetime.fromisoformat, required=True, help='Actual feed download timestamp, including UTC offset')
+    p.add_argument('--timing-quality', choices=['published', 'estimated'], default='published')
     p.add_argument('--days', type=int, default=2)
     p.add_argument('--output', type=Path, required=True)
     args = p.parse_args()
     try:
-        data = build(args.archive, args.source_id, args.source_url, args.license_url, args.start, args.days, args.retrieved_at)
+        data = build(args.archive, args.source_id, args.source_url, args.license_url, args.start, args.days, args.retrieved_at, args.timing_quality)
         args.output.parent.mkdir(parents=True, exist_ok=True)
         # Atomic replacement: a bad build cannot truncate a previously working feed.
         with tempfile.NamedTemporaryFile('w', dir=args.output.parent, delete=False, encoding='utf-8') as f:

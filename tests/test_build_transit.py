@@ -45,6 +45,10 @@ class ImportTests(unittest.TestCase):
         result = subprocess.run(['node', '-e', "const T=require('./transit-core.js');let s='';process.stdin.on('data',d=>s+=d);process.stdin.on('end',()=>T.validate(JSON.parse(s)));"], cwd=ROOT, input=json.dumps(data), text=True, capture_output=True)
         self.assertEqual(result.returncode, 0, result.stderr)
 
+    def test_delhi_quality_is_forced_estimated(self):
+        data = b.build(self.archive(), 'delhi-otd', 'https://otd.delhi.gov.in/data/static/', 'https://otd.delhi.gov.in/terms', dt.date(2026, 11, 8), 1, dt.datetime.now(dt.timezone.utc))
+        self.assertEqual(data['sources'][0]['timing_quality'], 'estimated')
+
     def test_removed_service(self):
         self.assertEqual(self.build({'calendar_dates.txt': [{'service_id': 's', 'date': '20261108', 'exception_type': '2'}]})['trips'], [])
 
