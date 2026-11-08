@@ -114,6 +114,15 @@ Backend activation requires applying `supabase/migrations/20261108160000_kasa_tr
 
 Run the database scenarios with the repository's normal `supabase/tests/run.sh`; it applies migrations twice and checks privacy thresholds, rounding, withdrawal, stale rejection and direct-table permissions. **The migration has not been applied to production by this change.** No backend credentials are available in this session.
 
+A manual GitHub-only setup path is included:
+
+1. Open the **existing Supabase project → Connect**. Copy its **Transaction pooler** Postgres connection URI and replace its password placeholder with the actual database password (URL-encode reserved password characters). This is the database connection string, not an anon key or service-role API key.
+2. Save the whole URI as GitHub repository Actions secret **`SUPABASE_DB_URL`**. The configured target must match the project in config.js. Do not paste it into chat, an issue, the repository, a normal variable, or a browser form on this site.
+3. After this PR is merged to main, run **Actions → Set up transit passenger backend → Run workflow → main**. It installs the PostgreSQL driver, validates the target project, applies only the fixed transit migration transactionally, verifies RPC privileges/private table access, reloads PostgREST schema and checks `kasa_transit_status` through the public API. It does not run every pending migration. Reruns are idempotent.
+4. Reload `travel.html` and confirm passenger reporting availability. A DB secret is needed only by this manual workflow, not by Pages or browser code. Remove it after successful setup if ongoing GitHub-driven backend setup is not needed.
+
+Use the existing project; do not create another Supabase backend. Direct Postgres URIs for that project are also accepted if the runner has connectivity. The public-project configuration is checked before connecting; pooler usernames must contain the matching project reference. SSL is required and prepared statements are disabled for transaction-pooler compatibility.
+
 ## Verification and first pilot
 
 `npm ci --ignore-scripts && npm run test:transit` tests encoded Protobuf, timestamps, key redaction, snapshot publication/expiry, repository-relative URLs, routing, timetable conversion and GPS movement. CI additionally runs the database scenarios. No real key has been read in this environment and no real passenger location has been collected. New UI browser QA and authenticated provider verification remain pending.
