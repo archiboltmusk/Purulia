@@ -1,0 +1,27 @@
+name: Tourism page
+on:
+  pull_request:
+    paths: ['tourism*', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
+  push:
+    branches: [main]
+    paths: ['tourism*', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
+permissions:
+  contents: read
+jobs:
+  tourism:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+          cache: npm
+          cache-dependency-path: tests/browser/package-lock.json
+      - run: node --check tourism.js && node --check tourism-engine.js && node --test tests/tourism.test.cjs
+      - run: npm ci
+        working-directory: tests/browser
+      - run: npx playwright install --with-deps chromium
+        working-directory: tests/browser
+      - run: npx playwright test tourism.spec.mjs
+        working-directory: tests/browser
