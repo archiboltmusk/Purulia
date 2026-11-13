@@ -1,23 +1,45 @@
 (function(root){
 'use strict';
-const places=[
- {id:'ajodhya',name:'Ajodhya Hills',circuit:'ajodhya',kind:'nature',lat:23.2,lon:86.1,desc:'Sal forests, hill views and a slower kind of escape.',activity:'Ask a local guide for a short, permitted viewpoint walk.',steep:false,sky:'#d4cfb2',mount:'#53725b',accent:'#e8d8aa',symbol:'◯'},
- {id:'charida',name:'Charida',circuit:'ajodhya',kind:'culture',lat:23.115,lon:86.065,desc:'Meet the hands behind Purulia’s extraordinary Chhau masks.',activity:'Arrange a paid mask-making visit directly with an artisan.',steep:false,sky:'#d6b18f',mount:'#a75b3b',accent:'#f4d7a5',symbol:'✺'},
- {id:'turga',name:'Turga Falls',circuit:'ajodhya',kind:'nature',lat:23.184,lon:86.073,desc:'A waterfall stop that needs careful access and weather checks.',activity:'View only from permitted areas; expect steps and uneven ground.',steep:true,waterfall:true,sky:'#b9c8b5',mount:'#355e4c',accent:'#dee5d0',symbol:'≋'},
- {id:'baranti',name:'Baranti / Muradi Dam',circuit:'north',kind:'nature',lat:23.569,lon:86.861,desc:'Open water, quiet horizons and time to pause.',activity:'Choose a permitted lakeside viewpoint; confirm local access.',steep:false,sky:'#ddcba9',mount:'#748375',accent:'#efd99d',symbol:'◯'},
- {id:'panchakot',name:'Garh Panchakot',circuit:'north',kind:'culture',lat:23.605,lon:86.761,desc:'Heritage remains set against a wooded hill landscape.',activity:'Explore permitted heritage areas with local interpretation.',steep:false,sky:'#c5c9af',mount:'#5b7154',accent:'#d4a36e',symbol:'⌂'},
- {id:'joychandi',name:'Jaichandi Pahar',circuit:'north',kind:'nature',lat:23.546,lon:86.674,desc:'Rocky silhouettes and a climb for those comfortable with steps.',activity:'Consider the climb only in suitable weather and with fitness for steps.',steep:true,sky:'#ddc7ad',mount:'#8c7861',accent:'#f1dbb7',symbol:'△'},
- {id:'town',name:'Purulia town',circuit:'town',kind:'culture',lat:23.333,lon:86.366,desc:'A practical arrival base and a gentle first day.',activity:'Explore local food and markets; confirm walking conditions.',steep:false,sky:'#d7c7ac',mount:'#a47755',accent:'#eadbbd',symbol:'⌂'}
-];
-const labels={ajodhya:'Ajodhya & Charida',north:'Baranti & Garh Panchakot',town:'Purulia town'};
-function validOptions(v){return !!v&&['ajodhya','north','town'].includes(v.circuit)&&Number.isInteger(v.days)&&v.days>=1&&v.days<=3&&Number.isInteger(v.party)&&v.party>=1&&v.party<=30&&['slow','full'].includes(v.pace)&&['standard','gentle'].includes(v.access)&&['mild','hot','rain'].includes(v.season)}
-function quoteTotal(values,party){
- if(!Number.isInteger(party)||party<1||party>30)throw new TypeError('Travellers must be an integer from 1 to 30');
- let cents=0,missing=0;
- for(const raw of values){if(raw===''||raw===null||raw===undefined){missing++;continue}const n=Number(raw);if(!Number.isFinite(n)||n<0||n>10000000)throw new TypeError('Enter a valid non-negative quote');cents+=Math.round(n*100)}
- return {total:cents/100,perPerson:Math.round(cents/party)/100,missing};
+const data=typeof module==='object'&&module.exports?require('./tourism-data.js'):root.PuruliaTourismData;
+const {places,circuits,gateways}=data;
+const enums={pace:['slow','full'],access:['standard','gentle'],season:['mild','hot','rain'],interest:['mixed','nature','culture'],transport:['car','hired','public']};
+const defaults={circuit:'ajodhya',days:2,party:2,pace:'slow',access:'standard',season:'mild',interest:'mixed',transport:'hired',gateway:'town',arrival:'09:00',hours:7,transfer:45};
+function options(raw){
+ if(!raw||typeof raw!=='object'||Array.isArray(raw))throw new TypeError('Invalid trip');
+ const v={...defaults};for(const k of Object.keys(defaults))if(Object.hasOwn(raw,k))v[k]=raw[k];
+ if(!circuits.some(c=>c.id===v.circuit)||!gateways.some(g=>g.id===v.gateway))throw new TypeError('Invalid circuit or arrival base');
+ for(const [k,values] of Object.entries(enums))if(!values.includes(v[k]))throw new TypeError('Invalid '+k);
+ if(!Number.isInteger(v.days)||v.days<1||v.days>3||!Number.isInteger(v.party)||v.party<1||v.party>30)throw new TypeError('Invalid days or travellers');
+ if(!Number.isFinite(v.hours)||v.hours<2||v.hours>10||!Number.isFinite(v.transfer)||v.transfer<0||v.transfer>240)throw new TypeError('Invalid time budget');
+ if(typeof v.arrival!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(v.arrival))throw new TypeError('Invalid arrival time');
+ return v;
 }
-function buildPlan(v){if(!validOptions(v))throw new TypeError('Invalid itinerary options');let eligible=places.filter(p=>p.circuit===v.circuit&&!(v.access==='gentle'&&p.steep)&&!(v.season==='rain'&&p.waterfall)&&!(v.season==='hot'&&p.steep));const limit=v.pace==='slow'||v.season==='hot'?2:3;let days=Array.from({length:v.days},()=>[]);eligible.forEach((p,i)=>{const day=Math.floor(i/limit);if(day<days.length)days[day].push(p)});return {...v,days,notice:v.season==='rain'?'Rain plan: waterfalls omitted. Confirm road and site access before leaving.':v.season==='hot'?'Heat plan: fewer stops and no steep climbs. Prefer early outings and an indoor midday break.':'Confirm access, transport and facilities directly before departure.'}}
-
-const api={places,labels,buildPlan,validOptions,quoteTotal};if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
+function validOptions(v){try{options(v);return true}catch{return false}}
+function buildPlan(raw){
+ const v=options(raw),c=circuits.find(c=>c.id===v.circuit),excluded=[],eligible=[];
+ for(const id of c.stops){const p=places.find(p=>p.id===id);let reason=null;
+ if(v.access==='gentle'&&p.steep)reason='mobility';else if(v.season==='rain'&&p.waterfall)reason='rain';else if(v.season==='hot'&&p.steep)reason='heat';else if(v.interest!=='mixed'&&p.kind!==v.interest)reason='interest';
+ if(reason)excluded.push({id,reason});else eligible.push(p);}
+ const limit=v.pace==='slow'||v.season==='hot'?2:3,days=[];let cursor=0;
+ for(let d=0;d<v.days;d++){
+  const start=d===0?v.arrival:'08:00',startMinutes=Number(start.slice(0,2))*60+Number(start.slice(3)),capacity=Math.max(0,Math.min(v.hours*60,18*60-startMinutes));
+  let used=30+2*v.transfer;const stops=[];
+  while(cursor<eligible.length&&stops.length<limit){const p=eligible[cursor],needed=p.visitMinutes+(stops.length?v.transfer:0);if(used+needed>capacity)break;stops.push(p);used+=needed;cursor++;}
+  days.push({number:d+1,start,stops,plannedMinutes:stops.length?used:0,capacity,breakMinutes:30,transferAllowance:v.transfer});
+ }
+ return {version:2,options:v,circuit:c,days,excluded,overflow:eligible.slice(cursor),provisional:true,publicTransportUnconfirmed:v.transport==='public'};
+}
+function quoteTotal(values,party){if(!Number.isInteger(party)||party<1||party>30)throw new TypeError('Invalid traveller count');let cents=0,missing=0;for(const raw of values){if(raw===''||raw===null||raw===undefined){missing++;continue}const n=Number(raw);if(!Number.isFinite(n)||n<0||n>10000000)throw new TypeError('Invalid quote');cents+=Math.round(n*100)}return {total:cents/100,perPerson:Math.round(cents/party)/100,missing}}
+function geoJSON(circuitId){
+ const selected=circuitId==='all'?circuits:circuits.filter(c=>c.id===circuitId),ids=new Set(selected.flatMap(c=>c.stops)),features=[];
+ for(const p of places)if(ids.has(p.id)&&p.coordinate)features.push({type:'Feature',geometry:{type:'Point',coordinates:[p.coordinate[1],p.coordinate[0]]},properties:{id:p.id,circuit:p.circuit,name:p.name.en,referenceType:p.referenceType,geometrySource:p.geometrySource}});
+ for(const c of selected){let segment=[];const flush=()=>{if(segment.length>1)features.push({type:'Feature',geometry:{type:'LineString',coordinates:segment},properties:{id:c.id,colour:c.colour,schematic:true,navigable:false}});segment=[]};for(const id of c.stops){const p=places.find(p=>p.id===id);if(!p.coordinate){flush();continue}segment.push([p.coordinate[1],p.coordinate[0]])}flush()}
+ return {type:'FeatureCollection',features};
+}
+function packTrip(v){return JSON.stringify({version:2,options:options(v)})}
+function unpackTrip(text){if(typeof text!=='string'||text.length>2000)throw new TypeError('Invalid shared trip');const p=JSON.parse(text);if(p.version!==2)throw new TypeError('Unsupported shared trip');return options(p.options)}
+function isProviderCurrent(p,now=Date.now()){return !!p&&typeof p.id==='string'&&typeof p.name==='string'&&['driver','stay','guide','artisan'].includes(p.kind)&&typeof p.evidence_url==='string'&&safeURL(p.evidence_url)&&safeURL(p.contact_url)&&Number.isFinite(Date.parse(p.verified_at))&&Date.parse(p.verified_at)<=now&&Number.isFinite(Date.parse(p.verified_until))&&Date.parse(p.verified_until)>now}
+function safeURL(v){try{return typeof v==='string'&&v.length<=2000&&new URL(v).protocol==='https:'}catch{return false}}
+const api={...data,defaults,options,validOptions,buildPlan,quoteTotal,geoJSON,packTrip,unpackTrip,isProviderCurrent,safeURL};
+if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

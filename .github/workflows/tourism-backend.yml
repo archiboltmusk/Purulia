@@ -1,0 +1,26 @@
+name: Set up tourism service backend
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/20261113120000_kasa_tourism_services.sql', 'tools/tourism/**', '.github/workflows/tourism-backend.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: tourism-backend
+  cancel-in-progress: false
+jobs:
+  apply:
+    if: github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-python@v7
+        with:
+          python-version: '3.12'
+      - run: pip install 'psycopg[binary]==3.2.*'
+      - name: Apply and verify the additive tourism migration
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: python3 tools/tourism/apply-backend.py

@@ -374,7 +374,9 @@ test('tapping a gram panchayat opens its card with the MLA and MP for that spot;
   await expect(card.locator('a', { hasText: 'Suggest a fix' })).toHaveAttribute('href', 'add-town.html?fix=area&level=gp&district=bankura&block=Indus&gp=Amrul');
   await card.locator('[data-area-level="district"]').click();
   await expect(card.locator('.k-ward-title')).toHaveText('Bankura');
-  await expect(card.locator('.k-area-role').first()).toContainText('MLAs (12 seats)');
+  // District totals moved into the expandable details; the point's MLA remains above.
+  await card.locator('details.k-area-more > summary').click();
+  await expect(card.locator('details.k-area-more .k-area-role', { hasText: 'MLAs (12 seats)' })).toBeVisible();
   await expect(card).toContainText('District Magistrate');
   await expect(card.locator('a', { hasText: 'district website' })).toHaveAttribute('href', 'https://bankura.gov.in/');
   await card.locator('[data-area-close]').click();
@@ -420,9 +422,16 @@ test('outside West Bengal a tap names the state, district, assembly seat, MLA an
 test.describe('standing in Gorakhpur, Uttar Pradesh', () => {
   test.use({ geolocation: { latitude: 26.7738, longitude: 83.3858, accuracy: 10 } });
 
-  test('a report anywhere in India files under its district and state', async ({ page, backend }) => {
+  test('a report anywhere in India files under its district and state', async ({ page, backend, isMobile }) => {
     await page.goto('kasa.html');
     await page.locator('.k-map-report-btn').click();
+    if (!isMobile) {
+      await expect(page.locator('#k-phone')).toBeVisible();
+      await expect(page.locator('#k-cam')).toBeHidden();
+      expect(backend.calls.some(c => c.name === 'kasa_create_report')).toBe(false);
+      return;
+    }
+    await expect(page.locator('#k-cam-shutter')).toBeEnabled();
     await page.locator('#k-cam-shutter').click();
     await page.locator('#k-cam-use').click();
     await expect(page.locator('#k-place')).toContainText('Filed under Gorakhpur district, Uttar Pradesh.');
@@ -821,3 +830,4 @@ test('the place picker reaches any state and district in India; the header names
   await page.click('#k-place-list [data-place="in:bihar:patna"]');
   await expect(wordmark(page)).toHaveText('Patna');
 });
+

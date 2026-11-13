@@ -50,7 +50,7 @@ test('a report card is sent with its picture and the copied figures', async ({ p
   expect(backend.calls.some(c => c.kind === 'storage')).toBe(true);
 });
 
-test('a photo of a problem found in a school check goes on the report map', async ({ page, backend }) => {
+test('a photo of a problem found in a school check goes on the report map', async ({ page, backend, isMobile }) => {
   const seen = await stubSchools(page);
   await page.goto('kasa.html?school=19141300203');
   await expect(page.locator('#k-sc-picked')).toContainText('ACHKODA PRY.');
@@ -62,6 +62,12 @@ test('a photo of a problem found in a school check goes on the report map', asyn
   await answer('toilets', 'no');
   await expect(page.locator('[data-probcam="toilets"]')).toBeVisible();
   await page.locator('[data-probcam="toilets"]').click();
+  if (!isMobile) {
+    await expect(page.locator('#k-phone')).toBeVisible();
+    await expect(page.locator('#k-cam')).toBeHidden();
+    expect(backend.calls.some(c => c.name === 'kasa_create_report')).toBe(false);
+    return;
+  }
   await shoot(page);
   await expect(page.locator('[data-probcam="toilets"]')).toHaveClass(/done/);
   await page.locator('#k-sc-cam-btn').click();
@@ -78,7 +84,7 @@ test('a photo of a problem found in a school check goes on the report map', asyn
   expect(seen.check.p_girls_toilet_ok).toBe(null);
 });
 
-test('a school missing from the list is sent with a gate photo for checking', async ({ page, backend }) => {
+test('a school missing from the list is sent with a gate photo for checking', async ({ page, backend, isMobile }) => {
   const seen = await stubSchools(page);
   await page.goto('kasa.html?school=19141300203');
   await expect(page.locator('#k-sc-picked')).toContainText('ACHKODA PRY.');
@@ -89,6 +95,12 @@ test('a school missing from the list is sent with a gate photo for checking', as
   await page.locator('#k-ns-block').selectOption('NETURIA');
   await expect(submit).toBeDisabled();
   await page.locator('#k-ns-cam-btn').click();
+  if (!isMobile) {
+    await expect(page.locator('#k-phone')).toBeVisible();
+    await expect(page.locator('#k-cam')).toBeHidden();
+    expect(seen.suggest).toBeUndefined();
+    return;
+  }
   await shoot(page);
   await page.locator('#k-ns-udise').fill('123');
   await expect(submit).toBeDisabled();
@@ -100,3 +112,4 @@ test('a school missing from the list is sent with a gate photo for checking', as
   expect(seen.suggest.p_photo_path).toMatch(/^reports\//);
   expect(typeof seen.suggest.p_lat).toBe('number');
 });
+
