@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-13T07:17:49Z",
+ "generated": "2026-11-13T20:02:25Z",
  "sources": [
   {
    "id": "open-meteo-forecast",
@@ -474,7 +474,7 @@
   }
  },
  "status": {
-  "open-meteo": "ok",
+  "open-meteo": "failed",
   "nasa-firms": "failed",
   "data-gov-in-gst": "failed",
   "data-gov-in-mandi": "failed"
