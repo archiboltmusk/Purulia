@@ -1,10 +1,10 @@
 name: Tourism page
 on:
   pull_request:
-    paths: ['tourism*', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
+    paths: ['tourism*', 'tests/browser/places.spec.mjs', 'tests/browser/school-check.spec.mjs', 'tools/tourism/**', 'tests/test_tourism_setup.py', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
   push:
     branches: [main]
-    paths: ['tourism*', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
+    paths: ['tourism*', 'tests/browser/places.spec.mjs', 'tests/browser/school-check.spec.mjs', 'tools/tourism/**', 'tests/test_tourism_setup.py', 'tests/tourism.test.cjs', 'tests/browser/tourism.spec.mjs', '.github/workflows/tourism-tests.yml']
 permissions:
   contents: read
 jobs:
@@ -18,10 +18,14 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
-      - run: node --check tourism.js && node --check tourism-engine.js && node --test tests/tourism.test.cjs
+      - run: node --check tourism.js && node --check tourism-data.js && node --check tourism-engine.js && node --check tourism-map.mjs && node --check tourism-auth.js && node --check tourism-operator.js && node --test tests/tourism.test.cjs
       - run: npm ci
         working-directory: tests/browser
       - run: npx playwright install --with-deps chromium
         working-directory: tests/browser
       - run: npx playwright test tourism.spec.mjs
         working-directory: tests/browser
+      - name: Report camera and district-card regressions
+        run: npx playwright test school-check.spec.mjs places.spec.mjs --grep 'photo of a problem|school missing|tapping a gram panchayat|report anywhere in India'
+        working-directory: tests/browser
+      - run: python3 tests/test_tourism_setup.py
