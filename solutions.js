@@ -2,6 +2,7 @@
 // Add a row only when its page exists. No figures here: facts stay on their own pages.
 (function () {
   var INDEX = [
+    { title: 'Visit Purulia: tourism, routes and local services', words: 'tourism tourist travel trip holiday itinerary driver homestay hotel artisan mask charida ajodhya baranti', href: 'tourism.html', text: 'Plan a circuit, explore the map, calculate quoted costs and prepare local service enquiries.' },
     { title: 'Snakebite or a snake in the house', words: 'snake snakebite bite rescue rescuer cobra venom', href: 'snakes.html', text: 'Report a sighting, or find an approved rescuer near you.' },
     { title: 'Stray dogs and feeding', words: 'dog dogs stray feed feeding animal abc', href: 'dogs.html', text: 'Community dog feeding spots and the rules that apply.' },
     { title: 'Blood, blood donors and blood banks', words: 'blood donor donate bank thalassemia platelet rakt', href: 'blood.html', text: 'Blood donation facts and the official eRaktKosh stock service.' },
@@ -75,3 +76,4 @@
 
   input.addEventListener('input', render);
 })();
+
