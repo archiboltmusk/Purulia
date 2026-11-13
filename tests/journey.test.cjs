@@ -1,0 +1,11 @@
+const { test } = require('node:test');
+const assert = require('node:assert/strict');
+const J = require('../journey-core.js');
+const now = Date.parse('2026-11-08T16:00:00Z');
+const fixes = () => [0,1,2,3].map(i => ({lat:28.6 + i * 0.002,lon:77.2,accuracy:10,at:now-45000+i*15000}));
+test('multiple recent fixes produce moving time from user-entered route distance', () => { const e=J.estimate(fixes(),10,now); assert.equal(e.status,'estimate'); assert.ok(e.speed_kmh>45 && e.speed_kmh<65); assert.ok(e.minutes>=10 && e.minutes<=14); });
+test('one fix, short windows or stale fixes cannot become ETA', () => { assert.equal(J.estimate(fixes().slice(-1),10,now).status,'collecting'); assert.equal(J.estimate(fixes().slice(-2),10,now).status,'collecting'); assert.equal(J.estimate(fixes(),10,now+31000).status,'collecting'); });
+test('missing distance does not silently become a straight-line route estimate', () => { assert.equal(J.estimate(fixes(),0,now).status,'distance_needed'); assert.equal(J.estimate(fixes(),NaN,now).status,'distance_needed'); });
+test('stationary GPS jitter cannot produce an arrival estimate', () => { const f=fixes().map((p,i)=>({...p,lat:28.6+(i%2)*0.00001})); assert.equal(J.estimate(f,10,now).status,'stationary'); });
+test('large jumps and time reversal are rejected', () => { const f=fixes(); f[2].lat=30; assert.equal(J.estimate(f,10,now).status,'unstable'); const g=fixes(); g[2].at=g[1].at; assert.equal(J.estimate(g,10,now).status,'unstable'); });
+test('poor accuracy and future fixes are unusable', () => { assert.equal(J.estimate(fixes().map(p=>({...p,accuracy:100})),10,now).status,'collecting'); assert.equal(J.valid({...fixes()[0],lat:NaN}),false); assert.equal(J.estimate(fixes().map(p=>({...p,at:p.at+180000})),10,now).status,'collecting'); });
