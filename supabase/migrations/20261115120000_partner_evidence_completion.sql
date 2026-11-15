@@ -55,6 +55,9 @@ declare o kasa_private.partner_orders%rowtype;
 begin
  select * into o from kasa_private.partner_orders where id = new.order_id for update;
  if new.approved_at is distinct from old.approved_at or new.rejected_at is distinct from old.rejected_at then
+  if o.state not in ('in_progress', 'completed', 'reopened') then
+   perform kasa_private.fail('KASA_BAD_STATE', 'Photos can be reviewed only while the order is open.');
+  end if;
   if new.created_at < o.evidence_after then perform kasa_private.fail('KASA_OLD_PHOTO', 'Review a photo from the current work cycle.'); end if;
   if new.approved_at is distinct from old.approved_at then
    if new.uploaded_by = auth.uid() or o.worker_id = auth.uid() then
@@ -93,6 +96,91 @@ begin
  ) then return;end if;
  update kasa_private.partner_orders set state = 'verified', updated_at = now() where id = p_order;
  perform kasa_private.partner_log(p_order, 'completed', 'verified', 'Current work photo approved and independent community resolution verified');
+end $$;
+
+create or replace function public.kasa_partner_add_work_photo(p_order bigint, p_path text, p_meta jsonb)
+returns jsonb language plpgsql security definer set search_path = '' as $$
+declare
+  o kasa_private.partner_orders%rowtype;
+  r public.reports%rowtype;
+  v_owner text;
+  v_taken timestamptz;
+  v_lat double precision;
+  v_lng double precision;
+  v_acc double precision;
+  v_token uuid;
+  v_dist double precision;
+  v_id bigint;
+begin
+  if not exists (select 1 from kasa_private.partner_workers where user_id = auth.uid() and active) then
+    perform kasa_private.fail('KASA_NOT_WORKER', 'This account is not a registered partner worker.');
+  end if;
+  select * into o from kasa_private.partner_orders where id = p_order and worker_id = auth.uid() for update;
+  if not found then perform kasa_private.fail('KASA_NOT_FOUND', 'No such order is assigned to you.'); end if;
+  if o.state <> 'in_progress' then
+    perform kasa_private.fail('KASA_BAD_STATE', 'Work photos are taken while the work is in progress.');
+  end if;
+  if p_path is null or p_path !~ '^partner/[A-Za-z0-9_-]{16,64}\.(jpg|jpeg|png|webp)$' then
+    perform kasa_private.fail('KASA_PHOTO_INVALID', 'A work photo is required.');
+  end if;
+  select coalesce(ob.owner_id::text, ob.owner::text) into v_owner
+  from storage.objects ob where ob.bucket_id = 'kasa-photos' and ob.name = p_path;
+  if not found then perform kasa_private.fail('KASA_PHOTO_MISSING', 'Upload the photo first.'); end if;
+  if v_owner is distinct from auth.uid()::text then
+    perform kasa_private.fail('KASA_PHOTO_NOT_YOURS', 'You can only submit photos you uploaded.');
+  end if;
+  if exists (select 1 from kasa_private.partner_work_photos where photo_path = p_path) then
+    return jsonb_build_object('recorded', false);
+  end if;
+
+  begin v_taken := (p_meta ->> 'taken_at')::timestamptz; exception when others then v_taken := null; end;
+  if v_taken is null
+     or v_taken < now() - make_interval(hours => kasa_private.cfg_num('partner_photo_max_age_hours')::integer)
+     or v_taken > now() + interval '5 minutes' then
+    perform kasa_private.fail('KASA_PHOTO_TIME', 'The photo time is missing or too old. Take a new photo.');
+  end if;
+
+  begin
+    v_lat := (p_meta ->> 'lat')::double precision;
+    v_lng := (p_meta ->> 'lng')::double precision;
+    v_acc := (p_meta ->> 'accuracy')::double precision;
+  exception when others then v_lat := null; v_lng := null; v_acc := null;
+  end;
+  if v_lat is null or v_lng is null or v_lat not between -90 and 90 or v_lng not between -180 and 180
+     or (v_lat = 0 and v_lng = 0) then
+    perform kasa_private.fail('KASA_NO_GPS', 'Live GPS is needed for a work photo.');
+  end if;
+  if v_acc is null or v_acc <= 0 or v_acc > kasa_private.cfg_num('report_max_accuracy_m') then
+    perform kasa_private.fail('KASA_NO_GPS', 'GPS is too weak. Move to open sky and take the photo again.');
+  end if;
+
+  select * into r from public.reports where id = o.report_id;
+  if not found or r.lat is null or r.lng is null or r.lat not between -90 and 90 or r.lng not between -180 and 180 then
+    perform kasa_private.fail('KASA_NO_GPS', 'The original report needs valid site coordinates before work evidence can be checked.');
+  end if;
+  v_dist := 2 * 6371000 * asin(sqrt(
+    power(sin(radians(v_lat - r.lat) / 2), 2) +
+    cos(radians(r.lat)) * cos(radians(v_lat)) * power(sin(radians(v_lng - r.lng) / 2), 2)));
+  if v_dist > kasa_private.cfg_num('partner_site_radius_m') then
+    perform kasa_private.fail('KASA_NOT_ON_SITE', 'You are not at the reported spot.');
+  end if;
+
+  -- "live" needs an unspent camera token of this account; spending it makes it one-time.
+  begin v_token := (p_meta ->> 'capture_token')::uuid; exception when others then v_token := null; end;
+  if v_token is null or p_meta ->> 'capture' is distinct from 'live' then
+    perform kasa_private.fail('KASA_NOT_LIVE', 'Take the photo with the live camera.');
+  end if;
+  update kasa_private.capture_tokens set used_at = now(), photo_path = p_path
+  where token = v_token and user_id = auth.uid() and used_at is null
+    and issued_at > now() - make_interval(mins => kasa_private.cfg_num('capture_token_minutes')::integer);
+  if not found then perform kasa_private.fail('KASA_NOT_LIVE', 'Open the camera again to take the photo.'); end if;
+
+  insert into kasa_private.partner_work_photos
+    (order_id, photo_path, taken_at, lat, lng, accuracy_m, site_distance_m, uploaded_by)
+  values (p_order, p_path, v_taken, v_lat, v_lng, v_acc, v_dist, auth.uid())
+  returning id into v_id;
+  perform kasa_private.partner_log(p_order, o.state, o.state, 'Work photo taken on site');
+  return jsonb_build_object('recorded', true, 'photo_id', v_id);
 end $$;
 
 -- Authenticated actor-only photo read. Public board continues to expose counts, never paths/GPS.
