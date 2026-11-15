@@ -25,6 +25,9 @@ for(const p of places){
  p.referenceChecked=refs[p.id]?'2026-11-15':null;
  p.entranceVerified=false;p.facilitiesChecked=null;p.visitMinutes=p.id==='charida'?120:90;
 }
+const catalogueTools=typeof module==='object'&&module.exports?require('./tourism-catalogue.js'):root.PuruliaCatalogue;
+const catalogue=catalogueTools.catalogue(places);
+const mapPlaces=catalogue.filter(catalogueTools.located);
 function minutes(time){if(typeof time!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw new TypeError('Enter a valid time');return Number(time.slice(0,2))*60+Number(time.slice(3));}
 function distance(a,b){const r=x=>x*Math.PI/180;return 12742*Math.asin(Math.min(1,Math.sqrt(Math.sin(r(b.lat-a.lat)/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(r(b.lon-a.lon)/2)**2)));}
 function navigation(stops,station){
@@ -62,5 +65,5 @@ function buildPlan(v){
  return {...v,station,days:active.map(d=>d.stops),dayNumbers:active.map(d=>d.day),allowances:active.map(d=>d.allowance),omitted,requestedDays:v.days,notice};
 }
 
-const api={places,labels,stations,buildPlan,validOptions,quoteTotal,navigation,minutes,distance};if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
+const api={places,mapPlaces,catalogue,catalogueTools,labels,stations,buildPlan,validOptions,quoteTotal,navigation,minutes,distance};if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

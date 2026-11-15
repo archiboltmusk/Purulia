@@ -1,5 +1,5 @@
 import * as maplibregl from './vendor/maplibre-gl-6.14.0/maplibre-gl.mjs';
-const {places,stations}=window.PuruliaTourism;
+const {mapPlaces:places,stations}=window.PuruliaTourism;
 const status=document.getElementById('route-status'),button=document.getElementById('road-route');
 let map,ready=false,points=[],controller=null,revision=0;const pins=new Map();
 const feature=coordinates=>({type:'Feature',properties:{},geometry:{type:'LineString',coordinates}});
@@ -51,7 +51,7 @@ try{
  map.addControl(new maplibregl.NavigationControl());
  map.on('load',()=>{
   ready=true;map.addSource('circuit',{type:'geojson',data:empty()});map.addLayer({id:'circuit-line',type:'line',source:'circuit',paint:{'line-color':'#b44228','line-width':4,'line-dasharray':[2,2]}});
-  places.forEach((p,i)=>{const pin=document.createElement('button');pin.className='tourism-pin';pins.set(p.id,pin);pin.textContent=String(i+1);pin.setAttribute('aria-label',p.name);new maplibregl.Marker({element:pin}).setLngLat([p.lon,p.lat]).setPopup(new maplibregl.Popup().setText(`${i+1}. ${p.name} · Approximate area; entrance unverified`)).addTo(map);});
+  places.forEach((p,i)=>{const pin=document.createElement('button');pin.className='tourism-pin';pins.set(p.id,pin);pin.textContent=String(i+1);pin.setAttribute('aria-label',p.name);new maplibregl.Marker({element:pin}).setLngLat([p.lon,p.lat]).setPopup(new maplibregl.Popup().setText(`${p.name} · Approximate area; entrance unverified`)).addTo(map);});
   Object.values(stations).forEach(p=>new maplibregl.Marker({color:'#193c32'}).setLngLat([p.lon,p.lat]).setPopup(new maplibregl.Popup().setText(p.name+' · Approximate station area')).addTo(map));
   draw(window.getTourismPlan(),Number(daySelect.value||0));
  });

@@ -18,7 +18,7 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
-      - run: node --check tourism.js && node --check tourism-engine.js && node --check tourism-map.mjs && node --check partner.js && node --check case-work.js && node --test tests/tourism.test.cjs tests/data-freshness.test.cjs
+      - run: node --check tourism.js && node --check tourism-engine.js && node --check tourism-catalogue.js && node --check tourism-map.mjs && node --check partner.js && node --check case-work.js && node --test tests/tourism.test.cjs tests/data-freshness.test.cjs
       - run: npm ci
         working-directory: tests/browser
       - run: npx playwright install --with-deps chromium

@@ -53,3 +53,19 @@ test('navigation includes station return and circuit waypoints',()=>{
  const {navigation,stations}=require('../tourism-engine.js');const u=new URL(navigation(places.filter(p=>p.circuit==='north'),stations.adra));
  assert.equal(u.searchParams.get('origin'),u.searchParams.get('destination'));assert.match(u.searchParams.get('waypoints'),/Baranti/);assert.equal(u.searchParams.get('travelmode'),'driving');
 });
+
+test('all 50 submitted lines survive, including duplicate numbering and the forest split',()=>{
+ const {submitted}=require('../tourism-catalogue.js');assert.equal(submitted.length,51);assert.equal(new Set(submitted.map(p=>p.submission.group+':'+p.submission.number)).size,50);
+ assert.equal(submitted.filter(p=>p.submission.number===40).length,2);assert.equal(submitted.filter(p=>p.submission.number===37).length,2);
+ assert.equal(new Set(submitted.map(p=>p.id)).size,submitted.length);
+});
+test('catalogue never guesses coordinates or silently merges ambiguous names',()=>{
+ const {catalogue,catalogueTools,places}=require('../tourism-engine.js');assert.equal(catalogue.length,56);
+ assert.equal(catalogue.filter(catalogueTools.located).length,places.length+1);assert(catalogue.find(p=>p.id==='murguma-dam').coordinateSource);
+ const unknown=catalogue.filter(p=>!catalogueTools.located(p));assert(unknown.every(p=>p.lat===null&&p.lon===null));
+ assert.equal(catalogue.filter(p=>p.id==='turga').length,1);assert.equal(catalogue.filter(p=>p.id==='charida').length,1);
+ for(const id of ['goja-dhalburu-group','gojaburu-peak','dholburu-gojaburu','ghalikocha-falls','gialikocha-village','matha-forest','duarsini-jungle'])assert(catalogue.some(p=>p.id===id));
+ assert(catalogueTools.matches(catalogue.find(p=>p.id==='charida'),'Chorida Mukhosgram'));assert(catalogueTools.matches(catalogue.find(p=>p.id==='ukamburu-viewpoint'),'Suicide View Point'));
+ assert(catalogue.filter(p=>p.referenceStatus==='reference_found').every(p=>p.sources?.length||p.source));
+ assert(buildPlan(base).days.flat().every(p=>places.some(x=>x.id===p.id)));
+});

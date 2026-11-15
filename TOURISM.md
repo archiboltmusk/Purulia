@@ -36,3 +36,11 @@ Destination descriptions are concise summaries of the district tourism directory
 Run `node --check tourism.js`, `node --check tourism-engine.js` and `node --test tests/tourism.test.cjs`. Browser checks: `cd tests/browser && npm ci && npx playwright install chromium && npx playwright test tourism.spec.mjs`. The dedicated tourism CI runs those checks for desktop and mobile on PRs; the existing global browser workflow is unchanged. Local browser execution was unavailable because the execution environment blocked HTTP server binding. Do not treat unit checks as browser/layout verification.
 
 Static hosting automatically includes the new page/assets after merge to main. There is no separate application deployment, native app build, database change, changelog release or service-worker shell change in this feature.
+
+## Special-location catalogue (15 November 2026)
+
+`tourism-catalogue.js` retains 50 user-submitted lines as 51 records, splitting Matha Forest and Duarsini. It joins the existing seven places by stable IDs (Turga Falls and Charida match existing entries), giving 56 catalogue entries. Duplicate serial 40 is retained in separate source groups; suspected Goja Buru/Dhalburu overlaps are not silently merged.
+
+Name references, candidate spelling matches, area coordinates and visitor entrances are separate evidence states. Murguma has a dam-location coordinate from West Bengal Irrigation & Waterways; it is not represented as a visitor entrance. Other new entries have null coordinates until a source is checked. Null points must never reach map markers, driving routes or time calculations. The planner retains its original seven provisional circuit stops; a sourced area coordinate alone does not establish a new circuit.
+
+Discovery supports aliases, type/evidence filters, 12-card pagination and JSON export. Exact-location/source suggestions use the existing moderated `kasa_suggest_data_fix` form. Do not publish a submitted correction as a fact without reviewing its identity and source.

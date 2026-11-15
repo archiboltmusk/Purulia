@@ -6,7 +6,7 @@ test.beforeEach(async({page})=>{
 test('search, map selector, mobility and weather planner work',async({page})=>{
  const errors=[];page.on('pageerror',e=>errors.push(e.message));
  await page.goto('/tourism.html');
- await expect(page.locator('#places .place')).toHaveCount(7);
+ await expect(page.locator('#places .place')).toHaveCount(12);
  await page.locator('#search').fill('charida');
  await expect(page.locator('#places .place')).toHaveCount(1);
  await page.getByRole('button',{name:'Explore map'}).click();
@@ -76,4 +76,21 @@ test('road routing is optional, reports real estimates and survives failure',asy
  await page.route('https://router.project-osrm.org/**',r=>r.fulfill({status:503,body:'Unavailable'}));
  await page.locator('#plan-form button').click();await page.locator('#road-route').click();await expect(page.locator('#route-status')).toContainText('routing unavailable');
  await expect(page.getByRole('link',{name:'Navigate this day'}).first()).toBeVisible();
+});
+
+test('all submitted names are searchable; unresolved points cannot become pins',async({page})=>{
+ await page.goto('/tourism.html');await expect(page.locator('#catalogue-summary')).toContainText('56 catalogue entries');
+ await page.locator('#search').fill('Honpa Ban');await expect(page.locator('#places .place')).toHaveCount(1);await expect(page.locator('#places')).toContainText('Kumit Mukh');
+ await page.evaluate(()=>{window.focusCalls=0;window.addEventListener('tourism-focus',()=>window.focusCalls++);});
+ await page.getByRole('button',{name:'Find map candidates'}).click();await expect(page.locator('#location-status')).toContainText('No pin has been placed');
+ expect(await page.evaluate(()=>focusCalls)).toBe(0);
+ await page.locator('#search').fill('');await page.locator('#place-type').selectOption('forest');
+ await expect(page.locator('#places')).toContainText('Matha Forest');await expect(page.locator('#places')).toContainText('Duarsini Jungle');
+ await page.locator('#place-type').selectOption('');await page.locator('#place-status').selectOption('mapped');await expect(page.locator('#places .place')).toHaveCount(8);
+ const download=page.waitForEvent('download');await page.locator('#export-catalogue').click();expect((await download).suggestedFilename()).toBe('purulia-special-locations.json');
+});
+test('source corrections open with the destination identity prefilled',async({page})=>{
+ await page.goto('/tourism.html');await page.locator('#search').fill('Siningi');await page.locator('#places details').evaluate(e=>e.open=true);
+ await page.getByRole('button',{name:'Suggest a source or exact location',exact:true}).click();await expect(page.locator('#sf-what')).toHaveValue(/siningi-pahar/);
+ await expect(page.locator('#sf-fix')).toBeVisible();
 });
