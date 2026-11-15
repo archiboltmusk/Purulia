@@ -1,14 +1,61 @@
 'use strict';
 const $=s=>document.querySelector(s);
-const {places,labels,buildPlan}=window.PuruliaTourism;
-let filter='all',selectedPlan=null;
+const {places,catalogue,catalogueTools,labels,buildPlan}=window.PuruliaTourism;
+let filter='all',selectedPlan=null,visibleCount=12;
 function toast(t){$('#toast').textContent=t;$('#toast').classList.add('show');setTimeout(()=>$('#toast').classList.remove('show'),3000)}
 function read(key,fallback){try{return JSON.parse(localStorage.getItem('parishkar-tourism-'+key))??fallback}catch{return fallback}}
 function save(key,value){try{localStorage.setItem('parishkar-tourism-'+key,JSON.stringify(value));return true}catch{toast('Browser storage unavailable. Export your work before leaving.');return false}}
 function el(tag,text,cls){const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e}
-function showMap(id){const p=places.find(p=>p.id===id)||places[0];$('#map-place').value=p.id;window.dispatchEvent(new CustomEvent('tourism-focus',{detail:p}));$('#directions').href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(p.name+' Purulia West Bengal');$('#directions').textContent='Find '+p.name+' on Maps ↗'}
-function renderPlaces(){const q=$('#search').value.toLowerCase().trim(),list=places.filter(p=>(filter==='all'||p.kind===filter)&&(p.name+' '+p.desc).toLowerCase().includes(q));$('#places').replaceChildren();for(const p of list){const card=el('article',undefined,'place');const art=el('div',undefined,'place-art');art.setAttribute('aria-hidden','true');art.style.setProperty('--sky',p.sky);art.style.setProperty('--mount',p.mount);art.style.setProperty('--accent',p.accent);art.dataset.symbol=p.symbol;art.append(el('span',labels[p.circuit].toUpperCase()));const b=el('div',undefined,'place-body');b.append(el('span',p.kind==='nature'?'LANDSCAPE / NATURE':'ART / HERITAGE','tag'),el('h3',p.name),el('p',p.desc));const bottom=el('div',undefined,'place-bottom'),btn=el('button','Explore map ↗');btn.addEventListener('click',()=>{showMap(p.id);$('#map-place').scrollIntoView({behavior:'smooth',block:'center'})});bottom.append(el('small','ACCESS UNCONFIRMED'),btn);const details=el('details'),summary=el('summary','Visit details & sources');details.append(summary,el('p',p.activity),el('p',`Planning allowance: ${p.visitMinutes} minutes. Entrance coordinates: approximate. Toilets, water, fees and current access: not checked.`,'note'));const source=el('a','District reference ↗');source.href=p.source;source.target='_blank';source.rel='noopener';details.append(source,el('p',p.referenceChecked?'Reference listing checked '+p.referenceChecked+'. Site operations unconfirmed.':'Reference not individually checked. Site operations unconfirmed.','note'));const correction=el('a','Suggest a correction ↗');correction.href='join.html#respond';details.append(correction);b.append(bottom,details);card.append(art,b);$('#places').append(card)}if(!list.length)$('#places').append(el('p','No matching places. Try another search.','empty'))}
-$('#filters').addEventListener('click',e=>{if(!e.target.dataset.filter)return;filter=e.target.dataset.filter;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('active',b===e.target));renderPlaces()});$('#search').addEventListener('input',renderPlaces);for(const p of places){const o=el('option',p.name);o.value=p.id;$('#map-place').append(o)}$('#map-place').addEventListener('change',e=>showMap(e.target.value));
+function showMap(id){
+ const p=catalogue.find(p=>p.id===id)||catalogue[0];$('#map-place').value=p.id;
+ if(catalogueTools.located(p))window.dispatchEvent(new CustomEvent('tourism-focus',{detail:p}));
+ $('#location-status').textContent=catalogueTools.located(p)?'Approximate area point; entrance and current access are unverified.':'No checked coordinates for '+p.name+'. No pin has been placed; the map retains the itinerary view. Search results below are candidates, not verified directions.';
+ $('#directions').href=catalogueTools.mapSearch(p);$('#directions').textContent='Search Maps for '+p.name+' ↗';
+}
+function filteredCatalogue(){
+ const q=$('#search').value,type=$('#place-type').value,status=$('#place-status').value;
+ return catalogue.filter(p=>(filter==='all'||p.kind===filter)&&(!type||p.type===type)&&catalogueTools.matches(p,q)&&(status==='all'||(status==='mapped'?catalogueTools.located(p):p.referenceStatus===status)));
+}
+function renderPlaces(){
+ const list=filteredCatalogue();$('#places').replaceChildren();
+ $('#result-count').textContent=`${list.length} matching locations · showing ${Math.min(list.length,visibleCount)}`;
+ for(const p of list.slice(0,visibleCount)){
+  const mapped=catalogueTools.located(p),card=el('article',undefined,'place');card.dataset.placeId=p.id;
+  const art=el('div',undefined,'place-art');art.setAttribute('aria-hidden','true');
+  art.style.setProperty('--sky',p.sky||'#c5c9af');art.style.setProperty('--mount',p.mount||'#53725b');art.style.setProperty('--accent',p.accent||'#eadbbd');art.dataset.symbol=p.symbol||'◯';
+  art.append(el('span',p.circuit?labels[p.circuit].toUpperCase():'PURULIA · LOCAL-NAME CATALOGUE'));
+  const body=el('div',undefined,'place-body');body.append(el('span',catalogueTools.types[p.type]||'Place','tag'),el('h3',p.name));
+  const known=p.referenceStatus==='reference_found';
+  body.append(el('p',mapped?p.desc:(known?'A reference for this place was found. Exact coordinates, facilities and current access still need checking.':'Community-suggested name. Identity, exact location and current access still need checking.')));
+  if(p.aliases?.length)body.append(el('p','Also submitted / searchable as: '+p.aliases.join(' · '),'note'));
+  if(p.submittedName&&p.submittedName!==p.name)body.append(el('p','Submitted name: '+p.submittedName,'note'));
+  if(p.note)body.append(el('p',p.note,'note'));
+  const bottom=el('div',undefined,'place-bottom');bottom.append(el('small',mapped?'APPROXIMATE MAP POINT':known?'REFERENCE FOUND · PIN PENDING':'NAME & PIN NEED REVIEW'));
+  const btn=el('button',mapped?'Explore map ↗':'Find map candidates ↗');btn.type='button';btn.onclick=()=>{showMap(p.id);$('#map-place').scrollIntoView({behavior:'smooth',block:'center'});};bottom.append(btn);
+  const details=el('details');details.append(el('summary','Visit details & sources'));
+  if(p.activity)details.append(el('p',p.activity));
+  details.append(el('p',mapped?(p.visitMinutes?`Planning allowance: ${p.visitMinutes} minutes. Entrance coordinates: approximate. Toilets, water, fees and current access: not checked.`:'Published area point, not a verified visitor entrance. Current access and facilities are unconfirmed; this place is not included in automatic itineraries.'):'Coordinates are not checked. This location is excluded from automatic itineraries and road routing until it has a reviewed point and access information.','note'));
+  const sources=p.sources?.length?[...p.sources]:p.source?[{title:'District reference',url:p.source,checked:p.referenceChecked}]:[];if(p.coordinateSource)sources.push(p.coordinateSource);
+  for(const source of sources){const a=el('a',source.title+' ↗');a.href=source.url;a.target='_blank';a.rel='noopener';details.append(a,el('p',(source.checked?'Reference checked '+source.checked+'. ':'')+'A published reference does not establish present-day access.','note'));}
+  if(!sources.length)details.append(el('p','Source: user-supplied location list, 15 November 2026. Independent reference not established.','note'));
+  if(p.submission)details.append(el('p',`Submission: ${p.submission.group==='water'?'Dams, Falls & Lakes':'Pahar / View Points'} #${p.submission.number}.`,'note'));
+  const search=el('a','Search this name on Maps ↗');search.href=catalogueTools.mapSearch(p);search.target='_blank';search.rel='noopener';details.append(search);
+  const correction=el('button','Suggest a source or exact location');correction.type='button';correction.dataset.sourceFix='';correction.dataset.what='Tourism location '+p.id+': '+(p.submittedName||p.name)+' — identity, map point and access';details.append(correction);
+  body.append(bottom,details);card.append(art,body);$('#places').append(card);
+ }
+ if(!list.length)$('#places').append(el('p','No matching places. Try another name, spelling or filter.','empty'));
+ $('#more-places').hidden=visibleCount>=list.length;
+}
+function resetPlaces(){visibleCount=12;renderPlaces();}
+$('#filters').addEventListener('click',e=>{if(!e.target.dataset.filter)return;filter=e.target.dataset.filter;document.querySelectorAll('#filters button').forEach(b=>b.classList.toggle('active',b===e.target));resetPlaces();});
+$('#search').addEventListener('input',resetPlaces);$('#place-type').onchange=resetPlaces;$('#place-status').onchange=resetPlaces;
+$('#more-places').onclick=()=>{visibleCount+=12;renderPlaces();};
+for(const [key,label] of Object.entries(catalogueTools.types)){const o=el('option',label);o.value=key;$('#place-type').append(o);}
+for(const p of catalogue){const o=el('option',p.name+(catalogueTools.located(p)?'':' · pin pending'));o.value=p.id;$('#map-place').append(o);}
+$('#map-place').addEventListener('change',e=>showMap(e.target.value));
+const mappedCount=catalogue.filter(catalogueTools.located).length;
+$('#catalogue-summary').textContent=`${catalogue.length} catalogue entries · ${mappedCount} approximate map points · ${catalogue.length-mappedCount} awaiting checked coordinates. All 50 submitted lines are retained; Matha Forest and Duarsini are separate records. Unlocated entries are excluded from auto-planning.`;
+$('#export-catalogue').onclick=()=>{const data={exportedAt:new Date().toISOString(),coordinateWarning:'Approximate points are not verified entrances. Null coordinates must not be inferred.',locations:catalogue};const url=URL.createObjectURL(new Blob([JSON.stringify(data,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download='purulia-special-locations.json';a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);};
 function getValues(){return {circuit:$('#circuit').value,days:Number($('#days').value),party:Number($('#party').value),pace:$('#pace').value,access:$('#access').value,season:$('#season').value,station:$('#station').value,arrival:$('#arrival').value,departure:$('#departure').value,transport:$('#transport').value}}
 function renderPlan(plan){selectedPlan=plan;const root=$('#plan-output');root.replaceChildren();const top=el('div',undefined,'plan-top'),title=el('div');title.append(el('p','YOUR STARTING POINT','eyebrow'),el('h3',labels[plan.circuit]));const print=el('button','Print / save PDF ↗','plain');print.onclick=()=>window.print();top.append(title,print);root.append(top,el('p',`${plan.days.length} scheduled / ${plan.requestedDays} requested day${plan.requestedDays>1?'s':''} · ${plan.party} traveller${plan.party>1?'s':''} · ${plan.access==='gentle'?'gentler stops':'mixed terrain'}`,'note'),el('div',plan.notice,'notice'));plan.days.forEach((stops,i)=>{const day=el('div',undefined,'day');day.append(el('h4',`Day ${plan.dayNumbers[i]} / ${stops.length?'Explore your circuit':'Leave room to breathe'}`));if(!stops.length)day.append(el('p','Flexible time: arrange an additional artisan session, rest at your stay, or allow time for your return journey. Confirm availability directly.','note'));stops.forEach((p,j)=>{const stop=el('div',undefined,'stop'),body=el('div');body.append(el('strong',p.name),el('p',p.activity));stop.append(el('span',String(j+1).padStart(2,'0')),body);day.append(stop)});const nav=el('a','Navigate this day ↗');nav.href=window.PuruliaTourism.navigation(stops,plan.station);nav.target='_blank';nav.rel='noopener';day.append(el('p',`Planning allowance: ${plan.allowances[i]} minutes including return to ${plan.station.name}.`,'note'),nav);root.append(day)});if(!plan.days.length)root.append(el('p','No visits fit this window. Arrive earlier, depart later or add a day.','notice'));window.dispatchEvent(new CustomEvent('tourism-plan',{detail:plan}));root.append(el('p','Quote checklist: vehicle + stay + meals + guide / workshop + entry / parking + contingency. Add actual provider quotes; no prices or availability are assumed. Suggested order needs local route confirmation.','note'))}
 $('#plan-form').addEventListener('submit',e=>{e.preventDefault();try{const v=getValues(),plan=buildPlan(v);renderPlan(plan);if(save('plan',v))toast('Itinerary updated and saved on this browser')}catch(err){selectedPlan=null;$('#plan-output').replaceChildren(el('p',err.message,'notice'));window.dispatchEvent(new CustomEvent('tourism-plan',{detail:null}));}});
