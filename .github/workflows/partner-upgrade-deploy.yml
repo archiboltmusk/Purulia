@@ -1,0 +1,51 @@
+name: Apply partner evidence upgrade
+on:
+  push:
+    branches: [main]
+    paths:
+      - 'supabase/migrations/20261115120000_partner_evidence_completion.sql'
+      - '.github/workflows/partner-upgrade-deploy.yml'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: partner-database-upgrade
+  cancel-in-progress: false
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Apply partner workflow and evidence guards atomically
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        shell: bash
+        run: |
+          set -euo pipefail
+          if [ -z "$SUPABASE_DB_URL" ]; then
+            echo "::error::SUPABASE_DB_URL is required. The partner upgrade has not been applied."
+            exit 1
+          fi
+          # Prior partner migrations may exist in git without having been applied live.
+          # Remove only their outer transactions, then commit the whole upgrade together.
+          sed '/^begin;$/d; /^commit;$/d' \
+            supabase/migrations/20261016140000_kasa_partner_workflow.sql \
+            supabase/migrations/20261016150000_kasa_partner_workers.sql \
+            supabase/migrations/20261016160000_kasa_partner_photos_reopen.sql \
+            supabase/migrations/20261115120000_partner_evidence_completion.sql \
+            > "$RUNNER_TEMP/partner-upgrade.sql"
+          psql "$SUPABASE_DB_URL" --no-psqlrc --single-transaction --set=ON_ERROR_STOP=1 --file="$RUNNER_TEMP/partner-upgrade.sql"
+      - name: Verify deployed RPCs and guards
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          psql "$SUPABASE_DB_URL" --no-psqlrc --set=ON_ERROR_STOP=1 <<'SQL'
+          do $$ begin
+            if to_regprocedure('public.kasa_partner_order_photos(bigint)') is null
+               or to_regprocedure('public.kasa_partner_add_work_photo(bigint,text,jsonb)') is null
+               or not exists (select 1 from pg_trigger where tgname = 'partner_evidence_guard') then
+              raise exception 'Partner upgrade verification failed';
+            end if;
+          end $$;
+          SQL

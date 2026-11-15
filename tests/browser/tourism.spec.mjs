@@ -60,3 +60,20 @@ test('corrupt local data is ignored',async({page})=>{
  await expect(page.locator('#issues .issue')).toHaveCount(0);
  expect(errors).toEqual([]);
 });
+
+test('rejects impossible windows and keeps navigation usable',async({page})=>{
+ await page.goto('/tourism.html');await page.locator('#days').selectOption('1');await page.locator('#arrival').fill('17:00');await page.locator('#departure').fill('18:00');await page.locator('#plan-form button').click();
+ await expect(page.locator('#plan-output')).toContainText('No visits fit');
+ await page.locator('#transport').selectOption('public');await page.locator('#plan-form button').click();await expect(page.locator('#plan-output')).toContainText('requires a car');
+ await page.locator('#transport').selectOption('vehicle');await page.locator('#arrival').fill('08:00');await page.locator('#departure').fill('19:00');await page.locator('#plan-form button').click();
+ await expect(page.getByRole('link',{name:'Navigate this day'})).toHaveAttribute('href',/maps\/dir/);
+});
+
+test('road routing is optional, reports real estimates and survives failure',async({page})=>{
+ await page.route('https://router.project-osrm.org/**',r=>r.fulfill({contentType:'application/json',body:JSON.stringify({code:'Ok',routes:[{distance:24000,duration:3600,geometry:{type:'LineString',coordinates:[[86.36,23.32],[86.1,23.2]]}}]})}));
+ await page.goto('/tourism.html');await expect(page.locator('#route-stops')).toContainText('Start:');
+ await page.locator('#road-route').click();await expect(page.locator('#route-status')).toContainText('24.0 km · 60 minutes');
+ await page.route('https://router.project-osrm.org/**',r=>r.fulfill({status:503,body:'Unavailable'}));
+ await page.locator('#plan-form button').click();await page.locator('#road-route').click();await expect(page.locator('#route-status')).toContainText('routing unavailable');
+ await expect(page.getByRole('link',{name:'Navigate this day'}).first()).toBeVisible();
+});

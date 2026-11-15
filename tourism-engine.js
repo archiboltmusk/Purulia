@@ -17,7 +17,50 @@ function quoteTotal(values,party){
  for(const raw of values){if(raw===''||raw===null||raw===undefined){missing++;continue}const n=Number(raw);if(!Number.isFinite(n)||n<0||n>10000000)throw new TypeError('Enter a valid non-negative quote');cents+=Math.round(n*100)}
  return {total:cents/100,perPerson:Math.round(cents/party)/100,missing};
 }
-function buildPlan(v){if(!validOptions(v))throw new TypeError('Invalid itinerary options');let eligible=places.filter(p=>p.circuit===v.circuit&&!(v.access==='gentle'&&p.steep)&&!(v.season==='rain'&&p.waterfall)&&!(v.season==='hot'&&p.steep));const limit=v.pace==='slow'||v.season==='hot'?2:3;let days=Array.from({length:v.days},()=>[]);eligible.forEach((p,i)=>{const day=Math.floor(i/limit);if(day<days.length)days[day].push(p)});return {...v,days,notice:v.season==='rain'?'Rain plan: waterfalls omitted. Confirm road and site access before leaving.':v.season==='hot'?'Heat plan: fewer stops and no steep climbs. Prefer early outings and an indoor midday break.':'Confirm access, transport and facilities directly before departure.'}}
+// Durations below are explicit planning allowances, not measured travel times.
+const stations={purulia:{name:'Purulia Junction',lat:23.323,lon:86.363},adra:{name:'Adra Junction',lat:23.496,lon:86.674},barabhum:{name:'Barabhum station',lat:23.045,lon:86.354}};
+const refs={charida:'charidah',turga:'turga-falls',baranti:'muradi-dam-boronti',panchakot:'garh-panchakot',joychandi:'jaichandi-pahar'};
+for(const p of places){
+ p.source='https://purulia.gov.in/'+(refs[p.id]?'tourist-place/'+refs[p.id]+'/':'tourist-places/');
+ p.referenceChecked=refs[p.id]?'2026-11-15':null;
+ p.entranceVerified=false;p.facilitiesChecked=null;p.visitMinutes=p.id==='charida'?120:90;
+}
+function minutes(time){if(typeof time!=='string'||!/^([01]\d|2[0-3]):[0-5]\d$/.test(time))throw new TypeError('Enter a valid time');return Number(time.slice(0,2))*60+Number(time.slice(3));}
+function distance(a,b){const r=x=>x*Math.PI/180;return 12742*Math.asin(Math.min(1,Math.sqrt(Math.sin(r(b.lat-a.lat)/2)**2+Math.cos(r(a.lat))*Math.cos(r(b.lat))*Math.sin(r(b.lon-a.lon)/2)**2)));}
+function navigation(stops,station){
+ const points=[station,...stops,station].filter(Boolean);if(points.length<2)return null;
+ const query=p=>p.name+' Purulia West Bengal';
+ const u=new URL('https://www.google.com/maps/dir/');u.searchParams.set('api','1');u.searchParams.set('origin',query(points[0]));u.searchParams.set('destination',query(points.at(-1)));u.searchParams.set('travelmode','driving');
+ if(points.length>2)u.searchParams.set('waypoints',points.slice(1,-1).map(query).join('|'));return u.href;
+}
+function buildPlan(v){
+ if(!validOptions(v))throw new TypeError('Invalid itinerary options');
+ const station=stations[v.station||'purulia'];if(!station)throw new TypeError('Choose an arrival station');
+ if(v.transport && v.transport!=='vehicle')throw new TypeError('This circuit planner requires a car or hired vehicle; public transport times are not available.');
+ const arrival=minutes(v.arrival||'08:00'),departure=minutes(v.departure||'19:00');
+ if(v.days===1&&departure<=arrival)throw new TypeError('Departure must be after arrival for a day trip');
+ let eligible=places.filter(p=>p.circuit===v.circuit&&!(v.access==='gentle'&&p.steep)&&!(v.season==='rain'&&p.waterfall)&&!(v.season==='hot'&&p.steep));
+ // Nearest-next order is geographic only. Road routing is requested separately.
+ const ordered=[];let last=station;
+ while(eligible.length){eligible.sort((a,b)=>distance(last,a)-distance(last,b));last=eligible.shift();ordered.push(last);}
+ const limit=v.pace==='slow'||v.season==='hot'?2:3,days=Array.from({length:v.days},()=>[]),allowances=Array(v.days).fill(0),omitted=[];
+ for(const p of ordered){let placed=false;
+  for(let i=0;i<v.days;i++){
+   const begin=i===0?Math.max(480,arrival):480,end=i===v.days-1?Math.min(1080,departure-60):1080;
+   const candidate=[...days[i],p];
+   // Reserve station transfers every day until an overnight base is confirmed.
+   let previous=station,km=0;for(const x of candidate){km+=distance(previous,x);previous=x;}km+=distance(previous,station);
+   const allowance=Math.ceil(km*1.5/30*60)+candidate.reduce((a,x)=>a+x.visitMinutes,0)+60;
+   if(days[i].length<limit&&allowance<=end-begin){days[i].push(p);allowances[i]=allowance;placed=true;break;}
+  }
+  if(!placed)omitted.push(p.name);
+ }
+ const active=days.map((stops,i)=>({stops,day:i+1,allowance:allowances[i]})).filter(d=>d.stops.length);
+ const notice=[v.season==='rain'?'Waterfalls omitted in rain.':v.season==='hot'?'Heat plan: no steep climbs.':'Confirm current access before departure.',
+ 'Time budgets use planning assumptions: 90–120 minutes per visit, 30 km/h over 1.5× straight-line distance, a 60-minute break and a 60-minute departure buffer. They are not road travel predictions.',
+ active.length<v.days?'Only '+active.length+' of '+v.days+' days have scheduled visits; remaining days are unscheduled.':'',omitted.length?'Could not fit: '+omitted.join(', ')+'. Extend the trip or change arrival/departure.':''].filter(Boolean).join(' ');
+ return {...v,station,days:active.map(d=>d.stops),dayNumbers:active.map(d=>d.day),allowances:active.map(d=>d.allowance),omitted,requestedDays:v.days,notice};
+}
 
-const api={places,labels,buildPlan,validOptions,quoteTotal};if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
+const api={places,labels,stations,buildPlan,validOptions,quoteTotal,navigation,minutes,distance};if(typeof module==='object'&&module.exports)module.exports=api;else root.PuruliaTourism=api;
 })(typeof globalThis!=='undefined'?globalThis:this);

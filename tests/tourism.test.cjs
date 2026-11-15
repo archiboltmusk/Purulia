@@ -6,7 +6,7 @@ const base={circuit:'ajodhya',days:2,party:2,pace:'slow',access:'standard',seaso
 test('all combinations respect circuit, day capacity and exclusions',()=>{
  for(const circuit of ['ajodhya','north','town'])for(const days of [1,2,3])for(const pace of ['slow','full'])for(const access of ['standard','gentle'])for(const season of ['mild','rain','hot']){
   const plan=buildPlan({...base,circuit,days,pace,access,season});
-  assert.equal(plan.days.length,days);
+  assert(plan.days.length<=days);assert(plan.days.every(d=>d.length>0));assert.equal(plan.requestedDays,days);
   const limit=pace==='slow'||season==='hot'?2:3;
   assert(plan.days.every(d=>d.length<=limit));
   assert(plan.days.flat().every(p=>p.circuit===circuit));
@@ -18,7 +18,7 @@ test('all combinations respect circuit, day capacity and exclusions',()=>{
 test('full mild Ajodhya visit retains all three stops',()=>assert.equal(buildPlan({...base,days:1,pace:'full'}).days.flat().length,3));
 test('short itineraries do not add forced remote stops',()=>{
  const plan=buildPlan({...base,circuit:'town',days:3});
- assert.equal(plan.days.flat().length,1);assert.equal(plan.days[2].length,0);
+ assert.equal(plan.days.flat().length,1);assert.equal(plan.days.length,1);assert.match(plan.notice,/remaining days are unscheduled/);
 });
 test('malformed stored options cannot reach the planner',()=>{
  for(const input of [null,{},'bad',{...base,days:99},{...base,party:0},{...base,party:2.5},{...base,days:NaN},{...base,circuit:'missing'},{...base,access:'unknown'},{...base,pace:'unknown'},{...base,season:'unknown'}]){assert.equal(validOptions(input),false);assert.throws(()=>buildPlan(input),TypeError)}
@@ -42,4 +42,14 @@ test('integration has navigation, source and civic workflow links',()=>{
  assert.match(page,/kasa\.html\?d=purulia/);assert.match(page,/https:\/\/purulia.gov.in\//);
  assert.match(page,/src="tourism-engine.js"/);assert.match(page,/src="tourism.js"/);
  assert.match(readFileSync(new URL('../index.html',`file://${__filename}`),'utf8'),/href="tourism.html"/);
+});
+
+test('late arrival, early return and transport validation',()=>{
+ const short=buildPlan({...base,days:1,arrival:'17:00',departure:'18:00'});assert.equal(short.days.length,0);assert(short.omitted.length);
+ for(const patch of [{arrival:'25:00'},{departure:'x'},{days:1,arrival:'15:00',departure:'14:00'},{station:'unknown'},{transport:'public'}])assert.throws(()=>buildPlan({...base,...patch}),TypeError);
+ const delayed=buildPlan({...base,arrival:'22:00'});assert(delayed.dayNumbers.every(n=>n>1));
+});
+test('navigation includes station return and circuit waypoints',()=>{
+ const {navigation,stations}=require('../tourism-engine.js');const u=new URL(navigation(places.filter(p=>p.circuit==='north'),stations.adra));
+ assert.equal(u.searchParams.get('origin'),u.searchParams.get('destination'));assert.match(u.searchParams.get('waypoints'),/Baranti/);assert.equal(u.searchParams.get('travelmode'),'driving');
 });

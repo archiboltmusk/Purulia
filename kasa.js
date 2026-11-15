@@ -527,25 +527,41 @@ async function loadRules(){
 /* The first load stops at the newest 1000 reports, so on a busy site older reports in view
    never show. When the map settles, fetch what is in view and keep it (raw rows by id). */
 const viewRows = new Map();
-let viewRequest = 0;
+let viewRequest = 0, viewController = null;
 let baseRows = null;
 const withViewRows = base => {
-  const seen = new Set(base.map(r => String(r.id)));
-  return [...base, ...[...viewRows.values()].filter(r => !seen.has(String(r.id)))];
+  const merged = new Map(base.map(r => [String(r.id), r]));
+  for (const [id, row] of viewRows) merged.set(id, row);
+  return [...merged.values()];
 };
-
+function viewportNotice(message){
+  let note = document.getElementById('k-viewport-note');
+  if (!note){ note = document.createElement('p'); note.id = 'k-viewport-note'; note.setAttribute('role', 'status');
+    note.style.cssText = 'position:fixed;bottom:85px;left:12px;right:12px;z-index:5;background:var(--paper,#fff);color:var(--ink,#222);padding:8px;border:1px solid currentColor;font-size:13px;pointer-events:none';
+    document.body.append(note); }
+  note.textContent = message; note.hidden = !message;
+}
 async function loadReportsInView(){
   if (!mainMap || !baseRows || state.mode !== 'v2') return;
-  const b = mainMap.getBounds();
-  const req = ++viewRequest;
-  const { data, error } = await sb.rpc('kasa_reports_in_bbox', { min_lng: b.getWest(), min_lat: b.getSouth(),
-    max_lng: b.getEast(), max_lat: b.getNorth(), p_limit: 1000 });
-  if (error || req !== viewRequest || !Array.isArray(data)) return;
-  const before = viewRows.size;
-  for (const r of data) viewRows.set(String(r.id), r);
-  if (viewRows.size === before) return;
-  setReports(withViewRows(baseRows));
-  renderAll();
+  viewController?.abort();const controller = new AbortController();viewController = controller;
+  const req = ++viewRequest, b = mainMap.getBounds();
+  const wrap = x => ((x + 180) % 360 + 360) % 360 - 180;
+  const south = Math.max(-90, b.getSouth()), north = Math.min(90, b.getNorth());
+  const west = wrap(b.getWest()), east = wrap(b.getEast());
+  const ranges = b.getEast() - b.getWest() >= 360 ? [[-180, 180]] : west > east ? [[west, 180], [-180, east]] : [[west, east]];
+  try {
+    const results = await Promise.all(ranges.map(([min, max]) => sb.rpc('kasa_reports_in_bbox', {
+      min_lng:min,min_lat:south,max_lng:max,max_lat:north,p_limit:1000
+    }).abortSignal(controller.signal)));
+    if (req !== viewRequest) return;
+    if (results.some(r => r.error || !Array.isArray(r.data))) { viewportNotice('Could not refresh this map area. Previously loaded reports remain visible.'); return; }
+    // Replace the viewport cache: panning must not grow memory without a bound.
+    viewRows.clear();
+    for (const r of results.flatMap(r => r.data).slice(0, 1000)) viewRows.set(String(r.id), r);
+    viewportNotice(results.some(r => r.data.length >= 1000) || results.reduce((n,r)=>n+r.data.length,0)>1000
+      ? 'This area reaches the 1,000-report limit. Zoom in to see more detail.' : '');
+    setReports(withViewRows(baseRows));renderAll();
+  } catch (e) { if (req === viewRequest && !controller.signal.aborted) viewportNotice('Map refresh failed. Previously loaded reports remain visible.'); }
 }
 
 async function loadReports(){
@@ -558,6 +574,7 @@ async function loadReports(){
     baseRows = [...pending.map(pendingToRow), ...rows];
     setReports(withViewRows(baseRows));
     writeCache(rows);
+    await loadReportsInView();
   } catch (e){
     console.error('Parishkar: reports load failed', e);
     if (!state.reports.length) showToast(t('err_load'));
