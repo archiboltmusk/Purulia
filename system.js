@@ -1,7 +1,7 @@
 (function(){'use strict';
-const $=id=>document.getElementById(id),C=window.ParishkarSystem,P=window.ParishkarPolicies,T=window.ParishkarTwin;
+const $=id=>document.getElementById(id),C=window.ParishkarSystem,P=window.ParishkarPolicies,J=window.ParishkarJourney;
 const cfg=window.KASA_CONFIG||{},sb=window.supabase?.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
-let data={schema:1,nodes:[],facts:[],links:[],interventions:[]},kind='',position=null,lastPlan=null,dossier=null,busy=false;
+let data={schema:1,nodes:[],facts:[],links:[],interventions:[]},kind='',position=null,lastPlan=null,dossier=null,busy=false,live=false,pickupChoice=null,planState='unknown',recoveryShown=[],returnOrigin=null;
 const el=(tag,text,cls)=>{const e=document.createElement(tag);if(text!==undefined)e.textContent=text;if(cls)e.className=cls;return e;};
 const money=p=>new Intl.NumberFormat('en-IN',{style:'currency',currency:'INR'}).format(p/100);
 const safeURL=u=>typeof u==='string'&&/^https:\/\//.test(u)?u:null;
@@ -14,30 +14,33 @@ const time=s=>{if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(s))throw new TypeError('Choo
 function message(root,text){root.replaceChildren(el('p',text,'notice'));}
 function download(value,name){const url=URL.createObjectURL(new Blob([JSON.stringify(value,null,2)],{type:'application/json'}));const a=el('a');a.href=url;a.download=name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);}
 function snapshotOK(d){return d?.schema===1&&['nodes','facts','links','interventions'].every(k=>Array.isArray(d[k]));}
-function screen(id){document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==id);document.querySelectorAll('[data-screen]').forEach(b=>{if(b.dataset.screen===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});history.replaceState(null,'','#'+id);window.scrollTo({top:0,behavior:'instant'});}
-document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=()=>screen(b.dataset.screen));if(['nearby','plan','cases','improve'].includes(location.hash.slice(1)))screen(location.hash.slice(1));
+function screen(id,replace=false){
+ id=({nearby:'explore',cases:'help'})[id]||id;if(id==='improve'){location.href='system-tools.html';return;}if(!['explore','plan','go','help'].includes(id))id='explore';document.querySelectorAll('.screen').forEach(s=>s.hidden=s.id!==id);document.querySelectorAll('[data-screen]').forEach(b=>{if(b.dataset.screen===id)b.setAttribute('aria-current','page');else b.removeAttribute('aria-current');});if(location.hash!=='#'+id)history[replace?'replaceState':'pushState'](null,'','#'+id);if(id==='go')renderGo();window.scrollTo({top:0,behavior:'instant'});}
+document.querySelectorAll('[data-screen]').forEach(b=>b.onclick=e=>{e.preventDefault();screen(b.dataset.screen);});window.addEventListener('hashchange',()=>screen(location.hash.slice(1),true));screen(location.hash.slice(1),true);
 function queryParts(){
  const raw=$('need-search').value.toLowerCase().trim();const inferred=/toilet|washroom|bathroom/.test(raw)?'toilet':/food|meal|eat|restaurant/.test(raw)?'food':/stay|hotel|lodg|room/.test(raw)?'stay':/shop|store|pharmacy/.test(raw)?'shop':/water|drink/.test(raw)?'water':/health|hospital|clinic/.test(raw)?'health':'';
+ if(inferred&&$('service-evidence').value==='directory')$('service-evidence').value='checked';
  const query=inferred?raw.replace(/\b(need|a|an|the|near|me|toilet|washroom|bathroom|food|meal|eat|restaurant|stay|hotel|lodging|room|shop|store|pharmacy|water|drink|health|hospital|clinic)\b/g,'').trim():raw;
  return {query,type:kind||inferred};
 }
-function currentCheck(n){if(!reviewedPoint(n)||fact(n.id,'open_status')!==true)return false;return n.service_type==='toilet'?fact(n.id,'toilet_usable')===true:['food','stay','shop','transport'].includes(n.service_type)?!!fact(n.id,'price'):n.kind==='service';}
+const currentCheck=n=>J.serviceReady(n,data);
 function renderServices(){
  const {query,type}=queryParts(),includeDirectory=$('service-evidence').value==='directory';
  let nodes=data.nodes.filter(n=>(!type||n.service_type===type)&&(!query||(n.name+' '+n.slug).toLowerCase().includes(query))&&(includeDirectory||currentCheck(n)));
  nodes=nodes.map(n=>({...n,distance:position&&at(n)?C.distance(position,at(n)):null})).sort((a,b)=>(a.distance??Infinity)-(b.distance??Infinity)||a.name.localeCompare(b.name));
  $('services').replaceChildren();$('service-count').textContent=nodes.length+' matching '+(includeDirectory?'directory entries':'recently checked services')+(data.limited?' · result limit reached':'');
- if(!nodes.length){const box=el('div',undefined,'empty');box.append(el('h2','No currently confirmed option here.'),el('p','We do not turn unknown availability into a recommendation. Check directory names or the existing local reports below.'));const b=el('button','Include directory names');b.onclick=()=>{$('service-evidence').value='directory';renderServices();};box.append(b);$('services').append(box);}
+ if(!nodes.length){const box=el('div',undefined,'empty');box.append(el('h2',includeDirectory?'No matching place.':'No recently checked option here.'),el('p','Try another place name, browse the travel guide, or use Help for your next step.'));const b=el('button','Include directory names');b.onclick=()=>{$('service-evidence').value='directory';renderServices();};if(!includeDirectory)box.append(b);else{const a=el('a','Open the travel guide ↗','button');a.href='tourism.html';box.append(a);}$('services').append(box);}
  for(const n of nodes.slice(0,100)){
   const card=el('article',undefined,'service-card'),current=currentCheck(n);card.append(el('span',n.service_type||'Place','badge'),el('h2',n.name));
-  card.append(el('p',n.distance===null?'Distance unknown':n.distance.toFixed(1)+' km straight-line distance','subtle'));
+  if(n.distance!==null)card.append(el('p',n.distance.toFixed(1)+' km straight-line distance','subtle'));
   const facts=el('ul',undefined,'facts'),open=fact(n.id,'open_status'),price=fact(n.id,'price');
-  facts.append(el('li',open===true?'Recently reported open':open===false?'Recently reported closed':'Opening status unconfirmed'));
+  facts.append(el('li',open===true?'Recently reported open':open===false?'Recently reported closed':'Confirm access before visiting'));
   if(price)facts.append(el('li',money(price.paise)+' / '+price.basis.replaceAll('_',' ')+' · check inclusions'));
   if(n.service_type==='toilet')facts.append(el('li',fact(n.id,'toilet_usable')===true?'Usability recently checked':'Usability unconfirmed'));
   if(fact(n.id,'water')!==undefined)facts.append(el('li',fact(n.id,'water')?'Water reported available':'Water reported unavailable'));
-  facts.append(el('li',fact(n.id,'step_free')===true?'Step-free access reported':'Step-free access unconfirmed'));card.append(facts);
-  if(!current)card.append(el('p','Directory entry. Confirm access, facilities and price before travelling.','subtle'));
+  if(current)facts.append(el('li',fact(n.id,'step_free')===true?'Step-free access reported':'Step-free access unconfirmed'));card.append(facts);
+  const checked=C.factAt(data.facts,n.id,'open_status');if(current&&checked)card.append(el('p','Checked '+new Date(checked.observed_at).toLocaleString('en-IN'),'subtle'));
+  if(!current)card.append(el('p','Directory entry · facilities and price need confirmation.','subtle'));
   const coords=reviewedPoint(n),map=el('a',coords?'Open checked area point ↗':'Search map candidates ↗');map.target='_blank';map.rel='noopener';map.href='https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(coords?coords.lat+','+coords.lon:n.name+' Purulia West Bengal');card.append(map);
   const contact=fact(n.id,'public_contact');if(contact?.consent===true&&/^\+?[0-9 -]{7,20}$/.test(contact.phone)){const a=el('a','Call provider');a.href='tel:'+contact.phone.replace(/[^+0-9]/g,'');card.append(a);}
   const evidence=el('details');evidence.append(el('summary','Sources and check dates'));const f=data.facts.filter(f=>f.node_id===n.id);
@@ -46,21 +49,22 @@ function renderServices(){
   if(!f.length&&safeURL(n.source_url)){const a=el('a','Directory reference ↗');a.href=n.source_url;a.target='_blank';a.rel='noopener';evidence.append(a);}
   card.append(evidence);$('services').append(card);
  }
- renderStops();renderInterventions();
+ renderStops();renderPickups();renderRecoveryOptions();renderGo();
+ $('coverage').textContent=data.nodes.length?data.nodes.length+' directory places · '+data.nodes.filter(currentCheck).length+' services with current checks. Directory names do not confirm availability.':'Directory unavailable right now. Use the travel guide and contact providers before travelling.';
 }
 $('need-search').oninput=renderServices;$('service-evidence').onchange=renderServices;
 $('need-chips').onclick=e=>{const b=e.target.closest('[data-kind]');if(!b)return;kind=b.dataset.kind;document.querySelectorAll('[data-kind]').forEach(x=>x.setAttribute('aria-pressed',String(x===b)));renderServices();};
-$('locate').onclick=()=>{if(!navigator.geolocation)return $('connection').textContent='Location is unavailable. Search by name instead.';$('locate').disabled=true;navigator.geolocation.getCurrentPosition(p=>{position={lat:p.coords.latitude,lon:p.coords.longitude};$('origin-lat').value=position.lat;$('origin-lon').value=position.lon;$('locate').disabled=false;$('connection').textContent='Location used for this view. No location history is sent to Parishkar.';renderServices();},()=>{$('locate').disabled=false;$('connection').textContent='Location was not available. You can still search and enter a pickup point.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});};
+$('locate').onclick=()=>{if(!navigator.geolocation)return $('connection').textContent='Location is unavailable. Search by name instead.';$('locate').disabled=true;navigator.geolocation.getCurrentPosition(p=>{position={lat:p.coords.latitude,lon:p.coords.longitude};$('origin-lat').value=position.lat;$('origin-lon').value=position.lon;pickupChoice={name:'My current location',point:position,referenceOnly:false};$('pickup').value='gps';$('pickup-state').textContent='Using your current location. Agree your pickup with the driver.';$('locate').disabled=false;$('connection').textContent='Location used for this view. No location history is sent to Parishkar.';renderServices();},()=>{$('locate').disabled=false;$('connection').textContent='Location was not available. You can still search and enter a pickup point.';},{enableHighAccuracy:true,timeout:15000,maximumAge:60000});};
 function renderStops(){
  const old=new Set([...$('trip-stops').querySelectorAll('input:checked')].map(i=>i.value));$('trip-stops').replaceChildren();
- const entrances=data.nodes.filter(verifiedEntrance);
- if(!entrances.length)$('trip-stops').append(el('p','No entrances currently meet the reviewed access requirements. Operators can add and independently review evidence.','subtle'));
- for(const n of entrances.slice(0,12)){const label=el('label'),i=el('input');i.type='checkbox';i.value=n.id;i.checked=old.has(n.id);label.append(i,document.createTextNode(n.name));$('trip-stops').append(label);}
+ const entrances=data.nodes.filter(n=>verifiedEntrance(n)&&n.usable!==false);
+ if(!entrances.length)$('trip-stops').append(el('p','Checked entrances are not available yet. Explore the travel guide and confirm access locally before setting off.','subtle'));
+ for(const n of entrances){const label=el('label'),i=el('input');i.type='checkbox';i.value=n.id;i.checked=old.has(n.id);label.append(i,document.createTextNode(n.name));$('trip-stops').append(label);}
 }
 $('trip-form').onsubmit=async e=>{
- e.preventDefault();if(busy)return;busy=true;const submit=e.target.querySelector('[type=submit]');submit.disabled=true;lastPlan=null;$('save-trip').hidden=true;
+ e.preventDefault();if(busy)return;busy=true;const submit=e.target.querySelector('[type=submit]');submit.disabled=true;returnOrigin=lastPlan?.origin||returnOrigin;lastPlan=null;planState='unknown';renderGo();$('save-trip').hidden=true;
  try{
-  const origin={lat:Number($('origin-lat').value),lon:Number($('origin-lon').value)};if(!C.point(origin))throw new Error('Choose a valid origin');
+  const origin=readPickup();
   const ids=[...$('trip-stops').querySelectorAll('input:checked')].map(i=>i.value);if(!ids.length)throw new Error('Choose at least one reviewed entrance');
   const party=Number($('trip-party').value),budget=Math.round(Number($('trip-budget').value)*100);
   const base=C.budgetQuote(['transport','meals','stay','reserve'].map(k=>({label:k,paise:$('base-'+k).value===''?null:Math.round(Number($('base-'+k).value)*100),basis:'group'})),party,0);
@@ -81,7 +85,7 @@ $('trip-form').onsubmit=async e=>{
   if(result.feasible)root.append(el('p','Return '+clock(result.returnMinute)+' · '+money(base.totalPaise+result.costPaise)+' confirmed group costs and quoted stop fees.','notice'));
   for(const o of result.omitted)root.append(el('p',(nodes.find(n=>n.id===o.id)?.name||o.id)+': '+o.reason,'subtle'));
   root.append(el('p',result.method+'. Excludes live traffic, unsourced closures and unquoted extras. This is not a booking.','subtle'));
-  if(result.feasible){const dependencies=result.schedule.map(s=>{const n=nodes.find(n=>n.id===s.id),facts=data.facts.filter(f=>f.node_id===s.id);return {id:n.id,revision:n.revision,validUntil:new Date(Math.min(...facts.map(f=>Date.parse(f.valid_until)))).toISOString()};});lastPlan={createdAt:new Date().toISOString(),result,dependencies};$('save-trip').hidden=false;await checkPlan();}
+  if(result.feasible){const dependencies=result.schedule.map(s=>{const n=nodes.find(n=>n.id===s.id),facts=data.facts.filter(f=>f.node_id===s.id);return {id:n.id,revision:n.revision,validUntil:new Date(Math.min(...facts.map(f=>Date.parse(f.valid_until)))).toISOString()};});lastPlan={version:2,createdAt:new Date().toISOString(),result,dependencies,origin:{...origin,name:pickupChoice?.name||'Agreed pickup point',referenceOnly:pickupChoice?.referenceOnly===true},stops:result.schedule.map(s=>{const n=nodes.find(n=>n.id===s.id);return {id:n.id,name:n.name,point:reviewedPoint(n)};}),party,groupBudgetPaise:budget,totalPaise:base.totalPaise+result.costPaise,returnBy:time($('trip-end').value)};$('save-trip').hidden=false;await checkPlan();const go=el('button','Open my day →');go.onclick=()=>screen('go');root.append(go);}
  }catch(err){message($('trip-result'),err.name==='AbortError'?'Road routing timed out. Try again; no fallback route was invented.':err.message);}
  finally{busy=false;submit.disabled=false;}
 };
@@ -94,7 +98,7 @@ async function assertCurrent(expected){
  if(expected.some(n=>!r.data.some(v=>v.id===n.id&&v.revision===n.revision&&v.usable===true)))throw new Error('Access changed or expired. Refresh the page and recalculate.');
 }
 async function checkPlan(){
- if(!lastPlan||!sb)return;try{const {data:versions,error}=await sb.rpc('kasa_system_versions',{p_ids:lastPlan.dependencies.map(d=>d.id)});if(error||!Array.isArray(versions))throw new Error();const result=C.validatePlan(lastPlan,versions);$('plan-validity').textContent=result.valid?'Access dependencies are current. Check again before departure.':'This plan needs recalculation: access evidence changed or expired.';if(!result.valid)$('save-trip').hidden=true;}catch{$('save-trip').hidden=true;$('plan-validity').textContent='Could not recheck access. Treat the saved plan as unconfirmed.';}
+ if(!lastPlan||!sb)return;try{const {data:versions,error}=await sb.rpc('kasa_system_versions',{p_ids:lastPlan.dependencies.map(d=>d.id)});if(error||!Array.isArray(versions))throw new Error();const result=C.validatePlan(lastPlan,versions);planState=result.valid?'current':'changed';renderGo();$('plan-validity').textContent=result.valid?'Access dependencies are current. Check again before departure.':'This plan needs recalculation: access evidence changed or expired.';if(!result.valid)$('save-trip').hidden=true;}catch{planState='unknown';renderGo();$('save-trip').hidden=true;$('plan-validity').textContent='Could not recheck access. Treat the saved plan as unconfirmed.';}
 }
 $('dossier-form').onsubmit=e=>{
  e.preventDefault();const kind=$('case-kind').value,route=P.authority(kind==='service'?'service':'misconduct',$('case-scope').value);
@@ -107,32 +111,81 @@ $('dossier-form').onsubmit=e=>{
 $('clear-dossier').onclick=()=>{$('dossier-form').reset();dossier=null;$('dossier-password').value='';$('export-private').hidden=true;message($('case-next'),'Private draft cleared. Nothing was submitted.');};
 $('encrypt-dossier').onclick=async()=>{if(!dossier)return;const button=$('encrypt-dossier');button.disabled=true;try{const value=await window.ParishkarPrivate.encryptDossier(dossier,$('dossier-password').value);download(value,'parishkar-private-dossier.encrypted.json');$('dossier-password').value='';}catch(e){message($('case-next'),e.message);}finally{button.disabled=false;}};
 $('save-reference').onclick=()=>{const value=$('official-reference').value.trim();if(!value)return;try{localStorage.setItem('parishkar_official_reference',JSON.stringify({reference:value,at:new Date().toISOString()}));$('reference-state').textContent='User-entered reference saved locally. Filing and receipt have not been independently verified.';}catch{$('reference-state').textContent='Device storage unavailable.';}};
-function renderInterventions(){const root=$('intervention-list');root.replaceChildren();if(!data.interventions.length)root.append(el('p','No independently reviewed interventions are published yet.','subtle'));for(const i of data.interventions)root.append(el('h3',i.title),el('p',i.state+' · '+i.blockedRoutes+' affected reviewed circuits · '+(i.costPaise===null?'Quote missing':money(i.costPaise)),'subtle'));}
-$('capacity-form').onsubmit=e=>{e.preventDefault();try{const r=C.rankInterventions(data.interventions,{budgetPaise:Math.round(Number($('crew-budget').value)*100),crewMinutes:Number($('crew-minutes').value)});const root=$('capacity-result');root.replaceChildren(el('p',r.selected.length+' interventions fit · '+money(r.costPaise)+' · '+r.crewMinutes+' crew minutes','notice'));for(const i of r.selected)root.append(el('p',i.title));for(const i of r.deferred)root.append(el('p',(data.interventions.find(x=>x.id===i.id)?.title||i.id)+': '+i.reason,'subtle'));root.append(el('p',r.policy,'subtle'));}catch(e){message($('capacity-result'),e.message);}};
-const twinFields={water:[['inflowLps','Inflow litres/second'],['outflowLps','Outflow litres/second'],['storageLitres','Initial stored litres'],['capacityLitres','Storage capacity litres'],['durationMinutes','Duration minutes']],rain:[['rainMm','Event rainfall mm'],['catchmentM2','Catchment square metres'],['runoffCoefficient','Runoff fraction (0–1)'],['drainLps','Drain capacity litres/second'],['storageLitres','Available storage litres'],['durationMinutes','Duration minutes'],['blockedFraction','Blocked drainage fraction (0–1)']]};
-function twinInputs(){const root=$('twin-inputs');root.replaceChildren();for(const [key,label] of twinFields[$('twin-model').value]){const l=el('label',label),i=el('input');i.id='twin-'+key;i.type='number';i.min='0';i.step='any';i.required=true;l.append(i);root.append(l);}}
-$('twin-model').onchange=twinInputs;twinInputs();
-$('twin-form').onsubmit=e=>{e.preventDefault();try{const kind=$('twin-model').value,input=Object.fromEntries(twinFields[kind].map(([k])=>[k,Number($('twin-'+k).value)])),r=kind==='water'?T.waterBalance(input):T.rainfallStorage(input);const root=$('twin-result');root.replaceChildren(el('p','Exploratory scenario · manual assumptions','badge'));for(const [k,v] of Object.entries(r))if(typeof v==='number')root.append(el('p',k.replace(/([A-Z])/g,' $1')+': '+Math.round(v).toLocaleString('en-IN')));root.append(el('p',r.assumptions,'notice'));}catch(e){message($('twin-result'),e.message);}};
-for(const sector of P.sectors){const section=el('section',undefined,'sector');section.append(el('h3',sector.name),el('p','Available mechanisms: '+sector.available.join(' · ')),el('p','Policy proposals requiring separate authority and implementation: '+sector.proposals.join(' · '),'subtle'),el('p',sector.guard,'notice'));$('sector-rules').append(section);}
-async function loadTelemetry(){
- const root=$('sensor-state');try{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),8000);let r;try{r=await sb.rpc('kasa_system_telemetry',{p_district:'purulia'}).abortSignal(controller.signal);}finally{clearTimeout(timer);}
- if(r.error||!Array.isArray(r.data))throw new Error();root.replaceChildren();if(!r.data.length)root.append(el('p','No authenticated public sensor feed is connected. Scenario inputs are manual assumptions.'));
- for(const {device,reading} of r.data){const state=T.readingState(reading,device);root.append(el('h3',device.name),el('p',reading.value+' '+device.unit+' · '+new Date(reading.measured_at).toLocaleString('en-IN')),el('p',state.state,state.usable?'subtle':'notice'));}
- }catch{root.textContent='Telemetry service unavailable. No live infrastructure status is asserted. Scenario inputs remain manual assumptions.';}
+function renderPickups(){
+ const selected=$('pickup').value;const entries=J.pickups(data);$('pickup').querySelectorAll('[data-place]').forEach(o=>o.remove());
+ for(const p of entries){const o=el('option',p.name+(p.referenceOnly?' · area point':''));o.value=p.id;o.dataset.place='1';$('pickup').append(o);}
+ if([...$('pickup').options].some(o=>o.value===selected))$('pickup').value=selected;
 }
+function readPickup(){
+ if($('pickup').value==='manual'){
+  if($('origin-lat').value.trim()===''||$('origin-lon').value.trim()==='')throw new Error('Enter both exact coordinates, or choose a named pickup.');
+  const p={lat:Number($('origin-lat').value),lon:Number($('origin-lon').value)};if(!C.point(p))throw new Error('Choose a valid pickup point');pickupChoice={name:'Agreed pickup point',point:p,referenceOnly:false};return p;
+ }
+ if(!pickupChoice||!C.point(pickupChoice.point))throw new Error('Choose a named pickup or allow your current location first.');return pickupChoice.point;
+}
+for(const id of ['origin-lat','origin-lon'])$(id).oninput=()=>{$('pickup').value='manual';pickupChoice=null;$('pickup-state').textContent='Using your edited exact point. Confirm the meeting arrangement.';};
+$('pickup').onchange=()=>{
+ const selected=$('pickup').value;pickupChoice=null;
+ if(selected==='gps'){$('locate').click();return;}
+ if(selected==='manual'){$('pickup-exact').open=true;$('pickup-state').textContent='Enter the exact point agreed with your driver.';return;}
+ const p=J.pickups(data).find(p=>p.id===selected);if(!p)return;
+ pickupChoice=p;$('origin-lat').value=p.point.lat;$('origin-lon').value=p.point.lon;
+ $('pickup-state').textContent=p.referenceOnly?p.name+' is an approximate area point. Confirm the exact meeting point with your driver.':p.name+' · checked map point. Confirm your meeting arrangement.';
+};
+function mapLink(label,point,origin=null){const a=el('a',label,'button');a.target='_blank';a.rel='noopener';a.href=origin?'https://www.google.com/maps/dir/?api=1&origin='+encodeURIComponent(origin.lat+','+origin.lon)+'&destination='+encodeURIComponent(point.lat+','+point.lon)+'&travelmode=driving':'https://www.google.com/maps/search/?api=1&query='+encodeURIComponent(point.lat+','+point.lon);return a;}
+function returnCard(root){
+ root.replaceChildren();const origin=lastPlan?.origin||returnOrigin;if(!C.point(origin))return;
+ root.append(el('h3','Keep your way back'),el('p','Return point: '+origin.name+(origin.referenceOnly?' · approximate area; confirm your meeting point.':'.')));
+ root.append(mapLink('Open return point ↗',origin));root.append(el('p','A map link is not a booked ride. Confirm the vehicle, fare and pickup time directly.','subtle'));
+}
+function renderGo(){
+ const root=$('go-plan');root.replaceChildren();if(!lastPlan?.result?.schedule?.length){root.append(el('h2','Start with a plan'),el('p','Your stops and return point will appear here once a day fits the current access, time and quoted costs.'));const b=el('button','Plan my day');b.onclick=()=>screen('plan');root.append(b);returnCard($('return-rescue'));return;}
+ root.append(el('h2',planState==='current'?'Your route is checked for now.':'Recheck before setting off.'),el('p',planState==='current'?'Access checks are current. Availability can still change.':'Access changed, expired or could not be checked. Recalculate before relying on the stops.','notice'));
+ if(Number.isSafeInteger(lastPlan.totalPaise))root.append(el('p',money(lastPlan.totalPaise)+' quoted group cost · planned return '+clock(lastPlan.result.returnMinute)));
+ for(const s of lastPlan.result.schedule){const n=lastPlan.stops?.find(n=>n.id===s.id)||data.nodes.find(n=>n.id===s.id);root.append(el('h3',clock(s.arrival)+' · '+(n?.name||'Saved stop')),el('p','Leave by '+clock(s.leave)));if(planState==='current'&&C.point(n?.point))root.append(mapLink('Open stop on map ↗',n.point));}
+ root.append(el('h3','Check the essentials'));
+ for(const [type,label] of [['toilet','Working toilet'],['food','Meal within your budget'],['water','Water supply'],['transport','Return transport'],['stay','A room, if staying overnight']]){
+  const b=el('button','Find '+label.toLowerCase());b.onclick=()=>{$('recovery-kind').value=type;updateRecoveryKind();screen('help');$('recovery-form').scrollIntoView({block:'start'});};root.append(b);
+ }
+ root.append(el('p','These are things to confirm, not services included in the itinerary.','subtle'));const back=el('div');returnCard(back);root.append(back);returnCard($('return-rescue'));
+}
+function renderRecoveryOptions(){const selected=$('recovery-exclude').value;$('recovery-exclude').replaceChildren();const none=el('option','None selected / not in the directory');none.value='';$('recovery-exclude').append(none);for(const n of data.nodes){const o=el('option',n.name);o.value=n.id;$('recovery-exclude').append(o);}if([...$('recovery-exclude').options].some(o=>o.value===selected))$('recovery-exclude').value=selected;}
+function updateRecoveryKind(){$('recovery-rooms-label').hidden=$('recovery-kind').value!=='stay';}
+$('recovery-kind').onchange=updateRecoveryKind;
+$('recovery-form').onsubmit=async e=>{
+ e.preventDefault();const button=e.target.querySelector('[type=submit]');button.disabled=true;const root=$('recovery-result');message(root,'Checking the latest alternatives…');
+ try{
+  await load();if(!live)throw new Error('Live checks are unavailable. No alternative can be confirmed. Use the guide to contact providers directly.');
+  const type=$('recovery-kind').value,excluded=$('recovery-exclude').value,budget=$('recovery-budget').value,party=Number($('recovery-party').value),rooms=Number($('recovery-rooms').value);
+  const candidates=J.recoveryCandidates(data,{type,party,rooms,budgetPaise:budget===''?null:Math.round(Number(budget)*100),excludedIds:excluded?[excluded]:[],origin:position||pickupChoice?.point||lastPlan?.origin});
+  recoveryShown=candidates.slice(0,5).map(n=>({id:n.id,revision:n.revision}));root.replaceChildren();if(!candidates.length){root.append(el('h3','No recently checked alternative fits.'),el('p','We cannot confirm an option for these constraints. Contact your accommodation or transport provider, change the budget, or check the travel guide.','notice'));const guide=el('a','Open the travel guide ↗','button');guide.href='tourism.html';root.append(guide);}
+  for(const n of candidates.slice(0,5)){
+   const card=el('article',undefined,'service-card');card.append(el('h3',n.name),el('p',n.costPaise===null?'Price needs confirmation':money(n.costPaise)+' quoted group cost'+(type==='stay'?' for one night':'')));
+   if(n.distance!==null)card.append(el('p',n.distance.toFixed(1)+' km straight-line','subtle'));
+   const checked=C.factAt(data.facts,n.id,type==='attraction'?'access_status':'open_status');card.append(el('p','Checked '+new Date(checked.observed_at).toLocaleString('en-IN')+' · call before travelling.','subtle'));
+   const contact=fact(n.id,'public_contact');if(contact?.consent===true&&/^\+?[0-9 -]{7,20}$/.test(contact.phone)){const a=el('a','Call to confirm','button primary');a.href='tel:'+contact.phone.replace(/[^+0-9]/g,'');card.append(a);}else card.append(el('p','No consented provider contact is published. A booking or available seat is not confirmed.','subtle'));
+   card.append(mapLink('Open checked point ↗',n.point));
+   if(type==='attraction'){const b=el('button','Use this stop and recalculate');b.onclick=()=>{for(const input of $('trip-stops').querySelectorAll('input')){if(input.value===excluded)input.checked=false;if(input.value===n.id)input.checked=true;}screen('plan');message($('trip-result'),'Alternative selected. Review the budget and return time, then calculate again.');};card.append(b);}
+   root.append(card);
+  }
+  returnCard($('return-rescue'));
+ }catch(err){message(root,err.message||'Alternatives could not be checked.');}finally{button.disabled=false;}
+};
+
 async function load(){
  try{
   if(!sb)throw new Error('Service connection unavailable');const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),12000);let response;
   try{response=await sb.rpc('kasa_system_snapshot',{p_district:'purulia'}).abortSignal(controller.signal);}finally{clearTimeout(timer);}
-  if(response.error||!snapshotOK(response.data))throw new Error('The service evidence backend is unavailable or not yet installed');data=response.data;
+  if(response.error||!snapshotOK(response.data))throw new Error('The service evidence backend is unavailable or not yet installed');data=response.data;live=true;
   $('connection').textContent='Public evidence refreshed '+new Date(data.at).toLocaleTimeString('en-IN')+'. Availability can change.';
   try{localStorage.setItem('parishkar_public_system_cache',JSON.stringify(data));}catch{}
  }catch(e){
-  try{const cached=JSON.parse(localStorage.getItem('parishkar_public_system_cache'));if(snapshotOK(cached))data=cached;}catch{}
-  $('connection').textContent='Live evidence unavailable. '+(data.nodes.length?'Showing saved public records; expired checks are excluded.':'Directory and planning claims remain unavailable until the evidence service is ready.');
+  live=false;try{const cached=JSON.parse(localStorage.getItem('parishkar_public_system_cache'));if(snapshotOK(cached))data=cached;}catch{}
+  $('connection').textContent='Local checks could not refresh. '+(data.nodes.length?'Showing saved public records; expired checks are excluded.':'Use the travel guide and confirm access directly before travelling.');
  }
- renderServices();await checkPlan();await loadTelemetry();
+ if(recoveryShown.length&&(!live||recoveryShown.some(old=>{const n=data.nodes.find(n=>n.id===old.id);return !n||n.revision!==old.revision||(n.kind==='entrance'?!verifiedEntrance(n)||n.usable===false:!currentCheck(n));}))){recoveryShown=[];message($('recovery-result'),'These alternatives need a fresh check. Search again before travelling.');}
+ renderServices();await checkPlan();
 }
 try{const saved=JSON.parse(localStorage.getItem('parishkar_system_plan'));if(saved?.dependencies)lastPlan=saved;const reference=JSON.parse(localStorage.getItem('parishkar_official_reference'));if(reference?.reference)$('reference-state').textContent='Saved user-entered reference: '+reference.reference+' · not independently verified.';}catch{}
-load();setInterval(()=>{if(!document.hidden&&navigator.onLine)load();},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});window.addEventListener('online',load);
+renderGo();load();setInterval(()=>{if(!document.hidden&&navigator.onLine)load();},30000);document.addEventListener('visibilitychange',()=>{if(!document.hidden)load();});window.addEventListener('online',load);
 })();

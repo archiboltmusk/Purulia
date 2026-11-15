@@ -143,3 +143,7 @@ using the existing database secret and checks API grants and directory count.
 `system-maintenance.yml` drains internal projection events and flags follow-ups
 on a 15-minute GitHub schedule (scheduling is not a deadline guarantee).
 Public access validity is computed at read time and does not depend on that cron.
+
+## Visitor journey revision
+
+Explore / Plan / Go / Help is the public navigation. Directory names are visible by default with an explicit coverage count; service searches require current operating checks. Named pickups use existing directory reference area points or reviewed coordinates, with approximate points labelled before calculation. Current location is opt-in; exact manual coordinates remain an advanced option. Go shows current plan access, stop maps, essential-service discovery and the return point. No ride is booked or represented as confirmed. Help refreshes public evidence before matching alternatives, excludes the place the visitor says failed, enforces group budget/price units, and never substitutes directory names for checked availability. A replacement attraction returns to the constrained planner for recalculation. Legacy saved plans without pickup metadata remain readable but cannot invent a return point. Improvement scenarios and public intervention planning moved to system-tools.html; operator sign-in remains separate. Real circuit commissioning and physical service verification remain field work, not software-generated facts.
