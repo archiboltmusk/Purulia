@@ -123,6 +123,7 @@ function readPickup(){
  }
  if(!pickupChoice||!C.point(pickupChoice.point))throw new Error('Choose a named pickup or allow your current location first.');return pickupChoice.point;
 }
+for(const id of ['origin-lat','origin-lon'])$(id).oninput=()=>{$('pickup').value='manual';pickupChoice=null;$('pickup-state').textContent='Using your edited exact point. Confirm the meeting arrangement.';};
 $('pickup').onchange=()=>{
  const selected=$('pickup').value;pickupChoice=null;
  if(selected==='gps'){$('locate').click();return;}
