@@ -8,3 +8,4 @@
 #route-stops{list-style:none;padding-left:0}#route-stops li{margin:.4rem 0}
 
 .catalogue-controls{display:flex;align-items:end;flex-wrap:wrap;gap:1rem;margin:1rem 0}.catalogue-controls label{flex:1;min-width:180px}.catalogue-controls select{display:block;width:100%;margin-top:.4rem}#more-places{margin:1.5rem auto}#result-count{font-size:.9rem}.place details button{font-size:.85rem;margin-top:.7rem}#catalogue-summary{line-height:1.6}
+[hidden]{display:none!important}

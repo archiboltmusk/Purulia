@@ -79,14 +79,14 @@ test('road routing is optional, reports real estimates and survives failure',asy
 });
 
 test('all submitted names are searchable; unresolved points cannot become pins',async({page})=>{
- await page.goto('/tourism.html');await expect(page.locator('#catalogue-summary')).toContainText('56 catalogue entries');
+ await page.goto('/tourism.html');await expect(page.locator('#catalogue-summary')).toContainText('56 catalogue entries');await expect(page.locator('#more-places')).toBeVisible();await page.locator('#more-places').click();await expect(page.locator('#places .place')).toHaveCount(24);
  await page.locator('#search').fill('Honpa Ban');await expect(page.locator('#places .place')).toHaveCount(1);await expect(page.locator('#places')).toContainText('Kumit Mukh');
  await page.evaluate(()=>{window.focusCalls=0;window.addEventListener('tourism-focus',()=>window.focusCalls++);});
  await page.getByRole('button',{name:'Find map candidates'}).click();await expect(page.locator('#location-status')).toContainText('No pin has been placed');
  expect(await page.evaluate(()=>focusCalls)).toBe(0);
  await page.locator('#search').fill('');await page.locator('#place-type').selectOption('forest');
  await expect(page.locator('#places')).toContainText('Matha Forest');await expect(page.locator('#places')).toContainText('Duarsini Jungle');
- await page.locator('#place-type').selectOption('');await page.locator('#place-status').selectOption('mapped');await expect(page.locator('#places .place')).toHaveCount(8);
+ await page.locator('#place-type').selectOption('');await page.locator('#place-status').selectOption('mapped');await expect(page.locator('#places .place')).toHaveCount(8);await expect(page.locator('#more-places')).toBeHidden();
  const download=page.waitForEvent('download');await page.locator('#export-catalogue').click();expect((await download).suggestedFilename()).toBe('purulia-special-locations.json');
 });
 test('source corrections open with the destination identity prefilled',async({page})=>{

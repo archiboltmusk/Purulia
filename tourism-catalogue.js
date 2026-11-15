@@ -852,7 +852,7 @@ const submitted = [
   },
   "referenceStatus": "needs_review",
   "sources": [],
-  "note": "Submitted near Murguma Dam. Historical submitted label is retained for search; current name and access need checking.",
+  "note": "Submitted near Murguma Dam. Submitted alternative label is retained for search; current name and access need checking.",
   "relatedCandidates": [],
   "lat": null,
   "lon": null,
