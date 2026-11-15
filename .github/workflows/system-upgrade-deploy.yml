@@ -1,0 +1,41 @@
+name: Apply unified place system
+on:
+  push:
+    branches: [main]
+    paths: ['supabase/migrations/*_unified_place_system.sql', 'supabase/migrations/*_system_telemetry.sql', 'supabase/migrations/*_system_directory.sql', '.github/workflows/system-upgrade-deploy.yml']
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: unified-place-database
+  cancel-in-progress: false
+jobs:
+  migrate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - name: Apply shared graph, telemetry and directory atomically
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" || { echo '::error::Database secret missing; upgrade not installed.'; exit 1; }
+          sed '/^begin;$/d; /^commit;$/d' supabase/migrations/20261115180000_unified_place_system.sql supabase/migrations/20261115181000_system_telemetry.sql supabase/migrations/20261115182000_system_directory.sql > "$RUNNER_TEMP/system.sql"
+          psql "$SUPABASE_DB_URL" --no-psqlrc --single-transaction --set=ON_ERROR_STOP=1 --file="$RUNNER_TEMP/system.sql"
+      - name: Verify public and private boundaries
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          psql "$SUPABASE_DB_URL" --no-psqlrc --set=ON_ERROR_STOP=1 <<'SQL'
+          do $$ begin
+            if to_regprocedure('public.kasa_system_snapshot(text)') is null
+              or to_regprocedure('public.kasa_system_telemetry(text)') is null
+              or has_function_privilege('anon','public.kasa_system_command(uuid,text,jsonb)','execute')
+              or has_function_privilege('authenticated','public.kasa_system_ingest_verified(uuid,bigint,timestamptz,double precision,text)','execute')
+              or jsonb_array_length(public.kasa_system_snapshot('purulia')->'nodes')<56 then
+              raise exception 'Unified place system verification failed';
+            end if;
+          end $$;
+          select kasa_private.system_process_events(100);
+          SQL

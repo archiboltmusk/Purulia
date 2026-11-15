@@ -1,0 +1,3 @@
+# Packets authenticate with enrolled Ed25519 keys; gateway JWT is not a device identity.
+[functions.kasa-system-ingest]
+verify_jwt = false
