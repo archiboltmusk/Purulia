@@ -1713,3 +1713,5 @@ nav{box-shadow:none;}
 #groundtruth,#respond,#cta,.btn-c,.nav-dropdown,#cmdpal-inner,#kbhelp-box,.np-float,#btt,.rm-badge{--cream:#F0E6D0;--cream-rgb:240,230,208;}
 /* Light cards inside those dark sections keep dark text in the light theme */
 [data-theme="light"] :is(#groundtruth,#respond) :is(.sm-card,.ec,.tlc,.pill,.spi,.voice-card,.lf-item,.fp,.pf-role-card,.crisis-stat,.mom-item,.form-input,.form-textarea,.form-select,.follow-input){--cream:#1A1410;--cream-rgb:26,20,16;}
+
+.data-freshness{max-width:1100px;margin:2rem auto;padding:1.25rem;border:1px solid currentColor;font-size:.9rem;line-height:1.6}.data-freshness summary{cursor:pointer;font-weight:700}.data-freshness ul{padding-left:1.5rem}.data-freshness li{margin:.75rem 0}

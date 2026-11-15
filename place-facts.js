@@ -18,6 +18,7 @@ window.PlaceFacts = (() => {
     return loading || (loading = fetch(URL_).then(r => { if (!r.ok) throw new Error(r.status); return r.json(); })
       .then(d => {
         data = d;
+        window.DataFreshness?.mount(d);
         // A town chosen on the map (its slug) counts as the district it is in.
         let k = null;
         try { k = localStorage.getItem(SAVED); } catch (e) {}

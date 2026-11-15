@@ -29,7 +29,7 @@ input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6p
 .tl{list-style:none;margin:8px 0 0;padding:0 0 0 6px;border-left:3px solid var(--ok)}
 .tl li{position:relative;padding:0 0 10px 18px}
 .tl .dot{position:absolute;left:-9px;top:4px;width:14px;height:14px;border-radius:50%;background:var(--ok);border:2px solid var(--paper)}
-</style>
+dialog{max-width:min(94vw,600px);background:var(--paper);color:var(--ink);border:2px solid var(--line)}dialog video{width:100%;max-height:60vh}.work-photo{max-width:240px;max-height:180px;display:block}button:disabled{opacity:.5;cursor:wait}</style>
 </head>
 <body>
 <main class="wrap">
@@ -48,7 +48,7 @@ input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6p
 
   <section id="worker" class="hidden">
     <div class="row"><h2>My jobs</h2><button id="wout">Sign out</button></div>
-    <p class="muted">Start a job when you begin. Mark it complete when done; the officer then signs off. Work photos (live camera and GPS, upload later when online) come in the next release.</p>
+    <p class="muted">Start a job when you begin. Mark it complete when done; the officer then signs off. Take a work photo on site before completing the job. The officer reviews it; independent community verification is required before closure.</p>
     <div id="myjobs"></div>
     <p class="err" id="werr"></p>
   </section>
@@ -66,8 +66,8 @@ input{font:inherit;padding:6px 8px;border:2px solid var(--line);border-radius:6p
     <p class="err" id="err"></p>
   </section>
 
-  <div class="note">Worker photos (live camera and GPS, offline upload) and partner accounts are not built yet.</div>
-</main>
+  <div class="note">Work photos require camera, location and an internet connection. Failed uploads remain in this tab for retry; keep it open. Moderators act as officers until municipal accounts are onboarded.</div>
+<dialog id="work-camera" aria-labelledby="camera-title"><h2 id="camera-title">Take a work photo on site</h2><video id="work-video" autoplay playsinline muted></video><p id="camera-status" role="status"></p><button id="work-shutter" class="primary">Take photo & upload</button><button id="work-retake">Discard unsent photo / retake</button><button id="work-cancel">Close camera</button></dialog></main>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script>
 <script src="config.js"></script>

@@ -9,14 +9,14 @@
   const LIVE_EXCLUDE = ['rejected', 'paid'];
   const STATE_LABEL = {
     approved: 'Approved', assigned: 'Assigned', in_progress: 'In progress', completed: 'Completed',
-    verified: 'Verified', paid: 'Paid (reference recorded)', rejected: 'Rejected'
+    reopened: 'Reopened', verified: 'Verified', paid: 'Paid (reference recorded)', rejected: 'Rejected'
   };
 
   const show = (id, on) => $(id).classList.toggle('hidden', !on);
   const fail = msg => { $('err').textContent = msg || ''; $('werr').textContent = msg || ''; };
 
   function showSignIn(msg) {
-    show('app', false); show('signin', true);
+    show('app', false); show('worker', false); show('signin', true);
     $('signErr').textContent = msg || '';
   }
 
@@ -41,14 +41,15 @@
         <div class="card"><div class="row">
           <div><strong>${esc(o.office)}</strong> <span class="pill">${esc(STATE_LABEL[o.state] || o.state)}</span>
             <div class="muted">Order ${esc(o.order_no || '')} · due ${esc(fmt(o.sla_due))} · ${esc(o.firm || '')}</div></div>
-          <div>${workerActions(o)}</div>
+          <div><a href="case.html?id=${encodeURIComponent(o.report_id)}">View case & location</a>${workerActions(o)}<button data-photos="${o.order_id}">Work photos</button></div>
         </div></div>`).join('');
     $('myjobs').querySelectorAll('[data-wstep]').forEach(b => b.addEventListener('click', () => workerStep(b.dataset.order, b.dataset.wstep)));
+    bindPhotos($('myjobs'), false);
   }
 
   function workerActions(o) {
     if (o.state === 'assigned') return `<button class="primary" data-order="${o.order_id}" data-wstep="start">Start job</button>`;
-    if (o.state === 'in_progress') return `<button class="primary" data-order="${o.order_id}" data-wstep="complete">Mark complete</button>`;
+    if (o.state === 'in_progress') return `<button data-camera="${o.order_id}">Take work photo</button><button class="primary" data-order="${o.order_id}" data-wstep="complete">Mark complete</button>`;
     return '';
   }
 
@@ -129,8 +130,9 @@
           </div>
           <div>${actions(o)}</div>
         </div>
-        ${timelineHTML(o.timeline)}
+        <a href="case.html?id=${encodeURIComponent(o.report_id)}">View evidence & community verification</a><button data-photos="${o.order_id}">Review work photos</button>${timelineHTML(o.timeline)}
       </div>`).join('');
+    bindPhotos(el, true);
     el.querySelectorAll('[data-step]').forEach(b => b.addEventListener('click', () => step(b.dataset.order, b.dataset.step)));
   }
 
@@ -140,13 +142,20 @@
       case 'approved': return b('assign', 'Assign firm', 'primary') + b('reject', 'Reject');
       case 'assigned': return b('start', 'Mark started', 'primary');
       case 'in_progress': return b('complete', 'Mark complete', 'primary');
+      case 'reopened': return b('send_back', 'Request new work photo', 'primary');
       case 'completed': return (o.signed_off ? b('sync', 'Check verification') : b('signoff', 'Officer sign-off', 'primary')) + b('send_back', 'Send back');
-      case 'verified': return b('pay', 'Record payment reference', 'primary');
+      case 'verified': return b('pay', 'Record payment reference', 'primary') + b('reopen', 'Reopen disputed work');
+      case 'paid': return b('reopen', 'Reopen disputed work');
       default: return '';
     }
   }
 
   async function step(orderId, action) {
+    if(action === 'reopen'){
+      const reason=(prompt('Why does this work need reopening? At least 10 characters.')||'').trim();if(reason.length<10)return;
+      const {error}=await sb.rpc('kasa_partner_reopen',{p_order:Number(orderId),p_reason:reason});if(error)return fail(error.message);return load();
+    }
+
     const args = { p_order: Number(orderId), p_action: action, p_firm: null, p_order_no: null, p_note: null };
     if (action === 'assign') {
       const worker = (prompt('Worker account id (added with "Add worker")') || '').trim();
@@ -168,6 +177,67 @@
     if (error) return fail(error.message);
     await load();
   }
+
+  function bindPhotos(root,admin){
+    root.querySelectorAll('[data-camera]').forEach(b=>b.onclick=()=>openWorkCamera(b.dataset.camera));
+    root.querySelectorAll('[data-photos]').forEach(b=>b.onclick=async()=>{
+      b.disabled=true;
+      try{
+        let panel=b.parentElement.querySelector('.photo-panel');if(panel){panel.remove();return;}
+        const {data,error}=await sb.rpc('kasa_partner_order_photos',{p_order:Number(b.dataset.photos)});if(error)throw error;
+        panel=document.createElement('div');panel.className='photo-panel';
+        if(!data?.length)panel.textContent='No work photos recorded.';
+        for(const p of data||[]){
+          const card=document.createElement('div');card.className='card';const image=document.createElement('img');image.className='work-photo';image.alt='Work photo taken '+fmt(p.taken_at);image.loading='lazy';image.src=sb.storage.from('kasa-photos').getPublicUrl(p.path).data.publicUrl;
+          const label=document.createElement('p');label.textContent=(p.current?'Current cycle':'Previous cycle')+' · '+(p.rejected?'Rejected':p.approved?'Approved':'Awaiting review')+(p.note?' · '+p.note:'');card.append(image,label);
+          if(admin&&p.current){for(const decision of ['approve','reject']){const action=document.createElement('button');action.textContent=decision==='approve'?'Approve photo':'Reject photo';action.onclick=async()=>{
+            const note=decision==='reject'?(prompt('Reason for rejection')||'').trim():null;if(decision==='reject'&&(!note||note.length<3))return;
+            action.disabled=true;try{const r=await sb.rpc('kasa_admin_partner_photo_review',{p_photo:p.id,p_decision:decision,p_note:note});if(r.error)throw r.error;await load();}catch(e){fail(e.message);action.disabled=false;}
+          };card.append(action);}}
+          panel.append(card);
+        }
+        b.parentElement.append(panel);
+      }catch(e){fail(e.message||'Photo review unavailable. Apply the partner evidence migration.');}finally{b.disabled=false;}
+    });
+  }
+  let stream=null,cameraOrder=null,photoDraft=null,cameraGeneration=0,uploading=false;
+  const dialog=$('work-camera'),video=$('work-video'),shutter=$('work-shutter'),cameraStatus=$('camera-status');
+  function stopCamera(){cameraGeneration++;stream?.getTracks().forEach(t=>t.stop());stream=null;video.srcObject=null;}
+  function closeCamera(){if(uploading)return;stopCamera();dialog.close();}
+  $('work-cancel').onclick=closeCamera;
+  $('work-retake').onclick=()=>{if(uploading)return;photoDraft=null;shutter.textContent='Take photo & upload';cameraStatus.textContent='Ready for a new photo.';};
+  dialog.addEventListener('cancel',e=>{e.preventDefault();closeCamera();});
+  window.addEventListener('pagehide',stopCamera);
+  async function openWorkCamera(order){
+    if(photoDraft&&photoDraft.order!==Number(order)&&!confirm('Discard the unsent photo from the previous job?'))return;
+    if(photoDraft?.order!==Number(order))photoDraft=null;
+    cameraOrder=Number(order);stopCamera();const generation=cameraGeneration;dialog.showModal();shutter.disabled=true;cameraStatus.textContent='Starting camera…';
+    try{
+      const media=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'}},audio:false});
+      if(generation!==cameraGeneration){media.getTracks().forEach(t=>t.stop());return;}
+      stream=media;video.srcObject=stream;await video.play();shutter.disabled=false;
+      shutter.textContent=photoDraft?'Retry photo upload':'Take photo & upload';cameraStatus.textContent=photoDraft?'Unsent photo is ready to retry.':'Stand at the reported location. A fresh GPS fix is required.';
+    }catch(e){cameraStatus.textContent='Camera unavailable. Allow camera access on HTTPS and try again.';}
+  }
+  shutter.onclick=async()=>{
+    if(uploading)return;uploading=true;shutter.disabled=true;$('work-cancel').disabled=true;
+    try{
+      if(!photoDraft){
+        const {data:token,error}=await sb.rpc('kasa_issue_capture_token');if(error||!token)throw new Error('Could not authorise capture. Check your connection and try again.');
+        cameraStatus.textContent='Getting a fresh location…';
+        const gps=await new Promise((ok,no)=>navigator.geolocation.getCurrentPosition(ok,no,{enableHighAccuracy:true,maximumAge:0,timeout:20000}));
+        if(!video.videoWidth)throw new Error('Camera is not ready. Try again.');
+        const canvas=document.createElement('canvas'),scale=Math.min(1,1600/video.videoWidth);canvas.width=Math.round(video.videoWidth*scale);canvas.height=Math.round(video.videoHeight*scale);canvas.getContext('2d').drawImage(video,0,0,canvas.width,canvas.height);
+        const blob=await new Promise(ok=>canvas.toBlob(ok,'image/jpeg',.85));if(!blob)throw new Error('Could not capture a photo.');
+        photoDraft={order:cameraOrder,blob,path:'partner/'+crypto.randomUUID().replaceAll('-','')+'.jpg',uploaded:false,meta:{capture:'live',capture_token:token,taken_at:new Date().toISOString(),lat:gps.coords.latitude,lng:gps.coords.longitude,accuracy:gps.coords.accuracy}};
+      }
+      cameraStatus.textContent='Uploading work photo…';const d=photoDraft;
+      if(!d.uploaded){const {error}=await sb.storage.from('kasa-photos').upload(d.path,d.blob,{contentType:'image/jpeg',upsert:false});if(error&&String(error.statusCode)!=='409')throw error;d.uploaded=true;}
+      const {error}=await sb.rpc('kasa_partner_add_work_photo',{p_order:d.order,p_path:d.path,p_meta:d.meta});if(error)throw error;
+      photoDraft=null;cameraStatus.textContent='Work photo recorded. You can now mark the job complete.';shutter.textContent='Take another photo';
+    }catch(e){cameraStatus.textContent=e.message||'Upload failed. Keep this tab open and retry.';shutter.textContent=photoDraft?'Retry photo upload':'Take photo & upload';}
+    finally{uploading=false;shutter.disabled=false;$('work-cancel').disabled=false;}
+  };
 
   $('go').addEventListener('click', async () => {
     const { error } = await sb.auth.signInWithPassword({ email: $('em').value.trim(), password: $('pw').value });

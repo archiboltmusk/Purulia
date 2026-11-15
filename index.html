@@ -138,9 +138,10 @@ if (sessionStorage.getItem("pgt")) {
     <p class="h-lead">Every civic problem across Purulia district — <strong>garbage, drains, roads, schools, health centres, water</strong> — on one public map.<br>Every block. Every municipality. Every ward.<br><strong>Nothing is marked fixed until people on the spot confirm it.</strong></p>
     <label class="gt-pick" hidden>District <select id="homePick" aria-label="Choose a district"></select></label>
     <div class="h-btns">
-      <a href="kasa.html" class="btn btn-a h-btn-primary">Report a Problem →</a>
+      <a href="kasa.html?report=new" class="btn btn-a h-btn-primary">Report a Problem →</a>
       <div class="h-btns-sub">
-        <a href="blueprint.html" class="h-sub-link">Read the blueprint</a>
+        <a href="case.html" class="btn btn-b">Track a case →</a>
+        <a href="tourism.html" class="btn btn-b">Explore Purulia →</a>
       </div>
     </div>
   </div>
@@ -450,7 +451,7 @@ if (sessionStorage.getItem("pgt")) {
 <script src="config.js"></script>
 <script defer src="digest-sheet.js" data-banner></script>
 <script src="script.js"></script>
-<script defer src="place-facts.js"></script>
+<script src="data-freshness.js"></script><script defer src="place-facts.js"></script>
 <script defer src="home-place.js"></script>
 <script>
 (function(){
