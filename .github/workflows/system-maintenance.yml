@@ -1,0 +1,22 @@
+name: Place dependency and follow-up maintenance
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+concurrency:
+  group: unified-place-maintenance
+  cancel-in-progress: false
+jobs:
+  internal-projections:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Rebuild dependent circuit status and flag due follow-ups
+        env:
+          SUPABASE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+        run: |
+          set -euo pipefail
+          test -n "$SUPABASE_DB_URL" || exit 1
+          psql "$SUPABASE_DB_URL" --no-psqlrc --set=ON_ERROR_STOP=1 --command='select kasa_private.system_process_events(200);'

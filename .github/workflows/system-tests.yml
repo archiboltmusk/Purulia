@@ -1,0 +1,26 @@
+name: Unified service experience
+on:
+  pull_request:
+    paths: ['system*', 'tests/system*', 'tests/browser/system.spec.mjs', 'supabase/functions/**', '.github/workflows/system-tests.yml']
+  push:
+    branches: [main]
+    paths: ['system*', 'tests/system*', 'tests/browser/system.spec.mjs', 'supabase/functions/**', '.github/workflows/system-tests.yml']
+permissions:
+  contents: read
+jobs:
+  service-flow:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7
+      - uses: actions/setup-node@v6
+        with:
+          node-version: '22'
+      - run: node --test tests/system.test.cjs
+      - run: node tools/build-system-seed.mjs --check
+      - run: npm ci
+        working-directory: tests/browser
+      - run: npx playwright install --with-deps chromium
+        working-directory: tests/browser
+      - run: npx playwright test system.spec.mjs
+        working-directory: tests/browser

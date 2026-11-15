@@ -132,3 +132,5 @@ GitHub Pages (main, `github-pages.yml`); Vercel purulia.vercel.app (main, `verce
 
 - Merge your own PRs once every check has passed; don't wait to be asked. If a check fails, fix it first; if you can't, leave the PR open and say why.
 
+
+- `system.html` / `system.js` / `system.css` — unified Purulia service discovery, road-matrix day planning, browser-private encrypted dossiers, capacity planning and explicitly exploratory twin scenarios. `system-admin.html` / `system-admin.js` independently review the shared place graph, temporal observations, conflicts, interventions and sensor enrolments. Rules: `system-core.js`, `system-policies.js`, `system-twin.js`, `system-private.js`. Migrations `20261115180000`–`20261115182000`: private `system_*` tables and `kasa_system_*` RPCs; signed sensor gateway `supabase/functions/kasa-system-ingest` uses `_shared/system-sensor.mjs`. Protocol and limits: `SYSTEM.md`. Tests: `tests/system.test.cjs`, `supabase/tests/test_system.py`, `tests/browser/system.spec.mjs`.
