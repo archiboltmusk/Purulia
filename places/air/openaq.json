@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-16T22:03Z",
+ "generated": "2026-11-17T07:55Z",
  "source": "OpenAQ API v3 (api.openaq.org)",
  "source_url": "https://openaq.org/",
  "who_pm25_24h": 15,
@@ -45,18 +45,18 @@
    "slug": "darjeeling",
    "name": "Darjeeling",
    "station": {
-    "id": 5648,
-    "name": "Ward-32 Bapupara, Siliguri - WBPCB",
-    "provider": "CPCB",
-    "lat": 26.6883049,
-    "lng": 88.412668,
-    "km": 20.8,
-    "url": "https://explore.openaq.org/locations/5648"
+    "id": 6552084,
+    "name": "Dakua, Darjeeling, West Bengal, India",
+    "provider": "AirGradient",
+    "lat": 26.65146,
+    "lng": 88.23564,
+    "km": 17.8,
+    "url": "https://explore.openaq.org/locations/6552084"
    },
    "pm25": {
-    "value": 82.68,
+    "value": 114.8,
     "unit": "µg/m³",
-    "utc": "2026-11-16T18:00:00Z"
+    "utc": "2026-11-17T07:00:00Z"
    }
   },
   {
@@ -90,9 +90,9 @@
     "url": "https://explore.openaq.org/locations/5614"
    },
    "pm25": {
-    "value": 140.6,
+    "value": 100.9,
     "unit": "µg/m³",
-    "utc": "2026-11-16T18:00:00Z"
+    "utc": "2026-11-17T05:30:00Z"
    }
   },
   {
@@ -126,9 +126,9 @@
     "url": "https://explore.openaq.org/locations/10904"
    },
    "pm25": {
-    "value": 75.46,
+    "value": 79.64,
     "unit": "µg/m³",
-    "utc": "2026-11-16T18:00:00Z"
+    "utc": "2026-11-17T06:15:00Z"
    }
   },
   {
@@ -174,9 +174,9 @@
     "url": "https://explore.openaq.org/locations/3409529"
    },
    "pm25": {
-    "value": 57.48,
+    "value": 34.84,
     "unit": "µg/m³",
-    "utc": "2026-11-16T18:00:00Z"
+    "utc": "2026-11-17T06:15:00Z"
    }
   },
   {
