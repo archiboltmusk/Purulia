@@ -2,13 +2,14 @@
 from pathlib import Path
 exec((Path(__file__).with_name('test_dispatch.py')).read_text().split('mod = uuid.uuid4()')[0])
 from concurrent.futures import ThreadPoolExecutor
+from decimal import Decimal
 from datetime import datetime, timezone
 users=[uuid.uuid4() for _ in range(6)]
 for u in users:
  admin_sql("insert into auth.users(id,is_anonymous,email,email_confirmed_at) values(%s,false,%s,now())",(u,str(u)+'@example.invalid'))
 anonymous=uuid.uuid4()
 admin_sql('insert into auth.users(id)values(%s)',(anonymous,))
-args=dict(p_lat=23.3,p_lng=86.4,p_download=20,p_upload=10,p_latency=30,p_kind='mobile')
+args=dict(p_lat=Decimal('23.3'),p_lng=Decimal('86.4'),p_download=20,p_upload=10,p_latency=30,p_kind='mobile')
 check('anon cannot submit',err('submit_internet_speed',**args)=='permission denied for function submit_internet_speed')
 check('anonymous authenticated account rejected',err('submit_internet_speed',anonymous,**args)=='Confirmed email sign-in required')
 check('outside India rectangle rejected',err('submit_internet_speed',users[0],**{**args,'p_lat':0})=='Location outside supported bounds')
