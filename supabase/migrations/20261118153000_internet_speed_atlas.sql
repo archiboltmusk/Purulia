@@ -16,8 +16,8 @@ create or replace view public.internet_speed_public with (security_invoker=true)
 -- A public read policy is required for the security-invoker view.
 drop policy if exists "speed_public_read" on public.internet_speed_tests;
 create policy "speed_public_read" on public.internet_speed_tests for select to anon,authenticated using (true);
-grant select on public.internet_speed_tests to anon,authenticated;
-grant select on public.internet_speed_public to anon,authenticated;
+revoke select on public.internet_speed_tests from anon,authenticated;
+revoke select on public.internet_speed_public from anon,authenticated;
 create or replace function public.submit_internet_speed(p_lat numeric,p_lng numeric,p_download numeric,p_upload numeric,p_latency integer,p_kind text)
 returns void language plpgsql security definer set search_path=public as $$
 begin
@@ -26,5 +26,6 @@ begin
  values(p_lat,p_lng,p_download,p_upload,p_latency,p_kind);
 end $$;
 revoke all on function public.submit_internet_speed(numeric,numeric,numeric,numeric,integer,text) from public;
-grant execute on function public.submit_internet_speed(numeric,numeric,numeric,numeric,integer,text) to anon,authenticated;
+-- Disabled pending verified, rate-limited ingestion endpoint.
+revoke all on function public.submit_internet_speed(numeric,numeric,numeric,numeric,integer,text) from anon,authenticated;
 -- Before production: add edge-level rate limiting, bot protection and India polygon validation.
