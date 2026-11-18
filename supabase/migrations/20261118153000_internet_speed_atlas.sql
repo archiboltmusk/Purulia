@@ -14,6 +14,7 @@ revoke all on public.internet_speed_tests from anon,authenticated;
 create or replace view public.internet_speed_public with (security_invoker=true) as
  select created_at,lat,lng,download_mbps,upload_mbps,latency_ms,connection_type from public.internet_speed_tests;
 -- A public read policy is required for the security-invoker view.
+drop policy if exists "speed_public_read" on public.internet_speed_tests;
 create policy "speed_public_read" on public.internet_speed_tests for select to anon,authenticated using (true);
 grant select on public.internet_speed_tests to anon,authenticated;
 grant select on public.internet_speed_public to anon,authenticated;
