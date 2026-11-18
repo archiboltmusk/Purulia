@@ -23,6 +23,7 @@ create table if not exists auth.users (
   id           uuid primary key,
   created_at   timestamptz not null default now(),
   is_anonymous boolean not null default true,
+  email_confirmed_at timestamptz,
   email        text
 );
 create or replace function auth.uid() returns uuid language sql stable as
