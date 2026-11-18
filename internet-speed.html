@@ -1,6 +1,6 @@
 <!doctype html>
 <html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>India Internet Speed Atlas — Parishkar</title>
-<link href="vendor/maplibre-gl-6.14.0/maplibre-gl.css" rel="stylesheet">
+<link href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css" rel="stylesheet">
 <style>
 *{box-sizing:border-box}body{margin:0;background:#10151d;color:#f5f7fa;font:16px system-ui,sans-serif}header{padding:18px 22px;display:flex;align-items:center;justify-content:space-between;gap:12px}a{color:#9ddaff}main{display:grid;grid-template-columns:minmax(270px,360px) 1fr;min-height:calc(100vh - 74px)}aside{padding:22px;background:#1b2531}#map{min-height:70vh}button,select{padding:12px;border-radius:8px;border:1px solid #718399;background:#29394a;color:white;font:inherit}button{cursor:pointer}button:disabled{opacity:.5;cursor:wait}.metrics{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}.metric{background:#29394a;border-radius:8px;padding:12px 6px;text-align:center}.metric strong{display:block;font-size:22px}.metric small{font-size:11px}p,small{line-height:1.5;color:#c5ced9}.legend{display:flex;flex-wrap:wrap;gap:10px;margin:15px 0}.legend span:before{content:"";display:inline-block;width:10px;height:10px;background:var(--c);margin-right:5px;border-radius:50%}label{display:block;margin:14px 0}input{margin-right:8px}#status{min-height:44px}#run{width:100%;background:#147d67;font-weight:700}#publish{width:100%}@media(max-width:750px){main{grid-template-columns:1fr}#map{min-height:65vh}aside{order:2}}
 </style></head><body><header><strong>Parishkar / Internet Speed Atlas</strong><a href="kasa.html">Civic map</a></header>
@@ -13,7 +13,7 @@
 <p><small>Location permission is requested only after you choose to share. A speed test measures the route to a test server, not guaranteed ISP capacity. VPNs, device limits and network congestion affect results.</small></p>
 <h2>India speed map</h2><div class="legend"><span style="--c:#df554b">Below 10</span><span style="--c:#e9b44c">10–50</span><span style="--c:#36ba84">Above 50 Mbps</span><span style="--c:#8893a0">No data</span></div>
 <p><small>Dots represent approximate locations of voluntary tests. Not a statistically representative survey. Select a dot to inspect its measured speed.</small></p></aside><div id="map" aria-label="Map of internet speed measurements across India"></div></main>
-<script src="vendor/maplibre-gl-6.14.0/maplibre-gl.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="config.js"></script>
+<script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js"></script><script src="config.js"></script>
 <script>
 (()=>{'use strict';
 const $=id=>document.getElementById(id),status=msg=>$('status').textContent=msg;
