@@ -1,0 +1,25 @@
+:root { color-scheme: dark; font: 15px/1.45 system-ui, sans-serif; background: #111a22; color: #edf2f6; }
+body { margin: 0; }
+header { display: flex; flex-wrap: wrap; align-items: center; gap: .7rem 1.3rem; padding: .7rem 1rem; }
+h1 { font-size: 1.25rem; margin: 0; flex: 1; }
+a { color: #a3dcff; }
+main { display: grid; grid-template-columns: minmax(17rem, 23rem) minmax(0, 1fr); }
+aside { box-sizing: border-box; padding: 1rem; height: calc(100dvh - 4rem); overflow: auto; }
+#map { height: calc(100dvh - 4rem); min-height: 22rem; }
+label, small { display: block; }
+input, select, button { font: inherit; }
+input[type=search], select, button { box-sizing: border-box; width: 100%; min-height: 44px; padding: .4rem .55rem; }
+aside p { margin: .4rem 0 .75rem; }
+fieldset { padding: .3rem .65rem .65rem; margin: .8rem 0; border: 1px solid #627180; }
+fieldset label { padding: .55rem 0; }
+fieldset label small { padding-left: 1.4rem; }
+.muted, small { color: #bdc9d4; }
+.swatch { display: inline-block; width: .65rem; height: .65rem; border-radius: 50%; margin: 0 .35rem; }
+details { margin-top: 1rem; }
+summary { cursor: pointer; padding: .5rem 0; }
+.maplibregl-popup-content { color: #111a22; white-space: pre-line; }
+@media (max-width: 650px) {
+  main { display: flex; flex-direction: column-reverse; }
+  aside { height: auto; overflow: visible; }
+  #map { height: 53dvh; min-height: 16rem; }
+}

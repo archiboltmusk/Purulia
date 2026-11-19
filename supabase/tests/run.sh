@@ -21,5 +21,6 @@ for db in kasa_legacy kasa_fresh; do
   python3 tests/test_migration.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
   python3 tests/test_partner_completion.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
   python3 tests/test_system.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
+  python3 tests/test_internet_speed.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
   python3 tests/test_dispatch.py "host=${PGHOST} port=${PGPORT} dbname=$db user=postgres"
 done
