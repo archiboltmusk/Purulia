@@ -58,7 +58,8 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 <script defer src="boundary-live.js"></script>
 <script defer src="money-metrics.js"></script>
 <script defer src="map-layers.js"></script>
-<script defer src="kasa.js"></script>
+<script defer src="kasa.js?v=intelligence"></script>
+<link rel="stylesheet" href="kasa-intelligence.css">
 <script defer src="digest-sheet.js"></script>
 </head>
 <body data-app-layout>
@@ -150,6 +151,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     </button>
     <button type="button" class="k-nearby-btn" id="k-nearby-btn" aria-pressed="false" data-i18n="nearby_btn">Near me</button>
     <div class="k-filter-bar" id="k-filter-bar">
+      <button type="button" class="k-filter-select" data-intelligence="layers">Data &amp; evidence</button>
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
       <select id="k-layer-select" class="k-filter-select" aria-label="Map layer">
         <option value="reports">Reports</option>
@@ -295,10 +297,10 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
       <a href="analytics.html" class="k-drawer-link" data-i18n="footer_analytics">Analytics</a>
       <a href="compare.html" class="k-drawer-link" data-i18n="nav_compare">Compare districts</a>
       <a href="record.html" class="k-drawer-link" data-i18n="nav_record">The record: evidence and remedies</a>
-      <a href="evidence.html" class="k-drawer-link">Public evidence desk</a>
+      <button type="button" class="k-drawer-link" data-intelligence="evidence">Public evidence</button>
       <p class="k-drawer-group" data-i18n="drawer_grp_tools">Tools</p>
       <a href="digest.html" class="k-drawer-link" data-i18n="nav_digest">Weekly ward digest</a>
-      <a href="internet-speed.html" class="k-drawer-link">India Internet Speed Atlas</a>
+      <button type="button" class="k-drawer-link" data-intelligence="speed">Internet speed</button>
       <a href="routes.html" class="k-drawer-link" data-i18n="nav_routes">Walk, run, cycle</a>
       <a href="calendar.html" class="k-drawer-link" data-i18n="nav_calendar">Civic calendar</a>
 </div>
@@ -1020,5 +1022,45 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 </div>
 
 <div class="k-toast" id="k-toast" role="status" aria-live="polite"></div>
+<dialog id="k-intelligence" aria-labelledby="k-intelligence-title">
+  <div class="k-intelligence-heading">
+    <h2 id="k-intelligence-title">Map data &amp; evidence</h2>
+    <form method="dialog"><button type="submit" aria-label="Close map data">✕</button></form>
+  </div>
+  <details id="k-intelligence-layers" open>
+    <summary>Data layers</summary>
+    <label for="k-intelligence-layer">Overlay</label>
+    <select id="k-intelligence-layer">
+      <option value="">Civic reports only</option>
+      <option value="quake">Earthquakes · USGS</option>
+      <option value="speed">Community internet speeds</option>
+      <option value="weather">Weather model · West Bengal</option>
+      <option value="air">US AQI model · West Bengal</option>
+    </select>
+    <select id="k-intelligence-history" aria-label="Earthquake history" hidden>
+      <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option>
+    </select>
+    <p id="k-intelligence-status" role="status"></p>
+    <button type="button" id="k-intelligence-refresh">Refresh overlay</button>
+    <button type="button" id="k-intelligence-test">Test my connection privately</button>
+    <p id="k-intelligence-test-output" role="status"></p>
+  </details>
+  <details>
+    <summary>District data &amp; public records</summary>
+    <div id="k-intelligence-detail"></div>
+    <details>
+      <summary>Draft a request for a missing record</summary>
+      <label for="k-evidence-office">Public office</label>
+      <input id="k-evidence-office" placeholder="Office responsible for the record">
+      <label for="k-evidence-record">Document or project reference</label>
+      <input id="k-evidence-record" placeholder="For example, completion certificate for tender ID…">
+      <label for="k-evidence-period">Date range</label>
+      <input id="k-evidence-period" placeholder="For example, April 2025 to March 2026">
+      <label for="k-evidence-draft">Draft to copy and submit separately</label>
+      <textarea id="k-evidence-draft" rows="6" readonly></textarea>
+    </details>
+  </details>
+  <form method="dialog"><button type="submit">Back to map</button></form>
+</dialog>
 </body>
 </html>

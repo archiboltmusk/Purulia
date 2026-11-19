@@ -1,32 +1,5 @@
 <!doctype html>
-<html lang="en">
-<head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>India Live Intelligence | Parishkar</title>
-  <link rel="stylesheet" href="vendor/maplibre-gl-6.14.0/maplibre-gl.css">
-  <link rel="stylesheet" href="live-intelligence.css?v=3">
-  <script src="config.js" defer></script>
-  <script type="module" src="live-intelligence.mjs?v=3"></script>
-</head>
-<body>
-  <header><a href="index.html">Parishkar</a><h1>India Live Intelligence</h1><a href="internet-speed.html">Internet Speed Atlas</a>
-      <a href="evidence.html">Public evidence desk</a></header>
-  <main>
-    <aside aria-label="Map controls">
-      <label for="district">Find a district or state</label>
-      <input id="district" type="search" list="districts" autocomplete="off" disabled>
-      <datalist id="districts"></datalist>
-      <p id="district-status" role="status"></p>
-      <section id="place-profile" aria-label="Linked place data" hidden></section>
-      <label for="period">Earthquake history</label>
-      <select id="period"><option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
-      <p class="muted">History starts when collection began.</p>
-      <fieldset><legend>Layers</legend><div id="layers"></div></fieldset>
-      <button id="refresh" type="button">Refresh layers</button>
-      <details><summary>Source coverage and access</summary><div id="registry"></div></details>
-    </aside>
-    <section id="map" aria-label="Interactive map of India"></section>
-  </main>
-</body>
-</html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Parishkar map</title>
+<script src="kasa-map-redirect.js" defer data-section="layers"></script>
+</head><body><a href="kasa.html?intelligence=layers">Open the Parishkar map</a></body></html>

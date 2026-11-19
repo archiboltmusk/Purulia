@@ -314,6 +314,7 @@ const state = {
 };
 let sb = null;
 let mainMap = null, userMovedMap = false;
+let intelligence;
 let mapReady = null;
 let draft = null;
 let ev = null;
@@ -1445,6 +1446,7 @@ function initMainMapNow(){
         'circle-stroke-color': '#0a0805', 'circle-stroke-width': 2
       }});
 
+      intelligence?.draw();
       mainMap.on('click', 'report-points', e => { e.preventDefault(); openSheet(e.features[0].properties.id); });
       mainMap.on('click', 'clusters', async e => {
         e.preventDefault();
@@ -1933,6 +1935,12 @@ function renderAreaCard(){
   }
   if (a.india) renderIndiaCard(el);
   else renderWbCard(el);
+  const evidenceButton = document.createElement('button');
+  evidenceButton.type = 'button';
+  evidenceButton.className = 'k-ward-filter';
+  evidenceButton.dataset.intelligence = 'evidence';
+  evidenceButton.textContent = 'District data & evidence';
+  el.append(evidenceButton);
   el.hidden = false;
   const f = areaFeature();
   if (!mainMap.getSource('area-sel')){
@@ -6664,6 +6672,17 @@ function wireUI(){
     if (e.key !== 'Escape') return;
     document.getElementById('k-social-toggle').setAttribute('aria-expanded', 'false');
     document.getElementById('k-social-dropdown').hidden = true;
+  });
+  import('./kasa-intelligence.mjs').then(({ mountIntelligence }) => {
+    intelligence = mountIntelligence({
+      map: () => mainMap,
+      district: () => state.area?.india ? null : state.area?.areas?.district?.properties?.slug ??
+        new URLSearchParams(location.search).get('d') ?? savedDistrict(),
+      closeDrawer: () => setDrawer(false)
+    });
+    intelligence.draw();
+  }).catch(() => {
+    document.querySelectorAll('[data-intelligence]').forEach((control) => { control.disabled = true; });
   });
   document.getElementById('k-filter-toggle').addEventListener('click', e => {
     const bar = document.querySelector('.k-map-topbar');

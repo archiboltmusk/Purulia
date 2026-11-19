@@ -1,62 +1,32 @@
-import { expect, test } from '@playwright/test';
+import { test, expect } from './fixtures.mjs';
 
-test('renders the map, searches districts and reports independent feed failures', async ({ page }) => {
-  const errors = [];
-  page.on('pageerror', (error) => errors.push(error.message));
-  await page.route('https://tiles.openfreemap.org/**', (route) => route.fulfill({
-    json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#172530' } }] }
-  }));
+test('map filters open data and evidence in place and preserve reporting', async ({ page, backend }) => {
+  await page.goto('/kasa.html?d=purulia');
+  await page.locator('#k-filter-toggle').click();
+  await page.getByRole('button', { name: 'Data & evidence', exact: true }).click();
+  const panel = page.getByRole('dialog', { name: 'Map data & evidence' });
+  await expect(panel).toBeVisible();
+  await panel.getByText('District data & public records', { exact: true }).click();
+  await expect(panel.getByText('Homes with tap water', { exact: false })).toBeVisible();
+  await panel.getByText('Spending records missing from Parishkar', { exact: false }).click();
+  await expect(panel.getByText('Municipality money:', { exact: false })).toBeVisible();
+  await panel.getByRole('button', { name: 'Back to map' }).click();
+  await expect(panel).toBeHidden();
+  await expect(page).toHaveURL(/kasa\.html\?d=purulia$/);
+  await expect(page.locator('#k-map')).toBeVisible();
+  await expect(page.getByText('Report a problem', { exact: true }).first()).toBeVisible();
+  expect(backend.calls.some((call) => call.name === 'kasa_create_report')).toBe(false);
+});
+
+test('old map links open the core map and a feed can be selected in place', async ({ page, backend }) => {
   await page.route('**/rest/v1/rpc/india_earthquake_snapshot?*', (route) => route.fulfill({
     json: { type: 'FeatureCollection', features: [], last_success: new Date().toISOString() },
     headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'apikey' }
   }));
-  await page.route('**/rest/v1/rpc/internet_speed_cells', (route) => route.fulfill({
-    status: 503, headers: { 'access-control-allow-origin': '*', 'access-control-allow-headers': 'apikey' }
-  }));
-  await page.goto('/live-intelligence.html');
-  await expect(page.locator('#map canvas')).toBeVisible();
-  const earthquake = page.locator('label').filter({ hasText: 'USGS earthquakes' });
-  await expect(earthquake).toContainText('0 mapped · Source checked');
-  await expect(page.locator('label').filter({ hasText: 'Community internet speeds' })).toContainText('Refresh failed');
-  await earthquake.getByRole('checkbox').uncheck();
-  const request = page.waitForRequest('**/india_earthquake_snapshot?p_days=7');
-  await page.locator('#period').selectOption('7');
-  await request;
-  await page.locator('#district').fill('Purulia');
-  await page.locator('#district').press('Tab');
-  await expect(page.locator('#district-status')).toContainText('Local Government Directory');
-  await page.getByText('Source coverage and access').click();
-  await expect(page.locator('#registry')).toContainText('commercial traffic tile', { ignoreCase: true });
-  expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
-  expect(errors).toEqual([]);
-});
-
-test('keeps district search and layers usable without WebGL2', async ({ page }) => {
-  await page.addInitScript(() => {
-    const getContext = HTMLCanvasElement.prototype.getContext;
-    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
-      return type.startsWith('webgl') ? null : getContext.call(this, type, ...args);
-    };
-  });
-  await page.route('**/rest/v1/rpc/**', (route) => route.abort());
-  await page.goto('/live-intelligence.html');
-  await expect(page.getByRole('img', { name: 'India and regional observations' })).toBeVisible();
-  await expect(page.locator('#map svg path').first()).toBeVisible();
-  await expect(page.getByRole('button', { name: 'Reset map view' })).toBeVisible();
-  await expect(page.getByText('USGS earthquakes')).toBeVisible();
-  await expect(page.getByRole('combobox', { name: 'Find a district or state' })).toBeEnabled();
-});
-
-test('loads existing district records through the Purulia deep link', async ({ page }) => {
-  await page.route('https://tiles.openfreemap.org/**', (route) => route.fulfill({
-    json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#172530' } }] }
-  }));
-  await page.route('**/rest/v1/rpc/**', (route) => route.abort());
   await page.goto('/live-intelligence.html?d=purulia');
-  const profile = page.getByRole('region', { name: 'Linked place data' });
-  await expect(profile.getByRole('heading')).toHaveText('Purulia, West Bengal');
-  await expect(profile.getByText('NFHS-5 · 2019–21').first()).toBeVisible();
-  await expect(profile.getByText('Jal Jeevan Mission', { exact: false })).toBeVisible();
-  await expect(profile.getByRole('link', { name: 'District dashboard', exact: false })).toHaveAttribute('href', 'godseye.html?d=purulia');
-  await expect(profile.getByRole('link', { name: 'Purulia school directory and checks' })).toHaveAttribute('href', 'schools.html');
+  await expect(page).toHaveURL(/kasa\.html\?intelligence=layers&d=purulia$/);
+  const panel = page.getByRole('dialog', { name: 'Map data & evidence' });
+  await panel.getByLabel('Overlay', { exact: true }).selectOption('quake');
+  await expect(panel.getByText('0 mapped · Source checked', { exact: false })).toBeVisible();
+  await expect(panel.getByLabel('Earthquake history')).toBeVisible();
 });

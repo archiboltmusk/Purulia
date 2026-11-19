@@ -1,0 +1,28 @@
+#k-intelligence {
+  box-sizing: border-box;
+  width: min(calc(100% - 1.5rem), 34rem);
+  max-height: 80dvh;
+  overflow: auto;
+  color: var(--text, #24272d);
+  background: var(--surface, #fff);
+  border: 2px solid currentColor;
+  border-radius: 1rem;
+  padding: 1rem;
+}
+#k-intelligence::backdrop { background: #0d14195c; }
+.k-intelligence-heading { display: flex; align-items: center; justify-content: space-between; gap: .6rem; }
+#k-intelligence h2 { margin: 0; font-size: 1.25rem; }
+#k-intelligence h3, #k-intelligence h4 { margin: .6rem 0 .15rem; }
+#k-intelligence p { margin: .35rem 0 .65rem; }
+#k-intelligence p:empty { display: none; }
+#k-intelligence summary { padding: .65rem 0 .35rem; cursor: pointer; font-weight: 700; }
+#k-intelligence button, #k-intelligence select { font: inherit; min-height: 40px; padding: .35rem .6rem; }
+#k-intelligence form:last-child { margin-top: .65rem; }
+#k-intelligence select:not([hidden]) { display: block; max-width: 100%; margin-bottom: .45rem; }
+#k-intelligence a { color: inherit; text-decoration: underline; }
+#k-intelligence-detail details { margin-top: .5rem; border-top: 1px solid currentColor; }
+button.k-drawer-link[data-intelligence] { text-align: left; font: inherit; background: transparent; cursor: pointer; }
+@media (max-width: 650px) {
+  #k-intelligence { margin: auto auto .75rem; }
+}
+#k-intelligence input, #k-intelligence textarea { display: block; box-sizing: border-box; width: 100%; font: inherit; margin-bottom: .55rem; padding: .4rem; }
