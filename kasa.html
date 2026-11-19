@@ -58,7 +58,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
 <script defer src="boundary-live.js"></script>
 <script defer src="money-metrics.js"></script>
 <script defer src="map-layers.js"></script>
-<script defer src="kasa.js?v=intelligence"></script>
+<script defer src="kasa.js?v=map193"></script>
 <link rel="stylesheet" href="kasa-intelligence.css">
 <script defer src="digest-sheet.js"></script>
 </head>
@@ -155,6 +155,10 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
       <select id="k-layer-select" class="k-filter-select" aria-label="Map layer">
         <option value="reports">Reports</option>
+      <option value="quake">Earthquakes · USGS</option>
+      <option value="speed">Community internet speeds</option>
+      <option value="weather">Weather model · West Bengal</option>
+      <option value="air">US AQI model · West Bengal</option>
         <option value="demands">Demands to leaders</option>
         <option value="schools">Schools: checked by residents</option>
         <option value="nirmalya">Saheb Bandh: Nirmalya collection points</option>
@@ -178,6 +182,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
       </select>
       <input type="number" id="k-search-ward" class="k-filter-select k-filter-ward" placeholder="Ward #" min="1" max="23" inputmode="numeric" aria-label="Ward number">
     </div>
+    <button type="button" id="k-feed-legend" data-intelligence="layers" hidden></button>
     <div class="k-view-toggle" role="tablist" aria-label="View">
       <button type="button" class="k-view-btn k-view-active" data-view="map" role="tab" aria-selected="true" data-i18n="view_map">Map</button>
       <button type="button" class="k-view-btn" data-view="list" role="tab" aria-selected="false" data-i18n="view_list">List</button>
@@ -1029,14 +1034,6 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
   </div>
   <details id="k-intelligence-layers" open>
     <summary>Data layers</summary>
-    <label for="k-intelligence-layer">Overlay</label>
-    <select id="k-intelligence-layer">
-      <option value="">Civic reports only</option>
-      <option value="quake">Earthquakes · USGS</option>
-      <option value="speed">Community internet speeds</option>
-      <option value="weather">Weather model · West Bengal</option>
-      <option value="air">US AQI model · West Bengal</option>
-    </select>
     <select id="k-intelligence-history" aria-label="Earthquake history" hidden>
       <option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option>
     </select>

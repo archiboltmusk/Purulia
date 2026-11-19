@@ -316,6 +316,7 @@ let sb = null;
 let mainMap = null, userMovedMap = false;
 let intelligence;
 let mapReady = null;
+let mapFailed = false;
 let draft = null;
 let ev = null;
 let reporterHash = null;
@@ -439,6 +440,7 @@ async function init(){
   }
 
   mapReady = initMainMap();
+  mapReady.catch(() => { mapFailed = true; intelligence?.activateFallback(); });
   if (window.KasaPlaces){
     KasaPlaces.setSender(slug => sb?.rpc('kasa_place_visit', { p_place: slug }).then(() => {}, () => {}));
     KasaPlaces.on((what, slug) => {
@@ -1935,12 +1937,15 @@ function renderAreaCard(){
   }
   if (a.india) renderIndiaCard(el);
   else renderWbCard(el);
-  const evidenceButton = document.createElement('button');
-  evidenceButton.type = 'button';
-  evidenceButton.className = 'k-ward-filter';
-  evidenceButton.dataset.intelligence = 'evidence';
-  evidenceButton.textContent = 'District data & evidence';
-  el.append(evidenceButton);
+  const records = document.createElement('details');
+  const summary = document.createElement('summary');
+  summary.textContent = 'District figures & public records';
+  const content = document.createElement('div');
+  records.append(summary, content);
+  el.append(records);
+  records.addEventListener('toggle', () => {
+    if (records.open && !content.childElementCount) intelligence?.evidence(a.india ? null : a.areas?.district?.properties?.slug, content);
+  });
   el.hidden = false;
   const f = areaFeature();
   if (!mainMap.getSource('area-sel')){
@@ -2139,7 +2144,9 @@ class PlaceFindControl {
 
 function shareArea(){
   const a = state.area, zoom = { town: 12, gp: 12, block: 10, district: a.india ? 7 : 8.5, ac: 9.5, state: 5.5, ward: 14 }[a.level];
-  const url = `${location.origin}${location.pathname}?at=${a.lat.toFixed(5)},${a.lng.toFixed(5)},${zoom}`;
+  const shared = new URL(location.href);
+  shared.searchParams.set("at", [a.lat.toFixed(5), a.lng.toFixed(5), zoom].join(","));
+  const url = shared.href;
   const text = t('ar_share_text', { name: areaName(areaFeature()) });
   if (navigator.share) navigator.share({ title: 'Parishkar', text, url }).catch(() => {});
   else copyText(`${text} ${url}`);
@@ -2272,6 +2279,10 @@ function renderPlaceWardCard(el, n, slug){
 
 function setView(view){
   state.view = view;
+  const url = new URL(location.href);
+  if (view === 'list') url.searchParams.set('view', view);
+  else url.searchParams.delete('view');
+  history.replaceState(history.state, '', url);
   document.querySelectorAll('.k-view-btn').forEach(b => {
     const on = b.dataset.view === view;
     b.classList.toggle('k-view-active', on);
@@ -2284,7 +2295,7 @@ function setView(view){
   if (view === 'list'){
     renderList();
     list.scrollTop = state.listScroll;
-    autoSortList();
+    if (!intelligence?.active()) autoSortList();
   } else if (mainMap) requestAnimationFrame(() => mainMap.resize());
 }
 
@@ -2338,6 +2349,7 @@ function matchesQuery(r, q){
 
 function renderList(){
   if (state.view !== 'list') return;
+  if (intelligence?.list(state.listQuery)) return;
   const list = sortReports(filtered().filter(onMap).filter(r => matchesQuery(r, state.listQuery)));
   document.getElementById('k-list-count').textContent = t('list_count', { n: list.length });
   const box = document.getElementById('k-list-items');
@@ -6678,9 +6690,12 @@ function wireUI(){
       map: () => mainMap,
       district: () => state.area?.india ? null : state.area?.areas?.district?.properties?.slug ??
         new URLSearchParams(location.search).get('d') ?? savedDistrict(),
+      renderList,
       closeDrawer: () => setDrawer(false)
     });
+    if (mapFailed) intelligence.activateFallback();
     intelligence.draw();
+    if (new URLSearchParams(location.search).get("view") === "list") setView("list");
   }).catch(() => {
     document.querySelectorAll('[data-intelligence]').forEach((control) => { control.disabled = true; });
   });

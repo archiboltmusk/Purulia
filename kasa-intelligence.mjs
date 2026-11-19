@@ -13,11 +13,11 @@ function append(parent, tag, value) {
   return node;
 }
 
-export function mountIntelligence({ map, district, closeDrawer }) {
+export function mountIntelligence({ map, district, closeDrawer, renderList }) {
   const panel = id('k-intelligence');
   const controls = id('k-intelligence-layers');
   const status = id('k-intelligence-status');
-  const selector = id('k-intelligence-layer');
+  const selector = id('k-layer-select');
   const history = id('k-intelligence-history');
   const detail = id('k-intelligence-detail');
   const sourceId = 'kasa-intelligence';
@@ -25,8 +25,8 @@ export function mountIntelligence({ map, district, closeDrawer }) {
   let current = empty;
   let timer;
   let fallback;
-  setTimeout(() => {
-    if (map()) return;
+  function activateFallback() {
+    if (fallback) return;
     document.getElementById('k-splash')?.classList.add('k-splash-out');
     const container = id('k-map');
     if (!container) return;
@@ -35,10 +35,10 @@ export function mountIntelligence({ map, district, closeDrawer }) {
     fallback = createFallback(container, read('places/in_states.geojson'));
     append(container, 'p', 'Interactive report pins require WebGL2. Switch to List to browse civic reports.').className = 'k-intelligence-fallback-note';
     draw();
-  }, 3000);
+  }
 
   function draw() {
-    const canvas = map() ?? fallback;
+    const canvas = fallback ?? map();
     if (!canvas || (!fallback && !canvas.getLayer('clusters'))) return;
     if (!canvas.getSource(sourceId) && current.features.length === 0) return;
     if (!canvas.getSource(sourceId)) {
@@ -49,27 +49,51 @@ export function mountIntelligence({ map, district, closeDrawer }) {
       }, 'clusters');
       canvas.on?.('click', sourceId, (event) => {
         if (event.defaultPrevented) return;
+        event.preventDefault();
         const p = event.features[0].properties;
         new window.maplibregl.Popup().setLngLat(event.lngLat)
           .setText([p.label, Number.isFinite(p.mag) && 'Magnitude ' + p.mag, p.observed, p.note].filter(Boolean).join(' · '))
           .addTo(canvas);
       });
-    } else canvas.getSource(sourceId).setData(current);
+    }
+    canvas.getSource(sourceId).setData(current);
   }
 
+  const legend = id('k-feed-legend');
+  const active = () => layers.find(layer => layer.id === selector.value);
+  function list(query = '') {
+    if (selector.value === 'reports') return false;
+    const native = !active();
+    const data = native ? window.KasaLayers?.datasets.get(selector.value) : current;
+    const rows = (data?.features || []).map(({properties: p}) =>
+      [p.label || p.name || p.title || p.state || (p.pc && 'Seat ' + p.pc), p.v, p.place, Number.isFinite(p.mag) && 'Magnitude ' + p.mag, p.observed, p.note].filter(Boolean).join(' · ')
+    ).filter(text => text.toLowerCase().includes(query.toLowerCase()));
+    const items = id('k-list-items');
+    items.replaceChildren();
+    rows.forEach(text => append(items, 'p', text));
+    if (!rows.length) append(items, 'p', query ? 'No matching observations.' : native ? 'No mapped records available.' : status.textContent);
+    id('k-list-count').textContent = rows.length + ' observations';
+    return true;
+  }
   async function refresh() {
     const ticket = ++sequence;
     clearTimeout(timer);
     const layer = layers.find(({ id: key }) => key === selector.value);
+    legend.hidden = !layer;
+    id('k-intelligence-refresh').disabled = !layer;
+    id('k-sort').disabled = Boolean(layer);
+    legend.textContent = layer?.name || '';
     history.hidden = layer?.id !== 'quake';
     draw();
     if (!layer) {
       current = empty;
       draw();
       status.textContent = 'Civic reports are visible on the map.';
+      renderList();
       return;
     }
     status.textContent = 'Checking ' + layer.name + '…';
+    renderList();
     try {
       const result = await loadLayer(layer.id, Number(history.value));
       if (ticket !== sequence) return;
@@ -84,15 +108,32 @@ export function mountIntelligence({ map, district, closeDrawer }) {
     } catch {
       if (ticket === sequence) status.textContent = 'Source unavailable · any points still visible may be stale.';
     } finally {
-      if (ticket === sequence) timer = setTimeout(refresh, layer.interval);
+      if (ticket === sequence) {
+        legend.textContent = layer.name + ' · ' + current.features.length + ' mapped';
+        legend.title = status.textContent;
+        if (status.textContent.includes('Stale') || status.textContent.includes('unavailable')) legend.textContent += ' · stale or unavailable';
+        if (!current.features.length && layer.id === 'speed') status.textContent += ' · A cell needs five contributors before publication.';
+        renderList();
+        timer = setTimeout(refresh, layer.interval);
+      }
     }
   }
 
   selector.addEventListener('change', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('layer', selector.value);
+    window.history.replaceState(window.history.state, '', url);
+    current = empty;
+    refresh();
+    if (matchMedia('(max-width: 760px)').matches && document.querySelector('.k-filters-open')) id('k-filter-toggle').click();
+  });
+  history.addEventListener('change', () => {
+    const url = new URL(location.href);
+    url.searchParams.set('days', history.value);
+    window.history.replaceState(window.history.state, '', url);
     current = empty;
     refresh();
   });
-  history.addEventListener('change', refresh);
   id('k-intelligence-refresh').addEventListener('click', refresh);
 
   function link(parent, label, href) {
@@ -105,9 +146,11 @@ export function mountIntelligence({ map, district, closeDrawer }) {
     parent.append(row);
   }
 
-  let detailsRequest = 0;
-  async function evidence(slug) {
-    const request = ++detailsRequest;
+  const requests = new WeakMap();
+  async function evidence(slug, target = detail) {
+    const detail = target;
+    const request = Symbol();
+    requests.set(target, request);
     detail.replaceChildren();
     append(detail, 'p', 'Loading records…');
     const [facts, money, education, registry, air, affidavits, records] = await Promise.allSettled([
@@ -115,13 +158,25 @@ export function mountIntelligence({ map, district, closeDrawer }) {
       read('data/live-source-registry.json'), read('places/air/openaq.json'),
       read('places/wb_affidavits.json'), read('places/wb_record.json')
     ]).then((results) => results.map((result) => result.value));
-    if (request !== detailsRequest) return;
+    if (request !== requests.get(target)) return;
     detail.replaceChildren();
     const area = facts?.districts?.[slug];
     const nfhs = facts?.nfhs?.districts?.[area?.nfhs_district];
     append(detail, 'h3', area?.name ?? 'Public records');
     const metric = (label, value, source) => {
-      if (Number.isFinite(value)) append(detail, 'p', label + ' · ' + format.format(value) + ' · ' + source);
+      if (!Number.isFinite(value)) return;
+      const row = append(detail, 'p', label + ' · ' + format.format(value) + ' · ' + source + ' ');
+      const url = new URL(location.href);
+      url.searchParams.set('intelligence', 'evidence');
+      if (slug) url.searchParams.set('d', slug);
+      url.searchParams.set('figure', label);
+      const anchor = append(row, 'a', 'Permalink');
+      anchor.href = url.href;
+      anchor.setAttribute('aria-label', 'Permalink for ' + label);
+      if (new URLSearchParams(location.search).get('figure') === label) {
+        row.style.borderInlineStart = '3px solid currentColor';
+        row.scrollIntoView({block:'nearest'});
+      }
     };
     metric('Homes with tap water (%)', area?.jjm?.pct, 'Jal Jeevan Mission, checked ' + facts?.sources?.jjm?.read);
     metric('Households with electricity (%)', nfhs?.electricity?.[0], 'NFHS-5, 2019–21');
@@ -141,6 +196,16 @@ export function mountIntelligence({ map, district, closeDrawer }) {
       for (const gap of money.missing) {
         append(gaps, 'h4', gap.what);
         append(gaps, 'p', [gap.where, gap.why].join(' · '));
+        const request = append(gaps, 'button', 'Draft request for this record');
+        request.type = 'button';
+        request.onclick = () => {
+          if (!panel.open) panel.showModal();
+          id('k-intelligence-detail').parentElement.open = true;
+          draftFields[1].value = gap.what;
+          draftFields[1].closest('details').open = true;
+          updateDraft();
+          draftFields[0].focus();
+        };
       }
       link(gaps, 'Open Central Public Procurement Portal', 'https://eprocure.gov.in/cppp/');
     }
@@ -198,19 +263,24 @@ export function mountIntelligence({ map, district, closeDrawer }) {
     if (section === 'evidence') detail.parentElement.open = true;
     if (section === 'speed') {
       selector.value = 'speed';
+      selector.dispatchEvent(new Event('change'));
       controls.open = true;
     }
     evidence(selected);
-    refresh();
   };
   document.addEventListener('click', (event) => {
     if (event.target.closest('[data-intelligence]')) start(event);
   });
   panel.addEventListener('close', () => { draw(); });
   const params = new URLSearchParams(location.search);
+  if ([...selector.options].some(option => option.value === params.get('layer'))) selector.value = params.get('layer');
+  if (['1','7','30'].includes(params.get('days'))) history.value = params.get('days');
+  window.KasaLayers?.choose(selector.value);
+  document.addEventListener('kasa-layer-data', renderList);
+  refresh();
   if (params.has('intelligence')) {
     if (params.get('intelligence') === 'evidence') detail.parentElement.open = true;
     start();
   }
-  return { draw };
+  return { draw, list, active, activateFallback, evidence };
 }

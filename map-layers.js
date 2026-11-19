@@ -21,6 +21,13 @@
 
   let map = null, current = 'reports', fetched = {}, money = null, mp = null, seats = null, demands = null, note = null, schoolDistrict = () => 'purulia', schools = {};
 
+  const datasets = new Map();
+  function publish(key, source, data) {
+    if (current !== key) return;
+    datasets.set(key, data);
+    map?.getSource(source)?.setData(data);
+    document.dispatchEvent(new Event('kasa-layer-data'));
+  }
   const get = (key, url) => fetched[key] ||= fetch(url).then(r => { if (!r.ok) throw new Error(url + ' ' + r.status); return r.json(); });
 
   function setVisible(id, on) {
@@ -50,7 +57,7 @@
     const all = await loadSchools(district);
     const colour = s => !s.audits ? '#8a8272' : s.score / s.score_of >= 0.8 ? '#5fae6b' : s.score / s.score_of >= 0.5 ? '#DD3333' : '#d9594c';
     const placed = all.filter(s => s.lat != null && s.lng != null);
-    map.getSource('schools').setData({ type: 'FeatureCollection', features: placed.map(s => ({
+    publish('schools', 'schools', { type: 'FeatureCollection', features: placed.map(s => ({
       type: 'Feature', geometry: { type: 'Point', coordinates: [s.lng, s.lat] },
       properties: { code: s.udise_code, name: s.name, place: [s.village, s.block_name].filter(Boolean).join(', '),
         colour: colour(s), checked: s.audits ? 1 : 0, score: s.score, of: s.score_of } })) });
@@ -66,7 +73,7 @@
       if (!seats) seats = await get('seats', 'places/wb_assembly.geojson');
       const vals = Object.keys(mp.pc).map(pc => MM.seatPct(mp, pc));
       seats.features.forEach(f => { f.properties.c = MM.color(MM.seatPct(mp, String(f.properties.pc)), vals) || NONE; });
-      map.getSource('money-seats').setData(seats);
+      publish(key, 'money-seats', seats);
       note && (note.textContent = MM.LAYERS.seats.note);
       return;
     }
@@ -78,7 +85,7 @@
       f.properties.v = v == null ? 'not on file' : (MM.LAYERS[k].unit === 'cr' ? cr(v) : pct(v));
       f.properties.slug = slug(f.properties.state);
     });
-    map.getSource('money-states').setData(g);
+    publish(key, 'money-states', g);
     note && (note.textContent = MM.LAYERS[k].note);
   }
 
@@ -86,7 +93,7 @@
   async function paintNirmalya() {
     const d = await get('nirmalya', 'places/nirmalya.json');
     const pts = (d.points || []).filter(p => p.lat != null && p.lng != null && p.source_url);
-    map.getSource('nirmalya').setData({ type: 'FeatureCollection', features: pts.map(p => ({
+    publish('nirmalya', 'nirmalya', { type: 'FeatureCollection', features: pts.map(p => ({
       type: 'Feature', geometry: { type: 'Point', coordinates: [p.lng, p.lat] },
       properties: { name: p.name, place: p.place || '', source: p.source_url, sourced: p.source_note || '' } })) });
     note && (note.textContent = pts.length
@@ -101,19 +108,18 @@
       demands = res.ok ? await res.json() : [];
     }
     const pins = demands.filter(d => d.lat != null && d.lng != null);
-    map.getSource('demands').setData({ type: 'FeatureCollection', features: pins.map(d => ({
+    publish('demands', 'demands', { type: 'FeatureCollection', features: pins.map(d => ({
       type: 'Feature', geometry: { type: 'Point', coordinates: [d.lng, d.lat] },
       properties: { id: d.id, title: d.title, leader: d.leader_name, supports: d.supports || 0 } })) });
     note && (note.textContent = pins.length ? 'Demands to leaders that have a pin. Tap one to read it on the noticeboard.' : 'No demand has a pin yet.');
   }
 
   function choose(key) {
-    if (!map) return;
-    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : ['demands', 'schools', 'nirmalya'].includes(key) ? key : 'reports';
+    const k = MONEY_KEYS.includes(key.replace(/^money-/, '')) && key.startsWith('money-') ? key : ['demands', 'schools', 'nirmalya', 'quake', 'speed', 'weather', 'air'].includes(key) ? key : 'reports';
     current = k;
     const sel = document.getElementById('k-layer-select');
     if (sel && sel.value !== k) sel.value = k;
-    if (note) note.hidden = k === 'reports';
+    if (note) note.hidden = ['reports','quake','speed','weather','air'].includes(k);
     showReports(k === 'reports');
     setVisible('demand-points', k === 'demands');
     if (k === 'demands') paintDemands().catch(() => {});
@@ -187,12 +193,13 @@
     });
 
     const sel = document.getElementById('k-layer-select');
-    if (sel) sel.addEventListener('change', e => choose(e.target.value));
+
     const want = new URLSearchParams(location.search).get('layer') || '';
     if (want && want !== 'reports') {
-      map.once('idle', () => choose(want));
+      map.once('idle', () => choose(sel?.value || want));
     }
   }
 
-  window.KasaLayers = { mount, choose };
+  document.getElementById('k-layer-select')?.addEventListener('change', e => choose(e.target.value));
+  window.KasaLayers = { mount, choose, datasets };
 })();

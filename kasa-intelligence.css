@@ -31,3 +31,6 @@ button.k-drawer-link[data-intelligence] { text-align: left; font: inherit; backg
 .k-intelligence-fallback .fallback-marker { r: var(--marker-size); stroke: #111a22; stroke-width: .05; }
 .k-intelligence-fallback .fallback-caption { position: absolute; bottom: 4rem; left: .75rem; color: #fff; }
 .k-intelligence-fallback-note { position: absolute; top: 7rem; left: .75rem; max-width: 22rem; padding: .45rem .6rem; color: #fff; background: #172c3c; pointer-events: none; }
+
+#k-feed-legend:not([hidden]){display:block;pointer-events:auto;align-self:start;background:var(--paper,#fff);color:inherit;border:1px solid currentColor;border-radius:1rem;padding:.35rem .7rem;font:inherit;cursor:pointer;max-width:min(19rem,48vw)}
+#k-list-items>p{padding:.6rem 1rem;margin:0;border-bottom:1px solid #9995}

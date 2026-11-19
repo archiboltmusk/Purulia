@@ -50,6 +50,12 @@ export function createFallback(container, boundaries) {
           const title = element('title', {});
           const { label, mag, observed, note } = feature.properties;
           title.textContent = [label, Number.isFinite(mag) ? 'Magnitude ' + mag : '', observed, note].filter(Boolean).join(' · ');
+          marker.setAttribute('fill', feature.properties.color || '#e66');
+          marker.setAttribute('tabindex', '0');
+          marker.setAttribute('aria-label', title.textContent);
+          const describe = () => { notice.textContent = title.textContent; };
+          marker.addEventListener('click', describe);
+          marker.addEventListener('focus', describe);
           marker.append(title);
           return marker;
         });

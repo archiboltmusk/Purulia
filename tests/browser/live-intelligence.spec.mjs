@@ -26,7 +26,10 @@ test('old map links open the core map and a feed can be selected in place', asyn
   await page.goto('/live-intelligence.html?d=purulia');
   await expect(page).toHaveURL(/kasa\.html\?intelligence=layers&d=purulia$/);
   const panel = page.getByRole('dialog', { name: 'Map data & evidence' });
-  await panel.getByLabel('Overlay', { exact: true }).selectOption('quake');
+  await panel.getByRole('button', { name: 'Back to map' }).click();
+  await page.locator('#k-filter-toggle').click();
+  await page.getByLabel('Map layer', { exact: true }).selectOption('quake');
+  await page.locator('#k-feed-legend').click();
   await expect(panel.getByText('0 mapped · Source checked', { exact: false })).toBeVisible();
   await expect(panel.getByLabel('Earthquake history')).toBeVisible();
 });
