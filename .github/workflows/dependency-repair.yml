@@ -1,0 +1,14 @@
+name: Dependency repair metadata
+on:
+  pull_request:
+    paths: ['.github/workflows/dependency-repair.yml']
+permissions:
+  contents: read
+jobs:
+  metadata:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/setup-node@v7
+        with:
+          node-version: '22'
+      - run: npm view expo-network@57.0.3 version dist peerDependencies --json
