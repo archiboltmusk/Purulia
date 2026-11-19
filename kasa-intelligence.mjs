@@ -197,11 +197,42 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
         }
         if (work) {
           append(compare, 'p', 'MPLADS snapshot checked ' + projects.checked + ' · works recommended ' + (work.worksRecommended ?? 'unavailable') + ' · recorded completed ' + (work.worksCompleted ?? 'unavailable'));
+          if (Number.isInteger(work.worksCompleted) && work.worksRecommended > 0) append(compare,'p',(100*work.worksCompleted/work.worksRecommended).toFixed(1)+'% recorded completions relative to recommendations. Physical progress for individual projects is unknown.');
           link(compare, 'Constituency works source', work.url);
         }
         if (!mp && !work) append(compare, 'p', 'No activity record available.');
       }
       append(compare, 'p', 'Constituencies and districts have different boundaries. Questions and debates document parliamentary participation. MPs recommend works; execution and verification involve implementing authorities. These records do not establish how a person spent unobserved time.');
+    }
+    if (area) {
+      const tasks = append(detail, 'details', '');
+      append(tasks, 'summary', area.name + ' · district strengths and ground worklist');
+      tasks.open = new URLSearchParams(location.search).get('intelligence') === 'worklist';
+      append(tasks, 'p', 'NFHS-5 (2019–21): largest favourable and adverse differences from West Bengal among the available survey indicators.');
+      const gaps = Object.entries(facts.nfhs?.indicators || {}).flatMap(([key, field]) => {
+        const local = nfhs?.[key]?.[0], state = facts.nfhs?.west_bengal?.[key];
+        return Number.isFinite(local) && Number.isFinite(state) && !area.nfhs_part_of ?
+          [{label:field.label, local, state, score:(local-state)*(field.higher_is_better ? 1 : -1)}] : [];
+      }).sort((a,b) => b.score-a.score);
+      for (const g of [...gaps.filter(g => g.score>0).slice(0,2), ...gaps.filter(g => g.score<0).slice(-2)]) {
+        append(tasks,'p',(g.score>0 ? 'Relative strength · ' : 'Gap to investigate · ') + g.label + ': district ' + g.local + '%, state ' + g.state + '%.');
+      }
+      if (!gaps.length) append(tasks,'p','Comparable figures for this district boundary unavailable.');
+      link(tasks,'Survey definitions and period',facts.sources.nfhs?.url);
+      if (slug === 'purulia' || slug === 'kolkata') {
+        const west = slug === 'purulia';
+        append(tasks,'h4',west ? 'Manbazar · land, water and forest concerns' : 'Jadavpur · pedestrian access');
+        append(tasks,'p',west ? 'The Telegraph reported a public gathering raising concerns about industrial projects. Check individual sites and project permissions before attributing harm.' : 'A public Reddit discussion describes uneven and broken pavement. Current conditions and the exact stretch need a fresh site check.');
+        link(tasks,west ? 'Read the local reporting' : 'Read the community lead',west ? 'https://www.telegraphindia.com/west-bengal/tribal-groups-hold-mega-rally-in-purulia-against-industrial-projects-prnt/cid/2187585' : 'https://www.reddit.com/r/kolkata/comments/1ga5ykn/');
+        for (const [role,action] of [
+          ['MLA',west ? 'Request the project list, hearing minutes and a dated departmental response.' : 'Request the road owner’s inspection and repair schedule.'],
+          ['MP',west ? 'Check whether a named project requires central clearance; request the public decision where applicable.' : 'Check whether the identified stretch received centrally recommended funds and match the work reference.'],
+          ['Local body',west ? 'Convene affected villages and publish proposed remedies and review dates.' : 'Walk the crossing with residents and record accessible width and outstanding obstacles.'],
+          ['Residents',west ? 'Identify the affected public asset and document its service before and after action.' : 'Revisit the same crossing after repairs with a volunteer who uses a wheelchair or pushchair.']
+        ]) append(tasks,'p',role+' · '+action);
+        append(tasks,'p','Proposed tasks. Acceptance and physical completion unknown.');
+      } else append(tasks,'p','Independent local leads have not yet been curated here. Use Report a problem to record an observed service failure.');
+      append(tasks,'p','To challenge a completion claim, match the project ID, public site, completion record and dated inspection. To establish low usefulness, compare intended service with observed use over multiple days. Record the implementing office’s response.');
     }
     const accountability = append(detail, 'details', '');
     append(accountability, 'summary', 'Public problems, responsible offices & action taken');
@@ -381,7 +412,7 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
       help.querySelector('summary').focus();
       return;
     }
-    if (section === 'evidence' || section === 'compare') detail.parentElement.open = true;
+    if (section === 'evidence' || section === 'compare' || section === 'worklist') detail.parentElement.open = true;
     if (section === 'speed') {
       selector.value = 'speed';
       selector.dispatchEvent(new Event('change'));
