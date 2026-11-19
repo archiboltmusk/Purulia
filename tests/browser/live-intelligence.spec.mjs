@@ -30,3 +30,19 @@ test('renders the map, searches districts and reports independent feed failures'
   expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
   expect(errors).toEqual([]);
 });
+
+test('keeps district search and layers usable without WebGL2', async ({ page }) => {
+  await page.addInitScript(() => {
+    const getContext = HTMLCanvasElement.prototype.getContext;
+    HTMLCanvasElement.prototype.getContext = function (type, ...args) {
+      return type.startsWith('webgl') ? null : getContext.call(this, type, ...args);
+    };
+  });
+  await page.route('**/rest/v1/rpc/**', (route) => route.abort());
+  await page.goto('/live-intelligence.html');
+  await expect(page.getByRole('img', { name: 'India and regional observations' })).toBeVisible();
+  await expect(page.locator('#map svg path').first()).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Reset map view' })).toBeVisible();
+  await expect(page.getByText('USGS earthquakes')).toBeVisible();
+  await expect(page.getByRole('combobox', { name: 'Find a district or state' })).toBeEnabled();
+});

@@ -1,5 +1,7 @@
 import { Map, NavigationControl, Popup } from './vendor/maplibre-gl-6.14.0/maplibre-gl.mjs';
 
+import { createFallback } from './live-intelligence-fallback.mjs';
+
 const byId = (id) => document.getElementById(id);
 const empty = { type: 'FeatureCollection', features: [] };
 const layers = [
@@ -94,11 +96,19 @@ async function showRegistry() {
   }
 }
 
-const map = new Map({
-  container: 'map', style: 'https://tiles.openfreemap.org/styles/liberty',
-  center: [80, 23], zoom: 4, renderWorldCopies: false
-});
-map.addControl(new NavigationControl());
+let map;
+let webgl = false;
+try {
+  map = new Map({
+    container: 'map', style: 'https://tiles.openfreemap.org/styles/liberty',
+    center: [80, 23], zoom: 4, renderWorldCopies: false
+  });
+  map.addControl(new NavigationControl());
+  webgl = true;
+} catch {
+  byId('map').replaceChildren();
+  map = createFallback(byId('map'), read('places/in_states.geojson'));
+}
 
 async function setUpSearch() {
   const [{ states, attribution }, bengal] = await Promise.all([
@@ -148,7 +158,7 @@ async function setUpSearch() {
 }
 
 const refreshers = [];
-map.on('load', () => {
+function setUpLayers() {
   for (const layer of layers) {
     const { id, color, name, interval } = layer;
     map.addSource(id, { type: 'geojson', data: empty });
@@ -169,7 +179,7 @@ map.on('load', () => {
     label.append(input, swatch, name, status);
     byId('layers').append(label);
     input.addEventListener('change', () => map.setLayoutProperty(id, 'visibility', input.checked ? 'visible' : 'none'));
-    map.on('click', id, (event) => {
+    if (webgl) map.on('click', id, (event) => {
       const properties = event.features[0].properties;
       const text = [properties.label, Number.isFinite(properties.mag) && 'Magnitude ' + properties.mag,
         properties.observed && 'Source time ' + timeLabel(properties.observed), properties.note].filter(Boolean).join('\n');
@@ -192,7 +202,9 @@ map.on('load', () => {
     refresh();
     setInterval(refresh, interval);
   }
-});
+}
+if (webgl) map.on('load', setUpLayers);
+else setUpLayers();
 byId('refresh').addEventListener('click', () => refreshers.forEach((refresh) => refresh()));
 setUpSearch().catch(() => { byId('district-status').textContent = 'District search is unavailable.'; });
 showRegistry().catch(() => { byId('registry').textContent = 'Source registry is unavailable.'; });
