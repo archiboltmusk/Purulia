@@ -153,16 +153,56 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
     requests.set(target, request);
     detail.replaceChildren();
     append(detail, 'p', 'Loading records…');
-    const [facts, money, education, registry, air, affidavits, records] = await Promise.allSettled([
+    const [facts, money, education, registry, air, affidavits, records, projects] = await Promise.allSettled([
       read('places/wb_district_facts.json'), read('places/money.json'), read('schools-benchmarks.json'),
       read('data/live-source-registry.json'), read('places/air/openaq.json'),
-      read('places/wb_affidavits.json'), read('places/wb_record.json')
+      read('places/wb_affidavits.json'), read('places/wb_record.json'), read('places/wb_mplads.json')
     ]).then((results) => results.map((result) => result.value));
     if (request !== requests.get(target)) return;
     detail.replaceChildren();
     const area = facts?.districts?.[slug];
     const nfhs = facts?.nfhs?.districts?.[area?.nfhs_district];
     append(detail, 'h3', area?.name ?? 'Public records');
+    if (['kolkata','purulia'].includes(slug)) {
+      const compare = append(detail, 'details', '');
+      append(compare, 'summary', 'Kolkata vs Purulia · facilities and representatives');
+      compare.open = new URLSearchParams(location.search).get('intelligence') === 'compare';
+      append(compare, 'p', 'District household survey estimates, NFHS-5 (2019–21). These measure access and use. Current staffing, travel time and service reliability require separate records.');
+      const table = append(compare, 'table', '');
+      const header = append(table, 'tr', '');
+      for (const label of ['Indicator (%)','Kolkata','Purulia']) append(header, 'th', label).scope = 'col';
+      for (const [key,label] of [['clean_fuel','Households using clean cooking fuel'],['sanitation','Population using improved sanitation'],['electricity','Population with electricity at home'],['inst_births','Institutional births'],['vaccinated','Children aged 12–23 months fully vaccinated']]) {
+        const row = append(table, 'tr', '');
+        append(row, 'th', label).scope = 'row';
+        for (const name of ['Kolkata','Puruliya']) {
+          const value = facts?.nfhs?.districts?.[name]?.[key]?.[0];
+          append(row, 'td', Number.isFinite(value) ? value.toFixed(1) : 'Unavailable');
+        }
+      }
+      link(compare, 'NFHS district fact sheets', facts?.sources?.nfhs?.url);
+      append(compare, 'h4', 'Proposed public tasks');
+      append(compare, 'p', 'Purulia MLA: request dated staffing and opening records for Chalyanpur and Sidhi PHCs. The district health page lists both as non-functional. Ask the district health office for the current position, the interim referral facility and the next review date. Verify against a dated roster and a site check.');
+      link(compare, 'Purulia district health facility register', 'https://purulia.gov.in/health/');
+      append(compare, 'p', 'Purulia elected local bodies: request ward and village sanitation repair lists, identify the executing office and publish inspection dates. Verify water availability and actual use after repair.');
+      append(compare, 'p', 'Kolkata ward councillors: request aggregate missed vaccination sessions and catch-up schedules from municipal health officers. Verify sessions held and coverage by ward, keeping children’s identities private.');
+      append(compare, 'p', 'Both districts: ask transport and employment offices for shift-compatible bus schedules and verified vacancies with pay. Check whether a worker can return home after the shift and actually received the stated wage.');
+      append(compare, 'p', 'These are resident proposals. Acceptance, departmental action and completion each require a dated record.');
+      append(compare, 'h4', 'What the public MP records show');
+      for (const [seat,name] of [['35','Purulia'],['23','Kolkata Dakshin'],['24','Kolkata Uttar']]) {
+        const mp = records?.pc?.[seat]?.prs, work = projects?.pc?.[seat];
+        append(compare, 'h5', name + ' · Lok Sabha constituency');
+        if (mp) {
+          append(compare, 'p', [records.avg?.from,records.avg?.to].join(' to ') + ' · attendance ' + (mp.attendance == null ? 'unavailable' : mp.attendance + '%') + ' · questions ' + (mp.questions ?? 'unavailable') + ' · debates ' + (mp.debates ?? 'unavailable'));
+          link(compare, 'Representative and activity record · PRS', mp.url);
+        }
+        if (work) {
+          append(compare, 'p', 'MPLADS snapshot checked ' + projects.checked + ' · works recommended ' + (work.worksRecommended ?? 'unavailable') + ' · recorded completed ' + (work.worksCompleted ?? 'unavailable'));
+          link(compare, 'Constituency works source', work.url);
+        }
+        if (!mp && !work) append(compare, 'p', 'No activity record available.');
+      }
+      append(compare, 'p', 'Constituencies and districts have different boundaries. Questions and debates document parliamentary participation. MPs recommend works; execution and verification involve implementing authorities. These records do not establish how a person spent unobserved time.');
+    }
     const accountability = append(detail, 'details', '');
     append(accountability, 'summary', 'Public problems, responsible offices & action taken');
     const water = area?.jjm;
@@ -341,7 +381,7 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
       help.querySelector('summary').focus();
       return;
     }
-    if (section === 'evidence') detail.parentElement.open = true;
+    if (section === 'evidence' || section === 'compare') detail.parentElement.open = true;
     if (section === 'speed') {
       selector.value = 'speed';
       selector.dispatchEvent(new Event('change'));
