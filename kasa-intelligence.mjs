@@ -163,6 +163,81 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
     const area = facts?.districts?.[slug];
     const nfhs = facts?.nfhs?.districts?.[area?.nfhs_district];
     append(detail, 'h3', area?.name ?? 'Public records');
+    const accountability = append(detail, 'details', '');
+    append(accountability, 'summary', 'Public problems, responsible offices & action taken');
+    const water = area?.jjm;
+    if (Number.isInteger(water?.homes) && Number.isInteger(water.tap) && water.tap >= 0 && water.homes >= water.tap) {
+      append(accountability, 'h4', area.name + ' · Rural drinking water');
+      append(accountability, 'p', format.format(water.homes - water.tap) + ' of ' + format.format(water.homes) +
+        ' rural households had no recorded tap connection in the JJM snapshot checked ' + facts.sources.jjm.read +
+        '. Water quality and daily supply require separate checks.');
+      link(accountability, 'District connection record · Jal Jeevan Mission', facts.sources.jjm.url);
+      append(accountability, 'p', 'Follow up with the rural water scheme operator and district public health engineering office. Request the habitation-wise work order, commissioning date and supply log. Verify delivery at the affected habitation.');
+    }
+    const audits = append(accountability, 'details', '');
+    append(audits, 'summary', 'State audit flags · outstanding grant certificates');
+    append(audits, 'p', 'An outstanding utilisation certificate is a documentation gap at the audit date. Establishing misuse requires a separate finding. Ask the grant-making department for subsequent certificates and the auditor’s settlement record.');
+    for (const [state, audit] of Object.entries(money?.audit || {})) {
+      const flag = audit.figures?.find(f => f.k === 'ucs_pending');
+      if (!flag || !Number.isFinite(flag.crore)) continue;
+      append(audits, 'p', state + ' · ₹' + format.format(flag.crore) + ' crore · ' + (flag.asof || audit.year));
+      link(audits, 'CAG · ' + flag.where, flag.url || audit.page);
+    }
+    const board = append(accountability, 'details', '');
+    append(board, 'summary', 'Open resident reports by routing office · Parishkar coverage');
+    append(board, 'p', 'Reported concerns. Routing is based on ward, block and asset tags. Confirm ownership with the office. The board covers participating places and shows up to 200 open reports per office.');
+    const cases = append(board, 'div', '');
+    async function query(name, args) {
+      const config = window.KASA_CONFIG;
+      return read(config.SUPABASE_URL + '/rest/v1/rpc/' + name, {method:'POST', cache:'no-store',
+        headers:{apikey:config.SUPABASE_ANON_KEY,'Content-Type':'application/json'},body:JSON.stringify(args)});
+    }
+    board.addEventListener('toggle', async () => {
+      if (!board.open || cases.childElementCount) return;
+      append(cases, 'p', 'Checking public reports…');
+      try {
+        const offices = await query('kasa_office_board', {});
+        cases.replaceChildren();
+        if (!offices.length) append(cases, 'p', 'No open reports returned.');
+        for (const office of offices) {
+          const section = append(cases, 'details', '');
+          append(section, 'summary', office.title + ' · ' + office.open + ' open');
+          append(section, 'p', office.overdue + ' past the tracker deadline. ' + (office.source || 'Office contact source unavailable.'));
+          for (const report of office.reports || []) {
+            const row = append(section, 'details', '');
+            append(row, 'summary', report.category.replaceAll('_',' ') + ' · reported ' + report.created_at.slice(0,10) + ' · ' + report.days_open + ' days open');
+            row.addEventListener('toggle', async () => {
+              if (!row.open || row.childElementCount > 1) return;
+              const evidence = append(row, 'p', 'Checking response records…');
+              try {
+                const records = await query('kasa_report_dockets', {p_report_id:String(report.id)});
+                evidence.textContent = records.length ? 'Publicly logged correspondence' : 'No linked docket. Government action is unknown.';
+                for (const record of records) append(row, 'p', [record.portal, record.filed_on || record.added, record.status?.replaceAll('_',' ')].filter(Boolean).join(' · '));
+                if (records.length) append(row, 'p', 'A filing records correspondence. Verify repairs against a work order and a dated site check.');
+              } catch { evidence.textContent = 'Response records unavailable.'; }
+            });
+          }
+        }
+      } catch { cases.replaceChildren(); append(cases, 'p', 'Office board unavailable.'); }
+    });
+    const guide = append(accountability, 'details', '');
+    append(guide, 'summary', 'Which office to approach and how to check a fix');
+    append(guide, 'p', 'Starting points across India. Confirm the operator and jurisdiction locally. These categories describe common services, without ranking national prevalence.');
+    for (const [problem, owner, check] of [
+      ['Unsafe school facilities','School head and district education office','Request the inspection and repair sanction. Check that the toilet, classroom or water point is usable.'],
+      ['Missed waste collection or blocked drains','Municipal sanitation office or gram panchayat','Request the route and clearance schedule. Check the site after the next collection or rainfall.'],
+      ['Damaged roads','Road-owning municipality, panchayat, PWD or highway authority','Identify the road owner and maintenance contract. Compare the repair with its specification.'],
+      ['Power cuts or billing errors','Local electricity distribution company','Obtain a complaint number. Compare restoration times or the corrected bill with the complaint.'],
+      ['Clinic staffing or medicine shortages','Facility head and district health administration','Request aggregate staffing or stock records. Check service availability on the next scheduled day.'],
+      ['Ration entitlement shortfall','Fair-price shop and district food and supplies office','Compare the entitlement with the dated receipt. Verify the missing allocation was delivered.'],
+      ['Delayed rural employment wages','Gram panchayat and block programme officer','Trace muster roll, payment order and settlement. Confirm receipt privately with the worker.'],
+      ['Bus service gaps','Transport undertaking or contracted operator','Compare the published timetable with observed departures over several days.'],
+      ['Housing or pension application delays','Implementing scheme office at block or urban local body','Request a dated decision and reason. Verify payment or delivery with the applicant’s consent.'],
+      ['Air pollution','State Pollution Control Board or Pollution Control Committee','Identify the monitor and period. Ask for inspection findings and check subsequent measurements.']
+    ]) {
+      append(guide, 'h4', problem);
+      append(guide, 'p', owner + '. ' + check);
+    }
     const metric = (label, value, source) => {
       if (!Number.isFinite(value)) return;
       const row = append(detail, 'p', label + ' · ' + format.format(value) + ' · ' + source + ' ');
