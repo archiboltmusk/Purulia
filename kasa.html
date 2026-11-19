@@ -151,6 +151,7 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     </button>
     <button type="button" class="k-nearby-btn" id="k-nearby-btn" aria-pressed="false" data-i18n="nearby_btn">Near me</button>
     <div class="k-filter-bar" id="k-filter-bar">
+      <button type="button" class="k-filter-select" data-intelligence="satellite">Satellite imagery</button>
       <button type="button" class="k-filter-select" data-intelligence="layers">Data &amp; evidence</button>
       <select id="k-filter-category" class="k-filter-select" aria-label="Issue type"></select>
       <select id="k-layer-select" class="k-filter-select" aria-label="Map layer">
@@ -1045,6 +1046,16 @@ html[data-theme="dark"] .k-splash{background:#0a0805;}
     <p>For a central government body, check eligibility and the filing procedure with the <a href="https://www.cvc.gov.in/" target="_blank" rel="noopener noreferrer">Central Vigilance Commission</a>. For another state’s office, verify its vigilance or anti-corruption authority through that state’s official government website.</p>
     <h3>Track two outcomes separately</h3>
     <p>Keep the complaint acknowledgement, dated replies and final decision. Separately record whether the original service was delivered, what fee you paid and whether you received a receipt. Parishkar cannot see the authority’s case status.</p>
+  </details>
+  <details id="k-satellite">
+    <summary>Satellite imagery · compare dates</summary>
+    <p>NASA GIBS · Terra MODIS daily true colour. Compare the same area for large changes in reservoirs, flooding or land cover. Clouds, haze and missing passes can obscure the ground. Individual repairs and service operation need a site check.</p>
+    <label>Earlier date (UTC) <input id="sat-earlier" type="date"></label>
+    <label>Later date (UTC) <input id="sat-later" type="date"></label>
+    <button type="button" id="sat-load">Compare images</button>
+    <button type="button" id="sat-overlay" hidden>Show later date on map</button>
+    <p id="sat-location" role="status"></p>
+    <div id="sat-images" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,12rem),1fr));gap:.5rem"></div>
   </details>
   <details id="k-intelligence-layers" open>
     <summary>Data layers</summary>

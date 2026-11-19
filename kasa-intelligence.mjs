@@ -400,12 +400,73 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
 
   id('k-intelligence-test').addEventListener('click', speedTest);
 
+  const satellite = id('k-satellite');
+  const earlier = id('sat-earlier'), later = id('sat-later');
+  const utcDay = daysAgo => new Date(Date.now()-daysAgo*86400000).toISOString().slice(0,10);
+  earlier.value = utcDay(31);
+  later.value = utcDay(1);
+  earlier.max = later.max = utcDay(0);
+  let imageRequest = 0;
+  async function compareImages() {
+    const ticket = ++imageRequest;
+    const box = id('sat-images'), notice = id('sat-location');
+    box.replaceChildren();
+    if (!earlier.value || !later.value || earlier.value >= later.value || later.value > utcDay(0)) {
+      notice.textContent = 'Choose two different dates in chronological order through today (UTC).';
+      return;
+    }
+    try {
+      const canvas = map();
+      const center = canvas?.getCenter();
+      const coords = center ? [center.lng, center.lat] : (await read('places/godseye.json')).districts?.[district()]?.at;
+      if (ticket !== imageRequest) return;
+      if (!coords) { notice.textContent = 'Select a covered district or centre the interactive map on a site.'; return; }
+      const [x,y] = coords.map(n => Math.round(n*10)/10);
+      notice.textContent = 'Regional view centred at '+y+'°, '+x+'°. Both images cover the same 0.6° square. Dates identify requested daily composites; a blank image means coverage is unconfirmed.';
+      for (const day of [earlier.value,later.value]) {
+        const fig = append(box,'figure',''); fig.style.margin = '0';
+        const caption = append(fig,'figcaption',day+' UTC · loading');
+        const img = document.createElement('img');
+        img.width = img.height = 512; img.style.cssText='width:100%;height:auto';
+        img.alt = 'Terra MODIS true-colour imagery for '+day;
+        img.referrerPolicy='no-referrer';
+        img.onload = () => { caption.textContent = day+' UTC · NASA GIBS'; };
+        img.onerror = () => { caption.textContent = day+' UTC · imagery unavailable'; img.hidden=true; };
+        fig.append(img);
+        const query = new URLSearchParams({SERVICE:'WMS',VERSION:'1.1.1',REQUEST:'GetMap',LAYERS:'MODIS_Terra_CorrectedReflectance_TrueColor',STYLES:'',SRS:'EPSG:4326',BBOX:[x-.3,y-.3,x+.3,y+.3].join(','),WIDTH:'512',HEIGHT:'512',FORMAT:'image/jpeg',TIME:day});
+        img.src='https://gibs.earthdata.nasa.gov/wms/epsg4326/best/wms.cgi?'+query;
+      }
+      id('sat-overlay').hidden = !canvas?.getLayer('clusters');
+    } catch { if (ticket === imageRequest) notice.textContent = 'Satellite view unavailable. Try again.'; }
+  }
+  id('sat-load').onclick = compareImages;
+  const overlay = id('sat-overlay');
+  overlay.onclick = () => {
+    const canvas = map(); if (!canvas) return;
+    const key='nasa-modis-daily';
+    if (canvas.getLayer(key)) {
+      canvas.removeLayer(key); canvas.removeSource(key);
+      overlay.textContent='Show later date on map';
+    } else {
+      if (!later.value || later.value > utcDay(0)) return;
+      canvas.addSource(key,{type:'raster',tileSize:256,maxzoom:9,attribution:'NASA EOSDIS GIBS · Terra MODIS · '+later.value+' UTC',tiles:['https://gibs.earthdata.nasa.gov/wmts/epsg3857/best/MODIS_Terra_CorrectedReflectance_TrueColor/default/'+later.value+'/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg']});
+      canvas.addLayer({id:key,type:'raster',source:key},canvas.getStyle().layers.find(layer=>layer.type==='symbol')?.id);
+      overlay.textContent='Remove satellite overlay';
+      panel.close();
+    }
+  };
+  satellite.addEventListener('toggle',()=>{if(satellite.open) compareImages();});
   const start = (event) => {
     const section = event?.target.closest('[data-intelligence]')?.dataset.intelligence ??
       new URLSearchParams(location.search).get('intelligence');
     closeDrawer();
     const selected = district();
     if (!panel.open) panel.showModal();
+    if (section === 'satellite') {
+      if (satellite.open) compareImages(); else satellite.open = true;
+      satellite.querySelector('summary').focus();
+      return;
+    }
     if (section === 'bribe') {
       const help = id('k-bribe-help');
       help.open = true;
