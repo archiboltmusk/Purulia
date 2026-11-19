@@ -1,4 +1,5 @@
 import { layers, read, loadLayer } from './kasa-intelligence-feeds.mjs';
+import { createFallback } from './live-intelligence-fallback.mjs';
 import { measure } from './internet-speed-core.mjs';
 
 const id = (name) => document.getElementById(name);
@@ -23,10 +24,22 @@ export function mountIntelligence({ map, district, closeDrawer }) {
   let sequence = 0;
   let current = empty;
   let timer;
+  let fallback;
+  setTimeout(() => {
+    if (map()) return;
+    document.getElementById('k-splash')?.classList.add('k-splash-out');
+    const container = id('k-map');
+    if (!container) return;
+    container.replaceChildren();
+    container.classList.add('k-intelligence-fallback');
+    fallback = createFallback(container, read('places/in_states.geojson'));
+    append(container, 'p', 'Interactive report pins require WebGL2. Switch to List to browse civic reports.').className = 'k-intelligence-fallback-note';
+    draw();
+  }, 3000);
 
   function draw() {
-    const canvas = map();
-    if (!canvas || !canvas.getLayer('clusters')) return;
+    const canvas = map() ?? fallback;
+    if (!canvas || (!fallback && !canvas.getLayer('clusters'))) return;
     if (!canvas.getSource(sourceId) && current.features.length === 0) return;
     if (!canvas.getSource(sourceId)) {
       canvas.addSource(sourceId, { type: 'geojson', data: current });
@@ -34,7 +47,7 @@ export function mountIntelligence({ map, district, closeDrawer }) {
         id: sourceId, type: 'circle', source: sourceId,
         paint: { 'circle-color': ['get', 'color'], 'circle-radius': 7, 'circle-stroke-color': '#fff', 'circle-stroke-width': 2 }
       }, 'clusters');
-      canvas.on('click', sourceId, (event) => {
+      canvas.on?.('click', sourceId, (event) => {
         if (event.defaultPrevented) return;
         const p = event.features[0].properties;
         new window.maplibregl.Popup().setLngLat(event.lngLat)

@@ -26,3 +26,8 @@ button.k-drawer-link[data-intelligence] { text-align: left; font: inherit; backg
   #k-intelligence { margin: auto auto .75rem; }
 }
 #k-intelligence input, #k-intelligence textarea { display: block; box-sizing: border-box; width: 100%; font: inherit; margin-bottom: .55rem; padding: .4rem; }
+
+.k-intelligence-fallback > svg { width: 100%; height: 100%; background: #162a39; }
+.k-intelligence-fallback .fallback-marker { r: var(--marker-size); stroke: #111a22; stroke-width: .05; }
+.k-intelligence-fallback .fallback-caption { position: absolute; bottom: 4rem; left: .75rem; color: #fff; }
+.k-intelligence-fallback-note { position: absolute; top: 7rem; left: .75rem; max-width: 22rem; padding: .45rem .6rem; color: #fff; background: #172c3c; pointer-events: none; }
