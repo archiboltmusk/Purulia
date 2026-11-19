@@ -46,3 +46,17 @@ test('keeps district search and layers usable without WebGL2', async ({ page }) 
   await expect(page.getByText('USGS earthquakes')).toBeVisible();
   await expect(page.getByRole('combobox', { name: 'Find a district or state' })).toBeEnabled();
 });
+
+test('loads existing district records through the Purulia deep link', async ({ page }) => {
+  await page.route('https://tiles.openfreemap.org/**', (route) => route.fulfill({
+    json: { version: 8, sources: {}, layers: [{ id: 'background', type: 'background', paint: { 'background-color': '#172530' } }] }
+  }));
+  await page.route('**/rest/v1/rpc/**', (route) => route.abort());
+  await page.goto('/live-intelligence.html?d=purulia');
+  const profile = page.getByRole('region', { name: 'Linked place data' });
+  await expect(profile.getByRole('heading')).toHaveText('Purulia, West Bengal');
+  await expect(profile.getByText('NFHS-5 · 2019–21').first()).toBeVisible();
+  await expect(profile.getByText('Jal Jeevan Mission', { exact: false })).toBeVisible();
+  await expect(profile.getByRole('link', { name: 'District dashboard', exact: false })).toHaveAttribute('href', 'godseye.html?d=purulia');
+  await expect(profile.getByRole('link', { name: 'Purulia school directory and checks' })).toHaveAttribute('href', 'schools.html');
+});

@@ -5,9 +5,9 @@
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>India Live Intelligence | Parishkar</title>
   <link rel="stylesheet" href="vendor/maplibre-gl-6.14.0/maplibre-gl.css">
-  <link rel="stylesheet" href="live-intelligence.css?v=2">
+  <link rel="stylesheet" href="live-intelligence.css?v=3">
   <script src="config.js" defer></script>
-  <script type="module" src="live-intelligence.mjs?v=2"></script>
+  <script type="module" src="live-intelligence.mjs?v=3"></script>
 </head>
 <body>
   <header><a href="index.html">Parishkar</a><h1>India Live Intelligence</h1><a href="internet-speed.html">Internet Speed Atlas</a></header>
@@ -17,6 +17,7 @@
       <input id="district" type="search" list="districts" autocomplete="off" disabled>
       <datalist id="districts"></datalist>
       <p id="district-status" role="status"></p>
+      <section id="place-profile" aria-label="Linked place data" hidden></section>
       <label for="period">Earthquake history</label>
       <select id="period"><option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
       <p class="muted">History starts when collection began.</p>

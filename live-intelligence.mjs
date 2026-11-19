@@ -1,5 +1,6 @@
 import { Map, NavigationControl, Popup } from './vendor/maplibre-gl-6.14.0/maplibre-gl.mjs';
 
+import { placeProfile } from './live-intelligence-places.mjs';
 import { createFallback } from './live-intelligence-fallback.mjs';
 
 const byId = (id) => document.getElementById(id);
@@ -116,6 +117,8 @@ async function setUpSearch() {
     read('places/wb_districts.geojson').catch(() => null)
   ]);
   const index = {};
+  const westBengalSlugs = {};
+  const openProfile = placeProfile(byId('place-profile'), read);
   for (const state of Object.values(states)) {
     index[state.name] = state.bbox;
     for (const [district, bounds] of Object.entries(state.district_boxes ?? {})) {
@@ -134,7 +137,9 @@ async function setUpSearch() {
         bounds[3] = Math.max(bounds[3], lat);
       }
       if (bounds[0] > bounds[2]) continue;
-      index[feature.properties.district + ', West Bengal'] = bounds;
+      const label = feature.properties.district + ', West Bengal';
+      index[label] = bounds;
+      westBengalSlugs[label] = feature.properties.slug;
       stateBounds[0] = Math.min(stateBounds[0], bounds[0]);
       stateBounds[1] = Math.min(stateBounds[1], bounds[1]);
       stateBounds[2] = Math.max(stateBounds[2], bounds[2]);
@@ -146,15 +151,31 @@ async function setUpSearch() {
   byId('districts').replaceChildren(...options);
   const input = byId('district');
   input.disabled = false;
-  input.addEventListener('change', () => {
+  function selectPlace() {
     const search = input.value.trim().toLowerCase();
+    byId('place-profile').hidden = true;
+    byId('district-status').textContent = '';
     if (!search) return;
     const names = Object.keys(index);
     const hits = names.filter((name) => name.split(',')[0].toLowerCase() === search);
     const match = names.find((name) => name.toLowerCase() === search) ?? (hits.length === 1 ? hits[0] : null);
     byId('district-status').textContent = match ? attribution : 'Choose a district or state from the search suggestions.';
-    if (match) map.fitBounds(index[match], { padding: 42, maxZoom: 12 });
+    if (match) {
+      map.fitBounds(index[match], { padding: 42, maxZoom: 12 });
+      const state = match.includes(', ') ? match.slice(match.lastIndexOf(', ') + 2) : match;
+      openProfile({ label: match, state, slug: westBengalSlugs[match] });
+    }
+  }
+  input.addEventListener('change', selectPlace);
+  input.addEventListener('keydown', (event) => {
+    if (event.key === 'Enter') selectPlace();
   });
+  const districtSlug = new URLSearchParams(location.search).get('d');
+  const initial = Object.keys(westBengalSlugs).find((label) => westBengalSlugs[label] === districtSlug);
+  if (initial) {
+    input.value = initial;
+    selectPlace();
+  }
 }
 
 const refreshers = [];

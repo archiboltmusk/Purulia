@@ -29,3 +29,6 @@ summary { cursor: pointer; padding: .5rem 0; }
 .fallback-caption { position: absolute; bottom: .4rem; left: .4rem; right: .4rem; display: flex; align-items: center; flex-wrap: wrap; gap: .5rem; }
 .fallback-caption p { margin: 0; padding: .3rem .5rem; background: #111a22; font-size: .8rem; }
 .fallback-caption button { width: auto; }
+#place-profile { margin: .55rem 0; padding: .55rem .75rem; background: #1a2a37; border-radius: .35rem; }
+#place-profile h2 { margin: 0 0 .25rem; font-size: 1rem; }
+#place-profile p { margin: .5rem 0; }

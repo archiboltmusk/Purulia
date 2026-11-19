@@ -124,7 +124,7 @@
       <dt>Tap water</dt><dd>${esc(jjm || NOT_ON_RECORD)}</dd>
       <dt>Who answers</dt><dd>${repLine}</dd>
     </dl>
-    <p class="an-card-sub ge-src">Weather and air: Open-Meteo${Lr.weather ? ', read ' + esc(ago(liveData.generated)) : ''} · Fires: NASA FIRMS · Figures: <a href="data.html?d=${esc(slug)}">${esc(D.name)} data page</a>, <a href="compare.html?c=${esc(slug)}">compare</a>, <a href="calendar.html">calendar</a></p>`;
+    <p class="an-card-sub ge-src">Weather and air: Open-Meteo${Lr.weather ? ', read ' + esc(ago(liveData.generated)) : ''} · Fires: NASA FIRMS · Figures: <a href="data.html?d=${esc(slug)}">${esc(D.name)} data page</a>, <a href="compare.html?c=${esc(slug)}">compare</a>, <a href="live-intelligence.html?d=${esc(slug)}">open on India map</a>, <a href="calendar.html">calendar</a></p>`;
     const mandi = Lr.mandi;
     if (mandi) {
       $('ge-hero').insertAdjacentHTML('beforeend', `<div class="ge-mandi"><span class="ge-k">Mandi prices, ${esc(mandi.markets)} markets, as of ${esc(mandi.as_of || '–')}</span><ul class="ge-sources">${mandi.commodities.map(c => `<li>${esc(c.name)}: Rs ${num(c.modal_price_rs)} (modal)</li>`).join('')}</ul></div>`);

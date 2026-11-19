@@ -185,8 +185,9 @@
       "id": "udise",
       "category": "Education",
       "endpoint": "https://udiseplus.gov.in/",
-      "status": "catalog",
-      "constraint": "Published school inventories are reference snapshots."
+      "status": "reference",
+      "constraint": "UDISE+ 2025–26 reference figures, with Purulia school checks in the existing directory.",
+      "coverage": "State-level school benchmarks; Purulia school directory"
     },
     {
       "id": "agmarknet",
@@ -199,8 +200,9 @@
       "id": "rbi-dbie",
       "category": "Economy",
       "endpoint": "https://data.rbi.org.in/",
-      "status": "catalog",
-      "constraint": "Statistical releases require period and geography metadata."
+      "status": "reference",
+      "constraint": "State benchmark in the district panel, with RBI reporting period.",
+      "coverage": "States with published fiscal figures"
     },
     {
       "id": "lgd",
@@ -227,8 +229,24 @@
       "id": "kasa",
       "category": "Civic reports",
       "endpoint": "kasa.html",
-      "status": "separate_service",
-      "constraint": "Approved civic reports use the existing Kasa publication rules."
+      "status": "linked",
+      "constraint": "District dashboard links to the existing public reporting service."
+    },
+    {
+      "id": "jjm",
+      "category": "Household tap water",
+      "endpoint": "https://ejalshakti.gov.in/jjmreport/JJMDistrictView.aspx",
+      "status": "reference",
+      "coverage": "West Bengal districts where published",
+      "constraint": "Existing JJM snapshot, with the date read shown in each district profile."
+    },
+    {
+      "id": "nfhs-5",
+      "category": "Health and household electricity",
+      "endpoint": "https://rchiips.org/nfhs/districtfactsheet_NFHS-5.shtml",
+      "status": "reference",
+      "coverage": "NFHS-5 district geographies for West Bengal",
+      "constraint": "Survey period 2019–21. Newer districts may lack separate figures."
     }
   ]
 }
