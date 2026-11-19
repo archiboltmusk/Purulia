@@ -2687,6 +2687,30 @@ function openSheet(id){
   }
 }
 
+document.addEventListener('click', async event => {
+  const button = event.target.closest('[data-case-record]');
+  if (!button) return;
+  const body = button.closest('#k-sheet-body');
+  if (!body) return;
+  const existing = body.querySelector('.k-case-record');
+  if (existing) {
+    existing.hidden = !existing.hidden;
+    button.setAttribute('aria-expanded', String(!existing.hidden));
+    return;
+  }
+  const record = document.createElement('section');
+  record.className = 'k-case-record';
+  button.closest('.k-sheet-place').after(record);
+  button.setAttribute('aria-expanded','true');
+  record.textContent = 'Loading public case records…';
+  try {
+    const { showRecord } = await import('./map-case-record.mjs');
+    await showRecord(record, button.dataset.caseRecord);
+  } catch {
+    record.textContent = 'Case records unavailable. Reopen the report to retry.';
+  }
+});
+
 function closeSheet(){
   state.sheetId = null;
   clearInterval(openSheet._tick);
@@ -2785,7 +2809,7 @@ function renderSheet(){
       ${r.description ? `<p class="k-sheet-desc">${esc(r.description)}</p>` : ''}
       <div class="k-sheet-links">
         <a class="k-directions-btn" href="${directions}" target="_blank" rel="noopener">${ICON_NAV} ${esc(t('sheet_directions'))}</a>
-        ${r.pending ? '' : `<a href="case.html?id=${encodeURIComponent(r.id)}">▤ ${esc(t('sheet_case'))}</a>`}
+        ${r.pending ? '' : `<button type="button" data-case-record="${esc(r.id)}" aria-expanded="false">Evidence &amp; follow-up</button>`}
         <span class="k-sheet-loc">${r.gps ? '📍 ' + esc(t('sheet_gps')) : state.mode === 'v2' ? '📌 ' + esc(t('sheet_pinned')) : ''}</span>
       </div>
     </div>
