@@ -8,9 +8,12 @@
       "category": "Earthquakes",
       "endpoint": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson",
       "access": "public",
-      "refresh_target": "5m",
+      "refresh_target": "1 minute",
       "temporal_class": "observed",
-      "status": "candidate_unverified"
+      "status": "scheduled",
+      "license": "USGS public domain",
+      "coverage": "Indian subcontinent bounding box (65–100° E, 5–39° N)",
+      "source_url": "https://earthquake.usgs.gov/earthquakes/feed/v1.0/geojson.php"
     },
     {
       "id": "imd-current-weather",
@@ -19,7 +22,8 @@
       "access": "registration_or_cors_check",
       "refresh_target": "15m",
       "temporal_class": "observed",
-      "status": "candidate_unverified"
+      "status": "access_unverified",
+      "constraint": "Confirm authorized endpoint access and reuse terms."
     },
     {
       "id": "imd-aws",
@@ -28,7 +32,8 @@
       "access": "registration_or_cors_check",
       "refresh_target": "15m",
       "temporal_class": "observed",
-      "status": "candidate_unverified"
+      "status": "access_unverified",
+      "constraint": "Confirm authorized endpoint access and reuse terms."
     },
     {
       "id": "imd-district-warnings",
@@ -37,7 +42,8 @@
       "access": "registration_or_cors_check",
       "refresh_target": "30m",
       "temporal_class": "forecast",
-      "status": "candidate_unverified"
+      "status": "access_unverified",
+      "constraint": "Confirm authorized endpoint access and reuse terms."
     },
     {
       "id": "cpcb-aqi",
@@ -46,7 +52,8 @@
       "access": "api_key_and_station_geocoding",
       "refresh_target": "60m",
       "temporal_class": "observed",
-      "status": "candidate_unverified"
+      "status": "credentials_required",
+      "constraint": "Provider API key and validated station coordinates required."
     },
     {
       "id": "openaq",
@@ -55,7 +62,8 @@
       "access": "api_key_required",
       "refresh_target": "60m",
       "temporal_class": "observed",
-      "status": "candidate_unverified"
+      "status": "limited_snapshot",
+      "constraint": "Existing West Bengal PM2.5 refresh only. National access requires an API key and provider-licence review."
     },
     {
       "id": "community-internet-speed",
@@ -64,7 +72,10 @@
       "access": "supabase_public_aggregate",
       "refresh_target": "5m",
       "temporal_class": "crowdsourced",
-      "status": "candidate_unverified"
+      "status": "public_aggregate",
+      "coverage": "Coarse cells with at least five contributors; rolling 90 days",
+      "license": "Project community contributions",
+      "source_url": "internet-speed.html"
     },
     {
       "id": "openstreetmap",
@@ -73,7 +84,10 @@
       "access": "attribution_and_usage_policy",
       "refresh_target": "periodic",
       "temporal_class": "reference",
-      "status": "candidate_unverified"
+      "status": "reference",
+      "coverage": "OpenFreeMap basemap",
+      "license": "ODbL",
+      "source_url": "https://www.openstreetmap.org/copyright"
     },
     {
       "id": "data-gov-in",
@@ -82,7 +96,8 @@
       "access": "per_dataset_access",
       "refresh_target": "varies",
       "temporal_class": "mixed",
-      "status": "candidate_unverified"
+      "status": "catalog",
+      "constraint": "Authentication, reuse terms and spatial resolution are per resource."
     },
     {
       "id": "isro-bhuvan",
@@ -91,7 +106,8 @@
       "access": "per_layer_license",
       "refresh_target": "varies",
       "temporal_class": "mixed",
-      "status": "candidate_unverified"
+      "status": "license_review",
+      "constraint": "Confirm terms and service limits for each tile or data layer."
     },
     {
       "id": "mapbox-traffic",
@@ -100,7 +116,119 @@
       "access": "commercial_license",
       "refresh_target": "minutes",
       "temporal_class": "estimated",
-      "status": "candidate_unverified"
+      "status": "paid",
+      "constraint": "Commercial traffic tile access and display terms must be approved."
+    },
+    {
+      "id": "open-meteo",
+      "category": "Weather and air quality",
+      "endpoint": "https://open-meteo.com/",
+      "status": "limited_snapshot",
+      "constraint": "West Bengal district sample points; noncommercial API terms.",
+      "license": "CC BY 4.0 weather data; Copernicus CAMS air quality attribution",
+      "coverage": "23 West Bengal district points",
+      "refresh_target": "12 hours",
+      "temporal_class": "modelled"
+    },
+    {
+      "id": "district-boundaries",
+      "category": "Administrative boundaries",
+      "endpoint": "https://github.com/yashveeeeeeer/india-geodata",
+      "status": "reference",
+      "constraint": "Bundled LGD-derived district bounds.",
+      "license": "CC0",
+      "temporal_class": "reference"
+    },
+    {
+      "id": "delhi-otd",
+      "category": "Transport",
+      "endpoint": "https://otd.delhi.gov.in/",
+      "status": "credentials_required",
+      "constraint": "Delhi GTFS real-time requires approved access; coverage is local."
+    },
+    {
+      "id": "ntes",
+      "category": "Rail transport",
+      "endpoint": "https://enquiry.indianrail.gov.in/",
+      "status": "restricted",
+      "constraint": "Public lookup is available; bulk redistribution access is unverified."
+    },
+    {
+      "id": "pmgsy",
+      "category": "Infrastructure",
+      "endpoint": "https://omms.nic.in/",
+      "status": "catalog",
+      "constraint": "Confirm a redistributable road inventory and publication date."
+    },
+    {
+      "id": "grid-india",
+      "category": "Electricity",
+      "endpoint": "https://grid-india.in/",
+      "status": "catalog",
+      "constraint": "Confirm a redistributable geospatial grid feed."
+    },
+    {
+      "id": "india-wris",
+      "category": "Water",
+      "endpoint": "https://indiawris.gov.in/",
+      "status": "license_review",
+      "constraint": "Verify station feed access and reuse terms."
+    },
+    {
+      "id": "hfr",
+      "category": "Healthcare",
+      "endpoint": "https://hfr.abdm.gov.in/",
+      "status": "restricted",
+      "constraint": "Verify authorized bulk access to public facility records."
+    },
+    {
+      "id": "udise",
+      "category": "Education",
+      "endpoint": "https://udiseplus.gov.in/",
+      "status": "catalog",
+      "constraint": "Published school inventories are reference snapshots."
+    },
+    {
+      "id": "agmarknet",
+      "category": "Agriculture",
+      "endpoint": "https://agmarknet.gov.in/",
+      "status": "credentials_required",
+      "constraint": "The existing OGD mandi refresh needs a working resource key."
+    },
+    {
+      "id": "rbi-dbie",
+      "category": "Economy",
+      "endpoint": "https://data.rbi.org.in/",
+      "status": "catalog",
+      "constraint": "Statistical releases require period and geography metadata."
+    },
+    {
+      "id": "lgd",
+      "category": "Government",
+      "endpoint": "https://lgdirectory.gov.in/",
+      "status": "reference",
+      "constraint": "Directory reference data changes periodically."
+    },
+    {
+      "id": "nasa-gibs",
+      "category": "Satellite imagery",
+      "endpoint": "https://www.earthdata.nasa.gov/data/tools/gibs",
+      "status": "license_review",
+      "constraint": "Check product-specific attribution, acquisition dates and service limits."
+    },
+    {
+      "id": "nasa-firms",
+      "category": "Disasters and fires",
+      "endpoint": "https://firms.modaps.eosdis.nasa.gov/",
+      "status": "credentials_required",
+      "constraint": "FIRMS fire detections require a working MAP_KEY."
+    },
+    {
+      "id": "kasa",
+      "category": "Civic reports",
+      "endpoint": "kasa.html",
+      "status": "separate_service",
+      "constraint": "Approved civic reports use the existing Kasa publication rules."
     }
   ]
 }

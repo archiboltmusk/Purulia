@@ -22,7 +22,7 @@ try:
  check('direct writes rejected',False)
 except psycopg.Error as e:check('direct writes rejected','permission denied' in str(e))
 finally:reset()
-check('first contribution works',rpc('submit_internet_speed',users[0],**args) is None)
+check('first contribution works',err('submit_internet_speed',users[0],**args) is None)
 check('repeat blocked',err('submit_internet_speed',users[0],**args)=='Wait 15 minutes between contributions')
 check('raw records unreadable',not admin_sql("select has_table_privilege('anon','public.internet_speed_tests','select') or has_table_privilege('authenticated','public.internet_speed_tests','select')").fetchone()[0])
 check('under five accounts suppressed',admin_sql('select count(*) from public.internet_speed_regions()').fetchone()[0]==0)

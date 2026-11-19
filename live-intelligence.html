@@ -1,7 +1,30 @@
-<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>India Live Intelligence | Parishkar</title><link rel="stylesheet" href="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.css"><style>body{margin:0;background:#101820;color:#fff;font:15px system-ui}header{padding:14px 18px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}a{color:#91d6ff}main{display:grid;grid-template-columns:280px 1fr}aside{padding:16px;background:#202d3a}#map{height:calc(100vh - 58px);min-height:500px}button,input{font:inherit}button{padding:9px;background:#34576e;color:white;border:1px solid #6c9bb5;border-radius:6px;cursor:pointer}label{display:block;padding:10px 0}small{color:#b8c7d0}#status{line-height:1.5}@media(max-width:650px){main{display:block}#map{height:65vh;min-height:350px}}</style></head><body><header><strong>Parishkar · India Live Intelligence</strong><a href="internet-speed.html">Internet Speed Atlas</a></header><main><aside><h2>Observed feeds</h2><p><small>Real source data only. Empty areas mean no observations, not safety. Last checked timestamps are shown below.</small></p><label><input type="checkbox" id="quake" checked> Earthquakes · USGS</label><label><input type="checkbox" id="weather" checked> Weather stations · IMD</label><label><input type="checkbox" id="speed" checked> Internet speeds · community</label><button id="refresh">Refresh feeds</button><p id="status" role="status" aria-live="polite">Loading…</p><small>Weather observations are station measurements, not continuous coverage. Earthquake feed includes nearby regional events. Speed cells require at least five contributors. Refresh every 5 minutes; each feed can fail independently.</small></aside><div id="map" aria-label="Interactive map of India"></div></main><script src="https://unpkg.com/maplibre-gl@4.7.1/dist/maplibre-gl.js"></script><script src="config.js"></script><script>
-const $=id=>document.getElementById(id),map=new maplibregl.Map({container:'map',style:'https://tiles.openfreemap.org/styles/liberty',center:[79,22],zoom:4});
-map.addControl(new maplibregl.NavigationControl());const blank={type:'FeatureCollection',features:[]};const configs={quake:{url:'https://earthquake.usgs.gov/earthquakes/feed/v1.0/summary/all_day.geojson',type:'geojson',color:'#f97373'},weather:{url:'https://api.imd.gov.in/api/v1/current_wx',type:'imd',color:'#5ab5ff'},speed:{url:'https://cnmikcyvyamplbldiivp.supabase.co/rest/v1/rpc/internet_speed_cells',type:'speed',color:'#3fda9a'}};const state={};function note(){ $('status').textContent=Object.entries(state).map(([k,v])=>k+': '+v).join(' · ') }
-map.on('load',()=>{for(const [key,c] of Object.entries(configs)){map.addSource(key,{type:'geojson',data:blank});map.addLayer({id:key,type:'circle',source:key,paint:{'circle-radius':['interpolate',['linear'],['zoom'],3,4,9,9],'circle-color':c.color,'circle-opacity':.8,'circle-stroke-color':'#fff','circle-stroke-width':1}});map.on('click',key,e=>{const p=e.features[0].properties;const info=key==='quake'?'Magnitude '+p.mag+' · '+p.place:key==='weather'?'Temperature '+p.temp+'°C · '+p.station:'Download '+p.download_mbps+' Mbps · '+p.samples+' samples';new maplibregl.Popup().setLngLat(e.lngLat).setText(info+' · observed '+(p.observed||'unknown')).addTo(map)});$(key).onchange=()=>map.setLayoutProperty(key,'visibility',$(key).checked?'visible':'none')}refresh();setInterval(refresh,300000)});
-async function refresh(){await Promise.all(Object.keys(configs).map(async key=>{try{const c=configs[key];const ctrl=new AbortController();const t=setTimeout(()=>ctrl.abort(),12000);let r;try{const headers=key==='speed'?{'apikey':window.KASA_CONFIG?.SUPABASE_ANON_KEY||'','Authorization':'Bearer '+(window.KASA_CONFIG?.SUPABASE_ANON_KEY||'')}:{};if(key==='speed'&&!headers.apikey){state[key]='public key not configured';note();return}r=await fetch(c.url,{signal:ctrl.signal,headers,cache:'no-store'});}finally{clearTimeout(t)}if(!r.ok)throw Error('HTTP '+r.status);const raw=await r.json();let features=[];if(key==='quake'){features=(raw.features||[]).filter(f=>f.geometry?.type==='Point'&&f.geometry.coordinates[0]>=65&&f.geometry.coordinates[0]<=100&&f.geometry.coordinates[1]>=5&&f.geometry.coordinates[1]<=39).map(f=>({...f,properties:{...f.properties,observed:new Date(f.properties.time).toISOString()}}))}else if(key==='weather'){const rows=Array.isArray(raw)?raw:Array.isArray(raw.data)?raw.data:[];features=rows.map(p=>{const lat=Number(p.Latitude??p.latitude??p.lat),lng=Number(p.Longitude??p.longitude??p.lon);return{type:'Feature',geometry:{type:'Point',coordinates:[lng,lat]},properties:{station:p.Station??p.station??'Station',temp:p.Temperature??p.temperature??'—',observed:p['Date of Observation']??p.date??'unknown'}}}).filter(f=>f.geometry.coordinates.every(Number.isFinite))}else{features=(raw||[]).map(p=>({type:'Feature',geometry:{type:'Point',coordinates:[Number(p.lng),Number(p.lat)]},properties:p})).filter(f=>f.geometry.coordinates.every(Number.isFinite))}map.getSource(key).setData({type:'FeatureCollection',features});state[key]=features.length+' points · checked '+new Date().toLocaleTimeString()}catch(e){state[key]='unavailable ('+e.message+')'}note()}))}
-$('refresh').onclick=refresh;
-</script></body></html>
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>India Live Intelligence | Parishkar</title>
+  <link rel="stylesheet" href="vendor/maplibre-gl-6.14.0/maplibre-gl.css">
+  <link rel="stylesheet" href="live-intelligence.css">
+  <script src="config.js" defer></script>
+  <script type="module" src="live-intelligence.mjs"></script>
+</head>
+<body>
+  <header><a href="index.html">Parishkar</a><h1>India Live Intelligence</h1><a href="internet-speed.html">Internet Speed Atlas</a></header>
+  <main>
+    <aside aria-label="Map controls">
+      <label for="district">Find a district or state</label>
+      <input id="district" type="search" list="districts" autocomplete="off" disabled>
+      <datalist id="districts"></datalist>
+      <p id="district-status" role="status"></p>
+      <label for="period">Earthquake history</label>
+      <select id="period"><option value="1">Last 24 hours</option><option value="7">Last 7 days</option><option value="30">Last 30 days</option></select>
+      <p class="muted">History starts when collection began.</p>
+      <fieldset><legend>Layers</legend><div id="layers"></div></fieldset>
+      <button id="refresh" type="button">Refresh layers</button>
+      <details><summary>Source coverage and access</summary><div id="registry"></div></details>
+    </aside>
+    <section id="map" aria-label="Interactive map of India"></section>
+  </main>
+</body>
+</html>

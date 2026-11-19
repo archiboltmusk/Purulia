@@ -1,10 +1,10 @@
 name: Internet Speed Atlas
 on:
   pull_request:
-    paths: ['internet-speed*', 'tests/internet-speed*', 'tests/browser/internet-speed*', 'supabase/**', '.github/workflows/internet-speed-tests.yml']
+    paths: ['internet-speed*', 'live-intelligence*', 'data/live-source-registry.json', 'tests/browser/live-intelligence*', 'tests/internet-speed*', 'tests/browser/internet-speed*', 'supabase/**', '.github/workflows/internet-speed-tests.yml']
   push:
     branches: [main]
-    paths: ['internet-speed*', 'tests/internet-speed*', 'tests/browser/internet-speed*', 'supabase/**', '.github/workflows/internet-speed-tests.yml']
+    paths: ['internet-speed*', 'live-intelligence*', 'data/live-source-registry.json', 'tests/browser/live-intelligence*', 'tests/internet-speed*', 'tests/browser/internet-speed*', 'supabase/**', '.github/workflows/internet-speed-tests.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -19,12 +19,12 @@ jobs:
           node-version: '22'
           cache: npm
           cache-dependency-path: tests/browser/package-lock.json
-      - run: node --check internet-speed.js && node --check internet-speed-core.mjs && node --test tests/internet-speed.test.mjs
+      - run: node --check live-intelligence.mjs && node --check internet-speed.js && node --check internet-speed-core.mjs && node --test tests/internet-speed.test.mjs
       - run: npm ci
         working-directory: tests/browser
       - run: npx playwright install --with-deps chromium
         working-directory: tests/browser
-      - run: npx playwright test internet-speed.spec.mjs
+      - run: npx playwright test internet-speed.spec.mjs live-intelligence.spec.mjs
         working-directory: tests/browser
       - uses: actions/upload-artifact@v7
         if: failure()
