@@ -335,6 +335,12 @@ export function mountIntelligence({ map, district, closeDrawer, renderList }) {
     closeDrawer();
     const selected = district();
     if (!panel.open) panel.showModal();
+    if (section === 'bribe') {
+      const help = id('k-bribe-help');
+      help.open = true;
+      help.querySelector('summary').focus();
+      return;
+    }
     if (section === 'evidence') detail.parentElement.open = true;
     if (section === 'speed') {
       selector.value = 'speed';
