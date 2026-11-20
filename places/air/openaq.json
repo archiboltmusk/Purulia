@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-20T07:17Z",
+ "generated": "2026-11-20T20:22Z",
  "source": "OpenAQ API v3 (api.openaq.org)",
  "source_url": "https://openaq.org/",
  "who_pm25_24h": 15,
@@ -90,9 +90,9 @@
     "url": "https://explore.openaq.org/locations/5614"
    },
    "pm25": {
-    "value": 6.4,
+    "value": 10.0,
     "unit": "µg/m³",
-    "utc": "2026-11-20T06:15:00Z"
+    "utc": "2026-11-20T18:00:00Z"
    }
   },
   {
@@ -126,9 +126,9 @@
     "url": "https://explore.openaq.org/locations/10904"
    },
    "pm25": {
-    "value": 6.07,
+    "value": 7.73,
     "unit": "µg/m³",
-    "utc": "2026-11-20T06:15:00Z"
+    "utc": "2026-11-20T18:00:00Z"
    }
   },
   {
@@ -174,9 +174,9 @@
     "url": "https://explore.openaq.org/locations/3409529"
    },
    "pm25": {
-    "value": 16.8,
+    "value": 112.22,
     "unit": "µg/m³",
-    "utc": "2026-11-20T06:15:00Z"
+    "utc": "2026-11-20T18:00:00Z"
    }
   },
   {
