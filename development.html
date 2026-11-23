@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Development atlas | Parishkar</title>
+<script src="theme-init.js"></script>
+<link rel="stylesheet" href="styles.css">
+<link rel="stylesheet" href="kasa.css">
+<link rel="stylesheet" href="vendor/maplibre-gl-6.14.0/maplibre-gl.css">
+<link rel="stylesheet" href="development.css">
+<script type="module" src="development.mjs"></script>
+</head>
+<body>
+<nav class="k-nav" aria-label="Main navigation">
+  <a class="k-nav-logo" href="index.html">Parishkar</a>
+  <a href="kasa.html">Report map</a>
+</nav>
+<main class="development">
+  <header>
+    <h1>Development atlas</h1>
+    <p>Explore historical assets, reviewed public works and government funding records from <a href="https://adiram.me/">Hisaab</a>.</p>
+    <p>Historical assets describe archived locations. Funding figures retain their reported accounting stage. Check each source for evidence of payment, completion or current condition.</p>
+  </header>
+
+  <section aria-labelledby="map-title">
+    <h2 id="map-title">Assets and public works</h2>
+    <form id="map-controls">
+      <label>Map layer <select name="layer">
+        <option value="assets">Historical assets</option>
+        <option value="works">Reviewed works</option>
+      </select></label>
+      <label id="category-label">Asset category <select name="kind">
+        <option value="">All categories</option><option value="public">Public facilities</option>
+        <option value="education">Education</option><option value="health">Health</option>
+        <option value="agriculture">Agriculture</option><option value="road">Roads</option>
+        <option value="other">Other</option>
+      </select></label>
+      <label>Search this map area <input name="q" maxlength="200" type="search"></label>
+      <button>Apply</button>
+      <button type="button" id="india">View India</button>
+      <button type="button" id="purulia">View Purulia</button>
+    </form>
+    <p id="map-status" role="status"></p>
+    <div id="development-map" aria-label="Development records map"></div>
+    <details>
+      <summary>Browse map records as a list</summary>
+      <button type="button" id="map-list">List records in view</button>
+      <div id="map-records" aria-live="polite"></div>
+    </details>
+    <div id="map-detail" aria-live="polite"></div>
+  </section>
+
+  <section aria-labelledby="records-title">
+    <h2 id="records-title">Public records and coverage</h2>
+    <form id="records-controls">
+      <label>Collection <select name="feed">
+        <option value="works">Reviewed public works</option>
+        <option value="funding">Funding by state and purpose</option>
+        <option value="funding/coverage">Funding coverage</option>
+        <option value="development">Development records</option>
+        <option value="spending">Spending evidence</option>
+        <option value="aggregates">Financial totals</option>
+        <option value="coverage">Project coverage</option>
+        <option value="geography">Historical map coverage</option>
+        <option value="evidence-progress">Evidence review progress</option>
+        <option value="jurisdiction-evidence">Jurisdiction evidence</option>
+        <option value="ingestion">Source acquisition progress</option>
+        <option value="areas/search">Administrative area search</option>
+      </select></label>
+      <label data-filter="works areas/search">Search <input name="q" maxlength="100" type="search"></label>
+      <label data-filter="works funding development">Financial year <input name="year" placeholder="2025-2026" pattern="[0-9]{4}-[0-9]{4}"></label>
+      <label data-filter="works">Geography <select name="state">
+        <option value="">All India</option><option value="19">West Bengal</option>
+      </select></label>
+      <label data-filter="aggregates">Accounting measure <select name="measure">
+        <option value="sanction">Sanction</option><option value="contract">Contract</option>
+        <option value="payment">Paid</option>
+      </select></label>
+      <label data-filter="funding development">Funding measure <select name="measure">
+        <option value="allocated">Allocated</option><option value="released">Released</option>
+        <option value="reported_spent">Reported spent</option>
+      </select></label>
+      <button>Load records</button>
+    </form>
+    <p id="records-status" role="status"></p>
+    <div id="records"></div>
+  </section>
+</main>
+</body>
+</html>

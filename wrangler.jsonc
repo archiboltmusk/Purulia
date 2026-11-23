@@ -1,6 +1,6 @@
 // Cloudflare Workers Builds serves the static site from the repo root.
 // What gets left out lives in .assetsignore (mirrors github-pages.yml).
-// worker.js only handles /r/<id> (link previews for shared reports); everything else is the static files.
+// Worker routes serve report previews and the Hisaab public-data feed.
 {
   "name": "purulia",
   "compatibility_date": "2026-09-01",
@@ -8,7 +8,7 @@
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
-    "run_worker_first": ["/r/*"]
+    "run_worker_first": ["/r/*", "/api/hisaab"]
   },
   // Required by `wrangler preview` (the per-branch preview builds).
   "previews": {}

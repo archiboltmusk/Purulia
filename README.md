@@ -56,6 +56,14 @@ Every dataset below is produced by a script in `tools/`. Do not edit the output 
 
 ---
 
+## Development atlas
+
+[Development atlas](development.html) reads Hisaab’s public preview feeds through a read-only relay. Purulia opens by default. Pan or zoom to browse national historical assets and reviewed works. The funding and development views preserve the upstream accounting measure, dates and source references. Historical positions and reviewed works represent distinct collections. The atlas requests records on demand and has no local data copy.
+
+GitHub Pages uses the existing Parishkar Cloudflare Worker for the relay. The Worker must deploy the same revision before the Pages atlas can load data. Vercel can also serve the relay directly from `api/hisaab.mjs` when configured. For local development, run the Worker or Vercel dev server to exercise the integration.
+
+See [Hisaab’s source coverage](https://github.com/theadiram/Hisaab/blob/main/docs/data-coverage-audit-2026-10-25.md) and [licensing](https://github.com/theadiram/Hisaab/blob/main/LICENSING.md) for acquisition gaps and source-specific terms.
+
 ## Running it
 
 A static site: plain HTML, CSS and JavaScript, no build step. The backend is Supabase (Postgres RPCs and edge functions).
