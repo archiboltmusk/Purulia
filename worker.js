@@ -3,6 +3,8 @@
 // photo) make WhatsApp, X and Facebook show the actual problem, and which then opens the report.
 // Point KASA_CONFIG.SHARE_URL (config.js) at this worker's address to make share links use it.
 
+import hisaab from './api/hisaab.mjs';
+
 // Public values, the same ones config.js ships to every browser (preview builds don't get wrangler vars).
 const SUPABASE_URL = 'https://cnmikcyvyamplbldiivp.supabase.co';
 const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImNubWlrY3l2eWFtcGxibGRpaXZwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTAyMzY0MDEsImV4cCI6MjEwNTgxMjQwMX0.h4nOvb0GWz92A_GuH-RPX90wUIRvza4RvsD9TA-XiM0';
@@ -120,6 +122,7 @@ async function open311(path, url){
 export default {
   async fetch(request, env){
     const url = new URL(request.url);
+    if (url.pathname === '/api/hisaab') return hisaab.fetch(request);
     const m = url.pathname.match(/^\/r\/([A-Za-z0-9-]{1,64})\/?$/);
     if (m) return reportPage(m[1], url);
     const o = url.pathname.match(/^\/open311\/v2\/(.+)$/);

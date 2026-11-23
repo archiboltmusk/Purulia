@@ -6,6 +6,7 @@ node_modules
 mobile
 desktop
 supabase
+api
 tests
 tools
 deploy
